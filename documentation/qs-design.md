@@ -6,8 +6,7 @@
 * Vuex
 * Quasar
 * Feathersjs
-* Mongoose
-* Mongodb
+* Postgres
 
 ## Folder Structure
 
