@@ -20,7 +20,7 @@
     "database": "PostgreSQL",
     "databaseName": "qsDemo",
     "canvasType": "SQLDDL",
-    "language": "GraphQL",
+    "language": "Java",
     "tableCase": "pascalCase",
     "columnCase": "camelCase",
     "highlightTheme": "VS2015",
@@ -40,7 +40,7 @@
   "table": {
     "tables": [
       {
-        "name": "User",
+        "name": "users",
         "comment": "",
         "columns": [
           {
@@ -67,7 +67,7 @@
             "id": "864c6cfb-0b7f-4f8e-9cf4-b7e38cd9725f"
           },
           {
-            "name": "user",
+            "name": "userName",
             "comment": "",
             "dataType": "TEXT",
             "default": "",
@@ -82,7 +82,7 @@
               "pk": false,
               "fk": false,
               "pfk": false,
-              "widthName": 60,
+              "widthName": 66,
               "widthComment": 60,
               "widthDataType": 60,
               "widthDefault": 60
@@ -239,7 +239,7 @@
         "id": "68da736c-d0a6-4078-b50d-216c5abf0336"
       },
       {
-        "name": "Guild",
+        "name": "guild",
         "comment": "",
         "columns": [
           {
@@ -293,14 +293,14 @@
           "active": false,
           "left": 37,
           "top": 746.5,
-          "zIndex": 2,
+          "zIndex": 6,
           "widthName": 60,
           "widthComment": 60
         },
         "id": "b6e902c6-7e7c-494c-8716-b1df67b1416c"
       },
       {
-        "name": "Quest",
+        "name": "quest",
         "comment": "",
         "columns": [
           {
@@ -492,14 +492,14 @@
           "active": false,
           "left": 990.5,
           "top": 682.75,
-          "zIndex": 4,
+          "zIndex": 5,
           "widthName": 60,
           "widthComment": 60
         },
         "id": "8b52974d-9eb4-4443-9860-74789123e424"
       },
       {
-        "name": "Roles",
+        "name": "roles",
         "comment": "",
         "columns": [
           {
@@ -622,14 +622,14 @@
           "active": false,
           "left": 569.5,
           "top": 83.25,
-          "zIndex": 6,
+          "zIndex": 4,
           "widthName": 60,
           "widthComment": 60
         },
         "id": "639ebd80-fea2-4e9d-9e84-867d6d312c4d"
       },
       {
-        "name": "k-hub",
+        "name": "khub",
         "comment": "",
         "columns": [
           {
@@ -874,7 +874,7 @@
           "active": false,
           "left": 516.75,
           "top": 733.25,
-          "zIndex": 3,
+          "zIndex": 2,
           "widthName": 73,
           "widthComment": 60
         },
