@@ -1,6 +1,6 @@
 # qs-server
 
-> server for game search for knowledge
+> qsdemo server
 
 ## About
 

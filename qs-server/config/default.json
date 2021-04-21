@@ -9,7 +9,7 @@
   "authentication": {
     "entity": "user",
     "service": "users",
-    "secret": "DJBna6igG1VzV5dwesqCddR6kSs=",
+    "secret": "ca/J3mwtZ5C/6NBmxiOySBVOIL8=",
     "authStrategies": [
       "jwt",
       "local"
@@ -27,6 +27,5 @@
       "usernameField": "email",
       "passwordField": "password"
     }
-  },
-  "postgres": "postgres://postgres:@localhost:5432/qs_server"
+  } 
 }

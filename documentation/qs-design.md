@@ -1,12 +1,19 @@
 # QS Design
 
+## Purpose
+
+This document details the design specifications of the QS-Demo game. It is a living document, that will be updated as needed. All contents will have been discussed and agreed upon by the team.  Document will also show how the project structure is formatted. It describes the framework used to create the game. Framework has been decided on by the applications needs and not forcing game into the framework. Details the database schema. The schema will describe the storage of data along with the relationshib of the data. Database tables are also described here.
+
 ## Program Framework
 
 * Vue
 * Vuex
 * Quasar
 * Feathersjs
-* Postgres
+* PostgreSql
+
+&nbsp;
+&nbsp;
 
 ## Folder Structure
 
@@ -18,6 +25,7 @@ Standard feathers folder structure
 
 Standard Vue and Vuex folder structure
 
+&nbsp;
 &nbsp;
 
 ## TABLES
@@ -81,6 +89,7 @@ Standard Vue and Vuex folder structure
 &nbsp;
 
 ### USER_GUILD
+
 | NAME        | DATA TYPE | OPTIONS  |
 | :---------- | :-------- | :------- |
 | userGuildId | serial    | NOT NULL |

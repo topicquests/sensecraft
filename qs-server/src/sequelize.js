@@ -1,7 +1,14 @@
+require('dotenv').config();
 const Sequelize = require('sequelize');
 
 module.exports = function (app) {
-  const connectionString = app.get('postgres');
+  const dbuser = process.env.DB_USER;
+  const dbPassword = process.env.DATABASE_PASSWORD;
+  const dbPort = process.env.DB_PORT;
+  const dbDatabaseName = process.env.DB_DATABASE;
+
+  const connectionString = 'postgres://'+ dbuser + ':' + dbPassword  + '@localhost:' + dbPort + '/' + dbDatabaseName;
+ 
   const sequelize = new Sequelize(connectionString, {
     dialect: 'postgres',
     logging: false,
