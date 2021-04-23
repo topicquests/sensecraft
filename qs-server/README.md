@@ -1,6 +1,6 @@
 # qs-server
 
-> qsdemo server
+> 
 
 ## About
 
