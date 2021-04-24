@@ -15,7 +15,8 @@
           Quasar App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div> <q-btn v-if="!authenticated" flat @click="goTo('signin')">Sign In</q-btn>
+              <q-btn v-if="!authenticated" flat @click="goTo('register')">Register</q-btn> </div>
       </q-toolbar>
     </q-header>
 
@@ -94,6 +95,8 @@ const linksData = [
   }
 ];
 
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   name: 'MainLayout',
   components: { EssentialLink },
@@ -102,6 +105,13 @@ export default {
       leftDrawerOpen: false,
       essentialLinks: linksData
     }
+  },
+  methods: {
+    goTo(route) {
+      console.log(route);
+      this.$router.push({ name: route });
+    }
   }
+  
 }
 </script>
