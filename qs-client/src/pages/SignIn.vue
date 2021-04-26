@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <!-- content -->
+   <h2>Sign in page</h2>
   </q-page>
 </template>
 
