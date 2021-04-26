@@ -10,8 +10,14 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@feathersjs/authentication-client": "^4.5.11",
+    "@feathersjs/feathers": "^4.5.11",
+    "@feathersjs/rest-client": "^4.5.11",
     "@quasar/extras": "^1.0.0",
+    "@vue/composition-api": "*",
     "core-js": "^3.6.5",
+    "feathers-hooks-common": "^5.0.5",
+    "feathers-vuex": "^3.16.0",
     "quasar": "^1.0.0",
     "vuex": "^3.6.0"
   },
