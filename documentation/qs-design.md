@@ -30,6 +30,8 @@ Standard Vue and Vuex folder structure
 
 ## TABLES
 
+Table names in Feathersjs are either plural of the Model or can be set with FREEZETABLENAME option.
+
 ### QUEST
 
 | NAME            | DATA TYPE | OPTIONS  |
@@ -58,15 +60,14 @@ Standard Vue and Vuex folder structure
 
 ### USERES
 
-| NAME     | DATA TYPE | OPTIONS  |
-| :------- | :-------- | :------- |
-| userId   | serial    | NOT NULL |
-| user     | TEXT      | NOT NULL |
-| lastName | TEXT      | NOT NULL |
-| handle   | TEXT      | NOT NULL |
-| homepage | TEXT      | NULL     |
-| password | TEXT      | NOT NULL |
-| roleId   | serial    | NULL     |
+| NAME      | DATA TYPE | OPTIONS  | DESCRIPTION                     |
+| :-------- | :-------- | :------- | :------------------------------ |
+| userId    | serial    | NOT NULL | Auto incremented unique user id |
+| user      | TEXT      | NOT NULL | Unique user name                |
+| lastName  | TEXT      | NULL     | Users last name                 |
+| firstName | TEXT      | NULL     | Users first name                |
+| handle    | TEXT      | NULL     | Users handle                    |
+| password  | TEXT      | NOT NULL | Encrypted password for sign in  |
 
 &nbsp;
 

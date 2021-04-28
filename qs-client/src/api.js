@@ -3,7 +3,7 @@ import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
 import io from 'socket.io-client'
 
-const socket = io('/', { path: '/api/socket.io' });
+const socket = io("localhost:3030")
 
 const api = feathers()
   .configure(socketio(socket))

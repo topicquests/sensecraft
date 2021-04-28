@@ -28,6 +28,7 @@ app.configure(configuration());
 app.use(helmet({
   contentSecurityPolicy: false
 }));
+
 app.use(cors());
 app.use(compress());
 app.use(express.json());
@@ -55,5 +56,7 @@ app.use(express.notFound());
 app.use(express.errorHandler({ logger }));
 
 app.hooks(appHooks);
+
+
 
 module.exports = app;

@@ -82,7 +82,6 @@ export default {
   computed: {},
   methods: {
     doRegister() {
-      console.info("Register-1", this.$data.email);
       const theEmail = this.$data.email;
       const theHandle = this.$data.handle;
       const theFullName = this.$data.fullName;
@@ -102,6 +101,7 @@ export default {
         this.$q.notify({ type: "negative", message: "Missing Password" });
         return;
       }
+
       this.register(theEmail, this.$data.password, theFullName, theHandle)
         .then(response => {
           console.log('response:', response);
@@ -109,6 +109,7 @@ export default {
             type: "positive",
             message: "Please check your email for verification!"
           });
+
           this.goHome();
         }).catch((error) => {
           // user must be invited and isn't
@@ -117,11 +118,12 @@ export default {
             type: "negative",
             message: "Cannot register, email not found on invitations list"
           });
+
           this.goHome();
        })
 
   },
-  register(email, password, fullName, handle, homepage) {
+  register(email, password, fullName, handle) {
       return auth.register(email, password, fullName, handle);
     },
     goHome() {
