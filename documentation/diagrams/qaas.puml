@@ -1,0 +1,161 @@
+@startuml
+
+
+
+package Global {
+
+  class User {
+    name String
+    accounts Account[]
+  }
+
+  class AccountService {
+    name String
+    url String
+  }
+
+  class Account {
+    service AccountService
+    string id
+  }
+
+  Account --> "1" AccountService
+  User "1" --> "*" Account
+  Avatar "1" <--> "*" Badge
+
+  class Badge {
+    quest Quest
+    casting Casting
+    scoring ScoringStrategy
+    signature crypto
+  }
+
+  class Avatar {
+    user User
+    name String
+  }
+
+
+  ScoringStrategy "1" <-- Badge
+  User "1" <--> "1..*" Avatar
+
+  class ScoringStrategy {
+    name String
+    evalMove(GameMove): float
+    evalQuest(Quest, Guild): Badge[]
+  }
+
+}
+
+package QuestKHub {
+
+  class Quest {
+    name LangString
+    description LangString
+    sponsor User
+  }
+
+  class GameMove {
+    quest Quest
+    creator Casting
+    basedOn ProposedGameMove?
+    approved timestamp
+
+
+  }
+
+  Quest "1" --> "*" GameMove
+  Quest "*" --> "*" ScoringStrategy
+  class GameMoveScore {
+    value float
+    move GameMove
+    strategy ScoringStrategy
+  }
+  GameMove "1" <-- GameMoveScore
+  GameMoveScore --> "1" ScoringStrategy
+  class QuestGuildScore {
+    Quest quest
+    Guild guild
+    total float
+    moves GameMoveScore[]
+    strategy ScoringStrategy
+    signature crypto
+  }
+  Quest "1" <-- QuestGuildScore
+  Quest "0..1" --> "0..1" User : > sponsor
+  QuestGuildScore --> "*" GameMoveScore
+  QuestGuildScore --> "1" ScoringStrategy
+}
+
+
+package GuildKHub {
+  class Guild {
+    name String
+  }
+
+  Guild "0..1" --> "1..*" User : > membership
+  Guild "1" <-- "*" QuestGuildScore
+
+  class Casting {
+    roster Roster
+    player Avatar
+    role Role
+  }
+
+  Casting "*" --> "1" Avatar
+  Badge "*" <--> "1" Casting
+
+  class Roster {
+    quest Quest
+    guild Guild
+    proposed timestamp
+    accepted timestamp
+  }
+
+  Guild "1" <-- "*" Roster
+  Roster "*" <--> "1" Quest
+  Roster "1" --> "*" Casting
+
+  enum PubState {
+    proposed
+    submitted
+    visible
+    ' visible and submitted are the same for v1
+  }
+
+  class Turn {
+
+  }
+
+  Turn --> "1..*" ProposedGameMove
+
+  class ProposedGameMove {
+    guild Guild
+    quest Quest
+    contributors Casting[]
+    state PubState
+    created timestamp
+    submitted timestamp
+    visible timestamp
+  }
+  GameMove "1" --> "0..1" ProposedGameMove
+  ProposedGameMove "*" --> "1" Quest
+  Guild "1" <-- "*" ProposedGameMove
+  ProposedGameMove "*" --> "1..*" Casting
+  ProposedGameMove "*" --> "1" PubState
+
+  class GlobalGuildScore {
+    float total
+    guild Guild
+    strategy ScoringStrategy
+    scores QuestGuildScore[]
+  }
+
+  Guild "1" --> "*" GlobalGuildScore
+  GlobalGuildScore --> "1" ScoringStrategy
+  GlobalGuildScore --> "*" QuestGuildScore
+
+}
+
+
+@enduml
