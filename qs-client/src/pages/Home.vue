@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 <q-page class="bg-blue">
   <div class="row justify-center text-center bg-primary">          
            <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg"> Where teams co-construct structured conversation</div>           
@@ -32,6 +33,15 @@
     </div>  
   </div>
   </div>
+=======
+<q-page :padding="true" class="flex-center" style="width:50vw;min-width:350px;">
+   
+    <div slot="body">
+         <div class="row q-mb-md">        
+            <p>Where teams co-construct structured conversation</p>
+        </div>
+    </div>
+>>>>>>> 1813c3b045656074250a45846b9f18940a8883d0
 </q-page>
 </template>
 
@@ -42,7 +52,11 @@
 </script>
 
 <style lang="scss" scoped>
+<<<<<<< HEAD
 .p1 {
   font: italic 20px Arial, sans-serif;
 }
+=======
+
+>>>>>>> 1813c3b045656074250a45846b9f18940a8883d0
 </style>
