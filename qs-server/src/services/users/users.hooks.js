@@ -4,23 +4,13 @@ const {
   hashPassword, protect
 } = require('@feathersjs/authentication-local').hooks;
 
-<<<<<<< HEAD
-function debug() {
-  console.log('Enter users hook');
-}
 
-=======
->>>>>>> 1813c3b045656074250a45846b9f18940a8883d0
 module.exports = {
   before: {
     all: [],
     find: [ authenticate('jwt') ],
     get: [ authenticate('jwt') ],
-<<<<<<< HEAD
-    create: [ hashPassword('password'), debug ],
-=======
-    create: [ hashPassword('password') ],
->>>>>>> 1813c3b045656074250a45846b9f18940a8883d0
+    create: [ hashPassword('password')],
     update: [ hashPassword('password'),  authenticate('jwt') ],
     patch: [ hashPassword('password'),  authenticate('jwt') ],
     remove: [ authenticate('jwt') ]

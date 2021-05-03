@@ -16,7 +16,6 @@ module.exports = function (app) {
       type: DataTypes.STRING,
       allowNull: false
     },
-<<<<<<< HEAD
     firstname: {
       type: DataTypes.STRING,
       allowNull: true
@@ -33,8 +32,6 @@ module.exports = function (app) {
     },
 
     
-=======
->>>>>>> 1813c3b045656074250a45846b9f18940a8883d0
   
   
   }, {
