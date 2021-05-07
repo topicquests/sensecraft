@@ -11,7 +11,17 @@ register(email, password, firstname, lastname, handle) {
       lastname: lastname,
       handle: handle
     });
-  }
-}
+  },
+
+  login(email, password) {
+    return api.authenticate({
+      strategy: "local",
+      email: email,
+      password: password
+    });
+  },
+
+
+};
 
 export default auth;

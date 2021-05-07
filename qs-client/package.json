@@ -16,6 +16,7 @@
     "@feathersjs/socketio-client": "^4.5.11",
     "@quasar/extras": "^1.0.0",
     "@vue/composition-api": "*",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "feathers-hooks-common": "^5.0.5",
     "feathers-vuex": "^3.16.0",
@@ -23,6 +24,7 @@
     "pg-hstore": "^2.3.3",
     "quasar": "^1.0.0",
     "socket.io-client": "2.0.1",
+    "vuelidate": "^0.7.6",
     "vuex": "^3.6.0"
   },
   "devDependencies": {
