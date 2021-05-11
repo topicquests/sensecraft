@@ -17,9 +17,16 @@ const routes = [
         { path: '/home',
           name: "home",
          component: () => import('pages/Home.vue') }, 
-         { path: '/khub',
-          name: "khub",
-         component: () => import('pages/Khub.vue') }         
+         ,
+         { path: '/quests',
+          name: "quests",
+         component: () => import('pages/Quest-landing.vue') },
+         { path: '/guild/:id',
+          name: "guilds",
+         component: () => import('pages/Guild.vue') },
+         { path: '/role/:id',
+          name: "role",
+         component: () => import('pages/Role-room.vue') }        
     ]
   },
 
