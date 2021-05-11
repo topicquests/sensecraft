@@ -22,7 +22,7 @@ const routes = [
           name: "quests",
          component: () => import('pages/Quest-landing.vue') },
          { path: '/guild/:id',
-          name: "guilds",
+          name: "guild",
          component: () => import('pages/Guild.vue') },
          { path: '/role/:id',
           name: "role",
