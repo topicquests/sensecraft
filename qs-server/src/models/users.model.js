@@ -16,24 +16,16 @@ module.exports = function (app) {
       type: DataTypes.STRING,
       allowNull: false
     },
-    firstname: {
+    name: {
       type: DataTypes.STRING,
-      allowNull: true
-  
-    },
-    lastname: {
-      type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
 
     handle: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false,
+      unique: true
     },
-
-    
-  
-  
   }, {
     hooks: {
       beforeCount(options) {

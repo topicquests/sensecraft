@@ -24,12 +24,7 @@
                   <q-icon name="email" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="formdata.firstname" label="First name">
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>                
-              </q-input>
-              <q-input square clearable v-model="formdata.lastname"  label="Last name">
+              <q-input square clearable v-model="formdata.name" label="Name">
                 <template v-slot:prepend>
                   <q-icon name="person" />
                 </template>                
@@ -77,8 +72,7 @@ export default {
     formdata: {
     email: null,
     handle: null,
-    firstname: null,
-    lastname: null,
+    name: null,
     password: null,
     },
     isPwd: true,
@@ -94,8 +88,7 @@ export default {
   doRegister() {
   const theEmail = this.$data.formdata.email;
   const theHandle = this.$data.formdata.handle;
-  const theFirstName = this.$data.formdata.firstname;
-  const theLastName = this.$data.formdata.lastname;
+  const theName = this.$data.formdata.name;
   
   if (!theEmail) {
   this.$q.notify({ type: "negative", message: "Missing Email" });
@@ -106,12 +99,8 @@ export default {
     this.$q.notify({ type: "negative", message: "Missing Handle" });
     return;
   }
-  if (!theFirstName) {
-    this.$q.notify({ type: "negative", message: "Missing first name field" });
-    return;
-  }
-  if (!theLastName) {
-    this.$q.notify({ type: "negative", message: "Missing last name field" });
+  if (!theName) {
+    this.$q.notify({ type: "negative", message: "Missing name field" });
     return;
   }
 

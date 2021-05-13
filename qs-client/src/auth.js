@@ -4,12 +4,11 @@ import api from "./api"
 const auth = {
   user: null,
 
-register(email, password, firstname, lastname, handle) {
+register(email, password, name, handle) {
     return api.service('users').create({
       email: email,
       password: password,
-      firstname: firstname,
-      lastname: lastname,
+      name: name,
       handle: handle
     });
   },
