@@ -4,8 +4,7 @@
     <q-card inline style="width: 500px margin: auto;
       width: 60%;">
       <!-- guessing on label -->
-      <q-card-title v-model="label">
-      </q-card-title>
+      <q-card-title>{{ label }}</q-card-title>
       <!-- todo 
         needs 
           an ibis icon - how to bring that in, depends on
@@ -169,7 +168,7 @@
     }
   }
   
-  }
+
 </script>
 <style lang="styl">
 .q-item-image {

@@ -32,13 +32,21 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     state: {
       userId: 0,
-      // these must be computed
-      isAuthenticated: true,    //TODO
-      canEdit: true,            //TODO
-      isAdmin: true             //TODO
-   
-    },
+      isAuthenticated: true,
+      canEdit: true,
+      isAdmin: true,
+      user: null    
 
+    },
+    getters: {
+      isAuthenticated: state => state.isAuthenticated,
+      canEdit: state => state.canEdit,
+      isAdmin: state => state.isAdmin,
+      node: state => state.conversation.copy,
+      user: state => state.user
+      
+  
+    },
     plugins: [...servicePlugins, authvuex],
     modules: {
       account
