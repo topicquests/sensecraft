@@ -31,7 +31,12 @@ Vue.use(FeathersVuex);
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     state: {
-      userId: 0
+      userId: 0,
+      // these must be computed
+      isAuthenticated: true,    //TODO
+      canEdit: true,            //TODO
+      isAdmin: true             //TODO
+   
     },
 
     plugins: [...servicePlugins, authvuex],

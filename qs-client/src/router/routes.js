@@ -20,9 +20,9 @@ const routes = [
          { path: '/khub',
           name: "khub",
          component: () => import('pages/Khub.vue') },
-         { path: '/home',
-         name: "card/:id",
-        component: () => import('pages/mmowgli-card.vue') },         
+         { path: '/card/:id, :context',
+          name: "card",
+         component: () => import('pages/mmowgli-card.vue') },         
     ]
   },
 
