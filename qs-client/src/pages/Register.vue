@@ -15,12 +15,12 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
-              <q-input square clearable v-model="email" type="email" label="Email">
+              <q-input square clearable v-model="signonEmail" type="email" label="Email">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
               </q-input>
-               <q-input v-model="password" 
+               <q-input v-model="signonPassword" 
                        filled :type="isPwdSignIn ? 'password' : 'text'">
                 <template v-slot:append>
                   <q-icon
@@ -49,7 +49,7 @@
             </div>
           </q-card-section>
           <q-card-actions class="q-px-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" />
+            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" @click="doLogin"/>
           </q-card-actions>
           <q-card-section class="text-center q-pa-xs">
             <p class="text-grey-6">Forgot your password?</p>
@@ -68,27 +68,27 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl q-pb-lg">
-              <q-input square clearable v-model="email" type="email" label="Email">
+              <q-input square clearable v-model="formdata.email" type="email" label="Email">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="firstname" label="First name">
+              <q-input square clearable v-model="formdata.firstname" label="First name">
                 <template v-slot:prepend>
                   <q-icon name="person" />
                 </template>                
               </q-input>
-              <q-input square clearable v-model="lastname"  label="Last name">
+              <q-input square clearable v-model="formdata.lastname"  label="Last name">
                 <template v-slot:prepend>
                   <q-icon name="person" />
                 </template>                
               </q-input>
-              <q-input square clearable v-model="handle"  label="handle">
+              <q-input square clearable v-model="formdata.handle"  label="handle">
                 <template v-slot:prepend>
                   <q-icon name="person" />
                 </template>                
               </q-input>
-              <q-input v-model="password" 
+              <q-input v-model="formdata.password" 
                        filled :type="isPwd ? 'password' : 'text'">
                 <template v-slot:append>
                   <q-icon
@@ -118,89 +118,104 @@
 <script>
 
 import auth from "src/auth";
+import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
   return {
-    isPwd: true,
-    isPwdSignIn: true,
-    showDialog: true,
+    formdata: {
     email: null,
     handle: null,
     firstname: null,
     lastname: null,
     password: null,
+    },
+    isPwd: true,
+    isPwdSignIn: true,
+    showDialog: true,
+    signonEmail: null,
+    signonPassword: null,    
     title: "Register"
   };
-},
+  },
 
-computed: {},
+  computed: {},
 
-methods: {
-doRegister() {
-  const theEmail = this.$data.email;
-  const theHandle = this.$data.handle;
-  const theFirstName = this.$data.firstname;
-  const theLastName = this.$data.lastname;
+  methods: {
+  doRegister() {
+  const theEmail = this.$data.formdata.email;
+  const theHandle = this.$data.formdata.handle;
+  const theFirstName = this.$data.formdata.firstname;
+  const theLastName = this.$data.formdata.lastname;
+  
   if (!theEmail) {
   this.$q.notify({ type: "negative", message: "Missing Email" });
   return;
-}
+  }
 
-if (!theHandle) {
-  this.$q.notify({ type: "negative", message: "Missing Handle" });
-  return;
-}
-if (!theFirstName) {
-  this.$q.notify({ type: "negative", message: "Missing first name field" });
-  return;
-}
-if (!theLastName) {
-  this.$q.notify({ type: "negative", message: "Missing last name field" });
-  return;
-}
+  if (!theHandle) {
+    this.$q.notify({ type: "negative", message: "Missing Handle" });
+    return;
+  }
+  if (!theFirstName) {
+    this.$q.notify({ type: "negative", message: "Missing first name field" });
+    return;
+  }
+  if (!theLastName) {
+    this.$q.notify({ type: "negative", message: "Missing last name field" });
+    return;
+  }
 
-if (!this.$data.password) {
-  this.$q.notify({ type: "negative", message: "Missing Password" });
-  return;
-}
+  if (!this.$data.formdata.password) {
+    this.$q.notify({ type: "negative", message: "Missing Password" });
+    return;
+  }
 
-this.register(theEmail, this.$data.password, theFirstName, theLastName, theHandle)
-.then(response => {
-console.log('response:', response);
-this.$q.notify({
-type: "positive",
-message: "Please check your email for verification!"
-});
+  this.$store.dispatch("account/registerUser", {formdata: this.formdata})
+  },
 
-this.goHome();
-}).catch((error) => {
+  async doLogin() {
+    try {
+      await this.login(this.signonEmail, this.signonPassword);
+      this.$q.notify({
+        type: "positive",
+        message: "You are now logged in"
+      });
+      this.goKhub();
+      } catch (e) {
+        this.$q.notify({
+          type: "negative",
+          message: "Cannot sign in, please check your e-mail or password"
+        });
+      }
+    },
 
-console.log('HEY! Error!:', { error });
-this.$q.notify({
-type: "negative",
-message: "Cannot register, email not found on invitations list"
-});
+  login(email, password) {
+    email = email && email.toString().toLowerCase();
+    return auth.login(email, password);
+  },
 
-this.goHome();
-})
-
-},
-register(email, password, firstname, lastname, handle) {
-return auth.register(email, password, firstname, lastname, handle);
-},
-goHome() {
+  goHome() {
 this.$router.push({ name: "home" });
-},
-onHide() {
+  },
+
+  goKhub() {
+    this.$router.push({name: "khub"});
+  },
+  
+  onHide() {
 // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-setTimeout(() => {
-this.goHome();
-}, 50);
-}, 
+  setTimeout(() => {
+    this.goHome();
+    }, 50);
+  }, 
 },
-mounted() {},
-beforeDestroy() {}
+
+  
+
+  mounted() {},
+
+  beforeDestroy() {}
 };
 </script>
 
