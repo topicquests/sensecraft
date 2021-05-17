@@ -5,9 +5,13 @@ const {hashPassword, protect} = require('@feathersjs/authentication-local').hook
 
 
 module.exports = {
-
   before: {
-    all: [],
+    all: [ function (hook) {
+      // eslint-disable-next-line no-debugger
+      debugger;
+      console.log(hook.provider);
+      console.log(hook.params);
+      console.log('I know how to debug!');}],
     find: [ authenticate('jwt') ],
     get: [ authenticate('jwt') ],
     create: [   

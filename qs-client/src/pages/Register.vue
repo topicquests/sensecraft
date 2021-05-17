@@ -5,56 +5,7 @@
     style="background: linear-gradient(#8274C5, #5A4A9F);"
   >
     <div class="column q-pa-lg">
-      <div class="row">
-        <q-card square class="shadow-24" style="width:300px;height:485px;">
-          <q-card-section class="bg-deep-purple-7">
-            <h4 class="text-h5 text-white q-my-md">Guild's Quest</h4>
-            <div class="absolute-bottom-right q-pr-md" style="transform: translateY(50%);">
-              <q-btn fab icon="add" color="purple-4" />
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <q-form class="q-px-sm q-pt-xl">
-              <q-input square clearable v-model="signonEmail" type="email" label="Email">
-                <template v-slot:prepend>
-                  <q-icon name="email" />
-                </template>
-              </q-input>
-               <q-input v-model="signonPassword" 
-                       filled :type="isPwdSignIn ? 'password' : 'text'">
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwdSignIn ? 'visibility_off' : 'visibility'"
-                    class="cursor-pointer"
-                    @click="isPwdSignIn = !isPwdSignIn"
-                  />          
-                </template>
-                <template v-slot:prepend>
-                  <q-icon name="lock" />
-                </template>
-              </q-input>
-            </q-form>
-          </q-card-section>
-          <q-card-section>
-            <div class="text-center q-pa-md q-gutter-md">
-              <q-btn round color="indigo-7">
-                <q-icon name="fab fa-facebook-f" size="1.2rem" />
-              </q-btn>
-              <q-btn round color="red-8">
-                <q-icon name="fab fa-google-plus-g" size="1.2rem" />
-              </q-btn>
-              <q-btn round color="light-blue-5">
-                <q-icon name="fab fa-twitter" size="1.2rem" />
-              </q-btn>
-            </div>
-          </q-card-section>
-          <q-card-actions class="q-px-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" @click="doLogin"/>
-          </q-card-actions>
-          <q-card-section class="text-center q-pa-xs">
-            <p class="text-grey-6">Forgot your password?</p>
-          </q-card-section>
-        </q-card>
+      <div class="row">        
       </div>
     </div>
     <div class="column q-pa-lg">
@@ -132,9 +83,7 @@ export default {
     },
     isPwd: true,
     isPwdSignIn: true,
-    showDialog: true,
-    signonEmail: null,
-    signonPassword: null,    
+    showDialog: true,      
     title: "Register"
   };
   },
@@ -172,36 +121,28 @@ export default {
   }
 
   this.$store.dispatch("account/registerUser", {formdata: this.formdata})
-  },
-
-  async doLogin() {
-    try {
-      await this.login(this.signonEmail, this.signonPassword);
-      this.$q.notify({
-        type: "positive",
-        message: "You are now logged in"
-      });
-      this.goKhub();
-      } catch (e) {
-        this.$q.notify({
-          type: "negative",
-          message: "Cannot sign in, please check your e-mail or password"
-        });
-      }
-    },
-
-  login(email, password) {
-    email = email && email.toString().toLowerCase();
-    return auth.login(email, password);
+  .then(response => {
+          console.log('response:', response);
+          debugger;
+          this.$q.notify({
+            type: "positive",
+            message: "Please check your email for verification!"
+          });
+          this.goHome();
+        }).catch((error) => {
+          // user must be invited and isn't
+          console.log('HEY! Error!:', { error });
+          this.$q.notify({
+            type: "negative",
+            message: "Cannot register, email not found on invitations list"
+          });
+          this.goHome();
+        })
   },
 
   goHome() {
 this.$router.push({ name: "home" });
-  },
-
-  goKhub() {
-    this.$router.push({name: "khub"});
-  },
+  },  
   
   onHide() {
 // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
@@ -210,8 +151,6 @@ this.$router.push({ name: "home" });
     }, 50);
   }, 
 },
-
-  
 
   mounted() {},
 

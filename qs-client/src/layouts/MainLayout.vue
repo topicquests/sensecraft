@@ -42,6 +42,7 @@
         <q-list>
           <q-item>
             <q-btn
+              @click="goTo('signin')"
               outline
               roundeded
               label="sign in"
