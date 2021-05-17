@@ -16,8 +16,7 @@ const routes = [
           component: () => import('pages/Index.vue') },
         { path: '/home',
           name: "home",
-         component: () => import('pages/Home.vue') }, 
-         ,
+         component: () => import('pages/Home.vue') },          ,
          { path: '/quests',
           name: "quests",
          component: () => import('pages/Quest-landing.vue') },
@@ -27,6 +26,15 @@ const routes = [
          { path: '/role/:id',
           name: "role",
          component: () => import('pages/Role-room.vue') }        
+         { path: '/khub',
+          name: "khub",
+         component: () => import('pages/Khub.vue') },
+         { path: '/card/:id, :context',
+          name: "card",
+         component: () => import('pages/mmowgli-card.vue') }, 
+         { path: '/mnodeedit/:id, :type, :isDetails',
+          name: "mmowglieditor",
+         component: () => import('pages/mmowgli-node-form.vue') },             
     ]
   },
 
@@ -37,8 +45,6 @@ const routes = [
      
     ]
   },
-  
-
   // Always leave this as last one,
   // but you can also remove it
   {

@@ -7,6 +7,7 @@
 // https://v1.quasar.dev/quasar-cli/quasar-conf-js
 /* eslint-env node */
 const ESLintPlugin = require('eslint-webpack-plugin')
+//const { default: axios } = require('src/boot/axios')
 
 module.exports = function (/* ctx */) {
   return {
@@ -20,7 +21,9 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://v1.quasar.dev/quasar-cli/boot-files
     boot: [
-      
+      'axios',
+      'vuelidate',
+      'feathersClient'      
     ],
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -92,7 +95,14 @@ module.exports = function (/* ctx */) {
       // (like functional components as one of the examples),
       // you can manually specify Quasar components/directives to be available everywhere:
       //
-      // components: [],
+      components: [
+        'QCard',
+        'QCardTitle',
+        'QIcon',
+        'QPage',
+        'QInput',
+        'QItem',
+      ],
       // directives: [],
       all: "auto",
 
