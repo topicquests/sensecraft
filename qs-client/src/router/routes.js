@@ -16,7 +16,16 @@ const routes = [
           component: () => import('pages/Index.vue') },
         { path: '/home',
           name: "home",
-         component: () => import('pages/Home.vue') }, 
+         component: () => import('pages/Home.vue') },          ,
+         { path: '/quests',
+          name: "quests",
+         component: () => import('pages/Quest-landing.vue') },
+         { path: '/guild/:id',
+          name: "guild",
+         component: () => import('pages/Guild.vue') },
+         { path: '/role/:id',
+          name: "role",
+         component: () => import('pages/Role-room.vue') }        
          { path: '/khub',
           name: "khub",
          component: () => import('pages/Khub.vue') },
@@ -36,8 +45,6 @@ const routes = [
      
     ]
   },
-  
-
   // Always leave this as last one,
   // but you can also remove it
   {
