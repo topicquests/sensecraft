@@ -19,7 +19,13 @@ const routes = [
          component: () => import('pages/Home.vue') }, 
          { path: '/khub',
           name: "khub",
-         component: () => import('pages/Khub.vue') }         
+         component: () => import('pages/Khub.vue') },
+         { path: '/card/:id, :context',
+          name: "card",
+         component: () => import('pages/mmowgli-card.vue') }, 
+         { path: '/mnodeedit/:id, :type, :isDetails',
+          name: "mmowglieditor",
+         component: () => import('pages/mmowgli-node-form.vue') },             
     ]
   },
 
