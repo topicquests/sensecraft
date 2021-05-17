@@ -4,11 +4,10 @@
 
 package Global {
 
-
   class ScoringStrategy {
     name String
     evalMove(GameMove): float
-    evalQuest(Quest, Guild): QBadge[]
+    evalQuest(Quest, ParticipatingGuild): QBadge[]
   }
 
   class AccountService {
@@ -21,8 +20,8 @@ package Global {
   }
 
   class GuildRegistry {
-    guilds(): Guild[]
-    scores(Guild): GlobalGuildScores
+    guilds(): ParticipatingGuild[]
+    scores(ParticipatingGuild): GlobalGuildScores
   }
 
   class UserRegistry {
@@ -45,39 +44,69 @@ package Global {
 
 }
 
-package QuestKHub {
 
-  ' QuestRegistry --> "*" QuestData
+package ServerInfo {
+  class User {
+    handle String
+    name String
+    email Strin
+  }
+  class Account {
+    User user
+    service AccountService
+    string id
+  }
+  Account --> "1" AccountService
+  User "1" --> "*" Account
 
-  class QuestData << (S,#ff7700) Singleton>> {
+  class GuildData {
+    name String
+    admin User
+    accept(Quest)
+    register_score(GuildScore): QuestScore
+  }
+  QuestData o--> "1" User : > sponsor
+  class QuestData {
     name LangString
     description LangString
     scoring ScoringStrategy
     turns TurnStrategy
     sponsor User
     status QuestStatus
+    admin User
     scoreMove(GameMove): GameMoveScore[]
     play(ProposedGameMove): GameMove
     ' Maybe have a QProposedGameMove in case of non-synchronous turn strategy
-    register(Quest): Guild
+    register(Quest): ParticipatingGuild
     ' will also create the Avatars from the Quest's castings
   }
 
+  GuildData o--> "1" User : > leader
+}
 
-  class Guild {
+
+package QuestInfo {
+
+  object aQuest {
+    name String
+  }
+  QuestData <|-- aQuest
+
+
+  class ParticipatingGuild {
     name String
     server URL
   }
 
-  QuestData "1" --> "*" Guild
+  QuestData "1" --> "*" ParticipatingGuild
 
   class Avatar {
-    guild Guild
+    guild ParticipatingGuild
     handle String
     origin Casting
   }
 
-  Guild "1" --> "*" Avatar
+  ParticipatingGuild "1" --> "*" Avatar
 
   class GameMove {
     creator Avatar?
@@ -98,13 +127,13 @@ package QuestKHub {
   GameMove "1" <-- GameMoveScore
   GameMoveScore --> "1" ScoringStrategy
   class GuildScore {
-    Guild guild
+    ParticipatingGuild guild
     total float
     moves GameMoveScore[]
     strategy ScoringStrategy
     signature crypto
   }
-  Guild o--> "*" GuildScore
+  ParticipatingGuild o--> "*" GuildScore
   GuildScore --> "*" GameMoveScore
   GuildScore --> "1" ScoringStrategy
 
@@ -121,7 +150,12 @@ package QuestKHub {
 }
 
 
-package GuildKHub {
+package GuildInfo {
+
+  object aGuild {
+    name String
+  }
+  GuildData <|-- aGuild
 
   ' GuildRegistry --> "*" GuildData
   ' GuildRegistry -> "*" GlobalGuildScore
@@ -129,18 +163,17 @@ package GuildKHub {
   ' UserRegistry --> "*" User
   ' UserRegistry -> "*" UBadge
 
-  class GuildData << (S,#ff7700) Singleton>> {
-    name String
-    quests Quest[]
-    accept(Quest)
-    register_score(GuildScore): QuestScore
-  }
-  Guild .> "*" GuildData
+  ParticipatingGuild .> "*" GuildData
   GuildData --> "*" Quest
 
-  class User {
-    name String
-    accounts Account[]
+  GuildData "*" <--> "*" User
+
+  (User , GuildData) .. Membership
+
+
+  class Membership {
+    user User
+    boolean confirmed
   }
 
   class Casting {
@@ -152,17 +185,9 @@ package GuildKHub {
 
   User "1" --> "*" Casting
 
-  class Account {
-    service AccountService
-    string id
-  }
-
-  Account --> "1" AccountService
-  User "1" --> "*" Account
 
   Casting "1" <.o "1" Avatar
 
-  GuildData "0..1" --> "1..*" User : > membership
   Quest "1" --> "*" QuestScore
 
   class Quest {
@@ -180,6 +205,7 @@ package GuildKHub {
     total float
     origin GuildScore
   }
+
 
   GuildScore "1" <.o "1" QuestScore
 
@@ -227,7 +253,7 @@ package GuildKHub {
     visible timestamp
   }
   GameMove "1" o.> "0..1" ProposedGameMove
-  Guild "1" <-- "*" ProposedGameMove
+  ParticipatingGuild "1" <-- "*" ProposedGameMove
   ProposedGameMove "*" --> "1..*" Casting
   ProposedGameMove "*" --> "1" PubState
 
@@ -240,8 +266,6 @@ package GuildKHub {
   GuildData "1" --> "*" GlobalGuildScore
   GlobalGuildScore --> "1" ScoringStrategy
   GlobalGuildScore --> "*" QuestScore
-
-  QuestData "0..1" --> "0..1" User : > sponsor
 
 }
 
