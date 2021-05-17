@@ -10,12 +10,13 @@ export async function login(email, password) {
   });
 }
 
-export async function signup(firstname, lastname, email, password) {
+export async function signup(firstname, lastname, email, password, handle) {
   return axiosInstance.post("/users", {
     firstname: firstname,
     lastname: lastname,
     email: email,
-    password: password
+    password: password,
+    handle: handle,
   });
 }
 
