@@ -27,7 +27,7 @@
 
 import api from 'src/api'
 //TODO we may use another method for node ID
-const uuidv4 = require('uuid/v4')
+//const uuidv4 = require('uuid/v4')
 const conversation = api.service('conversation')
 var router
 
@@ -57,7 +57,7 @@ export default {
       var mytype = this.type
       //console.log('TopicEditDid', mytype)
       var json = {}
-      json.nodeId = uuidv4()
+     // json.nodeId = uuidv4()
       json.label = this.label
       json.url = this.url
       json.details = this.details
@@ -95,11 +95,11 @@ export default {
     //this.$store.commit('questView', false)
   },
   computed: {
-    user () {
-      return this.$store.getters.user
+    //user () {
+      //return this.$store.getters.user
     }
   }
-}
+
 </script>
 
 <style>

@@ -97,7 +97,7 @@ module.exports = function (/* ctx */) {
       //
       components: [
         'QCard',
-        'QCardTitle',
+        //'QCardTitle',
         'QIcon',
         'QPage',
         'QInput',
