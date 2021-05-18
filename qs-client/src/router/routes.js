@@ -45,7 +45,11 @@ const routes = [
       { path: '/mnodeedit/:id, :type, :isDetails',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
-      },             
+      },
+      { path: '/questform',
+        name: "questform",
+        component: () => import('pages/questForm.vue') 
+      }             
     ]
   },
 
