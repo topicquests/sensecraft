@@ -11,13 +11,13 @@ export async function login(email, password) {
 }
 
 export async function signup(firstname, lastname, email, password, handle) {
-  return axiosInstance.post("/users", {
-    firstname: firstname,
-    lastname: lastname,
-    email: email,
-    password: password,
-    handle: handle,
-  });
+  return axiosInstance
+    .post("/users", {
+      firstname: firstname,
+      lastname: lastname,
+      email: email,
+      password: password,
+      handle: handle }) 
 }
 
 export async function updateProfile(id, user) {

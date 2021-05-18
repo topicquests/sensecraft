@@ -7,5 +7,10 @@
 <script>
 export default {
   // name: 'PageName',
+ // name: khub,
+
+  methods: {
+    
+  }
 }
 </script>

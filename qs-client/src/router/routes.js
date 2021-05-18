@@ -21,7 +21,14 @@ const routes = [
       { path: '/home',
         name: "home",
         component: () => import('pages/Home.vue') 
-      },          ,
+      }                 
+    ]
+  },
+
+  {
+    path: '/',
+    component: () => import('layouts/LoggedInLayout.vue'),
+    children: [
       { path: '/quests',
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
@@ -45,15 +52,7 @@ const routes = [
       { path: '/mnodeedit/:id, :type, :isDetails',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
-      },             
-    ]
-  },
-
-  {
-    path: '/',
-    component: () => import('layouts/HomeLayout.vue'),
-    children: [
-     
+      }     
     ]
   },
   // Always leave this as last one,

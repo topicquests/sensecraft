@@ -123,7 +123,6 @@ export default {
   this.$store.dispatch("account/registerUser", {formdata: this.formdata})
   .then(response => {
           console.log('response:', response);
-          debugger;
           this.$q.notify({
             type: "positive",
             message: "Please check your email for verification!"
@@ -141,7 +140,7 @@ export default {
   },
 
   goHome() {
-this.$router.push({ name: "home" });
+    this.$router.push({ name: "home" });
   },  
   
   onHide() {

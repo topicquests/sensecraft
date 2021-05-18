@@ -5,24 +5,25 @@
         <q-toolbar-title>
           <q-img src="../statics/guild_quest.png"
           style="width:150px"></q-img>
-        </q-toolbar-title> 
-        <div class="gt-sm">          
-         <q-btn
+      </q-toolbar-title> 
+
+      <div class="gt-sm">          
+        <q-btn
           @click="goTo('signin')"
           outline
           roundeded
           label="sign in"
           name="signin"
-          class="q-mr-sm"
-          > </q-btn> 
-        <q-btn
+          class="q-mr-sm"> 
+        </q-btn> 
+      <q-btn
           @click="goTo('register')"
           outline
           roundeded
           label="sign up"
           name= "register"
           ></q-btn>
-        </div> 
+      </div> 
         <div class="lt-md"> 
           <q-btn
           flat

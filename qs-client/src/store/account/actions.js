@@ -10,6 +10,10 @@ export async function registerUser(context, payload) {
       payload.formdata.password,
       payload.formdata.handle
     ) 
+    .then(({data}) => {
+      console.log('user data is:', data);
+      commit('SET_USER_DATA', data);
+    })
 }
 
 export async function updateProfile(context, payload) {
