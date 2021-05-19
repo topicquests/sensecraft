@@ -32,7 +32,9 @@ const conversation = api.service('conversation')
 var router
 
 export default {
-  props: ["id", "type"],
+  // parentId required on new nodes
+  // id not required on new nodes
+  props: ["id", "type", parentId],
   data () {
     return {
 
