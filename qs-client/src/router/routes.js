@@ -46,7 +46,7 @@ const routes = [
         name: "node",
         component: () => import('pages/mmowgli-node.vue') 
       }, 
-      { path: '/mnodeedit/:id/:type/:isDetails',
+      { path: '/mnodeedit/:id/:type',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
       },

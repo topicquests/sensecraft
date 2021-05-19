@@ -7,7 +7,7 @@
         <b>Subject</b><br/>
         <q-input v-model="label" />
       </div>
-      <div v-if="is_details">
+      <div>
         <b>Details</b><br/>
         <q-input v-model="details" />
       </div>
@@ -32,7 +32,7 @@ const conversation = api.service('conversation')
 var router
 
 export default {
-  props: ["id", "type", "isDetails"],
+  props: ["id", "type"],
   data () {
     return {
 
