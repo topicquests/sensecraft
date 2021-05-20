@@ -37,6 +37,14 @@ const routes = [
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
       },
+      { path: '/members',
+        name: "members",
+        component: () => import('pages/member-landing.vue') 
+      },
+      { path: '/member/:id',
+        name: "member",
+        component: () => import('pages/Member-app.vue') 
+      },
       { path: '/quest/:id',
         name: "quest",
         component: () => import('pages/Quest-app.vue') 
