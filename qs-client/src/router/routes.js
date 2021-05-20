@@ -29,6 +29,10 @@ const routes = [
     path: '/',
     component: () => import('layouts/LoggedInLayout.vue'),
     children: [
+      { path: '/admin/',
+        name: "admin",
+        component: () => import('pages/App-app.vue') 
+      },         ,
       { path: '/quests',
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
