@@ -31,7 +31,7 @@ const routes = [
     children: [
       { path: '/admin/',
         name: "admin",
-        component: () => import('pages/App-app.vue') 
+        component: () => import('pages/Admin-app.vue') 
       },         ,
       { path: '/quests',
         name: "quests",
@@ -39,7 +39,7 @@ const routes = [
       },
       { path: '/members',
         name: "members",
-        component: () => import('pages/member-landing.vue') 
+        component: () => import('pages/Member-landing.vue') 
       },
       { path: '/member/:id',
         name: "member",

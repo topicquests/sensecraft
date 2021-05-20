@@ -6,6 +6,16 @@
 
 <script>
 export default {
-  // name: 'PageName',
+    props: ["id"],
+    data () {
+      return {
+        
+        label: ''
+        //details: '',
+        //url: '',
+        // id: '',
+        // user: 
+      }
+    }
 }
 </script>
