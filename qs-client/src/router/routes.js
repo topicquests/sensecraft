@@ -35,11 +35,11 @@ const routes = [
       },
       { path: '/quest/:id',
         name: "quest",
-        component: () => import('pages/Quest.vue') 
+        component: () => import('pages/Quest-app.vue') 
       },
       { path: '/guild/:id',
         name: "guild",
-        component: () => import('pages/Guild.vue') 
+        component: () => import('pages/Guild-app.vue') 
       },
       { path: '/role/:id',
         name: "role",
