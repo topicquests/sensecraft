@@ -1,13 +1,11 @@
-@startuml qsdemo
-
-
+@startuml qaas
 
 package Global {
 
   class ScoringStrategy {
     name String
     evalMove(GameMove): float
-    evalQuest(Quest, ParticipatingGuild): QBadge[]
+    evalQuest(ActiveQuest, ParticipatingGuild): QBadge[]
   }
 
   class AccountService {
@@ -16,7 +14,7 @@ package Global {
   }
 
   class QuestRegistry {
-    quests(status): Quest[]
+    quests(status): ActiveQuest[]
   }
 
   class GuildRegistry {
@@ -37,6 +35,26 @@ package Global {
     finished
   }
 
+  enum Permissions {
+    superadmin
+    viewGuild
+    viewQuest
+    createQuest
+    createGuild
+    ' Guild permissions
+    acceptGuildMembership
+    revokeGuildMembership
+    publishGameMove
+    retractGameMove
+    ' within term time
+    ' Quest permissions
+    acceptQuestMembership
+    revokeQuestMembership
+    rejectGameMove
+    ' extraCreditForMove may have issues with favoritism
+    
+  }
+
   class TurnStrategy {
     synchronous boolean
     turnLength interval
@@ -49,7 +67,8 @@ package ServerInfo {
   class User {
     handle String
     name String
-    email Strin
+    email String
+    permissions Permission[]
   }
   class Account {
     User user
@@ -59,29 +78,29 @@ package ServerInfo {
   Account --> "1" AccountService
   User "1" --> "*" Account
 
-  class GuildData {
+  class Guild {
     name String
     admin User
-    accept(Quest)
+    open_for_applications boolean
+    accept(ActiveQuest)
     register_score(GuildScore): QuestScore
   }
-  QuestData o--> "1" User : > sponsor
-  class QuestData {
+  Quest o--> "1" User : > admin
+  class Quest {
     name LangString
     description LangString
     scoring ScoringStrategy
     turns TurnStrategy
-    sponsor User
     status QuestStatus
     admin User
     scoreMove(GameMove): GameMoveScore[]
     play(ProposedGameMove): GameMove
     ' Maybe have a QProposedGameMove in case of non-synchronous turn strategy
-    register(Quest): ParticipatingGuild
-    ' will also create the Avatars from the Quest's castings
+    register(ActiveQuest): ParticipatingGuild
+    ' will also create the Avatars from the ActiveQuest's castings
   }
 
-  GuildData o--> "1" User : > leader
+  Guild o--> "1" User : > leader
 }
 
 
@@ -90,7 +109,16 @@ package QuestInfo {
   object aQuest {
     name String
   }
-  QuestData <|-- aQuest
+  Quest <|-- aQuest
+
+  (User , Quest) .. QuestMembership
+
+
+  class QuestMembership {
+    user User
+    boolean confirmed
+    permissions Permission[]
+  }
 
 
   class ParticipatingGuild {
@@ -98,7 +126,7 @@ package QuestInfo {
     server URL
   }
 
-  QuestData "1" --> "*" ParticipatingGuild
+  Quest "1" --> "*" ParticipatingGuild
 
   class Avatar {
     guild ParticipatingGuild
@@ -115,9 +143,9 @@ package QuestInfo {
     made_visible timestamp
   }
 
-  QuestData "1" --> "*" GameMove
+  Quest "1" --> "*" GameMove
   GameMove "1" o--> "0..1" Avatar
-  QuestData o--> ScoringStrategy
+  Quest o--> ScoringStrategy
   
   class GameMoveScore {
     value float
@@ -155,29 +183,30 @@ package GuildInfo {
   object aGuild {
     name String
   }
-  GuildData <|-- aGuild
+  Guild <|-- aGuild
 
-  ' GuildRegistry --> "*" GuildData
+  ' GuildRegistry --> "*" Guild
   ' GuildRegistry -> "*" GlobalGuildScore
 
   ' UserRegistry --> "*" User
   ' UserRegistry -> "*" UBadge
 
-  ParticipatingGuild .> "*" GuildData
-  GuildData --> "*" Quest
+  ParticipatingGuild .> "*" Guild
+  Guild --> "*" ActiveQuest
 
-  GuildData "*" <--> "*" User
+  Guild "*" <--> "*" User
 
-  (User , GuildData) .. Membership
+  (User , Guild) .. GuildMembership
 
 
-  class Membership {
+  class GuildMembership {
     user User
     boolean confirmed
+    permissions Permission[]
   }
 
   class Casting {
-    quest Quest
+    quest ActiveQuest
     user User
     handle avatar
     role Role
@@ -188,9 +217,9 @@ package GuildInfo {
 
   Casting "1" <.o "1" Avatar
 
-  Quest "1" --> "*" QuestScore
+  ActiveQuest "1" --> "*" QuestScore
 
-  class Quest {
+  class ActiveQuest {
     name LangString
     status QuestStatus
     server URL
@@ -198,10 +227,10 @@ package GuildInfo {
     accepted timestamp
   }
 
-  Quest o.> "*" QuestData
+  ActiveQuest o.> "*" Quest
 
   class QuestScore {
-    Quest quest
+    ActiveQuest quest
     total float
     origin GuildScore
   }
@@ -221,7 +250,7 @@ package GuildInfo {
 
   Casting "1" <--> "*" UBadge
 
-  Quest "1" --> "*" Casting
+  ActiveQuest "1" --> "*" Casting
 
   enum PubState {
     proposed
@@ -231,7 +260,7 @@ package GuildInfo {
   }
 
   class Turn {
-    quest Quest
+    quest ActiveQuest
     state PubState
     created timestamp
     created timestamp
@@ -239,12 +268,12 @@ package GuildInfo {
     visible timestamp
   }
 
-  Quest o--> "*" Turn
+  ActiveQuest o--> "*" Turn
   Turn --> "1..*" ProposedGameMove
   Turn --> "1" PubState
 
   class ProposedGameMove {
-    quest Quest
+    quest ActiveQuest
     turn Turn
     contributors Casting[]
     state PubState
@@ -263,7 +292,7 @@ package GuildInfo {
     scores QuestScore[]
   }
 
-  GuildData "1" --> "*" GlobalGuildScore
+  Guild "1" --> "*" GlobalGuildScore
   GlobalGuildScore --> "1" ScoringStrategy
   GlobalGuildScore --> "*" QuestScore
 
