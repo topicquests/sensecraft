@@ -76,7 +76,6 @@
 
 <script>
 
-import auth from "src/auth";
 import { mapState, mapActions } from "vuex";
 
 export default {

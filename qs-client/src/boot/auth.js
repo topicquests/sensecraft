@@ -2,19 +2,17 @@ import { LocalStorage, Notify } from "quasar";
 
 export default async ({ router, store }) => {
   router.beforeEach((to, from, next) => {
-    if (to.meta.requiresAuth) {
-      if (store.state.auth.user) {
-        
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!auth.loggedIn()) {
+        next({
+          path: '/signon',
+          query: { redirect: to.fullPath }
+        })
       } else {
-        if (to.path !== "/signon") {
-          next("/signon");
-        } else {
-          next();
-        }
+        next()
       }
     } else {
-      next();
+      next() // make sure to always call next()!
     }
-    //next();
-  });
+  })
 };

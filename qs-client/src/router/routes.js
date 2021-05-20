@@ -43,7 +43,8 @@ const routes = [
       },        
       { path: '/khub',
         name: "khub",
-        component: () => import('pages/Khub.vue') 
+        component: () => import('pages/Khub.vue'),
+        meta: { requiresAuth: true }
       },
       { path: '/card/:id, :context',
         name: "card",

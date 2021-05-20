@@ -68,7 +68,6 @@
 
 <script>
 
-import auth from "src/auth";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -88,7 +87,9 @@ export default {
   };
   },
 
-  computed: {},
+  computed: {
+    
+  },
 
   methods: {
   doRegister() {
@@ -122,7 +123,6 @@ export default {
 
   this.$store.dispatch("account/registerUser", {formdata: this.formdata})
   .then(response => {
-          console.log('response:', response);
           this.$q.notify({
             type: "positive",
             message: "Please check your email for verification!"
