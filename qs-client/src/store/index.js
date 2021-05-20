@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import account from "./account";
+import account from "./modules/account";
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
+
 
 const requireModule = require.context(
   // The path where the service modules live
@@ -34,19 +35,16 @@ export default function (/* { ssrContext } */) {
       userId: 0,
       isAuthenticated: true,
       canEdit: true,
-      isAdmin: true,
-      user: null    
-
-    },
+      isAdmin: true
+     },
     getters: {
       isAuthenticated: state => state.isAuthenticated,
       canEdit: state => state.canEdit,
       isAdmin: state => state.isAdmin,
       node: state => state.conversation.copy,
-      user: state => state.user
-      
-  
+      user: state => state.user  
     },
+    
     plugins: [...servicePlugins, authvuex],
     modules: {
       account

@@ -4,14 +4,6 @@
 
 This document details the design specifications of the QS-Demo game. It is a living document, that will be updated as needed. All contents will have been discussed and agreed upon by the team.  Document will also show how the project structure is formatted. It describes the framework used to create the game. Framework has been decided on by the applications needs and not forcing game into the framework. Details the database schema. The schema will describe the storage of data along with the relationshib of the data. Database tables are also described here.
 
-## Security
-
-Pages requiring user to be logged in to view
-
-* Khub
-* Quest
-* Guild
-  
 ## Program Framework
 
 * Vue
@@ -19,6 +11,30 @@ Pages requiring user to be logged in to view
 * Quasar
 * Feathersjs
 * PostgreSql
+
+## Security
+
+When users are not logged in they do not have access to pages that contain users data.
+
+### Logon
+
+*Validate user has been registered
+*Check user's email and password
+*Change user to be authorized
+*Create user information in store
+*Change Layout to layout with left drawer and logout button 
+
+### Logoff
+
+*route user to home page
+*Clear users data
+*Change user to be unauthorized
+
+Pages requiring user to be logged in to view
+
+* Khub
+* Quest
+* Guild
 
 &nbsp;
 &nbsp;
