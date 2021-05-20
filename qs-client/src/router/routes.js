@@ -33,6 +33,10 @@ const routes = [
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
       },
+      { path: '/quest/:id',
+        name: "quest",
+        component: () => import('pages/Quest.vue') 
+      },
       { path: '/guild/:id',
         name: "guild",
         component: () => import('pages/Guild.vue') 
@@ -46,14 +50,18 @@ const routes = [
         component: () => import('pages/Khub.vue'),
         meta: { requiresAuth: true }
       },
-      { path: '/card/:id, :context',
-        name: "card",
-        component: () => import('pages/mmowgli-card.vue') 
+      { path: '/node/:id/:context',
+        name: "node",
+        component: () => import('pages/mmowgli-node.vue') 
       }, 
-      { path: '/mnodeedit/:id, :type, :isDetails',
+      { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
-      }     
+      },
+      { path: '/questform',
+        name: "questform",
+        component: () => import('pages/questForm.vue') 
+      }             
     ]
   },
   // Always leave this as last one,
