@@ -124,6 +124,7 @@ the guild-quest join table
 * user_id fk(users)
 * confirmed boolean
 * permissions Permission[]
+* available_roles Role[]
 * leadership boolean
 
 Is leadership a permission? I think not, because it directly entails role actions.

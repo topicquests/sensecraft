@@ -6,7 +6,11 @@ const {hashPassword, protect} = require('@feathersjs/authentication-local').hook
 
 module.exports = {
   before: {
-    all: [ ],
+    all(context) {
+      // Get the Sequelize instance. In the generated application via:
+      context.params.sequelize = context.app.get('sequelizeClient');
+      return context;
+    },
     find: [ authenticate('jwt') ],
     get: [ authenticate('jwt') ],
     create: [   

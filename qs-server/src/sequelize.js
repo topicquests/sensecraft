@@ -2,15 +2,18 @@ const Sequelize = require('sequelize');
 require('dotenv').config();
 
 module.exports = function (app) {
-  const dbUser = process.env.DB_USER;
-  const dbPassword = process.env.DATABASE_PASSWORD;
-  const dbHost = process.env.DB_HOST;
-  const dbPort = process.env.DB_PORT;
-  const dbDatabase = process.env.DB_DATABASE;
-  const connectionString = 'postgresql://' + dbUser + ':' + dbPassword + '@' + dbHost + ':' + dbPort + '/' + dbDatabase;
+  var connectionString = app.get('postgres');
+  if (!connectionString) {
+    const dbUser = process.env.DB_USER;
+    const dbPassword = process.env.DATABASE_PASSWORD;
+    const dbHost = process.env.DB_HOST;
+    const dbPort = process.env.DB_PORT;
+    const dbDatabase = process.env.DB_DATABASE;
+    connectionString = 'postgresql://' + dbUser + ':' + dbPassword + '@' + dbHost + ':' + dbPort + '/' + dbDatabase;
+  }
   const sequelize = new Sequelize(connectionString, {
     dialect: 'postgres',
-    logging: false,
+    logging: process.env.NODE_ENV !== 'production'?console.log:false,
     define: {
       freezeTableName: true
     }
@@ -30,8 +33,7 @@ module.exports = function (app) {
       }
     });
 
-    // Sync to the database
-    app.set('sequelizeSync', sequelize.sync());
+    // Do not sync to the database: use migrations.
 
     return result;
   };

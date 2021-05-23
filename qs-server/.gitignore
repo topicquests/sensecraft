@@ -109,3 +109,5 @@ $RECYCLE.BIN/
 # Others
 lib/
 data/
+config.ini
+config/*.json
