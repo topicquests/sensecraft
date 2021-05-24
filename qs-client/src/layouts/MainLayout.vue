@@ -150,7 +150,13 @@ export default {
     logout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
-      this.$store.dispatch("auth/logout");
+      this.$store.dispatch("auth/logout")
+      .then(response => {
+          this.$q.notify({
+            type: "positive",
+            message: "You are now logged out"
+          });
+      })
     },
     goTo(route) {
       this.rightDrawer = false;
