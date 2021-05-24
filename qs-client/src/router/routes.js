@@ -6,7 +6,15 @@ const routes = [
     children: [  
       { path: '/',
         component: () => import('pages/Home.vue') 
-      },     
+      },  
+      { path: '/quests',
+        name: "quests",
+        component: () => import('pages/Quest-landing.vue') 
+      }, 
+      { path: '/guild',
+        name: "guild",
+        component: () => import('pages/Guild.vue') 
+      },  
       { path: '/register', 
         name: "register",
         component: () => import('pages/Register.vue') 
@@ -20,32 +28,16 @@ const routes = [
       },
       { path: '/home',
         name: "home",
-        component: () => import('pages/Home.vue') 
-      }                 
-    ]
-  },
-
-  {
-    path: '/',
-    component: () => import('layouts/LoggedInLayout.vue'),
-    children: [
-      { path: '/quests',
-        name: "quests",
-        component: () => import('pages/Quest-landing.vue') 
+        component: () => import('pages/Home.vue'),
       },
-      { path: '/guild/:id',
-        name: "guild",
-        component: () => import('pages/Guild.vue') 
-      },
+      { path: '/landing',
+        name: "landingPage",
+        component: () => import('pages/Landing-page.vue') 
+      },     
       { path: '/role/:id',
         name: "role",
         component: () => import('pages/Role-room.vue') 
-      },        
-      { path: '/khub',
-        name: "khub",
-        component: () => import('pages/Khub.vue'),
-        meta: { requiresAuth: true }
-      },
+      },      
       { path: '/card/:id, :context',
         name: "card",
         component: () => import('pages/mmowgli-card.vue') 
@@ -53,9 +45,11 @@ const routes = [
       { path: '/mnodeedit/:id, :type, :isDetails',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
-      }     
+      }                    
     ]
   },
+
+  
   // Always leave this as last one,
   // but you can also remove it
   {

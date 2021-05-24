@@ -114,7 +114,7 @@ export default {
             type: "positive",
             message: "You are now signed in"
           });
-          this.goKhub();
+          this.goLanding();
         })
         // Just use the returned error instead of mapping it from the store.
         .catch((error) => {
@@ -131,8 +131,8 @@ export default {
     this.$router.push({ name: "home" });
   },
 
-  goKhub() {
-    this.$router.push({name: "khub"});
+  goLanding() {
+    this.$router.push({name: "landingPage"});
   },
   
   onHide() {
