@@ -33,8 +33,9 @@ const routes = [
       { path: '/role/:id',
         name: "role",
         component: () => import('pages/Role-room.vue') 
-      },      
-      { path: '/node/:id/:context',
+      },   
+      {
+        path: '/node/:id/:context',
         name: "node",
         component: () => import('pages/mmowgli-node.vue') 
       }, 
