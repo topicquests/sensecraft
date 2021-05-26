@@ -13,7 +13,7 @@ const routes = [
       }, 
       { path: '/guild',
         name: "guild",
-        component: () => import('pages/Guild.vue') 
+        component: () => import('pages/Guild-app.vue') 
       },  
       { path: '/register', 
         name: "register",
@@ -38,10 +38,10 @@ const routes = [
         name: "role",
         component: () => import('pages/Role-room.vue') 
       },      
-      { path: '/card/:id, :context',
-        name: "card",
-        component: () => import('pages/mmowgli-card.vue') 
-      },
+      // { path: '/card/:id, :context',
+      //   name: "card",
+      //   component: () => import('pages/mmowgli-card.vue') 
+      // },
       { path: '/node/:id/:context',
         name: "node",
         component: () => import('pages/mmowgli-node.vue') 
