@@ -2,10 +2,15 @@
 
 package Global {
 
+  enum ScoringCriterion {
+    
+  }
+
   class ScoringStrategy {
     name String
+    criterion ScoringCriterion
     evalMove(GameMove): float
-    evalQuest(ActiveQuest, ParticipatingGuild): QBadge[]
+    evalQuest(QuestParticipation, ParticipatingGuild): QuestBadge[]
   }
 
   class AccountService {
@@ -14,7 +19,7 @@ package Global {
   }
 
   class QuestRegistry {
-    quests(status): ActiveQuest[]
+    quests(status): QuestParticipation[]
   }
 
   class GuildRegistry {
@@ -24,7 +29,7 @@ package Global {
 
   class UserRegistry {
     users[]: User[]
-    badges(User): UBadge[]
+    badges(User): UserBadge[]
   }
 
   enum QuestStatus {
@@ -60,6 +65,22 @@ package Global {
     turnLength interval
   }
 
+  enum PubState {
+    draft
+    proposed
+    submitted
+    visible
+    ' visible and submitted are the same for v1
+  }
+
+  enum BadgeType {
+
+  }
+
+  enum GameMoveType {
+    add_node
+    ' Eventually refactorings
+  }
 }
 
 
@@ -68,6 +89,7 @@ package ServerInfo {
     handle String
     name String
     email String
+    password String
     permissions Permission[]
   }
   class Account {
@@ -75,32 +97,60 @@ package ServerInfo {
     service AccountService
     string id
   }
-  Account --> "1" AccountService
+  ' Account --> "1" AccountService
   User "1" --> "*" Account
 
   class Guild {
     name String
-    admin User
+    handle String
+    public boolean
     open_for_applications boolean
-    accept(ActiveQuest)
+    accept(QuestParticipation)
     register_score(GuildScore): QuestScore
   }
-  Quest o--> "1" User : > admin
+  Quest o..> "1" User : > admin
   class Quest {
-    name LangString
-    description LangString
+    name String
+    description String
+    handle String
+    public boolean
     scoring ScoringStrategy
     turns TurnStrategy
     status QuestStatus
-    admin User
     scoreMove(GameMove): GameMoveScore[]
     play(ProposedGameMove): GameMove
     ' Maybe have a QProposedGameMove in case of non-synchronous turn strategy
-    register(ActiveQuest): ParticipatingGuild
-    ' will also create the Avatars from the ActiveQuest's castings
+    register(QuestParticipation): ParticipatingGuild
+    ' will also create the Avatars from the QuestParticipation's castings
   }
 
   Guild o--> "1" User : > leader
+
+  (User , Quest) .. QuestMembership
+
+
+  class QuestMembership {
+    quest Quest
+    user User
+    boolean confirmed
+    permissions Permission[]
+  }
+
+  (User , Guild) .. GuildMembership
+
+  class GuildMembership { 
+    guild Guild
+    user User
+    boolean confirmed
+    boolean leadership
+    permissions Permission[]
+  }
+
+  class ExternalServer {
+    server_api URL
+    name String
+  }
+
 }
 
 
@@ -111,20 +161,13 @@ package QuestInfo {
   }
   Quest <|-- aQuest
 
-  (User , Quest) .. QuestMembership
-
-
-  class QuestMembership {
-    user User
-    boolean confirmed
-    permissions Permission[]
-  }
-
-
   class ParticipatingGuild {
     name String
-    server URL
+    server ExternalServer
+    handle String
   }
+
+  ParticipatingGuild o-> "1" ExternalServer
 
   Quest "1" --> "*" ParticipatingGuild
 
@@ -138,22 +181,37 @@ package QuestInfo {
 
   class GameMove {
     creator Avatar?
-    basedOn ProposedGameMove?
+    proposed_node_id ProposedGameMove?
+    type GameMoveType
+    about_node ConversationNode
     submitted timestamp
     made_visible timestamp
   }
 
   Quest "1" --> "*" GameMove
   GameMove "1" o--> "0..1" Avatar
-  Quest o--> ScoringStrategy
-  
+  ' Quest o--> ScoringStrategy
+
+  class ConversationNode {
+    title String
+    description String
+    imported_from_guild ParticipatingGuild
+    imported_identifier String
+    parent ConversationNode
+    ancestry() ConversationNode[]
+  }
+
+  GameMove o--> "1" ConversationNode
+  ParticipatingGuild "1" <-- "*" ConversationNode
+  ConversationNode "*" -> "1" ConversationNode : > parent
+
   class GameMoveScore {
     value float
     move GameMove
     strategy ScoringStrategy
   }
   GameMove "1" <-- GameMoveScore
-  GameMoveScore --> "1" ScoringStrategy
+  ' GameMoveScore --> "1" ScoringStrategy
   class GuildScore {
     ParticipatingGuild guild
     total float
@@ -163,17 +221,17 @@ package QuestInfo {
   }
   ParticipatingGuild o--> "*" GuildScore
   GuildScore --> "*" GameMoveScore
-  GuildScore --> "1" ScoringStrategy
+  ' GuildScore --> "1" ScoringStrategy
 
 
-  class QBadge {
+  class QuestBadge {
     avatar Avatar
-    from_score GameMoveScore
+    for_moves GameMoveScore[]
     signature crypto
   }
 
-  GameMoveScore "1" *--> "*" QBadge
-  Avatar "1" --> "*" QBadge
+  GameMoveScore "1" *--> "*" QuestBadge
+  Avatar "1" --> "*" QuestBadge
 
 }
 
@@ -189,24 +247,15 @@ package GuildInfo {
   ' GuildRegistry -> "*" GlobalGuildScore
 
   ' UserRegistry --> "*" User
-  ' UserRegistry -> "*" UBadge
+  ' UserRegistry -> "*" UserBadge
 
   ParticipatingGuild .> "*" Guild
-  Guild --> "*" ActiveQuest
+  Guild --> "*" QuestParticipation
 
   Guild "*" <--> "*" User
 
-  (User , Guild) .. GuildMembership
-
-
-  class GuildMembership {
-    user User
-    boolean confirmed
-    permissions Permission[]
-  }
-
   class Casting {
-    quest ActiveQuest
+    quest QuestParticipation
     user User
     handle avatar
     role Role
@@ -217,20 +266,20 @@ package GuildInfo {
 
   Casting "1" <.o "1" Avatar
 
-  ActiveQuest "1" --> "*" QuestScore
+  QuestParticipation "1" --> "*" QuestScore
 
-  class ActiveQuest {
-    name LangString
+  class QuestParticipation {
+    name String
     status QuestStatus
     server URL
     proposed timestamp
     accepted timestamp
   }
 
-  ActiveQuest o.> "*" Quest
+  QuestParticipation o.> "*" Quest
 
   class QuestScore {
-    ActiveQuest quest
+    QuestParticipation quest
     total float
     origin GuildScore
   }
@@ -239,44 +288,38 @@ package GuildInfo {
   GuildScore "1" <.o "1" QuestScore
 
 
-  class UBadge {
+  class UserBadge {
     casting Casting
     from QuestScore
-    origin QBadge
+    origin QuestBadge
   }
 
-  UBadge "1" o.> "1" QBadge
-  QuestScore "1" --> "*" UBadge
+  UserBadge "1" o.> "1" QuestBadge
+  QuestScore "1" --> "*" UserBadge
 
-  Casting "1" <--> "*" UBadge
+  Casting "1" <--> "*" UserBadge
 
-  ActiveQuest "1" --> "*" Casting
-
-  enum PubState {
-    proposed
-    submitted
-    visible
-    ' visible and submitted are the same for v1
-  }
+  QuestParticipation "1" --> "*" Casting
 
   class Turn {
-    quest ActiveQuest
+    quest QuestParticipation
     state PubState
     created timestamp
-    created timestamp
+    proposed timestamp
     submitted timestamp
     visible timestamp
   }
 
-  ActiveQuest o--> "*" Turn
+  QuestParticipation o--> "*" Turn
   Turn --> "1..*" ProposedGameMove
-  Turn --> "1" PubState
 
   class ProposedGameMove {
-    quest ActiveQuest
+    quest QuestParticipation
     turn Turn
+    type GameMoveType
     contributors Casting[]
     state PubState
+    about_node ProposedConversationNode
     created timestamp
     submitted timestamp
     visible timestamp
@@ -284,7 +327,19 @@ package GuildInfo {
   GameMove "1" o.> "0..1" ProposedGameMove
   ParticipatingGuild "1" <-- "*" ProposedGameMove
   ProposedGameMove "*" --> "1..*" Casting
-  ProposedGameMove "*" --> "1" PubState
+
+  class ProposedConversationNode {
+    title String
+    description String
+    quest_identifier String
+    parent ProposedConversationNode
+    ancestry() ProposedConversationNode[]
+  }
+
+  ConversationNode "1" o.> "0..1" ProposedConversationNode
+  ProposedGameMove o--> "1" ProposedConversationNode
+  QuestParticipation "1" <-- "*" ProposedConversationNode
+  ProposedConversationNode "*" -> "1" ProposedConversationNode : > parent
 
   class GlobalGuildScore {
     float total
@@ -293,7 +348,7 @@ package GuildInfo {
   }
 
   Guild "1" --> "*" GlobalGuildScore
-  GlobalGuildScore --> "1" ScoringStrategy
+  ' GlobalGuildScore --> "1" ScoringStrategy
   GlobalGuildScore --> "*" QuestScore
 
 }

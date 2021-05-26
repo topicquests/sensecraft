@@ -1,0 +1,10 @@
+# some notes on what pages in the client will need from the backside.
+# I'm documenting, at the least, what structured conversations need from
+# the backside
+
+Populating a Node
+
+This, in FeatherWeight, was a very complex problem, collecting all of the 
+child nodes and assembling them into a structure (lists) for painting.
+It was basically a kind of Join inside a Promise.all routine.
+

@@ -2,67 +2,155 @@
 
 ## General
 
-### home
+### home `/`
 
-### register
+The landing page; explains the concept, shows some lists:
 
-### signin
+* top guilds
+* current quests
+* recent quests
+* near-future quests
 
-### quest
+If authenticated:
 
-quest index
+* top users
+* my guilds
+* my quests
+* guilds I could join
 
-### guild
+### register `/register`
 
-guild index
+### signin `/signin`
 
+### quest_list `/quest`
 
-## Guild
+List of public quests on the platform.
+Q: Should this be in quest app?
+Include private quests you are part of if logged in.
+If you have appropriate permissions, also a form to create a quest. (separate page?)
 
-### guild/:guild_id/apply_for_membership
-v2: for now, just join if the guild has open membership
+### guild_list `/guild`
 
-### guild/:guild_id/member
-### guild/:guild_id/member/me
-### guild/:guild_id/member/:user_id
-a user's status page in the guild. (Me for my own page)
-Displays past quests with badges, active quests with roles.
+List of public guilds on the platform
+Q: Should this be in guild app?
+Include private guilds you are part of if logged in.
+If you have appropriate permissions, also a form to create a guild. (separate page?)
+
+### member_list `/member`
+
+The list of KHub members. Only visible if authenticated.
+
+### member_page `/member/:member_id`
+
+The page of the KHub member
+
+* All the guilds they belong(ed) to, leading to the guild_member_page
+* All the quests they participated in, with awards (scores and badges). Link to quest_member_page
+
+## Guild App pages
+
+### guild_create `/guild/create`
+
+Create a new guild. Give it a name and a guild_id. You're automatically guild leader.
+Requires the create_guild permission.
+
+### guild_page `/guild/:guild_id`
+
+Guild landing page, presenting the guild:
+
+* Leadership
+* Members
+* Current quests (Highlight those you're part of, and your role therein)
+* Past quests
+* Past awards (points & badges)
+
+If the guild is open, and you're logged in, "join" button. (Autojoin in v1)
+v2: open for someone with minimal badges? Or does that make starting too difficult?
+
+### guild_application `/guild/:guild_id/apply_for_membership`
+
+v2 maybe: for now, just join if the guild has open membership
+
+### guild_member_list `/guild/:guild_id/member`
+
+The list of all members in the guild, including past members
+
+### guild_member_page `/guild/:guild_id/member/:user_id`
+
+The record of that member's activity in this guild.
+
+* Past quests and role played (and scores and badges awarded)
+* Current quests and role played
+* a button to toggle your membership
+* a button to show and toggle your leadership role
+
 v2: If the user is not in the guild yet, allows the leadership to invite or accept a request for membership.
 
-### guild/:guild_id/
-### guild/:guild_id/quest/:quest_id/prepare_roster
+### quest_member_page `/guild/:guild_id/member/:user_id/quest/:quest_id`
+
+All the moves of that member in that quest, and scores/badges awards for those moves. (Link to node_view)
+Global score for the quest
+
+### guild_quest_page `/guild/:guild_id/quest/`
+
+* List of quests that the guild has played
+* List of quests that the guild is playing
+* List of quests that the guild could play (in registration phase)
+
+v2: how is a guild aware of open quests on other servers? (gossip?)
+Link to meta-quest chat room
+
+### game_conversation `/guild/:guild_id/quest/:quest_id/`
+
+If we're not part of this quest:
+  registration button. (leads to prepare roster form, or same page?)
+  link to meta-quest chat room
+If we're registered, but quest has not started: Start date
+If the quest is active:
+  Structured conversation: Start from the node-at-play in the current turn, show all children (whether part of the quest or our current proposals)
+    Each node is clickable and will lead to node_view; another button will lead to node_create
+  Link to quest chat room
+  Link to quest_conversation
+If the quest is finished: scores
+
+### prepare_roster `/guild/:guild_id/quest/:quest_id/prepare_roster`
 
 Here the guild leadership and members agree on the roster for that quest before registering to that quest. The register button is probably going to be on that page.
+Note: May be on game_conversation page.
 
-### guild/:guild_id/quest/:quest_id/roster
+### quest_roster `/guild/:guild_id/quest/:quest_id/roster`
 
 The reference page of the roster (immutable?) after you've submitted registration.
 
-### guild/:guild_id/quest/:quest_id/  (game_conversation)
-
-Default view: Start from the node-at-play in the current turn, show all children (whether part of the quest or our current proposals)
-
-### guild/:guild_id/quest/:quest_id/tree
+### quest_conversation `/guild/:guild_id/quest/:quest_id/tree`
 
 Show the whole quest tree from the root (and our proposals also)
 
-### guild/:guild_id/quest/:quest_id/node/:node_id
-### guild/:guild_id/quest/:quest_id/node/:node_id/edit
+### node_view `/guild/:guild_id/quest/:quest_id/node/:node_id`
+
+Show one specific node of the quest tree. Mostly used for nodes considered for play in this turn.
+Show the node description, show author, link to parent and children nodes, link to game_conversation
+Link to (or embed?) node chat room.
+
+### node_edit `/guild/:guild_id/quest/:quest_id/node/:node_id/edit`
 
 Edit an unpublished node
+Q: do we allow editing someone else's node? Should edits take the form of proposals (and how do we integrate them?)
+Meta-conversation flux TBD
+Link to (or embed?) node chat room.
 
-### guild/:guild_id/quest/:quest_id/node/:node_id/create_child
+### node_create `/guild/:guild_id/quest/:quest_id/node/:node_id/create_child`
 
-This is where you edit a new node (was called mmowglieditor.)
+This is where you edit a new node (was called mmowglieditor.) The node will be a child of the node_id given.
 You can get there from either a node-centric view, or a tree view with one node selected.
 
-### guild/:guild_id/quest/:quest_id/node/:node_id/conversation
-### guild/:guild_id/quest/:quest_id/conversation
-
-### guild/:guild_id/room
-### guild/:guild_id/room/:room_id
+### conversation_list `/guild/:guild_id/room`
 
 Each guild has multiple chat rooms (ideally structured conversation, we may reuse a chat system to gain time.)
+The list of chat rooms (or structured conversations if we get there that I can participate in), links to below.
+
+### guild_conversation `/guild/:guild_id/room/:room_id`
+
 Among those chat rooms:
 leadership (leaders only)
 :rolename-based (per-role chat room)
@@ -70,23 +158,28 @@ meta (conversation about which quest to do next etc.)
 :quest-based (conversation around a quest, has a separate route above)
 :node-based (conversation around a node, has a separate route above)
 
-### guild/:guild_id/room/leadership
+## Quest App pages
 
-## Quest
-
-### quest/:quest_id/
+### quest_page `/quest/:quest_id/`
 
 the landing page of the quest.
 Also show the involved guilds.
 
-### quest/:quest_id/edit
+### create_quest `/quest/create`
 
-Edit the quest data
+Quest creation page (where quest_id will be determined)
 
-### quest/:quest_id/tree
+### quest_edit `/quest/:quest_id/edit`
 
-Show the quest's tree
+Edit the quest data.
+(Start date of each phase; name and description)
+Possibly here: mechanism for final scores.
 
-### quest/:quest_id/node/:node_id
+### quest_tree `/quest/:quest_id/tree`
 
-Single-node view in the quest
+Show the quest's node tree, each node leads to quest_node_view.
+
+### quest_node_view `/quest/:quest_id/node/:node_id`
+
+Single-node view in the quest. Similar to node_view.
+Also: mechanisms for scoring.

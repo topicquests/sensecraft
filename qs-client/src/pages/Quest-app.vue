@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <div class="text-h2"> My Role </div>
+    <div class="text-h2"> My Quest </div>
   </q-page>
 </template>
 

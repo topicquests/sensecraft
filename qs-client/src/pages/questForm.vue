@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <div class="text-h2"> My Guild </div>
+    <div class="text-h2"> Quest Form </div>
   </q-page>
 </template>
 
