@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <div class="text-h2"> My Role </div>
+    <div class="text-h2"> My Guild </div>
   </q-page>
 </template>
 
@@ -17,6 +17,5 @@ export default {
         // user: 
       }
     }
-    
 }
 </script>

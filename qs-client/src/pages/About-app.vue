@@ -1,22 +1,20 @@
 <template>
   <q-page padding>
-    <div class="text-h2"> My Role </div>
+    <div class="text-h2"> About {{appname}} </div>
   </q-page>
 </template>
 
 <script>
 export default {
-    props: ["id"],
     data () {
       return {
         
-        label: ''
+        appname: 'QaaS Demo'
         //details: '',
         //url: '',
         // id: '',
         // user: 
       }
     }
-    
 }
 </script>

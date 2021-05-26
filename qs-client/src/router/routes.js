@@ -29,13 +29,33 @@ const routes = [
     path: '/',
     component: () => import('layouts/LoggedInLayout.vue'),
     children: [
+      { path: '/admin/',
+        name: "admin",
+        component: () => import('pages/Admin-app.vue') 
+      },         ,
       { path: '/quests',
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
       },
+      { path: '/about',
+        name: "about",
+        component: () => import('pages/About-app.vue') 
+      },
+      { path: '/members',
+        name: "members",
+        component: () => import('pages/Member-landing.vue') 
+      },
+      { path: '/member/:id',
+        name: "member",
+        component: () => import('pages/Member-app.vue') 
+      },
+      { path: '/quest/:id',
+        name: "quest",
+        component: () => import('pages/Quest-app.vue') 
+      },
       { path: '/guild/:id',
         name: "guild",
-        component: () => import('pages/Guild.vue') 
+        component: () => import('pages/Guild-app.vue') 
       },
       { path: '/role/:id',
         name: "role",
@@ -46,14 +66,18 @@ const routes = [
         component: () => import('pages/Khub.vue'),
         meta: { requiresAuth: true }
       },
-      { path: '/card/:id, :context',
-        name: "card",
-        component: () => import('pages/mmowgli-card.vue') 
+      { path: '/node/:id/:context',
+        name: "node",
+        component: () => import('pages/mmowgli-node.vue') 
       }, 
-      { path: '/mnodeedit/:id, :type, :isDetails',
+      { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue') 
-      }     
+      },
+      { path: '/questform',
+        name: "questform",
+        component: () => import('pages/questForm.vue') 
+      }             
     ]
   },
   // Always leave this as last one,
