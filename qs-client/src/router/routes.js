@@ -6,7 +6,15 @@ const routes = [
     children: [  
       { path: '/',
         component: () => import('pages/Home.vue') 
-      },     
+      },  
+      { path: '/quests',
+        name: "quests",
+        component: () => import('pages/Quest-landing.vue') 
+      }, 
+      { path: '/guild',
+        name: "guild",
+        component: () => import('pages/Guild.vue') 
+      },  
       { path: '/register', 
         name: "register",
         component: () => import('pages/Register.vue') 
@@ -20,51 +28,19 @@ const routes = [
       },
       { path: '/home',
         name: "home",
-        component: () => import('pages/Home.vue') 
-      }                 
-    ]
-  },
-
-  {
-    path: '/',
-    component: () => import('layouts/LoggedInLayout.vue'),
-    children: [
-      { path: '/admin/',
-        name: "admin",
-        component: () => import('pages/Admin-app.vue') 
-      },         ,
-      { path: '/quests',
-        name: "quests",
-        component: () => import('pages/Quest-landing.vue') 
+        component: () => import('pages/Home.vue'),
       },
-      { path: '/about',
-        name: "about",
-        component: () => import('pages/About-app.vue') 
-      },
-      { path: '/members',
-        name: "members",
-        component: () => import('pages/Member-landing.vue') 
-      },
-      { path: '/member/:id',
-        name: "member",
-        component: () => import('pages/Member-app.vue') 
-      },
-      { path: '/quest/:id',
-        name: "quest",
-        component: () => import('pages/Quest-app.vue') 
-      },
-      { path: '/guild/:id',
-        name: "guild",
-        component: () => import('pages/Guild-app.vue') 
-      },
+      { path: '/landing',
+        name: "landingPage",
+        component: () => import('pages/Landing-page.vue') 
+      },     
       { path: '/role/:id',
         name: "role",
         component: () => import('pages/Role-room.vue') 
-      },        
-      { path: '/khub',
-        name: "khub",
-        component: () => import('pages/Khub.vue'),
-        meta: { requiresAuth: true }
+      },      
+      { path: '/card/:id, :context',
+        name: "card",
+        component: () => import('pages/mmowgli-card.vue') 
       },
       { path: '/node/:id/:context',
         name: "node",
@@ -72,7 +48,7 @@ const routes = [
       }, 
       { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
-        component: () => import('pages/mmowgli-node-form.vue') 
+        component: () => import('pages/mmowgli-node-form.vue')
       },
       { path: '/questform',
         name: "questform",
@@ -80,6 +56,8 @@ const routes = [
       }             
     ]
   },
+
+  
   // Always leave this as last one,
   // but you can also remove it
   {
