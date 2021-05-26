@@ -19,34 +19,50 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl q-pb-lg">
-              <q-input square clearable v-model="formdata.email" type="email" label="Email">
-                <template v-slot:prepend>
-                  <q-icon name="email" />
-                </template>
+              <q-input 
+                square clearable 
+                v-model="formdata.email" 
+                type="email" 
+                label="Email">
+              <template v-slot:prepend>
+                <q-icon name="email" />
+              </template>
               </q-input>
-              <q-input square clearable v-model="formdata.firstname" label="First name">
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>                
+              <q-input 
+                square clearable 
+                v-model="formdata.firstname" 
+                label="First name">
+              <template v-slot:prepend>
+                <q-icon name="person" />
+              </template>                
               </q-input>
-              <q-input square clearable v-model="formdata.lastname"  label="Last name">
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>                
+              <q-input 
+                square clearable 
+                v-model="formdata.lastname"  
+                label="Last name">
+              <template v-slot:prepend>
+                <q-icon 
+                  name="person" />
+              </template>                
               </q-input>
-              <q-input square clearable v-model="formdata.handle"  label="handle">
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>                
+              <q-input 
+                square clearable 
+                v-model="formdata.handle"  
+                label="handle">
+              <template v-slot:prepend>
+                <q-icon 
+                  name="person" />
+              </template>                
               </q-input>
-              <q-input v-model="formdata.password" 
-                       filled :type="isPwd ? 'password' : 'text'">
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwd ? 'visibility_off' : 'visibility'"
-                    class="cursor-pointer"
-                    @click="isPwd = !isPwd"
-                  />          
+              <q-input 
+                sqaure clearable
+                v-model="formdata.password" 
+                filled :type="isPwd ? 'password' : 'text'"
+                label = "Password">
+              <template v-slot:append>
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"                    
+                    @click="isPwd = !isPwd"/>          
                 </template>
                 <template v-slot:prepend>
                   <q-icon name="lock" />

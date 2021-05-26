@@ -78,7 +78,7 @@
           <div> 
             <q-item> 
             <router-link
-              to= "/guild"> Guild list        
+              to= "/guild-app"> Guild list        
             </router-link>
             </q-item>
           </div> 
@@ -156,6 +156,7 @@ export default {
             type: "positive",
             message: "You are now logged out"
           });
+          this.$store.commit("SET_USER_DATA", {user: null})
       })
     },
     goTo(route) {

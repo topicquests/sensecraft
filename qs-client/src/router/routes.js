@@ -11,10 +11,6 @@ const routes = [
         name: "quests",
         component: () => import('pages/Quest-landing.vue') 
       }, 
-      { path: '/guild',
-        name: "guild",
-        component: () => import('pages/Guild.vue') 
-      },  
       { path: '/register', 
         name: "register",
         component: () => import('pages/Register.vue') 
@@ -38,10 +34,6 @@ const routes = [
         name: "role",
         component: () => import('pages/Role-room.vue') 
       },      
-      { path: '/card/:id, :context',
-        name: "card",
-        component: () => import('pages/mmowgli-card.vue') 
-      },
       { path: '/node/:id/:context',
         name: "node",
         component: () => import('pages/mmowgli-node.vue') 

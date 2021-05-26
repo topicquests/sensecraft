@@ -16,14 +16,20 @@
 
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
-              <q-input square clearable v-model="formData.signonEmail" type="email" label="Email">
+              <q-input square clearable 
+                v-model="formData.signonEmail" 
+                type="email" 
+                label="Email">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
               </q-input>
 
-               <q-input v-model="formData.password" 
-                       filled :type="isPwdSignIn ? 'password' : 'text'">
+               <q-input 
+                square 
+                v-model="formData.password" 
+                filled :type="isPwdSignIn ? 'password' : 'text'"
+                label = Password>
                 <template v-slot:append>
                   <q-icon
                     :name="isPwdSignIn ? 'visibility_off' : 'visibility'"
@@ -109,7 +115,7 @@ export default {
           strategy: "local",
           email: email,
           password: password
-        }).then(response => {
+        }).then(response => {             
           this.$q.notify({
             type: "positive",
             message: "You are now signed in"
