@@ -26,9 +26,9 @@
               </q-input>
 
                <q-input 
-                square clearable 
+                square 
                 v-model="formData.password" 
-                type="isPwdSignIn ? 'password' : 'text'"
+                filled :type="isPwdSignIn ? 'password' : 'text'"
                 label = Password>
                 <template v-slot:append>
                   <q-icon

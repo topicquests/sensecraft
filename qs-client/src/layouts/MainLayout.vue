@@ -78,7 +78,7 @@
           <div> 
             <q-item> 
             <router-link
-              to= "/guild"> Guild list        
+              to= "/guild-app"> Guild list        
             </router-link>
             </q-item>
           </div> 
