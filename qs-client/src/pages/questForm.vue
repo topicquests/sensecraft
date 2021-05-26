@@ -1,6 +1,6 @@
 <template>
-  <q-page padding>
-    <div class="text-h2"> Quest Form </div>
+  <q-page padding class = "bg-blue">
+    <div class="text-h2"> My New Quest </div>
   </q-page>
 </template>
 
