@@ -156,6 +156,7 @@ export default {
             type: "positive",
             message: "You are now logged out"
           });
+          this.$store.commit("SET_USER_DATA", {user: null})
       })
     },
     goTo(route) {
