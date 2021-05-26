@@ -7,10 +7,13 @@
 The landing page; explains the concept, shows some lists:
 
 * top guilds
-* top users
 * current quests
 * recent quests
 * near-future quests
+
+If authenticated:
+
+* top users
 * my guilds
 * my quests
 * guilds I could join
@@ -35,7 +38,7 @@ If you have appropriate permissions, also a form to create a guild. (separate pa
 
 ### member_list `/member`
 
-The list of KHub members
+The list of KHub members. Only visible if authenticated.
 
 ### member_page `/member/:member_id`
 
