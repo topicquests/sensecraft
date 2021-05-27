@@ -8,8 +8,6 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 ## Getting Started
 
-Getting up and running is as easy as 1, 2, 3.
-
 1. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed.
 2. Install your dependencies
 
@@ -18,10 +16,21 @@ Getting up and running is as easy as 1, 2, 3.
     npm install
     ```
 
-3. Start your app
+3. Setup the database with the following script:
+    `./scripts/initial_setup.py`
+    There are many optional parameters but the default setting should run. You will have to sudo on linux.
+    This should be done only once, but may be done many times without harm.
+
+
+4. Migrate the database:
+    `./node_modules/.bin/sequelize-cli db:migrate`
+    This should be done whenever a new file appears in the migrations folder.
+    (Do it again with `NODE_ENV=production` to upgrade the production database.)
+
+5. Start your app
 
     ```
-    npm start
+    npm run dev
     ```
 
 ## Testing
