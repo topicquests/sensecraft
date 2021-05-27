@@ -14,7 +14,13 @@ exports.mochaGlobalTeardown = async function () {
   const db_name = sequelize.getDatabaseName();
   await sequelize.query(`SET ROLE ${db_name}__owner`);
   for (const model of sequelize.modelManager.models) {
-    console.log('dropping', model, typeof (model));
+    try {
+      await sequelize.query(`DELETE FROM ${model.getTableName()} CASCADE`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  for (const model of sequelize.modelManager.models) {
     try {
       await sequelize.queryInterface.dropTable(model.getTableName(), { force: true, cascade: true });
     } catch (e) {

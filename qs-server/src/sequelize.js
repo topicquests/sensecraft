@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+const Sequelize = require('./utils/pgEnum-fix');
 require('dotenv').config();
 
 module.exports = function (app) {

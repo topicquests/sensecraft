@@ -82,6 +82,7 @@ Do we want to bother renaming it "members"?
 * handle varchar (unique)
 * public boolean
 * open_for_applications boolean
+* creator fk(users)
 
 unsure
 * admin_id fk(user) (probably redundant with guild_membership)
@@ -96,6 +97,9 @@ public_guilds: view on guilds, with public=true
 * description text
 * public boolean
 * status QuestStatus
+* start datetime
+* end datetime
+* creator fk(users)
 
 later maybe
 * scoring ScoringStrategy

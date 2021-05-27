@@ -4,7 +4,9 @@ module.exports = {
   before: {
     all(context) {
       // Get the Sequelize instance. In the generated application via:
-      context.params.sequelize = context.app.get('sequelizeClient');
+      context.params.sequelize = Object.assign({
+        sequelize: context.app.get('sequelizeClient')
+      }, context.params.sequelize);
       return context;
     },
     find: [],
