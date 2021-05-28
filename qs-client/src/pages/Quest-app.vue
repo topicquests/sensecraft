@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    props: ["id"],
+    props: ["quest_id"],
     data () {
       return {
         

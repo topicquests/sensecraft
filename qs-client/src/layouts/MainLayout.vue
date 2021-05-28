@@ -71,14 +71,14 @@
           <div>
             <q-item> 
           <router-link
-            to= "/quests">  Quest list        
+            to= "/quest">  Quest list        
           </router-link>
           </q-item>
           </div>
           <div> 
             <q-item> 
             <router-link
-              to= "/guild-app"> Guild list        
+              to= "/guild"> Guild list        
             </router-link>
             </q-item>
           </div> 
