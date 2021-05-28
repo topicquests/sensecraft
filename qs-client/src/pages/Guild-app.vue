@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    props: ["id"],
+    props: ["guild_id"],
     data () {
       return {
         
