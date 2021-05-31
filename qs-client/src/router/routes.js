@@ -7,12 +7,16 @@ const routes = [
       { path: '/',
         component: () => import('pages/Home.vue') 
       },
-      { path: '/quest/:quest_id',
+      { path: '/quest-app',
         name: "quests",
         component: () => import('pages/Quest-app.vue') 
       },
       { path: '/quest',
         name: "quests",
+        component: () => import('pages/quest.vue') 
+      },
+      { path: '/quest-landing',
+        name: "quest-landing",
         component: () => import('pages/Quest-landing.vue') 
       },
       { path: '/guild',

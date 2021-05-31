@@ -1,92 +1,122 @@
 <template>
-  <q-page class = 'bg-secondary'>   
-     <div class="row justify-center">
-        <div class="col-12 col-md q-pa-md justify-center">column 1</div>
-        <div class="col-12 col-md q-pa-md">column 2</div>
-        <div class="col-12 col-md q-pa-md">column 3</div>
-      </div>
-      <div class="row justify-center">
-        <div class="col-12 col-md q-pa-md">
-          <q-card>
-           <div class="q-pa-md" style="max-width: 350px">
-            <q-list dense bordered padding class="rounded-borders">
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
+  <q-page :padding="true">
+    <q-btn
+      v-if = '$store.state.auth.user' 
+      style="margin-bottom: 4px;"
+      label="New Quest"
+      @click="$router.replace('/quest')"
+    />
 
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-              </q-item-section>
-                </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-          </q-card>
-        </div>
-       <div class="col-12 col-md q-pa-md">
-          <q-card>
-           <div class="q-pa-md" style="max-width: 350px">
-            <q-list dense bordered padding class="rounded-borders">
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-              </q-item-section>
-                </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-          </q-card>
-        </div>
-        <div class="col-12 col-md q-pa-md">
-          <q-card>
-           <div class="q-pa-md" style="max-width: 350px">
-            <q-list dense bordered padding class="rounded-borders">
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-              </q-item-section>
-                </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  Item
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-          </q-card>
-        </div>
-      </div>
+    <q-table title="My Quests" :data="rootConversations" :columns="columns">
+      <template slot="body" slot-scope="props">
+        <q-tr :props="props">
+          <q-td key="type" style="width: 30px" :props="props">
+            <i style="display: block;" :class="'ibis-icon ibis-' + props.row.type"/>
+          </q-td>
+          <q-td key="label" :props="props">{{props.row.label}}</q-td>
+          <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+          <q-td key="date" :props="props">{{props.row.date}}</q-td>
+          <q-td key="nodeId" auto-width :props="props">
+            <router-link :to="{ name: 'questview', params: { id:  props.row.nodeId }}">View</router-link>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
   </q-page>
 </template>
 
 <script>
+import api from "src/api";
+import { mapActions, mapGetters } from "vuex";
+
 export default {
-  // name: 'PageName',
-}
+  props: ["user"],
+  data() {
+    return {
+      columns: [
+        {
+          name: "type",
+          required: true,
+          label: "Type",
+          align: "left",
+          field: "type",
+          sortable: true
+        },
+        {
+          name: "label",
+          required: true,
+          label: "Label",
+          align: "left",
+          field: "label",
+          sortable: true
+        },
+        {
+          name: "handle",
+          required: true,
+          label: "Handle",
+          align: "left",
+          field: "handle",
+          sortable: true
+        },
+        {
+          name: "date",
+          required: true,
+          label: "Date",
+          align: "left",
+          field: "date",
+          sortable: true
+        },
+        {
+          name: "nodeId",
+          required: true,
+          label: "Action",
+          align: "left",
+          field: "nodeId",
+          sortable: true
+        }
+      ],
+      isAuthenticated: false,
+      serverPagination: {},
+      serverData: []
+    };
+  },
+
+  computed: {
+    ...mapGetters("conversation", { allConversations: "list" }),
+    //  rootConversations() {
+    //    return this.allConversations.filter(c => c.type === "map");
+    // }
+  },
+
+  methods: {
+    ...mapActions("quests", { findQuests: "find" }),
+    // fill(n) {
+    //   var jsx = {};
+    //   jsx.imgsm = n.imgsm;
+    //   jsx.label = `<router-link :to="{ name: 'questview', params: { nodeId: ${
+    //     n.nodeId
+    //   }}">${n.label}</router-link>`;
+    //   jsx.creator = n.creator;
+    //   jsx.handle = n.handle;
+    //   jsx.date = n.date;
+    //   console.info("JSX", jsx);
+    //   this.$data.serverData.push(jsx);
+  //  }
+  },
+  async mounted() {
+     this.$data.isAuthenticated = this.$store.state.auth.user;
+     const query = {
+        type: "map",
+         $limit: 1000
+    };
+//     console.log("Finding w query: ", JSON.stringify(query));
+     const conversations = await this.findQuests({ query });
+//     console.log("Query returned", { conversations });
+
+//     this.$store.commit("questView", false);
+  }
+};
 </script>
+
+<style>
+</style>

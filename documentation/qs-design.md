@@ -50,6 +50,9 @@ qs-server used for backend code
 Standard feathers folder structure
 
 Standard Vue and Vuex folder structure
+*Store
+*Modules
+
 
 &nbsp;
 &nbsp;
@@ -141,3 +144,10 @@ Form data
 
 * Email
 * Password
+
+## Pages
+
+### Quest Pages
+
+Quest
+
