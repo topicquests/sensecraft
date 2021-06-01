@@ -6,6 +6,8 @@ const cors = require('cors');
 const logger = require('./logger');
 
 const feathers = require('@feathersjs/feathers');
+if (process.env.npm_lifecycle_event == 'mocha')
+  process.env.NODE_ENV = 'test';
 const configuration = require('@feathersjs/configuration');
 const express = require('@feathersjs/express');
 const socketio = require('@feathersjs/socketio');
