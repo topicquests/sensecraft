@@ -31,22 +31,7 @@ Vue.use(FeathersVuex);
 
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
-    state: {
-  
-     },
-    
-     getters: {
-     
-    },
-
-    actions: {
-
-    },
-
-    mutations: {        
-    
-    },
-    
+   
     plugins: [...servicePlugins, authvuex],
     modules: {
       account

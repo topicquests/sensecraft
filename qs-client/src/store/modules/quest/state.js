@@ -4,3 +4,4 @@ export default function ()  {
     questNodes: {}
   }
 }
+//note: appears to give an error in the editor, but compiles and runs
