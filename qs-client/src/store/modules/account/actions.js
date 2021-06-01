@@ -1,4 +1,4 @@
-import userService from "../../../services/user";
+/*import userService from "../../../services/user";
 import { Notify } from "quasar";
 
 
@@ -12,6 +12,7 @@ export async function registerUser({commit, rootState}, payload) {
       payload.formdata.handle
     )      
 };
+*/
 
 
 
