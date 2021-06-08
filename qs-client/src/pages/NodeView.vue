@@ -250,19 +250,18 @@ export default {
       try {
         //TODO treeview must look for 'topic'
         // rather than 'map' to paint a tree view
-        treeview.get(nodeId).then(function(tree)
-         {
-          console.info("TopicTreeView", tree);
+        //treeview.get(nodeId).then(function(tree) {
+        //  console.info("TopicTreeView", tree);
           //const img = tree.img
           // only show the tree if the root is a map
           //if (img === 'statics/images/map_sm.png' ||
           //    img === 'statics/images/bookmark_sm.png') {
           const result = [];
-          result.push(tree);
-          self.$store.commit("tree", result);
-          self.$store.commit("questView", true);
+          // result.push(tree);
+          // self.$store.commit("tree", result);
+          // self.$store.commit("questView", true);
           //}
-        });
+        //});
       } catch (err) {
         console.log("QuestViewTreeError", err);
       }

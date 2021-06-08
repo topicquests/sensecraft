@@ -1,5 +1,4 @@
 import userService from "../../services/user";
-import guestService from "../../services/quest";
 import { Notify } from "quasar";
 
 export async function getUsers({ commit }, payload) {
@@ -16,9 +15,4 @@ export async function getUsers({ commit }, payload) {
   });
   commit("setUsers", result.data);
   commit("setUserCount", result.total);
-}
-
-export async function findQuests({commit}, payload) {
-  let result = await questService.getQuests();
-
 }

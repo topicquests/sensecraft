@@ -7,12 +7,13 @@ const routes = [
       { path: '/',
         component: () => import('pages/Home.vue') 
       },
+     //Quest pages
       { path: '/quest-app',
         name: "quests",
         component: () => import('pages/Quest-app.vue') 
       },
       { path: '/quest',
-        name: "quests",
+        name: "quest",
         component: () => import('pages/quest.vue') 
       },
       { path: '/quest-landing',
@@ -54,11 +55,7 @@ const routes = [
       { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')
-      },
-      { path: '/questform',
-        name: "questform",
-        component: () => import('pages/questForm.vue') 
-      },
+      },      
       { path: '/guild',
         name: "guilds",
         component: () => import('pages/Guild-landing.vue') 

@@ -4,20 +4,19 @@
       v-if = '$store.state.auth.user' 
       style="margin-bottom: 4px;"
       label="New Quest"
-      @click="$router.replace('/quest')"
+      @click="$router.replace('/questform')"
     />
 
-    <q-table title="My Quests" :data="rootConversations" :columns="columns">
+    <q-table title="My Quests" :data="rootConversations" :columns="columns" row-key = "desc">
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
-          <q-td key="type" style="width: 30px" :props="props">
-            <i style="display: block;" :class="'ibis-icon ibis-' + props.row.type"/>
-          </q-td>
+          <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
           <q-td key="label" :props="props">{{props.row.label}}</q-td>
           <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-          <q-td key="date" :props="props">{{props.row.date}}</q-td>
+          <q-td key="status" :props="props">{{props.row.status}}</q-td>
+          <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
           <q-td key="nodeId" auto-width :props="props">
-            <router-link :to="{ name: 'questview', params: { id:  props.row.nodeId }}">View</router-link>
+            <router-link :to="{ name: 'questview', params: { id:  props.row.id }}">View</router-link>
           </q-td>
         </q-tr>
       </template>
@@ -26,36 +25,36 @@
 </template>
 
 <script>
-import api from "src/api";
-import { mapActions, mapGetters } from "vuex";
+
+import {mapGetters } from "vuex";
 
 export default {
   props: ["user"],
   data() {
     return {
-      columns: [
+      columns: [       
         {
-          name: "type",
-          required: true,
-          label: "Type",
-          align: "left",
-          field: "type",
-          sortable: true
-        },
-        {
-          name: "label",
+          name: 'desc',
           required: true,
           label: "Label",
           align: "left",
-          field: "label",
+          field: "name",
           sortable: true
         },
         {
           name: "handle",
-          required: true,
+          required: false,
           label: "Handle",
           align: "left",
           field: "handle",
+          sortable: true
+        },
+        {
+          name: "status",
+          required: false,
+          label: "Status",
+          align: "left",
+          field: "status",
           sortable: true
         },
         {
@@ -63,17 +62,17 @@ export default {
           required: true,
           label: "Date",
           align: "left",
-          field: "date",
+          field: "createdAt",
           sortable: true
         },
         {
           name: "nodeId",
-          required: true,
+          required: false,
           label: "Action",
           align: "left",
-          field: "nodeId",
+          field: "id",
           sortable: true
-        }
+        }        
       ],
       isAuthenticated: false,
       serverPagination: {},
@@ -82,39 +81,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters("conversation", { allConversations: "list" }),
-    //  rootConversations() {
-    //    return this.allConversations.filter(c => c.type === "map");
-    // }
-  },
-
-  methods: {
-    ...mapActions("quests", { findQuests: "find" }),
-    // fill(n) {
-    //   var jsx = {};
-    //   jsx.imgsm = n.imgsm;
-    //   jsx.label = `<router-link :to="{ name: 'questview', params: { nodeId: ${
-    //     n.nodeId
-    //   }}">${n.label}</router-link>`;
-    //   jsx.creator = n.creator;
-    //   jsx.handle = n.handle;
-    //   jsx.date = n.date;
-    //   console.info("JSX", jsx);
-    //   this.$data.serverData.push(jsx);
-  //  }
-  },
-  async mounted() {
-     this.$data.isAuthenticated = this.$store.state.auth.user;
-     const query = {
-        type: "map",
-         $limit: 1000
-    };
-//     console.log("Finding w query: ", JSON.stringify(query));
-     const conversations = await this.findQuests({ query });
-//     console.log("Query returned", { conversations });
-
-//     this.$store.commit("questView", false);
-  }
+    rootConversations() {     
+      return  this.$store.getters.getQuests;
+    }    
+    
+  },        
 };
 </script>
 
