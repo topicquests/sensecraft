@@ -104,7 +104,7 @@ def create_database(data, conn_data):
                 pass
         else:
             data[usert+"_password"] = password
-        extra_perms = 'CREATEROLE' if usert == 'owner' else ''
+        extra_perms = 'CREATEROLE' if usert == 'owner' else 'NOINHERIT'
         if test_user_exists(user, **conn_data):
             psql_command(
                 f"ALTER ROLE {user} WITH LOGIN {extra_perms} ENCRYPTED PASSWORD '{password}'", **conn_data)
