@@ -2,7 +2,7 @@
   <q-page :padding="true" class = "flex flex-center">
     <div class = "col" > 
     <div class = "row justify-center"> 
-      <h6>Create New Quest</h6>
+      <h3>Create New Quest</h3>
     </div>
     <div> 
       <q-card> 
@@ -51,7 +51,7 @@ const options = {
 }
  
 Vue.use(VueCkeditor.plugin, options);
-import { mapActions} from "vuex";
+import { mapActions, mapGetters} from "vuex";
 
 
 export default {
@@ -70,7 +70,7 @@ export default {
       ],
       quest: {
         name: null,
-        public: false
+        public: false,        
       }
       ,
        shape: 'line',
@@ -78,11 +78,12 @@ export default {
       details: "",
       handle: "",
       type: false,
-      user: this.$store.getters.user
+      user: this.$store.getters['user/getUser']
     };
   },
   methods: {
     ...mapActions('quests', ['createQuests']),
+    ...mapGetters('user', ['getUser']),
 
     doSubmit: function() {
       if (this.group === "public") {
@@ -92,7 +93,8 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      const conversations = this.$store.dispatch('createQuests', this.quest)
+      //console.log("Name ", quest.user.name);
+      const conversations = this.$store.dispatch('createQuests', { quest: this.quest, user: this.user })
       .then(response => {             
           this.$q.notify({
             type: "positive",

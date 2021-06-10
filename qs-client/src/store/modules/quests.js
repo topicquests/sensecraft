@@ -43,7 +43,8 @@ export default {
         },
       
         async  createQuests({commit, dispatch}, payload,) {
-            let result = await questService.createQuest(payload).then(function(result){
+            console.log("CreateUser user",  payload.user )
+            let result = questService.createQuest(payload).then(function(result){
                 dispatch('findQuests');
             }).catch(function(error){
                 console.log("Error in createQuests"), error;

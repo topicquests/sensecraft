@@ -23,9 +23,8 @@ export async function getQuests(opts) {
   export async function createQuest(quest) {
 
    return axiosInstance.post("/quests", { 
-      name: quest.name,
-      handle: quest.handle,
-      public: quest.public
+      quests: quest.quest,
+      user: quest.user      
      }).then (function(response) {
       return response;
    }). catch(function(error) {

@@ -4,6 +4,7 @@ import * as account from "./account";
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
 import quests from './modules/quests.js'
+import user from './user'
 
 
 const requireModule = require.context(
@@ -29,7 +30,8 @@ export default function (/* { ssrContext } */) {
     plugins: [...servicePlugins, authvuex],
     modules: {
       account,
-      quests
+      quests,
+      user
     }, 
 
     // enable strict mode (adds overhead!)

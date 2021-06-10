@@ -115,7 +115,9 @@ export default {
           strategy: "local",
           email: email,
           password: password
-        }).then(response => {             
+        }).then(response => {  
+          console.log("Signin ", {response}) 
+          this.$store.commit('user/setUsers', response.user)         
           this.$q.notify({
             type: "positive",
             message: "You are now signed in"
