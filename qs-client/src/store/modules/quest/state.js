@@ -1,7 +1,16 @@
 export default function ()  {
-  state: {
-    questInfo: {},
-    questNodes: {}
-  }
+ /* state: {
+    isAuthenticated: true,
+    canEdit: true,
+    getNode: {
+      node.nodeId: 'foo',
+      node.label: 'Why is the sky blue?',
+      node.type: 'Question',
+      node.questions: [],
+      node.answers: [];
+      node.pros: [],
+      node.cons:[],
+      node.refs: []
+    }
+  }*/
 }
-//note: appears to give an error in the editor, but compiles and runs

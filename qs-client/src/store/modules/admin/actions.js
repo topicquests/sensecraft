@@ -1,4 +1,4 @@
-import userService from "../../services/user";
+import userService from "../../services/user/admin";
 import { Notify } from "quasar";
 
 export async function getUsers({ commit }, payload) {

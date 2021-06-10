@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import account from "./modules/account";
+import admin from "./modules/admin";
+import quest from "./modules/quest";
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
 
@@ -34,7 +36,9 @@ export default function (/* { ssrContext } */) {
    
     plugins: [...servicePlugins, authvuex],
     modules: {
-      account
+      account,
+      admin,
+      quest
     }, 
 
     // enable strict mode (adds overhead!)

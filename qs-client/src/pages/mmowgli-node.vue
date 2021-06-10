@@ -1,10 +1,10 @@
 <template>
   <q-page :padding="true">
     <!-- Create a card centered in an upper row -->
-    <q-card inline style="width: 500px margin: auto;
+    <div inline style="width: 500px margin: auto;
       width: 60%;">
       <!-- guessing on label -->
-      <q-card-title>{{ label }}</q-card-title>
+      <h2>{{ label }}</h2>
       <!-- todo 
         needs 
           an ibis icon - how to bring that in, depends on
@@ -13,13 +13,13 @@
           context - passed in allows to know whether transcluded
           maybe other things
           -->
-    </q-card>
+    </div>
 <!-- What follows is any child nodes
    and tags around this topic
    tags dragged here from FeatherWeight
    they will be removed for the demo, but returned later -->
     <q-list>
-      <q-collapsible image="statics/images/issue.png" label="Questions" >
+      <q-expansion-item image="statics/images/issue.png" label="Questions" >
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/nodeedit/question/${q.type}/${q.nodeId}`">
@@ -31,8 +31,8 @@
             </q-item>
           </q-list>
         </div>
-      </q-collapsible>
-      <q-collapsible image="statics/images/position.png" label="Answers"      >
+      </q-expansion-item>
+      <q-expansion-item image="statics/images/position.png" label="Answers"      >
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/nodeedit/answer/${q.type}/${q.nodeId}`">
@@ -44,8 +44,8 @@
             <router-link :to="{ name: 'questview', params: { id: answer.nodeId }}">{{ answer.label }}</router-link>
           </q-item>
         </q-list>
-      </q-collapsible>
-      <q-collapsible image="statics/images/plus.png" label="Pro Arguments">
+      </q-expansion-item>
+      <q-expansion-item image="statics/images/plus.png" label="Pro Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/nodeedit/pro/${q.type}/${q.nodeId}`">
@@ -57,8 +57,8 @@
             <router-link :to="{ name: 'questview', params: { id: pro.nodeId }}">{{ pro.label }}</router-link>
           </q-item>
         </q-list>
-      </q-collapsible>
-      <q-collapsible image="statics/images/minus.png" label="Con Arguments">
+      </q-expansion-item>
+      <q-expansion-item image="statics/images/minus.png" label="Con Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/nodeedit/con/${q.type}/${q.nodeId}`">
@@ -70,21 +70,24 @@
             <router-link :to="{ name: 'questview', params: { id: con.nodeId }}">{{ con.label }}</router-link>
           </q-item>
         </q-list>
-      </q-collapsible>
-      <q-collapsible v-if="isTopic" image="statics/images/cogwheel.png" label="Subclasses">
+      </q-expansion-item>
+      <!--
+      <q-expansion-item v-if="isTopic" image="statics/images/cogwheel.png" label="Subclasses">
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/topicchild/${q.nodeId}/subclass`">
               New Subclass Topic</a>
           </div>
         </div>
+        
         <q-list>
           <q-item class="node" v-for="sub in q.subclasses" :key="sub.nodeId">
             <router-link :to="{ name: 'topicview', params: { id: sub.nodeId }}">{{ sub.label }}</router-link>
           </q-item>
-        </q-list>
-      </q-collapsible>
-      <q-collapsible v-if="isTopic" image="statics/images/cogwheel.png" label="Instances">
+        </q-list> 
+      </q-expansion-item>
+      
+      <q-expansion-item v-if="isTopic" image="statics/images/cogwheel.png" label="Instances">
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/topicchild/${q.nodeId}/instance`">
@@ -96,21 +99,23 @@
           </q-item>
         </q-list>
         </div>
-      </q-collapsible>
-      <q-collapsible image="statics/images/tag.png" label="Tags">
+      </q-expansion-item>-->
+      <!--
+      <q-expansion-item image="statics/images/tag.png" label="Tags">
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/tagform/${q.nodeId}`">
               Add Tags</a>
           </div>
         </div>
+  
         <q-list>
           <q-item class="node" v-for="tag in q.tags" :key="tag.nodeId">
             <router-link :to="{ name: 'tagview', params: { id: tag.nodeId }}">{{ tag.label }}</router-link>
           </q-item>
         </q-list>
-      </q-collapsible>
-      <q-collapsible image="statics/images/link.png" label="Connections">
+      </q-expansion-item>
+      <q-expansion-item image="statics/images/link.png" label="Connections">
         <div>
           <div>
             <div v-if="isAuthenticated" class="node">
@@ -124,8 +129,8 @@
             </q-item>
           </q-list>
         </div>
-      </q-collapsible>
-      <q-collapsible image="statics/images/properties.png" label="Properties">
+      </q-expansion-item>
+      <q-expansion-item image="statics/images/properties.png" label="Properties">
         <div>
           <div>
             <div v-if="isAuthenticated" class="node">
@@ -138,7 +143,8 @@
              <b>Key:</b> {{key}} &nbsp; <b>Value:</b> {{cleanup(value)}}
    </q-item>          </q-list>
         </div>
-      </q-collapsible>
+      </q-expansion-item>
+      -->
     </q-list> 
   </q-page>
 </template>
@@ -153,10 +159,9 @@
     props: ["id", "context"],
     data () {
       return {
-        
-        label: ''
-        //details: '',
-        //url: '',
+        label: '',
+        q: '',
+        nodeId: ''
         // id: '',
         // user: 
       }
@@ -165,6 +170,81 @@
       isAuthenticated () {
         return this.$store.getters.isAuthenticated
       }
+    },
+    mounted () {
+      this.nodeId = this.$route.params.id
+      //this.$data.rightDrawerOpen = false
+      //turn off conversation tree
+      //this.$store.commit('questView', false)
+
+      
+      this.initialize(this.nodeId)
+    },
+    methods: {
+      async initialize (id = null) {
+        //this.$store.commit('questView', true)        
+        const nodeId = id || this.$route.params.id
+        console.info('Initialize', 'fetching data for ', nodeId)
+        this.q = mock; //this.$store.quest.getters.getNode(); //('foo')
+        console.info('node',q)
+        if (q !== null) {
+          this.label = q.label;
+        } else {
+          this.label = 'Bad'
+        }
+      },
+
+        /*try {
+          const result = await this.findConversations({
+            query: { nodeId },
+            depth: 1
+          });
+          console.info("Initialize", "result", { result });
+          const {
+            data: [single]
+          } = result;
+
+          this.setCurrentConversation(single);
+          console.info("Initialize", "fetching data for ", nodeId, "success");
+          console.info("SINGLE", JSON.stringify(single));
+        } catch (e) {
+          console.info("Initialize", "fetching data for ", nodeId, "error", e);
+        }
+
+        const self = this
+        try {
+          //TODO treeview must look for 'topic' 
+          // rather than 'map' to paint a tree view
+          treeview.get(nodeId)
+            .then(function (tree) {
+              console.info('TopicTreeView', tree)
+              //const img = tree.img
+              // only show the tree if the root is a map
+              //if (img === 'statics/images/map_sm.png' ||
+              //    img === 'statics/images/bookmark_sm.png') {
+                const result = []
+                result.push(tree)
+                self.$store.commit('tree', result)
+                self.$store.commit('questView', true)
+              //}
+            })     
+        } catch (err) {
+          console.log('QuestViewTreeError', err)
+        }
+        */
+      mock () {
+        const node = {};
+        node.nodeId= 'foo',
+        node.label= 'Why is the sky blue?',
+        node.type= 'Question',
+        node.questions= [],
+        node.answers= [];
+        node.pro= [],
+        node.cons=[],
+        node.refs= []
+        return node;
+      }
+      
     }
   }
   

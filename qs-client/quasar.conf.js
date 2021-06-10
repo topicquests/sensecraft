@@ -77,7 +77,27 @@ module.exports = function (/* ctx */) {
     devServer: {
       https: false,
       port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      proxy: { // copied here from FeatherWeight
+        "/api": {
+          target: "http://localhost:8081",
+          changeOrigin: true,
+          logLevel: "debug",
+          ws: true,
+          pathRewrite: {
+            "^/api": "/"
+          }
+        },
+        '/cms': {
+          target: 'http://localhost:8082',
+          changeOrigin: true,
+          logLevel: 'debug',
+          ws: true,
+          pathRewrite: {
+            '^/cms': '/'
+          }
+        }
+      }
     },
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -96,12 +116,13 @@ module.exports = function (/* ctx */) {
       // you can manually specify Quasar components/directives to be available everywhere:
       //
       components: [
-        'QCard',
-        //'QCardTitle',
+        
+        'QExpansionItem',
         'QIcon',
         'QPage',
         'QInput',
-        'QItem',
+        'QItem'
+        
       ],
       // directives: [],
       all: "auto",
