@@ -70,10 +70,11 @@ export default {
       ],
       quest: {
         name: null,
+        handle: null,
+        status: 'draft',
         public: false,        
-      }
-      ,
-       shape: 'line',
+      },
+      shape: 'line',
       submitResult: [],
       details: "",
       handle: "",
@@ -94,7 +95,7 @@ export default {
         this.quest.public = false;
       }
       //console.log("Name ", quest.user.name);
-      const conversations = this.$store.dispatch("quests/createQuests", { quest: this.quest, user: this.user })            
+      const conversations = this.$store.dispatch("quests/createQuests", this.quest);
     },
   },
 };

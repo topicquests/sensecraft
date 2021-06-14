@@ -311,7 +311,6 @@ module.exports = function (app) {
     const users = models.users;
     quests.hasMany(quest_membership);
     quest_membership.hasOne(quests, { sourceKey: 'quest_id', foreignKey: 'id' });
-    console.log(users);
     quest_membership.hasOne(users, {sourceKey: 'user_id', foreignKey: 'id'});
     users.hasMany(quest_membership);
     users.belongsToMany(quests, { through: quest_membership, foreignKey: 'quest_id', otherKey: 'user_id' });

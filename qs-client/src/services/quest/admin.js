@@ -22,14 +22,13 @@ export async function getQuests(opts) {
 
   export  function createQuest(quest, token) {
 
-    return axiosInstance.post("/quests", { 
-      quests: quest.quest,
-      user: quest.user      
-     }, 
-    { headers: {
-        'Authorization': `Bearer ${token}`
-       }
-    }).then (function(response) {
+    return axiosInstance.post("/quests", quest,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    ).then (function(response) {
       Notify.create({
          message: `New quest was created successfully`,
          color: "positive"
