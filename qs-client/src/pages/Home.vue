@@ -63,7 +63,7 @@ import {mapActions, mapState} from "vuex";
   async beforeMount() {
 
       
-     const conversations = await this.$store.dispatch('findQuests'); 
+     const conversations = await this.$store.dispatch("quests/findQuests"); 
     
   }
         

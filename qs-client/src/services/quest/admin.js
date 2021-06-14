@@ -20,15 +20,31 @@ export async function getQuests(opts) {
    });
   }
 
-  export async function createQuest(quest) {
+  export  function createQuest(quest, token) {
 
-   return axiosInstance.post("/quests", { 
+    return axiosInstance.post("/quests", { 
       quests: quest.quest,
       user: quest.user      
-     }).then (function(response) {
-      return response;
-   }). catch(function(error) {
-   
-      console.log('HEY! Error! in createQuest:', { error });
-   });
-  }
+     }, 
+    { headers: {
+        'Authorization': `Bearer ${token}`
+       }
+    }).then (function(response) {
+      Notify.create({
+         message: `New quest was created successfully`,
+         color: "positive"
+     })
+   })
+     .catch(err => {
+      if (err.response) {
+        let errorCode = err.response.data.code;        
+          Notify.create({
+            message: `There was an error creating new quest. If this issue persists, contact support.`,
+            color: "negative"
+          });
+          console.log ("Error in creating quest ", err.response)
+          console.log("Authenentiation token : ", token)
+          
+        }
+    })
+   } 

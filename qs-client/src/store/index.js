@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as account from "./account";
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
-import quests from './modules/quests.js'
+import quests from './quest'
 import user from './user'
 
 
@@ -26,10 +25,11 @@ Vue.use(FeathersVuex);
 
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
-
+    state: {},
+    mutations: {},
+    actions: {},
     plugins: [...servicePlugins, authvuex],
     modules: {
-      account,
       quests,
       user
     }, 

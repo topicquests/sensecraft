@@ -82,7 +82,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('quests', ['createQuests']),
+    //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('user', ['getUser']),
 
     doSubmit: function() {
@@ -94,21 +94,7 @@ export default {
         this.quest.public = false;
       }
       //console.log("Name ", quest.user.name);
-      const conversations = this.$store.dispatch('createQuests', { quest: this.quest, user: this.user })
-      .then(response => {             
-          this.$q.notify({
-            type: "positive",
-            message: "New quest created successfully"
-          });
-        })
-        // Just use the returned error instead of mapping it from the store.
-        .catch((error) => {
-            console.log('HEY! Error!:', { error });
-            this.$q.notify({
-            type: "negative",
-            message: "There was an issue creating new quest"
-          });
-        });        
+      const conversations = this.$store.dispatch("quests/createQuests", { quest: this.quest, user: this.user })            
     },
   },
 };

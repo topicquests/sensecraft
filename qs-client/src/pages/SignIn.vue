@@ -116,8 +116,8 @@ export default {
           email: email,
           password: password
         }).then(response => {  
-          console.log("Signin ", {response}) 
-          this.$store.commit('user/setUsers', response.user)         
+          this.$store.commit('user/setUsers', this.$store.state.auth) 
+           console.log("Auth user: ", this.$store.getters["user/getUser"])   
           this.$q.notify({
             type: "positive",
             message: "You are now signed in"
