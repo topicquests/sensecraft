@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: blend this code with the LiteWeight view.hbs -->
   <q-page :padding="true">
     <!-- Create a card centered in an upper row -->
     <div inline style="width: 500px margin: auto;
@@ -22,16 +23,59 @@
 <!-- What follows is any child nodes
    and tags around this topic
    tags dragged here from FeatherWeight
-   they will be removed for the demo, but returned later -->
-    <q-list> <!-- start expansion items -->
+   they will be removed for the demo, but returned later 
+     <q-list> start expansion items -->
       <!-- TODO
         issues painting icons
         router settings need to reflect proper routes and prams
-      -->
+      
+    <div>  start column headers -->
+<div class="columnscroller">
+  <div class="columncontainer">
+    <div class="column" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/issue.png">Question
+        <a v-if="isAuthenticated" title="Respond" :href="'/conversation/newquestion/' + q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
+    </div>
+    <div class="column" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/position.png">Answer
+        <a v-if="isAuthenticated" :href="'/conversation/newanswer/'+ q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
+    </div>
+    <div class="column" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/plus.png">Pro
+        <a v-if="isAuthenticated" :href="'/conversation/newpro/' + q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
+    </div>
+    <div class="column" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/minus.png">Con
+        <a v-if="isAuthenticated" :href="'/conversation/newcon/' +q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
+    </div>
+    <div class="column" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/reference.png">Con
+        <a v-if="isAuthenticated" :href="'/conversation/newref/' +q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
+    </div>
+  </div> <!-- end column headers -->
+  <div class="datacontainer"> <!-- start column data -->
+    <div class="datacolumn node wordwrap" v-for="question in q.questions" :key="question.nodeId">
+      <router-link :to="{ name: 'node', params: { id: question.nodeId, context: '' }}">{{ question.label }}</router-link>
+    </div>
+    <div class="datacolum nnode" v-for="answer in q.answers" :key="answer.nodeId">
+      <router-link :to="{ name: 'node', params: { id: answer.nodeId, context: ''  }}">{{ answer.label }}</router-link>
+    </div>
+    <div class="datacolumn node" v-for="pro in q.pros" :key="pro.nodeId">
+      <router-link :to="{ name: 'node', params: { id: pro.nodeId, context: ''  }}">{{ pro.label }}</router-link>
+    </div>
+    <div class="datacolumn node" v-for="con in q.cons" :key="con.nodeId">
+      <router-link :to="{ name: 'node', params: { id: con.nodeId, context: ''  }}">{{ con.label }}</router-link>
+    </div>
+    <div class="datacolumn node" v-for="ref in q.refs" :key="ref.nodeId">
+      <router-link :to="{ name: 'node', params: { id: ref.nodeId, context: ''  }}">{{ ref.label }}</router-link>
+    </div>
+  </div> <!-- edd colum data -->
+  </div>
+      <!--
       <q-expansion-item icon="icons/ibis/issue_sm.png" label="Questions" >
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/question/${q.type}/${q.nodeId}`">
+            <a :bind-href"`/nodeedit/question/${q.type}/${q.nodeId}`">
               New Question</a>
           </div>
           <q-list>
@@ -44,7 +88,7 @@
       <q-expansion-item icon="icons/ibis/position_sm.png" label="Answers"      >
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/answer/${q.type}/${q.nodeId}`">
+            <a :bind-href"`/nodeedit/answer/${q.type}/${q.nodeId}`">
               New Answer</a>
           </div>
         </div>
@@ -57,7 +101,7 @@
       <q-expansion-item icon="icons/ibis/plus_sm.png" label="Pro Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/pro/${q.type}/${q.nodeId}`">
+            <a :bind-href"`/nodeedit/pro/${q.type}/${q.nodeId}`">
               New Pro Argument</a>
           </div>
         </div>
@@ -70,7 +114,7 @@
       <q-expansion-item icon="icons/ibis/minus_sm.png" label="Con Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/con/${q.type}/${q.nodeId}`">
+            <a :bind-href"`/nodeedit/con/${q.type}/${q.nodeId}`">
               New Con Argument</a>
           </div>
         </div>
@@ -80,11 +124,11 @@
           </q-item>
         </q-list>
       </q-expansion-item>
-      <!--
-      <q-expansion-item v-if="isTopic" image="statics/images/cogwheel.png" label="Subclasses">
+      
+      <q-expansion-item v-if="isTopic" image="staticsicons/cogwheel.png" label="Subclasses">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/topicchild/${q.nodeId}/subclass`">
+            <a :bind-href"`/topicchild/${q.nodeId}/subclass`">
               New Subclass Topic</a>
           </div>
         </div>
@@ -96,10 +140,10 @@
         </q-list> 
       </q-expansion-item>
       
-      <q-expansion-item v-if="isTopic" image="statics/images/cogwheel.png" label="Instances">
+      <q-expansion-item v-if="isTopic" image="staticsicons/cogwheel.png" label="Instances">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/topicchild/${q.nodeId}/instance`">
+            <a :bind-href"`/topicchild/${q.nodeId}/instance`">
               New Instance Topic</a>
           </div>
         <q-list>
@@ -110,10 +154,10 @@
         </div>
       </q-expansion-item>-->
       <!--
-      <q-expansion-item image="statics/images/tag.png" label="Tags">
+      <q-expansion-item image="staticsicons/tag.png" label="Tags">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/tagform/${q.nodeId}`">
+            <a :bind-href"`/tagform/${q.nodeId}`">
               Add Tags</a>
           </div>
         </div>
@@ -124,11 +168,11 @@
           </q-item>
         </q-list>
       </q-expansion-item>
-      <q-expansion-item image="statics/images/link.png" label="Connections">
+      <q-expansion-item image="staticsicons/link.png" label="Connections">
         <div>
           <div>
             <div v-if="isAuthenticated" class="node">
-              <a :href="`/connedit/${q.nodeId}`">
+              <a :bind-href"`/connedit/${q.nodeId}`">
                 New Connection</a>
             </div>
           </div>
@@ -139,11 +183,11 @@
           </q-list>
         </div>
       </q-expansion-item>
-      <q-expansion-item image="statics/images/properties.png" label="Properties">
+      <q-expansion-item image="staticsicons/properties.png" label="Properties">
         <div>
           <div>
             <div v-if="isAuthenticated" class="node">
-              <a :href="`/props/${q.nodeId}`">
+              <a :bind-href"`/props/${q.nodeId}`">
                 New Property</a>
             </div>
           </div>
@@ -152,16 +196,13 @@
              <b>Key:</b> {{key}} &nbsp; <b>Value:</b> {{cleanup(value)}}
    </q-item>          </q-list>
         </div>
-      </q-expansion-item>
+    </q-expansion-item>
       -->
-    </q-list> <!-- end expansion items -->
+    <!-- </q-list>  end expansion items -->
   </q-page>
 </template>
 
 <script>
-  //TODO
-  // There are template fixes in mmowgli-node-alt which need
-  // to be patched in here
   export default {
     //id = this node's id
     //context = the context of this node: if empty
@@ -238,8 +279,8 @@
               console.info('TopicTreeView', tree)
               //const img = tree.img
               // only show the tree if the root is a map
-              //if (img === 'statics/images/map_sm.png' ||
-              //    img === 'statics/images/bookmark_sm.png') {
+              //if (img === 'staticsicons/map_sm.png' ||
+              //    img === 'staticsicons/bookmark_sm.png') {
                 const result = []
                 result.push(tree)
                 self.$store.commit('tree', result)
@@ -331,5 +372,61 @@
   margin: 12px;
   font-family: pragmatica-web, sans-serif;
   border-radius: 3px;
+}
+
+/** from view.hbs */
+/**
+ * Enable columns to scroll right and left
+ */
+.columnscroller {
+    border: 1px solid black;
+    width: 960;
+    white-space:nowrap;
+    overflow-x: scroll; 
+    overflow-y: hidden;
+    margin: 12px;
+    border-radius: 3px;
+}
+
+/**
+ * width is set to accomodate lots of columns.
+ * If they wrap when adding more columns, then
+ * width must increase.
+ * The formula seems to be column width * num colums + 100px  2500
+ */
+.columncontainer {
+	width: 1200px;
+}
+.datacontainer {
+    width: 1200px;
+}
+
+.headerimage {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+.column {
+    float:left;
+    white-space:normal;
+    border: 1px solid black;
+    width: 270px;
+    height: 34px;
+    background: rgb(240, 234, 234);
+    border-radius: 3px;
+    margin-left: 4px;
+    margin-right: 4px;
+    font-family:pragmatica-web,sans-serif;    
+}
+.datacolumn {
+    height: 400px; 
+    float:left;
+    border: 1px solid white;
+    width: 270px;
+    background: white;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    break-inside: avoid;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 </style>

@@ -8,7 +8,7 @@ const routes = [
         component: () => import('pages/Home.vue') 
       },
       { path: '/quest/:quest_id',
-        name: "quests",
+        name: "quest",
         component: () => import('pages/Quest-app.vue') 
       },
       { path: '/quest',
@@ -41,7 +41,7 @@ const routes = [
       {
         path: '/node/:id/:context',
         name: "node",
-        component: () => import('pages/mmowgli-node.vue') 
+        component: () => import('pages/mmowgli-node-alt.vue') 
       },
       { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
