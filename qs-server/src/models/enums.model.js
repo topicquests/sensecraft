@@ -22,9 +22,11 @@ module.exports = {
     'acceptQuestMembership',
     'revokeQuestMembership',
     'rejectGameMove',
+    'guildAdmin',
   ),
 
   Roles: Sequelize.DataTypes.ENUM(
+    'Critic',
   ),
 
   GameMoveType: Sequelize.DataTypes.ENUM(
