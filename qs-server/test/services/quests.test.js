@@ -1,6 +1,5 @@
 const assert = require('assert');
 const app = require('../../src/app');
-const sequelize = app.get('sequelizeClient');
 
 describe('\'quests\' service', () => {
   describe('registered the services', () => {

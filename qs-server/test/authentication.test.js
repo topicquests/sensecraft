@@ -1,7 +1,5 @@
 const assert = require('assert');
 const app = require('../src/app');
-const sequelize = app.get('sequelizeClient');
-const db_name = sequelize.getDatabaseName();
 
 describe('authentication', () => {
   it('registered the authentication service', () => {
