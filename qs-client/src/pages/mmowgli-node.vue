@@ -4,7 +4,7 @@
     <div inline style="width: 500px margin: auto;
       width: 60%;">
       <!-- guessing on label -->
-      <h2><img style="margin-right:4px;" :src="q.img" {{ label }}></h2>
+      <h2><img style="margin-right:4px;" :src="q.img" >{{ q.label }}</h2>
       <!-- todo 
         needs 
           an ibis icon - how to bring that in, depends on
