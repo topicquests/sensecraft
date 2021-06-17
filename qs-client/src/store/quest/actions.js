@@ -4,14 +4,22 @@ import { Notify } from "quasar";
 
 export  function createQuests({commit, dispatch}, payload,) {
     console.log("Createquest ",  payload.user )
-    const token = this.state.auth.accessToken
+    const token = this.state.auth.accessToken;
     let result = questService.createQuest(payload,token)
+    .then (function(result) {
+        dispatch('findQuests');
+    }).catch(function(error) {
+        console.log('Error in createQuest', error)
+    })
 }  
 
 
 export async function findQuests( {commit}, payload) {
-    let result =  questService.getQuests(payload).then(function(result) {
-        commit('SET_QUEST_DATA', result.data);
+    const token = this.state.auth.accessToken;
+    let result =  questService.getQuests(payload, token)
+        .then(function(result) {
+            console.log('findQuest result: ', result.data);
+            commit('SET_QUEST_DATA', result.data);
     }).catch(function(error){
         console.log("Error in findQuests", error);
     })            

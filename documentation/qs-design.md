@@ -32,7 +32,6 @@ When users are not logged in they do not have access to pages that contain users
 
 Pages requiring user to be logged in to view
 
-* Khub
 * Quest
 * Guild
 
@@ -150,4 +149,6 @@ Form data
 ### Quest Pages
 
 Quest
+Quest Landing
+QuestForm
 

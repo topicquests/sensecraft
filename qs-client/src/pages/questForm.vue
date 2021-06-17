@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import api from 'src/api'
+
 import Vue from 'vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import VueCkeditor from 'vue-ckeditor5'

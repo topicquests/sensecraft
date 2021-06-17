@@ -3,7 +3,7 @@ export function someGetter (state) {
 }
 */
 
-export function getQuestByStatus(state, stat) { 
+export const getQuestByStatus = (state) => (stat) => { 
         
     return state.quests.filter(quests => quests.status === stat);     
 }

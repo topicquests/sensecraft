@@ -1,10 +1,16 @@
 import { Notify } from "quasar";
-import feathersClient from "../../boot/feathersClient";
 import axiosInstance from "../../boot/axios";
 
-export async function getQuests(opts) {
+export async function getQuests(opts, token) {
     
-    return axiosInstance.get("/quests", opts).then(function(response) {
+    return axiosInstance.get("/quests",
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  ).then(function(response) {
+    console.log("Quest response: ", response);
      return response;
    }).catch(function(error){
       console.log("Error in getQuests");

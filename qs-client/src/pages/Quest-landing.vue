@@ -82,7 +82,7 @@ export default {
 
   computed: {
     rootConversations() {     
-      return  this.$store.getters.getQuests;
+      return  this.$store.getters['quests/getQuests'];
     }    
     
   },        

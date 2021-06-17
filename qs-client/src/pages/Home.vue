@@ -38,7 +38,7 @@
 
 <script>
 
-import {mapActions, mapState} from "vuex";
+import {mapActions} from "vuex";
 
   export default {
     data() {
@@ -48,23 +48,17 @@ import {mapActions, mapState} from "vuex";
       },
   
   computed: {
-    ...mapState({
-     
-    })
+        
+
   },
 
 
   methods: {
-   ...mapActions('quests', ['quests/findQuests']),
-
-   
+   ...mapActions('quests', ['quests/findQuests'])   
   },
  
-  async beforeMount() {
-
-      
-     const conversations = await this.$store.dispatch("quests/findQuests"); 
-    
+  async beforeMount() {        
+     const conversations = await this.$store.dispatch('quests/findQuests');     
   }
         
     };

@@ -119,19 +119,16 @@ export default {
   },
 
   computed: {
-    notStartedQuests() {   
-     let found = this.$store.getters.getQuestByStatus('draft') 
-     console.log("Quests with draft", found);
-   
-      return  this.$store.getters.getQuestByStatus('draft');
+    notStartedQuests() {  
+      return  this.$store.getters['quests/getQuestByStatus']("draft");
     },
     
     ongoingQuests() {     
-       return  this.$store.getters.getQuestByStatus('ongoing');
+       return  this.$store.getters['quests/getQuestByStatus']('ongoing');
     },
 
     finishedQuests() {     
-       return  this.$store.getters.getQuestByStatus('finished');
+       return  this.$store.getters['quests/getQuestByStatus']('finished');
     }     
   } 
 };
