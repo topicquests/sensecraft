@@ -36,7 +36,6 @@
                 <q-icon name="person" />
               </template>                
               </q-input>
-              </q-input>
               <q-input 
                 square clearable 
                 v-model="formdata.handle"  
