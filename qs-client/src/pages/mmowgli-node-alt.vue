@@ -32,32 +32,32 @@
     <div>  start column headers -->
 <div class="columnscroller">
   <div class="columncontainer">
-    <div class="column" style="text-align: center;">
-        <img class="headerimage" src="icons/ibis/issue.png">Question
+    <div class="column headerNode" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/issue_sm.png">Question
         <a v-if="isAuthenticated" title="Respond" :href="'/conversation/newquestion/' + q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
     </div>
-    <div class="column" style="text-align: center;">
-        <img class="headerimage" src="icons/ibis/position.png">Answer
+    <div class="column headerNode" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/position_sm.png">Answer
         <a v-if="isAuthenticated" :href="'/conversation/newanswer/'+ q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
     </div>
-    <div class="column" style="text-align: center;">
-        <img class="headerimage" src="icons/ibis/plus.png">Pro
+    <div class="column headerNode" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/plus_sm.png">Pro
         <a v-if="isAuthenticated" :href="'/conversation/newpro/' + q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
     </div>
-    <div class="column" style="text-align: center;">
-        <img class="headerimage" src="icons/ibis/minus.png">Con
+    <div class="column headerNode" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/minus_sm.png">Con
         <a v-if="isAuthenticated" :href="'/conversation/newcon/' +q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
     </div>
-    <div class="column" style="text-align: center;">
-        <img class="headerimage" src="icons/ibis/reference.png">Con
+    <div class="column headerNode" style="text-align: center;">
+        <img class="headerimage" src="icons/ibis/reference_sm.png">Con
         <a v-if="isAuthenticated" :href="'/conversation/newref/' +q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
     </div>
   </div> <!-- end column headers -->
   <div class="datacontainer"> <!-- start column data -->
-    <div class="datacolumn node wordwrap" v-for="question in q.questions" :key="question.nodeId">
+    <div class="datacolumn node" v-for="question in q.questions" :key="question.nodeId">
       <router-link :to="{ name: 'node', params: { id: question.nodeId, context: '' }}">{{ question.label }}</router-link>
     </div>
-    <div class="datacolum nnode" v-for="answer in q.answers" :key="answer.nodeId">
+    <div class="datacolum node" v-for="answer in q.answers" :key="answer.nodeId">
       <router-link :to="{ name: 'node', params: { id: answer.nodeId, context: ''  }}">{{ answer.label }}</router-link>
     </div>
     <div class="datacolumn node" v-for="pro in q.pros" :key="pro.nodeId">
@@ -318,8 +318,8 @@
 </script>
 <style lang="styl">
 .q-item-image {
-    min-width: 20px;
-    max-width: 20px;
+    min-width: 10px;
+    max-width: 10px;
 }
 
 .scroll.relative-position.overflow-hidden.fit.q-touch {
@@ -380,11 +380,11 @@
  */
 .columnscroller {
     border: 1px solid black;
-    width: 960;
+    width: 100%;
     white-space:nowrap;
     overflow-x: scroll; 
     overflow-y: hidden;
-    margin: 12px;
+    margin: 0px;
     border-radius: 3px;
 }
 
@@ -405,16 +405,29 @@
     vertical-align: middle;
     margin-right: 4px;
 }
+
+.headernode {
+  float: top;
+  border: 1px solid black;
+  border-radius: 3px;
+  font-family: pragmatica-web, sans-serif;
+  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  white-space: pre-wrap; /* css-3 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  white-space: normal;
+}
 .column {
     float:left;
     white-space:normal;
-    border: 1px solid black;
-    width: 270px;
+    border: 0px solid black;
+    width: 260px;
     height: 34px;
     background: rgb(240, 234, 234);
     border-radius: 3px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 1px;
+    margin-right: 1px;
     font-family:pragmatica-web,sans-serif;    
 }
 .datacolumn {
