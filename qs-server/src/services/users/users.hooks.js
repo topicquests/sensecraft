@@ -6,28 +6,44 @@ const {hashPassword, protect} = require('@feathersjs/authentication-local').hook
 
 module.exports = {
   before: {
-    all(context) {
-      // Get the Sequelize instance. In the generated application via:
-      context.params.sequelize = Object.assign({
-        sequelize: context.app.get('sequelizeClient')
-      }, context.params.sequelize);
-      return context;
-    },
-    find: [ authenticate('jwt') ],
-    get: [ authenticate('jwt') ],
+    all: [
+      async (context) => {
+        if (context.params.authentication && context.params.authentication.accessToken) {
+          const f = authenticate('jwt');
+          try {
+            context = await f(context);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        const sequelize = context.app.get('sequelizeClient');
+        context.params.sequelize = Object.assign({
+          sequelize
+        }, context.params.sequelize);
+        context.params.sequelize.transaction =
+          context.params.sequelize.transaction || await sequelize.transaction();
+        return context;
+      },
+    ],
+    find: [],
+    get: [],
     create: [   
       lowerCase('email'),
       hashPassword('password')], 
-    update: [ hashPassword('password'),  authenticate('jwt') ],
-    patch: [ hashPassword('password'),  authenticate('jwt') ],
-    remove: [ authenticate('jwt') ]
+    update: [ hashPassword('password') ],
+    patch: [ hashPassword('password') ],
+    remove: []
   },
 
   after: {
     all: [ 
       // Make sure the password field is never sent to the client
       // Always must be the last hook
-      protect('password')
+      protect('password'),
+      async (context) => {
+        await context.params.sequelize.transaction.commit();
+        return context;
+      }
     ],
     find: [],
     get: [],
@@ -38,7 +54,12 @@ module.exports = {
   },
 
   error: {
-    all: [],
+    all: [
+      async (context) => {
+        await context.params.sequelize.transaction.rollback();
+        return context;
+      }
+    ],
     find: [],
     get: [],
     create: [],

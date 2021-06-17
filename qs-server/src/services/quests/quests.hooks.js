@@ -1,14 +1,26 @@
-
+const { authenticate } = require('@feathersjs/authentication').hooks;
 
 module.exports = {
   before: {
-    all(context) {
-      // Get the Sequelize instance. In the generated application via:
-      context.params.sequelize = Object.assign({
-        sequelize: context.app.get('sequelizeClient')
-      }, context.params.sequelize);
-      return context;
-    },
+    all: [
+      async (context) => {
+        if (context.params.authentication && context.params.authentication.accessToken) {
+          const f = authenticate('jwt');
+          try {
+            context = await f(context);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        const sequelize = context.app.get('sequelizeClient');
+        context.params.sequelize = Object.assign({
+          sequelize
+        }, context.params.sequelize);
+        context.params.sequelize.transaction =
+          context.params.sequelize.transaction || await sequelize.transaction();
+        return context;
+      },
+    ],
     find: [],
     get: [],
     create: [],
@@ -18,7 +30,12 @@ module.exports = {
   },
 
   after: {
-    all: [],
+    all: [
+      async (context) => {
+        await context.params.sequelize.transaction.commit();
+        return context;
+      }
+    ],
     find: [],
     get: [],
     create: [],
@@ -28,7 +45,12 @@ module.exports = {
   },
 
   error: {
-    all: [],
+    all: [
+      async (context) => {
+        await context.params.sequelize.transaction.rollback();
+        return context;
+      }
+    ],
     find: [],
     get: [],
     create: [],

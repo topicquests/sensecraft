@@ -9,7 +9,10 @@ exports.Service = class RoleSequelize extends Service {
     // but not sure it's good enough.
     if (params.transaction) {
       params.sequelize = Object.assign({ transaction: params.transaction }, params.sequelize);
+    } else if (params.sequelize.transaction) {
+      params.transaction = params.sequelize.transaction;
     }
+
     if (params.sequelize.sequelize) {
       const dbname = params.sequelize.sequelize.getDatabaseName();
       var role;
