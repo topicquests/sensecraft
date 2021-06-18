@@ -16,11 +16,12 @@ exports.Service = class RoleSequelize extends Service {
     if (params.sequelize.sequelize) {
       const dbname = params.sequelize.sequelize.getDatabaseName();
       var role;
-      if (params.sequelize.user) {
-        if (params.sequelize.user === 'owner') {
+      const user = params.sequelize.user || params.user;
+      if (user) {
+        if (user === 'owner') {
           role = `${dbname}__owner`;
         } else {
-          const username = params.sequelize.user.handle;
+          const username = user.handle;
           role = `${dbname}__m_${username}`;
         }
       } else {
