@@ -102,7 +102,7 @@ module.exports = function (app) {
         await sequelize.query(
           `GRANT SELECT ON quests, quest_membership, public_quests, my_quest_memberships TO ${db_name}__member, ${db_name}__client`);
         await sequelize.query(
-          `GRANT INSERT ON quests, quest_membership TO ${db_name}__member`);
+          `GRANT INSERT, UPDATE ON quests, quest_membership TO ${db_name}__member`);
         await sequelize.query(
           `GRANT USAGE ON public.quests_id_seq TO ${db_name}__member`);
 

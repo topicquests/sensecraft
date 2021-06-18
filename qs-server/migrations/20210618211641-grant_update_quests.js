@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     const db_name = queryInterface.sequelize.getDatabaseName();
     await queryInterface.sequelize.query(
-      `GRANT INSERT ON quests, quest_membership TO ${db_name}__member`);
+      `GRANT UPDATE ON quests, quest_membership TO ${db_name}__member`);
     await queryInterface.createFunction(
       'is_quest_id_member', [
         {type: 'integer', name: 'questid', direction: 'IN'}
