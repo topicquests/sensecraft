@@ -125,7 +125,7 @@ module.exports = function (app) {
           ], 'boolean', 'plpgsql',
           `RETURN (SELECT count(*) FROM quest_membership
           JOIN users ON users.id=user_id
-          WHERE quests_id = questid
+          WHERE quest_id = questid
           AND confirmed
           AND users.handle = scuser_handle()) > 0;`,
           ['STABLE'], { force: true }

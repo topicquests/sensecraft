@@ -14,7 +14,8 @@ module.exports = {
         }
         const sequelize = context.app.get('sequelizeClient');
         context.params.sequelize = Object.assign({
-          sequelize
+          sequelize,
+          user: context.params.user
         }, context.params.sequelize);
         context.params.sequelize.transaction =
           context.params.sequelize.transaction || await sequelize.transaction();
