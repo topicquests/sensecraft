@@ -23,7 +23,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">       
-      <ckeditor type="classic" v-model="details" ></ckeditor>
+      <ckeditor type="classic" v-model="quest.description" ></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">       
       <q-input v-model="quest.handle" label = "Handle" />
@@ -92,7 +92,6 @@ export default {
     ...mapGetters('user', ['getUser']), 
 
     doSubmit: function() {
-      console.log("Doing summit");
       if (this.group === "public") {
         this.quest.public = true;
       }
@@ -106,18 +105,9 @@ export default {
   },
   
   mounted() {
-   this.$data.quest.id = this.$route.params.id; 
-   console.log("Quest id: ", this.$data.quest.id);  
+   this.$data.quest.id = this.$route.params.id;   
    const response = this.$store.getters['quests/getQuestById'] (this.$data.quest.id);
-   this.$data.quest.name = response[0].name;
-   this.$data.quest.handle = response[0].handle;
-   this.$data.quest.public = response[0].public;
-   this.$data.quest.creator = response[0].creator;
-   this.$data.quest.description = response[0].description;
-   this.$data.quest.status = response[0].status;
-   this.$data.quest.createdAt = response[0].createdAt;
-   this.$data.quest.updatedAt = response[0].updatedAt;
-   console.log("Quest by id :", response[0].name);   
+   this.$data.quest = response[0];  
   }
 };
 </script>

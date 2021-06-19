@@ -23,7 +23,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">       
-      <ckeditor type="classic" v-model="details" ></ckeditor>
+      <ckeditor type="classic" v-model="quest.description" ></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">       
       <q-input v-model="quest.handle" label = "Handle" />
@@ -72,7 +72,8 @@ export default {
         name: null,
         handle: null,
         status: 'draft',
-        public: false,        
+        public: false,
+        description: null        
       },
       shape: 'line',
       submitResult: [],
