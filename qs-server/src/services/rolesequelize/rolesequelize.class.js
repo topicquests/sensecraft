@@ -63,7 +63,7 @@ exports.Service = class RoleSequelize extends Service {
 
   async _update (id, data, params = {}) {
     await this.setRole(params);
-    return super._update (id, data, params);
+    return super._update (id, data, params);    
   }
 
   async _remove (id, params = {}) {

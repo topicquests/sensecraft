@@ -17,13 +17,31 @@ export async function getQuests(opts, token) {
    });
   }
 
-  export async function updateQuest(quest) {
+  export async function updateQuest(quest, token) {
+    const id = quest.id;
 
-   return axiosInstance.put("/quests", { quest }).then (function(response) {
+   return axiosInstance.put(`/quests/${id}`, quest, 
+   {
+   headers: {
+    'Authorization': `Bearer ${token}`
+   }
+  }).then (function(response) {
+    Notify.create({
+      message: `Quest was updated successfully`,
+      color: "positive"
+  });
       return response;
-   }). catch(function(error) {
-      console.log("Error in updateQuest")
-   });
+   }).catch(err => {
+    if (err.response) {
+      let errorCode = err.response.data.code;        
+        Notify.create({
+          message: `There was an error updating quest. If this issue persists, contact support.`,
+          color: "negative"
+        });
+        console.log ("Error in creating quest ", err.response)
+        console.log("Authenentiation token : ", token)
+      }        
+    })
   }
 
   export  function createQuest(quest, token) {
@@ -48,8 +66,7 @@ export async function getQuests(opts, token) {
             color: "negative"
           });
           console.log ("Error in creating quest ", err.response)
-          console.log("Authenentiation token : ", token)
-          
+          console.log("Authenentiation token : ", token)          
         }
     })
    } 

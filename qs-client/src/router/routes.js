@@ -16,9 +16,17 @@ const routes = [
         name: "quest",
         component: () => import('pages/quest.vue') 
       },
+      {path: 'questform',
+        name: "questform",
+        component: () => import('pages/questForm.vue')
+      },
       { path: '/quest-landing',
         name: "quest-landing",
         component: () => import('pages/Quest-landing.vue') 
+      },
+      { path: '/questEdit',
+        name: "questedit",
+        component: () => import('pages/questEdit.vue') 
       },
       { path: '/guild',
         name: "guild",

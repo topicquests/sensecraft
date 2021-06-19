@@ -10,6 +10,7 @@
                   <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
                   <q-td key="label" :props="props">{{props.row.label}}</q-td>
                   <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                  <q-td key="public" :props="props">{{props.row.public}}</q-td>
                   <q-td key="status" :props="props">{{props.row.status}}</q-td>
                   <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
                   <q-td key="nodeId" auto-width :props="props">
@@ -28,11 +29,12 @@
             <template slot="body" slot-scope="props">
               <q-tr :props="props">
                 <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-                <q-td key="label" :props="props">{{props.row.label}}</q-td>
-                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                <q-td key="status" :props="props">{{props.row.status}}</q-td>
-                <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
-                <q-td key="nodeId" auto-width :props="props">
+                  <q-td key="label" :props="props">{{props.row.label}}</q-td>
+                  <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                  <q-td key="public" :props="props">{{props.row.public}}</q-td>
+                  <q-td key="status" :props="props">{{props.row.status}}</q-td>
+                  <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
+                  <q-td key="nodeId" auto-width :props="props">
                   <router-link :to="{ name: 'questview', params: { id:  props.row.id }}">View</router-link>
                 </q-td>
               </q-tr>
@@ -48,11 +50,12 @@
           <template slot="body" slot-scope="props">
             <q-tr :props="props">
               <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-              <q-td key="label" :props="props">{{props.row.label}}</q-td>
-              <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-              <q-td key="status" :props="props">{{props.row.status}}</q-td>
-              <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
-              <q-td key="nodeId" auto-width :props="props">
+                  <q-td key="label" :props="props">{{props.row.label}}</q-td>
+                  <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                  <q-td key="public" :props="props">{{props.row.public}}</q-td>
+                  <q-td key="status" :props="props">{{props.row.status}}</q-td>
+                  <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
+                  <q-td key="nodeId" auto-width :props="props">
                 <router-link :to="{ name: 'questview', params: { id:  props.row.id }}">View</router-link>
               </q-td>
             </q-tr>
@@ -88,6 +91,14 @@ export default {
           label: "Handle",
           align: "left",
           field: "handle",
+          sortable: true
+        },
+        {
+          name: "public",
+          required: false,
+          label: "Public",
+          align: "left",
+          field: "public",
           sortable: true
         },
         {

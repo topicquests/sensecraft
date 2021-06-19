@@ -16,7 +16,7 @@
           <q-td key="status" :props="props">{{props.row.status}}</q-td>
           <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
           <q-td key="nodeId" auto-width :props="props">
-            <router-link :to="{ name: 'questview', params: { id:  props.row.id }}">View</router-link>
+            <router-link :to="{ name: 'questedit', params: { id:  props.row.id }}">Edit</router-link>
           </q-td>
         </q-tr>
       </template>
