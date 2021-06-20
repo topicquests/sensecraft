@@ -32,7 +32,6 @@ When users are not logged in they do not have access to pages that contain users
 
 Pages requiring user to be logged in to view
 
-* Khub
 * Quest
 * Guild
 
@@ -50,6 +49,9 @@ qs-server used for backend code
 Standard feathers folder structure
 
 Standard Vue and Vuex folder structure
+*Store
+*Modules
+
 
 &nbsp;
 &nbsp;
@@ -141,3 +143,12 @@ Form data
 
 * Email
 * Password
+
+## Pages
+
+### Quest Pages
+
+Quest
+Quest Landing
+QuestForm
+

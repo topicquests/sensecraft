@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import account from "./modules/account";
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
+import quests from './quest'
+import user from './user'
 
 
 const requireModule = require.context(
@@ -20,36 +21,17 @@ const servicePlugins = requireModule
   
 Vue.use(Vuex)
 Vue.use(FeathersVuex);
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
- */
+
 
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
-    state: {
-  
-     },
-    
-     getters: {
-     
-    },
-
-    actions: {
-
-    },
-
-    mutations: {        
-    
-    },
-    
+    state: {},
+    mutations: {},
+    actions: {},
     plugins: [...servicePlugins, authvuex],
     modules: {
-      account
+      quests,
+      user
     }, 
 
     // enable strict mode (adds overhead!)

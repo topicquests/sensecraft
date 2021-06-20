@@ -2,7 +2,7 @@
   <q-page :padding="true" class = "flex flex-center">
     <div class = "col" > 
     <div class = "row justify-center"> 
-      <h3>Create New Quest</h3>
+      <h3>Edit Quest</h3>
     </div>
     <div> 
       <q-card> 
@@ -72,8 +72,12 @@ export default {
         name: null,
         handle: null,
         status: 'draft',
-        public: false,
-        description: null        
+        public: false, 
+        id: null,
+        description: null,
+        creator: null, 
+        createdAt: null, 
+        updatedAt: null     
       },
       shape: 'line',
       submitResult: [],
@@ -85,7 +89,7 @@ export default {
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('user', ['getUser']),
+    ...mapGetters('user', ['getUser']), 
 
     doSubmit: function() {
       if (this.group === "public") {
@@ -96,9 +100,15 @@ export default {
         this.quest.public = false;
       }
       //console.log("Name ", quest.user.name);
-      const conversations = this.$store.dispatch("quests/createQuests", this.quest);
-    },
+      const conversations = this.$store.dispatch("quests/updateQuests", this.quest);
+    }
   },
+  
+  mounted() {
+   this.$data.quest.id = this.$route.params.id;   
+   const response = this.$store.getters['quests/getQuestById'] (this.$data.quest.id);
+   this.$data.quest = response[0];  
+  }
 };
 </script>
 

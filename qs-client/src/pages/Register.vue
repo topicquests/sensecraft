@@ -99,45 +99,31 @@ export default {
 
   methods: {
   doRegister() {
-  const theEmail = this.$data.formdata.email;
-  const theHandle = this.$data.formdata.handle;
-  const theName = this.$data.formdata.name;
+    const theEmail = this.$data.formdata.email;
+    const theHandle = this.$data.formdata.handle;
+    const theName = this.$data.formdata.name;
   
-  if (!theEmail) {
-  this.$q.notify({ type: "negative", message: "Missing Email" });
-  return;
-  }
+    if (!theEmail) {
+      this.$q.notify({ type: "negative", message: "Missing Email" });
+      return;
+    }
 
-  if (!theHandle) {
-    this.$q.notify({ type: "negative", message: "Missing Handle" });
-    return;
-  }
-  if (!theName) {
-    this.$q.notify({ type: "negative", message: "Missing name field" });
-    return;
-  }
+    if (!theHandle) {
+      this.$q.notify({ type: "negative", message: "Missing Handle" });
+      return;
+    }
 
-  if (!this.$data.formdata.password) {
-    this.$q.notify({ type: "negative", message: "Missing Password" });
-    return;
-  }
+    if (!theName) {
+      this.$q.notify({ type: "negative", message: "Missing name field" });
+      return;
+    }
 
-  this.$store.dispatch("account/registerUser", {formdata: this.formdata})
-  .then(response => {
-          this.$q.notify({
-            type: "positive",
-            message: "Please check your email for verification!"
-          });
-          this.goHome();
-        }).catch((error) => {
-          // user must be invited and isn't
-          console.log('HEY! Error!:', { error });
-          this.$q.notify({
-            type: "negative",
-            message: "Cannot register, email not found on invitations list"
-          });
-          this.goHome();
-        })
+    if (!this.$data.formdata.password) {
+      this.$q.notify({ type: "negative", message: "Missing Password" });
+      return;
+    }
+
+    this.$store.dispatch("user/registerUser", {formdata: this.formdata})
   },
 
   goHome() {

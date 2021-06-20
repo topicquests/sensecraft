@@ -2,7 +2,7 @@
 <q-page class="bg-blue">
   <div class="row justify-center text-center bg-primary">          
            <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg"> Where teams co-construct structured conversation</div>           
-  </div>
+  </div>  
   <div class="row justify-center">
     <img  class="q-pt-xl q-pb-lb " src="../statics/earthrise2.png" 
     style ="margin-left:auto; margin-right:auto">
@@ -35,10 +35,33 @@
 </q-page>
 </template>
 
+
 <script>
-    export default {
+
+import {mapActions} from "vuex";
+
+  export default {
+    data() {
+      return {
+          payload: 100
+        }
+      },
+  
+  computed: {
         
-    }
+
+  },
+
+
+  methods: {
+   ...mapActions('quests', ['quests/findQuests'])   
+  },
+ 
+  async beforeMount() {        
+     const conversations = await this.$store.dispatch('quests/findQuests');     
+  }
+        
+    };
 </script>
 
 <style lang="scss" scoped>

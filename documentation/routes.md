@@ -22,6 +22,32 @@ If authenticated:
 
 ### signin `/signin`
 
+## Quest App pages
+
+### quest_page `/quest/:quest_id/`
+
+the landing page of the quest.
+Also show the involved guilds.
+
+### create_quest `/quest/create`
+
+Quest creation page (where quest_id will be determined)
+
+### quest_edit `/quest/:quest_id/edit`
+
+Edit the quest data.
+(Start date of each phase; name and description)
+Possibly here: mechanism for final scores.
+
+### quest_tree `/quest/:quest_id/tree`
+
+Show the quest's node tree, each node leads to quest_node_view.
+
+### quest_node_view `/quest/:quest_id/node/:node_id`
+
+Single-node view in the quest. Similar to node_view.
+Also: mechanisms for scoring.
+
 ### quest_list `/quest`
 
 List of public quests on the platform.
@@ -29,23 +55,13 @@ Q: Should this be in quest app?
 Include private quests you are part of if logged in.
 If you have appropriate permissions, also a form to create a quest. (separate page?)
 
-### guild_list `/guild`
+### quest_roster `/guild/:guild_id/quest/:quest_id/roster`
 
-List of public guilds on the platform
-Q: Should this be in guild app?
-Include private guilds you are part of if logged in.
-If you have appropriate permissions, also a form to create a guild. (separate page?)
+The reference page of the roster (immutable?) after you've submitted registration.
 
-### member_list `/member`
+### quest_conversation `/guild/:guild_id/quest/:quest_id/tree`
 
-The list of KHub members. Only visible if authenticated.
-
-### member_page `/member/:member_id`
-
-The page of the KHub member
-
-* All the guilds they belong(ed) to, leading to the guild_member_page
-* All the quests they participated in, with awards (scores and badges). Link to quest_member_page
+Show the whole quest tree from the root (and our proposals also)
 
 ## Guild App pages
 
@@ -86,6 +102,26 @@ The record of that member's activity in this guild.
 
 v2: If the user is not in the guild yet, allows the leadership to invite or accept a request for membership.
 
+### guild_list `/guild`
+
+List of public guilds on the platform
+Q: Should this be in guild app?
+Include private guilds you are part of if logged in.
+If you have appropriate permissions, also a form to create a guild. (separate page?)
+
+## Members page
+
+### member_list `/member`
+
+The list of KHub members. Only visible if authenticated.
+
+### member_page `/member/:member_id`
+
+The page of the KHub member
+
+* All the guilds they belong(ed) to, leading to the guild_member_page
+* All the quests they participated in, with awards (scores and badges). Link to quest_member_page
+
 ### quest_member_page `/guild/:guild_id/member/:user_id/quest/:quest_id`
 
 All the moves of that member in that quest, and scores/badges awards for those moves. (Link to node_view)
@@ -118,13 +154,6 @@ If the quest is finished: scores
 Here the guild leadership and members agree on the roster for that quest before registering to that quest. The register button is probably going to be on that page.
 Note: May be on game_conversation page.
 
-### quest_roster `/guild/:guild_id/quest/:quest_id/roster`
-
-The reference page of the roster (immutable?) after you've submitted registration.
-
-### quest_conversation `/guild/:guild_id/quest/:quest_id/tree`
-
-Show the whole quest tree from the root (and our proposals also)
 
 ### node_view `/guild/:guild_id/quest/:quest_id/node/:node_id`
 
@@ -157,29 +186,3 @@ leadership (leaders only)
 meta (conversation about which quest to do next etc.)
 :quest-based (conversation around a quest, has a separate route above)
 :node-based (conversation around a node, has a separate route above)
-
-## Quest App pages
-
-### quest_page `/quest/:quest_id/`
-
-the landing page of the quest.
-Also show the involved guilds.
-
-### create_quest `/quest/create`
-
-Quest creation page (where quest_id will be determined)
-
-### quest_edit `/quest/:quest_id/edit`
-
-Edit the quest data.
-(Start date of each phase; name and description)
-Possibly here: mechanism for final scores.
-
-### quest_tree `/quest/:quest_id/tree`
-
-Show the quest's node tree, each node leads to quest_node_view.
-
-### quest_node_view `/quest/:quest_id/node/:node_id`
-
-Single-node view in the quest. Similar to node_view.
-Also: mechanisms for scoring.

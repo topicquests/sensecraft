@@ -108,14 +108,17 @@ export default {
       await this.login(this.formData.signonEmail, this.formData.password);      
       }, 
 
-  login(email, password) {
+    login(email, password) {
     email = email && email.toString().toLowerCase();
      this.$store
         .dispatch("auth/authenticate", {
           strategy: "local",
           email: email,
           password: password
-        }).then(response => {             
+        }).then(response => {  
+          this.$store.commit('user/setUsers', this.$store.state.auth) 
+          const conversations = this.$store.dispatch('quests/findQuests');
+           console.log("Auth user: ", this.$store.getters["user/getUser"])   
           this.$q.notify({
             type: "positive",
             message: "You are now signed in"

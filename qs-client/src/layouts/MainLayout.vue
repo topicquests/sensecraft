@@ -70,10 +70,17 @@
           </div>
           <div>
             <q-item> 
-          <router-link
-            to= "/quest">  Quest list        
-          </router-link>
-          </q-item>
+              <router-link
+                to= "/quest">  Quest list        
+              </router-link>
+            </q-item>
+          </div>
+          <div> 
+            <q-item> 
+              <router-link v-if = '$store.state.auth.user' 
+                to= "/quest-landing">  Quest create       
+              </router-link>
+            </q-item>
           </div>
           <div> 
             <q-item> 
@@ -156,7 +163,6 @@ export default {
             type: "positive",
             message: "You are now logged out"
           });
-          this.$store.commit("SET_USER_DATA", {user: null})
       })
     },
     goTo(route) {

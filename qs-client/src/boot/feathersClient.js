@@ -1,5 +1,4 @@
 import feathers from "@feathersjs/feathers";
-import socketio from '@feathersjs/socketio-client';
 import rest from "@feathersjs/rest-client";
 import auth from "@feathersjs/authentication-client";
 import { iff, discard } from "feathers-hooks-common";
