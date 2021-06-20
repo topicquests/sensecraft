@@ -14,13 +14,13 @@ export  function createQuests({commit, dispatch}, payload,) {
 }  
 
 export  function updateQuests({commit, dispatch}, payload,) {
-    console.log("Createquest ",  payload.user )
+    console.log("updateQuest ",  payload.user )
     const token = this.state.auth.accessToken;
     let result = questService.updateQuest(payload,token)
     .then (function(result) {
         dispatch('findQuests');
     }).catch(function(error) {
-        console.log('Error in createQuest', error)
+        console.log('Error in updateQuest', error)
     })
 } 
 
