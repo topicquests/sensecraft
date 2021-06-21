@@ -54,11 +54,14 @@ import {mapActions} from "vuex";
 
 
   methods: {
-   ...mapActions('quests', ['quests/findQuests'])   
+   ...mapActions('guilds', ['guilds/findGuilds'], 'quests', ['quests/findQuests'], )   
   },
  
   async beforeMount() {        
-     const conversations = await this.$store.dispatch('quests/findQuests');     
+     const quests = await this.$store.dispatch('quests/findQuests'); 
+     console.log('find quests returns: ', quests);
+     const guilds = await this.$store.dispatch('guilds/findGuilds');
+     console.log('find guilds returns: ', guilds);     
   }
         
     };

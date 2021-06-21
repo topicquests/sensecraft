@@ -85,8 +85,15 @@
           <div> 
             <q-item> 
             <router-link
-              to= "/guild"> Guild list        
+              to= "/guilds"> Guild list        
             </router-link>
+            </q-item>
+          </div>
+          <div> 
+            <q-item> 
+              <router-link v-if = '$store.state.auth.user' 
+                to= "/guild-landing">  Guild create       
+              </router-link>
             </q-item>
           </div> 
           <div> 
