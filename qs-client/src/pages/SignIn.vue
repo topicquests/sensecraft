@@ -117,7 +117,8 @@ export default {
           password: password
         }).then(response => {  
           this.$store.commit('user/setUsers', this.$store.state.auth) 
-          const conversations = this.$store.dispatch('quests/findQuests');
+          const quests = this.$store.dispatch('quests/findQuests');
+          const guilds = this.$store.dispatch('guilds/findGuilds');
            console.log("Auth user: ", this.$store.getters["user/getUser"])   
           this.$q.notify({
             type: "positive",

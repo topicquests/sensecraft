@@ -28,9 +28,25 @@ const routes = [
         name: "questedit",
         component: () => import('pages/questEdit.vue') 
       },
-      { path: '/guild',
-        name: "guild",
+      { path: '/guilds',
+        name: "guilds",
         component: () => import('pages/Guild.vue') 
+      }, 
+      { path: '/guild-landing',
+        name: "guild-landing",
+        component: () => import('pages/Guild-landing.vue') 
+      },
+      { path: '/guild/:guild_id',
+        name: "guild",
+        component: () => import('pages/Guild-app.vue') 
+      }, 
+      { path: '/guildEdit',
+        name: "guildedit",
+        component: () => import('pages/guildEdit.vue') 
+      },
+      {path: 'guildform',
+        name: "guildform",
+        component: () => import('pages/guildForm.vue')
       },  
       { path: '/register', 
         name: "register",
@@ -63,15 +79,7 @@ const routes = [
       { path: '/mnodeedit/:id/:type/:parentId',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')
-      },      
-      { path: '/guild',
-        name: "guilds",
-        component: () => import('pages/Guild-landing.vue') 
-      },
-      { path: '/guild/:guild_id',
-        name: "guild",
-        component: () => import('pages/Guild-app.vue') 
-      }    
+      }        
     ]
   },
 

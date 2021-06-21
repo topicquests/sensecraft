@@ -2,7 +2,7 @@
   <q-page :padding="true" class = "flex flex-center">
     <div class = "col" > 
     <div class = "row justify-center"> 
-      <h3>Create New Quest</h3>
+      <h3>Edit Guild</h3>
     </div>
     <div> 
       <q-card> 
@@ -17,16 +17,16 @@
          </div>    
         </div>
     <div class = "row justify-start q-pb-lg">      
-      <q-input v-model="quest.name" label = "Name" />
+      <q-input v-model="guild.name" label = "Name" />
     </div>    
    <div class = "row justify-start q-pb-xs">       
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">       
-      <ckeditor type="classic" v-model="quest.description" ></ckeditor>
+      <ckeditor type="classic" v-model="guild.description" ></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">       
-      <q-input v-model="quest.handle" label = "Handle" />
+      <q-input v-model="guild.handle" label = "Handle" />
     </div>
    <div class = "row justify-start q-pb-lg">   
       <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
@@ -68,12 +68,16 @@ export default {
           value: 'private'
         }        
       ],
-      quest: {
+      guild: {
         name: null,
         handle: null,
-        status: 'draft',
-        public: true,
-        description: null        
+        open_for_applications: null,
+        public: false, 
+        id: null,
+        description: null,
+        creator: null, 
+        createdAt: null, 
+        updatedAt: null     
       },
       shape: 'line',
       submitResult: [],
@@ -85,20 +89,28 @@ export default {
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('user', ['getUser']),
+    ...mapGetters('user', ['getUser']), 
 
     doSubmit: function() {
       if (this.group === "public") {
-        this.quest.public = true;
+        this.guild.public = true;
       }
 
        if (this.group === "private") {
-        this.quest.public = false;
+        this.guild.public = false;
       }
       //console.log("Name ", quest.user.name);
-      const conversations = this.$store.dispatch("quests/createQuests", this.quest);
-    },
+      const conversations = this.$store.dispatch("guilds/updateGuilds", this.guild);
+    }
   },
+  
+  mounted() {
+   this.$data.guild.id = this.$route.params.id;   
+   console.log("Guild id: ", this.$data.guild.id);
+   const response = this.$store.getters['guilds/getGuildById'] (this.$data.guild.id);
+   console.log("Guild respone: ", response[0]);
+   this.$data.guild = response[0];  
+  }
 };
 </script>
 
