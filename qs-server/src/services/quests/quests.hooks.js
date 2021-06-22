@@ -1,27 +1,9 @@
-const { authenticate } = require('@feathersjs/authentication').hooks;
+
+const { before_all, after_all, error_all } = require('../rolesequelize/rolesequelize.hooks');
 
 module.exports = {
   before: {
-    all: [
-      async (context) => {
-        if (context.params.authentication && context.params.authentication.accessToken) {
-          const f = authenticate('jwt');
-          try {
-            context = await f(context);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-        const sequelize = context.app.get('sequelizeClient');
-        context.params.sequelize = Object.assign({
-          sequelize,
-          user: context.params.user
-        }, context.params.sequelize);
-        context.params.sequelize.transaction =
-          context.params.sequelize.transaction || await sequelize.transaction();
-        return context;
-      },
-    ],
+    all: [ before_all ],
     find: [],
     get: [],
     create: [],
@@ -31,12 +13,7 @@ module.exports = {
   },
 
   after: {
-    all: [
-      async (context) => {
-        await context.params.sequelize.transaction.commit();
-        return context;
-      }
-    ],
+    all: [ after_all ],
     find: [],
     get: [],
     create: [],
@@ -46,12 +23,7 @@ module.exports = {
   },
 
   error: {
-    all: [
-      async (context) => {
-        await context.params.sequelize.transaction.rollback();
-        return context;
-      }
-    ],
+    all: [ error_all ],
     find: [],
     get: [],
     create: [],

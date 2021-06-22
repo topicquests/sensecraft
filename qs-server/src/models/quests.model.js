@@ -320,5 +320,5 @@ module.exports = function (app) {
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return quests;
+  return {quests, quest_membership};
 };

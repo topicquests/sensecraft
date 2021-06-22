@@ -1,30 +1,44 @@
-const { authenticate } = require('@feathersjs/authentication').hooks;
 //const verifyHooks = require('feathers-authentication-management').hooks;
 const {lowerCase} = require('feathers-hooks-common');
 const {hashPassword, protect} = require('@feathersjs/authentication-local').hooks;
+const { before_all, after_all, error_all } = require('../rolesequelize/rolesequelize.hooks');
+
+module.exports = {
+  before: {
+    all: [ before_all ],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+
+  after: {
+    all: [ after_all ],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+
+  error: {
+    all: [ error_all ],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+};
 
 
 module.exports = {
   before: {
-    all: [
-      async (context) => {
-        if (context.params.authentication && context.params.authentication.accessToken) {
-          const f = authenticate('jwt');
-          try {
-            context = await f(context);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-        const sequelize = context.app.get('sequelizeClient');
-        context.params.sequelize = Object.assign({
-          sequelize
-        }, context.params.sequelize);
-        context.params.sequelize.transaction =
-          context.params.sequelize.transaction || await sequelize.transaction();
-        return context;
-      },
-    ],
+    all: [ before_all ],
     find: [],
     get: [],
     create: [   
@@ -40,10 +54,7 @@ module.exports = {
       // Make sure the password field is never sent to the client
       // Always must be the last hook
       protect('password'),
-      async (context) => {
-        await context.params.sequelize.transaction.commit();
-        return context;
-      }
+      after_all,
     ],
     find: [],
     get: [],
@@ -54,12 +65,7 @@ module.exports = {
   },
 
   error: {
-    all: [
-      async (context) => {
-        await context.params.sequelize.transaction.rollback();
-        return context;
-      }
-    ],
+    all: [ error_all ],
     find: [],
     get: [],
     create: [],
