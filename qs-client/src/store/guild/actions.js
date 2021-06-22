@@ -11,7 +11,7 @@ export  function createGuilds({commit, dispatch}, payload,) {
     }).catch(function(error) {
         console.log('Error in createGuild', error)
     })
-}  
+}
 
 export  function updateGuilds({commit, dispatch}, payload,) {
     const token = this.state.auth.accessToken;
@@ -21,22 +21,31 @@ export  function updateGuilds({commit, dispatch}, payload,) {
     }).catch(function(error) {
         console.log('Error in updateGuild', error)
     })
-} 
+}
 
 
 export async function findGuilds( {commit}, payload) {
     const token = this.state.auth.accessToken;
     let result =  guildService.getGuilds(payload, token)
         .then(function(result) {
-            console.log('findGuild result: ', result.data);
             commit('SET_GUILD_DATA', result.data);
     }).catch(function(error){
         console.log("Error in findGuilds", error);
-    })            
+    })
+}
+
+export async function checkBelongsToGuild(userId) {
+    const token = this.state.auth.accessToken;
+    let result = guildService.checkBelongsToGuild(userId, token)
+    .then(function(result) {
+
+    }).catch(function(error) {
+        console.log("Error in getting guild/user members");
+    })
 }
 
  export function setGuildData({commit}){
     console.log("Guild data: ", {opt})
     return Promise.resolve(commit('SET_GUILD_DATA', opt.data));
-} 
+}
 
