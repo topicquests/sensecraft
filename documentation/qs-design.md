@@ -11,6 +11,20 @@ This document details the design specifications of the QS-Demo game. It is a liv
 * Quasar
 * Feathersjs
 * PostgreSql
+  
+## Folder Structure
+
+documentation contains project documentation
+
+qs-client used for frontend code
+
+qs-server used for backend code
+
+Standard feathers folder structure
+
+Standard Vue and Vuex folder structure
+*Store
+*Services
 
 ## Security
 
@@ -34,27 +48,17 @@ Pages requiring user to be logged in to view
 
 * Quest
 * Guild
+  
+## Lobby
 
-&nbsp;
-&nbsp;
+Description: Lobby page is where a user that does not belong to a guild is directed. There are views of Quests and Guilds. Also at the top will be a scoreboard and info. From here a member can join a guild.
 
-## Folder Structure
+When a member signs in check if belong to guild
 
-documentation contains project documentation
+Methods:
+getQuests()
+getGuilds()
 
-qs-client used for frontend code
-
-qs-server used for backend code
-
-Standard feathers folder structure
-
-Standard Vue and Vuex folder structure
-*Store
-*Modules
-
-
-&nbsp;
-&nbsp;
 
 ## TABLES
 
@@ -72,7 +76,6 @@ Table names in Feathersjs are either plural of the Model or can be set with FREE
 | maxNumberRounds | integer   | NULL     |
 | delay           | integer   | NULL     |
 | creator         | integer   | NULL     |
-&nbsp;
 
 ### ROLES
 
@@ -84,7 +87,6 @@ Table names in Feathersjs are either plural of the Model or can be set with FREE
 | leader | integer   | NOT NULL |
 | member | integer   | NOT NULL |
 
-&nbsp;
 
 ### USERES
 
@@ -97,7 +99,6 @@ Table names in Feathersjs are either plural of the Model or can be set with FREE
 | handle    | TEXT      | NULL     | Users handle                    |
 | password  | TEXT      | NOT NULL | Encrypted password for sign in  |
 
-&nbsp;
 
 ### GUILD
 
@@ -106,7 +107,6 @@ Table names in Feathersjs are either plural of the Model or can be set with FREE
 | guildId | serial    | NOT NULL |
 | questId | integer   | NOT NULL |
 
-&nbsp;
 
 ### GUILD_QUEST
 
@@ -115,7 +115,6 @@ Table names in Feathersjs are either plural of the Model or can be set with FREE
 | guildQuestId | serial    | NOT NULL |
 | guildId      | serial    | NOT NULL |
 | questId      | integer   | NOT NULL |
-&nbsp;
 
 ### USER_GUILD
 
