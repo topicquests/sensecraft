@@ -11,7 +11,7 @@ This document details the design specifications of the QS-Demo game. It is a liv
 * Quasar
 * Feathersjs
 * PostgreSql
-  
+
 ## Folder Structure
 
 documentation contains project documentation
@@ -36,7 +36,7 @@ When users are not logged in they do not have access to pages that contain users
 *Check user's email and password
 *Change user to be authorized
 *Create user information in store
-*Change Layout to layout with left drawer and logout button 
+*Change Layout to layout with left drawer and logout button
 
 ### Logoff
 
@@ -48,7 +48,7 @@ Pages requiring user to be logged in to view
 
 * Quest
 * Guild
-  
+
 ## Lobby
 
 Description: Lobby page is where a user that does not belong to a guild is directed. There are views of Quests and Guilds. Also at the top will be a scoreboard and info. From here a member can join a guild.
@@ -58,6 +58,7 @@ When a member signs in check if belong to guild
 Methods:
 getQuests()
 getGuilds()
+checkMemberBelongToGuild()
 
 
 ## TABLES
