@@ -56,23 +56,25 @@ module.exports = function (app) {
 
   // eslint-disable-next-line no-unused-vars
   const quest_membership = sequelizeClient.define('quest_membership', {
-    quest_id: {
+    questId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       references: {
         model: quests,
         key: 'id'
       },
+      field: 'quest_id',
       onUpdate: 'cascade',
       onDelete: 'cascade'
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       references: {
         model: users,
         key: 'id'
       },
+      field: 'user_id',
       onUpdate: 'cascade',
       onDelete: 'cascade'
     },
@@ -310,11 +312,11 @@ module.exports = function (app) {
   quests.associate = function (models) {
     const users = models.users;
     quests.hasMany(quest_membership);
-    quest_membership.hasOne(quests, { sourceKey: 'quest_id', foreignKey: 'id' });
-    quest_membership.hasOne(users, {sourceKey: 'user_id', foreignKey: 'id'});
+    quest_membership.hasOne(quests, { sourceKey: 'questId', foreignKey: 'id' });
+    quest_membership.hasOne(users, {sourceKey: 'userId', foreignKey: 'id'});
     users.hasMany(quest_membership);
-    users.belongsToMany(quests, { through: quest_membership, foreignKey: 'quest_id', otherKey: 'user_id' });
-    quests.belongsToMany(users, { through: quest_membership, foreignKey: 'user_id', otherKey: 'quest_id'  });
+    users.belongsToMany(quests, { through: quest_membership, foreignKey: 'questId', otherKey: 'userId' });
+    quests.belongsToMany(users, { through: quest_membership, foreignKey: 'userId', otherKey: 'questId'  });
 
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/

@@ -50,23 +50,25 @@ module.exports = function (app) {
 
   // eslint-disable-next-line no-unused-vars
   const guild_membership = sequelizeClient.define('guild_membership', {
-    guild_id: {
+    guildId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       references: {
         model: guilds,
         key: 'id'
       },
+      field: 'guild_id',
       onUpdate: 'cascade',
       onDelete: 'cascade'
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       references: {
         model: users,
         key: 'id'
       },
+      field: 'user_id',
       onUpdate: 'cascade',
       onDelete: 'cascade'
     },
@@ -318,12 +320,12 @@ module.exports = function (app) {
   guilds.associate = function (models) {
     const users = models.users;
     guilds.hasMany(guild_membership);
-    guild_membership.hasOne(guilds, { sourceKey: 'guild_id', foreignKey: 'id' });
+    guild_membership.hasOne(guilds, { sourceKey: 'guildId', foreignKey: 'id' });
     console.log(users);
-    guild_membership.hasOne(users, {sourceKey: 'user_id', foreignKey: 'id'});
+    guild_membership.hasOne(users, {sourceKey: 'userId', foreignKey: 'id'});
     users.hasMany(guild_membership);
-    users.belongsToMany(guilds, { through: guild_membership, foreignKey: 'guild_id', otherKey: 'user_id' });
-    guilds.belongsToMany(users, { through: guild_membership, foreignKey: 'user_id', otherKey: 'guild_id'  });
+    users.belongsToMany(guilds, { through: guild_membership, foreignKey: 'guildId', otherKey: 'userId' });
+    guilds.belongsToMany(users, { through: guild_membership, foreignKey: 'userId', otherKey: 'guildId'  });
 
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
