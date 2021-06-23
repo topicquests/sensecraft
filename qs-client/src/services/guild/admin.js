@@ -63,12 +63,28 @@ export async function getGuilds(opts, token) {
             message: `There was an error creating new guild. If this issue persists, contact support.`,
             color: "negative"
           });
-          console.log ("Error in creating guild ", err.response)
-          console.log("Authenentiation token : ", token)
         }
     })
    }
 
-   export function checkMemberBelongsToGuild(userId, guildId) {
-
-   }
+   export function checkIfMemberBelongsToGuild(id, token) {
+     return axiosInstance.get("/guild-membership", {
+      params: {
+        user_id: id
+      }
+    },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    ).catch(err => {
+      let errorCode = err.response.data.code;
+        Notify.create({
+          message: 'There was an error finding your guild',
+          color: "negative"
+      });
+      console.log("Error in check member belongs to guild ", err);
+    }
+   )
+  }
