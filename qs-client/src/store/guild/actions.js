@@ -34,11 +34,11 @@ export async function findGuilds( {commit}, payload) {
     })
 }
 
-export async function checkBelongsToGuild(userId) {
+export async function checkBelongsToGuild({state}, id) {
     const token = this.state.auth.accessToken;
-    let result = guildService.checkBelongsToGuild(userId, token)
+    let result = guildService.checkIfMemberBelongsToGuild(id, token)
     .then(function(result) {
-
+        commit('SET_GUILD_MEMBER_DATA', result.data);
     }).catch(function(error) {
         console.log("Error in getting guild/user members");
     })

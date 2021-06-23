@@ -16,25 +16,25 @@
 
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
-              <q-input square clearable 
-                v-model="formData.signonEmail" 
-                type="email" 
+              <q-input square clearable
+                v-model="formData.signonEmail"
+                type="email"
                 label="Email">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
               </q-input>
 
-               <q-input 
-                square 
-                v-model="formData.password" 
+               <q-input
+                square
+                v-model="formData.password"
                 filled :type="isPwdSignIn ? 'password' : 'text'"
                 label = Password>
                 <template v-slot:append>
                   <q-icon
                     :name="isPwdSignIn ? 'visibility_off' : 'visibility'"
                     class="cursor-pointer"
-                    @click="isPwdSignIn = !isPwdSignIn"/>          
+                    @click="isPwdSignIn = !isPwdSignIn"/>
                 </template>
 
                 <template v-slot:prepend>
@@ -62,8 +62,8 @@
             <q-card-section>
               <q-card-actions class="q-px-lg">
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Sign on" @click="doLogin"/>
-           
-                
+
+
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.replace('/home')"/>
               </q-card-actions>
             </q-card-section>
@@ -71,11 +71,11 @@
 
           <q-card-section class="text-center q-pa-xs">
             <p class="text-grey-6">Forgot your password?</p>
-          </q-card-section>      
+          </q-card-section>
         </q-card>
       </div>
     </div>
-    
+
   </q-page>
 </template>
 
@@ -88,14 +88,14 @@ import { mapState, mapActions } from "vuex";
 export default {
   data() {
   return {
-   
+
     isPwd: true,
     isPwdSignIn: true,
     showDialog: true,
     formData: {
       signonEmail: null,
-      password: null, 
-    },       
+      password: null,
+    },
     title: "Sign on",
     err: null
   };
@@ -105,8 +105,8 @@ export default {
 
   methods: {
   async doLogin() {
-      await this.login(this.formData.signonEmail, this.formData.password);      
-      }, 
+      await this.login(this.formData.signonEmail, this.formData.password);
+      },
 
     login(email, password) {
     email = email && email.toString().toLowerCase();
@@ -115,11 +115,13 @@ export default {
           strategy: "local",
           email: email,
           password: password
-        }).then(response => {  
-          this.$store.commit('user/setUsers', this.$store.state.auth) 
+        }).then(response => {
+          this.$store.commit('user/setUsers', this.$store.state.auth)
+          const userId = this.$store.state.auth.user.id;
           const quests = this.$store.dispatch('quests/findQuests');
           const guilds = this.$store.dispatch('guilds/findGuilds');
-           console.log("Auth user: ", this.$store.getters["user/getUser"])   
+          const memberGuild = this.$store.dispatch('guilds/checkBelongsToGuild', userId);
+           console.log("Auth user: ", this.$store.getters["user/getUser"])
           this.$q.notify({
             type: "positive",
             message: "You are now signed in"
@@ -134,7 +136,7 @@ export default {
             message: "Cannot sign in, please check your e-mail or password"
           });
         });
-    },  
+    },
 
 
   goHome() {
@@ -144,14 +146,14 @@ export default {
   goLanding() {
     this.$router.push({name: "landingPage"});
   },
-  
+
   onHide() {
 // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
   setTimeout(() => {
     this.goHome();
     }, 50);
-  }, 
-}, 
+  },
+},
 
   mounted() {},
 
