@@ -5,7 +5,7 @@ const hooks = require('./guilds.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app).guilds,
+    Model: createModel(app).Guild,
     paginate: app.get('paginate')
   };
 

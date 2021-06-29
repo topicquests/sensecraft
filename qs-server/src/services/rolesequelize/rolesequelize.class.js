@@ -1,33 +1,33 @@
 const { Service } = require('feathers-sequelize');
 
-exports.Service = class RoleSequelize extends Service {
+async function setRole(sequelize, params) {
+  const dbname = sequelize.getDatabaseName();
+  const user = params.user;
+  var role;
+  if (user) {
+    if (user === 'owner') {
+      role = `${dbname}__owner`;
+    } else {
+      const username = user.handle;
+      role = `${dbname}__m_${username}`;
+    }
+  } else {
+    role = `${dbname}__client`;
+  }
+  await sequelize.query(`SET ROLE ${role};`, params);
+}
 
+class RoleSequelize extends Service {
   async setRole(params = {}) {
     // TODO: Instead of passing in params all the time, could I store in AsyncLocalStore?
     // Even better: Tie an implicit DB transaction to the HTTP transaction.
     // Looking at https://github.com/feathersjs-ecosystem/feathers-sequelize/issues/188#issuecomment-576774771
     // but not sure it's good enough.
-    if (params.transaction) {
-      params.sequelize = Object.assign({ transaction: params.transaction }, params.sequelize);
-    } else if (params.sequelize.transaction) {
-      params.transaction = params.sequelize.transaction;
-    }
+    params.sequelize = Object.assign({ transaction: params.transaction, user: params.user }, params.sequelize);
+    params.transaction = params.sequelize.transaction;
 
     if (params.sequelize.sequelize) {
-      const dbname = params.sequelize.sequelize.getDatabaseName();
-      var role;
-      const user = params.sequelize.user || params.user;
-      if (user) {
-        if (user === 'owner') {
-          role = `${dbname}__owner`;
-        } else {
-          const username = user.handle;
-          role = `${dbname}__m_${username}`;
-        }
-      } else {
-        role = `${dbname}__client`;
-      }
-      await params.sequelize.sequelize.query(`SET ROLE ${role};`, params);
+      await setRole(params.sequelize.sequelize, params.sequelize);
     } else {
       console.error('Missing sequelize parameter!');
     }
@@ -70,4 +70,7 @@ exports.Service = class RoleSequelize extends Service {
     await this.setRole(params);
     return super._remove (id, params);
   }
-};
+}
+
+exports.setRole = setRole;
+exports.Service = RoleSequelize;

@@ -15,6 +15,7 @@ module.exports = {
     'viewQuest',
     'createQuest',
     'createGuild',
+    'proposeGuildMembership',
     'acceptGuildMembership',
     'revokeGuildMembership',
     'publishGameMove',
@@ -42,5 +43,12 @@ module.exports = {
     'submitted',
     'visible',
   ),
+
+  MembershipStatus: Sequelize.DataTypes.ENUM(
+    'request',
+    'invitation',
+    'confirmed'
+  ),
+
 };
 

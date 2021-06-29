@@ -1,3 +1,4 @@
+const { setRole } = require('./services/rolesequelize/rolesequelize.class');
 const Sequelize = require('./utils/pgEnum-fix');
 require('dotenv').config();
 
@@ -36,5 +37,18 @@ module.exports = function (app) {
     // Do not sync to the database: use migrations.
 
     return result;
+  };
+  app.doAsUser = async (user, fn) => {
+    const sequelize = app.get('sequelizeClient');
+    const transaction = await sequelize.transaction();
+    try {
+      await setRole(sequelize, { user, transaction });
+      const r = await fn(transaction);
+      await transaction.commit();
+      return r;
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
   };
 };

@@ -3,7 +3,12 @@ const { before_all, after_all, error_all } = require('../rolesequelize/roleseque
 
 module.exports = {
   before: {
-    all: [ before_all ],
+    all: [before_all, context => {
+      const model = context.params.sequelize.sequelize.models.GuildMembership;
+      context.params.sequelize.include = [{ model }];
+      context.params.sequelize.raw = false;
+      return context;
+    }],
     find: [],
     get: [],
     create: [],

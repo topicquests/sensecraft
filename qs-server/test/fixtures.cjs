@@ -34,12 +34,12 @@ exports.mochaGlobalTeardown = async function () {
   for (const r of fn_q[0]) {
     await sequelize.query(`DROP FUNCTION ${r.proname} CASCADE`);
   }
-  const types_q = await sequelize.query(
-    `SELECT typname FROM pg_catalog.pg_type
-    JOIN pg_catalog.pg_user ON typowner=usesysid
-    WHERE usename=current_user AND typelem=0`);
-  for (const r of types_q[0]) {
-    await sequelize.query(`DROP TYPE ${r.typname} CASCADE`);
-  }
+  // const types_q = await sequelize.query(
+  //   `SELECT typname FROM pg_catalog.pg_type
+  //   JOIN pg_catalog.pg_user ON typowner=usesysid
+  //   WHERE usename=current_user AND typelem=0`);
+  // for (const r of types_q[0]) {
+  //   await sequelize.query(`DROP TYPE ${r.typname} CASCADE`);
+  // }
   await sequelize.query(`SET ROLE ${db_name}__client`);
 };

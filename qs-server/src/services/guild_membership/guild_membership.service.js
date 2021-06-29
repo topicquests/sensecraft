@@ -5,7 +5,7 @@ const hooks = require('./guild_membership.hooks');
 
 module.exports = function (app) {
   const options = {
-    Model: createModel(app).guild_membership,
+    Model: createModel(app).GuildMembership,
     paginate: app.get('paginate')
   };
 

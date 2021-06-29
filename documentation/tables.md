@@ -82,6 +82,7 @@ Do we want to bother renaming it "members"?
 * handle varchar (unique)
 * public boolean
 * open_for_applications boolean
+* application_needs_approval boolean
 * creator fk(users)
 
 unsure
