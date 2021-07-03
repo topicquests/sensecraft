@@ -24,6 +24,7 @@ module.exports = {
     return context;
   },
   error_all: async (context) => {
+    console.error(`Error in ${context.path} calling ${context.method}  method`, context.error);
     await context.params.sequelize.transaction.rollback();
     return context;
   },
