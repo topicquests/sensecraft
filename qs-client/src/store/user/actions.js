@@ -1,7 +1,7 @@
 import userService from "../../services/user";
 import {Notify} from 'quasar'
 
-export async function registerUser({commit, rootState}, payload) {
+export async function registerUser({commit, state}, payload) {
   let result = await userService
     .signup(
       payload.formdata.name,
@@ -34,7 +34,27 @@ export async function registerUser({commit, rootState}, payload) {
       };
     }
 
-/*
-export function someAction (context) {
+export async function signin({commit, dispatch},  payload) {
+  try {
+   const resp = await dispatch("auth/authenticate", {
+          strategy: "local",
+          email: payload.signonEmail,
+          password: payload.password
+  }, {root: true})
+  commit('setUsers', resp.user);
+  return (resp)
+  } catch (err) {
+    console.log("Error in sognin")
+  }
 }
-*/
+
+export async function getUserById({commit, dispatch}, payload) {
+  try {
+    const token = this.state.auth.accessToken;
+    const response = await userService.getUserById(payload, token);
+    return response
+  }
+  catch (error) {
+
+  }
+  }

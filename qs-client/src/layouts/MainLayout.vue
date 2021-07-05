@@ -1,29 +1,29 @@
 <template>
   <q-layout view="hHh LpR fFf">
     <q-header elevated>
-      <q-toolbar>         
-        <q-btn 
-          dense 
-          flat 
-          round icon="menu" 
-          @click="leftDrawer = !leftDrawer" />  
+      <q-toolbar>
+        <q-btn
+          dense
+          flat
+          round icon="menu"
+          @click="leftDrawer = !leftDrawer" />
         <q-toolbar-title>
-          <q-btn 
+          <q-btn
             flat
-            @click="goTo('home')"> 
+            @click="goTo('home')">
             <q-img src="../statics/guild_quest.png"
             style="width:150px"></q-img>
           </q-btn>
-        </q-toolbar-title> 
-      <div class="gt-sm">          
+        </q-toolbar-title>
+      <div class="gt-sm">
         <q-btn v-if = '!$store.state.auth.user'
           @click="goTo('signin')"
           outline
           roundeded
           label="sign in"
           name="signin"
-          class="q-mr-sm"> 
-        </q-btn> 
+          class="q-mr-sm">
+        </q-btn>
       <q-btn v-if = '!$store.state.auth.user'
           @click="goTo('register')"
           outline
@@ -32,16 +32,16 @@
           name= "register"
           ></q-btn>
       </div>
-      <div class="gt-sm">          
+      <div class="gt-sm">
         <q-btn  v-if = '$store.state.auth.user'
           @click="logout()"
           outline
           roundeded
           label="log off"
-          name="logoff"> 
+          name="logoff">
         </q-btn>
-      </div>       
-      <div class="lt-md">  
+      </div>
+      <div class="lt-md">
         <q-btn
           flat
           dense
@@ -49,68 +49,75 @@
           @click="rightDrawer = ! rightDrawer"
           icon="menu"
           aria-label="Menu">
-        </q-btn>       
-      </div>       
-      </q-toolbar>            
+        </q-btn>
+      </div>
+      </q-toolbar>
     </q-header>
 
     <q-drawer
-        v-model="leftDrawer"        
-        :breakpoint="200"     
+        v-model="leftDrawer"
+        :breakpoint="200"
         bordered
         content-class="bg-grey-4"
       >
         <q-scroll-area class="fit">
-         <div> 
-           <q-list>  
+         <div>
+           <q-list>
           <div>
-            <q-item> 
+            <q-item>
             About
             </q-item>
           </div>
           <div>
-            <q-item> 
+            <q-item>
+              <router-link v-if = '$store.state.auth.user'
+                to= "/lobby">  Lobby
+              </router-link>
+            </q-item>
+          </div>
+          <div>
+            <q-item>
               <router-link
-                to= "/quest">  Quest list        
+                to= "/quest">  Quest list
               </router-link>
             </q-item>
           </div>
-          <div> 
-            <q-item> 
-              <router-link v-if = '$store.state.auth.user' 
-                to= "/quest-landing">  Quest create       
+          <div>
+            <q-item>
+              <router-link v-if = '$store.state.auth.user'
+                to= "/quest-landing">  Quest create
               </router-link>
             </q-item>
           </div>
-          <div> 
-            <q-item> 
+          <div>
+            <q-item>
             <router-link
-              to= "/guilds"> Guild list        
+              to= "/guilds"> Guild list
             </router-link>
             </q-item>
           </div>
-          <div> 
-            <q-item> 
-              <router-link v-if = '$store.state.auth.user' 
-                to= "/guild-landing">  Guild create       
+          <div>
+            <q-item>
+              <router-link v-if = '$store.state.auth.user'
+                to= "/guild-landing">  Guild create
               </router-link>
             </q-item>
-          </div> 
-          <div> 
-            <q-item> 
+          </div>
+          <div>
+            <q-item>
             <router-link
-              to= "/"> Home       
+              to= "/"> Home
             </router-link>
             </q-item>
-          </div> 
-          </q-list> 
-          </div>       
+          </div>
+          </q-list>
+          </div>
       </q-scroll-area>
     </q-drawer>
 
     <q-drawer
-      v-model="rightDrawer" >         
-      <q-scroll-area class="fit">                 
+      v-model="rightDrawer" >
+      <q-scroll-area class="fit">
         <q-list>
           <q-item>
             <q-btn
@@ -120,7 +127,7 @@
               roundeded
               label="Logout"
               class="q-mr-sm"
-              > </q-btn> 
+              > </q-btn>
             <q-btn
             v-if = '!$store.state.auth.user'
               @click="goTo('signin')"
@@ -128,7 +135,7 @@
               roundeded
               label="sign in"
               class="q-mr-sm"
-              > </q-btn> 
+              > </q-btn>
             </q-item>
             <q-item>
              <q-btn
@@ -137,12 +144,12 @@
               outline
               roundeded
               label="sign up"
-            ></q-btn> 
+            ></q-btn>
           </q-item>
         </q-list>
-      </q-scroll-area>         
+      </q-scroll-area>
     </q-drawer>
-    
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -158,8 +165,8 @@ export default {
       rightDrawer: false,
       leftDrawer: false
     }
-  }, 
-  
+  },
+
   methods: {
     logout() {
       this.rightDrawer = false;

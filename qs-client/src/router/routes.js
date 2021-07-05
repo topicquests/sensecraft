@@ -30,7 +30,7 @@ const routes = [
       },
       { path: '/guilds',
         name: "guilds",
-        component: () => import('pages/Guild.vue')
+        component: () => import('pages/Guilds.vue')
       },
       { path: '/guild-landing',
         name: "guild-landing",

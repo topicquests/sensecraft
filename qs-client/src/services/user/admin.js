@@ -15,3 +15,20 @@ export async function getUsers(opts) {
   }
   return feathersClient.service("users").find(pagination);
 }
+
+export async function  getUserById(id, token) {
+    return axiosInstance.get("/users/" + id,
+  {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  }).then(response => {
+    return response
+  })
+  .catch(err => {
+    let errorCode = err.response.data.code;
+    console.log("Error in get memberd in guild with guildId " + id, err);
+  })
+}
+
+
