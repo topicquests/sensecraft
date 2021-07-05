@@ -3,9 +3,11 @@
     <div class="text-h4 text-center"> {{guild.name}} </div>
 
     <h5> Members</h5>
-    <div v-for="member in guild.member" :key="member.memberId">
+    <ul>
+    <li v-for="member in guild.member" :key="member.memberId">
       <h5> {{member.handle}}</h5>
-    </div>
+    </li>
+    </ul>
   </q-page>
 </template>
 
@@ -16,9 +18,8 @@ export default {
       return {
         guild: {
         member: {
-        memberId: null,
+        id: null,
         handle: null,
-        name: null,
         },
         name: null,
         handle: null,
@@ -46,7 +47,6 @@ export default {
     async mounted() {
 
       let guildId = this.$route.params.guild_id;
-      let player = this.guild.member;
       const response = this.$store.getters['guilds/getGuildById'] (guildId);
        this.guild = response[0];
        const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
@@ -60,8 +60,15 @@ export default {
           console.log("response error", error)
         }
       }));
-
-        this.guild.member = resp.slice(0);
+      this.guild.member = resp.map(element =>  {
+        let member = {
+        handle:element.handle,
+        id: element.id
+      }
+      return member})
+      //member.id = resp.map(element =>  element.id)
+      //this.guild.member = member.slice(0);
+      console.log("Members ", this.guild.member);
       console.log("userResponse: ", guildMember);
       debugger;
 
