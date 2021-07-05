@@ -15,6 +15,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
     cd path/to/qs-server
     npm install
     ```
+    Also install https://github.com/maparent/pgjwt.git (branh `combined`)
 
 3. Setup the database with the following script:
     `./scripts/initial_setup.py`

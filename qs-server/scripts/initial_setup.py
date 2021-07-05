@@ -111,6 +111,8 @@ def create_database(data, conn_data):
         else:
             psql_command(
                 f"CREATE USER {user} WITH LOGIN {extra_perms} ENCRYPTED PASSWORD '{password}'", **conn_data)
+    auth_secret = data.get('auth_secret', None) or token_urlsafe(32)
+    data['auth_secret'] = auth_secret
     owner = data['owner']
     if not test_db_exists(database, **conn_data):
         psql_command(
@@ -126,6 +128,7 @@ def create_database(data, conn_data):
         f"ALTER GROUP {owner} ADD USER {data['client']}", **conn_data)
     psql_command(
         f"ALTER GROUP {member} ADD USER {data['client']}", **conn_data)
+    psql_command(f"ALTER DATABASE {database} SET \"app.jwt_secret\" TO '{auth_secret}'", **conn_data)
     return data
 
 
@@ -209,6 +212,8 @@ if __name__ == "__main__":
             with open(f"config/{client_config_fname}.template") as f:
                 client_config = json.load(f)
             client_config["postgres"] = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}/{dbname}"
+            # if db = "development":
+            #     client_config["authentication"]["secret"] = data["auth_secret"]
             with open(f"config/{client_config_fname}.json", "w") as f:
                 json.dump(client_config, f, indent="  ")
 

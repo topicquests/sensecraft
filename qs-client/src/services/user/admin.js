@@ -2,7 +2,7 @@ import { Notify } from "quasar";
 import feathersClient from "../../boot/feathersClient";
 import axiosInstance from "../../boot/axios";
 
-export async function getUsers(opts) {
+export async function getUsers0(opts) {
   let pagination = { query: { $sort: { descending: 1 } } };
   if (opts) {
     pagination.query.$limit = opts.rowsPerPage;
