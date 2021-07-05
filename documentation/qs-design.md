@@ -53,7 +53,18 @@ Pages requiring user to be logged in to view
 
 Description: Lobby page is where a user that does not belong to a guild is directed. There are views of Quests and Guilds. Also at the top will be a scoreboard and info. From here a member can join a guild.
 
-When a member signs in check if belong to guild
+When a member signs in check if belong to guild.
+If member does not belong to a guild send to Lobbby.
+Lobby contains list of guilds.
+*getGuilds()
+User chooses a guild to join
+*joinGuild
+First make sure user does not belong to that guild.
+If they are not already a member then join
+
+
+Mamber joins a Guild by choosing on from the guild list.
+Upon joining Guild member is directed to that Guilds page
 
 Methods:
 getQuests()

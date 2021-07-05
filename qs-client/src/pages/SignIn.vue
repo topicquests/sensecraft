@@ -16,22 +16,28 @@
 
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
+              <div >
               <q-input square clearable
                 v-model="formData.signonEmail"
+                :tabindex="1"
                 type="email"
                 label="Email">
                 <template v-slot:prepend>
-                  <q-icon name="email" />
+                  <q-icon name="email"
+                  :tabindex="-1" />
                 </template>
               </q-input>
-
+              </div>
                <q-input
                 square
                 v-model="formData.password"
+                tabindex="2"
                 filled :type="isPwdSignIn ? 'password' : 'text'"
+                v-on:keyup.enter="doLogin"
                 label = Password>
                 <template v-slot:append>
                   <q-icon
+                    :tabindex="-1"
                     :name="isPwdSignIn ? 'visibility_off' : 'visibility'"
                     class="cursor-pointer"
                     @click="isPwdSignIn = !isPwdSignIn"/>
@@ -97,6 +103,7 @@ export default {
       password: null,
     },
     title: "Sign on",
+    userId: null,
     err: null
   };
   },
@@ -104,38 +111,54 @@ export default {
   computed: {},
 
   methods: {
-  async doLogin() {
-      await this.login(this.formData.signonEmail, this.formData.password);
-      },
-
-    login(email, password) {
-    email = email && email.toString().toLowerCase();
-     this.$store
-        .dispatch("auth/authenticate", {
-          strategy: "local",
-          email: email,
-          password: password
-        }).then(response => {
-          this.$store.commit('user/setUsers', this.$store.state.auth)
-          const userId = this.$store.state.auth.user.id;
-          const quests = this.$store.dispatch('quests/findQuests');
-          const guilds = this.$store.dispatch('guilds/findGuilds');
-          const memberGuild = this.$store.dispatch('guilds/checkBelongsToGuild', userId);
-           console.log("Auth user: ", this.$store.getters["user/getUser"])
-          this.$q.notify({
-            type: "positive",
-            message: "You are now signed in"
-          });
-          this.goLanding();
-        })
-        // Just use the returned error instead of mapping it from the store.
-        .catch((error) => {
-            console.log('HEY! Error!:', { error });
+   async doLogin() {
+      try {
+        const loginResponse = await this.login(this.formData.signonEmail, this.formData.password)
             this.$q.notify({
-            type: "negative",
-            message: "Cannot sign in, please check your e-mail or password"
-          });
-        });
+              type: "positive",
+              message: "You are now signed in"
+              })
+              this.goNext();
+      }
+      catch (error) {
+        console.log("Error with sign in ", error)
+        this.$q.notify({
+          type: "negative",
+          message: "Issue with sign in. Verify email and password"
+        })}
+    },
+
+    async login(email, password) {
+      try {
+    email = email && email.toString().toLowerCase();
+    const signInResp = await this.$store.dispatch('user/signin', this.formData);
+    console.log("Signed in")
+    this.userId = signInResp.user.id;
+    const questResponse = await this.$store.dispatch('quests/findQuests');
+    console.log("Added Quests", questResponse);
+    const guildsResponse = await this.$store.dispatch('guilds/findGuilds');
+    console.log("Added guilds", guildsResponse);
+    return (response)
+    }
+    catch {
+
+    }
+    },
+
+    async goNext() {
+      try {
+          const checkGuildsBelongToUser = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
+          console.log("checked guilds :", checkGuildsBelongToUser )
+          const len = this.$store.state.guilds.belongsTo.data.length;
+          if (this.$store.state.guilds.belongsTo.data.length === 0) {
+            this.goLobby();
+          }else {
+            this.goHome();
+          }
+      }
+      catch (error) {
+        console.log("Error in going to next page", error)
+      }
     },
 
 
@@ -145,6 +168,9 @@ export default {
 
   goLanding() {
     this.$router.push({name: "landingPage"});
+  },
+  goLobby() {
+   this.$router.push({name: "lobby"});
   },
 
   onHide() {

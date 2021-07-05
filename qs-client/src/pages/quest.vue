@@ -1,6 +1,6 @@
 <template>
-  <q-page class = 'bg-secondary'>  
-    
+  <q-page class = 'bg-secondary'>
+    <div class="row q-pt-xl"></div>
     <div>
         <q-card>
           <div>
@@ -22,6 +22,7 @@
           </div>
         </q-card>
     </div>
+    <div class="row q-pt-lg"></div>
     <div>
         <q-card>
           <div>
@@ -43,7 +44,8 @@
         </div>
       </q-card>
     </div>
-    <div> 
+    <div class="row q-pt-lg"></div>
+    <div>
     <q-card>
       <div>
         <q-table title="Completed Quests" :data="finishedQuests" :columns="columns" row-key = "desc">
@@ -63,7 +65,7 @@
         </q-table>
       </div>
     </q-card>
-    </div>       
+    </div>
   </q-page>
 </template>
 
@@ -76,7 +78,7 @@ export default {
   props: ["user"],
   data() {
     return {
-      columns: [       
+      columns: [
         {
           name: 'desc',
           required: true,
@@ -124,23 +126,23 @@ export default {
           align: "left",
           field: "id",
           sortable: true
-        }        
-      ] 
+        }
+      ]
     }
   },
 
   computed: {
-    notStartedQuests() {  
+    notStartedQuests() {
       return  this.$store.getters['quests/getQuestByStatus']("draft");
     },
-    
-    ongoingQuests() {     
+
+    ongoingQuests() {
        return  this.$store.getters['quests/getQuestByStatus']('ongoing');
     },
 
-    finishedQuests() {     
+    finishedQuests() {
        return  this.$store.getters['quests/getQuestByStatus']('finished');
-    }     
-  } 
+    }
+  }
 };
 </script>
