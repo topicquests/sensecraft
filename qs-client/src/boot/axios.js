@@ -10,7 +10,7 @@ LoadingBar.setDefaults({
 
 
 
-const axiosInstance = axios.create({ baseURL: "http://localhost:3030" });
+const axiosInstance = axios.create({ baseURL: "http://localhost:3000" });
 
 //axiosInstance.defaults.withCredentials = true;
 axiosInstance.interceptors.request.use(

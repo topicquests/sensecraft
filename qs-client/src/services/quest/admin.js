@@ -2,13 +2,12 @@ import { Notify } from "quasar";
 import axiosInstance from "../../boot/axios";
 
 export async function getQuests(opts, token) {
-
-    return axiosInstance.get("/quests",
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+  const options = token ? {
+    headers: {
+      'Authorization': `Bearer ${token}`
     }
+  } : {};
+  return axiosInstance.get("/quests", options
   ).then(function(response) {
      return response;
    }).catch(function(error){
@@ -18,7 +17,7 @@ export async function getQuests(opts, token) {
 
   export async function updateQuest(quest, token) {
     const id = quest.id;
-    return axiosInstance.put(`/quests/${id}`,
+    return axiosInstance.put(`/quests?id=eq.${id}`,
     {
       name: quest.name,
       description: quest.description,
@@ -27,10 +26,8 @@ export async function getQuests(opts, token) {
       creator: quest.creator,
       status: quest.status
     },
-
-    {
-      headers: {
-      'Authorization': `Bearer ${token}`
+    headers: {
+        'Authorization': `Bearer ${token}`
     }
   }).then (function(response) {
     return(response)

@@ -15,6 +15,8 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
     cd path/to/qs-server
     npm install
     ```
+    Also (in another directory) `git clone https://github.com/maparent/pgjwt.git ; cd pgjwt ; git checkout branch combined ; sudo make install`. (skip the sudo on mac/homebrew.)
+    Install Postgrest as described [here](https://postgrest.org/en/v7.0.0/install.html)
 
 3. Setup the database with the following script:
     `./scripts/initial_setup.py`
@@ -30,7 +32,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 5. Start your app
 
     ```
-    npm run dev
+    postgrest postgrest_development.conf
     ```
 
 ## Testing
