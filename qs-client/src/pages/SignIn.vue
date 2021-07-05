@@ -132,7 +132,6 @@ export default {
       try {
     email = email && email.toString().toLowerCase();
     const signInResp = await this.$store.dispatch('user/signin', this.formData);
-    console.log("Signed in")
     this.userId = signInResp.user.id;
     const questResponse = await this.$store.dispatch('quests/findQuests');
     console.log("Added Quests", questResponse);

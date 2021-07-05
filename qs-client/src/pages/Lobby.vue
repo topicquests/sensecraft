@@ -123,26 +123,26 @@ export default {
   },
     methods: {
       async joinGuild (guildId) {
-        // this.guildId = guildId;
-        // try {
-        //   let guilds = this.$store.state.guilds.belongsTo.data;
-        //   if (!this.$store.state.guilds.belongsTo.data.includes(this.guildId)) {
+        this.guildId = guildId;
+        try {
+          let guilds = this.$store.state.guilds.belongsTo.data;
+          if (!this.$store.state.guilds.belongsTo.data.includes(this.guildId)) {
         //     const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
         //     console.log("membership resp: ", resp);
-        //     this.$q.notify({
-        //       type: "positive",
-        //       message: "You are joining guild " + this.guildId
-        //     })
-        //   } else {
-        //     this.$q.notify({
-        //       type: "positive",
-        //       message: "You are already a member of " + this.guildId
-        //     })
-        //   }
-        // }
-        // catch (error) {
-        //   console.log("Error joining guild ", error)
-        // }
+            this.$q.notify({
+              type: "positive",
+              message: "You are joining guild " + this.guildId
+            })
+          } else {
+            this.$q.notify({
+              type: "positive",
+              message: "You are already a member of " + this.guildId
+            })
+          }
+        }
+        catch (error) {
+          console.log("Error joining guild ", error)
+        }
         return
       }
     }
