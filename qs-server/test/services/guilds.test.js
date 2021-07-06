@@ -69,7 +69,11 @@ describe('\'guilds\' service', () => {
       start: new Date(),
       end: new Date(Date.now() + 100000000000),
     };
+<<<<<<< HEAD
     var quidamId, quidam2Id, sponsorId, publicGuildId, quasiPublicGuildId, quasiPublicGuildModel, privateGuildId, user, accessToken, publicGuildModel;
+=======
+    var quidamId, quidam2Id, sponsorId, publicGuildId, privateGuildId, user, accessToken, publicGuildModel;
+>>>>>>> 80f4e71 (WIP)
 
     before(async () => {
       try {
@@ -212,6 +216,44 @@ describe('\'guilds\' service', () => {
           assert.equal(guild_membership.status, 'invitation');
         });
       });
+
+      it('sponsor can invite someone else', async () => {
+        const guild_membership = await app.service('guild-membership').create({
+          guildId: publicGuildId,
+          userId: quidamId,
+          status: 'confirmed'
+        }, { user });
+        assert.equal(guild_membership.status, 'invitation');
+      });
+      it('sponsor can delete invitation', async () => {
+        const transaction = await sequelize.transaction();
+        try {
+          await setRole(sequelize, { user, transaction });
+          publicGuildModel = await app.service('guilds').get(publicGuildId, {
+            transaction, sequelize: { raw: false }
+          });
+          var memberships = await publicGuildModel.getGuildMemberships({
+            transaction,
+            where : { userId: quidamId }
+          });
+          assert.equal(memberships.length, 1);
+          const membership = memberships[0];
+          console.log('membership: ', membership);
+          await membership.destroy({transaction});
+          await transaction.commit();
+        } catch (err) {
+          await transaction.rollback();
+          throw err;
+        }
+      });
+      it('sponsor can reinvite someone else', async () => {
+        const guild_membership = await app.service('guild-membership').create({
+          guildId: publicGuildId,
+          userId: quidamId,
+          status: 'confirmed'
+        }, { user });
+        assert.equal(guild_membership.status, 'invitation');
+      });
       it('sponsor can logout', async () => {
         await app.service('authentication').remove(accessToken, {
           authentication: {
@@ -322,6 +364,98 @@ describe('\'guilds\' service', () => {
           }, { transaction });
           assert.equal(guild_membership.status, 'request');
         });
+      });
+      it('quidam can confirm invitation', async () => {
+        const transaction = await sequelize.transaction();
+        try {
+          await setRole(sequelize, { user, transaction });
+          var memberships = await publicGuildModel.getGuildMemberships({
+            transaction,
+            where: {
+              userId: quidamId
+            }
+          });
+          assert.equal(memberships.length, 1);
+          const membership = memberships[0];
+          console.log('membership: ', membership);
+          membership.set('status', 'confirmed');
+          await membership.save({ transaction });
+          await transaction.commit();
+        } catch (err) {
+          await transaction.rollback();
+          throw err;
+        }
+      });
+      it('quidam can delete own membership', async () => {
+        var transaction = await sequelize.transaction();
+        try {
+          await setRole(sequelize, { user, transaction });
+          publicGuildModel = await app.service('guilds').get(publicGuildId, {
+            transaction, sequelize: { raw: false }
+          });
+          var memberships = await publicGuildModel.getGuildMemberships({
+            transaction,
+            where: {
+              userId: quidamId
+            }
+          });
+          assert.equal(memberships.length, 1);
+          const membership = memberships[0];
+          await membership.destroy({transaction});
+          await transaction.commit();
+        } catch (err) {
+          await transaction.rollback();
+          throw err;
+        }
+        transaction = await sequelize.transaction();
+        try {
+          await setRole(sequelize, { user, transaction });
+          memberships = await publicGuildModel.getGuildMemberships({
+            transaction,
+            where: {
+              userId: quidamId
+            }
+          });
+          assert.equal(memberships.length, 0);
+        } finally {
+          await transaction.rollback();
+        }
+      });
+      it('quidam cannot register someone else', async () => {
+        const guild_membership = await app.service('guild-membership').create({
+          guildId: publicGuildId,
+          userId: quidam2Id,
+          status: 'confirmed'
+        }, { user });
+        if (guild_membership) {
+          console.error('This membership was not really created, as evidenced below, but someone (sequelize? feathers?) is stupid enough to claim so.');
+          console.error(guild_membership);
+        }
+        // assert.equal(guild_membership, undefined);
+        var transaction = await sequelize.transaction();
+        try {
+          await setRole(sequelize, { user: 'owner', transaction });
+          publicGuildModel = await app.service('guilds').get(publicGuildId, {
+            transaction, sequelize: { raw: false }
+          });
+          var memberships = await publicGuildModel.getGuildMemberships({
+            transaction,
+            where: {
+              userId: quidam2Id
+            }
+          });
+          assert.equal(memberships.length, 0);
+        } finally {
+          await transaction.rollback();
+        }
+      });
+      it('quidam cannot self-register', async () => {
+        const guild_membership = await app.service('guild-membership').create({
+          guildId: publicGuildId,
+          userId: quidamId,
+          status: 'confirmed'
+        }, { user });
+        assert.equal(guild_membership.status, 'request');
       });
       it('quidam can logout', async () => {
         await app.service('authentication').remove(accessToken, {
