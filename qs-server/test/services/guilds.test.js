@@ -420,9 +420,19 @@ describe('\'guilds\' service', () => {
           assert.equal(memberships.length, 0);
         });
       });
-      it('quidam cannot self-register', async () => {
+      it('quidam can self-register', async () => {
         await app.doAsUser(user, async (transaction) => {
           const guild_membership = await publicGuildModel.createGuildMembership({
+            userId: quidamId,
+            status: 'confirmed'
+          }, { transaction });
+          // TODO: Check this really exists and not just as a sequelize bug.
+          assert.equal(guild_membership.status, 'confirmed');
+        });
+      });
+      it('quidam cannot self-register in quasi-public guild', async () => {
+        await app.doAsUser(user, async (transaction) => {
+          const guild_membership = await quasiPublicGuildModel.createGuildMembership({
             userId: quidamId,
             status: 'confirmed'
           }, { transaction });
