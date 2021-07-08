@@ -24,6 +24,7 @@ module.exports = {
     'revokeQuestMembership',
     'rejectGameMove',
     'guildAdmin',
+    'joinQuest',
   ),
 
   Roles: Sequelize.DataTypes.ENUM(
