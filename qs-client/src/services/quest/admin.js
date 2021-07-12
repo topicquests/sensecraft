@@ -43,12 +43,19 @@ export async function getQuests(opts, token) {
 }
 
   export  function createQuest(quest, token) {
-    return axiosInstance.post("/quests", quest,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
+    } : {};
+    return axiosInstance.post("/quests", {
+      "name": quest.name,
+       "handle": quest.handle,
+       "description": quest.description,
+       "public": quest.public,
+       "createdAt": quest.createdAt,
+       "updatedAt": quest.updatedAt
+    }, options
     ).then (function(response) {
       Notify.create({
          message: `New quest was created successfully`,

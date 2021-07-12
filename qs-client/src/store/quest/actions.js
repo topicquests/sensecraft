@@ -3,8 +3,12 @@ import { Notify } from "quasar";
 
 
 export  function createQuests({commit, dispatch}, payload,) {
+    const token = this.state.user.token;
+    let today = new Date;
+    today = today.toISOString()
+    payload.createdAt = today;
+    payload.updatedAt = today;
     console.log("Createquest ",  payload.user )
-    const token = this.state.auth.accessToken;
     let result = questService.createQuest(payload,token)
     .then (function(result) {
         dispatch('findQuests');
