@@ -43,17 +43,26 @@ export async function getGuilds(opts, token) {
   }
 
   export  function createGuild(guild, token) {
-    return axiosInstance.post("/guilds", guild,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
+    } : {};
+    return axiosInstance.post("/guilds", {
+      "name": guild.name,
+       "handle": guild.handle,
+       "description": guild.description,
+       "public": guild.public,
+       "createdAt": guild.createdAt,
+       "updatedAt": guild.updatedAt
+    }, options
+
     ).then (function(response) {
       Notify.create({
          message: `New guild was created successfully`,
          color: "positive"
      })
+     return response;
    })
      .catch(err => {
       if (err.response) {

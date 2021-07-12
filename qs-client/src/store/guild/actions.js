@@ -3,7 +3,11 @@ import { Notify } from "quasar";
 
 
 export  function createGuilds({commit, dispatch}, payload,) {
-    const token = this.state.auth.accessToken;
+    const token = this.state.user.token;
+    let today = new Date;
+  today = today.toISOString()
+  payload.createdAt = today;
+  payload.updatedAt = today;
     console.log("going through create guilds:", payload, token);
     let result = guildService.createGuild(payload,token)
     .then (function(result) {
@@ -14,7 +18,7 @@ export  function createGuilds({commit, dispatch}, payload,) {
 }
 
 export  function updateGuilds({commit, dispatch}, payload,) {
-    const token = this.state.auth.accessToken;
+    const token = this.state.user.token;
     let result = guildService.updateGuild(payload,token)
     .then (function(result) {
         dispatch('findGuilds');
