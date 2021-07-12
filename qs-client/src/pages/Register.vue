@@ -5,7 +5,7 @@
     style="background: linear-gradient(#8274C5, #5A4A9F);"
   >
     <div class="column q-pa-lg">
-      <div class="row">        
+      <div class="row">
       </div>
     </div>
     <div class="column q-pa-lg">
@@ -19,44 +19,54 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl q-pb-lg">
-              <q-input 
-                square clearable 
-                v-model="formdata.email" 
-                type="email" 
-                label="Email">
+              <q-input
+                square clearable
+                v-model="formdata.email"
+                type="email"
+                label="Email"
+                tabindex="1">
               <template v-slot:prepend>
-                <q-icon name="email" />
+                <q-icon name="email"
+                tabindex="-1"/>
               </template>
               </q-input>
-              <q-input 
-                square clearable 
+              <q-input
+                square clearable
                 v-model="formdata.name"
-                label="Name">
+                label="Name"
+                tabindex="2">
               <template v-slot:prepend>
-                <q-icon name="person" />
-              </template>                
+                <q-icon name="person"
+                tabindex="-1"/>
+              </template>
               </q-input>
-              <q-input 
-                square clearable 
-                v-model="formdata.handle"  
-                label="handle">
+              <q-input
+                square clearable
+                v-model="formdata.handle"
+                label="handle"
+                tabindex="3">
               <template v-slot:prepend>
-                <q-icon 
-                  name="person" />
-              </template>                
+                <q-icon
+                  name="person"
+                  tabindex="-1" />
+              </template>
               </q-input>
-              <q-input 
+              <q-input
                 sqaure clearable
-                v-model="formdata.password" 
+                v-model="formdata.password"
                 filled :type="isPwd ? 'password' : 'text'"
-                label = "Password">
+                label = "Password"
+                tabindex="4"
+                v-on:keyup.enter="doRegister">
               <template v-slot:append>
                 <q-icon
-                  :name="isPwd ? 'visibility_off' : 'visibility'"                    
-                    @click="isPwd = !isPwd"/>          
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                    @click="isPwd = !isPwd"
+                    tabindex="-1"/>
                 </template>
                 <template v-slot:prepend>
-                  <q-icon name="lock" />
+                  <q-icon name="lock"
+                  tabindex="-1"/>
                 </template>
               </q-input>
             </q-form>
@@ -88,13 +98,13 @@ export default {
     },
     isPwd: true,
     isPwdSignIn: true,
-    showDialog: true,      
+    showDialog: true,
     title: "Register"
   };
   },
 
   computed: {
-    
+
   },
 
   methods: {
@@ -102,7 +112,7 @@ export default {
     const theEmail = this.$data.formdata.email;
     const theHandle = this.$data.formdata.handle;
     const theName = this.$data.formdata.name;
-  
+
     if (!theEmail) {
       this.$q.notify({ type: "negative", message: "Missing Email" });
       return;
@@ -128,19 +138,15 @@ export default {
 
   goHome() {
     this.$router.push({ name: "home" });
-  },  
-  
+  },
+
   onHide() {
-// Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-  setTimeout(() => {
-    this.goHome();
-    }, 50);
-  }, 
-},
-
-  mounted() {},
-
-  beforeDestroy() {}
+  // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
+    setTimeout(() => {
+      this.goHome();
+      }, 50);
+    },
+  },
 };
 </script>
 

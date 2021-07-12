@@ -143,6 +143,11 @@ export default {
     finishedQuests() {
        return  this.$store.getters['quests/getQuestByStatus']('finished');
     }
+  },
+
+  async beforeMount() {
+     const quests = await this.$store.dispatch('quests/findQuests');
+     console.log('find quests returns: ', quests);
   }
 };
 </script>

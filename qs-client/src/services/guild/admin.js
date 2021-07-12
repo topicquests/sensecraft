@@ -2,12 +2,12 @@ import { Notify } from "quasar";
 import axiosInstance from "../../boot/axios";
 
 export async function getGuilds(opts, token) {
-    return axiosInstance.get("/guilds",
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+  const options = token ? {
+    headers: {
+      'Authorization': `Bearer ${token}`
     }
+  } : {};
+    return axiosInstance.get("/guilds", options
   ).then(function(response) {
      return response;
    }).catch(function(error){
@@ -67,11 +67,12 @@ export async function getGuilds(opts, token) {
    }
 
    export async function checkIfMemberBelongsToGuild(id, token) {
-     return axiosInstance.get("/guild-membership", {
-      params: {
-        user_id: id
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
-    },
+    } : {};
+     return axiosInstance.get("/guild_membership?user_id=eq." + id, options,
     {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -90,16 +91,17 @@ export async function getGuilds(opts, token) {
   }
 
   export async function joinGuild(guildId, userId, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
 
-   return axiosInstance.post("/guild-membership", {
-     guildId: guildId,
-     userId: userId,
-   },
-   {
-   headers: {
-    'Authorization': `Bearer ${token}`
-   }
-  }).then (function(response) {
+   return axiosInstance.post("/guild_membership", {
+     "guild_id": guildId,
+     "user_id": userId
+   }, options
+  ).then (function(response) {
     Notify.create({
       message: `Guild was updated successfully`,
       color: "positive"
@@ -118,12 +120,13 @@ export async function getGuilds(opts, token) {
     })
   }
 
-  export async function getGuildMembersById(id, token) {
-    return axiosInstance.get("/guild-membership", {
-     params: {
-       guild_id: id
-     }
-   },
+  export async function getGuildMembersById(guild_id, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    return axiosInstance.get("/guild_membership?guild_id=eq." + guild_id, options,
    {
      headers: {
        'Authorization': `Bearer ${token}`
@@ -134,6 +137,6 @@ export async function getGuilds(opts, token) {
    .catch(err => {
      let errorCode = err.response.data.code;
 
-     console.log("Error in get memberd in guild with guildId " + id, err);
+     console.log("Error in get member in guild with guildId " + id, err);
    })
  }

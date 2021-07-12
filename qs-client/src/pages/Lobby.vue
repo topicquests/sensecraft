@@ -125,10 +125,11 @@ export default {
       async joinGuild (guildId) {
         this.guildId = guildId;
         try {
-          let guilds = this.$store.state.guilds.belongsTo.data;
-          if (!this.$store.state.guilds.belongsTo.data.includes(this.guildId)) {
-        //     const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
-        //     console.log("membership resp: ", resp);
+          let ownGuilds = this.$store.state.guilds.belongsTo;
+          var r = ownGuilds.some(i => i.guild_id === this.guildId)
+
+          if (!r) {
+            const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
             this.$q.notify({
               type: "positive",
               message: "You are joining guild " + this.guildId

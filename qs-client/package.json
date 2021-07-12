@@ -18,6 +18,7 @@
     "@quasar/extras": "^1.0.0",
     "@vue/composition-api": "*",
     "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
     "core-js": "^3.6.5",
     "feathers-hooks-common": "^5.0.5",
     "feathers-vuex": "^3.16.0",

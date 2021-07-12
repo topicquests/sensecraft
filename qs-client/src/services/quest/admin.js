@@ -17,7 +17,7 @@ export async function getQuests(opts, token) {
 
   export async function updateQuest(quest, token) {
     const id = quest.id;
-    return axiosInstance.put(`/quests/${id}`,
+    return axiosInstance.put(`/quests?id=eq.${id}`, quest,
     {
       name: quest.name,
       description: quest.description,
@@ -27,7 +27,7 @@ export async function getQuests(opts, token) {
       status: quest.status
     },
 
-   return axiosInstance.put(`/quests?id=eq.${id}`, quest, 
+
    {
    headers: {
     'Authorization': `Bearer ${token}`
