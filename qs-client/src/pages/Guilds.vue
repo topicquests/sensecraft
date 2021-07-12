@@ -1,5 +1,5 @@
 <template>
-  <q-page class = 'bg-secondary'>      
+  <q-page class = 'bg-secondary'>
     <div>
         <q-card>
           <div>
@@ -19,7 +19,7 @@
             </q-table>
           </div>
         </q-card>
-    </div>         
+    </div>
   </q-page>
 </template>
 
@@ -32,7 +32,7 @@ export default {
   props: ["user"],
   data() {
     return {
-      columns: [       
+      columns: [
         {
           name: 'desc',
           required: true,
@@ -72,15 +72,20 @@ export default {
           align: "left",
           field: "id",
           sortable: true
-        }        
-      ] 
+        }
+      ]
     }
   },
 
   computed: {
-    guildList() {  
+    guildList() {
       return  this.$store.getters['guilds/getGuilds'];
-    }     
-  } 
+    }
+  },
+
+  async beforeMount() {
+     const guilds = await this.$store.dispatch('guilds/findGuilds');
+     console.log('find guilds returns: ', guilds);
+  }
 };
 </script>

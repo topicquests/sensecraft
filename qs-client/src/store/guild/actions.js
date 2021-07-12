@@ -26,7 +26,7 @@ export  function updateGuilds({commit, dispatch}, payload,) {
 
 export async function findGuilds( {commit}, payload) {
     try {
-        const token = this.state.auth.accessToken;
+        const token = this.state.user.token;
         let result =  await guildService.getGuilds(payload, token)
         commit('SET_GUILD_DATA', result.data);
         return (result)
@@ -38,7 +38,7 @@ export async function findGuilds( {commit}, payload) {
 
 export async function checkBelongsToGuild({state, commit}, id) {
     try {
-    const token = this.state.auth.accessToken;
+    const token = this.state.user.token;
     let result = await guildService.checkIfMemberBelongsToGuild(id, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result)
@@ -50,7 +50,7 @@ export async function checkBelongsToGuild({state, commit}, id) {
 
 export async function joinGuild({commit, state}, guildId) {
     try {
-        const token = this.state.auth.accessToken;
+        const token = this.state.user.token;
         const userId = this.state.user.user.id;
         let response = await guildService.joinGuild(guildId, userId, token)
         return (response)
@@ -63,9 +63,9 @@ export async function joinGuild({commit, state}, guildId) {
 
 export async function getMembersByGuildId({state, commit}, id) {
     try {
-    const token = this.state.auth.accessToken;
+    const token = this.state.user.token;
     let result = await guildService.getGuildMembersById(id, token)
-    return (result.data.data)
+    return (result.data)
     }
     catch(error) {
         console.log("Error in getting guild/user members", error);

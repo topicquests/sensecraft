@@ -1,11 +1,10 @@
 <template>
   <q-page padding class="bg-secondary">
     <div class="text-h4 text-center"> {{guild.name}} </div>
-
     <h5> Members</h5>
     <ul>
-    <li v-for="member in guild.member" :key="member.memberId">
-      <h5> {{member.handle}}</h5>
+    <li v-for="handle in handles" :key="handle.handle">
+      {{handle}}
     </li>
     </ul>
   </q-page>
@@ -16,11 +15,9 @@ export default {
     props: ["guild_id"],
     data () {
       return {
+        members: [
+        ],
         guild: {
-        member: {
-        id: null,
-        handle: null,
-        },
         name: null,
         handle: null,
         open_for_applications: null,
@@ -31,6 +28,7 @@ export default {
         createdAt: null,
         updatedAt: null
         },
+        handles: [],
         label: ''
       }
     },
@@ -40,8 +38,10 @@ export default {
     },
 
     methods: {
-
-
+      log(item) {
+        console.log(item)
+        debugger;
+      }
     },
 
     async mounted() {
@@ -51,27 +51,31 @@ export default {
        this.guild = response[0];
        const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
 
-      const resp = await Promise.all(guildMember.map(async (member) => {
+      const resp = await Promise.all(guildMember.map(async (player) => {
         try {
-        const resp = await this.$store.dispatch('user/getUserById', member.userId);
-        return resp.data;
+        const respUser = await this.$store.dispatch('user/getUserById', player.user_id);
+        return respUser.data;
+
         }
         catch (error) {
           console.log("response error", error)
         }
+        return resp;
       }));
-      this.guild.member = resp.map(element =>  {
-        let member = {
-        handle:element.handle,
-        id: element.id
-      }
-      return member})
-      //member.id = resp.map(element =>  element.id)
-      //this.guild.member = member.slice(0);
-      console.log("Members ", this.guild.member);
-      console.log("userResponse: ", guildMember);
-      debugger;
+        this.members = [...resp];
+        for (var i = 0; i< resp.length; i++) {
+            this.handles.push(resp[i][0].handle);
+          console.log("resp: ", resp[i][0].handle)
+          console.log("length members ", this.members.length)
+        }
+         debugger;
+    },
 
-    }
+    async beforeMount() {
+     const quests = await this.$store.dispatch('quests/findQuests');
+     console.log('find quests returns: ', quests);
+     const guilds = await this.$store.dispatch('guilds/findGuilds');
+     console.log('find guilds returns: ', guilds);
+  }
 }
 </script>

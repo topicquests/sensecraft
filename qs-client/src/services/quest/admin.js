@@ -16,27 +16,19 @@ export async function getQuests(opts, token) {
   }
 
   export async function updateQuest(quest, token) {
-    const id = quest.id;
-    return axiosInstance.put(`/quests?id=eq.${id}`,
-    {
-      name: quest.name,
-      description: quest.description,
-      handle: quest.handle,
-      public: quest.public,
-      creator: quest.creator,
-      status: quest.status
-    },
-    headers: {
+    const options = token ? {
+      headers: {
         'Authorization': `Bearer ${token}`
-    }
-  }).then (function(response) {
-    return(response)
-  }).catch(err => {
+      }
+    } : {};
+    const id = quest.id;
+    return axiosInstance.put(`/quests?id=eq.${id}`, quest, options
+    ).then(response => response).catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;
-        console.log ("Error in creating quest ", err.response)
+        console.log("Error in creating quest ", err.response);
       }
-  })
+    });
 }
 
   export  function createQuest(quest, token) {

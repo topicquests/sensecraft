@@ -132,7 +132,7 @@ export default {
       try {
     email = email && email.toString().toLowerCase();
     const signInResp = await this.$store.dispatch('user/signin', this.formData);
-    this.userId = signInResp.user.id;
+    this.userId = this.$store.state.user.user.id;
     const questResponse = await this.$store.dispatch('quests/findQuests');
     console.log("Added Quests", questResponse);
     const guildsResponse = await this.$store.dispatch('guilds/findGuilds');
@@ -148,8 +148,8 @@ export default {
       try {
           const checkGuildsBelongToUser = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
           console.log("checked guilds :", checkGuildsBelongToUser )
-          const len = this.$store.state.guilds.belongsTo.data.length;
-          if (this.$store.state.guilds.belongsTo.data.length === 0) {
+          const len = this.$store.state.guilds.belongsTo.length;
+          if (this.$store.state.guilds.belongsTo.length === 0) {
             this.goLobby();
           }else {
             this.goHome();
@@ -179,6 +179,13 @@ export default {
     }, 50);
   },
 },
+
+  async beforeMount() {
+     const quests = await this.$store.dispatch('quests/findQuests');
+     console.log('find quests returns: ', quests);
+     const guilds = await this.$store.dispatch('guilds/findGuilds');
+     console.log('find guilds returns: ', guilds);
+  },
 
   mounted() {},
 
