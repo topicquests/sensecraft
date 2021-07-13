@@ -2,13 +2,12 @@ import { Notify } from "quasar";
 import axiosInstance from "../../boot/axios";
 
 export async function getQuests(opts, token) {
-
-    return axiosInstance.get("/quests",
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+  const options = token ? {
+    headers: {
+      'Authorization': `Bearer ${token}`
     }
+  } : {};
+  return axiosInstance.get("/quests", options
   ).then(function(response) {
      return response;
    }).catch(function(error){
@@ -17,38 +16,35 @@ export async function getQuests(opts, token) {
   }
 
   export async function updateQuest(quest, token) {
-    const id = quest.id;
-    return axiosInstance.put(`/quests/${id}`,
-    {
-      name: quest.name,
-      description: quest.description,
-      handle: quest.handle,
-      public: quest.public,
-      creator: quest.creator,
-      status: quest.status
-    },
-
-    {
+    const options = token ? {
       headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  }).then (function(response) {
-    return(response)
-  }).catch(err => {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    const id = quest.id;
+    return axiosInstance.put(`/quests?id=eq.${id}`, quest, options
+    ).then(response => response).catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;
-        console.log ("Error in creating quest ", err.response)
+        console.log("Error in creating quest ", err.response);
       }
-  })
+    });
 }
 
   export  function createQuest(quest, token) {
-    return axiosInstance.post("/quests", quest,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
+    } : {};
+    return axiosInstance.post("/quests", {
+      "name": quest.name,
+       "handle": quest.handle,
+       "description": quest.description,
+       "public": quest.public,
+       "createdAt": quest.createdAt,
+       "updatedAt": quest.updatedAt
+    }, options
     ).then (function(response) {
       Notify.create({
          message: `New quest was created successfully`,

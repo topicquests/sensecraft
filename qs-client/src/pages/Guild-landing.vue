@@ -1,7 +1,7 @@
 <template>
   <q-page :padding="true">
     <q-btn
-      v-if = '$store.state.auth.user' 
+      v-if = '$store.state.user.user'
       style="margin-bottom: 4px;"
       label="New Guild"
       @click="$router.replace('/guildform')"
@@ -31,7 +31,7 @@ export default {
   props: ["user"],
   data() {
     return {
-      columns: [       
+      columns: [
         {
           name: 'desc',
           required: true,
@@ -63,7 +63,7 @@ export default {
           align: "left",
           field: "id",
           sortable: true
-        }        
+        }
       ],
       isAuthenticated: false,
       serverPagination: {},
@@ -72,11 +72,11 @@ export default {
   },
 
   computed: {
-    rootConversations() {     
+    rootConversations() {
       return  this.$store.getters['guilds/getGuilds'];
-    }    
-    
-  },        
+    }
+
+  },
 };
 </script>
 
