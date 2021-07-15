@@ -24,13 +24,13 @@ export async function  getUserById(id, token) {
       'Authorization': `Bearer ${token}`
     }
   } : {};
-  return axiosInstance.get("/users/?id=eq." + id, options
+  return axiosInstance.get("/users?id=eq." + id, options
   ).then(response => {
     return response
   })
   .catch(err => {
     let errorCode = err.response.data.code;
-    console.log("Error in get memberd in guild with guildId " + id, err);
+    console.log("Error in get member in guild with user_id " + id, err);
   })
 }
 
