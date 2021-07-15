@@ -164,16 +164,12 @@ export default {
         for (var i = 0; i< resp.length; i++) {
             this.handles.push(resp[i][0].handle);
         }
-
     },
-
     async beforeMount() {
      const quests = await this.$store.dispatch('quests/findQuests');
      console.log('find quests returns: ', quests);
      const guilds = await this.$store.dispatch('guilds/findGuilds');
      console.log('find guilds returns: ', guilds);
-
-
 }
 }
 </script>
