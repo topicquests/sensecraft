@@ -1,5 +1,22 @@
 <template>
   <q-page padding class="bg-secondary">
+    <div>
+       <q-card >
+        <q-table title="Quests" :data="getQuests" :columns="columns1" row-key = "desc">
+         <template slot="body" slot-scope="props">
+          <q-tr :props="props">
+            <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
+            <q-td key="status" :props="props">{{props.row.status}}</q-td>
+            <q-td key="label" :props="props">{{props.row.label}}</q-td>
+            <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+            <q-td key="questNodeId" auto-width :props="props">
+              <router-link :to="{ name: 'questRequest', params: { quest_id:  props.row.id }}">Edit</router-link>
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+     </q-card>
+    </div>
     <div class="text-h4 text-center"> {{guild.name}} </div>
     <h5> Members</h5>
     <ul>
@@ -15,6 +32,41 @@ export default {
     props: ["guild_id"],
     data () {
       return {
+        columns1: [
+        {
+          name: 'desc',
+          required: true,
+          label: "Label",
+          align: "left",
+          field: "name",
+          sortable: true
+        },
+        {
+          name: "status",
+          required: false,
+          label: "Status",
+          align: "left",
+          field: "status",
+          sortable: true
+        },
+        {
+          name: "handle",
+          required: false,
+          label: "Handle",
+          align: "left",
+          field: "handle",
+          sortable: true
+        },
+
+        {
+          name: "questNodeId",
+          required: false,
+          label: "Action",
+          align: "left",
+          field: "id",
+          sortable: true
+        }
+      ],
         members: [
         ],
         guild: {
@@ -34,13 +86,40 @@ export default {
     },
 
     computed: {
-
+      getQuests() {
+      return  this.$store.getters['quests/getQuests'];
+    },
     },
 
     methods: {
       log(item) {
         console.log(item)
         debugger;
+      },
+
+      async joinGuild (guildId) {
+        this.guildId = guildId;
+        try {
+          let ownGuilds = this.$store.state.guilds.belongsTo;
+          var r = ownGuilds.some(i => i.guild_id === this.guildId)
+
+          if (!r) {
+            const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
+            this.$q.notify({
+              type: "positive",
+              message: "You are joining guild " + this.guildId
+            })
+          } else {
+            this.$q.notify({
+              type: "positive",
+              message: "You are already a member of " + this.guildId
+            })
+          }
+          return resp
+        }
+        catch (error) {
+          console.log("Error joining guild ", error)
+        }
       }
     },
 
@@ -49,6 +128,7 @@ export default {
       let guildId = this.$route.params.guild_id;
       const response = this.$store.getters['guilds/getGuildById'] (guildId);
        this.guild = response[0];
+       await this.joinGuild(guildId);
        const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
 
       const resp = await Promise.all(guildMember.map(async (player) => {
@@ -68,7 +148,7 @@ export default {
           console.log("resp: ", resp[i][0].handle)
           console.log("length members ", this.members.length)
         }
-         debugger;
+
     },
 
     async beforeMount() {
@@ -76,6 +156,8 @@ export default {
      console.log('find quests returns: ', quests);
      const guilds = await this.$store.dispatch('guilds/findGuilds');
      console.log('find guilds returns: ', guilds);
-  }
+
+
+}
 }
 </script>

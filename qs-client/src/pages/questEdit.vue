@@ -17,6 +17,9 @@
          </div>
         </div>
     <div class = "row justify-start q-pb-lg">
+      <q-input v-model="quest.status" label = "Status" />
+    </div>
+    <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.name" label = "Name" />
     </div>
    <div class = "row justify-start q-pb-xs">

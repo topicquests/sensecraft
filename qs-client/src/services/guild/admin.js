@@ -15,6 +15,20 @@ export async function getGuilds(opts, token) {
    });
   }
 
+  export async function getGuildById(guildId, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+      return axiosInstance.get("/guilds?id=eq." + guildId, options
+    ).then(function(response) {
+       return response;
+     }).catch(function(error){
+        console.log("Error in getGuild");
+     });
+    }
+
   export async function updateGuild(guild, token) {
     const id = guild.id;
 
@@ -110,7 +124,7 @@ export async function getGuilds(opts, token) {
      "guild_id": guildId,
      "user_id": userId
    }, options
-  ).then (function(response) {
+  ).then (response => {
     Notify.create({
       message: `Guild was updated successfully`,
       color: "positive"
