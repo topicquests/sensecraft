@@ -19,7 +19,10 @@ export  function createQuests({commit, dispatch}, payload,) {
 
 export  async function updateQuests({commit, dispatch}, payload,) {
     try {
-        const token = this.state.auth.accessToken;
+        const token = this.state.user.token;
+        let today = new Date;
+        payload.updatedAt = today;
+    today = today.toISOString()
         let result = await questService.updateQuest(payload,token)
         return (result)
     }

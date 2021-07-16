@@ -39,6 +39,18 @@ export async function getGuildById( {commit}, payload) {
     }
 }
 
+export async function getMemberByGuildIdandUserId( {commit}, payload) {
+    try {
+        const token = this.state.user.token;
+        let result =  await guildService.getMemberByGuildIdandUserId(payload, token)
+        commit('SET_GUILD_DATA', result.data);
+        return (result.data)
+    }
+    catch(error){
+        console.log("Error in findGuilds", error);
+    }
+}
+
 export async function findGuilds( {commit}, payload) {
     try {
         const token = this.state.user.token;

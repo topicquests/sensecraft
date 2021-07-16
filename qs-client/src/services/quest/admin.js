@@ -22,7 +22,16 @@ export async function getQuests(opts, token) {
       }
     } : {};
     const id = quest.id;
-    return axiosInstance.put(`/quests?id=eq.${id}`, quest, options
+    return axiosInstance.patch(`/quests?id=eq.${id}`,
+    {
+      "name": quest.name,
+      "handle": quest.handle,
+      "description": quest.description,
+      "public": quest.public,
+      "creator": quest.creator,
+      "status": quest.status,
+      "updatedAt": quest.updatedAt
+    }, options
     ).then(response => response).catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;
