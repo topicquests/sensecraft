@@ -1,7 +1,7 @@
 <template>
   <q-page padding class="bg-secondary">
-    <div>
-       <q-card >
+    <div >
+       <q-card v-if = "permission">
         <q-table title="Quests" :data="getQuests" :columns="columns1" row-key = "desc">
          <template slot="body" slot-scope="props">
           <q-tr :props="props">
@@ -10,7 +10,7 @@
             <q-td key="label" :props="props">{{props.row.label}}</q-td>
             <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
             <q-td key="questNodeId" auto-width :props="props">
-              <router-link :to="{ name: 'questRequest', params: { quest_id:  props.row.id }}">Edit</router-link>
+              <q-btn> Register</q-btn>
             </q-td>
           </q-tr>
         </template>
@@ -67,6 +67,7 @@ export default {
           sortable: true
         }
       ],
+        guildMembership:null,
         members: [
         ],
         guild: {
@@ -80,6 +81,8 @@ export default {
         createdAt: null,
         updatedAt: null
         },
+        permission: false,
+        userId: null,
         handles: [],
         label: ''
       }
@@ -99,38 +102,44 @@ export default {
 
       async joinGuild (guildId) {
         this.guildId = guildId;
-        try {
-          let ownGuilds = this.$store.state.guilds.belongsTo;
-          var r = ownGuilds.some(i => i.guild_id === this.guildId)
+        let ownGuilds = this.$store.state.guilds.belongsTo;
+        var r = ownGuilds.some(i => i.guild_id === this.guildId)
+        if (!r) {
+          await this.$store.dispatch('guilds/joinGuild', this.guildId)
+          this.$q.notify({
+            type: "positive",
+            message: "You are joining guild " + this.guildId
+          })
 
-          if (!r) {
-            const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
-            this.$q.notify({
-              type: "positive",
-              message: "You are joining guild " + this.guildId
-            })
           } else {
             this.$q.notify({
-              type: "positive",
-              message: "You are already a member of " + this.guildId
-            })
-          }
-          return resp
-        }
-        catch (error) {
-          console.log("Error joining guild ", error)
+            type: "positive",
+            message: "You are already a member of " + this.guildId
+          })
+
         }
       }
     },
 
+    isCherries(fruit) {
+  return fruit.permissions === 'guildAdmin';
+  },
+
+
+
     async mounted() {
 
       let guildId = this.$route.params.guild_id;
+      this.userId = this.$store.state.user.user.id;
+      var payload = {guildId: guildId, userId: this.userId};
       const response = this.$store.getters['guilds/getGuildById'] (guildId);
        this.guild = response[0];
        await this.joinGuild(guildId);
+       this.guildMembership = await this.$store.dispatch('guilds/getMemberByGuildIdandUserId', payload);
+       if (this.guildMembership[0].permissions == "guildAdmin") {
+         this.permission = true;
+       };
        const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
-
       const resp = await Promise.all(guildMember.map(async (player) => {
         try {
         const respUser = await this.$store.dispatch('user/getUserById', player.user_id);
@@ -145,8 +154,6 @@ export default {
         this.members = [...resp];
         for (var i = 0; i< resp.length; i++) {
             this.handles.push(resp[i][0].handle);
-          console.log("resp: ", resp[i][0].handle)
-          console.log("length members ", this.members.length)
         }
 
     },
