@@ -98,6 +98,20 @@ export async function getMembersByGuildId({state, commit}, id) {
         console.log("Error in getting guild/user members", error);
     }
 }
+export async function registerQuest({commit, state}, payload) {
+    try {
+        const token = this.state.user.token;
+        let today = new Date;
+        today = today.toISOString()
+        payload.createdAt = today;
+        let response = await guildService.registerQuest(payload, token)
+        return (response)
+    }
+    catch (error) {
+        console.log("Error with registering quest ", error)
+    }
+
+}
 
  export function setGuildData({commit}){
     console.log("Guild data: ", {opt})

@@ -10,7 +10,7 @@
             <q-td key="label" :props="props">{{props.row.label}}</q-td>
             <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
             <q-td key="questNodeId" auto-width :props="props">
-              <q-btn> Register</q-btn>
+              <q-btn label="Register" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
             </q-td>
           </q-tr>
         </template>
@@ -95,9 +95,12 @@ export default {
     },
 
     methods: {
-      log(item) {
-        console.log(item)
-        debugger;
+      async doRegister(questId) {
+        let payload = {
+          guild_id: this.guildId,
+          quest_id: questId
+          }
+        const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
       },
 
       async joinGuild (guildId) {

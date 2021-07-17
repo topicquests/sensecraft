@@ -148,6 +148,29 @@ export async function getGuilds(opts, token) {
     })
   }
 
+  export async function registerQuest(payload, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+
+   return axiosInstance.post("/game_play", {
+     "guild_id": payload.guild_id,
+     "quest_id": payload.quest_id,
+     "createdAt":payload.createdAt,
+     "scores": {}
+    }, options
+    ).then (response => {
+      return response;
+    }).catch(err => {
+      if (err.response) {
+        let errorCode = err.response.data.code;
+        console.log ("Error in registering quest", err.response)
+      }
+    })
+  }
+
   export async function getGuildMembersById(guild_id, token) {
     const options = token ? {
       headers: {
