@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.sequelize.query(
       `GRANT SELECT ON game_play TO ${db_name}__client`);
     await queryInterface.sequelize.query(
-      `GRANT INSERT, UPDATE, DELETE ON game_play TO ${db_name}__member`);
+      `GRANT SELECT, INSERT, UPDATE, DELETE ON game_play TO ${db_name}__member`);
     await queryInterface.sequelize.query(
       `ALTER TYPE enum_guild_membership_permissions
       ADD VALUE IF NOT EXISTS 'joinQuest'`);
