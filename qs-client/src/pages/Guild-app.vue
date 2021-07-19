@@ -18,7 +18,8 @@
      </q-card>
     </div>
     <div class="text-h4 text-center"> {{guild.name}} </div>
- <div v-if = "quest.name"> {{quest.name}}</div>
+    <div v-if="quest" class="text-h4 text-center"> {{quest.name}} </div>
+
     <h5> Members</h5>
     <ul>
     <li v-for="handle in handles" :key="handle.handle">
@@ -82,13 +83,11 @@ export default {
         createdAt: null,
         updatedAt: null
         },
-        quest: {
-          name: null
-        },
         permission: false,
         userId: null,
         handles: [],
-        label: ''
+        label: '',
+        quest: null,
       }
     },
 
@@ -105,7 +104,9 @@ export default {
           quest_id: questId
           }
         const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
-        this.quest = await this.$store.dispatch('quest/getQuestById', questId);
+        this.quest = await this.$store.dispatch('quests/getQuestById', questId);
+        console.log("Quest name: ", this.quest.name);
+        debugger;
       },
 
       async joinGuild (guildId) {

@@ -49,8 +49,8 @@ export async function findQuests( {commit}, payload) {
 export async function getQuestById( {commit}, questId) {
     try {
     const token = this.state.auth.accessToken;
-    let result =  await questService.getQuestsById(questId, token)
-    return (result.data);
+    let result =  await questService.getQuestById(questId, token)
+    return (result.data[0]);
     }
     catch(error) {
         console.log("get quest by id error: ", error);
