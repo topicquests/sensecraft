@@ -46,6 +46,18 @@ export async function findQuests( {commit}, payload) {
 
 }
 
+export async function getQuestById( {commit}, questId) {
+    try {
+    const token = this.state.auth.accessToken;
+    let result =  await questService.getQuestsById(questId, token)
+    return (result.data);
+    }
+    catch(error) {
+        console.log("get quest by id error: ", error);
+    }
+
+}
+
  export function setQuestData({commit}){
     console.log("Quest data: ", {opt})
     return Promise.resolve(commit('SET_QUEST_DATA', opt.data));

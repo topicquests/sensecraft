@@ -15,6 +15,20 @@ export async function getQuests(opts, token) {
    });
   }
 
+  export async function getQuestById(quest_id, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    return axiosInstance.get("/quests?quest_id=eq." + quest_id, options
+    ).then(function(response) {
+       return response;
+     }).catch(function(error){
+        console.log("Error in getQuests");
+     });
+    }
+
   export async function updateQuest(quest, token) {
     const options = token ? {
       headers: {
