@@ -24,7 +24,7 @@ export async function  getUserById(id, token) {
       'Authorization': `Bearer ${token}`
     }
   } : {};
-  return axiosInstance.get("/users/?id=eq." + id, options
+  return axiosInstance.get("/users?id=eq." + id, options
   ).then(response => {
     return response
   })
