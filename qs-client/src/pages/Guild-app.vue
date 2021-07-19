@@ -18,6 +18,7 @@
      </q-card>
     </div>
     <div class="text-h4 text-center"> {{guild.name}} </div>
+ <div v-if = "quest.name"> {{quest.name}}</div>
     <h5> Members</h5>
     <ul>
     <li v-for="handle in handles" :key="handle.handle">
@@ -81,6 +82,9 @@ export default {
         createdAt: null,
         updatedAt: null
         },
+        quest: {
+          name: null
+        },
         permission: false,
         userId: null,
         handles: [],
@@ -101,6 +105,7 @@ export default {
           quest_id: questId
           }
         const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
+        this.quest = await this.$store.dispatch('quest/getQuestById', questId);
       },
 
       async joinGuild (guildId) {
@@ -139,7 +144,7 @@ export default {
        this.guild = response[0];
        await this.joinGuild(guildId);
        this.guildMembership = await this.$store.dispatch('guilds/getMemberByGuildIdandUserId', payload);
-       if (this.guildMembership[0].permissions == "guildAdmin") {
+       if (this.guildMembership[0].permissions.includes("guildAdmin")) {
          this.permission = true;
        };
        const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
