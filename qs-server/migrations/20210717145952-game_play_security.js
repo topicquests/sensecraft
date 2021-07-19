@@ -50,17 +50,18 @@ module.exports = {
         NEW.guild_id = OLD.guild_id;
       END IF;
       SELECT status INTO STRICT quest_status FROM quests where quests.id = NEW.quest_id;
+      SELECT is_quest_id_member(NEW.quest_id) INTO STRICT is_quest_member;
       is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
       is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
       IF has_guild_permission(NEW.guild_id, 'joinQuest'::enum_guild_membership_permissions)
          AND (quest_status = 'registration' OR quest_status = 'ongoing') THEN
         is_requested := is_requested OR (NEW.status != 'invitation');
       ELSE
-        IF OLD IS NULL OR OLD.status != NEW.status THEN
+        IF (OLD IS NULL OR OLD.status != NEW.status) AND NOT is_quest_member THEN
           RETURN NULL;
         END IF;
       END IF;
-      IF is_quest_id_member(NEW.quest_id) THEN
+      IF is_quest_member THEN
         is_invited := is_invited OR (NEW.status != 'request');
       END IF;
       IF is_requested THEN
@@ -82,6 +83,7 @@ module.exports = {
         variables: [
           { name: 'is_requested', type: 'boolean' },
           { name: 'is_invited', type: 'boolean' },
+          { name: 'is_quest_member', type: 'boolean' },
           { name: 'quest_status', type: 'enum_quests_status' },
         ]});
 
