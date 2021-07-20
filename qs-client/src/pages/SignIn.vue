@@ -94,7 +94,6 @@ import { mapState, mapActions } from "vuex";
 export default {
   data() {
   return {
-
     isPwd: true,
     isPwdSignIn: true,
     showDialog: true,
@@ -114,6 +113,8 @@ export default {
    async doLogin() {
       try {
         const loginResponse = await this.login(this.formData.signonEmail, this.formData.password)
+
+
             this.$q.notify({
               type: "positive",
               message: "You are now signed in"
@@ -124,7 +125,7 @@ export default {
         console.log("Error with sign in ", error)
         this.$q.notify({
           type: "negative",
-          message: "Issue with sign in. Verify email and password"
+          message: "Issue with sign in. Verify your email and password"
         })}
     },
 
@@ -132,16 +133,22 @@ export default {
       try {
     email = email && email.toString().toLowerCase();
     const signInResp = await this.$store.dispatch('user/signin', this.formData);
+     if (!signInResp) {
+          throw 'login failed'
+    }
     this.userId = this.$store.state.user.user.id;
     const questResponse = await this.$store.dispatch('quests/findQuests');
     console.log("Added Quests", questResponse);
     const guildsResponse = await this.$store.dispatch('guilds/findGuilds');
     console.log("Added guilds", guildsResponse);
-    return (response)
+    return (guildsResponse)
     }
     catch {
-
-    }
+      console.log("Error with sign in ", error)
+        this.$q.notify({
+          type: "negative",
+          message: "Issue with sign in. Verify your email and password"
+        })}
     },
 
     async goNext() {
@@ -151,6 +158,11 @@ export default {
           const len = this.$store.state.guilds.belongsTo.length;
           if (this.$store.state.guilds.belongsTo.length === 0) {
             this.goLobby();
+          }else if (this.$store.state.guilds.belongsTo.length === 1) {
+            console.log("belongs to: ", this.$store.state.guilds.belongsTo[0].guild_id);
+            const guildId = this.$store.state.guilds.belongsTo[0].guild_id
+            this.$router.push(({name: 'guild', params: {guild_id: guildId}}))
+
           }else {
             this.goHome();
           }

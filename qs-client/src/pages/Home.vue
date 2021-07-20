@@ -1,35 +1,35 @@
 <template>
 <q-page class="bg-blue">
-  <div class="row justify-center text-center bg-primary">          
-           <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg"> Where teams co-construct structured conversation</div>           
-  </div>  
+  <div class="row justify-center text-center bg-primary">
+           <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg"> Where teams co-construct structured conversation</div>
+  </div>
   <div class="row justify-center">
-    <img  class="q-pt-xl q-pb-lb " src="../statics/earthrise2.png" 
+    <img  class="q-pt-xl q-pb-lb " src="../statics/earthrise2.png"
     style ="margin-left:auto; margin-right:auto">
-  </div> 
+  </div>
   <div class="row q-pb-sm q-pt-xl q-md-lg">
     <div class="text-h5 text-bold q-px-sm q-pt-md">Videos to improve your communication skills</div>
   </div>
 
-  <div class="row q-pt-xs" > 
-    <div class="col-12 col-md q-pa-md">      
+  <div class="row q-pt-xs" >
+    <div class="col-12 col-md q-pa-md">
       <q-card class="my-card">
-        <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>         
-      </q-card>      
+        <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>
+      </q-card>
     </div>
 
-  <div class="col-12 col-md q-pa-md">    
+  <div class="col-12 col-md q-pa-md">
     <q-card class="my-card">
-       <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>       
+       <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>
     </q-card>
-  </div>  
-    
+  </div>
+
   <div class="col-12 col-md">
     <div class="q-pa-md">
       <q-card class="my-card">
-       <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>       
+       <q-video src="https://www.youtube.com/embed/WPF64UXFER0" style="height: 300px"/>
       </q-card>
-    </div>  
+    </div>
   </div>
   </div>
 </q-page>
@@ -46,25 +46,22 @@ import {mapActions} from "vuex";
           payload: 100
         }
       },
-  
+
   computed: {
-        
+
 
   },
-
-
   methods: {
-   ...mapActions('guilds', ['guilds/findGuilds'], 'quests', ['quests/findQuests'], )   
+   ...mapActions('guilds', ['guilds/findGuilds'], 'quests', ['quests/findQuests'], )
   },
- 
-  async beforeMount() {        
-     const quests = await this.$store.dispatch('quests/findQuests'); 
+
+  async beforeMount() {
+     const quests = await this.$store.dispatch('quests/findQuests');
      console.log('find quests returns: ', quests);
      const guilds = await this.$store.dispatch('guilds/findGuilds');
-     console.log('find guilds returns: ', guilds);     
+     console.log('find guilds returns: ', guilds);
   }
-        
-    };
+};
 </script>
 
 <style lang="scss" scoped>
