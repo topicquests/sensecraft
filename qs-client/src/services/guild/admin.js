@@ -171,6 +171,21 @@ export async function getGuilds(opts, token) {
     })
   }
 
+  export async function getGamePlayByGuildId(guildId, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    return axiosInstance.get("/game_play?guild_id=eq." + guildId, options)
+    .then (response =>{
+      return response})
+      .catch (err => {
+        let errorCode = err.response.data.code;
+        console.log("Error in get member in guild with guildId " + id, err);
+      })
+  }
+
   export async function getGuildMembersById(guild_id, token) {
     const options = token ? {
       headers: {
@@ -187,7 +202,6 @@ export async function getGuilds(opts, token) {
    })
    .catch(err => {
      let errorCode = err.response.data.code;
-
      console.log("Error in get member in guild with guildId " + id, err);
    })
  }

@@ -110,11 +110,26 @@ export async function registerQuest({commit, state}, payload) {
     catch (error) {
         console.log("Error with registering quest ", error)
     }
-
 }
+
+    export async function getGamePlayByGuildId ({commit, dispatch}, payload) {
+        try {
+            const token = this.state.user.token;
+            let response = await guildService.getGamePlayByGuildId(payload, token)
+            commit('SET_GAME_PLAY_DATA', response.data[0]);
+            return response.data[0]
+        }
+        catch (error) {
+            console.log("error in get game play by guild id", error)
+
+        }
+    }
 
  export function setGuildData({commit}){
     console.log("Guild data: ", {opt})
     return Promise.resolve(commit('SET_GUILD_DATA', opt.data));
+}
+export function setGamePlayData({commit}) {
+    return Promise.resolve(commit('SET_GAME_PLAY_DATA, opt.data'))
 }
 

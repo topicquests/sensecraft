@@ -59,6 +59,9 @@ export async function getToken({commit, dispatch},  payload) {
   export async function signin({commit, dispatch},  payload) {
   try {
   const tokenResponse = await dispatch('getToken', payload)
+  if (!tokenResponse) {
+    throw 'Token is null'
+  }
    const token = this.state.token;
    const resp = await userService.login(
           payload.signonEmail,
@@ -66,8 +69,7 @@ export async function getToken({commit, dispatch},  payload) {
   )
   commit('setUsers', resp.data[0]);
   this.state.user.isAuthenticated = true;
-
-  return (resp)
+  return resp.data
   } catch (err) {
     console.log("Error in signin: ", err)
   }

@@ -31,10 +31,10 @@
 
 <script>
 export default {
-    props: ["guild_id"],
-    data () {
-      return {
-        columns1: [
+  props: ["guild_id"],
+  data () {
+    return {
+      columns1: [
         {
           name: 'desc',
           required: true,
@@ -69,10 +69,9 @@ export default {
           sortable: true
         }
       ],
-        guildMembership:null,
-        members: [
-        ],
-        guild: {
+      guildMembership:null,
+      members: [],
+      guild: {
         name: null,
         handle: null,
         open_for_applications: null,
@@ -82,98 +81,83 @@ export default {
         creator: null,
         createdAt: null,
         updatedAt: null
-        },
-        permission: false,
-        userId: null,
-        handles: [],
-        label: '',
-        quest: null,
-      }
-    },
-
-    computed: {
-      getQuests() {
+      },
+      permission: false,
+      userId: null,
+      handles: [],
+      label: '',
+      quest: null,
+    }
+  },
+  computed: {
+    getQuests() {
       return  this.$store.getters['quests/getQuests'];
     },
-    },
-
-    methods: {
-      async doRegister(questId) {
-        let payload = {
+  },
+  methods: {
+    async doRegister(questId) {
+      let payload = {
           guild_id: this.guildId,
           quest_id: questId
-          }
-        const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
-        this.quest = await this.$store.dispatch('quests/getQuestById', questId);
-        console.log("Quest name: ", this.quest.name);
-        debugger;
-      },
-
-      async joinGuild (guildId) {
-        this.guildId = guildId;
-        let ownGuilds = this.$store.state.guilds.belongsTo;
-        var r = ownGuilds.some(i => i.guild_id === this.guildId)
-        if (!r) {
-          await this.$store.dispatch('guilds/joinGuild', this.guildId)
-          this.$q.notify({
-            type: "positive",
-            message: "You are joining guild " + this.guildId
-          })
-
-          } else {
-            this.$q.notify({
-            type: "positive",
-            message: "You are already a member of " + this.guildId
-          })
-
         }
-      }
+      const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
+      this.quest = await this.$store.dispatch('quests/getQuestById', questId);
+      console.log("Quest name: ", this.quest.name);
     },
-
-    isCherries(fruit) {
-  return fruit.permissions === 'guildAdmin';
+    async joinGuild (guildId) {
+      this.guildId = guildId;
+      let ownGuilds = this.$store.state.guilds.belongsTo;
+      var r = ownGuilds.some(i => i.guild_id === this.guildId)
+      if (!r) {
+        await this.$store.dispatch('guilds/joinGuild', this.guildId)
+        this.$q.notify({
+          type: "positive",
+          message: "You are joining guild " + this.guildId
+        })
+        } else {
+          this.$q.notify({
+          type: "positive",
+          message: "You are already a member of " + this.guildId
+        })
+      }
+    }
   },
-
-
-
     async mounted() {
-
-      let guildId = this.$route.params.guild_id;
-      this.userId = this.$store.state.user.user.id;
-      var payload = {guildId: guildId, userId: this.userId};
-      const response = this.$store.getters['guilds/getGuildById'] (guildId);
-       this.guild = response[0];
-       await this.joinGuild(guildId);
-       this.guildMembership = await this.$store.dispatch('guilds/getMemberByGuildIdandUserId', payload);
-       if (this.guildMembership[0].permissions.includes("guildAdmin")) {
-         this.permission = true;
-       };
-       const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
-      const resp = await Promise.all(guildMember.map(async (player) => {
-        try {
+    let guildId = this.$route.params.guild_id;
+    this.userId = this.$store.state.user.user.id;
+    var payload = {guildId: guildId, userId: this.userId};
+    const response = this.$store.getters['guilds/getGuildById'] (guildId);
+    this.guild = response[0];
+    await this.joinGuild(guildId);
+    this.guildMembership = await this.$store.dispatch('guilds/getMemberByGuildIdandUserId', payload);
+    if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
+      this.permission = true;
+    };
+    const guildMember = await this.$store.dispatch('guilds/getMembersByGuildId', this.guild.id)
+    const resp = await Promise.all(guildMember.map(async (player) => {
+      try {
         const respUser = await this.$store.dispatch('user/getUserById', player.user_id);
         return respUser.data;
-
-        }
-        catch (error) {
-          console.log("response error", error)
-        }
-        return resp;
+      }
+      catch (error) {
+        console.log("response error", error)
+      }
+      return resp;
       }));
-        this.members = [...resp];
-        for (var i = 0; i< resp.length; i++) {
-            this.handles.push(resp[i][0].handle);
-        }
-
+      this.members = [...resp];
+      for (var i = 0; i< resp.length; i++) {
+        this.handles.push(resp[i][0].handle);
+      }
+      if (this.$store.state.guilds.belongsTo.length === 1) {
+        let gamePlay = await this.$store.dispatch("guilds/getGamePlayByGuildId", guildId);
+        this.quest = await this.$store.dispatch('quests/getQuestById', gamePlay.quest_id);
+      }
     },
-
     async beforeMount() {
      const quests = await this.$store.dispatch('quests/findQuests');
      console.log('find quests returns: ', quests);
      const guilds = await this.$store.dispatch('guilds/findGuilds');
      console.log('find guilds returns: ', guilds);
-
-
-}
-}
+    }
+  }
 </script>

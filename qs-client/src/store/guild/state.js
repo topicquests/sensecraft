@@ -1,6 +1,7 @@
 export default function () {
   return {
     guilds: null,
-    belongsTo: null
+    belongsTo: null,
+    gamePlay: null
   }
 }
