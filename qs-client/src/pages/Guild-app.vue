@@ -144,16 +144,20 @@ export default {
       }
       return resp;
       }));
-        this.members = [...resp];
-        for (var i = 0; i< resp.length; i++) {
-            this.handles.push(resp[i][0].handle);
-        }
+      this.members = [...resp];
+      for (var i = 0; i< resp.length; i++) {
+        this.handles.push(resp[i][0].handle);
+      }
+      if (this.$store.state.guilds.belongsTo.length === 1) {
+        let gamePlay = await this.$store.dispatch("guilds/getGamePlayByGuildId", guildId);
+        this.quest = await this.$store.dispatch('quests/getQuestById', gamePlay.quest_id);
+      }
     },
     async beforeMount() {
      const quests = await this.$store.dispatch('quests/findQuests');
      console.log('find quests returns: ', quests);
      const guilds = await this.$store.dispatch('guilds/findGuilds');
      console.log('find guilds returns: ', guilds);
-}
-}
+    }
+  }
 </script>
