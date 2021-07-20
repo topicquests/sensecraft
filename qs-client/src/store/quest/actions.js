@@ -19,7 +19,10 @@ export  function createQuests({commit, dispatch}, payload,) {
 
 export  async function updateQuests({commit, dispatch}, payload,) {
     try {
-        const token = this.state.auth.accessToken;
+        const token = this.state.user.token;
+        let today = new Date;
+        payload.updatedAt = today;
+    today = today.toISOString()
         let result = await questService.updateQuest(payload,token)
         return (result)
     }
@@ -39,6 +42,18 @@ export async function findQuests( {commit}, payload) {
     }
     catch(error) {
         console.log("findQuest error: ", error);
+    }
+
+}
+
+export async function getQuestById( {commit}, questId) {
+    try {
+    const token = this.state.auth.accessToken;
+    let result =  await questService.getQuestById(questId, token)
+    return (result.data[0]);
+    }
+    catch(error) {
+        console.log("get quest by id error: ", error);
     }
 
 }

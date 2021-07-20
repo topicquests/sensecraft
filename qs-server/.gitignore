@@ -111,3 +111,4 @@ lib/
 data/
 config.ini
 config/*.json
+postgrest_*.conf

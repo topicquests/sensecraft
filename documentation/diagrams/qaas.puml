@@ -1,16 +1,23 @@
 @startuml qaas
 
-package Global {
 
   enum ScoringCriterion {
     
   }
 
+  enum NodeType {
+    Issue
+    Proposal
+    Pro
+    Con
+    Reference
+  }
+
   class ScoringStrategy {
     name String
     criterion ScoringCriterion
-    evalMove(GameMove): float
-    evalQuest(QuestParticipation, ParticipatingGuild): QuestBadge[]
+    evalMove(ConversationNode): float
+    evalQuest(GamePlay, GamePlay): Badge[]
   }
 
   class AccountService {
@@ -18,19 +25,12 @@ package Global {
     url String
   }
 
-  class QuestRegistry {
-    quests(status): QuestParticipation[]
+  enum MembershipStatus {
+    request
+    invitation
+    confirmed
   }
 
-  class GuildRegistry {
-    guilds(): ParticipatingGuild[]
-    scores(ParticipatingGuild): GlobalGuildScores
-  }
-
-  class UserRegistry {
-    users[]: User[]
-    badges(User): UserBadge[]
-  }
 
   enum QuestStatus {
     draft
@@ -49,8 +49,12 @@ package Global {
     ' Guild permissions
     acceptGuildMembership
     revokeGuildMembership
+    inviteMember
     publishGameMove
     retractGameMove
+    joinQuest
+    guildAdmin
+    setGameFocus
     ' within term time
     ' Quest permissions
     acceptQuestMembership
@@ -60,17 +64,25 @@ package Global {
     
   }
 
+  ' Note: attach permissions to roles
+
   class TurnStrategy {
     synchronous boolean
     turnLength interval
   }
 
   enum PubState {
-    draft
+    private_draft
+    guild_draft
     proposed
     submitted
     visible
+    obsolete
     ' visible and submitted are the same for v1
+  }
+
+  enum Metric {
+
   }
 
   enum BadgeType {
@@ -81,11 +93,9 @@ package Global {
     add_node
     ' Eventually refactorings
   }
-}
 
-
-package ServerInfo {
-  class User {
+  class Member {
+    server ExternalServer
     handle String
     name String
     email String
@@ -93,23 +103,26 @@ package ServerInfo {
     permissions Permission[]
   }
   class Account {
-    User user
+    Member member
     service AccountService
     string id
   }
-  ' Account --> "1" AccountService
-  User "1" --> "*" Account
+  Account --> "1" AccountService
+  Member "1" --> "*" Account
 
   class Guild {
+    server ExternalServer
     name String
     handle String
     public boolean
     open_for_applications boolean
-    accept(QuestParticipation)
-    register_score(GuildScore): QuestScore
+    accept(GamePlay)
   }
-  Quest o..> "1" User : > admin
+  ' Guild --> "0..1" ExternalServer
+  ' Quest --> "0..1" ExternalServer
+  ' Member --> "0..1" ExternalServer
   class Quest {
+    server ExternalServer
     name String
     description String
     handle String
@@ -117,31 +130,29 @@ package ServerInfo {
     scoring ScoringStrategy
     turns TurnStrategy
     status QuestStatus
-    scoreMove(GameMove): GameMoveScore[]
-    play(ProposedGameMove): GameMove
-    ' Maybe have a QProposedGameMove in case of non-synchronous turn strategy
-    register(QuestParticipation): ParticipatingGuild
-    ' will also create the Avatars from the QuestParticipation's castings
+    scoreMove(ConversationNode): GameMoveScore[]
+    register(Guild): GamePlay
   }
-
-  Guild o--> "1" User : > leader
-
-  (User , Quest) .. QuestMembership
+  Quest o--> "1" Member : > creator
+  Quest o--> "*" Member : > moderators
+  (Quest, Member) .. QuestMembership
 
 
   class QuestMembership {
     quest Quest
-    user User
-    boolean confirmed
+    member Member
+    status MembershipStatus
     permissions Permission[]
   }
+  Guild o--> "1" Member : > creator
+  Guild o--> "*" Member : > members
 
-  (User , Guild) .. GuildMembership
+  (Member , Guild) .. GuildMembership
 
   class GuildMembership { 
     guild Guild
-    user User
-    boolean confirmed
+    member Member
+    status MembershipStatus
     boolean leadership
     permissions Permission[]
   }
@@ -151,207 +162,134 @@ package ServerInfo {
     name String
   }
 
-}
-
-
-package QuestInfo {
-
-  object aQuest {
-    name String
-  }
-  Quest <|-- aQuest
-
-  class ParticipatingGuild {
-    name String
-    server ExternalServer
-    handle String
-  }
-
-  ParticipatingGuild o-> "1" ExternalServer
-
-  Quest "1" --> "*" ParticipatingGuild
-
-  class Avatar {
-    guild ParticipatingGuild
-    handle String
-    origin Casting
-  }
-
-  ParticipatingGuild "1" --> "*" Avatar
-
-  class GameMove {
-    creator Avatar?
-    proposed_node_id ProposedGameMove?
-    type GameMoveType
-    about_node ConversationNode
-    submitted timestamp
-    made_visible timestamp
-  }
-
-  Quest "1" --> "*" GameMove
-  GameMove "1" o--> "0..1" Avatar
-  ' Quest o--> ScoringStrategy
 
   class ConversationNode {
+    quest Quest
+    creator Member
+    node_type NodeType
+    move_type GameMoveType
+    contributors Casting[]
     title String
     description String
-    imported_from_guild ParticipatingGuild
-    imported_identifier String
+    state PubState
+    state_history <PubState, timestamp>[]
+    ' GamePhase inferred from history?
+    ' allow more history than PubState?
     parent ConversationNode
     ancestry() ConversationNode[]
+    ' may materialize in a ltree
   }
 
-  GameMove o--> "1" ConversationNode
-  ParticipatingGuild "1" <-- "*" ConversationNode
-  ConversationNode "*" -> "1" ConversationNode : > parent
+  class NodeReplacement {
+    new_node ConversationNode
+    replacing_node ConversationNode
+    approved_by Casting[]
+    effective timestamp
+  }
 
+  (ConversationNode, ConversationNode) .. NodeReplacement
+  NodeReplacement --> "*" Casting : > approvals
+
+  ConversationNode "*" o--> "1..*" Casting
+  ' Quest o--> ScoringStrategy
+
+  Member "1" <-- "*" ConversationNode : < creator
+  ConversationNode "1" o-> "0..1" ConversationNode : > parent
+  Quest "1" o--> "*" ConversationNode
+  
   class GameMoveScore {
+    guild Guild
+    moves ConversationNode[]
+    metric Metric
     value float
-    move GameMove
     strategy ScoringStrategy
+    quest_signature crypto
+    badge BadgeType
   }
-  GameMove "1" <-- GameMoveScore
+  ConversationNode "1..*" <-- "*" GameMoveScore
+  Quest *--> "*" GameMoveScore
+  class ScoreAssignment {
+    from_score GameMoveScore
+    casting Casting
+    value float
+    ' Should I put all values in one assignment? Easier to check the total constraint.
+    badge BadgeType
+    guild_signature crypto
+  }
+
+  (Casting, GameMoveScore) .. ScoreAssignment
+
+  Member "1" ..> "*" ScoreAssignment
+
   ' GameMoveScore --> "1" ScoringStrategy
-  class GuildScore {
-    ParticipatingGuild guild
-    total float
-    moves GameMoveScore[]
-    strategy ScoringStrategy
-    signature crypto
-  }
-  ParticipatingGuild o--> "*" GuildScore
-  GuildScore --> "*" GameMoveScore
-  ' GuildScore --> "1" ScoringStrategy
+  ' NOTE: GameMoveScore given by Quest, distribution of points to contributors is decided by guild
+  ' TODO: Score for a set of related game moves.
+  ' Q: are badges automated based on score? Possibly.
+  ' Are all points given by quest? Cross-guild scoring?
+  ' Maybe pre-announce number of points given by quest? Success criteria?
 
+  ' Question: Should I allow multiple avatars in a guild, reusable between quests?
+  ' Vs the Casting which is a way to play a game under a quest-specific identity...
+  ' That creates the question: Do the points/badges belong to the Avatar or the Member?
 
-  class QuestBadge {
-    avatar Avatar
-    for_moves GameMoveScore[]
-    signature crypto
-  }
-
-  GameMoveScore "1" *--> "*" QuestBadge
-  Avatar "1" --> "*" QuestBadge
-
-}
-
-
-package GuildInfo {
-
-  object aGuild {
+  class Avatar {
+    ' Note: for v1, a single avatar.
+    member Member
+    server Server
+    badges BadgeType[]
+    scores {Metric->float}
     name String
+    ' defaults to member's handle
+    ' (server+name unique)
+
+    ' v2
+    roles Role[]
   }
-  Guild <|-- aGuild
 
-  ' GuildRegistry --> "*" Guild
-  ' GuildRegistry -> "*" GlobalGuildScore
-
-  ' UserRegistry --> "*" User
-  ' UserRegistry -> "*" UserBadge
-
-  ParticipatingGuild .> "*" Guild
-  Guild --> "*" QuestParticipation
-
-  Guild "*" <--> "*" User
+  Member "1" o--> "*" Avatar
 
   class Casting {
-    quest QuestParticipation
-    user User
-    handle avatar
-    role Role
+    ' note: denormalized for uniqueness constraints
+    quest Quest
+    member Member
+    ' (quest+member unique)
+    guild Guild
+    ' Constrain that the member be in playing guild
+
+    ' v1:
+    roles Role[]
+    permissions Permission[]
+
+    ' v2:
+    avatar Avatar
+    ' Constrain avatar having same member
+    ' some permissions would be inherent in avatar's roles
+    alias String
+    ' alias defaults to avatar handle
+    ' (quest+alias unique)
   }
 
-  User "1" --> "*" Casting
-
-
-  Casting "1" <.o "1" Avatar
-
-  QuestParticipation "1" --> "*" QuestScore
-
-  class QuestParticipation {
-    name String
-    status QuestStatus
-    server URL
+  class GamePlay {
+    Quest quest
+    Guild guild
+    status MembershipStatus
     proposed timestamp
     accepted timestamp
+    guild_focus ConversationNode
+    scores {Metric->float}
   }
 
-  QuestParticipation o.> "*" Quest
+  (Guild , Quest) .. GamePlay
+  (Avatar, GamePlay) .. Casting
 
-  class QuestScore {
-    QuestParticipation quest
-    total float
-    origin GuildScore
+  class GamePhase {
+    quest Quest
+    start timestamp
+    end timestamp
+    synchronous boolean
+    singlePlayer Guild
   }
 
-
-  GuildScore "1" <.o "1" QuestScore
-
-
-  class UserBadge {
-    casting Casting
-    from QuestScore
-    origin QuestBadge
-  }
-
-  UserBadge "1" o.> "1" QuestBadge
-  QuestScore "1" --> "*" UserBadge
-
-  Casting "1" <--> "*" UserBadge
-
-  QuestParticipation "1" --> "*" Casting
-
-  class Turn {
-    quest QuestParticipation
-    state PubState
-    created timestamp
-    proposed timestamp
-    submitted timestamp
-    visible timestamp
-  }
-
-  QuestParticipation o--> "*" Turn
-  Turn --> "1..*" ProposedGameMove
-
-  class ProposedGameMove {
-    quest QuestParticipation
-    turn Turn
-    type GameMoveType
-    contributors Casting[]
-    state PubState
-    about_node ProposedConversationNode
-    created timestamp
-    submitted timestamp
-    visible timestamp
-  }
-  GameMove "1" o.> "0..1" ProposedGameMove
-  ParticipatingGuild "1" <-- "*" ProposedGameMove
-  ProposedGameMove "*" --> "1..*" Casting
-
-  class ProposedConversationNode {
-    title String
-    description String
-    quest_identifier String
-    parent ProposedConversationNode
-    ancestry() ProposedConversationNode[]
-  }
-
-  ConversationNode "1" o.> "0..1" ProposedConversationNode
-  ProposedGameMove o--> "1" ProposedConversationNode
-  QuestParticipation "1" <-- "*" ProposedConversationNode
-  ProposedConversationNode "*" -> "1" ProposedConversationNode : > parent
-
-  class GlobalGuildScore {
-    float total
-    strategy ScoringStrategy
-    scores QuestScore[]
-  }
-
-  Guild "1" --> "*" GlobalGuildScore
-  ' GlobalGuildScore --> "1" ScoringStrategy
-  GlobalGuildScore --> "*" QuestScore
-
-}
-
+  Quest "1" o--> "*" GamePhase
 
 @enduml

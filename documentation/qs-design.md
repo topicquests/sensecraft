@@ -71,70 +71,10 @@ getQuests()
 getGuilds()
 checkMemberBelongToGuild()
 
+## Quest Request
 
-## TABLES
+Description: A guild request to participate in a quest. The member that makes the request must be a member of the guild requesting. The guild must not be actively participating in any other quest. When making the request the requestor will need to choose which guild, if participating in more then one guild, the request is for.
 
-Table names in Feathersjs are either plural of the Model or can be set with FREEZETABLENAME option.
-
-### QUEST
-
-| NAME            | DATA TYPE | OPTIONS  |
-| :-------------- | :-------- | :------- |
-| questId         | integer   | NOT NULL |
-| quest           | TEXT      | NOT NULL |
-| manager         | integer   | NULL     |
-| qsme            | DATE      | NULL     |
-| pubDate         | DATE      | NULL     |
-| maxNumberRounds | integer   | NULL     |
-| delay           | integer   | NULL     |
-| creator         | integer   | NULL     |
-
-### ROLES
-
-| NAME   | DATA TYPE | OPTIONS  |
-| :----- | :-------- | :------- |
-| roleId | serial    | NOT NULL |
-| owner  | integer   | NOT NULL |
-| player | integer   | NOT NULL |
-| leader | integer   | NOT NULL |
-| member | integer   | NOT NULL |
-
-
-### USERES
-
-| NAME      | DATA TYPE | OPTIONS  | DESCRIPTION                     |
-| :-------- | :-------- | :------- | :------------------------------ |
-| userId    | serial    | NOT NULL | Auto incremented unique user id |
-| user      | TEXT      | NOT NULL | Unique user name                |
-| lastName  | TEXT      | NULL     | Users last name                 |
-| firstName | TEXT      | NULL     | Users first name                |
-| handle    | TEXT      | NULL     | Users handle                    |
-| password  | TEXT      | NOT NULL | Encrypted password for sign in  |
-
-
-### GUILD
-
-| NAME    | DATA TYPE | OPTIONS  |
-| :------ | :-------- | :------- |
-| guildId | serial    | NOT NULL |
-| questId | integer   | NOT NULL |
-
-
-### GUILD_QUEST
-
-| NAME         | DATA TYPE | OPTIONS  |
-| :----------- | :-------- | :------- |
-| guildQuestId | serial    | NOT NULL |
-| guildId      | serial    | NOT NULL |
-| questId      | integer   | NOT NULL |
-
-### USER_GUILD
-
-| NAME        | DATA TYPE | OPTIONS  |
-| :---------- | :-------- | :------- |
-| userGuildId | serial    | NOT NULL |
-| guildId     | serial    | NOT NULL |
-| userId      | serial    | NOT NULL |
 
 ## Registraion
 

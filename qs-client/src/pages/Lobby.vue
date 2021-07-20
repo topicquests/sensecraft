@@ -13,7 +13,7 @@
             <q-td key="label" :props="props">{{props.row.label}}</q-td>
             <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
             <q-td key="questNodeId" auto-width :props="props">
-              <router-link :to="{ name: 'questedit', params: { id:  props.row.id }}">Edit</router-link>
+              <router-link :to="{ name: 'questRequest', params: { quest_id:  props.row.id }}">Edit</router-link>
             </q-td>
           </q-tr>
         </template>
@@ -34,7 +34,7 @@
               <q-td key="label" :props="props">{{props.row.label}}</q-td>
               <q-td key="guildHandle" :props="props">{{props.row.handle}}</q-td>
               <q-td key="guildNodeId" auto-width :props="props">
-               <router-link v-model = "guildId" @click.native = "joinGuild(props.row.id)" :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
+               <router-link v-model = "guildId" :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
               </q-td>
             </q-tr>
           </template>
@@ -122,32 +122,6 @@ export default {
     }
   },
     methods: {
-      async joinGuild (guildId) {
-        this.guildId = guildId;
-        try {
-          let ownGuilds = this.$store.state.guilds.belongsTo;
-          var r = ownGuilds.some(i => i.guild_id === this.guildId)
-
-          if (!r) {
-            const resp = await this.$store.dispatch('guilds/joinGuild', this.guildId)
-            this.$q.notify({
-              type: "positive",
-              message: "You are joining guild " + this.guildId
-            })
-          } else {
-            this.$q.notify({
-              type: "positive",
-              message: "You are already a member of " + this.guildId
-            })
-          }
-        }
-        catch (error) {
-          console.log("Error joining guild ", error)
-        }
-        return
-      }
     }
-
-
-};
+}
 </script>

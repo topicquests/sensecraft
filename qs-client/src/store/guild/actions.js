@@ -27,6 +27,29 @@ export  function updateGuilds({commit, dispatch}, payload,) {
     })
 }
 
+export async function getGuildById( {commit}, payload) {
+    try {
+        const token = this.state.user.token;
+        let result =  await guildService.getGuildById(payload, token)
+        commit('SET_GUILD_DATA', result.data);
+        return (result.data)
+    }
+    catch(error){
+        console.log("Error in findGuilds", error);
+    }
+}
+
+export async function getMemberByGuildIdandUserId( {commit}, payload) {
+    try {
+        const token = this.state.user.token;
+        let result =  await guildService.getMemberByGuildIdandUserId(payload, token)
+        commit('SET_GUILD_DATA', result.data);
+        return (result.data)
+    }
+    catch(error){
+        console.log("Error in findGuilds", error);
+    }
+}
 
 export async function findGuilds( {commit}, payload) {
     try {
@@ -75,9 +98,38 @@ export async function getMembersByGuildId({state, commit}, id) {
         console.log("Error in getting guild/user members", error);
     }
 }
+export async function registerQuest({commit, state}, payload) {
+    try {
+        const token = this.state.user.token;
+        let today = new Date;
+        today = today.toISOString()
+        payload.createdAt = today;
+        let response = await guildService.registerQuest(payload, token)
+        return (response)
+    }
+    catch (error) {
+        console.log("Error with registering quest ", error)
+    }
+}
+
+    export async function getGamePlayByGuildId ({commit, dispatch}, payload) {
+        try {
+            const token = this.state.user.token;
+            let response = await guildService.getGamePlayByGuildId(payload, token)
+            commit('SET_GAME_PLAY_DATA', response.data[0]);
+            return response.data[0]
+        }
+        catch (error) {
+            console.log("error in get game play by guild id", error)
+
+        }
+    }
 
  export function setGuildData({commit}){
     console.log("Guild data: ", {opt})
     return Promise.resolve(commit('SET_GUILD_DATA', opt.data));
+}
+export function setGamePlayData({commit}) {
+    return Promise.resolve(commit('SET_GAME_PLAY_DATA, opt.data'))
 }
 
