@@ -15,6 +15,20 @@ export async function getQuests(opts, token) {
    });
   }
 
+  export async function getQuestById(quest_id, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    return axiosInstance.get("/quests?id=eq." + quest_id, options
+    ).then(function(response) {
+       return response;
+     }).catch(function(error){
+        console.log("Error in getQuests");
+     });
+    }
+
   export async function updateQuest(quest, token) {
     const options = token ? {
       headers: {
@@ -22,7 +36,16 @@ export async function getQuests(opts, token) {
       }
     } : {};
     const id = quest.id;
-    return axiosInstance.put(`/quests?id=eq.${id}`, quest, options
+    return axiosInstance.patch(`/quests?id=eq.${id}`,
+    {
+      "name": quest.name,
+      "handle": quest.handle,
+      "description": quest.description,
+      "public": quest.public,
+      "creator": quest.creator,
+      "status": quest.status,
+      "updatedAt": quest.updatedAt
+    }, options
     ).then(response => response).catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;

@@ -30,7 +30,7 @@ export async function  getUserById(id, token) {
   })
   .catch(err => {
     let errorCode = err.response.data.code;
-    console.log("Error in get memberd in guild with guildId " + id, err);
+    console.log("Error in get member in guild with user_id " + id, err);
   })
 }
 
