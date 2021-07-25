@@ -129,6 +129,9 @@ def create_database(data, conn_data):
     psql_command(
         f"ALTER GROUP {member} ADD USER {data['client']}", **conn_data)
     psql_command(f"ALTER DATABASE {database} SET \"app.jwt_secret\" TO '{auth_secret}'", **conn_data)
+    conn_data = conn_data.copy()
+    conn_data['db'] = database
+    psql_command(f"ALTER SCHEMA public OWNER TO {owner}", **conn_data)
     return data
 
 
