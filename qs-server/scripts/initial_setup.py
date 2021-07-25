@@ -82,7 +82,7 @@ def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwa
     return dict(user=user, host=host, password=password, sudo=sudo)
 
 
-def create_database(data, conn_data):
+def create_database(data, conn_data, dropdb=False):
     database = data["database"]
     member = database + "__member"
     if not test_user_exists(member, **conn_data):
@@ -114,7 +114,11 @@ def create_database(data, conn_data):
     auth_secret = data.get('auth_secret', None) or token_urlsafe(32)
     data['auth_secret'] = auth_secret
     owner = data['owner']
-    if not test_db_exists(database, **conn_data):
+    exists = test_db_exists(database, **conn_data)
+    if exists and dropdb:
+        psql_command(f"DROP DATABASE {database}", **conn_data)
+        exists = False
+    if not exists:
         psql_command(
             f"CREATE DATABASE {database} WITH OWNER {owner} ENCODING UTF8", **conn_data)
     else:
@@ -176,6 +180,8 @@ if __name__ == "__main__":
                       help="Create the test database")
     argp.add_argument("--no-create-test", dest="create_test", action="store_false",
                       help="Do not create the test database")
+    argp.add_argument("--dropdb", action="store_true",
+                      help="drop the database before creating it")
     argp.add_argument("-d", "--debug", action="store_true",
                       help="debug db commands")
     args = argp.parse_args()
@@ -201,7 +207,7 @@ if __name__ == "__main__":
                     k: ini_file.get(db, k) for k in ini_file.options(db)})
             else:
                 ini_file.add_section(db)
-            data = create_database(data, conn_data)
+            data = create_database(data, conn_data, args.dropdb)
             sequelize_config[db] = dict(
                 database=dbname,
                 host=conn_data["host"],
