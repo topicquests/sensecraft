@@ -1,0 +1,9 @@
+%syntax-version=1.0.0
+%project=sensecraft
+%uri=https://github.com/TopicQuests/qs-demo/
+
+basics 2021-07-25T18:32:59Z Marc-Antoine Parent <maparent@acm.org> # Basic: types and extensions
+members [basics] 2021-07-25T18:45:32Z Marc-Antoine Parent <maparent@acm.org> # members table
+quests [members] 2021-07-25T19:08:59Z Marc-Antoine Parent <maparent@acm.org> # Quest tables
+guilds [members] 2021-07-25T19:53:53Z Marc-Antoine Parent <maparent@acm.org> # Guild tables
+game_play [guilds quests] 2021-07-25T21:14:24Z Marc-Antoine Parent <maparent@acm.org> # game_play tables
