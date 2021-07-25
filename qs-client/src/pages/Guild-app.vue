@@ -1,14 +1,20 @@
 <template>
-  <q-page padding class="bg-secondary">
-    <div >
+<q-layout view="hHh LpR fFf">
+  <q-page padding class="bg-light-blue">
+    <div class="row">
+      <scoreboard></scoreboard>
+    </div>
+       <p style="text-align:center; font-size:40px"> {{guild.name}}</p>
+    <div class="row">
+      <div class ="col">
        <q-card v-if = "permission">
         <q-table title="Quests" :data="getQuests" :columns="columns1" row-key = "desc">
          <template slot="body" slot-scope="props">
           <q-tr :props="props">
             <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-            <q-td key="status" :props="props">{{props.row.status}}</q-td>
-            <q-td key="label" :props="props">{{props.row.label}}</q-td>
             <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+            <q-td key="status" :props="props">{{props.row.status}}</q-td>
+            <q-td key="start" :props="props">{{props.row.start}}</q-td>
             <q-td key="questNodeId" auto-width :props="props">
               <q-btn label="Register" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
             </q-td>
@@ -17,19 +23,57 @@
       </q-table>
      </q-card>
     </div>
-    <div class="text-h4 text-center"> {{guild.name}} </div>
-    <div v-if="quest" class="text-h4 text-center"> {{quest.name}} </div>
+    <div class="col">
+      <q-card class="bg-primary bordered: true q-mr-xl q-ml-xl text-xs-center">
+        <div>
+        <q-section class="q-pt-lg q-pb-xs">
+          <h6 style="text-align:center"> {{quest.name}}</h6>
+        </q-section>
+        </div>
+        <div class="handles">
+        <q-section >
+          <p style="text-align:center">{{quest.description}}</p>
+        </q-section>
+        </div>
+        <div >
+        <q-card-actions>
+          <div class="align-center">
+            <q-btn
+              label="go to quest"
+              absolute
+              top>
+          </q-btn>
+          </div>
+        </q-card-actions>
+        </div>
+      </q-card>
+    </div>
+    </div>
+    <div class="row handles q-ml-lg q-mb-xs">
+       Members
+    </div>
+    <div class="row q-mt-xs handles q-pr-xl">
+      <div class="col">
+      <ul>
+        <li v-for="handle in handles" :key="handle.handle">
+          {{handle}}
+        </li>
+      </ul>
+    </div>
 
-    <h5> Members</h5>
-    <ul>
-    <li v-for="handle in handles" :key="handle.handle">
-      {{handle}}
-    </li>
-    </ul>
+    </div>
+
+    <div v-if="quest" class="q-mt-xl row text-h6">
+      <q-radio v-model="quest" color="black" style="font-size:20px" label="quest.name"> </q-radio>
+    </div>
   </q-page>
+</q-layout>
 </template>
 
 <script>
+import scoreboard from '../components/scoreboard.vue'
+import { mapActions } from 'vuex'
+
 export default {
   props: ["guild_id"],
   data () {
@@ -38,7 +82,7 @@ export default {
         {
           name: 'desc',
           required: true,
-          label: "Label",
+          label: "Quest",
           align: "left",
           field: "name",
           sortable: true
@@ -46,7 +90,7 @@ export default {
         {
           name: "status",
           required: false,
-          label: "Status",
+          label: "Handle",
           align: "left",
           field: "status",
           sortable: true
@@ -54,12 +98,19 @@ export default {
         {
           name: "handle",
           required: false,
-          label: "Handle",
+          label: "Status",
           align: "left",
           field: "handle",
           sortable: true
         },
-
+        {
+          name: "start",
+          required: false,
+          label: "Start Date",
+          align: "left",
+          field: "start",
+          sortable: true
+        },
         {
           name: "questNodeId",
           required: false,
@@ -89,12 +140,18 @@ export default {
       quest: null,
     }
   },
+  components: {
+    "scoreboard": scoreboard
+
+  },
   computed: {
     getQuests() {
       return  this.$store.getters['quests/getQuests'];
     },
   },
   methods: {
+    ...mapActions('quests',['findQuests']),
+    ...mapActions('guilds',['findGuilds']),
     async doRegister(questId) {
       let payload = {
           guild_id: this.guildId,
@@ -102,7 +159,6 @@ export default {
         }
       const registerResponse = await this.$store.dispatch('guilds/registerQuest', payload)
       this.quest = await this.$store.dispatch('quests/getQuestById', questId);
-      console.log("Quest name: ", this.quest.name);
     },
     async joinGuild (guildId) {
       this.guildId = guildId;
@@ -124,6 +180,8 @@ export default {
   },
     async mounted() {
     let guildId = this.$route.params.guild_id;
+    const quests = [];
+    this.quest = [];
     this.userId = this.$store.state.user.user.id;
     var payload = {guildId: guildId, userId: this.userId};
     const response = this.$store.getters['guilds/getGuildById'] (guildId);
@@ -149,15 +207,31 @@ export default {
         this.handles.push(resp[i][0].handle);
       }
       if (this.$store.state.guilds.belongsTo.length === 1) {
-        let gamePlay = await this.$store.dispatch("guilds/getGamePlayByGuildId", guildId);
+      let gamePlay = await this.$store.dispatch("guilds/getGamePlayByGuildId", guildId);
+
+      const questResp = await Promise.all(gamePlay.map(async (player) => {
+      try {
+        const respUser = await this.$store.dispatch("quests/getQuestById", player.quest_id);
+        return respUser.data;
+      }
+      catch (error) {
+        console.log("response error", error)
+      }
+      return questResp;
+      }));
         this.quest = await this.$store.dispatch('quests/getQuestById', gamePlay.quest_id);
       }
     },
     async beforeMount() {
-     const quests = await this.$store.dispatch('quests/findQuests');
-     console.log('find quests returns: ', quests);
-     const guilds = await this.$store.dispatch('guilds/findGuilds');
-     console.log('find guilds returns: ', guilds);
+     const quests = await this.findQuests;
+     const guilds = await this.findGuilds;
     }
   }
 </script>
+
+<style lang="styl">
+.handles {
+  font-size: 20px;
+  font-family: pragmatica-web, sans-serif;
+}
+</style>

@@ -7,6 +7,11 @@ export function SET_GAME_PLAY_DATA(state, gamePlay) {
     state.gamePlay = gamePlay;
 }
 
+export function SET_CURRENT_GUILD(state, guild) {
+        state.currentGuild = guild;
+}
+
+
 export function SET_GUILD_MEMBER_DATA(state, guildMember) {
     state.belongsTo = guildMember;
 }

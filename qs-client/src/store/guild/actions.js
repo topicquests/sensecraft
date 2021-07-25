@@ -117,7 +117,7 @@ export async function registerQuest({commit, state}, payload) {
             const token = this.state.user.token;
             let response = await guildService.getGamePlayByGuildId(payload, token)
             commit('SET_GAME_PLAY_DATA', response.data[0]);
-            return response.data[0]
+            return response.data
         }
         catch (error) {
             console.log("error in get game play by guild id", error)
