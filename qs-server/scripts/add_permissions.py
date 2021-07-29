@@ -44,14 +44,14 @@ if __name__ == "__main__":
         with open(CONFIG_FILE) as f:
             ini_file.read_file(f)
     else:
-      print("setup the ini file first")
+        print("setup the ini file first")
     argp = argparse.ArgumentParser("give permissions to a user")
     argp.add_argument("-d", "--database", default="development",
                       help="the database to use")
     argp.add_argument("-u", "--user", required=True,
                       help="the handle or email of a user")
     argp.add_argument("-p", "--permissions", default=[], action='append',
-                      help="the permissions to add (can be repeated)")
+                      help="the permissions to add (can be repeated). Will add superadmin if none specified")
     argp.add_argument("-r", "--remove", default=[], action='append',
                       help="the permissions to remove (can be repeated)")
     args = argp.parse_args()
@@ -67,7 +67,8 @@ if __name__ == "__main__":
     existing = set(existing.strip().strip('"').strip('{').strip('}').split(','))
     existing.discard('')
     permissions = (existing | set(permissions)) - set(args.remove)
-    # print(existing, permissions)
+    print("existing permissions:", existing)
     if existing != permissions:
-      permissionsS = ','.join([f"'{p}'" for p in permissions])
-      psql_command(f'UPDATE members SET permissions=ARRAY[{permissionsS}]::permission[] {selector}', **conn_data)
+        permissionsS = ','.join([f"'{p}'" for p in permissions])
+        psql_command(f'UPDATE members SET permissions=ARRAY[{permissionsS}]::permission[] {selector}', **conn_data)
+        print("new permissions: ", permissions)
