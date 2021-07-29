@@ -112,3 +112,4 @@ data/
 config.ini
 config/*.json
 postgrest_*.conf
+sqitch.conf
