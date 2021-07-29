@@ -1,8 +1,9 @@
 <template>
-<div class="q-pa-md row items-start q-gutter-xs">
-  <q-card class="flat bordered q-pa-md bg-black" style="width:1500px">
+  <q-card class="flat bordered q-pa-md bg-black">
     <div class="row">
+      <div class="col-12">
           <p style="text-align:center; font-size:30px; color:yellow" >Scoreboard</p>
+      </div>
     </div>
     <div class="row">
       <div class="col">
@@ -11,10 +12,9 @@
       </div>
       <div class="col" >
           <div style="color:yellow">guild leader board</div>
-        </div>
       </div>
-    </q-card>
-</div>
+    </div>
+  </q-card>
 </template>
 <script>
 export default {
