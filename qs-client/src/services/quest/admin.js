@@ -46,10 +46,11 @@ export async function getQuests(opts, token) {
       "status": quest.status,
       "updatedAt": quest.updatedAt
     }, options
-    ).then(response => response).catch(err => {
+   ).then (function (response) {
+      return response;
+    }).catch (function (err)  {
       if (err.response) {
-        let errorCode = err.response.data.code;
-        console.log("Error in creating quest ", err.response);
+        console.log("Error in updating quest ", err.response)
       }
     });
 }

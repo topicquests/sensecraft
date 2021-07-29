@@ -31,7 +31,7 @@ export async function getGuildById( {commit}, payload) {
     try {
         const token = this.state.user.token;
         let result =  await guildService.getGuildById(payload, token)
-        commit('SET_GUILD_DATA', result.data);
+        commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result.data)
     }
     catch(error){
@@ -43,7 +43,7 @@ export async function getMemberByGuildIdandUserId( {commit}, payload) {
     try {
         const token = this.state.user.token;
         let result =  await guildService.getMemberByGuildIdandUserId(payload, token)
-        commit('SET_GUILD_DATA', result.data);
+        commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result.data)
     }
     catch(error){
@@ -117,7 +117,7 @@ export async function registerQuest({commit, state}, payload) {
             const token = this.state.user.token;
             let response = await guildService.getGamePlayByGuildId(payload, token)
             commit('SET_GAME_PLAY_DATA', response.data[0]);
-            return response.data[0]
+            return response.data
         }
         catch (error) {
             console.log("error in get game play by guild id", error)
