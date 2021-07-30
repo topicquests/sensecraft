@@ -1,6 +1,6 @@
 export default function () {
   return {
-    user: null,
+    member: null,
     token: null,
     isAuthenticated: false
   }

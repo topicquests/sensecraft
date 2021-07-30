@@ -44,7 +44,7 @@ export async function getQuests(opts, token) {
       "public": quest.public,
       "creator": quest.creator,
       "status": quest.status,
-      "updatedAt": quest.updatedAt
+      "updated_at": quest.updated_at
     }, options
    ).then (function (response) {
       return response;
@@ -66,8 +66,8 @@ export async function getQuests(opts, token) {
        "handle": quest.handle,
        "description": quest.description,
        "public": quest.public,
-       "createdAt": quest.createdAt,
-       "updatedAt": quest.updatedAt
+       "created_at": quest.created_at,
+       "updated_at": quest.updated_at
     }, options
     ).then (function(response) {
       Notify.create({

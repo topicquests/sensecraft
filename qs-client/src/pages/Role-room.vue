@@ -9,14 +9,14 @@ export default {
     props: ["id"],
     data () {
       return {
-        
+
         label: ''
         //details: '',
         //url: '',
         // id: '',
-        // user: 
+        // member:
       }
     }
-    
+
 }
 </script>

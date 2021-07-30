@@ -1,7 +1,7 @@
 <template>
   <q-page :padding="true">
     <q-btn
-      v-if = '$store.state.user.user'
+      v-if = '$store.state.member.member'
       style="margin-bottom: 4px;"
       label="New Quest"
       @click="$router.replace('/questform')"
@@ -14,7 +14,7 @@
           <q-td key="label" :props="props">{{props.row.label}}</q-td>
           <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
           <q-td key="status" :props="props">{{props.row.status}}</q-td>
-          <q-td key="date" :props="props">{{props.row.createdAt}}</q-td>
+          <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
           <q-td key="nodeId" auto-width :props="props">
             <router-link :to="{ name: 'questedit', params: { id:  props.row.id }}">Edit</router-link>
           </q-td>
@@ -29,7 +29,7 @@
 import {mapGetters } from "vuex";
 
 export default {
-  props: ["user"],
+  props: ["member"],
   data() {
     return {
       columns: [
@@ -62,7 +62,7 @@ export default {
           required: true,
           label: "Date",
           align: "left",
-          field: "createdAt",
+          field: "created_at",
           sortable: true
         },
         {

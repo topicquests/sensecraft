@@ -43,12 +43,12 @@ export default {
       url: '',
       is_details: false //default
       // id: '',
-      // user: 
+      // member:
     }
   },
   computed: {
-    user() {
-      return this.$store.getters.user;
+    member() {
+      return this.$store.getters.member;
     }
   },
   methods: {
@@ -65,8 +65,8 @@ export default {
       json.details = this.details
       json.img = 'statics/images/cogwheel.png'
       json.imgsm = 'statics/images/cogwheel_sm.png'
-      json.creator = this.user._id
-      json.handle = this.user.handle
+      json.creator = this.member._id
+      json.handle = this.member.handle
       json.date = new Date()
       json.type = 'topic'
       if (mytype) {
@@ -79,10 +79,10 @@ export default {
           json.instanceOf = this.id
         }
       }
-      console.info('QFT-1', this.user)
+      console.info('QFT-1', this.member)
       console.info('QFT-2', JSON.stringify(json))
       // use the conversation node database
-      conversation.create(json).then((response) => {   
+      conversation.create(json).then((response) => {
           router.push('/topics')
           // parents, if any, set in server
       })
@@ -90,15 +90,15 @@ export default {
   },
   mounted () {
     console.info('MMOWGLIEdit', 'mounted', this.type, this.id, this.isDetails);
-    
+
     router = this.$router
     //TODO set is_details from isDetails
 
     //this.$store.commit('questView', false)
   },
   computed: {
-    //user () {
-      //return this.$store.getters.user
+    //member () {
+      //return this.$store.getters.member
     }
   }
 

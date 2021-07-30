@@ -156,8 +156,8 @@ export default {
     ...mapState('quests', {
       quests: state => state.quests
     }),
-    ...mapState('user', {
-      user: state => state.user
+    ...mapState('member', {
+      member: state => state.member
     }),
     ...mapState('guilds', {
       belongsTo: state => state.belongsTo
@@ -171,7 +171,7 @@ export default {
   },
   methods: {
     ...mapActions('quests',['findQuests']),
-    ...mapActions('user',['getUserById']),
+    ...mapActions('member',['getUserById']),
     ...mapActions('guilds',[
       'findGuilds',
       'getMemberByGuildIdandUserId',
@@ -216,7 +216,7 @@ export default {
         this.quest = await this.getQuestById(gamePlay.quest_id);
     }
     },
-    async joinGuild (guildId) {
+    async joinToGuild (guildId) {
       this.guildId = guildId;
       let ownGuilds = this.belongsTo;
       var r = ownGuilds.some(i => i.guild_id === this.guildId)
@@ -239,10 +239,10 @@ export default {
     let guildId = this.$route.params.guild_id;
     const quests = [];
     this.quest = [];
-    var payload = {guildId: guildId, userId: this.user.id};
+    var payload = {guildId: guildId, userId: this.member.id};
     const response = this.getGuildById(guildId);
     this.guild = response[0];
-    await this.joinGuild(guildId);
+    await this.joinToGuild(guildId);
     this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
     if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
       this.permission = true;
@@ -250,7 +250,7 @@ export default {
     const guildMember = await this.getMembersByGuildId(this.guild.id);
     const resp = await Promise.all(guildMember.map(async (player) => {
       try {
-        const respUser = await this.getUserById(player.user_id);
+        const respUser = await this.getUserById(player.member_id);
         return respUser.data;
       }
       catch (error) {

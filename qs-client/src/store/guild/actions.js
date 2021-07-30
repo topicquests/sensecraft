@@ -1,13 +1,13 @@
-import guildService from "../../services/guild";
+import guildService from "../../services";
 import { Notify } from "quasar";
 
 
 export  function createGuilds({commit, dispatch}, payload,) {
-    const token = this.state.user.token;
+    const token = this.state.member.token;
     let today = new Date;
   today = today.toISOString()
-  payload.createdAt = today;
-  payload.updatedAt = today;
+  payload.created_at = today;
+  payload.updated_at = today;
     console.log("going through create guilds:", payload, token);
     let result = guildService.createGuild(payload,token)
     .then (function(result) {
@@ -18,7 +18,7 @@ export  function createGuilds({commit, dispatch}, payload,) {
 }
 
 export  function updateGuilds({commit, dispatch}, payload,) {
-    const token = this.state.user.token;
+    const token = this.state.member.token;
     let result = guildService.updateGuild(payload,token)
     .then (function(result) {
         dispatch('findGuilds');
@@ -29,7 +29,7 @@ export  function updateGuilds({commit, dispatch}, payload,) {
 
 export async function getGuildById( {commit}, payload) {
     try {
-        const token = this.state.user.token;
+        const token = this.state.member.token;
         let result =  await guildService.getGuildById(payload, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result.data)
@@ -41,7 +41,7 @@ export async function getGuildById( {commit}, payload) {
 
 export async function getMemberByGuildIdandUserId( {commit}, payload) {
     try {
-        const token = this.state.user.token;
+        const token = this.state.member.token;
         let result =  await guildService.getMemberByGuildIdandUserId(payload, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result.data)
@@ -53,7 +53,7 @@ export async function getMemberByGuildIdandUserId( {commit}, payload) {
 
 export async function findGuilds( {commit}, payload) {
     try {
-        const token = this.state.user.token;
+        const token = this.state.member.token;
         let result =  await guildService.getGuilds(payload, token)
         commit('SET_GUILD_DATA', result.data);
         return (result)
@@ -65,20 +65,20 @@ export async function findGuilds( {commit}, payload) {
 
 export async function checkBelongsToGuild({state, commit}, id) {
     try {
-    const token = this.state.user.token;
+    const token = this.state.member.token;
     let result = await guildService.checkIfMemberBelongsToGuild(id, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result)
     }
     catch(error) {
-        console.log("Error in getting guild/user members", error);
+        console.log("Error in getting guild/member members", error);
     }
 }
 
 export async function joinGuild({commit, state}, guildId) {
     try {
-        const token = this.state.user.token;
-        const userId = this.state.user.user.id;
+        const token = this.state.member.token;
+        const userId = this.state.member.member.id;
         let response = await guildService.joinGuild(guildId, userId, token)
         return (response)
     }
@@ -90,20 +90,20 @@ export async function joinGuild({commit, state}, guildId) {
 
 export async function getMembersByGuildId({state, commit}, id) {
     try {
-    const token = this.state.user.token;
+    const token = this.state.member.token;
     let result = await guildService.getGuildMembersById(id, token)
     return (result.data)
     }
     catch(error) {
-        console.log("Error in getting guild/user members", error);
+        console.log("Error in getting guild/member members", error);
     }
 }
 export async function registerQuest({commit, state}, payload) {
     try {
-        const token = this.state.user.token;
+        const token = this.state.member.token;
         let today = new Date;
         today = today.toISOString()
-        payload.createdAt = today;
+        payload.created_at = today;
         let response = await guildService.registerQuest(payload, token)
         return (response)
     }
@@ -114,7 +114,7 @@ export async function registerQuest({commit, state}, payload) {
 
     export async function getGamePlayByGuildId ({commit, dispatch}, payload) {
         try {
-            const token = this.state.user.token;
+            const token = this.state.member.token;
             let response = await guildService.getGamePlayByGuildId(payload, token)
             commit('SET_GAME_PLAY_DATA', response.data[0]);
             return response.data

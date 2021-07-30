@@ -91,7 +91,7 @@ v2 maybe: for now, just join if the guild has open membership
 
 The list of all members in the guild, including past members
 
-### guild_member_page `/guild/:guild_id/member/:user_id`
+### guild_member_page `/guild/:guild_id/member/:member_id`
 
 The record of that member's activity in this guild.
 
@@ -100,7 +100,7 @@ The record of that member's activity in this guild.
 * a button to toggle your membership
 * a button to show and toggle your leadership role
 
-v2: If the user is not in the guild yet, allows the leadership to invite or accept a request for membership.
+v2: If the member is not in the guild yet, allows the leadership to invite or accept a request for membership.
 
 ### guild_list `/guild`
 
@@ -122,7 +122,7 @@ The page of the KHub member
 * All the guilds they belong(ed) to, leading to the guild_member_page
 * All the quests they participated in, with awards (scores and badges). Link to quest_member_page
 
-### quest_member_page `/guild/:guild_id/member/:user_id/quest/:quest_id`
+### quest_member_page `/guild/:guild_id/member/:member_id/quest/:quest_id`
 
 All the moves of that member in that quest, and scores/badges awards for those moves. (Link to node_view)
 Global score for the quest

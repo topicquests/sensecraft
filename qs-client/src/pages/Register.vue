@@ -133,7 +133,7 @@ export default {
       return;
     }
 
-    this.$store.dispatch("user/registerUser", {formdata: this.formdata})
+    this.$store.dispatch("member/registerUser", {formdata: this.formdata})
   },
 
   goHome() {

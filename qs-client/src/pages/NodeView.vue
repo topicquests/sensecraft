@@ -288,7 +288,7 @@ export default {
       console.info("CE-1", result);
       let cid;
       let uid;
-      let usx = this.$store.getters.user;
+      let usx = this.$store.getters.member;
       if (usx) {
         cid = this.$store.getters.node.creator;
         uid = usx._id;
@@ -315,7 +315,7 @@ export default {
 }
 
 .scroll.relative-position.overflow-hidden.fit.q-touch {
-  user-select: auto !important;
+  member-select: auto !important;
 }
 
 .details {

@@ -8,12 +8,12 @@
 export default {
     data () {
       return {
-        
+
         appname: 'QaaS Demo'
         //details: '',
         //url: '',
         // id: '',
-        // user: 
+        // member:
       }
     }
 }

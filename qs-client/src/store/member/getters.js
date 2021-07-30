@@ -1,16 +1,16 @@
 
 
 export  function getUser(state) {
-    return state.user;
+    return state.member;
 };
 
 export function getUserId(state) {
-    return state.user.id;
+    return state.member.id;
 }
 
 export const getUserById = (state) => (id) => {
 
-    return state.user.id;
+    return state.member.id;
 }
 
 

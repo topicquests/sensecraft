@@ -86,7 +86,7 @@ Do we want to bother renaming it "members"?
 * creator fk(users)
 
 unsure
-* admin_id fk(user) (probably redundant with guild_membership)
+* admin_id fk(member) (probably redundant with guild_membership)
 
 
 public_guilds: view on guilds, with public=true
@@ -112,10 +112,10 @@ public_quests: view on quests, with public=true
 
 ### quest_membership
 
-the user-quest join table
+the member-quest join table
 
 * quest_id fk(quests)
-* user_id fk(users)
+* member_id fk(users)
 * confirmed boolean
 * permissions Permission[]
 
@@ -126,7 +126,7 @@ todo: triggers for role membership
 the guild-quest join table
 
 * guild_id fk(guild)
-* user_id fk(users)
+* member_id fk(users)
 * confirmed boolean
 * permissions Permission[]
 * available_roles Role[]
@@ -171,7 +171,7 @@ The player as seen in the quest
 * handle varchar
 * role Role
 
-Should the avatar handle be the same as the user handle? For now yes.
+Should the avatar handle be the same as the member handle? For now yes.
 
 Dubious: reference to Casting?
 (in diagram but I want to avoid FK between guilds and quests.)
@@ -258,7 +258,7 @@ Comments made for participating_guilds about the server_api+handle apply here. M
 ### castings
 
 * quest_id fk(quest_participation)
-* user_id fk(user)
+* member_id fk(member)
 * role Role
 
 eventually maybe:
@@ -271,7 +271,7 @@ for per-quest avatar alias (which would be used instead of handle. Controversial
 * total float
 * criterion ScoringCriterion
 
-Eventually will have the crypto signature of the guild_score. 
+Eventually will have the crypto signature of the guild_score.
 
 ### user_badges
 

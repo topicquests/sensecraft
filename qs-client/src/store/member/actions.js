@@ -1,17 +1,17 @@
-import userService from "../../services/user";
+import memberService from "../../services";
 import {Notify} from 'quasar'
 const {hash} = require('bcryptjs')
 
 export async function registerUser({commit, state}, payload) {
-  const token = this.state.user.token;
+  const token = this.state.member.token;
   payload.formdata.password = await hash(payload.formdata.password, 10)
   let today = new Date;
   today = today.toISOString()
   payload.formdata.email = payload.formdata.email.toLowerCase();
-  payload.createdAt = today;
-  payload.updatedAt = today;
+  payload.created_at = today;
+  payload.updated_at = today;
 
-  let result = await userService
+  let result = await memberService
     .signup(
       payload,
       token
@@ -45,7 +45,7 @@ export async function getToken({commit, dispatch},  payload) {
   try {
     //payload.password = await hash(payload.password, 10)
     payload.signonEmail = payload.signonEmail.toLowerCase();
-    const response = await userService.getToken(
+    const response = await memberService.getToken(
       payload.signonEmail,
       payload.password
     )
@@ -63,12 +63,12 @@ export async function getToken({commit, dispatch},  payload) {
     throw 'Token is null'
   }
    const token = this.state.token;
-   const resp = await userService.login(
+   const resp = await memberService.login(
           payload.signonEmail,
           token
   )
   commit('setUsers', resp.data[0]);
-  this.state.user.isAuthenticated = true;
+  this.state.member.isAuthenticated = true;
   return resp.data
   } catch (err) {
     console.log("Error in signin: ", err)
@@ -77,8 +77,8 @@ export async function getToken({commit, dispatch},  payload) {
 
 export async function getUserById({commit, dispatch}, payload) {
   try {
-    const token = this.state.user.token;
-    const response = await userService.getUserById(payload, token);
+    const token = this.state.member.token;
+    const response = await memberService.getUserById(payload, token);
     return response
   }
   catch (error) {
@@ -87,8 +87,8 @@ export async function getUserById({commit, dispatch}, payload) {
   }
 
   export async function logout ({commit, dispatch}) {
-    this.state.user.token = null;
-    this.state.user.user = null;
-    this.state.user.isAuthenticated = false;
+    this.state.member.token = null;
+    this.state.member.member = null;
+    this.state.member.isAuthenticated = false;
     return true
   }

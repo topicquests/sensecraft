@@ -1,5 +1,5 @@
 import { Notify } from "quasar";
-import axiosInstance from "../../boot/axios";
+import axiosInstance from "../boot/axios";
 
 export async function getGuilds(opts, token) {
   const options = token ? {
@@ -62,7 +62,7 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-    return axiosInstance.get("/guild_membership?guild_id=eq."+ payload.guildId + "&user_id=eq." + payload.userId, options
+    return axiosInstance.get("/guild_membership?guild_id=eq."+ payload.guildId + "&member_id=eq." + payload.userId, options
   ).then(function(response) {
      return response;
    }).catch(function(error){
@@ -81,8 +81,8 @@ export async function getGuilds(opts, token) {
        "handle": guild.handle,
        "description": guild.description,
        "public": guild.public,
-       "createdAt": guild.createdAt,
-       "updatedAt": guild.updatedAt
+       "created_at": guild.created_at,
+       "updated_at": guild.updated_at
     }, options
 
     ).then (function(response) {
@@ -109,7 +109,7 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-     return axiosInstance.get("/guild_membership?user_id=eq." + id, options,
+     return axiosInstance.get("/guild_membership?member_id=eq." + id, options,
     {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -136,7 +136,7 @@ export async function getGuilds(opts, token) {
 
    return axiosInstance.post("/guild_membership", {
      "guild_id": guildId,
-     "user_id": userId
+     "member_id": userId
     }, options
     ).then (response => {
       return response;
@@ -158,7 +158,7 @@ export async function getGuilds(opts, token) {
    return axiosInstance.post("/game_play", {
      "guild_id": payload.guild_id,
      "quest_id": payload.quest_id,
-     "createdAt":payload.createdAt,
+     "created_at":payload.created_at,
      "scores": {}
     }, options
     ).then (response => {

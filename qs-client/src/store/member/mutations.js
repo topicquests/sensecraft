@@ -1,5 +1,5 @@
 export function setUsers(state, userData) {
-      state.user = userData;
+      state.member = userData;
 }
 
 export function setToken(state, token) {
