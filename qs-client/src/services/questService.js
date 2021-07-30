@@ -1,5 +1,5 @@
 import { Notify } from "quasar";
-import axiosInstance from "../../boot/axios";
+import axiosInstance from "../boot/axios";
 
 export async function getQuests(opts, token) {
   const options = token ? {

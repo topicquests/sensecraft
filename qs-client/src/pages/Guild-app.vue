@@ -191,7 +191,6 @@ export default {
     getCurrentQuest() {
       const thisQuest = this.getQuestById(this.questId);
       this.currentQuest = thisQuest[0];
-      debugger;
     },
     async checkQuildGamePlay() {
       if (this.belongsTo.length === 1) {

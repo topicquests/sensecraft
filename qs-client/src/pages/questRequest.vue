@@ -88,7 +88,6 @@ export default {
 
     },
     toggleCheckbox: function(guild) {
-      debugger;
     }
 
   },
@@ -112,9 +111,6 @@ export default {
       }));
 
       this.guilds = [...resp];
-      debugger;
-
-
   }
   // name: 'PageName',
 }
