@@ -17,6 +17,9 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
     ```
     Also (in another directory) `git clone https://github.com/maparent/pgjwt.git ; cd pgjwt ; git checkout branch combined ; sudo make install`. (skip the sudo on mac/homebrew.)
     Install Postgrest as described [here](https://postgrest.org/en/v7.0.0/install.html)
+    Install Sqitch: 
+    On Linux: `sudo apt install sqitch libdbd-pg-perl`
+    On Mac: `brew install sqitch --with-postgres-support`
 
 3. Setup the database with the following script:
     `./scripts/initial_setup.py`
@@ -25,9 +28,9 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 
 4. Migrate the database:
-    `./node_modules/.bin/sequelize-cli db:migrate`
+    `sqitch deploy`
     This should be done whenever a new file appears in the migrations folder.
-    (Do it again with `NODE_ENV=production` to upgrade the production database.)
+    (Do it again with `--target production` to upgrade the production database.)
 
 5. Start your app
 

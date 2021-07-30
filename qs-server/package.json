@@ -25,9 +25,7 @@
   },
   "scripts": {
     "test": "npm run lint && npm run mocha -- -r test/fixtures.cjs",
-    "lint": "eslint src/. test/. --config .eslintrc.json --fix",
-    "dev": "nodemon src/",
-    "start": "node src/",
+    "lint": "eslint test/. --config .eslintrc.json --fix",
     "mocha": "mocha test/ --recursive --exit"
   },
   "standard": {
@@ -36,34 +34,11 @@
     ],
     "ignore": []
   },
-  "dependencies": {
-    "@feathersjs/authentication": "~4.5",
-    "@feathersjs/authentication-local": "~4.5",
-    "@feathersjs/authentication-oauth": "~4.5",
-    "@feathersjs/configuration": "~4.5",
-    "@feathersjs/errors": "~4.5",
-    "@feathersjs/express": "~4.5",
-    "@feathersjs/feathers": "~4.5",
-    "@feathersjs/socketio": "~4.5",
-    "@feathersjs/transport-commons": "~4.5",
-    "compression": "~1.7",
-    "cors": "~2.8",
-    "dotenv": "~10.0",
-    "feathers-authentication-management": "~3.1",
-    "feathers-sequelize": "~6.2",
-    "helmet": "~4.6",
-    "pg": "~8.6",
-    "sequelize": "~6.6",
-    "serve-favicon": "~2.5",
-    "winston": "~3.3"
-  },
   "devDependencies": {
     "axios": "~0.21",
-    "eslint": "~7.30",
-    "@feathersjs/cli": "~4.5",
-    "mocha": "~9.0",
-    "nodemon": "~2.0",
-    "npm": "~7",
-    "sequelize-cli": "~6.2"
+    "bcryptjs": "~2.4",
+    "dotenv": "~10.0",
+    "eslint": "~7.31",
+    "mocha": "~9.0"
   }
 }

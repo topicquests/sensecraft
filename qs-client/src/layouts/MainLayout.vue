@@ -16,7 +16,7 @@
           </q-btn>
         </q-toolbar-title>
       <div class="gt-sm">
-        <q-btn v-if = '!$store.state.user.user'
+        <q-btn v-if = '!$store.state.member.member'
           @click="goTo('signin')"
           outline
           roundeded
@@ -24,7 +24,7 @@
           name="signin"
           class="q-mr-sm">
         </q-btn>
-      <q-btn v-if = '!$store.state.user.user'
+      <q-btn v-if = '!$store.state.member.member'
           @click="goTo('register')"
           outline
           roundeded
@@ -33,7 +33,7 @@
           ></q-btn>
       </div>
       <div class="gt-sm">
-        <q-btn  v-if = '$store.state.user.user'
+        <q-btn  v-if = '$store.state.member.member'
           @click="logout()"
           outline
           roundeded
@@ -70,7 +70,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.user.user'
+              <router-link v-if = '$store.state.member.member'
                 to= "/lobby">  Lobby
               </router-link>
             </q-item>
@@ -84,7 +84,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.user.user'
+              <router-link v-if = '$store.state.member.member'
                 to= "/quest-landing">  Quest create
               </router-link>
             </q-item>
@@ -98,7 +98,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.user.user'
+              <router-link v-if = '$store.state.member.member'
                 to= "/guild-landing">  Guild create
               </router-link>
             </q-item>
@@ -121,7 +121,7 @@
         <q-list>
           <q-item>
             <q-btn
-              v-if = '$store.state.user.user'
+              v-if = '$store.state.member.member'
               @click="logout()"
               outline
               roundeded
@@ -129,7 +129,7 @@
               class="q-mr-sm"
               > </q-btn>
             <q-btn
-            v-if = '!$store.state.user.user'
+            v-if = '!$store.state.member.member'
               @click="goTo('signin')"
               outline
               roundeded
@@ -139,7 +139,7 @@
             </q-item>
             <q-item>
              <q-btn
-              v-if = '!$store.state.user.user'
+              v-if = '!$store.state.member.member'
               @click="goTo('register')"
               outline
               roundeded
@@ -171,7 +171,7 @@ export default {
     logout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
-      this.$store.dispatch("user/logout")
+      this.$store.dispatch("member/logout")
       .then(response => {
           this.$q.notify({
             type: "positive",

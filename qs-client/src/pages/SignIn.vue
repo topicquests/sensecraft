@@ -132,11 +132,11 @@ export default {
     async login(email, password) {
       try {
     email = email && email.toString().toLowerCase();
-    const signInResp = await this.$store.dispatch('user/signin', this.formData);
+    const signInResp = await this.$store.dispatch('member/signin', this.formData);
      if (!signInResp) {
           throw 'login failed'
     }
-    this.userId = this.$store.state.user.user.id;
+    this.userId = this.$store.state.member.member.id;
     const questResponse = await this.$store.dispatch('quests/findQuests');
     console.log("Added Quests", questResponse);
     const guildsResponse = await this.$store.dispatch('guilds/findGuilds');

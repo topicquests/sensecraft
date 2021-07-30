@@ -68,7 +68,7 @@ export default {
           required: true,
           label: "Date",
           align: "left",
-          field: "createdAt",
+          field: "created_at",
           sortable: true
         },
         {
@@ -88,14 +88,13 @@ export default {
 
     },
     toggleCheckbox: function(guild) {
-      debugger;
     }
 
   },
 
   async mounted() {
     let questId = this.$route.params.quest_id;
-    this.userId = this.$store.state.user.user.id;
+    this.userId = this.$store.state.member.member.id;
     const memberGuilds = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
 
     const resp = await Promise.all(memberGuilds.data.map(async (guild) => {
@@ -112,9 +111,6 @@ export default {
       }));
 
       this.guilds = [...resp];
-      debugger;
-
-
   }
   // name: 'PageName',
 }

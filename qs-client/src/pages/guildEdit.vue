@@ -1,40 +1,40 @@
  <template>
   <q-page :padding="true" class = "flex flex-center">
-    <div class = "col" > 
-    <div class = "row justify-center"> 
+    <div class = "col" >
+    <div class = "row justify-center">
       <h3>Edit Guild</h3>
     </div>
-    <div> 
-      <q-card> 
-        <div class="row justify-start q-pa-lg">          
+    <div>
+      <q-card>
+        <div class="row justify-start q-pa-lg">
           <div class="q-gutter-sm">
             <q-option-group
             v-model="group"
             :options="options"
             color="primary"
             inline>
-            </q-option-group>             
-         </div>    
+            </q-option-group>
+         </div>
         </div>
-    <div class = "row justify-start q-pb-lg">      
+    <div class = "row justify-start q-pb-lg">
       <q-input v-model="guild.name" label = "Name" />
-    </div>    
-   <div class = "row justify-start q-pb-xs">       
+    </div>
+   <div class = "row justify-start q-pb-xs">
       Details<br/>
     </div>
-    <div class = "row justify-start q-pb-lg">       
+    <div class = "row justify-start q-pb-lg">
       <ckeditor type="classic" v-model="guild.description" ></ckeditor>
     </div>
-    <div class = "row justify-start q-pb-lg">       
+    <div class = "row justify-start q-pb-lg">
       <q-input v-model="guild.handle" label = "Handle" />
     </div>
-   <div class = "row justify-start q-pb-lg">   
+   <div class = "row justify-start q-pb-lg">
       <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
       <q-btn label="Cancel" @click="$router.replace('/home')" />
     </div>
       </q-card>
-    </div>    
-  </div>  
+    </div>
+  </div>
   </q-page>
 </template>
 
@@ -49,14 +49,14 @@ const options = {
   },
   name: 'ckeditor'
 }
- 
+
 Vue.use(VueCkeditor.plugin, options);
 import { mapActions, mapGetters} from "vuex";
 
 
 export default {
   data() {
-    return { 
+    return {
       group: 'public',
       options: [
         {
@@ -66,30 +66,30 @@ export default {
         {
           label: 'Private',
           value: 'private'
-        }        
+        }
       ],
       guild: {
         name: null,
         handle: null,
         open_for_applications: null,
-        public: false, 
+        public: false,
         id: null,
         description: null,
-        creator: null, 
-        createdAt: null, 
-        updatedAt: null     
+        creator: null,
+        created_at: null,
+        updated_at: null
       },
       shape: 'line',
       submitResult: [],
       details: "",
       handle: "",
       type: false,
-      user: this.$store.getters['user/getUser']
+      member: this.$store.getters['member/getUser']
     };
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('user', ['getUser']), 
+    ...mapGetters('member', ['getUser']),
 
     doSubmit: function() {
       if (this.group === "public") {
@@ -99,17 +99,17 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      //console.log("Name ", quest.user.name);
+      //console.log("Name ", quest.member.name);
       const conversations = this.$store.dispatch("guilds/updateGuilds", this.guild);
     }
   },
-  
+
   mounted() {
-   this.$data.guild.id = this.$route.params.id;   
+   this.$data.guild.id = this.$route.params.id;
    console.log("Guild id: ", this.$data.guild.id);
    const response = this.$store.getters['guilds/getGuildById'] (this.$data.guild.id);
    console.log("Guild respone: ", response[0]);
-   this.$data.guild = response[0];  
+   this.$data.guild = response[0];
   }
 };
 </script>

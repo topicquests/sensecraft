@@ -17,7 +17,7 @@ class User extends BaseModel {
     };
   }
 }
-const servicePath = "users";
+const servicePath = "members";
 const servicePlugin = makeServicePlugin({
   Model: User,
   service: feathersClient.service(servicePath),

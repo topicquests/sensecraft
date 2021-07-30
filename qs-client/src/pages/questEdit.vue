@@ -79,20 +79,20 @@ export default {
         id: null,
         description: null,
         creator: null,
-        createdAt: null,
-        updatedAt: null
+        created_at: null,
+        updated_at: null
       },
       shape: 'line',
       submitResult: [],
       details: "",
       handle: "",
       type: false,
-      user: this.$store.getters['user/getUser']
+      member: this.$store.getters['member/getUser']
     };
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('user', ['getUser']),
+    ...mapGetters('member', ['getUser']),
 
     async doSubmit() {
       try {

@@ -5,8 +5,8 @@
       width: 60%;">
       <!-- guessing on label -->
       <q-card-title>{{ label }}</q-card-title>
-      <!-- todo 
-        needs 
+      <!-- todo
+        needs
           an ibis icon - how to bring that in, depends on
           node type,
           link to parent - could pass that in
@@ -139,7 +139,7 @@
    </q-item>          </q-list>
         </div>
       </q-collapsible>
-    </q-list> 
+    </q-list>
   </q-page>
 </template>
 
@@ -153,12 +153,12 @@
     props: ["id", "context"],
     data () {
       return {
-        
+
         label: ''
         //details: '',
         //url: '',
         // id: '',
-        // user: 
+        // member:
       }
     },
     computed: {
@@ -167,7 +167,7 @@
       }
     }
   }
-  
+
 
 </script>
 <style lang="styl">
@@ -177,7 +177,7 @@
 }
 
 .scroll.relative-position.overflow-hidden.fit.q-touch {
-  user-select: auto !important;
+  member-select: auto !important;
 }
 
 

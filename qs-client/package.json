@@ -15,7 +15,7 @@
     "@feathersjs/feathers": "^4.5.11",
     "@feathersjs/rest-client": "^4.5.11",
     "@feathersjs/socketio-client": "^4.5.11",
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.10.9",
     "@vue/composition-api": "*",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
@@ -24,7 +24,7 @@
     "feathers-vuex": "^3.16.0",
     "grant": "^5.4.13",
     "pg-hstore": "^2.3.3",
-    "quasar": "^1.0.0",
+    "quasar": "^1.15.23",
     "socket.io-client": "2.0.1",
     "uuid": "^8.3.2",
     "vue-ckeditor5": "^0.5.0",
@@ -32,7 +32,7 @@
     "vuex": "^3.6.0"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.0",
+    "@quasar/app": "^2.2.10",
     "babel-eslint": "^10.0.1",
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.1.0",

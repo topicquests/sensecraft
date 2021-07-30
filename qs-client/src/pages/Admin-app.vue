@@ -8,13 +8,13 @@
 export default {
     data () {
       return {
-        
+
         //details: '',
         //url: '',
         // id: '',
-        // user: 
+        // member:
       }
     }
-    
+
 }
 </script>

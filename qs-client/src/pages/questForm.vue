@@ -1,40 +1,40 @@
  <template>
   <q-page :padding="true" class = "flex flex-center">
-    <div class = "col" > 
-    <div class = "row justify-center"> 
+    <div class = "col" >
+    <div class = "row justify-center">
       <h3>Create New Quest</h3>
     </div>
-    <div> 
-      <q-card> 
-        <div class="row justify-start q-pa-lg">          
+    <div>
+      <q-card>
+        <div class="row justify-start q-pa-lg">
           <div class="q-gutter-sm">
             <q-option-group
             v-model="group"
             :options="options"
             color="primary"
             inline>
-            </q-option-group>             
-         </div>    
+            </q-option-group>
+         </div>
         </div>
-    <div class = "row justify-start q-pb-lg">      
+    <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.name" label = "Name" />
-    </div>    
-   <div class = "row justify-start q-pb-xs">       
+    </div>
+   <div class = "row justify-start q-pb-xs">
       Details<br/>
     </div>
-    <div class = "row justify-start q-pb-lg">       
+    <div class = "row justify-start q-pb-lg">
       <ckeditor type="classic" v-model="quest.description" ></ckeditor>
     </div>
-    <div class = "row justify-start q-pb-lg">       
+    <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.handle" label = "Handle" />
     </div>
-   <div class = "row justify-start q-pb-lg">   
+   <div class = "row justify-start q-pb-lg">
       <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
       <q-btn label="Cancel" @click="$router.replace('/home')" />
     </div>
       </q-card>
-    </div>    
-  </div>  
+    </div>
+  </div>
   </q-page>
 </template>
 
@@ -49,14 +49,14 @@ const options = {
   },
   name: 'ckeditor'
 }
- 
+
 Vue.use(VueCkeditor.plugin, options);
 import { mapActions, mapGetters} from "vuex";
 
 
 export default {
   data() {
-    return { 
+    return {
       group: 'public',
       options: [
         {
@@ -66,26 +66,26 @@ export default {
         {
           label: 'Private',
           value: 'private'
-        }        
+        }
       ],
       quest: {
         name: null,
         handle: null,
         status: 'draft',
         public: true,
-        description: null        
+        description: null
       },
       shape: 'line',
       submitResult: [],
       details: "",
       handle: "",
       type: false,
-      user: this.$store.getters['user/getUser']
+      member: this.$store.getters['member/getUser']
     };
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('user', ['getUser']),
+    ...mapGetters('member', ['getUser']),
 
     doSubmit: function() {
       if (this.group === "public") {
@@ -95,7 +95,7 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      //console.log("Name ", quest.user.name);
+      //console.log("Name ", quest.member.name);
       const conversations = this.$store.dispatch("quests/createQuests", this.quest);
     },
   },

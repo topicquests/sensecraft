@@ -1,14 +1,14 @@
-import questService from "../../services/quest";
+import questService from "../../services";
 import { Notify } from "quasar";
 
 
 export  function createQuests({commit, dispatch}, payload,) {
-    const token = this.state.user.token;
+    const token = this.state.member.token;
     let today = new Date;
     today = today.toISOString()
-    payload.createdAt = today;
-    payload.updatedAt = today;
-    console.log("Createquest ",  payload.user )
+    payload.created_at = today;
+    payload.updated_at = today;
+    console.log("Createquest ",  payload.member )
     let result = questService.createQuest(payload,token)
     .then (function(result) {
         dispatch('findQuests');
@@ -19,9 +19,9 @@ export  function createQuests({commit, dispatch}, payload,) {
 
 export  async function updateQuests({commit, dispatch}, payload,) {
     try {
-        const token = this.state.user.token;
+        const token = this.state.member.token;
         let today = new Date;
-        payload.updatedAt = today;
+        payload.updated_at = today;
     today = today.toISOString()
         let result = await questService.updateQuest(payload,token)
         return (result)

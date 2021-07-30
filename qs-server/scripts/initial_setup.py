@@ -14,6 +14,7 @@ import json
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
+POSTGREST_PORT = 3000
 
 
 def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
@@ -116,7 +117,10 @@ def create_database(data, conn_data, dropdb=False):
     owner = data['owner']
     exists = test_db_exists(database, **conn_data)
     if exists and dropdb:
+        extra_roles = psql_command(f"select string_agg(rolname, ', ') from pg_catalog.pg_roles where rolname like '{database}\_\__\_%'", **conn_data).strip()
         psql_command(f"DROP DATABASE {database}", **conn_data)
+        if extra_roles:
+            psql_command(f"DROP ROLE {extra_roles}", **conn_data)
         exists = False
     if not exists:
         psql_command(
@@ -151,6 +155,9 @@ if __name__ == "__main__":
             "postgres", "sudo", fallback=None)
     else:
         ini_file.add_section("postgres")
+    sqitch_file = ConfigParser()
+    with open("sqitch.conf.tmpl") as f:
+        sqitch_file.read_file(f)
     argp = argparse.ArgumentParser("Create the base databases for SenseCraft")
     argp.add_argument("--host", default=conn_data["host"],
                       help="the database host")
@@ -196,7 +203,7 @@ if __name__ == "__main__":
     ini_file.set("postgres", "user", conn_data['user'])
     ini_file.set("postgres", "sudo", str(conn_data['sudo']).lower())
     # Do not store the master password
-    sequelize_config = {}
+    postgrest_port = POSTGREST_PORT
     for db in DATABASES:
         if getattr(args, "create_"+db):
             dbname = getattr(args, db)
@@ -208,31 +215,23 @@ if __name__ == "__main__":
             else:
                 ini_file.add_section(db)
             data = create_database(data, conn_data, args.dropdb)
-            sequelize_config[db] = dict(
-                database=dbname,
-                host=conn_data["host"],
-                username=data["owner"],
-                password=data["owner_password"],
-                dialect="postgres"
-            )
             for k, v in data.items():
                 ini_file.set(db, k, v)
-            client_config_fname = "default" if db == "development" else db
-            with open(f"config/{client_config_fname}.template") as f:
-                client_config = json.load(f)
+            url = f"postgres://{data['owner']}:{data['owner_password']}@{conn_data['host']}/{dbname}"
+            sqitch_file.add_section(f'target "{db}"')
+            sqitch_file.set(f'target "{db}"', "uri", url)
+            sqitch_file.add_section(f'target "{db}.variables"')
+            sqitch_file.set(f'target "{db}.variables"', "dbn", dbname)
             url = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}/{dbname}"
-            client_config["postgres"] = url
-            # if db = "development":
-            #     client_config["authentication"]["secret"] = data["auth_secret"]
-            with open(f"config/{client_config_fname}.json", "w") as f:
-                json.dump(client_config, f, indent="  ")
             with open(f"postgrest_{db}.conf", "w") as f:
                 f.write(f'db-uri = "{url}"\n')
                 f.write('db-schema = "public"\n')
                 f.write(f'db-anon-role = "{data["client"]}"\n')
                 f.write(f'jwt-secret = "{data["auth_secret"]}"\n')
+                f.write(f'server-port = {postgrest_port}\n')
+            postgrest_port += 1
 
     with open(CONFIG_FILE, 'w') as f:
         ini_file.write(f)
-    with open("config/config.json", "w") as f:
-        json.dump(sequelize_config, f, indent="  ")
+    with open("sqitch.conf", 'w') as f:
+        sqitch_file.write(f)

@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { FeathersVuex } from "../boot/feathersClient";
 import authvuex from "./store.auth";
 import quests from './quest'
-import user from './user'
+import member from './member'
 import guilds from './guild'
 
 
@@ -19,7 +19,7 @@ const requireModule = require.context(
 const servicePlugins = requireModule
   .keys()
   .map(modulePath => requireModule(modulePath).default);
-  
+
 Vue.use(Vuex)
 Vue.use(FeathersVuex);
 
@@ -32,9 +32,9 @@ export default function (/* { ssrContext } */) {
     plugins: [...servicePlugins, authvuex],
     modules: {
       quests,
-      user,
+      member,
       guilds
-    }, 
+    },
 
     // enable strict mode (adds overhead!)
     // for dev mode only

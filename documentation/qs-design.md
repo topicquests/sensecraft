@@ -32,26 +32,26 @@ When users are not logged in they do not have access to pages that contain users
 
 ### Logon
 
-*Validate user has been registered
-*Check user's email and password
-*Change user to be authorized
-*Create user information in store
+*Validate member has been registered
+*Check member's email and password
+*Change member to be authorized
+*Create member information in store
 *Change Layout to layout with left drawer and logout button
 
 ### Logoff
 
-*route user to home page
+*route member to home page
 *Clear users data
-*Change user to be unauthorized
+*Change member to be unauthorized
 
-Pages requiring user to be logged in to view
+Pages requiring member to be logged in to view
 
 * Quest
 * Guild
 
 ## Lobby
 
-Description: Lobby page is where a user that does not belong to a guild is directed. There are views of Quests and Guilds. Also at the top will be a scoreboard and info. From here a member can join a guild.
+Description: Lobby page is where a member that does not belong to a guild is directed. There are views of Quests and Guilds. Also at the top will be a scoreboard and info. From here a member can join a guild.
 
 When a member signs in check if belong to guild.
 If member does not belong to a guild send to Lobbby.
@@ -59,7 +59,7 @@ Lobby contains list of guilds.
 *getGuilds()
 User chooses a guild to join
 *joinGuild
-First make sure user does not belong to that guild.
+First make sure member does not belong to that guild.
 If they are not already a member then join
 
 
