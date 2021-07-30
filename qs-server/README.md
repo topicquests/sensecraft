@@ -19,7 +19,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
     Install Postgrest as described [here](https://postgrest.org/en/v7.0.0/install.html)
     Install Sqitch: 
     On Linux: `sudo apt install sqitch libdbd-pg-perl`
-    On Mac: `brew install sqitch --with-postgres-support`
+    On Mac: `brew tap sqitchers/sqitch ; brew install sqitch --with-postgres-support`
 
 3. Setup the database with the following script:
     `./scripts/initial_setup.py`
