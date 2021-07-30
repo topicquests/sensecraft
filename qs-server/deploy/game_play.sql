@@ -52,6 +52,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_game_play() RETURNS trigger
     DECLARE is_requested boolean;
     DECLARE is_invited boolean;
     DECLARE is_quest_member boolean;
+    DECLARE has_join_permission boolean;
     DECLARE quest_status quest_status;
     BEGIN 
       IF OLD IS NOT NULL THEN
@@ -62,15 +63,18 @@ CREATE OR REPLACE FUNCTION public.before_createup_game_play() RETURNS trigger
       SELECT is_quest_id_member(NEW.quest_id) INTO STRICT is_quest_member;
       is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
       is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
-      IF has_guild_permission(NEW.guild_id, 'joinQuest'::permission)
-         AND (quest_status = 'registration' OR quest_status = 'ongoing'  OR quest_status = 'paused') THEN
+      has_join_permission := has_guild_permission(NEW.guild_id, 'joinQuest'::permission);
+      IF has_join_permission
+         AND (quest_status = 'registration' OR quest_status = 'ongoing' OR quest_status = 'paused') THEN
         is_requested := is_requested OR (NEW.status != 'invitation');
       ELSE
         IF (OLD IS NULL OR OLD.status != NEW.status) AND NOT is_quest_member THEN
           RETURN NULL;
         END IF;
       END IF;
-      IF is_quest_member THEN
+      -- this version if quest does not auto-accept guilds
+      -- IF is_quest_member THEN
+      IF is_quest_member OR has_join_permission THEN
         is_invited := is_invited OR (NEW.status != 'request');
       END IF;
       IF is_requested THEN
