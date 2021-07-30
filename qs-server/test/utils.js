@@ -6,7 +6,10 @@ class AxiosUtil {
     this.axios = axios.create({ baseURL });
   }
   headers(token, headers) {
-    return token ? { headers: { Authorization: `Bearer ${token}`, ...headers } } : {};
+    headers = headers || {};
+    if (token)
+      headers.Authorization = `Bearer ${token}`;
+    return (headers) ? { headers } : {};
   }
 
   as_params(id) {
@@ -42,7 +45,9 @@ class AxiosUtil {
       if (path === 'members') {
         data = { ...data, password: await hash(data.password, 10) };
       }
-      const response = await this.axios.post(path, data, this.headers(token));
+      const headers = this.headers(token, { Prefer: 'return=representation' });
+      const params = { select: '*' }; // TODO: identify pkeys to only ask for them
+      const response = await this.axios.post(path, data, { params, ...headers });
       var location = response.headers.location.split('?')[1].split('&');
       location = Object.fromEntries(location.map((p) => {
         const [k, v] = p.split('=');

@@ -204,7 +204,7 @@ if __name__ == "__main__":
     ini_file.set("postgres", "sudo", str(conn_data['sudo']).lower())
     # Do not store the master password
     postgrest_port = POSTGREST_PORT
-    for db in DATABASES:
+    for index, db in enumerate(DATABASES):
         if getattr(args, "create_"+db):
             dbname = getattr(args, db)
             data = dict(database=dbname,
@@ -228,8 +228,7 @@ if __name__ == "__main__":
                 f.write('db-schema = "public"\n')
                 f.write(f'db-anon-role = "{data["client"]}"\n')
                 f.write(f'jwt-secret = "{data["auth_secret"]}"\n')
-                f.write(f'server-port = {postgrest_port}\n')
-            postgrest_port += 1
+                f.write(f'server-port = {POSTGREST_PORT+index}\n')
 
     with open(CONFIG_FILE, 'w') as f:
         ini_file.write(f)

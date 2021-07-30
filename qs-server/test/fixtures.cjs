@@ -1,4 +1,5 @@
 const { spawn, execSync } = require('child_process');
+const { axiosUtil } = require('./utils');
 
 var postgrest;
 
@@ -11,16 +12,17 @@ exports.mochaGlobalSetup = async function () {
   execSync('sqitch deploy --target test');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
   var resolve;
-  const p = new Promise((rs)=>{ resolve = rs; });
-  postgrest.stdout.on('data', (data)=> {
+  const p = new Promise((rs) => { resolve = rs; });
+  function wakeup(data) {
     data = data.toString();
     console.log(data);
-    if (data.startsWith('Listening')) {
-      resolve();
+    if (data.indexOf('Listening on port') > -1) {
+      setTimeout(resolve, 500);
     }
-  });
+  }
+  postgrest.stderr.on('data', wakeup);
+  postgrest.stdout.on('data', wakeup);
   await p;
-  const { axiosUtil } = require('./utils');
   await axiosUtil.create('members', admin);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
 };
