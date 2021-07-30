@@ -117,7 +117,7 @@ def create_database(data, conn_data, dropdb=False):
     owner = data['owner']
     exists = test_db_exists(database, **conn_data)
     if exists and dropdb:
-        extra_roles = psql_command(f"select string_agg(rolname, ', ') from pg_catalog.pg_authid where rolname like '{database}\_\__\_%'", **conn_data)
+        extra_roles = psql_command(f"select string_agg(rolname, ', ') from pg_catalog.pg_roles where rolname like '{database}\_\__\_%'", **conn_data).strip()
         psql_command(f"DROP DATABASE {database}", **conn_data)
         if extra_roles:
             psql_command(f"DROP ROLE {extra_roles}", **conn_data)
