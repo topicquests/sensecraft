@@ -18,7 +18,7 @@ POSTGREST_PORT = 3000
 
 
 def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
-                 password=None, host="localhost", debug=False, **kwargs):
+                 password=None, host="127.0.0.1", debug=False, **kwargs):
     if debug:
         print(command)
     assert not (sudo and password)
@@ -30,7 +30,7 @@ def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
         else:
             conn = ["psql", "-U", user]
         conn.append(db)
-        if host != "localhost":
+        if host  not in ("localhost", "127.0.0.1", "::1"):
             conn.extend(["-h", host])
     conn.extend(["-q", "--csv", "-t", "-n"])
     if cmdfile:
@@ -57,7 +57,7 @@ def test_user_exists(role, **kwargs):
         **kwargs).strip() == role
 
 
-def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwargs):
+def get_conn_params(host="127.0.0.1", user=None, password=None, sudo=None, **kwargs):
     if sys.platform == 'darwin':
         user = user or getuser()
         sudo = False if sudo is None else sudo
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     if exists(CONFIG_FILE):
         with open(CONFIG_FILE) as f:
             ini_file.read_file(f)
-    conn_data = dict(host="localhost")
+    conn_data = dict(host="127.0.0.1")
     if ini_file.has_section("postgres"):
         conn_data.update(dict(ini_file.items("postgres")))
         conn_data["sudo"] = ini_file.getboolean(

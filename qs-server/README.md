@@ -8,52 +8,66 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 ## Getting Started
 
-1. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed.
-2. Install your dependencies
+### Dependencies on Mac
 
-    ```
-    cd path/to/qs-server
-    npm install
-    ```
-    Also (in another directory) `git clone https://github.com/maparent/pgjwt.git ; cd pgjwt ; git checkout branch combined ; sudo make install`. (skip the sudo on mac/homebrew.)
-    Install Postgrest as described [here](https://postgrest.org/en/v7.0.0/install.html)
-    Install Sqitch: 
-    On Linux: `sudo apt install sqitch libdbd-pg-perl`
-    On Mac: `brew tap sqitchers/sqitch ; brew install sqitch --with-postgres-support`
+1. NodeJS: `brew install node`
+2. PostgreSQL: `brew install postgres ; brew services start postgres`
+3. Sqitch: `brew tap sqitchers/sqitch ; brew install sqitch --with-postgres-support`
+4. Postgrest: `brew install postgrest`
 
-3. Setup the database with the following script:
-    `./scripts/initial_setup.py`
-    There are many optional parameters but the default setting should run. You will have to sudo on linux.
-    This should be done only once, but may be done many times without harm.
+### Dependencies on Ubuntu
+
+1. NodeJS: `sudo apt install nodejs`
+2. PostgreSQL: `sudo apt install postgres ; sudo systemctl enable postgres`.
+3. Sqitch: `apt install sqitch`
+4. Postgrest: Download and install according to [this](https://www.postgresql.org/download/linux/ubuntu/)
+### linux, generic alternatives
+
+1. [NodeJS](https://nodejs.org/) 16 and [npm](https://www.npmjs.com/). Use the appropriate [package manager](https://nodejs.org/en/download/package-manager/) for your distribution.
+2. Sqitch: You can also use the docker version: https://hub.docker.com/r/sqitch/sqitch
+
+### Installation procedure
+
+in another directory: `git clone https://github.com/maparent/pgjwt.git ; cd pgjwt ; git branch combined ; make install`
+You will need `sudo make install` instead of `make install` on many platforms.
+
+In `qs-server`:
+
+`./scripts/initial_setup.py`
+
+There are many optional parameters but the default setting should run. You will have to sudo on linux.
+This should be done only once, but may be done many times without harm.
+
+`sqitch deploy`
 
 
-4. Migrate the database:
-    `sqitch deploy`
-    This should be done whenever a new file appears in the migrations folder.
-    (Do it again with `--target production` to upgrade the production database.)
+This creates, then migrates the database.
+It should be done whenever a new file appears in the migrations folder.
+(Do it again with `--target production` to upgrade the production database.)
 
-5. Start your app
 
-    ```
-    postgrest postgrest_development.conf
-    ```
+In `qs-demo`:
+`npm install`
+
+## Start your app
+
+In `qs-server`:
+```
+postgrest postgrest_development.conf
+```
+
+In `qs-client` (in another terminal):
+```
+./node_modules/.bin/quasar dev
+```
+
+## Permissions
+
+After you have created a first user, you will want to give admin permissions to that user.
+In `qs-server`, run `./scripts/add_permissions.py -u <username>`
+This script also allows adding or removing other permissions from a given user.
 
 ## Testing
 
-Simply run `npm test` and all your tests in the `test/` directory will be run.
+In both `qs-server` and `qs-client, run `npm test` and all your tests in the `test/` directory will be run.
 
-## Scaffolding
-
-Feathers has a powerful command line interface. Here are a few things it can do:
-
-```
-$ npm install -g @feathersjs/cli          # Install Feathers CLI
-
-$ feathers generate service               # Generate a new Service
-$ feathers generate hook                  # Generate a new Hook
-$ feathers help                           # Show all commands
-```
-
-## Help
-
-For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).

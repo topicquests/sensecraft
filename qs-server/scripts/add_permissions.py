@@ -12,7 +12,7 @@ POSTGREST_PORT = 3000
 
 
 def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
-                 password=None, host="localhost", debug=False, **kwargs):
+                 password=None, host="127.0.0.1", debug=False, **kwargs):
     if debug:
         print(command)
     assert not (sudo and password)
@@ -24,7 +24,7 @@ def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
         else:
             conn = ["psql", "-U", user]
         conn.append(db)
-        if host != "localhost":
+        if host not in ("localhost", "127.0.0.1", "::1"):
             conn.extend(["-h", host])
     conn.extend(["-q", "--csv", "-t", "-n"])
     if cmdfile:
