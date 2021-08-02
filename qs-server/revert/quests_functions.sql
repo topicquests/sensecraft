@@ -2,6 +2,19 @@
 
 BEGIN;
 
+\set dbm :dbn '__member';
+\set dbc :dbn '__client';
+
+REVOKE SELECT,INSERT,UPDATE, DELETE ON TABLE public.quests FROM :dbm;
+REVOKE SELECT ON TABLE public.quests FROM :dbc;
+REVOKE USAGE ON SEQUENCE public.quests_id_seq FROM :dbm;
+REVOKE SELECT ON TABLE public.public_quests FROM :dbm;
+REVOKE SELECT ON TABLE public.public_quests FROM :dbc;
+REVOKE SELECT,INSERT,UPDATE ON TABLE public.quest_membership FROM :dbm;
+REVOKE SELECT ON TABLE public.quest_membership FROM :dbc;
+REVOKE SELECT ON TABLE public.my_quest_memberships FROM :dbm;
+REVOKE SELECT ON TABLE public.my_quest_memberships FROM :dbc;
+
 DROP POLICY IF EXISTS quests_delete_policy ON public.quests;
 DROP POLICY IF EXISTS quests_select_policy ON public.quests;
 DROP POLICY IF EXISTS quests_insert_policy ON public.quests;

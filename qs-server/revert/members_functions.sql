@@ -2,6 +2,13 @@
 
 BEGIN;
 
+\set dbm :dbn '__member';
+\set dbc :dbn '__client';
+
+REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLE public.members FROM :dbm;
+REVOKE SELECT,INSERT ON TABLE public.members FROM :dbc;
+REVOKE USAGE ON SEQUENCE public.members_id_seq FROM :dbc;
+
 DROP POLICY IF EXISTS members_update_policy ON public.members;
 DROP POLICY IF EXISTS members_delete_policy ON public.members;
 DROP POLICY IF EXISTS members_select_policy ON public.members;

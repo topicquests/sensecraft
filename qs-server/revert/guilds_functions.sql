@@ -2,6 +2,19 @@
 
 BEGIN;
 
+\set dbm :dbn '__member';
+\set dbc :dbn '__client';
+
+REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.guilds FROM :dbm;
+REVOKE SELECT ON TABLE public.guilds FROM :dbc;
+REVOKE USAGE ON SEQUENCE public.guilds_id_seq FROM :dbm;
+REVOKE SELECT ON TABLE public.public_guilds FROM :dbm;
+REVOKE SELECT ON TABLE public.public_guilds FROM :dbc;
+REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.guild_membership FROM :dbm;
+REVOKE SELECT ON TABLE public.guild_membership FROM :dbc;
+REVOKE SELECT ON TABLE public.my_guild_memberships FROM :dbm;
+REVOKE SELECT ON TABLE public.my_guild_memberships FROM :dbc;
+
 DROP POLICY IF EXISTS guilds_select_policy ON public.guilds;
 DROP POLICY IF EXISTS guilds_insert_policy ON public.guilds;
 DROP POLICY IF EXISTS guild_update_policy ON public.guilds;
