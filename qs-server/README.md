@@ -19,12 +19,15 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 1. NodeJS: `sudo apt install nodejs`
 2. PostgreSQL: `sudo apt install postgres ; sudo systemctl enable postgres`.
-3. Sqitch: `apt install sqitch`
+3. Sqitch: `apt install sqitch libdbd-pgsql`
 4. Postgrest: Download and install according to [this](https://www.postgresql.org/download/linux/ubuntu/)
 ### linux, generic alternatives
 
 1. [NodeJS](https://nodejs.org/) 16 and [npm](https://www.npmjs.com/). Use the appropriate [package manager](https://nodejs.org/en/download/package-manager/) for your distribution.
-2. Sqitch: You can also use the docker version: https://hub.docker.com/r/sqitch/sqitch
+2. Sqitch:
+   1. On arch-linux (and possibly others), you can install with `sudo pacman -S perl-dbd-pg ; sudo perl -MCPAN "install sqitch"`. (Assumes gcc and make are installed.) `sqitch` is then in `/usr/bin/site-perl`, which you may add to your path.
+   2. You could also use the docker version, as described [here](https://hub.docker.com/r/sqitch/sqitch).
+
 
 ### Installation procedure
 
