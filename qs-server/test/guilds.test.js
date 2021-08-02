@@ -49,7 +49,7 @@ describe('\'guilds\' service', () => {
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
-      });
+      }, null, true);
       const quidam = await axiosUtil.create('members', quidamInfo);
       quidamId = quidam.id;
       const quidam2 = await axiosUtil.create('members', quidam2Info);
@@ -83,7 +83,7 @@ describe('\'guilds\' service', () => {
       it('authenticates quidam', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('fails to create guild without authorization', async () => {
@@ -100,7 +100,7 @@ describe('\'guilds\' service', () => {
       it('authenticates sponsor and creates accessToken', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: leaderInfo.email, pass: leaderInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('creates public guild', async () => {
@@ -160,7 +160,7 @@ describe('\'guilds\' service', () => {
       it('authenticates quidam and creates accessToken', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('only public guild is visible w/o authorization', async () => {

@@ -34,7 +34,7 @@ describe('\'guilds\' service', () => {
     const publicQuestInfo = {
       name: 'My great quest',
       handle: 'pubquest',
-      status: 'draft',
+      status: 'registration',
       public: true,
       start: new Date(),
       end: new Date(Date.now() + 100000000000),
@@ -45,7 +45,7 @@ describe('\'guilds\' service', () => {
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
-      }, null, true);
+      });
       const leader = await axiosUtil.create('members', leaderInfo);
       leaderId = leader.id;
       const sponsor = await axiosUtil.create('members', sponsorInfo);
@@ -54,13 +54,13 @@ describe('\'guilds\' service', () => {
       quidamId = quidam.id;
       quidamToken = await axiosUtil.call('get_token', {
         mail: 'quidam@example.com', pass: 'supersecret'
-      }, null, true);
+      }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
         mail: 'guild_leader@example.com', pass: 'supersecret'
-      }, null, true);
+      }, null, false);
       sponsorToken = await axiosUtil.call('get_token', {
         mail: 'sponsor@example.com', pass: 'supersecret'
-      }, null, true);
+      }, null, false);
     });
 
     after(async () => {
@@ -94,48 +94,54 @@ describe('\'guilds\' service', () => {
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
         assert.equal(guilds.length, 1);
       });
-      it('quidam cannot register to quest', async () => {
-        assert.rejects(async () => {
-          await axiosUtil.create('game_play', game_play_id, quidamToken);
-        }, 'GeneralError');
-      });
-      it('guild leader cannot register to draft quest', async () => {
-        assert.rejects(async () => {
-          await axiosUtil.create('game_play', game_play_id, leaderToken);
-        }, 'GeneralError');
-      });
-      it('sponsor can update quest', async () => {
-        const update = await axiosUtil.update('quests', {
-          id: publicQuestId
-        }, {
-          status: 'registration'
-        }, sponsorToken);
-        assert.equal(update.length, 1);
-        assert.equal(update[0].status, 'registration');
-      });
-      it('guild leader can register to quest in registration mode', async () => {
+      it('guild leader can register guild to quest', async () => {
         const register = await axiosUtil.create('game_play', game_play_id, leaderToken);
         assert.ok(register);
         const game_play = await axiosUtil.get('game_play', game_play_id, leaderToken);
         assert.equal(game_play.length, 1);
         assert.equal(game_play[0].status, 'confirmed');
       });
-      it('guild leader can deregister from quest', async () => {
-        await axiosUtil.delete('game_play', game_play_id, leaderToken);
-      });
-      it('sponsor can invite guild', async () => {
-        const register = await axiosUtil.create('game_play', game_play_id, sponsorToken);
-        assert.ok(register);
-        const game_play = await axiosUtil.get('game_play', game_play_id, sponsorToken);
-        assert.equal(game_play.length, 1);
-        assert.equal(game_play[0].status, 'invitation');
-      });
-      it('leader can accept invitation', async () => {
-        const update = await axiosUtil.update('game_play', game_play_id, {
-          status: 'confirmed'
+      it('guild leader can then self-register to quest', async () => {
+        const register = await axiosUtil.create('casting', {
+          member_id: leaderId,
+          ...game_play_id
         }, leaderToken);
-        assert.equal(update.length, 1);
-        assert.equal(update[0].status, 'confirmed');
+        assert.ok(register);
+      });
+      it('quidam cannot register to quest from outside guild', async () => {
+        await assert.rejects(async () => {
+          await axiosUtil.create('casting', {
+            member_id: quidamId,
+            ...game_play_id
+          }, quidamToken);
+        }, 'GeneralError');
+      });
+      it('quidam can register to guild', async () => {
+        const register = await axiosUtil.create('guild_membership', {
+          member_id: quidamId,
+          guild_id: publicGuildId,
+        }, quidamToken);
+        console.log(register);
+        assert.ok(register);
+      });
+      it('guild leader can call global registration', async () => {
+        await axiosUtil.call('register_all_members', {
+          guildid: publicGuildId,
+          questid: publicQuestId,
+        }, leaderToken);
+      });
+      // TODO: Should we prevent others from calling this function?
+      it('global registration registered quidam', async () => {
+        const registers = await axiosUtil.get('casting', game_play_id, leaderToken);
+        assert.equal(registers.length, 2);
+        const quidam_r = registers.find(r => r.member_id == quidamId);
+        assert.ok(quidam_r);
+      });
+      it('quidam can deregister', async () => {
+        await axiosUtil.delete('casting', {
+          member_id: quidamId,
+          ...game_play_id
+        }, quidamToken);
       });
     });
   });

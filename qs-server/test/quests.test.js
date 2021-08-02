@@ -37,7 +37,7 @@ describe('\'quests\' service', () => {
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
-      });
+      }, null, true);
       const sponsor = await axiosUtil.create('members', sponsorInfo);
       sponsorId = sponsor.id;
       const quidam = await axiosUtil.create('members', quidamInfo);
@@ -65,7 +65,7 @@ describe('\'quests\' service', () => {
       it('authenticates quidam', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('fails to create quest without authorization', async () => {
@@ -82,7 +82,7 @@ describe('\'quests\' service', () => {
       it('authenticates sponsor and creates accessToken', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: sponsorInfo.email, pass: sponsorInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('creates public quest', async () => {
@@ -104,7 +104,7 @@ describe('\'quests\' service', () => {
       it('authenticates quidam and creates accessToken', async () => {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        });
+        }, null, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('only public quest is visible w/o authorization', async () => {

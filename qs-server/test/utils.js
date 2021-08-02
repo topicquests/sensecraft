@@ -77,10 +77,15 @@ class AxiosUtil {
     }
   }
 
-  async call(fn, params, token) {
+  async call(fn, params, token, readonly=false) {
     try {
-      const response = await this.axios.get(`/rpc/${fn}`, { params, ... this.headers(token) });
-      return response.data;
+      if (readonly) {
+        const response = await this.axios.get(`/rpc/${fn}`, { params, ... this.headers(token) });
+        return response.data;
+      } else {
+        const response = await this.axios.post(`/rpc/${fn}`, params, this.headers(token));
+        return response.data;
+      }
     } catch (error) {
       console.error(error.response.status, error.response.data.message);
       throw error;
