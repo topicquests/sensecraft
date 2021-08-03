@@ -20,7 +20,7 @@
     evalQuest(GamePlay, GamePlay): Badge[]
   }
 
-  class AccountService {
+  class AccountService #line.dotted:blue {
     name String
     url String
   }
@@ -72,13 +72,16 @@
   }
 
   enum PubState {
+    obsolete
     private_draft
     guild_draft
     proposed
+    ' proposed: the node authors think it's ready
     submitted
+    ' submitted: the guild leaders think it's ready, quest moderators aware of it.
     visible
-    obsolete
-    ' visible and submitted are the same for v1
+    ' visible: visible to all.
+    ' visible and submitted are the same for v1; eventually we'll allow turn-based visibility
   }
 
   enum Metric {
@@ -89,7 +92,7 @@
 
   }
 
-  enum GameMoveType {
+  enum NodeActionType #line.dotted:blue {
     add_node
     ' Eventually refactorings
   }
@@ -102,7 +105,7 @@
     password String
     permissions Permission[]
   }
-  class Account {
+  class Account #line.dotted:blue {
     Member member
     service AccountService
     string id
@@ -164,33 +167,43 @@
 
 
   class ConversationNode {
+    id integer
     quest Quest
     creator Member
     node_type NodeType
-    move_type GameMoveType
-    contributors Casting[]
     title String
     description String
     state PubState
+    parent ConversationNode
+    ancestry() ConversationNode[]
+}
+
+ConversationNode <|-- ConversationNodeV2
+
+class ConversationNodeV2 #line.dotted:blue {
+    contributors Casting[]
+    node_action_type NodeActionType
+    node_id integer
     state_history <PubState, timestamp>[]
     ' GamePhase inferred from history?
     ' allow more history than PubState?
-    parent ConversationNode
-    ancestry() ConversationNode[]
+    previous_version ConversationNode
+    history() ConversationNode[]
     ' may materialize in a ltree
   }
 
-  class NodeReplacement {
+
+  class NodeReplacement #line.dotted:blue {
     new_node ConversationNode
     replacing_node ConversationNode
     approved_by Casting[]
     effective timestamp
   }
 
-  (ConversationNode, ConversationNode) .. NodeReplacement
+  (ConversationNodeV2, ConversationNodeV2) .. NodeReplacement
   NodeReplacement --> "*" Casting : > approvals
 
-  ConversationNode "*" o--> "1..*" Casting
+  ConversationNodeV2 "*" o--> "1..*" Casting
   ' Quest o--> ScoringStrategy
 
   Member "1" <-- "*" ConversationNode : < creator
@@ -232,7 +245,7 @@
   ' Vs the Casting which is a way to play a game under a quest-specific identity...
   ' That creates the question: Do the points/badges belong to the Avatar or the Member?
 
-  class Avatar {
+  class Avatar #line.dotted:blue {
     ' Note: for v1, a single avatar.
     member Member
     server Server
