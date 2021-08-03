@@ -13,3 +13,5 @@ guilds_functions [members_functions guilds] 2021-07-30T14:51:05Z Marc-Antoine Pa
 game_play_functions [game_play guilds_functions quests_functions] 2021-07-30T14:52:30Z Marc-Antoine Parent <maparent@acm.org> # functions and security for game_play
 casting [game_play] 2021-08-02T13:27:01Z Marc-Antoine Parent <maparent@acm.org> # Casting table
 casting_functions [casting] 2021-08-02T13:45:49Z Marc-Antoine Parent <maparent@acm.org> # functions and security for casting table
+conversation_node [casting] 2021-08-03T13:25:20Z Marc-Antoine Parent <maparent@acm.org> # conversation_node table
+conversation_node_functions [conversation_node] 2021-08-03T13:26:17Z Marc-Antoine Parent <maparent@acm.org> # security and functions for conversation_node
