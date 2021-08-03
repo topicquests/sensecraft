@@ -22,6 +22,28 @@
           </div>
         </q-card>
     </div>
+    <div class="row q-pt-xl"></div>
+    <div>
+        <q-card>
+          <div>
+            <q-table title="Not Started Quests" :data="registrationQuests" :columns="columns" row-key = "desc">
+              <template slot="body" slot-scope="props">
+                <q-tr :props="props">
+                  <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
+                  <q-td key="label" :props="props">{{props.row.label}}</q-td>
+                  <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                  <q-td key="public" :props="props">{{props.row.public}}</q-td>
+                  <q-td key="status" :props="props">{{props.row.status}}</q-td>
+                  <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
+                  <q-td key="nodeId" auto-width :props="props">
+                    <router-link :to="{ name: 'questview', params: { id:  props.row.id }}">View</router-link>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </div>
+        </q-card>
+    </div>
     <div class="row q-pt-lg"></div>
     <div>
         <q-card>
@@ -137,7 +159,7 @@ export default {
     },
 
      registrationQuests() {
-      return  this.$store.getters['quests/getQuestByStatus']("draft");
+      return  this.$store.getters['quests/getQuestByStatus']("registration");
     },
 
     ongoingQuests() {

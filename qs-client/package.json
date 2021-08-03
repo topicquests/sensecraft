@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^27.1.0",
+    "@ckeditor/ckeditor5-vue": "^2.0.1",
+    "@ckeditor/ckeditor5-vue2": "^1.0.5",
     "@feathersjs/authentication-client": "^4.5.11",
     "@feathersjs/feathers": "^4.5.11",
     "@feathersjs/rest-client": "^4.5.11",

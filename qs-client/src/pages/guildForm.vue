@@ -23,7 +23,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <ckeditor type="classic" v-model="guild.description" ></ckeditor>
+      <ckeditor :editor="editor" v-model="guild.description" ></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="guild.handle" label = "Handle" />
@@ -42,21 +42,16 @@
 
 import Vue from 'vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import VueCkeditor from 'vue-ckeditor5'
-const options = {
-  editors: {
-    classic: ClassicEditor,
-  },
-  name: 'ckeditor'
-}
+import VueCkeditor from '@ckeditor/ckeditor5-vue2'
 
-Vue.use(VueCkeditor.plugin, options);
+Vue.use(VueCkeditor);
 import { mapActions, mapGetters} from "vuex";
 
 
 export default {
   data() {
     return {
+      editor: ClassicEditor,
       group: 'private',
       options: [
         {
