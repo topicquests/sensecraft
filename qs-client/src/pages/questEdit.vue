@@ -10,7 +10,7 @@
           <div class="q-gutter-sm">
             <q-option-group
             v-model="group"
-            :options="options"
+            :options="choices"
             color="primary"
             inline>
             </q-option-group>
@@ -26,7 +26,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <ckeditor type="classic" v-model="quest.description" ></ckeditor>
+      <ckeditor :editor="editor" v-model="quest.description"></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.handle" label = "Handle" />
@@ -45,7 +45,7 @@
 
 import Vue from 'vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import VueCkeditor from 'vue-ckeditor5'
+import VueCkeditor from '@ckeditor/ckeditor5-vue2'
 const options = {
   editors: {
     classic: ClassicEditor,
@@ -53,15 +53,17 @@ const options = {
   name: 'ckeditor'
 }
 
-Vue.use(VueCkeditor.plugin, options);
+Vue.use(VueCkeditor);
 import { mapActions, mapGetters} from "vuex";
 
 
 export default {
   data() {
     return {
+      editor: ClassicEditor,
+      editorData: '<p>Content of the editor.</p>',
       group: 'private',
-      options: [
+      choices: [
         {
           label: 'Public',
           value: 'public'
@@ -84,7 +86,7 @@ export default {
       },
       shape: 'line',
       submitResult: [],
-      details: "",
+      details: "These are details",
       handle: "",
       type: false,
       member: this.$store.getters['member/getUser']
