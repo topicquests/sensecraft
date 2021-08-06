@@ -43,10 +43,10 @@ BEGIN
       RAISE EXCEPTION 'Only guild leaders can submit nodes';
     END IF;
     -- TODO: The following should not happen if the quest is turn-based
-    status := 'visible';
-  WHEN status = 'visible' THEN
+    status := 'published';
+  WHEN status = 'published' THEN
     IF NOT is_quest_id_member(quest_id) THEN
-      RAISE EXCEPTION 'Only quest members can make nodes visible';
+      RAISE EXCEPTION 'Only quest members can publish nodes';
     END IF;
   ELSE
   END CASE;
@@ -113,6 +113,9 @@ BEGIN
   SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
   IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' THEN
     RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
+  END IF;
+  IF NEW.status = 'published' THEN
+    NEW.published_at = now();
   END IF;
   NEW.created_at := now();
   RETURN NEW;
@@ -185,6 +188,9 @@ BEGIN
     IF NEW.parent_id IS NULL AND (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL AND id != NEW.id) != 0 THEN
       RAISE EXCEPTION 'Each quest must have a single root';
     END IF;
+    IF NEW.status = 'published' AND OLD.status < 'published' THEN
+      NEW.published_at = now();
+    END IF;
   END IF;
   IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' THEN
     RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
@@ -230,7 +236,7 @@ CREATE POLICY conversation_node_insert_policy ON public.conversation_node FOR IN
     AND public.casting.member_id = public.conversation_node.creator_id) = 1);
 
 CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SELECT USING (
-  status = 'visible' OR
+  status = 'published' OR
   creator_id = current_member_id() OR
   (status = 'submitted' AND public.is_quest_id_member(quest_id)) OR
   (status > 'private_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id))

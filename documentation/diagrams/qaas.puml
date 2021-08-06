@@ -79,9 +79,9 @@
     ' proposed: the node authors think it's ready
     submitted
     ' submitted: the guild leaders think it's ready, quest moderators aware of it.
-    visible
-    ' visible: visible to all.
-    ' visible and submitted are the same for v1; eventually we'll allow turn-based visibility
+    published
+    ' published: visible to all.
+    ' published and submitted are the same for v1; eventually we'll allow turn-based visibility
   }
 
   enum Metric {

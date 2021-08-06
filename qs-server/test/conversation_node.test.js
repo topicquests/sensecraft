@@ -108,7 +108,7 @@ describe('\'guilds\' service', () => {
           quest_id: publicQuestId,
           node_type: 'question',
           title: 'first question',
-          status: 'visible'
+          status: 'published'
         }, sponsorToken);
         q1Id = q1Model.id;
       });
@@ -117,7 +117,7 @@ describe('\'guilds\' service', () => {
           await axiosUtil.create('conversation_node', {
             quest_id: publicQuestId,
             node_type: 'question',
-            status: 'visible',
+            status: 'published',
             title: 'second question'
           }, sponsorToken);
         }, 'GeneralError');
@@ -264,7 +264,7 @@ describe('\'guilds\' service', () => {
         }, leaderToken);
         assert.equal(arg1Models.length, 1);
         // guild is implicitly in immediate mode
-        assert.equal(arg1Models[0].status, 'visible');
+        assert.equal(arg1Models[0].status, 'published');
       });
       // TODO: test I cannot create a node with a parent from a different quest
     });
