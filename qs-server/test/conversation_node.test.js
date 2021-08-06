@@ -265,6 +265,7 @@ describe('\'guilds\' service', () => {
         assert.equal(arg1Models.length, 1);
         // guild is implicitly in immediate mode
         assert.equal(arg1Models[0].status, 'published');
+        assert.ok(arg1Models[0].published_at);
       });
       // TODO: test I cannot create a node with a parent from a different quest
     });
