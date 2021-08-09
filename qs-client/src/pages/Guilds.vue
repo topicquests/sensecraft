@@ -1,6 +1,12 @@
 <template>
-  <q-page class = 'bg-secondary'>
-    <div>
+  <q-page style ="background-color:lightgrey" >
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <scoreboard></scoreboard>
+      </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
         <q-card>
           <div>
             <q-table title="Guild List" :data="guildList" :columns="columns" row-key = "desc">
@@ -19,6 +25,7 @@
             </q-table>
           </div>
         </q-card>
+      </div>
     </div>
   </q-page>
 </template>
@@ -26,7 +33,7 @@
 <script>
 
 import { mapGetters } from "vuex";
-
+import scoreboard from '../components/scoreboard.vue'
 
 export default {
   props: ["member"],
@@ -76,7 +83,9 @@ export default {
       ]
     }
   },
-
+  components: {
+    "scoreboard": scoreboard
+  },
   computed: {
     guildList() {
       return  this.$store.getters['guilds/getGuilds'];

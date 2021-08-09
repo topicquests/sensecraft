@@ -30,14 +30,15 @@ export async function getGuilds(opts, token) {
     }
 
   export async function updateGuild(guild, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
     const id = guild.id;
 
-   return axiosInstance.put(`/guilds/${id}`, guild,
-   {
-   headers: {
-    'Authorization': `Bearer ${token}`
-   }
-  }).then (function(response) {
+   return axiosInstance.put(`/guilds/${id}`, guild, options
+   ).then (function(response) {
     Notify.create({
       message: `Guild was updated successfully`,
       color: "positive"
@@ -110,11 +111,7 @@ export async function getGuilds(opts, token) {
       }
     } : {};
      return axiosInstance.get("/guild_membership?member_id=eq." + id, options,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(response => {
+     ).then(response => {
       return response
     })
     .catch(err => {
@@ -133,7 +130,6 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-
    return axiosInstance.post("/guild_membership", {
      "guild_id": guildId,
      "member_id": userId
@@ -143,7 +139,7 @@ export async function getGuilds(opts, token) {
     }).catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;
-        console.log ("Error in joining guild ", err.response)
+        console.log ("Error in joining guild ", errorCode)
       }
     })
   }
@@ -154,7 +150,6 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-
    return axiosInstance.post("/game_play", {
      "guild_id": payload.guild_id,
      "quest_id": payload.quest_id,
@@ -177,8 +172,8 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-    return axiosInstance.get("/game_play?guild_id=eq." + guildId, options)
-    .then (response =>{
+    return axiosInstance.get("/game_play?guild_id=eq." + guildId, options
+    ).then (response =>{
       return response})
       .catch (err => {
         let errorCode = err.response.data.code;
@@ -193,15 +188,27 @@ export async function getGuilds(opts, token) {
       }
     } : {};
     return axiosInstance.get("/guild_membership?guild_id=eq." + guild_id, options,
-   {
-     headers: {
-       'Authorization': `Bearer ${token}`
-     }
-   }).then(response => {
+   ).then(response => {
      return response
    })
    .catch(err => {
      let errorCode = err.response.data.code;
      console.log("Error in get member in guild with guildId " + id, err);
+   })
+ }
+
+ export async function registerAllMembersToQuest(params, token) {
+  const options = token ? {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  } : {};
+   return axiosInstance.post("/rpc/register_all_members", params, options
+   ).then(response => {
+     return response
+   })
+   .catch(err => {
+      let errorCode = err.response.data.code;
+      console.log ("Error in joining guild ", errorCode)
    })
  }
