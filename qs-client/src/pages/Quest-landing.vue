@@ -1,13 +1,19 @@
 <template>
-  <q-page :padding="true">
+  <q-page :padding="true" class = 'bg-grey-4'>
+    <div class="column items-center">
+    <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
     <q-btn
+      color = secondary
       v-if = '$store.state.member.member'
-      style="margin-bottom: 4px;"
+      style="margin-bottom: 4px"
       label="New Quest"
       @click="$router.replace('/questform')"
     />
-
-    <q-table title="My Quests" :data="rootConversations" :columns="columns" row-key = "desc">
+    </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
+        <q-table title="My Quests" :data="rootConversations" :columns="columns" row-key = "desc">
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -20,7 +26,9 @@
           </q-td>
         </q-tr>
       </template>
-    </q-table>
+        </q-table>
+      </div>
+    </div>
   </q-page>
 </template>
 

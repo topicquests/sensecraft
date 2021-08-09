@@ -32,7 +32,6 @@ export  async function updateQuests({commit, dispatch}, payload,) {
 
 }
 
-
 export async function findQuests( {commit}, payload) {
     try {
     const token = this.state.auth.accessToken;

@@ -71,9 +71,28 @@ getQuests()
 getGuilds()
 checkMemberBelongToGuild()
 
+## Guild-app
+Description: This is where guild members make decissions. GuildAdmin can choose the quest. Members can work on the node of the quest.
+
+## Join Guild
+A member chooses to join a guild from the lobby
+
+When a member chooses to join a guild they are taken to that guild.
+First check to see if not already a member
+Second if not a member join
+Third if guild is participating in a quest add member to quests
 ## Quest Request
 
-Description: A guild request to participate in a quest. The member that makes the request must be a member of the guild requesting. The guild must not be actively participating in any other quest. When making the request the requestor will need to choose which guild, if participating in more then one guild, the request is for.
+Description: A guild request to participate in a quest. The guild admin select the quests for the guild. The requester must be a member of the guild requesting. When making the request the requestor will need to choose which guild, if participating in more then one guild, the request is for.
+
+before mount
+ensure list of quests and guilds are up to date in vuex.
+set current guild in vuex
+Determine members associated with guild
+
+Display handles and roles of each member.
+Display the quest currently playing
+Display list of quests registered
 
 
 ## Registraion

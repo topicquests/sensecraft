@@ -125,6 +125,22 @@ export async function registerQuest({commit, state}, payload) {
         }
     }
 
+    export async function registerAllMembersToQuest({commit, dispatch}, params, token) {
+        try {
+            const token = this.state.member.token;
+            let response = await guildService.registerAllMembersToQuest(params, token)
+            return response
+        }
+        catch(error) {
+            console.log("Error in registering all members to quest: ", error)
+        }
+    }
+
+    export function setCurrentGuild({commit, getters}, guildId) {
+        let guild = getters.getGuildById(guildId)
+        return Promise.resolve(commit('SET_CURRENT_GUILD', guild[0]))
+    }
+
  export function setGuildData({commit}){
     console.log("Guild data: ", {opt})
     return Promise.resolve(commit('SET_GUILD_DATA', opt.data));

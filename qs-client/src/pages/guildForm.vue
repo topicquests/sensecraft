@@ -22,6 +22,9 @@
    <div class = "row justify-start q-pb-xs">
       Details<br/>
     </div>
+     <div class = "row justify-start q-pb-lg">
+      <q-editor v-model="guild.description" ></q-editor>
+    </div>
     <div class = "row justify-start q-pb-lg">
       <ckeditor :editor="editor" v-model="guild.description" ></ckeditor>
     </div>
