@@ -1,12 +1,13 @@
  <template>
-  <q-page :padding="true" class = "flex flex-center">
+  <q-page :padding="true" class = "flex flex-center" style ="background-color:lightgrey" >
     <div class = "col" >
     <div class = "row justify-center">
       <h3>Edit Quest</h3>
     </div>
-    <div>
-      <q-card>
-        <div class="row justify-start q-pa-lg">
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
+        <q-card>
+        <div class="row justify-start q-pa-lg q-ml-lg">
           <div class="q-gutter-sm">
             <q-option-group
             v-model="group"
@@ -16,52 +17,38 @@
             </q-option-group>
          </div>
         </div>
-    <div class = "row justify-start q-pb-lg">
-      <q-input v-model="quest.status" label = "Status" />
-    </div>
-    <div class = "row justify-start q-pb-lg">
-      <q-input v-model="quest.name" label = "Name" />
-    </div>
-   <div class = "row justify-start q-pb-xs">
-      Details<br/>
-    </div>
-    <div class = "row justify-start q-pb-lg">
-      <ckeditor :editor="editor" v-model="quest.description"></ckeditor>
-    </div>
-    <div class = "row justify-start q-pb-lg">
-      <q-input v-model="quest.handle" label = "Handle" />
-    </div>
-   <div class = "row justify-start q-pb-lg">
-      <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-      <q-btn label="Cancel" @click="$router.replace('/home')" />
-    </div>
-      </q-card>
+      <div class = "row justify-start q-pb-lg q-ml-lg">
+        <q-input v-model="quest.status" label = "Status" />
+      </div>
+      <div class = "row justify-start q-pb-lg q-ml-lg">
+        <q-input v-model="quest.name" label = "Name" />
+      </div>
+      <div class = "row justify-start q-pb-xs q-ml-lg">
+        Details<br/>
+      </div>
+       <div class = "row justify-start q-pb-lg q-ml-lg">
+        <q-editor v-model="quest.description"></q-editor>
+      </div>
+      <div class = "row justify-start q-pb-lg q-ml-lg">
+        <q-input v-model="quest.handle" label = "Handle" />
+      </div>
+      <div class = "row justify-center q-pb-lg">
+        <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
+        <q-btn label="Cancel" @click="$router.replace('/home')" />
+      </div>
+    </q-card>
+  </div>
     </div>
   </div>
   </q-page>
 </template>
 
 <script>
-
-import Vue from 'vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import VueCkeditor from '@ckeditor/ckeditor5-vue2'
-const options = {
-  editors: {
-    classic: ClassicEditor,
-  },
-  name: 'ckeditor'
-}
-
-Vue.use(VueCkeditor);
 import { mapActions, mapGetters} from "vuex";
-
 
 export default {
   data() {
     return {
-      editor: ClassicEditor,
-      editorData: '<p>Content of the editor.</p>',
       group: 'private',
       choices: [
         {
@@ -92,6 +79,7 @@ export default {
       member: this.$store.getters['member/getUser']
     };
   },
+
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('member', ['getUser']),
@@ -123,9 +111,10 @@ export default {
   },
 
   mounted() {
-   this.$data.quest.id = this.$route.params.id;
-   const response = this.$store.getters['quests/getQuestById'] (this.$data.quest.id);
-   this.$data.quest = response[0];
+   this.quest.id = this.$route.params.id;
+   const response = this.$store.getters['quests/getQuestById'] (this.quest.id);
+   this.quest = response[0];
+   debugger;
   }
 };
 </script>

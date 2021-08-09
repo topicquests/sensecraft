@@ -58,7 +58,6 @@
         v-model="leftDrawer"
         :breakpoint="200"
         bordered
-        content-class="bg-grey-4"
       >
         <q-scroll-area class="fit">
          <div>

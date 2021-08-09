@@ -1,12 +1,12 @@
 <template>
   <q-page style ="background-color:lightgrey" >
-    <div class="row">
-      <div class="col-12">
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="row q-pa-lg">
-      <div class="col-4">
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
           <q-card >
             <q-table title="Quests" :data="this.quests" :columns="columns1" row-key = "desc">
               <template slot="body" slot-scope="props">
@@ -22,15 +22,19 @@
             </q-table>
           </q-card>
       </div>
-      <div class="col-3 q-pa-md bg-color-blue">
-          <q-card>
-            <p> If you have not already choose a guild join a guild</p>
-          </q-card>
+     <div class="column items-center">
+      <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
+        <q-card>
+            <p> If you have not already choosen a guild to join. Select one from the list </p>
+            <p> If you are already a member of a guild, click on join button to go to that's guild page</p>
+        </q-card>
       </div>
-      <div class="col-4">
-          <q-card >
-            <q-table title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
-              <template slot="body" slot-scope="props">
+     </div>
+      <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <q-card >
+          <q-table title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
+            <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="guildDesc" :props="props"> {{props.row.name}}</q-td>
                   <q-td key="label" :props="props">{{props.row.label}}</q-td>
@@ -39,9 +43,10 @@
                     <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
                   </q-td>
                 </q-tr>
-              </template>
-            </q-table>
-          </q-card>
+            </template>
+          </q-table>
+        </q-card>
+      </div>
       </div>
     </div>
   </q-page>
