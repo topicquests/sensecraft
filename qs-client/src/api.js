@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import api  from 'boot/feathersClient';
+import api  from './boot/feathersClient';
 
 const socket = io("localhost:3030")
 
