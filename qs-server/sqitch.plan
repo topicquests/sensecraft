@@ -15,3 +15,4 @@ casting [game_play] 2021-08-02T13:27:01Z Marc-Antoine Parent <maparent@acm.org> 
 casting_functions [casting] 2021-08-02T13:45:49Z Marc-Antoine Parent <maparent@acm.org> # functions and security for casting table
 conversation_node [casting] 2021-08-03T13:25:20Z Marc-Antoine Parent <maparent@acm.org> # conversation_node table
 conversation_node_functions [conversation_node] 2021-08-03T13:26:17Z Marc-Antoine Parent <maparent@acm.org> # security and functions for conversation_node
+focus_node [conversation_node] 2021-08-11T19:55:19Z Marc-Antoine Parent <maparent@acm.org> # add focus_node to game_play 
