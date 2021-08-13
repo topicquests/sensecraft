@@ -57,6 +57,11 @@ export async function getQuestById( {commit}, questId) {
 
 }
 
+export function setCurrentQuest({commit, getters}, questId) {
+    let quest = getters.getQuestById(questId)
+    return Promise.resolve(commit('SET_CURRENT_QUEST', quest[0]))
+}
+
  export function setQuestData({commit}){
     console.log("Quest data: ", {opt})
     return Promise.resolve(commit('SET_QUEST_DATA', opt.data));
