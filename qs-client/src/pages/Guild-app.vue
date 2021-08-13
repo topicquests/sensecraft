@@ -72,7 +72,11 @@
                 <div v-html="currentQuest.description"></div>
               </div>
           </q-card-section>
+          <div v-if = "this.currentQuest">
+            <router-link :to="{ name: 'node', params: { quest_id: this.currentQuest.id }}">Go To Quest</router-link>
+          </div>
           <q-card-actions align="center">
+
               <q-btn
                 label="go to quest"
                 align="center"
@@ -154,7 +158,8 @@ export default {
   },
   computed: {
     ...mapState('quests', {
-      quests: state => state.quests
+      quests: state => state.quests,
+      currentQuest: state => state.currentQuest
     }),
     ...mapState('member', {
       member: state => state.member

@@ -9,7 +9,6 @@ export const getQuestByStatus = (state) => (stat) => {
 }
 
 export const getQuestById = (state) => (id) => {
-
     return state.quests.filter(quests => quests.id === id);
 }
 
