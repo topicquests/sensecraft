@@ -23,32 +23,26 @@ export async function getConversationByQuestId ({commit, dispatch}, payload) {
     }
 }
 export async function createConversationTree({commit, state}) {
-     let tree = [];
-     let treeView;
-    const conversationTree = this.state.conversation.conversation.map(el => {
-        let tre = {}
-        tre.id = el.id;
-        tre.label = el.title;
-        tre.parent_id = el.parent_id;
-        return tre;
+    const tree = [];
+    const viewById = {};
+    debugger;
+    this.state.conversation.conversation.forEach(el => {
+        viewById[el.id] = {
+            id: el.id,
+            node: el,
+            label: el.title,
+            children: [],
+        };
     });
-
-    console.log("Tre in action: ", conversationTree);
-
-    const idMapping = conversationTree.reduce((acc, el, i) => {
-        acc[el.id] = i;
-        return acc;
-    }, {});
-
-    conversationTree.forEach(el => {
-        if(el.parent_id === null) {
-            treeView = el;
-            return
+    Object.values(viewById).forEach(el => {
+        const parent_id = el.node.parent_id;
+        if (parent_id == null) {
+            tree.push(el);
+        } else {
+            const parent = viewById[parent_id];
+            parent.children.push(el);
         }
-        const parentEl = conversationTree[idMapping[el.parent_id]];
-        parentEl.children = [...(parentEl.children || []), el];
     });
-    tree.push(treeView);
     Promise.resolve(commit('CREATE_TREE', tree));
 }
 export function setConversationNode({commit, getters}, parent_id) {
