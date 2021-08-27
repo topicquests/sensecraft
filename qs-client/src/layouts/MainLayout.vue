@@ -15,8 +15,8 @@
             style="width:150px"></q-img>
           </q-btn>
         </q-toolbar-title>
-      <div class="gt-sm">
-        <q-btn v-if = '!$store.state.member.member'
+      <div>
+        <q-btn v-if = '!this.member'
           @click="goTo('signin')"
           outline
           roundeded
@@ -24,7 +24,7 @@
           name="signin"
           class="q-mr-sm">
         </q-btn>
-      <q-btn v-if = '!$store.state.member.member'
+      <q-btn v-if = '!this.member'
           @click="goTo('register')"
           outline
           roundeded
@@ -32,8 +32,8 @@
           name= "register"
           ></q-btn>
       </div>
-      <div class="gt-sm">
-        <q-btn  v-if = '$store.state.member.member'
+      <div>
+        <q-btn  v-if = 'this.member'
           @click="logout()"
           outline
           roundeded
@@ -41,19 +41,31 @@
           name="logoff">
         </q-btn>
       </div>
-      <div class="lt-md">
+      <div>
         <q-btn
           flat
           dense
           round
           @click="rightDrawer = ! rightDrawer"
           icon="menu"
-          aria-label="Menu">
+          aria-title="Menu">
+        </q-btn>
+        <q-btn v-if='showTree' flat dense round aria-label="Tree View" @click="toggleNav">
+          <q-icon name="menu"/>
         </q-btn>
       </div>
       </q-toolbar>
     </q-header>
-
+    <div id="mySidenav" class="sidenav">
+      <div class="q-pa-md q-gutter-sm">
+        <q-tree
+          :nodes="treeView"
+          node-key="id"
+          default-expand-all
+          :selected.sync="selected">
+        </q-tree>
+      </div>
+    </div>
     <q-drawer
         v-model="leftDrawer"
         :breakpoint="200"
@@ -113,60 +125,77 @@
           </div>
       </q-scroll-area>
     </q-drawer>
-
     <q-drawer
       v-model="rightDrawer" >
       <q-scroll-area class="fit">
-        <q-list>
-          <q-item>
-            <q-btn
-              v-if = '$store.state.member.member'
-              @click="logout()"
-              outline
-              roundeded
-              label="Logout"
-              class="q-mr-sm"
-              > </q-btn>
-            <q-btn
-            v-if = '!$store.state.member.member'
-              @click="goTo('signin')"
-              outline
-              roundeded
-              label="sign in"
-              class="q-mr-sm"
-              > </q-btn>
-            </q-item>
-            <q-item>
-             <q-btn
-              v-if = '!$store.state.member.member'
-              @click="goTo('register')"
-              outline
-              roundeded
-              label="sign up"
-            ></q-btn>
-          </q-item>
-        </q-list>
       </q-scroll-area>
     </q-drawer>
-
     <q-page-container>
       <router-view />
     </q-page-container>
+    <q-layout-footer style="background-color: aquamarine" class="footer">
+      <p id="Pfooter" >Sensecraft 2021</p>
+    </q-layout-footer>
   </q-layout>
 </template>
 <script>
+import {mapState, mapGetters, mapActions} from 'vuex'
 
 export default {
   name: "MainLayout",
-
   data () {
     return {
+      simple: [
+        {
+          label: 'Satisfied customers (with avatar)',
+          avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
+      }],
       rightDrawer: false,
-      leftDrawer: false
+      leftDrawer: false,
+      rightDrawerOpen: false,
+      selected: null
     }
+
+  },
+  computed: {
+
+    ...mapState('conversation', {
+      showTree: state => state.showTree,
+      conversation: state => state.conversation,
+      conversationTree: state => state.conversationTree,
+      treeView: state => state.conversationTree,
+    }),
+    ...mapGetters('conversation', [
+      'getTreeView'
+    ]),
+    ...mapState('member', {
+      member: state => state.member
+    }),
+
+  },
+  watch: {
+    selected: function(val, oldVal) {
+      this.setConversationNode(val)
+   }
   },
 
   methods: {
+    ...mapActions('conversation', [
+      'getConversationNodeById',
+      'setConversationNode'
+    ]),
+    toggleNav() {
+      if (this.rightDrawerOpen) {
+        this.closeNav();
+      } else {
+        this.rightDrawerOpen = true;
+        document.getElementById("mySidenav").style.width = "450px";
+      }
+    },
+    closeNav() {
+      this.rightDrawerOpen = false;
+      document.getElementById("mySidenav").style.width = "0";
+    },
     logout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
@@ -187,3 +216,25 @@ export default {
   }
 };
 </script>
+<style>
+  #Pfooter {
+    text-align: center;
+    font-size: 15pt;
+    color:dodgerblue;
+    background-color: aquamarine;
+  }
+
+  .sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  color: black;
+  background-color: rgb(230, 234, 238);
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+</style>

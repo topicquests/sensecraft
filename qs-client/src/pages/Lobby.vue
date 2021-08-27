@@ -1,39 +1,28 @@
 <template>
   <q-page style ="background-color:lightgrey" >
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-        <scoreboard></scoreboard>
-      </div>
+    <div>
+      <member></member>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-          <q-card >
-            <q-table title="Quests" :data="this.quests" :columns="columns1" row-key = "desc">
-              <template slot="body" slot-scope="props">
-                <q-tr :props="props">
-                  <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-                  <q-td key="label" :props="props">{{props.row.label}}</q-td>
-                  <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                  <q-td key="questNodeId" auto-width :props="props">
-                    <router-link :to="{ name: 'questRequest', params: { quest_id:  props.row.id }}">Edit</router-link>
-                  </q-td>
-                </q-tr>
-              </template>
-            </q-table>
-          </q-card>
-      </div>
-     <div class="column items-center">
-      <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
-        <q-card>
-            <p> If you have not already choosen a guild to join. Select one from the list </p>
-            <p> If you are already a member of a guild, click on join button to go to that's guild page</p>
-        </q-card>
-      </div>
-     </div>
-      <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <div class="col-4 q-pa-lg" style="width: 55%">
+        <scoreboard></scoreboard>
+        </div>
+    </div>
+    <div class="column items-center">
+        <div class="col-4 q-pa-lg" style="width: 55%">
+        <questTable></questTable>
+        </div>
+    </div>
+    <div class="column items-center">
+        <div class="col-4 q-pa-lg" style="width: 55%">
+        <p> If you have not already choosen a guild to join. Select one from the list
+         If you are already a member of a guild, click on join button to go to that guild's page</p>
+        </div>
+    </div>
+    <div class="column items-center">
+        <div class="col-4 q-pa-lg" style="width: 55%">
         <q-card >
-          <q-table title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
+          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
             <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="guildDesc" :props="props"> {{props.row.name}}</q-td>
@@ -46,14 +35,15 @@
             </template>
           </q-table>
         </q-card>
-      </div>
-      </div>
+        </div>
     </div>
   </q-page>
 </template>
 
 <script>
 import scoreboard from '../components/scoreboard.vue'
+import questTable from '../components/quest-table.vue'
+import member from '../components/member.vue'
 import { computed } from '@vue/composition-api'
 import { mapActions, mapState } from 'vuex'
 
@@ -117,15 +107,20 @@ export default {
     };
   },
   components: {
-    "scoreboard": scoreboard
+    "scoreboard": scoreboard,
+    "questTable": questTable,
+    "member": member
   },
   computed: {
     ...mapState('guilds', {
       guilds: state => state.guilds
     }),
     ...mapState('quests', {
-      quests: state => state.quests
+       quests: state => state.quests
     }),
+    ...mapState('member', {
+      member: state => state.member.handle
+    })
   },
   methods: {
     ...mapActions('quests',['findQuests']),
@@ -137,3 +132,10 @@ export default {
   }
 }
 </script>
+<style>
+  p {
+    background-color:lightgrey;
+    color:blue;
+    font-size: 15pt;
+  }
+</style>

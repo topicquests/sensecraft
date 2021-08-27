@@ -80,6 +80,11 @@ const routes = [
         name: "node",
         component: () => import('pages/mmowgli-node.vue')
       },
+      {
+        path: '/nodeEdit/:quest_id',
+        name: "nodeEditor",
+        component: () => import('pages/nodeEdit.vue')
+      },
       { path: '/mnodeedit',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')

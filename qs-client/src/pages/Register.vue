@@ -41,7 +41,8 @@
               </template>
               </q-input>
               <q-input
-                square clearable
+                square
+                clearable
                 v-model="formdata.handle"
                 label="handle"
                 tabindex="3">
@@ -72,7 +73,12 @@
             </q-form>
           </q-card-section>
           <q-card-actions class="q-px-xl q-pt-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Get Started" @click="doRegister"/>
+            <q-btn
+              unelevated size="lg"
+              color="purple-4"
+              class="full-width text-white"
+              label="Get Started"
+              @click="doRegister"/>
           </q-card-actions>
           <q-card-section class="text-center q-pa-sm">
             <p class="text-grey-6">Return to login</p>
@@ -103,15 +109,11 @@ export default {
   };
   },
 
-  computed: {
-
-  },
-
   methods: {
   doRegister() {
-    const theEmail = this.$data.formdata.email;
-    const theHandle = this.$data.formdata.handle;
-    const theName = this.$data.formdata.name;
+    const theEmail = this.formdata.email;
+    const theHandle = this.formdata.handle;
+    const theName = this.formdata.name;
 
     if (!theEmail) {
       this.$q.notify({ type: "negative", message: "Missing Email" });
@@ -128,7 +130,7 @@ export default {
       return;
     }
 
-    if (!this.$data.formdata.password) {
+    if (!this.formdata.password) {
       this.$q.notify({ type: "negative", message: "Missing Password" });
       return;
     }
@@ -151,4 +153,7 @@ export default {
 </script>
 
 <style lang="styl">
+input:focus {
+  background-color: rgb(204, 208, 212);
+}
 </style>
