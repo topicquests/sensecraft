@@ -1,13 +1,27 @@
 <template>
-  <q-page :padding="true">
-    <q-btn
-      v-if = '$store.state.member.member'
-      style="margin-bottom: 4px;"
-      label="New Guild"
-      @click="$router.replace('/guildform')"
-    />
+ <q-page :padding="true" class = 'bg-grey-4'>
+    <div>
+      <member></member>
+    </div>
+    <div class="column items-center">
+        <div class="col-4 q-pa-lg" style="width: 55%">
+        <scoreboard></scoreboard>
+        </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pt-lg q-pb-sm q-pl-md" style="width: 55%">
+        <q-btn
+          v-if = '$store.state.member.member'
+          id="newGuildBtn"
+          label="New Guild"
 
-    <q-table title="My Guilds" :data="rootConversations" :columns="columns" row-key = "desc">
+      @click="$router.replace('/guildform')"
+        />
+      </div>
+    </div>
+    <div class="column items-center">
+        <div class="col-4 q-pa-md" style="width: 55%">
+          <q-table id="guildTable" title="Guilds" :data="rootConversations" :columns="columns" row-key = "desc">
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -19,13 +33,17 @@
           </q-td>
         </q-tr>
       </template>
-    </q-table>
+          </q-table>
+        </div>
+    </div>
   </q-page>
 </template>
 
 <script>
 
 import {mapGetters } from "vuex";
+import scoreboard from '../components/scoreboard.vue'
+import member from '../components/member.vue'
 
 export default {
   props: ["member"],
@@ -71,6 +89,11 @@ export default {
     };
   },
 
+  components: {
+    "scoreboard": scoreboard,
+    "member": member,
+  },
+
   computed: {
     rootConversations() {
       return  this.$store.getters['guilds/getGuilds'];
@@ -81,4 +104,15 @@ export default {
 </script>
 
 <style>
+  #newGuildBtn {
+    margin-bottom: 4px;
+    background-color:lightblue;
+    color:blue;
+  }
+
+  #guildTable {
+    color: blue;
+    background-color: lightblue;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 </style>

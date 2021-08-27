@@ -1,5 +1,8 @@
 <template>
-  <q-page  class="q-pa-xl bg-grey-3">
+   <q-page style ="background-color:lightgrey" >
+     <div>
+      <member></member>
+    </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <scoreboard></scoreboard>
@@ -73,7 +76,7 @@
               </div>
           </q-card-section>
           <div v-if = "this.currentQuest">
-            <router-link :to="{ name: 'node', params: { quest_id: this.currentQuest.id }}">Go To Quest</router-link>
+            <router-link :to="{ name: 'nodeEditor', params: { quest_id: this.currentQuest.id }}">Go To Quest</router-link>
           </div>
           <q-card-actions align="center">
 
@@ -92,6 +95,7 @@
 
 <script>
 import scoreboard from '../components/scoreboard.vue'
+import member from '../components/member.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
@@ -153,8 +157,8 @@ export default {
     }
   },
   components: {
-    "scoreboard": scoreboard
-
+    "scoreboard": scoreboard,
+    "member": member
   },
   computed: {
     ...mapState('quests', {
@@ -197,9 +201,26 @@ export default {
         }
 
       const registerResponse = await this.registerQuest(payload);
-      registerMembersToQuest (guild_id, quest_id);
+        try {
 
-      await this.checkQuildGamePlay();
+          this.$q.notify({
+          type: "positive",
+          message: "You have registered to Quest "
+          })
+        }
+        catch(err) {
+          this.$q.notify({
+          type: "negative",
+          message: "There was an issue registering to Quest "
+        })
+        console.log("error registering to quest: ", err);
+      }
+        await this.checkQuildGamePlay();
+          this.getQuestGamePlay();
+          registerMembersToQuest (guild_id, quest_id);
+
+
+
     },
   async registerMembersToQuest (qstId) {
     let registerPayload = {
@@ -223,6 +244,7 @@ export default {
     },
     async checkQuildGamePlay() {
       this.getQuestGamePlay();
+      debugger;
       const questResp = await Promise.all(gamePlay.map(async (player) => {
       try {
         const respUser = await this.getQuestById(player.quest_id);
@@ -296,7 +318,4 @@ export default {
   font-family: pragmatica-web, sans-serif;
 }
 
-.page {
-
-}
 </style>

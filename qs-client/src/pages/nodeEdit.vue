@@ -129,8 +129,7 @@ export default {
         quest_id: null,
         title:null,
         description: null,
-        node_type: "reference",
-        status: "published"
+        node_type: "reference"
       },
       member: this.getUser
     };
