@@ -1,23 +1,24 @@
 <template>
   <q-page >
-    <!-- Create a card centered in an upper row -->
-    <div inline style="width: 500px margin: auto;
-      width: 60%;">
-      <!-- guessing on label -->
-      <h4><img style="margin-right:4px;" :src="q.img" >{{ q.label }}</h4>
-      <!-- todo
-        needs
-          an ibis icon - how to bring that in, depends on
-          node type,
-          link to parent - could pass that in
-          context - passed in allows to know whether transcluded
-          maybe other things
-          -->
+    <div class="row">
+      <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <h4><img style="margin-right:4px;" :src="q.img" >{{ currentQuest.name }}</h4>
+      </div>
+      </div>
     </div>
-    <div class="details">
-      <div  v-html="q.details"></div>
+    <div class="row">
+      <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <div  v-html="currentQuest.description"></div>
+      </div>
+      </div>
     </div>
-    <div class="columnscroller">
+    <div class="row">
+      <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 1000px">
+        <q-card >
+        <div class="columnscroller">
       <div class="columncontainer">
         <div class="column headerNode" style="text-align: center;">
           <img class="headerimage" src="icons/ibis/issue_sm.png">Question
@@ -39,7 +40,8 @@
           <img class="headerimage" src="icons/ibis/reference_sm.png">Refs
           <a v-if="isAuthenticated" :href="'/conversation/newref/' +q.nodeId"><img class="respond" src="icons/respond_sm.png"></a>
         </div>
-      </div> <!-- end column headers -->
+      </div>
+     <!-- end column headers -->
       <div class="datacontainer"> <!-- start column data -->
         <div class="datacolumn node" v-for="question in q.questions" :key="question.nodeId">
           <router-link :to="{ name: 'node', params: { id: question.nodeId, context: '' }}">{{ question.label }}</router-link>
@@ -57,26 +59,33 @@
           <router-link :to="{ name: 'node', params: { id: ref.nodeId, context: ''  }}">{{ ref.label }}</router-link>
         </div>
       </div> <!-- edd colum data -->
+        </div>
+        </q-card>
+      </div>
+      </div>
     </div>
   </q-page>
 </template>
 
 <script>
+
+import {mapState, mapGetters, mapActions} from 'vuex'
   export default {
-    //id = this node's id
-    //context = the context of this node: if empty
-    //  this node is not a transcluded node
-    //  if not empty, this node must be painted in the
-    //  appropriate context (parent and children)
+
     props: ["id", "context"],
     data () {
       return {
         label: '',
-        q: ''
-
+        q: '',
+        quest: null,
+        nodeId: null
       }
     },
     computed: {
+      ...mapState('quests', {
+      quests: state => state.quests,
+      currentQuest: state => state.currentQuest
+    }),
       canEdit () {
         return false;
         //TODO
@@ -86,17 +95,16 @@
         //TODO return this.$store.getters.isAuthenticated
       }
     },
-    mounted () {
-      this.nodeId = this.$route.params.id
-      //this.$data.rightDrawerOpen = false
-      //turn off conversation tree
-      //this.$store.commit('questView', false)
-
-
-      this.initialize(this.nodeId)
-    },
     methods: {
-
+      ...mapGetters('quests', [
+        'getQuestById'
+      ]),
+      ...mapActions('quests',[
+      'findQuests',
+      'setCurrentQuest']),
+      ...mapActions('guilds', [
+        'findGuilds'
+      ]),
       async initialize (id = null) {
         //this.$store.commit('questView', true)
         const nodeId = id || this.$route.params.id
@@ -104,8 +112,7 @@
         this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
         console.info('node', this.q)
         if (this.q !== null) {
-          //this.label = q.label;
-          //add image to q
+
           this.getImage();
         } else {
           this.label = 'Bad'
@@ -119,149 +126,125 @@
         console.log('ICON', type, rslt);
         this.q.img = rslt;
       },
-      mock () {
-        const node = {};
-        node.nodeId= 'foo',
-        node.label= 'Why is the sky blue?',
-        node.type= 'Question',
-        node.details= "Now is the time for all good men to come to the aid of their country.",
-        node.questions= [],
-        node.answers= [];
-        node.pro= [],
-        node.cons=[],
-        node.refs= []
-        return node;
-      }
 
+    },
+     mounted () {
+      this.initialize(this.nodeId)
+    },
+    async beforeMount() {
+      this.questId = this.$route.params.quest_id;
+      const quests = await this.findQuests;
+      const guilds = await this.findGuilds;
+      this.setCurrentQuest(this.questId);
+      console.log("Current quest: ")
+      debugger;
     }
   }
-
 
 </script>
 <style lang="styl">
 .q-item-image {
-    min-width: 10px;
-    max-width: 10px;
+min-width: 10px;
+max-width: 10px;
 }
 
 .scroll.relative-position.overflow-hidden.fit.q-touch {
-  member-select: auto !important;
+user-select: auto !important;
 }
-
-
-.details {
-  max-width: 960px;
-  height: 400px;
-  overflow: auto;
-  overflow-wrap: normal;
-}
-
 
 .headerimage {
-  float: left;
-  vertical-align: middle;
-  margin-right: 4px;
+float: left;
+vertical-align: middle;
+margin-right: 4px;
 }
 
 .node {
-  margin-top: 4px;
-  float: top;
-  border: 1px solid black;
-  border-radius: 3px;
-  min-height: 40px;
-  overflow-wrap: inherit;
-  font-family: pragmatica-web, sans-serif;
-  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-  white-space: -pre-wrap; /* Opera 4-6 */
-  white-space: -o-pre-wrap; /* Opera 7 */
-  white-space: pre-wrap; /* css-3 */
-  word-wrap: break-word; /* Internet Explorer 5.5+ */
-  white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
-  white-space: normal;
+margin-top: 4px;
+float: top;
+border: 1px solid black;
+border-radius: 3px;
+min-height: 40px;
+overflow-wrap: inherit;
+font-family: pragmatica-web, sans-serif;
+white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
+white-space: pre-wrap; /* css-3 */
+word-wrap: break-word; /* Internet Explorer 5.5+ */
+white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+white-space: normal;
 }
 
 .node:hover {
-  background-color: rgba(255, 255, 0, 0.801);
-}
-
-
-/*
- * width: 958px;
- */
-#topbox {
-  border: 1px solid black;
-  background: white;
-  margin: 12px;
-  font-family: pragmatica-web, sans-serif;
-  border-radius: 3px;
+background-color: rgba(255, 255, 0, 0.801);
 }
 
 /** from view.hbs */
 /**
- * Enable columns to scroll right and left
- */
+* Enable columns to scroll right and left
+*/
 .columnscroller {
-    border: 1px solid black;
-    width: 100%;
-    white-space:nowrap;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    margin: 0px;
-    border-radius: 3px;
+border: 1px solid black;
+width: 100%;
+white-space:nowrap;
+overflow-x: scroll;
+overflow-y: hidden;
+margin: 100px;
+border-radius: 3px;
 }
 
 /**
- * width is set to accomodate lots of columns.
- * If they wrap when adding more columns, then
- * width must increase.
- * The formula seems to be column width * num colums + 100px  2500
- */
+* width is set to accomodate lots of columns.
+* If they wrap when adding more columns, then
+* width must increase.
+* The formula seems to be column width * num colums + 100px 2500
+*/
 .columncontainer {
-	width: 1200px;
+width: 800px;
+height: 200px;
 }
 .datacontainer {
-    width: 1200px;
+width: 1200px;
 }
 
 .headerimage {
-    vertical-align: middle;
-    margin-right: 4px;
+vertical-align: middle;
+margin-right: 4px;
 }
 
 .headernode {
-  float: top;
-  border: 1px solid black;
-  border-radius: 3px;
-  font-family: pragmatica-web, sans-serif;
-  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-  white-space: -pre-wrap; /* Opera 4-6 */
-  white-space: -o-pre-wrap; /* Opera 7 */
-  white-space: pre-wrap; /* css-3 */
-  word-wrap: break-word; /* Internet Explorer 5.5+ */
-  white-space: normal;
+float: top;
+border: 1px solid black;
+border-radius: 3px;
+font-family: pragmatica-web, sans-serif;
+white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
+white-space: pre-wrap; /* css-3 */
+word-wrap: break-word; /* Internet Explorer 5.5+ */
+white-space: normal;
 }
 .column {
-    float:left;
-    white-space:normal;
-    border: 0px solid black;
-    width: 260px;
-    height: 34px;
-    background: rgb(240, 234, 234);
-    border-radius: 3px;
-    margin-left: 1px;
-    margin-right: 1px;
-    font-family:pragmatica-web,sans-serif;
+height: 134px;
+float:left;
+white-space:normal;
+width: 260px;
+border: 0px solid black;
+border-radius: 3px;
+margin-left: 1px;
+margin-right: 1px;
+font-family:pragmatica-web,sans-serif;
 }
 .datacolumn {
-    height: 400px;
-    float:left;
-    border: 1px solid white;
-    width: 270px;
-    background: white;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    break-inside: avoid;
-    margin-left: 4px;
-    margin-right: 4px;
+height: 400px;
+float:left;
+border: 1px solid white;
+width: 270px;
+background: white;
+overflow-x: hidden;
+overflow-y: scroll;
+break-inside: avoid;
+margin-left: 4px;
+margin-right: 4px;
 }
 </style>

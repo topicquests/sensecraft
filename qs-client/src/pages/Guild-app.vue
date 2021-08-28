@@ -1,17 +1,15 @@
 <template>
-  <q-page padding class="bg-light-blue">
-    <div class="row">
-      <div class="col-4">
+   <q-page style ="background-color:lightgrey" >
+     <div>
+      <member></member>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-md" style="width: 900px">
         <scoreboard></scoreboard>
-        <p></p>
-        <q-card class="bg-light-blue no-border">
-          <div v-for="quest in questGamePlay" :key="quest.id">
-            <q-radio v-model="questId" v-on:click.native="getCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
-          </div>
-        </q-card>
       </div>
-      <div class="col-2"></div>
-      <div class ="col-6 q-pr-xl">
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-md" style="width: 900px">
         <q-card v-if = "permission">
           <q-table title="Quests" :data="quests" :columns="columns1" row-key = "desc">
             <template slot="body" slot-scope="props">
@@ -29,64 +27,75 @@
         </q-card>
       </div>
     </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-md" style="width: 900px">
+        <q-card class="bg-light-blue no-border">
+          <div v-for="quest in questGamePlay" :key="quest.id">
+            <q-radio v-model="questId" v-on:click.native="getCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
+          </div>
+        </q-card>
+      </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pa-md" style="width: 900px">
+        <p style="text-align:center; font-size:40px"> {{currentGuild.name}}</p>
+      </div>
+    </div>
     <div class="row">
-      <div class="col-12">
-       <p style="text-align:center; font-size:40px"> {{guild.name}}</p>
-      </div>
+       <div class="col-12 col-md q-pa-md">
+          <p style="text-align:center; font-size:20px">Team</p>
+       </div>
+       <div class="col-12 col-md q-pa-md">
+         <p style="text-align:center; font-size:20px"> Quest Move</p>
+        </div>
+        <div class="col-12 col-md">
+            <p style="text-align:center; font-size:20px">Current Quest</p>
+        </div>
     </div>
-    <div v-if="quest" class="q-mt-xl row text-h6">
-    </div>
-    <div class="row handles">
-      <div class="col-3">
-       <p style="text-align:center; font-size:20px">Team</p>
-      </div>
-      <div class="col-6">
-       <p style="text-align:center; font-size:20px">Quest Move</p>
-      </div>
-      <div class="col-3">
-       <p style="text-align:center; font-size:20px">Current Quest</p>
-      </div>
-    </div>
-    <div class="row q-mt-xs handles">
-      <div class="col-3">
+    <div class="row">
+      <div class="col-12 col-md">
         <q-card>
           <ul>
-            <li v-for="handle in handles" :key="handle.handle">
-              {{handle}}
+            <li v-for="member in members" :key="member.id">
+              {{member.handle}}
             </li>
           </ul>
         </q-card>
       </div>
-      <div class="col-6">
-      </div>
-      <div class="col-3">
+      <div class="col-12 col-md"></div>
+      <div v-if="quest" class="col-12 col-md text-h6">
         <q-card>
-          <q-section class="q-pt-lg q-pb-xs">
-            <h6 v-if="currentQuest" style="text-align:center"> {{currentQuest.name}}</h6>
-          </q-section>
-          <q-section >
-            <p v-if="currentQuest" style="font-size:17px">{{currentQuest.description}}</p>
-          </q-section>
-          <q-card-actions>
-            <div class="align-center">
+          <q-card-section>
+            <h6 v-if="currentQuest" style="text-align:center">
+              {{currentQuest.name}}
+            </h6>
+          </q-card-section>
+          <q-card-section >
+              <div v-if="currentQuest" style="font-size:17px">
+                <div v-html="currentQuest.description"></div>
+              </div>
+          </q-card-section>
+          <div v-if = "this.currentQuest">
+            <router-link :to="{ name: 'nodeEditor', params: { quest_id: this.currentQuest.id }}">Go To Quest</router-link>
+          </div>
+          <q-card-actions align="center">
+
               <q-btn
                 label="go to quest"
+                align="center"
                 absolute
                 top>
               </q-btn>
-            </div>
           </q-card-actions>
         </q-card>
       </div>
-    </div>
-    <div class="row">
-
     </div>
   </q-page>
 </template>
 
 <script>
 import scoreboard from '../components/scoreboard.vue'
+import member from '../components/member.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
@@ -135,13 +144,12 @@ export default {
           sortable: true
         }
       ],
+      guildId: null,
       questGamePlay:[],
       guildMembership:null,
       members: [],
-      guild: null,
       permission: false,
       userId: null,
-      handles: [],
       label: '',
       quest: null,
       questId:null,
@@ -149,18 +157,20 @@ export default {
     }
   },
   components: {
-    "scoreboard": scoreboard
-
+    "scoreboard": scoreboard,
+    "member": member
   },
   computed: {
     ...mapState('quests', {
-      quests: state => state.quests
+      quests: state => state.quests,
+      currentQuest: state => state.currentQuest
     }),
     ...mapState('member', {
       member: state => state.member
     }),
     ...mapState('guilds', {
-      belongsTo: state => state.belongsTo
+      belongsTo: state => state.belongsTo,
+      currentGuild: state=> state.currentGuild
     }),
     ...mapGetters('quests', [
     'getQuestById'
@@ -170,38 +180,71 @@ export default {
     ]),
   },
   methods: {
-    ...mapActions('quests',['findQuests']),
+    ...mapActions('quests',[
+      'findQuests',
+      'getQuestById']),
     ...mapActions('member',['getUserById']),
     ...mapActions('guilds',[
       'findGuilds',
       'getMemberByGuildIdandUserId',
+      'getGamePlayByGuildId',
       'getMembersByGuildId',
       'registerQuest',
       'joinGuild',
-      'getGamePlayByGuildId'
+      'registerAllMembersToQuest',
+      'setCurrentGuild'
       ]),
     async doRegister(questId) {
       let payload = {
           guild_id: this.guildId,
           quest_id: questId
         }
+
       const registerResponse = await this.registerQuest(payload);
-      await this.checkQuildGamePlay();
+        try {
+
+          this.$q.notify({
+          type: "positive",
+          message: "You have registered to Quest "
+          })
+        }
+        catch(err) {
+          this.$q.notify({
+          type: "negative",
+          message: "There was an issue registering to Quest "
+        })
+        console.log("error registering to quest: ", err);
+      }
+        await this.checkQuildGamePlay();
+          this.getQuestGamePlay();
+          registerMembersToQuest (guild_id, quest_id);
+
+
+
     },
+  async registerMembersToQuest (qstId) {
+    let registerPayload = {
+          guildid: this.guildId,
+          questid: qstId,
+    }
+    const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
+  },
     getCurrentQuest() {
       const thisQuest = this.getQuestById(this.questId);
       this.currentQuest = thisQuest[0];
     },
-    async checkQuildGamePlay() {
-      if (this.belongsTo.length === 1) {
-      let gamePlay = await this.getGamePlayByGuildId(this.guildId);
+    async getQuestGamePlay() {
+      const gamePlay = await this.getGamePlayByGuildId(this.guildId);
       this.gamePlay=[...gamePlay];
       this.questGamePlay = this.gamePlay.map(q => {
         let qu = this.getQuestById(q.quest_id);
         let quId = qu[0];
         return quId;
       })
-
+    },
+    async checkQuildGamePlay() {
+      this.getQuestGamePlay();
+      debugger;
       const questResp = await Promise.all(gamePlay.map(async (player) => {
       try {
         const respUser = await this.getQuestById(player.quest_id);
@@ -213,15 +256,16 @@ export default {
       return questResp;
       }));
         this.quest = await this.getQuestById(gamePlay.quest_id);
-    }
     },
-    async joinToGuild (guildId) {
-      this.guildId = guildId;
+    async joinToGuild () {
       let ownGuilds = this.belongsTo;
       var r = ownGuilds.some(i => i.guild_id === this.guildId)
       if (!r) {
         await this.joinGuild(this.guildId);
-
+        this.questGamePlay = this.getQuestGamePlay()
+        questGamePlay.forEach(element => {
+          registerToQuest(element.quest_id)
+        });
         this.$q.notify({
           type: "positive",
           message: "You are joining guild " + this.guildId
@@ -235,37 +279,35 @@ export default {
     }
   },
     async mounted() {
-    let guildId = this.$route.params.guild_id;
     const quests = [];
     this.quest = [];
-    var payload = {guildId: guildId, userId: this.member.id};
-    const response = this.getGuildById(guildId);
-    this.guild = response[0];
-    await this.joinToGuild(guildId);
+    var payload = {guildId: this.guildId, userId: this.member.id};
+    await this.joinToGuild(this.guildId);
     this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
     if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
       this.permission = true;
     };
-    const guildMember = await this.getMembersByGuildId(this.guild.id);
-    const resp = await Promise.all(guildMember.map(async (player) => {
-      try {
-        const respUser = await this.getUserById(player.member_id);
-        return respUser.data;
-      }
-      catch (error) {
-        console.log("response error", error)
-      }
-      return resp;
-      }));
-      //this.members = [...resp];
-      for (var i = 0; i< resp.length; i++) {
-        this.handles.push(resp[i][0].handle);
-      }
       await this.checkQuildGamePlay();
     },
     async beforeMount() {
-     const quests = await this.findQuests;
-     const guilds = await this.findGuilds;
+      this.guildId = this.$route.params.guild_id;
+      const quests = await this.findQuests;
+      const guilds = await this.findGuilds;
+      this.setCurrentGuild(this.guildId);
+      const guildMember = await this.getMembersByGuildId(this.guildId);
+      const resp = await Promise.all(guildMember.map(async (player) => {
+        try {
+          const respUser = await this.getUserById(player.member_id);
+          return respUser.data;
+        }
+        catch (error) {
+          console.log("response error", error)
+        }
+      return resp;
+      }));
+      for (var i = 0; i< resp.length; i++) {
+        this.members.push(resp[i][0]);
+      }
     }
   }
 </script>
@@ -275,4 +317,5 @@ export default {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;
 }
+
 </style>

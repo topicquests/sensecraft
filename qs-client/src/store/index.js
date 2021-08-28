@@ -5,6 +5,7 @@ import authvuex from "./store.auth";
 import quests from './quest'
 import member from './member'
 import guilds from './guild'
+import conversation from './conversation'
 
 
 const requireModule = require.context(
@@ -33,7 +34,8 @@ export default function (/* { ssrContext } */) {
     modules: {
       quests,
       member,
-      guilds
+      guilds,
+      conversation
     },
 
     // enable strict mode (adds overhead!)

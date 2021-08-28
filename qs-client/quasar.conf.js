@@ -23,7 +23,7 @@ module.exports = function (/* ctx */) {
     boot: [
       'axios',
       'vuelidate',
-      'feathersClient'      
+      'feathersClient'
     ],
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -102,6 +102,7 @@ module.exports = function (/* ctx */) {
         'QPage',
         'QInput',
         'QItem',
+        'QTree',
       ],
       // directives: [],
       all: "auto",

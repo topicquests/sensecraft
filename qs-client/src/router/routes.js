@@ -76,11 +76,16 @@ const routes = [
         component: () => import('pages/Role-room.vue')
       },
       {
-        path: '/node/:id/:context',
+        path: '/node/:quest_id',
         name: "node",
         component: () => import('pages/mmowgli-node.vue')
       },
-      { path: '/mnodeedit/:id/:type/:parentId',
+      {
+        path: '/nodeEdit/:quest_id',
+        name: "nodeEditor",
+        component: () => import('pages/nodeEdit.vue')
+      },
+      { path: '/mnodeedit',
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')
       },

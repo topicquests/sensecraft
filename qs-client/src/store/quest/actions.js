@@ -32,7 +32,6 @@ export  async function updateQuests({commit, dispatch}, payload,) {
 
 }
 
-
 export async function findQuests( {commit}, payload) {
     try {
     const token = this.state.auth.accessToken;
@@ -56,6 +55,11 @@ export async function getQuestById( {commit}, questId) {
         console.log("get quest by id error: ", error);
     }
 
+}
+
+export function setCurrentQuest({commit, getters}, questId) {
+    let quest = getters.getQuestById(questId)
+    return Promise.resolve(commit('SET_CURRENT_QUEST', quest[0]))
 }
 
  export function setQuestData({commit}){
