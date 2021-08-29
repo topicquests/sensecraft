@@ -114,25 +114,33 @@
   Member "1" --> "*" Account
 
   class Guild {
-    server ExternalServer
     name String
     handle String
     public boolean
     open_for_applications boolean
+    application_needs_approval boolean
+    created_at timestamp
+    updated_at timestamp
+    - server ExternalServer
     accept(GamePlay)
   }
   ' Guild --> "0..1" ExternalServer
   ' Quest --> "0..1" ExternalServer
   ' Member --> "0..1" ExternalServer
   class Quest {
-    server ExternalServer
     name String
     description String
     handle String
+    creator Member
     public boolean
-    scoring ScoringStrategy
-    turns TurnStrategy
     status QuestStatus
+    created_at timestamp
+    updated_at timestamp
+    start timestamp
+    end timestamp
+    - scoring ScoringStrategy
+    - turns TurnStrategy
+    - server ExternalServer
     scoreMove(ConversationNode): GameMoveScore[]
     register(Guild): GamePlay
   }
@@ -175,12 +183,17 @@
     description String
     state PubState
     parent ConversationNode
+    created_at timestamp
+    published_at timestamp
     ancestry() ConversationNode[]
 }
 
 ConversationNode <|-- ConversationNodeV2
 
 class ConversationNodeV2 #line.dotted:blue {
+    boolean meta_conversation;
+    next_actor Member;
+    next_actor_role Role;
     contributors Casting[]
     node_action_type NodeActionType
     node_id integer
@@ -200,7 +213,11 @@ class ConversationNodeV2 #line.dotted:blue {
     effective timestamp
   }
 
-  (ConversationNodeV2, ConversationNodeV2) .. NodeReplacement
+  <> diamond
+  NodeReplacement . diamond
+  diamond - "new_node 1" ConversationNodeV2
+  diamond - "replacing_node 1" ConversationNodeV2
+
   NodeReplacement --> "*" Casting : > approvals
 
   ConversationNodeV2 "*" o--> "1..*" Casting
@@ -286,7 +303,7 @@ class ConversationNodeV2 #line.dotted:blue {
     Quest quest
     Guild guild
     status MembershipStatus
-    proposed timestamp
+    created_at timestamp
     accepted timestamp
     guild_focus ConversationNode
     scores {Metric->float}
