@@ -244,7 +244,6 @@ export default {
     },
     async checkQuildGamePlay() {
       this.getQuestGamePlay();
-      debugger;
       const questResp = await Promise.all(gamePlay.map(async (player) => {
       try {
         const respUser = await this.getQuestById(player.quest_id);
