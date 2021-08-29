@@ -8,6 +8,7 @@
 /* eslint-env node */
 const ESLintPlugin = require('eslint-webpack-plugin')
 //const { default: axios } = require('src/boot/axios')
+const server_url = process.env.SERVER_URL || 'http://localhost:3000';
 
 module.exports = function (/* ctx */) {
   return {
@@ -30,6 +31,10 @@ module.exports = function (/* ctx */) {
     css: [
       'app.scss'
     ],
+
+    htmlVariables: {
+      server_url: server_url,
+    },
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
