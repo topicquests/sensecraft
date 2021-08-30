@@ -42,14 +42,6 @@
         </q-btn>
       </div>
       <div>
-        <q-btn
-          flat
-          dense
-          round
-          @click="rightDrawer = ! rightDrawer"
-          icon="menu"
-          aria-title="Menu">
-        </q-btn>
         <q-btn v-if='showTree' flat dense round aria-label="Tree View" @click="toggleNav">
           <q-icon name="menu"/>
         </q-btn>
@@ -125,11 +117,6 @@
           </div>
       </q-scroll-area>
     </q-drawer>
-    <q-drawer
-      v-model="rightDrawer" >
-      <q-scroll-area class="fit">
-      </q-scroll-area>
-    </q-drawer>
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -150,7 +137,6 @@ export default {
           label: 'Satisfied customers (with avatar)',
           avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
       }],
-      rightDrawer: false,
       leftDrawer: false,
       rightDrawerOpen: false,
       selected: null

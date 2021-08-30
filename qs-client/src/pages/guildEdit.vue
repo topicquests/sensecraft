@@ -19,8 +19,8 @@
           <div class="row justify-start q-pa-lg">
             <div class="q-gutter-sm">
               <q-option-group
-              v-model="group"
-              :options="options"
+              v-model="guild.public"
+              :options="choices"
               color="primary"
               inline>
               </q-option-group>
@@ -59,14 +59,14 @@ export default {
   data() {
     return {
       group: 'public',
-      options: [
+      choices: [
         {
           label: 'Public',
-          value: 'public'
+          value: true
         },
         {
           label: 'Private',
-          value: 'private'
+          value: false
         }
       ],
       guild: {
@@ -97,11 +97,11 @@ export default {
     ...mapGetters('member', ['getUser']),
 
     doSubmit: function() {
-      if (this.group === "public") {
+      if (this.group === true) {
         this.guild.public = true;
       }
 
-       if (this.group === "private") {
+       if (this.group === false) {
         this.guild.public = false;
       }
       //console.log("Name ", quest.member.name);

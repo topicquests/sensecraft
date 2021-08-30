@@ -35,9 +35,7 @@ export async function getGuilds(opts, token) {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-    const id = guild.id;
-
-   return axiosInstance.put(`/guilds/${id}`, guild, options
+   return axiosInstance.patch(`/guilds?id=eq.${guild.id}`, guild, options
    ).then (function(response) {
     Notify.create({
       message: `Guild was updated successfully`,
@@ -135,10 +133,11 @@ export async function getGuilds(opts, token) {
      "member_id": userId
     }, options
     ).then (response => {
+      console.log("join to guild");
       return response;
     }).catch(err => {
       if (err.response) {
-        let errorCode = err.response.data.code;
+        let errorCode = err.response.data;
         console.log ("Error in joining guild ", errorCode)
       }
     })

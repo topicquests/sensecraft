@@ -16,7 +16,6 @@ export  function createQuests({commit, dispatch}, payload,) {
         console.log('Error in createQuest', error)
     })
 }
-
 export  async function updateQuests({commit, dispatch}, payload,) {
     try {
         const token = this.state.member.token;
@@ -29,22 +28,18 @@ export  async function updateQuests({commit, dispatch}, payload,) {
     catch (err) {
 
     }
-
 }
-
-export async function findQuests( {commit}, payload) {
+export async function findQuests( {commit}) {
     try {
-    const token = this.state.auth.accessToken;
-    let result =  await questService.getQuests(payload, token)
+    const token = this.state.member.token;
+    let result =  await questService.getQuests(token)
     commit('SET_QUEST_DATA', result.data);
     return (result);
     }
     catch(error) {
         console.log("findQuest error: ", error);
     }
-
 }
-
 export async function getQuestById( {commit}, questId) {
     try {
     const token = this.state.auth.accessToken;
@@ -54,7 +49,6 @@ export async function getQuestById( {commit}, questId) {
     catch(error) {
         console.log("get quest by id error: ", error);
     }
-
 }
 
 export function setCurrentQuest({commit, getters}, questId) {

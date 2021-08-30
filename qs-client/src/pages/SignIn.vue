@@ -6,14 +6,12 @@
     <div class="column q-pa-lg">
       <div class="row">
         <q-card square class="shadow-24" style="width:300px;height:485px;">
-
           <q-card-section class="bg-deep-purple-7">
             <h4 class="text-h5 text-white q-my-md">Guild's Quest</h4>
             <div class="absolute-bottom-right q-pr-md" style="transform: translateY(50%);">
               <q-btn fab icon="add" color="purple-4" />
             </div>
           </q-card-section>
-
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
               <div >
@@ -42,14 +40,12 @@
                     class="cursor-pointer"
                     @click="isPwdSignIn = !isPwdSignIn"/>
                 </template>
-
                 <template v-slot:prepend>
                   <q-icon name="lock" />
                 </template>
               </q-input>
             </q-form>
           </q-card-section>
-
           <q-card-section>
             <div class="text-center q-pa-md q-gutter-md">
               <q-btn round color="indigo-7">
@@ -63,25 +59,20 @@
               </q-btn>
             </div>
           </q-card-section>
-
           <div class="text-center q-pa-md q-gutter-md">
             <q-card-section>
               <q-card-actions class="q-px-lg">
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Sign on" @click="doLogin"/>
-
-
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.replace('/home')"/>
               </q-card-actions>
             </q-card-section>
           </div>
-
           <q-card-section class="text-center q-pa-xs">
             <p class="text-grey-6">Forgot your password?</p>
           </q-card-section>
         </q-card>
       </div>
     </div>
-
   </q-page>
 </template>
 
@@ -89,7 +80,7 @@
 <script>
 
 
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
   data() {
@@ -106,15 +97,13 @@ export default {
     err: null
   };
   },
-
-  computed: {},
-
   methods: {
+    ...mapActions('member', ['signin']),
+    ...mapActions('quests',['findQuests']),
+    ...mapActions('guilds',['findGuilds']),
    async doLogin() {
       try {
-        const loginResponse = await this.login(this.formData.signonEmail, this.formData.password)
-
-
+        const loginResponse = await this.login(this.formData.signonEmail)
             this.$q.notify({
               type: "positive",
               message: "You are now signed in"
@@ -128,27 +117,22 @@ export default {
           message: "Issue with sign in. Verify your email and password"
         })}
     },
-
-    async login(email, password) {
+    async login(email) {
       try {
-    email = email && email.toString().toLowerCase();
-    const signInResp = await this.$store.dispatch('member/signin', this.formData);
-     if (!signInResp) {
+        email = email && email.toString().toLowerCase();
+        const signInResp = await this.signin(this.formData);
+        if (!signInResp) {
           throw 'login failed'
-    }
-    this.userId = this.$store.state.member.member.id;
-    const questResponse = await this.$store.dispatch('quests/findQuests');
-    console.log("Added Quests", questResponse);
-    const guildsResponse = await this.$store.dispatch('guilds/findGuilds');
-    console.log("Added guilds", guildsResponse);
-    return (guildsResponse)
-    }
-    catch {
-      console.log("Error with sign in ", error)
+        }
+        this.userId = this.$store.state.member.member.id;
+        return
+      }
+      catch {
+        console.log("Error with sign in ", error)
         this.$q.notify({
           type: "negative",
           message: "Issue with sign in. Verify your email and password"
-        })}
+      })}
     },
 
     async goNext() {
@@ -171,19 +155,15 @@ export default {
         console.log("Error in going to next page", error)
       }
     },
-
-
   goHome() {
     this.$router.push({ name: "home" });
   },
-
   goLanding() {
     this.$router.push({name: "landingPage"});
   },
   goLobby() {
    this.$router.push({name: "lobby"});
   },
-
   onHide() {
 // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
   setTimeout(() => {
@@ -191,17 +171,10 @@ export default {
     }, 50);
   },
 },
-
-  async beforeMount() {
-     const quests = await this.$store.dispatch('quests/findQuests');
-     console.log('find quests returns: ', quests);
-     const guilds = await this.$store.dispatch('guilds/findGuilds');
-     console.log('find guilds returns: ', guilds);
-  },
-
-  mounted() {},
-
-  beforeDestroy() {}
+async beforeMount() {
+     const quests = await this.findQuests();
+     const guilds = await this.findGuilds();
+  }
 };
 </script>
 

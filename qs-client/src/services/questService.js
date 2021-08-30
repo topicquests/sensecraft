@@ -1,7 +1,7 @@
 import { Notify } from "quasar";
 import axiosInstance from "../boot/axios";
 
-export async function getQuests(opts, token) {
+export async function getQuests(token) {
   const options = token ? {
     headers: {
       'Authorization': `Bearer ${token}`

@@ -137,7 +137,6 @@ import {mapState, mapGetters, mapActions} from 'vuex'
       const guilds = await this.findGuilds;
       this.setCurrentQuest(this.questId);
       console.log("Current quest: ")
-      debugger;
     }
   }
 
