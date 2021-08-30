@@ -60,7 +60,3 @@ export function setCurrentQuest({commit, getters}, questId) {
     console.log("Quest data: ", {opt})
     return Promise.resolve(commit('SET_QUEST_DATA', opt.data));
 }
-/*
-export function someAction (context) {
-}
-*/

@@ -275,6 +275,13 @@ export default {
       const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
       return registerMembersResponse;
     },
+  async registerMembersToQuest (qstId) {
+    let registerPayload = {
+          guildid: this.guildId,
+          questid: qstId,
+    }
+    const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
+  },
     getCurrentQuest() {
       const thisQuest = this.getQuestById(this.questId);
       this.currentQuest = thisQuest[0];
