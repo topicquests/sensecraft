@@ -22,7 +22,7 @@ export async function getConversationByQuestId ({commit, dispatch}, payload) {
         console.log("error in getting conversation", error)
     }
 }
-export async function createConversationTree({commit, state}) {
+export async function createConversationTree({commit}) {
      let tree = [];
      let treeView;
     const conversationTree = this.state.conversation.conversation.map(el => {

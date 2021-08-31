@@ -101,9 +101,6 @@ export async function getMembersByGuildId({state, commit}, id) {
 export async function registerQuest({commit, state}, payload) {
     try {
         const token = this.state.member.token;
-        let today = new Date;
-        today = today.toISOString()
-        payload.created_at = today;
         let response = await guildService.registerQuest(payload, token)
         return (response)
     }
@@ -123,6 +120,20 @@ export async function registerQuest({commit, state}, payload) {
             console.log("error in get game play by guild id", error)
 
         }
+    }
+    export async function registerAllMembersToQuest({commit, dispatch}, params, token) {
+        try {
+            const token = this.state.member.token;
+            let response = await guildService.registerAllMembersToQuest(params, token)
+            return response
+        }
+        catch(error) {
+            console.log("Error in registering all members to quest: ", error)
+        }
+    }
+    export function setCurrentGuild({commit, getters}, guildId) {
+        let guild = getters.getGuildById(guildId)
+        return Promise.resolve(commit('SET_CURRENT_GUILD', guild[0]))
     }
 
     export async function registerAllMembersToQuest({commit, dispatch}, params, token) {

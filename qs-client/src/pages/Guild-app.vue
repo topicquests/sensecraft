@@ -3,15 +3,15 @@
      <div>
       <member></member>
     </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 900px">
+    <div class="column items-center q-mb-md">
+      <div class="col-4" id="scoreboard">
         <scoreboard></scoreboard>
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 900px">
+      <div class="col-4" style="width: 900px">
         <q-card v-if = "permission">
-          <q-table title="Quests" :data="quests" :columns="columns1" row-key = "desc">
+          <q-table title="Quests" :data="quests" :columns="columns1" row-key = "desc" id="quest_table">
             <template slot="body" slot-scope="props">
               <q-tr :props="props">
                 <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -52,21 +52,21 @@
             <p style="text-align:center; font-size:20px">Current Quest</p>
         </div>
     </div>
-    <div class="row">
-      <div class="col-12 col-md">
+    <div class="row ">
+      <div class="col-12 col-md q-ml-sm">
         <q-card>
-          <ul>
-            <li v-for="member in members" :key="member.id">
+          <ul  style="font-size:20px; color: red; background: lightblue;">
+            <li v-for="member in members" :key="member.id" >
               {{member.handle}}
             </li>
           </ul>
         </q-card>
       </div>
       <div class="col-12 col-md"></div>
-      <div v-if="quest" class="col-12 col-md text-h6">
+      <div v-if="quest" class="col-12 col-md text-h6 q-mr-sm">
         <q-card>
           <q-card-section>
-            <h6 v-if="currentQuest" style="text-align:center">
+            <h6 v-if="currentQuest" style="text-align:center; color: darkgreen;">
               {{currentQuest.name}}
             </h6>
           </q-card-section>
@@ -75,18 +75,9 @@
                 <div v-html="currentQuest.description"></div>
               </div>
           </q-card-section>
-          <div v-if = "this.currentQuest">
+          <div v-if = "this.currentQuest" align="center">
             <router-link :to="{ name: 'nodeEditor', params: { quest_id: this.currentQuest.id }}">Go To Quest</router-link>
           </div>
-          <q-card-actions align="center">
-
-              <q-btn
-                label="go to quest"
-                align="center"
-                absolute
-                top>
-              </q-btn>
-          </q-card-actions>
         </q-card>
       </div>
     </div>
@@ -151,7 +142,7 @@ export default {
       permission: false,
       userId: null,
       label: '',
-      quest: null,
+      quest: [],
       questId:null,
       currentQuest:null
     }
@@ -194,33 +185,95 @@ export default {
       'registerAllMembersToQuest',
       'setCurrentGuild'
       ]),
-    async doRegister(questId) {
-      let payload = {
-          guild_id: this.guildId,
-          quest_id: questId
-        }
-
-      const registerResponse = await this.registerQuest(payload);
-        try {
-
-          this.$q.notify({
-          type: "positive",
-          message: "You have registered to Quest "
-          })
-        }
-        catch(err) {
-          this.$q.notify({
-          type: "negative",
-          message: "There was an issue registering to Quest "
-        })
-        console.log("error registering to quest: ", err);
+    async initialize() {
+      this.setCurrentGuild(this.guildId);
+      if(this.checkIfGuildMember() == false) {
+        await this.joinToGuild();
       }
-        await this.checkQuildGamePlay();
-          this.getQuestGamePlay();
-          registerMembersToQuest (guild_id, quest_id);
-
-
-
+      if (this.checkIfGuildAdmin() == true) {
+          this.permission = true;
+      }
+      const memb = await this.getGuildMembers();
+      const quests = await this.checkGuildHasQuests();
+      if(quests) {
+        quests.forEach(el =>
+        this.registerMembersToQuest(el.id))
+      }
+      this.currentQuest = quests[0];
+      console.log("Registered quest members", quests);
+      await this.checkGuildGamePlay();
+    },
+    checkIfGuildMember() {
+      let ownGuilds = this.belongsTo;
+      var guildMember = ownGuilds.some(i => i.guild_id === this.guildId)
+      if (!guildMember) {
+        return false
+      } else {
+        this.$q.notify({
+          type: "positive",
+          message: "You are already a member of " + this.guildId
+        })
+        return true;
+      }
+    },
+    async joinToGuild () {
+      await this.joinGuild(this.guildId);
+      this.$q.notify({
+        type: "positive",
+          message: "You are joining guild " + this.guildId
+      })
+      return
+    },
+    async checkIfGuildAdmin() {
+      var payload = {guildId: this.guildId, userId: this.member.id};
+      this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
+      if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
+        return true;
+      }
+      return false;
+    },
+    async getGuildMembers() {
+      const guildMembers = await this.getMembersByGuildId(this.guildId);
+      const resp = await Promise.all(guildMembers.map(async (player) => {
+        try {
+          const respUser = await this.getUserById(player.member_id);
+          return respUser.data;
+        }
+        catch (error) {
+          console.log("response error", error)
+        }
+      }));
+      for (var i = 0; i< resp.length; i++) {
+        this.members.push(resp[i][0]);
+      }
+      return resp;
+    },
+    async checkGuildHasQuests() {
+      const play = await this.getGamePlay();
+      let questPlay = [];
+      if(play.length > 0) {
+        this.gamePlay=[...play];
+        questPlay = this.gamePlay.map(q => {
+          let qu = this.getQuestById(q.quest_id);
+          let quId = qu[0];
+          return quId;
+        })
+      }
+      this.questGamePlay=[...questPlay];
+      return questPlay;
+    },
+    async registerMembersToQuest (qstId) {
+      let registerPayload = {
+          guildid: this.guildId,
+          questid: qstId,
+      }
+      let registerToQuest = this.registerQuest;
+      const game_play = await this.getGamePlay()
+      game_play.forEach(element => {
+        registerToQuest(element.quest_id)
+      });
+      const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
+      return registerMembersResponse;
     },
   async registerMembersToQuest (qstId) {
     let registerPayload = {
@@ -233,17 +286,17 @@ export default {
       const thisQuest = this.getQuestById(this.questId);
       this.currentQuest = thisQuest[0];
     },
-    async getQuestGamePlay() {
+    async getGamePlay() {
       const gamePlay = await this.getGamePlayByGuildId(this.guildId);
-      this.gamePlay=[...gamePlay];
-      this.questGamePlay = this.gamePlay.map(q => {
-        let qu = this.getQuestById(q.quest_id);
-        let quId = qu[0];
-        return quId;
-      })
+        try {
+          return gamePlay;
+        }
+        catch(err) {
+
+        }
     },
-    async checkQuildGamePlay() {
-      this.getQuestGamePlay();
+    async checkGuildGamePlay() {
+     let gamePlay = await this.getGamePlay();
       const questResp = await Promise.all(gamePlay.map(async (player) => {
       try {
         const respUser = await this.getQuestById(player.quest_id);
@@ -256,59 +309,37 @@ export default {
       }));
         this.quest = await this.getQuestById(gamePlay.quest_id);
     },
-    async joinToGuild () {
-      let ownGuilds = this.belongsTo;
-      var r = ownGuilds.some(i => i.guild_id === this.guildId)
-      if (!r) {
-        await this.joinGuild(this.guildId);
-        this.questGamePlay = this.getQuestGamePlay()
-        questGamePlay.forEach(element => {
-          registerToQuest(element.quest_id)
-        });
-        this.$q.notify({
-          type: "positive",
-          message: "You are joining guild " + this.guildId
-        })
-        } else {
+    async doRegister(questId) {
+      let payload = {
+          guild_id: this.guildId,
+          quest_id: questId
+      }
+      const registerResponse = await this.registerQuest(payload);
+        try {
           this.$q.notify({
           type: "positive",
-          message: "You are already a member of " + this.guildId
+          message: "You have registered to Quest "
+          })
+        }
+        catch(err) {
+          this.$q.notify({
+          type: "negative",
+          message: "There was an issue registering to Quest "
         })
+        console.log("error registering to quest: ", err);
       }
-    }
-  },
-    async mounted() {
-    const quests = [];
-    this.quest = [];
-    var payload = {guildId: this.guildId, userId: this.member.id};
-    await this.joinToGuild(this.guildId);
-    this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
-    if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
-      this.permission = true;
-    };
-      await this.checkQuildGamePlay();
+        registerMembersToQuest (guild_id, quest_id);
     },
+  },
     async beforeMount() {
       this.guildId = this.$route.params.guild_id;
-      const quests = await this.findQuests;
-      const guilds = await this.findGuilds;
-      this.setCurrentGuild(this.guildId);
-      const guildMember = await this.getMembersByGuildId(this.guildId);
-      const resp = await Promise.all(guildMember.map(async (player) => {
-        try {
-          const respUser = await this.getUserById(player.member_id);
-          return respUser.data;
-        }
-        catch (error) {
-          console.log("response error", error)
-        }
-      return resp;
-      }));
-      for (var i = 0; i< resp.length; i++) {
-        this.members.push(resp[i][0]);
-      }
+      const quests = await this.findQuests();
+      const guilds = await this.findGuilds();
+    },
+    async mounted() {
+      this.initialize();
     }
-  }
+}
 </script>
 
 <style lang="styl">
@@ -316,5 +347,14 @@ export default {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;
 }
+#quest_table {
+  width: 900px;
+  border: 3px solid black;
+  font-size: 10pt;
+  color:darkgreen;
+}
+#scoreboard {
+  width: 900px;
+  border: 1px solid blue;}
 
 </style>
