@@ -1,7 +1,7 @@
 export default function () {
   return {
-    guilds: null,
-    belongsTo: null,
+    guilds: [{}],
+    belongsTo: [],
     currentGuild: null,
     gamePlay: null
   }

@@ -121,6 +121,17 @@ export async function registerQuest({commit, state}, payload) {
 
         }
     }
+    export async function getGamePlayByGuildIdAndQuestId ({commit, dispatch}, payload) {
+        try {
+            const token = this.state.member.token;
+            let response = await guildService.getGamePlayByGuildIdAndQuestId(payload, token)
+            commit('SET_GAME_PLAY_DATA', response.data[0]);
+            return response.data
+        }
+        catch (error) {
+            console.log("error in get game play by guild id", error)
+        }
+    }
     export async function registerAllMembersToQuest({commit, dispatch}, params, token) {
         try {
             const token = this.state.member.token;
@@ -131,9 +142,27 @@ export async function registerQuest({commit, state}, payload) {
             console.log("Error in registering all members to quest: ", error)
         }
     }
+    export async function setFocusNodeId({commit}, payload) {
+        try {
+            const token = this.state.member.token;
+            let response = await guildService.updateGamePlay(payload, token)
+            return response.data
+        }
+        catch (error) {
+            console.log("error in get game play by guild id", error)
+        }
+
+    }
+    export async function logout ({commit}) {
+        this.state.guilds.guilds = null;
+        this.state.guilds.belongsTo = null;
+        this.state.guilds.currentGuild = null;
+        this.state.guilds.gamePlay = null;
+        return true
+      }
     export function setCurrentGuild({commit, getters}, guildId) {
-        let guild = getters.getGuildById(guildId)
-        return Promise.resolve(commit('SET_CURRENT_GUILD', guild[0]))
+        let guild = getters.getGuildById(guildId);
+        return Promise.resolve(commit('SET_CURRENT_GUILD', guild[0]));
     }
 
  export function setGuildData({commit}){

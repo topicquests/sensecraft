@@ -46,7 +46,7 @@ export async function getGuilds(opts, token) {
     if (err.response) {
       let errorCode = err.response.data.code;
         Notify.create({
-          message: `There was an error updating quest. If this issue persists, contact support.`,
+          message: `There was an error updating quild. If this issue persists, contact support.`,
           color: "negative"
         });
         console.log ("Error in updating guild ", err.response)
@@ -164,6 +164,20 @@ export async function getGuilds(opts, token) {
       }
     })
   }
+  export async function getGamePlayByGuildIdAndQuestId(payload, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+    return axiosInstance.get("/game_play?guild_id=eq." + payload.guild_id + "&quest_id=eq." + payload.quest_id, options
+    ).then (response =>{
+      return response})
+      .catch (err => {
+        let errorCode = err.response.data.code;
+        console.log("Error in getting game_play", err);
+      })
+  }
 
   export async function getGamePlayByGuildId(guildId, token) {
     const options = token ? {
@@ -178,6 +192,24 @@ export async function getGuilds(opts, token) {
         let errorCode = err.response.data.code;
         console.log("Error in get member in guild with guildId " + id, err);
       })
+  }
+  export async function updateGamePlay(payload, token) {
+    const options = token ? {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    } : {};
+
+   return axiosInstance.patch(`/game_play?guild_id=eq.${payload.guild_id} &quest_id=eq.${payload.quest_id}`, payload, options
+   ).then (function(response) {
+      console.log("Game_play was updated successfully");
+      return response;
+   }).catch(err => {
+    if (err.response) {
+      let errorCode = err.response.data.code;
+        console.log ("Error in updating game_play ", err.response)
+      }
+    })
   }
 
   export async function getGuildMembersById(guild_id, token) {

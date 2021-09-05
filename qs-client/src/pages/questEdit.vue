@@ -12,7 +12,7 @@
         <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
       </div>
     <div class="column items-center ">
-      <div class="col-4 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
+      <div class="col-4 q-mb-xs q-mt-md q-pa-sm" style="width: 35%">
         <q-card>
           <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
             <q-option-group
@@ -23,16 +23,16 @@
             </q-option-group>
           </div>
         <div class = "row justify-start q-pb-lg q-ml-lg">
-          <q-select v-model="quest.status" :options="options" label = "Status" style="width: 15%"/>
+          <q-select v-model="quest.status" :options="options" label = "Status" style="width: 25%"/>
         </div>
         <div class = "row justify-start q-pb-lg q-ml-lg" >
-          <q-input class="field-name" v-model="quest.name" label = "Name" style='width: 250px'/>
+          <q-input class="field-name" v-model="quest.name" label = "Quest name" style='width: 350px'/>
         </div>
         <div class = "row justify-start q-pb-xs q-ml-lg">
-          Details<br/>
+          Description<br/>
         </div>
         <div class = "row justify-start q-pb-lg q-ml-lg">
-          <q-editor v-model="quest.description"></q-editor>
+          <q-editor v-model="quest.description" class="q-editor"></q-editor>
         </div>
         <div class = "row justify-start q-pb-lg q-ml-lg">
           <q-input v-model="quest.handle" label = "Handle" />
@@ -45,40 +45,40 @@
       </div>
     </div>
     <div class = "col-4 q-ma-sm" >
-      <h4>New Conversation</h4>
+      <h4>New Conversation Node</h4>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pb-lg q-mt-md" style="width: 55%">
+      <div class="col-4 q-pb-lg q-mt-md" style="width: 35%">
         <q-card>
           <div class = "row justify-start q-pb-lg q-ml-lg">
             <div class="col-4">
               <q-input
-                v-if="currentConversation"
-                v-model='currentConversation.title'
+                v-if="currentNode"
+                v-model='currentNode.title'
                 label = "Parent" />
             </div>
           </div>
           <div class = "row justify-start q-pb-lg q-ml-lg">
             <div class="col-4">
-              <q-input v-model="conversation.title" label = "Conversation" />
+              <q-input v-model="node.title" label = "Node title" style='width: 350px'/>
             </div>
           </div>
           <div class = "row justify-start q-pb-lg q-ml-lg">
             <div class="col-4">
-              <q-input v-model="conversation.node_type" label = "Type" />
+              <q-input v-model="node.node_type" label = "Type" />
             </div>
             <div class="col-4">
               <btn-question v-on:click.native="questionType"></btn-question>
             </div>
           </div>
           <div class = "row justify-start q-pb-xs q-ml-lg">
-            Details<br/>
+            Description<br/>
           </div>
           <div class = "row justify-start q-pb-lg q-ml-lg">
-            <q-editor v-model="conversation.description" style="width: 60%"/>
+            <q-editor v-model="node.description" class="q-editor"/>
           </div>
           <div class = "row justify-center q-pb-lg">
-            <q-btn label="Add" @click="addFirstConversation" color = "primary" class = "q-mr-md q-ml-md"/>
+            <q-btn label="Add" @click="addNode" color = "primary" class = "q-mr-md q-ml-md"/>
           </div>
         </q-card>
       </div>
@@ -124,7 +124,7 @@ export default {
         created_at: null,
         updated_at: null
       },
-      conversation: {
+      node: {
         parent_id: null,
         quest_id: null,
         title:null,
@@ -149,7 +149,7 @@ export default {
    ]),
 ...mapState('conversation', {
       questConversation: state => state.conversation,
-      currentConversation: state => state.parentConversation[0]
+      currentConversation: state => state.parentNode[0]
     }),
     ...mapMutations('conversation', [{
       showTree: 'SHOW_TREE'
@@ -157,42 +157,55 @@ export default {
   },
 
   methods: {
-    //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('member', ['getUser']),
     ...mapActions('quests', [
       'updateQuests'
     ]),
     ...mapActions('conversation', [
-      'addConversation',
+      'addConversationNode',
       'getConversationByQuestId',
       'createConversationTree'
     ]),
 
-    show_tree(show) {
+    async show_tree() {
+      try {
+      let show;
+      debugger;
+      if (this.questConversation.length>0) {
+        show = true;
+        const resp = await this.createConversationTree();
+      }else{
+        show = false;
+      }
       this.$store.commit('conversation/SHOW_TREE', show);
+      return (console.log("able to show tree"))
+      }
+      catch(err) {
+        console.log("Unable to show tree ", err);
+      }
     },
 
     async questionType() {
-      this.conversation.node_type = "question";
+      this.node.node_type = "question";
     },
 
-    async addFirstConversation() {
+    async addNode() {
       try {
-      this.conversation.quest_id = this.quest.id;
-      if(this.currentConversation) {
-        this.conversation.parent_id = this.currentConversation.id;
+      this.node.quest_id = this.quest.id;
+      if(this.parentNode) {
+        this.node.parent_id = this.parentNode.id;
       }
-      await this.addConversation(this.conversation);
-      this.createConversationTree();
+      const nodeResponse = await this.addConversationNode(this.node);
+      const resp = await this.show_tree();
        this.$q.notify({
-        message: `Added conversation`,
+        message: `Added node to conversation`,
         color: "positive"
        });
       }
       catch(err) {
-        console.log("there was an error in adding conversation ", err);
+        console.log("there was an error in adding node ", err);
         this.$q.notify({
-          message: `There was an error adding new conversation.`,
+          message: `There was an error adding new node.`,
           color: "negative"
         });
       }
@@ -231,12 +244,7 @@ export default {
     const quest_id = this.quest.id;
     const conversationResponse = await this.getConversationByQuestId(quest_id);
     console.log("conversation length", this.questConversation)
-    if (this.questConversation) {
-     this.show_tree(true);
-     const resp = this.createConversationTree();
-    }else{
-      this.show_tree(false);
-    }
+    const resp = await this.show_tree();
   }
 };
 </script>
@@ -256,5 +264,9 @@ export default {
 h4 {
   text-align: center;
   color: blue
+}
+.q-editor {
+width: 80%;
+border: 1px solid black;
 }
 </style>

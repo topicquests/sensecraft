@@ -1,6 +1,6 @@
 export default function () {
   return {
-    quests: null,
+    quests: [{ }],
     currentQuest: null
   }
 }

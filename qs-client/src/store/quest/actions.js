@@ -50,6 +50,11 @@ export async function getQuestById( {commit}, questId) {
         console.log("get quest by id error: ", error);
     }
 }
+export async function logout ({commit}) {
+    this.state.quests.currentQuest = null;
+    this.state.quests.quests = null;
+    return true
+  }
 
 export function setCurrentQuest({commit, getters}, questId) {
     let quest = getters.getQuestById(questId)
