@@ -10,39 +10,12 @@ import argparse
 from configparser import ConfigParser
 from secrets import token_urlsafe
 import json
+from utils import psql_command
 
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
 POSTGREST_PORT = 3000
-
-
-def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
-                 password=None, host="127.0.0.1", debug=False, **kwargs):
-    if debug:
-        print(command)
-    assert not (sudo and password)
-    if password:
-        conn = ["psql", f"postgresql://{user}:{password}@{host}/{db}"]
-    else:
-        if sudo:
-            conn = ["sudo", "-u", user, "psql"]
-        else:
-            conn = ["psql", "-U", user]
-        conn.append(db)
-        if host  not in ("localhost", "127.0.0.1", "::1"):
-            conn.extend(["-h", host])
-    conn.extend(["-q", "--csv", "-t", "-n"])
-    if cmdfile:
-        conn.extend(["-f", cmdfile])
-    else:
-        conn.extend(["-c", command])
-    # print(" ".join(conn))
-    r = run(conn, capture_output=True, encoding="utf-8")
-    if debug:
-        print(r.returncode, r.stdout)
-    assert not r.returncode
-    return r.stdout
 
 
 def test_db_exists(test, **kwargs):
@@ -155,9 +128,6 @@ if __name__ == "__main__":
             "postgres", "sudo", fallback=None)
     else:
         ini_file.add_section("postgres")
-    sqitch_file = ConfigParser()
-    with open("sqitch.conf.tmpl") as f:
-        sqitch_file.read_file(f)
     argp = argparse.ArgumentParser("Create the base databases for SenseCraft")
     argp.add_argument("--host", default=conn_data["host"],
                       help="the database host")
@@ -217,11 +187,6 @@ if __name__ == "__main__":
             data = create_database(data, conn_data, args.dropdb)
             for k, v in data.items():
                 ini_file.set(db, k, v)
-            url = f"postgres://{data['owner']}:{data['owner_password']}@{conn_data['host']}/{dbname}"
-            sqitch_file.add_section(f'target "{db}"')
-            sqitch_file.set(f'target "{db}"', "uri", url)
-            sqitch_file.add_section(f'target "{db}.variables"')
-            sqitch_file.set(f'target "{db}.variables"', "dbn", dbname)
             url = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}/{dbname}"
             with open(f"postgrest_{db}.conf", "w") as f:
                 f.write(f'db-uri = "{url}"\n')
@@ -232,5 +197,3 @@ if __name__ == "__main__":
 
     with open(CONFIG_FILE, 'w') as f:
         ini_file.write(f)
-    with open("sqitch.conf", 'w') as f:
-        sqitch_file.write(f)

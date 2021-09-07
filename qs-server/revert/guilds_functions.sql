@@ -12,8 +12,6 @@ REVOKE SELECT ON TABLE public.public_guilds FROM :dbm;
 REVOKE SELECT ON TABLE public.public_guilds FROM :dbc;
 REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.guild_membership FROM :dbm;
 REVOKE SELECT ON TABLE public.guild_membership FROM :dbc;
-REVOKE SELECT ON TABLE public.my_guild_memberships FROM :dbm;
-REVOKE SELECT ON TABLE public.my_guild_memberships FROM :dbc;
 
 DROP POLICY IF EXISTS guilds_select_policy ON public.guilds;
 DROP POLICY IF EXISTS guilds_insert_policy ON public.guilds;

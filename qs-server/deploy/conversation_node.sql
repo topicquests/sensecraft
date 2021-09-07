@@ -1,5 +1,7 @@
 -- Deploy sensecraft:conversation_node to pg
--- requires: casting
+-- requires: quests
+-- requires: guilds
+
 
 BEGIN;
 

@@ -1,5 +1,9 @@
 -- Deploy sensecraft:conversation_node_functions to pg
 -- requires: conversation_node
+-- requires: casting
+-- requires: guilds_functions
+-- requires: quests_functions
+-- idempotent
 
 BEGIN;
 
@@ -7,18 +11,19 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+DROP INDEX IF EXISTS conversation_node_ancestry_gist_idx;
 CREATE INDEX conversation_node_ancestry_gist_idx ON conversation_node USING GIST (ancestry);
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.conversation_node TO :dbm;
 GRANT USAGE ON SEQUENCE public.conversation_node_id_seq TO :dbm;
 GRANT SELECT ON TABLE public.conversation_node TO :dbc;
 
-CREATE FUNCTION node_subtree(node_id int) RETURNS SETOF conversation_node STABLE AS $$
+CREATE OR REPLACE FUNCTION node_subtree(node_id int) RETURNS SETOF conversation_node STABLE AS $$
     SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery ORDER BY ancestry, status DESC, id;
 $$ LANGUAGE SQL;
 
 
-CREATE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF conversation_node STABLE AS $$
+CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF conversation_node STABLE AS $$
     SELECT DISTINCT * FROM (
       SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild
       UNION SELECT * FROM conversation_node WHERE
@@ -29,7 +34,7 @@ CREATE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF convers
 $$ LANGUAGE SQL;
 
 
-CREATE FUNCTION playing_in_guild(quest_id integer) RETURNS integer STABLE AS $$
+CREATE OR REPLACE FUNCTION playing_in_guild(quest_id integer) RETURNS integer STABLE AS $$
   SELECT guild_id FROM casting WHERE quest_id = quest_id AND member_id = current_member_id();
 $$ LANGUAGE SQL;
 
@@ -121,6 +126,7 @@ BEGIN
   RETURN NEW;
 END$$;
 
+DROP TRIGGER IF EXISTS before_create_node ON conversation_node;
 CREATE TRIGGER before_create_node BEFORE INSERT ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.before_create_node();
 
 CREATE OR REPLACE FUNCTION public.update_node_ancestry(node_id integer, _ancestry ltree) RETURNS void
@@ -204,6 +210,7 @@ BEGIN
   RETURN NEW;
 END$$;
 
+DROP TRIGGER IF EXISTS before_update_node ON conversation_node;
 CREATE TRIGGER before_update_node BEFORE UPDATE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.before_update_node();
 
 CREATE OR REPLACE FUNCTION public.after_update_node() RETURNS trigger
@@ -223,18 +230,22 @@ BEGIN
   RETURN NEW;
 END$$;
 
+DROP TRIGGER IF EXISTS after_update_node ON conversation_node;
 CREATE TRIGGER after_update_node AFTER UPDATE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.after_update_node();
 
 ALTER TABLE public.conversation_node ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS conversation_node_delete_policy ON public.conversation_node;
 CREATE POLICY conversation_node_delete_policy ON public.conversation_node FOR DELETE USING (false);
 
+DROP POLICY IF EXISTS conversation_node_insert_policy ON public.conversation_node;
 CREATE POLICY conversation_node_insert_policy ON public.conversation_node FOR INSERT WITH CHECK (
   public.is_quest_id_member(quest_id) OR (
     SELECT COUNT(*) FROM public.casting
     WHERE public.casting.quest_id = public.conversation_node.quest_id
     AND public.casting.member_id = public.conversation_node.creator_id) = 1);
 
+DROP POLICY IF EXISTS conversation_node_select_policy ON public.conversation_node;
 CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SELECT USING (
   status = 'published' OR
   creator_id = current_member_id() OR
@@ -242,6 +253,7 @@ CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SE
   (status > 'private_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id))
 );
 
+DROP POLICY IF EXISTS conversation_node_update_policy ON public.conversation_node;
 CREATE POLICY conversation_node_update_policy ON public.conversation_node FOR UPDATE USING (
   (status < 'proposed' AND creator_id = current_member_id()) OR
   (status = 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR

@@ -113,3 +113,4 @@ config.ini
 config/*.json
 postgrest_*.conf
 sqitch.conf
+__pycache__

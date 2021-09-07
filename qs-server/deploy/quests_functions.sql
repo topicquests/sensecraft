@@ -1,6 +1,7 @@
 -- Deploy sensecraft:quests_functions to pg
 -- requires: members_functions
 -- requires: quests
+-- idempotent
 
 BEGIN;
 
@@ -132,6 +133,7 @@ CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_create_quest ON public.quests;
 CREATE TRIGGER after_create_quest AFTER INSERT ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_create_quest();
 
 
@@ -154,6 +156,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_delete_quest ON public.quests;
 CREATE TRIGGER after_delete_quest AFTER DELETE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_delete_quest();
 
 --
@@ -177,6 +180,7 @@ CREATE OR REPLACE FUNCTION public.before_create_quest() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_create_quest ON public.quests;
 CREATE TRIGGER before_create_quest BEFORE INSERT ON public.quests FOR EACH ROW EXECUTE FUNCTION public.before_create_quest();
 
 
@@ -196,6 +200,7 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_update_quest ON public.quests;
 CREATE TRIGGER before_update_quest BEFORE UPDATE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.before_update_quest();
 
 
@@ -222,6 +227,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest_membership() RETURNS trigge
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_delete_quest_membership ON public.quest_membership;
 CREATE TRIGGER after_delete_quest_membership AFTER DELETE ON public.quest_membership FOR EACH ROW EXECUTE FUNCTION public.after_delete_quest_membership();
 
 
@@ -245,7 +251,9 @@ CREATE OR REPLACE FUNCTION public.before_createup_quest_membership() RETURNS tri
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_create_quest_membership ON public.quest_membership;
 CREATE TRIGGER before_create_quest_membership BEFORE INSERT ON public.quest_membership FOR EACH ROW EXECUTE FUNCTION public.before_createup_quest_membership();
+DROP TRIGGER IF EXISTS before_update_quest_membership ON public.quest_membership;
 CREATE TRIGGER before_update_quest_membership BEFORE UPDATE ON public.quest_membership FOR EACH ROW EXECUTE FUNCTION public.before_createup_quest_membership();
 
 
@@ -255,11 +263,15 @@ CREATE TRIGGER before_update_quest_membership BEFORE UPDATE ON public.quest_memb
 
 ALTER TABLE public.quests ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS quest_update_policy ON public.quests;
 CREATE POLICY quest_update_policy ON public.quests FOR UPDATE USING (public.is_quest_id_member(id));
+DROP POLICY IF EXISTS quests_insert_policy ON public.quests;
 CREATE POLICY quests_insert_policy ON public.quests FOR INSERT WITH CHECK (public.has_permission('createQuest'));
+DROP POLICY IF EXISTS quests_select_policy ON public.quests;
 CREATE POLICY quests_select_policy ON public.quests FOR SELECT USING ((public OR (creator = public.current_member_id()) OR (id IN ( SELECT my_quest_memberships.quest_id
    FROM public.my_quest_memberships
   WHERE my_quest_memberships.confirmed))));
+DROP POLICY IF EXISTS quests_delete_policy ON public.quests;
 CREATE POLICY quests_delete_policy ON public.quests FOR DELETE USING (public.has_permission('superadmin'));
 
 
@@ -269,14 +281,18 @@ CREATE POLICY quests_delete_policy ON public.quests FOR DELETE USING (public.has
 
 ALTER TABLE public.quest_membership ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS quest_membership_select_policy ON public.quest_membership;
 CREATE POLICY quest_membership_select_policy ON public.quest_membership FOR SELECT USING (((member_id = public.current_member_id()) OR (( SELECT public_quests.id
    FROM public.public_quests
   WHERE (public_quests.id = quest_membership.quest_id)) IS NOT NULL) OR (quest_id IN ( SELECT my_quest_memberships.quest_id
    FROM public.my_quest_memberships
   WHERE my_quest_memberships.confirmed))));
 
+DROP POLICY IF EXISTS quest_membership_update_policy ON public.quest_membership;
 CREATE POLICY quest_membership_update_policy ON public.quest_membership FOR UPDATE USING (public.is_quest_id_member(quest_id));
+DROP POLICY IF EXISTS quest_membership_delete_policy ON public.quest_membership;
 CREATE POLICY quest_membership_delete_policy ON public.quest_membership FOR DELETE USING (public.has_quest_permission(quest_id, 'revokeQuestMembership'));
+DROP POLICY IF EXISTS quest_membership_insert_policy ON public.quest_membership;
 CREATE POLICY quest_membership_insert_policy ON public.quest_membership FOR INSERT WITH CHECK (((public.current_member_id() = member_id) OR public.has_quest_permission(quest_id, 'proposeQuestMembership'::public.permission)));
 
 COMMIT;
