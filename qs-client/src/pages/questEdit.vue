@@ -170,7 +170,6 @@ export default {
     async show_tree() {
       try {
       let show;
-      debugger;
       if (this.questConversation.length>0) {
         show = true;
         const resp = await this.createConversationTree();
