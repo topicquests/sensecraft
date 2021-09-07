@@ -182,10 +182,19 @@ export default {
       this.rightDrawerOpen = false;
       document.getElementById("mySidenav").style.width = "0";
     },
+    goTo(route) {
+      this.rightDrawer = false;
+      this.leftDrawer = false;
+      this.$router.push({ name: route });
+    },
     logout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
+      document.getElementById("mySidenav").style.width = "0";
       this.$store.dispatch("member/logout")
+      this.$store.dispatch("conversation/logout")
+      this.$store.dispatch("quests/logout")
+      this.$store.dispatch("guilds/logout")
       .then(response => {
           this.$q.notify({
             type: "positive",
@@ -193,11 +202,6 @@ export default {
           });
            this.goTo('home');
       })
-    },
-    goTo(route) {
-      this.rightDrawer = false;
-      this.leftDrawer = false;
-      this.$router.push({ name: route });
     },
   }
 };

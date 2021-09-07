@@ -1,14 +1,14 @@
 import conversationService from "../../services";
 
-export async function addConversation ({commit, dispatch}, payload) {
+export async function addConversationNode ({commit, dispatch}, payload) {
     try {
         const token = this.state.member.token;
-        let response = await conversationService.addConversation(payload, token)
-        dispatch('getConversationByQuestId', payload.quest_id);
+        let response = await conversationService.addConversationNode(payload, token)
+        response = await dispatch('getConversationByQuestId', payload.quest_id);
         return response.data
     }
     catch (error) {
-        console.log("error in adding conversation", error)
+        console.log("error in adding conversation node", error)
     }
 }
 export async function getConversationByQuestId ({commit, dispatch}, payload) {
@@ -51,12 +51,32 @@ export async function createConversationTree({commit}) {
     tree.push(treeView);
     Promise.resolve(commit('CREATE_TREE', tree));
 }
+export async function logout ({commit}) {
+    this.state.conversation.conversation = null;
+    this.state.conversation.showTree = false;
+    this.state.conversation.conversationTree = null;
+    this.state.conversation.parentNode = null;
+    return true
+  }
 export function setConversationNode({commit, getters}, parent_id) {
-    const conversation = getters.getConversationNodeById(parent_id)
-    return Promise.resolve(commit('SET_PARENT_CONVERSATION' ,conversation))
+    const node = getters.getConversationNodeById(parent_id)
+    return Promise.resolve(commit('SET_PARENT_CONVERSATION' ,node))
 }
+export async function getParentNode({commit}, nodeId) {
+    try {
+        const token = this.state.member.token;
+        let response = await conversationService.getParentNode(nodeId, token)
+        return Promise.resolve(commit('SET_PARENT_NODE', response.data));
 
-
+        return response.data[0]
+    }
+    catch (error) {
+        console.log("error in getting parentNode", error)
+    }
+}
+export function setParentNode({commit}) {
+    return Promise.resolve(commit('SET_PARENT_NODE, opt.data[0]'));
+}
 export function setConversationData({commit}) {
-    return Promise.resolve(commit('SET_CONVERSATION_DATA, opt.data'))
+    return Promise.resolve(commit('SET_CONVERSATION_DATA, opt.data[0]'))
 }

@@ -7,6 +7,6 @@ export function SHOW_TREE(state, show) {
 export function CREATE_TREE(state, tree) {
     state.conversationTree = tree;
 }
-export function SET_PARENT_CONVERSATION(state, parentConversation) {
-    state.parentConversation = parentConversation;
+export function SET_PARENT_NODE(state, parentNode) {
+    state.parentNode = parentNode;
 }

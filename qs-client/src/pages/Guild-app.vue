@@ -30,8 +30,13 @@
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <q-card class="bg-light-blue no-border">
-          <div v-for="quest in questGamePlay" :key="quest.id">
+          <div v-if="questGamePlay.length>0">
+            <div v-for="quest in questGamePlay" :key="quest.id">
             <q-radio v-model="questId" v-on:click.native="getCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
+            </div>
+          </div>
+          <div v-else>
+            <p style="font-size: 20px">You are not registered to any quests</p>
           </div>
         </q-card>
       </div>
@@ -48,12 +53,12 @@
        <div class="col-12 col-md q-pa-md">
          <p style="text-align:center; font-size:20px"> Quest Move</p>
         </div>
-        <div class="col-12 col-md">
+        <div class="col-12 col-md q-pa-md">
             <p style="text-align:center; font-size:20px">Current Quest</p>
         </div>
     </div>
     <div class="row ">
-      <div class="col-12 col-md q-ml-sm">
+        <div class="col-12 col-md q-pa-md">
         <q-card>
           <ul  style="font-size:20px; color: red; background: lightblue;">
             <li v-for="member in members" :key="member.id" >
@@ -62,9 +67,23 @@
           </ul>
         </q-card>
       </div>
-      <div class="col-12 col-md"></div>
-      <div v-if="quest" class="col-12 col-md text-h6 q-mr-sm">
-        <q-card>
+      <div v-if = "parentNode" class="col-12 col-md q-pa-md">
+        <q-card  class="q-pa-md" id="node_table">
+            <q-input
+              v-model='parentNode[0].title'
+              label = "Parent Node"
+              style="color: darkblue"/>
+              <q-input
+              v-model="parentNode[0].node_type"
+              label = "Type"
+              style="font-size:17px;
+                      color: darkblue;"/>
+            Details<br/>
+          <div v-html="parentNode[0].description" style="font-size:17px;"></div>
+        </q-card>
+      </div>
+      <div v-if="quest" class="col-12 col-md q-pa-md">
+        <q-card id="quest_table">
           <q-card-section>
             <h6 v-if="currentQuest" style="text-align:center; color: darkgreen;">
               {{currentQuest.name}}
@@ -140,11 +159,10 @@ export default {
       guildMembership:null,
       members: [],
       permission: false,
-      userId: null,
       label: '',
       quest: [],
       questId:null,
-      currentQuest:null
+      gamePlay: null
     }
   },
   components: {
@@ -161,7 +179,11 @@ export default {
     }),
     ...mapState('guilds', {
       belongsTo: state => state.belongsTo,
-      currentGuild: state=> state.currentGuild
+      currentGuild: state=> state.currentGuild,
+      gamePlay: state => state.gamePlay
+    }),
+    ...mapState('conversation', {
+      parentNode: state => state.parentNode
     }),
     ...mapGetters('quests', [
     'getQuestById'
@@ -169,39 +191,57 @@ export default {
     ...mapGetters('guilds', [
     'getGuildById'
     ]),
+    ...mapGetters('conversation', [
+      'getFirstNode'
+    ])
   },
   methods: {
+    ...mapActions('conversation', [
+      'getConversationByQuestId',
+      'getParentNode'
+    ]),
     ...mapActions('quests',[
       'findQuests',
-      'getQuestById']),
+      'getQuestById',
+      'setCurrentQuest']),
     ...mapActions('member',['getUserById']),
     ...mapActions('guilds',[
       'findGuilds',
       'getMemberByGuildIdandUserId',
+      'getGamePlayByGuildIdAndQuestId',
       'getGamePlayByGuildId',
       'getMembersByGuildId',
       'registerQuest',
       'joinGuild',
       'registerAllMembersToQuest',
-      'setCurrentGuild'
+      'setCurrentGuild',
+      'setFocusNodeId'
       ]),
     async initialize() {
-      this.setCurrentGuild(this.guildId);
+      await this.setCurrentGuild(this.guildId);
       if(this.checkIfGuildMember() == false) {
         await this.joinToGuild();
       }
-      if (this.checkIfGuildAdmin() == true) {
-          this.permission = true;
-      }
+      this.checkIfGuildAdmin();
       const memb = await this.getGuildMembers();
-      const quests = await this.checkGuildHasQuests();
-      if(quests) {
-        quests.forEach(el =>
-        this.registerMembersToQuest(el.id))
+      const hasQuests = await this.checkGuildHasQuests();
+      if(hasQuests) {
+        const response = await this.initializeQuest();
       }
-      this.currentQuest = quests[0];
-      console.log("Registered quest members", quests);
-      await this.checkGuildGamePlay();
+    },
+     async initializeQuest() {
+      let quests = [];
+      quests = await this.getQuests();
+      quests.forEach(el =>
+        this.registerMembersToQuest(el.id))
+      let thisQuest = quests[0];
+      this.questId = thisQuest.id;
+      this.getCurrentQuest()
+      await this.setFocusNode();
+      const node = await this.getParentsNode();
+      console.log("Parent Node", this.parentNode);
+      const response = await this.checkGuildGamePlay();
+      return "success";
     },
     checkIfGuildMember() {
       let ownGuilds = this.belongsTo;
@@ -216,6 +256,7 @@ export default {
         return true;
       }
     },
+
     async joinToGuild () {
       await this.joinGuild(this.guildId);
       this.$q.notify({
@@ -224,10 +265,24 @@ export default {
       })
       return
     },
+    async registerMembersToQuest (qstId) {
+      let registerPayload = {
+          guildid: this.guildId,
+          questid: qstId,
+      }
+      let registerToQuest = this.registerQuest;
+      const game_play = await this.getGamePlay()
+      game_play.forEach(element => {
+        registerToQuest(element.quest_id)
+      });
+      const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
+      return registerMembersResponse;
+    },
     async checkIfGuildAdmin() {
       var payload = {guildId: this.guildId, userId: this.member.id};
       this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
-      if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
+      if (this.member.permissions && this.member.permissions.includes("guildAdmin")) {
+        this.permission = true;
         return true;
       }
       return false;
@@ -250,7 +305,16 @@ export default {
     },
     async checkGuildHasQuests() {
       const play = await this.getGamePlay();
+      if (play.length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    async getQuests() {
+      const play = await this.getGamePlay();
       let questPlay = [];
+      let thisQuest;
       if(play.length > 0) {
         this.gamePlay=[...play];
         questPlay = this.gamePlay.map(q => {
@@ -258,39 +322,41 @@ export default {
           let quId = qu[0];
           return quId;
         })
+        this.questGamePlay=[...questPlay];
+        thisQuest=questPlay[0];
+        this.questId = thisQuest.id;
+        this.getCurrentQuest();
+        return questPlay;
       }
-      this.questGamePlay=[...questPlay];
-      return questPlay;
     },
-    async registerMembersToQuest (qstId) {
-      let registerPayload = {
-          guildid: this.guildId,
-          questid: qstId,
-      }
-      let registerToQuest = this.registerQuest;
-      const game_play = await this.getGamePlay()
-      game_play.forEach(element => {
-        registerToQuest(element.quest_id)
-      });
-      const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
-      return registerMembersResponse;
+    async getParentsNode() {
+      const nodeId = this.gamePlay[0].focus_node_id;
+      const parentNode = await this.getParentNode(nodeId);
+      return parentNode;
     },
     getCurrentQuest() {
       const thisQuest = this.getQuestById(this.questId);
       this.currentQuest = thisQuest[0];
+      this.setCurrentQuest(this.questId);
+      this.setGamePlay();
+      this.setConversationQuest(this.currentQuest.id);
+    },
+    async setConversationQuest(id) {
+      const convResponse = await this.getConversationByQuestId(id);
+      return convResponse;
     },
     async getGamePlay() {
-      const gamePlay = await this.getGamePlayByGuildId(this.guildId);
+      const game_play = await this.getGamePlayByGuildId(this.guildId);
         try {
-          return gamePlay;
+          return game_play;
         }
         catch(err) {
 
         }
     },
     async checkGuildGamePlay() {
-     let gamePlay = await this.getGamePlay();
-      const questResp = await Promise.all(gamePlay.map(async (player) => {
+     let thisGamePlay = await this.getGamePlay();
+      const questResp = await Promise.all(thisGamePlay.map(async (player) => {
       try {
         const respUser = await this.getQuestById(player.quest_id);
         return respUser.data;
@@ -300,39 +366,73 @@ export default {
       }
       return questResp;
       }));
-        this.quest = await this.getQuestById(gamePlay.quest_id);
+     //   this.quest = await this.getQuestById(thisGamePlay.quest_id);
     },
-    async doRegister(questId) {
+    async setGamePlay() {
+      let payload = {
+        quest_id: null,
+        guild_id: null
+      };
+      payload.quest_id = this.currentQuest.id;
+      payload.guild_id = this.guildId;
+      const game_play =  await this.getGamePlayByGuildIdAndQuestId(payload)
+      this.gamePlay = game_play;
+    },
+    async setFocusNode() {
       let payload = {
           guild_id: this.guildId,
+          quest_id: this.questId
+        }
+      const conv = await this.setConversationQuest(payload.quest_id);
+      const gpResponse = await this.getGamePlayByGuildIdAndQuestId(payload);
+      gpResponse[0].focus_node_id = conv[0].id;
+      const focus = await this.setFocusNodeId(gpResponse[0]);
+      const game_play = await this.getGamePlayByGuildIdAndQuestId(payload);
+      this.gamePlay = [...game_play];
+      const response = await this.getQuests();
+      return "focus node set"
+    },
+    getConversationNode(questId) {
+      let guildId = null;
+      nodeId = getFirstNode(questId, guildId);
+    },
+    async doRegister(questId) {
+      try {
+        this.questId = questId;
+        const regQuest = await this.getQuestById(questId);
+        if (regQuest[0].status === "draft") {
+          throw "Can not register quest in draft status"
+        }
+        let payload = {
+          guild_id: this.guildId,
           quest_id: questId
+        }
+        const registerResponse = await this.registerQuest(payload);
+        const hasQuests = await this.checkGuildHasQuests();
+      if(hasQuests) {
+        const response = await this.initializeQuest();
       }
-      const registerResponse = await this.registerQuest(payload);
-        try {
-          this.$q.notify({
+        this.$q.notify({
           type: "positive",
           message: "You have registered to Quest "
           })
         }
-        catch(err) {
+        catch(e) {
           this.$q.notify({
           type: "negative",
-          message: "There was an issue registering to Quest "
+          message: `${e}`
         })
         console.log("error registering to quest: ", err);
       }
-        registerMembersToQuest (guild_id, quest_id);
     },
   },
     async beforeMount() {
       this.guildId = this.$route.params.guild_id;
       const quests = await this.findQuests();
       const guilds = await this.findGuilds();
-    },
-    async mounted() {
       this.initialize();
-    }
-}
+    },
+  }
 </script>
 
 <style lang="styl">
@@ -341,10 +441,16 @@ export default {
   font-family: pragmatica-web, sans-serif;
 }
 #quest_table {
-  width: 900px;
   border: 3px solid black;
   font-size: 10pt;
   color:darkgreen;
+  height: 300px;
+}
+#node_table {
+  border: 3px solid black;
+  font-size: 10pt;
+  color:darkblue;
+  height: 300px;
 }
 #scoreboard {
   width: 900px;

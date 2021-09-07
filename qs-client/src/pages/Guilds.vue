@@ -1,5 +1,5 @@
 <template>
-  <q-page style ="background-color:lightgrey" >
+  <q-page class = 'bg-grey-4'>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
         <scoreboard></scoreboard>
@@ -32,8 +32,8 @@
 
 <script>
 
-import { mapGetters } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
+import { mapGetters } from 'vuex'
 
 export default {
   props: ["member"],
@@ -87,12 +87,13 @@ export default {
     "scoreboard": scoreboard
   },
   computed: {
+    ...mapGetters('guilds', ['getGuilds']),
     guildList() {
-      return  this.$store.getters['guilds/getGuilds'];
+      return  this.getGuilds;
     }
   },
 
-  async beforeMount() {
+  async beforeCreate() {
      const guilds = await this.$store.dispatch('guilds/findGuilds');
      console.log('find guilds returns: ', guilds);
   }

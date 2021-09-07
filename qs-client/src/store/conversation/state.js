@@ -1,8 +1,10 @@
 export default function () {
     return {
-      conversation: [],
+      conversation: [{
+        node: {}
+      }],
       showTree: false,
       conversationTree: null,
-      parentConversation: []
+      parentNode: null,
     }
   }
