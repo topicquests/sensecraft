@@ -121,7 +121,7 @@ export async function registerQuest({commit, state}, payload) {
 
         }
     }
-    export async function getGamePlayByGuildIdAndQuestId ({commit, dispatch}, payload) {
+    export async function getGamePlayByGuildIdAndQuestId ({commit}, payload) {
         try {
             const token = this.state.member.token;
             let response = await guildService.getGamePlayByGuildIdAndQuestId(payload, token)
@@ -130,6 +130,16 @@ export async function registerQuest({commit, state}, payload) {
         }
         catch (error) {
             console.log("error in get game play by guild id", error)
+        }
+    }
+    export async function checkCasting ({commit}, payload) {
+        try {
+            const token = this.state.member.token;
+            let response = await guildService.checkCasting(payload, token)
+            return response.data
+        }
+        catch (error) {
+            console.log("error in get casting", error)
         }
     }
     export async function registerAllMembersToQuest({commit, dispatch}, params, token) {
