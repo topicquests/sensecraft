@@ -66,17 +66,29 @@ export async function getParentNode({commit}, nodeId) {
     try {
         const token = this.state.member.token;
         let response = await conversationService.getParentNode(nodeId, token)
-        return Promise.resolve(commit('SET_PARENT_NODE', response.data));
-
-        return response.data[0]
+        return Promise.resolve(commit('SET_PARENT_NODE', response.data[0]));
     }
     catch (error) {
         console.log("error in getting parentNode", error)
     }
 }
-export function setParentNode({commit}) {
-    return Promise.resolve(commit('SET_PARENT_NODE, opt.data[0]'));
+export async function getNode({commit}, nodeId) {
+    try {
+        const token = this.state.member.token;
+        let response = await conversationService.getNode(nodeId, token)
+        return Promise.resolve(commit('SET_NODE', response.data[0]));
+    }
+    catch (error) {
+        console.log("error in getting node", error)
+    }
 }
-export function setConversationData({commit}) {
-    return Promise.resolve(commit('SET_CONVERSATION_DATA, opt.data[0]'))
+export async function updateNode({commit}, node) {
+    try {
+    const token = this.state.member.token;
+        let response = await conversationService.updateNode(node, token)
+        return "updated";
+    }
+    catch (error) {
+        console.log("Error in updating node")
+    }
 }

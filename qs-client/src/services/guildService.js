@@ -227,6 +227,26 @@ export async function getGuilds(opts, token) {
      console.log("Error in get member in guild with guildId " + id, err);
    })
  }
+ export async function checkCasting(payload, token) {
+  const options = token ? {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  } : {};
+  return axiosInstance.get("/casting?guild_id=eq." +
+                              payload.guild_id + "&quest_id=eq." +
+                              payload.quest_id + "&member_id=eq." +
+                              payload.member_id,
+                              options
+  ).then(response => {
+   return response
+  })
+  .catch(err => {
+    let errorCode = err.response.data.code;
+    console.log("Error in getting from casting", err);
+  })
+}
+
 
  export async function registerAllMembersToQuest(params, token) {
   const options = token ? {

@@ -6,5 +6,6 @@ export default function () {
       showTree: false,
       conversationTree: null,
       parentNode: null,
+      node: null
     }
   }
