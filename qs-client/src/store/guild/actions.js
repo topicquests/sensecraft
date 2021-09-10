@@ -68,7 +68,7 @@ export async function checkBelongsToGuild({state, commit}, id) {
     const token = this.state.member.token;
     let result = await guildService.checkIfMemberBelongsToGuild(id, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
-        return (result)
+        return (result.data)
     }
     catch(error) {
         console.log("Error in getting guild/member members", error);

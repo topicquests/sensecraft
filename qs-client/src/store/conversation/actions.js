@@ -86,7 +86,6 @@ export async function updateNode({commit}, node) {
     try {
     const token = this.state.member.token;
         let response = await conversationService.updateNode(node, token)
-        debugger;
         return "updated";
     }
     catch (error) {

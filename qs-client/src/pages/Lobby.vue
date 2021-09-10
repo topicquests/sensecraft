@@ -29,7 +29,12 @@
                   <q-td key="label" :props="props">{{props.row.label}}</q-td>
                   <q-td key="guildHandle" :props="props">{{props.row.handle}}</q-td>
                   <q-td key="guildNodeId" auto-width :props="props">
-                    <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
+                    <div v-if="guildBelongsTo(props.row.id)">
+                      <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Enter</router-link>
+                    </div>
+                    <div v-else>
+                      <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
+                    </div>
                   </q-td>
                 </q-tr>
             </template>
@@ -113,18 +118,29 @@ export default {
   },
   computed: {
     ...mapState('guilds', {
-      guilds: state => state.guilds
+      guilds: state => state.guilds,
+      belongsTo: state => state.belongsTo
     }),
     ...mapState('quests', {
        quests: state => state.quests
     }),
     ...mapState('member', {
-      member: state => state.member.handle
+      member: state => state.member
     })
   },
   methods: {
     ...mapActions('quests',['findQuests']),
-    ...mapActions('guilds',['findGuilds']),
+    ...mapActions('guilds',[
+      'findGuilds',
+      ]),
+    guildBelongsTo (id) {
+      const guildId = this.belongsTo.find(el => el.guild_id ==id);
+      if (guildId){
+        return true
+      } else {
+        return false
+      }
+    }
   },
   async beforeMount() {
      const quests = await this.findQuests;
