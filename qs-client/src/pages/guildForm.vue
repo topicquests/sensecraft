@@ -49,7 +49,7 @@
 
 <script>
 
-import {mapGetters} from "vuex";
+import {mapGetters, mapActions} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 
@@ -81,6 +81,12 @@ export default {
       member: this.$store.getters['member/getUser']
     };
   },
+  computed: {
+    ...mapState('member', {
+      member: state => state.member
+    })
+  },
+
    components: {
     "scoreboard": scoreboard,
     "member": member,
@@ -88,17 +94,20 @@ export default {
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('member', ['getUser']),
+    ...mapActions('guilds', [
+      'createGuilds',
+      'checkBelongsToGuild'
+    ]),
 
-    doSubmit: function() {
+    async doSubmit() {
       if (this.group === "public") {
         this.guild.public = true;
       }
-
        if (this.group === "private") {
         this.guild.public = false;
       }
-      //console.log("Name ", quest.member.name);
-      const guild = this.$store.dispatch("guilds/createGuilds", this.guild);
+      const guild = this.createGuilds(this.guild);
+      const gm = await this.checkBelongsToGuild(this.member.id)
     },
   },
 };

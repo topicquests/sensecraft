@@ -109,7 +109,7 @@ import {mapState, mapGetters, mapActions} from 'vuex'
         //this.$store.commit('questView', true)
         const nodeId = id || this.$route.params.id
         console.info('Initialize', 'fetching data for ', nodeId)
-        this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
+        //this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
         console.info('node', this.q)
         if (this.q !== null) {
 
@@ -124,7 +124,7 @@ import {mapState, mapGetters, mapActions} from 'vuex'
         const type = this.q.type;
         const rslt = 'icons/ibis/issue.png';
         console.log('ICON', type, rslt);
-        this.q.img = rslt;
+        //this.q.img = rslt;
       },
 
     },

@@ -1,8 +1,7 @@
 <template>
   <q-page
     class="window-height window-width row justify-center items-center"
-    style="background: linear-gradient(#8274C5, #5A4A9F);"
-  >
+    style="background: linear-gradient(#8274C5, #5A4A9F);">
     <div class="column q-pa-lg">
       <div class="row">
         <q-card square class="shadow-24" style="width:300px;height:485px;">
@@ -76,10 +75,7 @@
   </q-page>
 </template>
 
-
 <script>
-
-
 import { mapActions } from "vuex";
 
 export default {
@@ -115,7 +111,7 @@ export default {
         this.$q.notify({
           type: "negative",
           message: "Issue with sign in. Verify your email and password"
-        })}
+      })}
     },
     async login(email) {
       try {
@@ -134,40 +130,29 @@ export default {
           message: "Issue with sign in. Verify your email and password"
       })}
     },
-
     async goNext() {
       try {
           const checkGuildsBelongToUser = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
           console.log("checked guilds :", checkGuildsBelongToUser )
-          const len = this.$store.state.guilds.belongsTo.length;
-          if (this.$store.state.guilds.belongsTo.length === 0) {
-            this.goLobby();
-          }else if (this.$store.state.guilds.belongsTo.length === 1) {
-            console.log("belongs to: ", this.$store.state.guilds.belongsTo[0].guild_id);
-            const guildId = this.$store.state.guilds.belongsTo[0].guild_id
-            this.$router.push(({name: 'guild', params: {guild_id: guildId}}))
-
-          }else {
-            this.goHome();
-          }
+          this.goLobby();
       }
       catch (error) {
         console.log("Error in going to next page", error)
       }
     },
-  goHome() {
-    this.$router.push({ name: "home" });
-  },
-  goLanding() {
-    this.$router.push({name: "landingPage"});
-  },
-  goLobby() {
-   this.$router.push({name: "lobby"});
-  },
-  onHide() {
+    goHome() {
+      this.$router.push({ name: "home" });
+    },
+    goLanding() {
+      this.$router.push({name: "landingPage"});
+    },
+    goLobby() {
+      this.$router.push({name: "lobby"});
+    },
+    onHide() {
 // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-  setTimeout(() => {
-    this.goHome();
+    setTimeout(() => {
+      this.goHome();
     }, 50);
   },
 },
