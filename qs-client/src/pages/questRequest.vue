@@ -93,24 +93,7 @@ export default {
   },
 
   async mounted() {
-    let questId = this.$route.params.quest_id;
-    this.userId = this.$store.state.member.member.id;
-    const memberGuilds = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
-
-    const resp = await Promise.all(memberGuilds.data.map(async (guild) => {
-        try {
-        const respGuild = await this.$store.dispatch('guilds/getGuildById', guild.guild_id);
-        respGuild[0].check = false;
-        return respGuild;
-
-        }
-        catch (error) {
-          console.log("response error", error)
-        }
-        return resp;
-      }));
-
-      this.guilds = [...resp];
+    this.guilds = this.store.getters['guilds/getMyGuilds']
   }
   // name: 'PageName',
 }

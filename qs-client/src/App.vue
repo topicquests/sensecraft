@@ -4,12 +4,20 @@
   </div>
 </template>
 <script>
+import Vue from 'vue'
 import { onMounted, watch } from "@vue/composition-api";
+import store from './store'
+import router from './router'
 
-export default {
+const app = new Vue({
   name: "App",
+  store: store,
+  router: router(store),
   watch: {
     currentUser(newUser, oldUser) {
+      // reload quests an guilds
+      this.$store.dispatch("quests/findQuests")
+      this.$store.dispatch("guilds/findGuilds")
       if (newUser === null) {
         this.$router.push("/");
       } else {
@@ -19,22 +27,18 @@ export default {
       }
     }
   },
-  setup(props, context) {
-    const { $store } = context.root;
-    // Attempt jwt auth when the app mounts.
-    onMounted(() => {
-      $store.dispatch("auth/authenticate").catch(error => {
-        if (!error.message.includes("Could not find stored JWT")) {
-          console.error(error);
-        }
-      });
-    });
-    return {};
+  created: async function() {
+    if (window.localStorage.getItem('token')) {
+      const res = await this.$store.dispatch("member/fetchLoginUser");
+      console.log(res);
+    }
   },
   computed: {
     currentUser() {
-      return this.$store.state.auth.user;
+      return this.$store.state.member.member;
     }
   }
-};
+});
+
+export default app
 </script>

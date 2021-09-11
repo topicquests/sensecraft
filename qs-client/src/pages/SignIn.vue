@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
@@ -94,7 +94,8 @@ export default {
   };
   },
   methods: {
-    ...mapActions('member', ['signin']),
+    ...mapActions('member', ['signin', 'fetchLoginUser']),
+    ...mapGetters('member', ['getUserId', 'getUserEmail']),
     ...mapActions('quests',['findQuests']),
     ...mapActions('guilds',['findGuilds']),
    async doLogin() {
@@ -120,10 +121,15 @@ export default {
         if (!signInResp) {
           throw 'login failed'
         }
-        this.userId = this.$store.state.member.member.id;
+        const fetchResp = await this.fetchLoginUser(
+          {email: this.getUserEmail()});
+        if (!fetchResp) {
+          throw 'fetch failed'
+        }
+        this.userId = this.getUserId();
         return
       }
-      catch {
+      catch (error) {
         console.log("Error with sign in ", error)
         this.$q.notify({
           type: "negative",
@@ -132,7 +138,7 @@ export default {
     },
     async goNext() {
       try {
-          const checkGuildsBelongToUser = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
+          const checkGuildsBelongToUser = this.store.getters['guilds/getMyGuilds'].length > 0;
           console.log("checked guilds :", checkGuildsBelongToUser )
           this.goLobby();
       }

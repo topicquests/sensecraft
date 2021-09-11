@@ -87,7 +87,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.member.member'
+              <router-link v-if = 'hasPermission("createQuest")'
                 to= "/quest-landing">  Quest create
               </router-link>
             </q-item>
@@ -101,7 +101,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.member.member'
+              <router-link v-if = 'hasPermission("createGuild")'
                 to= "/guild-landing">  Guild create
               </router-link>
             </q-item>
@@ -120,9 +120,9 @@
     <q-page-container>
       <router-view />
     </q-page-container>
-    <q-layout-footer style="background-color: aquamarine" class="footer">
+    <q-footer style="background-color: aquamarine" class="footer">
       <p id="Pfooter" >Sensecraft 2021</p>
-    </q-layout-footer>
+    </q-footer>
   </q-layout>
 </template>
 <script>
@@ -153,6 +153,9 @@ export default {
     }),
     ...mapGetters('conversation', [
       'getTreeView'
+    ]),
+    ...mapGetters([
+      'hasPermission'
     ]),
     ...mapState('member', {
       member: state => state.member
@@ -192,9 +195,6 @@ export default {
       this.leftDrawer = false;
       document.getElementById("mySidenav").style.width = "0";
       this.$store.dispatch("member/logout")
-      this.$store.dispatch("conversation/logout")
-      this.$store.dispatch("quests/logout")
-      this.$store.dispatch("guilds/logout")
       .then(response => {
           this.$q.notify({
             type: "positive",

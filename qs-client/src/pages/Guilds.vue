@@ -18,7 +18,7 @@
                   <q-td key="public" :props="props">{{props.row.public}}</q-td>
                   <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
                   <q-td key="nodeId" auto-width :props="props">
-                    <router-link :to="{ name: 'guildview', params: { id:  props.row.id }}">View</router-link>
+                    <router-link :to="{ name: 'guild', params: { id:  props.row.id }}">View</router-link>
                   </q-td>
                 </q-tr>
               </template>

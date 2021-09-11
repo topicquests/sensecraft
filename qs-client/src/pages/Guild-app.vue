@@ -178,7 +178,6 @@ export default {
       member: state => state.member
     }),
     ...mapState('guilds', {
-      belongsTo: state => state.belongsTo,
       currentGuild: state=> state.currentGuild,
       gamePlay: state => state.gamePlay
     }),
@@ -189,11 +188,14 @@ export default {
     'getQuestById'
     ]),
     ...mapGetters('guilds', [
-    'getGuildById'
+      'getGuildById', 'getMyQuests'
     ]),
     ...mapGetters('conversation', [
       'getFirstNode'
-    ])
+    ]),
+    ...mapGetters([
+      'hasPermission'
+    ]),
   },
   methods: {
     ...mapActions('conversation', [
@@ -202,7 +204,6 @@ export default {
     ]),
     ...mapActions('quests',[
       'findQuests',
-      'getQuestById',
       'setCurrentQuest']),
     ...mapActions('member',['getUserById']),
     ...mapActions('guilds',[
@@ -220,17 +221,21 @@ export default {
       ]),
     async initialize() {
       await this.setCurrentGuild(this.guildId);
-      if(this.checkIfGuildMember() == false) {
-        await this.joinToGuild();
-      }
+      // Do we know the person wants to join the guild,
+      // vs just curious about it?
+      // TODO: Put this in a button.
+      // if(this.checkIfGuildMember() == false) {
+      //   await this.joinToGuild();
+      // }
       this.checkIfGuildAdmin();
-      const memb = await this.getGuildMembers();
+      // should be useful but unused for now
+      // const memb = await this.getGuildMembers();
       const hasQuests = await this.checkGuildHasQuests();
       if(hasQuests) {
         const response = await this.initializeQuest();
       }
     },
-     async initializeQuest() {
+    async initializeQuest() {
       let quests = [];
       quests = await this.getQuests();
       let thisQuest = quests[0];
@@ -242,7 +247,7 @@ export default {
       return "success";
     },
     checkIfGuildMember() {
-      let ownGuilds = this.belongsTo;
+      let ownGuilds = this.getMyQuests();
       var guildMember = ownGuilds.some(i => i.guild_id === this.guildId)
       if (!guildMember) {
         return false
@@ -290,10 +295,8 @@ export default {
         return true
       }
     },
-    async checkIfGuildAdmin() {
-      var payload = {guildId: this.guildId, userId: this.member.id};
-      this.guildMembership = await this.getMemberByGuildIdandUserId(payload);
-      if (this.guildMembership[0].permissions && this.guildMembership[0].permissions.includes("guildAdmin")) {
+    checkIfGuildAdmin() {
+      if (this.hasPermission('guildAdmin', this.guildId)) {
         this.permission = true;
         return true;
       }

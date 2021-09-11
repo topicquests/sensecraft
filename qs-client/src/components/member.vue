@@ -12,17 +12,13 @@
 <script>
 import { mapState } from 'vuex'
 export default {
-  props: ['member'],
+  // props: ['member'],
   // name: 'ComponentName',
   data () {
     return {}
   },
 
-  computed: {
-    ...mapState('member', {
-      member: state => state.member
-    })
-  }
+  computed: mapState('member', ['member']),
 }
 </script>
 <style>

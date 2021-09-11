@@ -10,7 +10,7 @@
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests="quests" title="Quests"></questTable>
+        <questTable v-bind:quests="quests" :view="true" title="Quests"></questTable>
         </div>
     </div>
     <div class="column items-center">
@@ -50,7 +50,7 @@ import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
 import { computed } from '@vue/composition-api'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
   props: ["guild"],
@@ -119,22 +119,22 @@ export default {
   computed: {
     ...mapState('guilds', {
       guilds: state => state.guilds,
-      belongsTo: state => state.belongsTo
     }),
     ...mapState('quests', {
        quests: state => state.quests
     }),
     ...mapState('member', {
       member: state => state.member
-    })
+    }),
   },
   methods: {
     ...mapActions('quests',['findQuests']),
     ...mapActions('guilds',[
       'findGuilds',
       ]),
+    ...mapGetters('guilds', ['getMyGuilds']),
     guildBelongsTo (id) {
-      const guildId = this.belongsTo.find(el => el.guild_id ==id);
+      const guildId = this.getMyGuilds().find(el => el.id ==id);
       if (guildId){
         return true
       } else {

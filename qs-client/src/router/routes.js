@@ -48,6 +48,10 @@ const routes = [
         name: "guild",
         component: () => import('pages/Guild-app.vue')
       },
+      // { path: '/guild/:guild_id/play/:quest_id',
+      //   name: "game_play",
+      //   component: () => import('pages/GamePlay.vue')
+      // },
       { path: '/guildEdit',
         name: "guildedit",
         component: () => import('pages/guildEdit.vue')

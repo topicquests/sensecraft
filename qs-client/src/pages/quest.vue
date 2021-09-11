@@ -94,22 +94,22 @@ export default {
     QuestTable
   },
   computed: {
-    ...mapGetters('quests',['getQuestByStatus']),
+    ...mapGetters('quests', ['getQuestByStatus']),
     notStartedQuests() {
-      return  this.getQuestByStatus("draft");
+      return this.getQuestByStatus('draft');
     },
 
-     registrationQuests() {
-      return  this.getQuestByStatus("registration");
+    registrationQuests() {
+      return this.getQuestByStatus('registration');
     },
 
     ongoingQuests() {
-       return  this.getQuestByStatus('ongoing');
+      return this.getQuestByStatus('ongoing');
     },
 
     finishedQuests() {
-       return  this.$store.getters['quests/getQuestByStatus']('finished');
-    }
+      return this.getQuestByStatus('finished');
+    },
   },
 
   async beforeMount() {

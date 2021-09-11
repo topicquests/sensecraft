@@ -95,9 +95,7 @@ export default {
     //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('member', ['getUser']),
     ...mapActions('guilds', [
-      'createGuilds',
-      'checkBelongsToGuild',
-      'getGuildByHandle'
+      'createGuild',
     ]),
 
     async doSubmit() {
@@ -107,8 +105,7 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      const guild = await this.createGuilds(this.guild);
-      const gm = await this.checkBelongsToGuild(this.member.id)
+      const guild = await this.createGuild(this.guild);
     },
   },
 };

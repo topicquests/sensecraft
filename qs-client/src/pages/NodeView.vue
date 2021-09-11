@@ -167,7 +167,6 @@
   </q-page>
 </template>
 <script>
-import api from "src/api";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 //const treeview = api.service("tree-view");
 console.log("QVTV", treeview);

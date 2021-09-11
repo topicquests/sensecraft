@@ -25,7 +25,8 @@
 //Note that topic nodes are edited with NodeForm.vue
 //https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/vuejs.html
 
-import api from 'src/api'
+//import api from 'src/api'
+const api = null;
 //TODO we may use another method for node ID
 //const uuidv4 = require('uuid/v4')
 const conversation = api.service('conversation')
