@@ -41,19 +41,19 @@ class VersionData:
     path: pathlib.Path
     sha1sum: str
     idempotent: bool
-    reqs: set[str] = field(default_factory=set)
+    reqs: set = field(default_factory=set)
 
 
 @dataclass
 class TagData:
     head: VersionData = None
     revert: VersionData = None
-    versions: list[VersionData] = field(default_factory=list)
-    transitions: list[VersionData] = field(default_factory=list)
-    revert_transitions: list[pathlib.Path] = field(default_factory=list)
-    revert_versions: list[pathlib.Path] = field(default_factory=list)
-    req_by: set[str] = field(default_factory=set)
-    by_sha: dict[str, VersionData] = field(default_factory=dict)
+    versions: list = field(default_factory=list)
+    transitions: list = field(default_factory=list)
+    revert_transitions: list = field(default_factory=list)
+    revert_versions: list = field(default_factory=list)
+    req_by: set = field(default_factory=set)
+    by_sha: dict = field(default_factory=dict)
 
 
 def random_assign(l, e, pos):
