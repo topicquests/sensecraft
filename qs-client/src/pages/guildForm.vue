@@ -107,7 +107,6 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      debugger;
       const guild = await this.createGuilds(this.guild);
       const gm = await this.checkBelongsToGuild(this.member.id)
     },
