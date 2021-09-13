@@ -4,38 +4,12 @@ from os.path import exists
 from subprocess import run
 import argparse
 from configparser import ConfigParser
+from utils import psql_command
 
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
 POSTGREST_PORT = 3000
-
-
-def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
-                 password=None, host="127.0.0.1", debug=False, **kwargs):
-    if debug:
-        print(command)
-    assert not (sudo and password)
-    if password:
-        conn = ["psql", f"postgresql://{user}:{password}@{host}/{db}"]
-    else:
-        if sudo:
-            conn = ["sudo", "-u", user, "psql"]
-        else:
-            conn = ["psql", "-U", user]
-        conn.append(db)
-        if host not in ("localhost", "127.0.0.1", "::1"):
-            conn.extend(["-h", host])
-    conn.extend(["-q", "--csv", "-t", "-n"])
-    if cmdfile:
-        conn.extend(["-f", cmdfile])
-    else:
-        conn.extend(["-c", command])
-    r = run(conn, capture_output=True, encoding="utf-8")
-    if debug:
-        print(r.returncode, r.stdout)
-    assert not r.returncode
-    return r.stdout
 
 
 if __name__ == "__main__":

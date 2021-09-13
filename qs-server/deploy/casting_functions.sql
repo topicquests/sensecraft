@@ -1,5 +1,9 @@
 -- Deploy sensecraft:casting_functions to pg
 -- requires: casting
+-- requires: guilds_functions
+-- requires: quests_functions
+-- requires: game_play
+-- idempotent
 
 BEGIN;
 
@@ -23,15 +27,19 @@ END$$;
 
 ALTER TABLE public.casting ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS casting_delete_policy ON public.casting;
 CREATE POLICY casting_delete_policy ON public.casting FOR DELETE USING ((public.is_quest_id_member(quest_id) OR public.has_guild_permission(guild_id, 'joinQuest'::public.permission)));
+DROP POLICY IF EXISTS casting_insert_policy ON public.casting;
 CREATE POLICY casting_insert_policy ON public.casting FOR INSERT WITH CHECK (
   ((member_id = current_member_id() AND public.is_guild_id_member(guild_id)) OR public.is_guild_id_leader(guild_id))
   AND (SELECT COUNT(*) FROM public.game_play WHERE quest_id = quest_id AND guild_id = guild_id AND status='confirmed') > 0);
+DROP POLICY IF EXISTS casting_select_policy ON public.casting;
 CREATE POLICY casting_select_policy ON public.casting FOR SELECT USING (((( SELECT guilds.public
    FROM public.guilds
   WHERE (guilds.id = casting.guild_id)) AND ( SELECT quests.public
    FROM public.quests
   WHERE (quests.id = casting.quest_id))) OR public.is_guild_id_member(guild_id) OR public.is_quest_id_member(quest_id)));
+DROP POLICY IF EXISTS casting_update_policy ON public.casting;
 CREATE POLICY casting_update_policy ON public.casting FOR UPDATE USING (
   (member_id = current_member_id() AND public.is_guild_id_member(guild_id)) OR public.is_guild_id_leader(guild_id));
 

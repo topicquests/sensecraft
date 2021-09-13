@@ -9,7 +9,8 @@ const admin = {
 };
 
 exports.mochaGlobalSetup = async function () {
-  execSync('sqitch deploy --target test');
+  execSync('./scripts/db_updater.py -d test init');
+  execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
   var resolve;
   const p = new Promise((rs) => { resolve = rs; });
@@ -31,5 +32,5 @@ exports.mochaGlobalSetup = async function () {
 exports.mochaGlobalTeardown = async function () {
   postgrest.kill('SIGHUP');
   if (!process.env.NOREVERT)
-    execSync('sqitch revert --target test -y');
+    execSync('./scripts/db_updater.py -d test revert');
 };

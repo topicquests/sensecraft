@@ -1,6 +1,7 @@
 -- Deploy sensecraft:guilds_functions to pg
 -- requires: members_functions
 -- requires: guilds
+-- idempotent
 
 BEGIN;
 
@@ -137,6 +138,7 @@ CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_create_guild ON public.guilds;
 CREATE TRIGGER after_create_guild AFTER INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.after_create_guild();
 
 
@@ -158,6 +160,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_delete_guild ON public.guilds;
 CREATE TRIGGER after_delete_guild AFTER DELETE ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.after_delete_guild();
 
 
@@ -185,6 +188,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
     END;
     $$;
 
+DROP TRIGGER IF EXISTS after_delete_guild_membership ON public.guild_membership;
 CREATE TRIGGER after_delete_guild_membership AFTER DELETE ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.after_delete_guild_membership();
 
 
@@ -243,6 +247,7 @@ CREATE OR REPLACE FUNCTION public.before_create_guild() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_create_guild ON public.guilds;
 CREATE TRIGGER before_create_guild BEFORE INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.before_create_guild();
 
 
@@ -296,8 +301,10 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
     END;
 $$;
 
+DROP TRIGGER IF EXISTS before_update_guild_membership ON public.guild_membership;
 CREATE TRIGGER before_update_guild_membership BEFORE UPDATE ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.before_createup_guild_membership();
 
+DROP TRIGGER IF EXISTS before_create_guild_membership ON public.guild_membership;
 CREATE TRIGGER before_create_guild_membership BEFORE INSERT ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.before_createup_guild_membership();
 
 
@@ -317,6 +324,7 @@ CREATE OR REPLACE FUNCTION public.before_update_guild() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_update_guild ON public.guilds;
 CREATE TRIGGER before_update_guild BEFORE UPDATE ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.before_update_guild();
 
 
@@ -330,18 +338,21 @@ ALTER TABLE public.guilds ENABLE ROW LEVEL SECURITY;
 -- Name: guilds guilds_insert_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guilds_insert_policy ON public.guilds;
 CREATE POLICY guilds_insert_policy ON public.guilds FOR INSERT WITH CHECK (public.has_permission('createGuild'));
 
 --
 -- Name: guilds guild_update_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guild_update_policy ON public.guilds;
 CREATE POLICY guild_update_policy ON public.guilds FOR UPDATE USING (public.is_guild_id_member(id));
 
 --
 -- Name: guilds guilds_select_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guilds_select_policy ON public.guilds;
 CREATE POLICY guilds_select_policy ON public.guilds FOR SELECT USING ((public OR (creator = public.current_member_id()) OR (id IN ( SELECT my_guild_memberships.guild_id
    FROM public.my_guild_memberships
   WHERE (my_guild_memberships.status = 'confirmed'::public.registration_status)))));
@@ -357,6 +368,7 @@ ALTER TABLE public.guild_membership ENABLE ROW LEVEL SECURITY;
 -- Name: guild_membership guild_membership_delete_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guild_membership_delete_policy ON public.guild_membership;
 CREATE POLICY guild_membership_delete_policy ON public.guild_membership FOR DELETE USING (((public.current_member_id() = member_id) OR public.has_guild_permission(guild_id, 'revokeGuildMembership'::public.permission)));
 
 
@@ -364,6 +376,7 @@ CREATE POLICY guild_membership_delete_policy ON public.guild_membership FOR DELE
 -- Name: guild_membership guild_membership_insert_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guild_membership_insert_policy ON public.guild_membership;
 CREATE POLICY guild_membership_insert_policy ON public.guild_membership FOR INSERT WITH CHECK (((public.current_member_id() = member_id) OR public.has_guild_permission(guild_id, 'proposeGuildMembership'::public.permission)));
 
 
@@ -371,6 +384,7 @@ CREATE POLICY guild_membership_insert_policy ON public.guild_membership FOR INSE
 -- Name: guild_membership guild_membership_select_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guild_membership_select_policy ON public.guild_membership;
 CREATE POLICY guild_membership_select_policy ON public.guild_membership FOR SELECT USING (((member_id = public.current_member_id()) OR (( SELECT public_guilds.id
    FROM public.public_guilds
   WHERE (public_guilds.id = guild_membership.guild_id)) IS NOT NULL) OR (guild_id IN ( SELECT my_guild_memberships.guild_id
@@ -382,6 +396,7 @@ CREATE POLICY guild_membership_select_policy ON public.guild_membership FOR SELE
 -- Name: guild_membership guild_membership_update_policy; Type: POLICY
 --
 
+DROP POLICY IF EXISTS guild_membership_update_policy ON public.guild_membership;
 CREATE POLICY guild_membership_update_policy ON public.guild_membership FOR UPDATE USING ((member_id = public.current_member_id()) OR public.is_guild_id_member(guild_id));
 
 COMMIT;

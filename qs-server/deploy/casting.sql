@@ -1,5 +1,6 @@
 -- Deploy sensecraft:casting to pg
--- requires: game_play
+-- requires: quests
+-- requires: guilds
 
 BEGIN;
 

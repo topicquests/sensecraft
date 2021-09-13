@@ -1,5 +1,6 @@
 -- Deploy sensecraft:members_functions to pg
 -- requires: members
+-- idempotent
 
 BEGIN;
 
@@ -151,6 +152,7 @@ CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_create_member ON public.members;
 CREATE TRIGGER before_create_member BEFORE INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_create_member();
 
 --
@@ -179,6 +181,7 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     END;
     $$;
 
+DROP TRIGGER IF EXISTS before_update_member ON public.members;
 CREATE TRIGGER before_update_member BEFORE UPDATE ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_update_member();
 
 
@@ -203,14 +206,19 @@ CREATE OR REPLACE FUNCTION public.after_delete_member() RETURNS trigger
     $$;
 
 
+DROP TRIGGER IF EXISTS after_delete_member ON public.members;
 CREATE TRIGGER after_delete_member AFTER DELETE ON public.members FOR EACH ROW EXECUTE FUNCTION public.after_delete_member();
 
 
 
 ALTER TABLE public.members ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS members_update_policy ON public.members;
 CREATE POLICY members_update_policy ON public.members FOR UPDATE USING (id = current_member_id() OR has_permission('superadmin'));
+DROP POLICY IF EXISTS members_delete_policy ON public.members;
 CREATE POLICY members_delete_policy ON public.members FOR DELETE USING (id = current_member_id() OR has_permission('superadmin'));
+DROP POLICY IF EXISTS members_insert_policy ON public.members;
 CREATE POLICY members_insert_policy ON public.members FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS members_select_policy ON public.members;
 CREATE POLICY members_select_policy ON public.members FOR SELECT USING (true);
 
 COMMIT;

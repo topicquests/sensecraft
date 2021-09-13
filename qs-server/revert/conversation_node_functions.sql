@@ -8,6 +8,7 @@ BEGIN;
 
 REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.conversation_node FROM :dbm;
 REVOKE SELECT ON TABLE public.conversation_node FROM :dbc;
+REVOKE USAGE ON SEQUENCE public.conversation_node_id_seq FROM :dbm;
 
 DROP TRIGGER IF EXISTS before_create_node ON public.conversation_node;
 DROP TRIGGER IF EXISTS before_update_node ON public.conversation_node;
