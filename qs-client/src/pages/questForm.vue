@@ -92,7 +92,6 @@ export default {
       'createQuests',
       'findquests',
       'getQuestByHandle']),
-
     async doSubmit() {
       if (this.group === "public") {
         this.quest.public = true;
@@ -100,7 +99,6 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      debugger;
       const conversations = await this.createQuests(this.quest);
       const questByHandle = await this.getQuestByHandle(this.quest.handle);
       Notify.create({
