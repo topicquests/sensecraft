@@ -28,6 +28,19 @@ export async function getGuilds(opts, token) {
         console.log("Error in getGuild");
      });
     }
+    export async function getGuildByHandle(guildHandle, token) {
+      const options = token ? {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      } : {};
+        return axiosInstance.get("/guilds?handle=eq." + guildHandle, options
+      ).then(function(response) {
+         return response;
+       }).catch(function(error){
+          console.log("Error in getGuild");
+       });
+      }
 
   export async function updateGuild(guild, token) {
     const options = token ? {

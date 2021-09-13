@@ -10,13 +10,13 @@
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable></questTable>
+        <questTable v-bind:quests="quests" title="Quests"></questTable>
         </div>
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
         <p> If you have not already choosen a guild to join. Select one from the list
-         If you are already a member of a guild, click on join button to go to that guild's page</p>
+         If you are already a member of a guild, click on enter button to go to that guild's page</p>
         </div>
     </div>
     <div class="column items-center">
@@ -143,8 +143,8 @@ export default {
     }
   },
   async beforeMount() {
-     const quests = await this.findQuests;
-     const guilds = await this.findGuilds;
+     const quests = await this.findQuests();
+     const guilds = await this.findGuilds();
   }
 }
 </script>

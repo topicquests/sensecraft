@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="column items-center">
-    <div class="col-4 q-pa-lg q-pl-lg" style="width: 1000px">
+    <div class="col-4 q-pa-lg q-pl-lg" style="width: 55%">
     <q-btn
       color = secondary
       v-if = '$store.state.member.member'
@@ -21,7 +21,7 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable></questTable>
+        <questTable v-bind:quests = "quests" :view=false></questTable>
       </div>
     </div>
   </q-page>
@@ -29,10 +29,10 @@
 
 <script>
 
-import {mapGetters } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
+import {mapActions, mapState} from 'vuex'
 
 export default {
   props: ["member"],
@@ -85,14 +85,27 @@ export default {
       serverData: []
     };
   },
+  computed: {
+    ...mapState('quests', {
+      quests: state => state.quests
+    })
+  },
   components: {
     "scoreboard": scoreboard,
     "questTable": questTable,
     "member": member
   },
-  computed: {
-
-  },
+   methods: {
+    ...mapActions('quests',[
+      'findQuests']),
+    ...mapActions('guilds',[
+      'findGuilds',
+      ]),
+    async beforeMount() {
+      const quests = await this.findQuests;
+      const guilds = await this.findGuilds;
+    }
+  }
 };
 </script>
 

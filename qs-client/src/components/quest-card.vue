@@ -1,6 +1,8 @@
 <template>
   <div>
-    <q-card id="quest_card">
+    <div class="column items-center">
+      <div class="col-4 q-pa-lg" style="width: 45%">
+        <q-card id="quest_card">
           <q-card-section>
             <h6 v-if="currentQuest" style="text-align:center; color: darkgreen;">
               {{currentQuest.name}}
@@ -13,6 +15,8 @@
           </q-card-section>
         </q-card>
       </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -20,13 +24,15 @@ import { mapState } from 'vuex'
 
 export default {
    name: 'questCard',
+   props: {
+     currentQuest: {
+       type: Object
+     }
+   },
   data () {
-    return {}
-  },
-  computed: {
-    ...mapState('quests', {
-      currentQuest: state => state.currentQuest
-    }),
+    return {
+
+    }
   }
 }
 </script>

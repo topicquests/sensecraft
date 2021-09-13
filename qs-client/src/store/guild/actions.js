@@ -11,6 +11,7 @@ export  function createGuilds({commit, dispatch}, payload,) {
     console.log("going through create guilds:", payload, token);
     let result = guildService.createGuild(payload,token)
     .then (function(result) {
+        console.log("Result ", result.headers);
         dispatch('findGuilds');
     }).catch(function(error) {
         console.log('Error in createGuild', error)
@@ -33,6 +34,16 @@ export async function getGuildById( {commit}, payload) {
         let result =  await guildService.getGuildById(payload, token)
         commit('SET_GUILD_MEMBER_DATA', result.data);
         return (result.data)
+    }
+    catch(error){
+        console.log("Error in findGuilds", error);
+    }
+}
+export async function getGuildByHandle( {commit}, payload) {
+    try {
+        const token = this.state.member.token;
+        let result =  await guildService.getGuildByHandle(payload, token)
+        return (result.data[0])
     }
     catch(error){
         console.log("Error in findGuilds", error);
