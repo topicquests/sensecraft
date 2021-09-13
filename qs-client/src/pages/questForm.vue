@@ -53,7 +53,7 @@
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions} from "vuex";
-
+import { Notify } from "quasar";
 
 export default {
   data() {
@@ -88,21 +88,28 @@ export default {
     "member": member
   },
   methods: {
-    ...mapActions('quests', ['createQuests', 'findquests']),
+    ...mapActions('quests', [
+      'createQuests',
+      'findquests',
+      'getQuestByHandle']),
 
     async doSubmit() {
       if (this.group === "public") {
         this.quest.public = true;
       }
-
        if (this.group === "private") {
         this.quest.public = false;
       }
-      //console.log("Name ", quest.member.name);
-      const conversations = this.createQuests(this.quest);
-      const quests = await this.findQuests;
-    },
-  },
+      debugger;
+      const conversations = await this.createQuests(this.quest);
+      const questByHandle = await this.getQuestByHandle(this.quest.handle);
+      Notify.create({
+         message: `New quest was created successfully`,
+         color: "positive"
+      })
+      this.$router.push({name: 'questedit', params: {quest_id: questByHandle.id}})
+    }
+  }
 };
 </script>
 

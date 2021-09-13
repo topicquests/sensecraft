@@ -1,12 +1,15 @@
 <template>
   <q-card >
-            <q-table style="color: darkgreen; background-color: lightblue;" title="Quests" :data="this.quests" :columns="columns1" row-key = "desc">
+            <q-table style="color: darkgreen; background-color: lightblue;" :title="title" :data="quests" :columns="columns1" row-key = "desc">
               <template slot="body" slot-scope="props">
-                <q-tr :props="props">
-                  <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
+                <q-tr :props="props" >
+                  <q-td  key="desc" :props="props"> {{props.row.name}}</q-td>
                   <q-td key="label" :props="props">{{props.row.label}}</q-td>
                   <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                  <q-td key="questNodeId" auto-width :props="props">
+                  <q-td v-if="view" key="questNodeId" auto-width :props="props">
+                    <router-link :to="{ name: 'questView', params: { quest_id:  props.row.id }}">View</router-link>
+                  </q-td>
+                  <q-td v-else key="questNodeId" auto-width :props="props">
                     <router-link :to="{ name: 'questedit', params: { quest_id:  props.row.id }}">Edit</router-link>
                   </q-td>
                 </q-tr>
@@ -16,9 +19,20 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+
 export default {
-  // name: 'ComponentName',
+   name: 'quest_table',
+   props: {
+     quests: {
+       type: Array
+     },
+     title: String,
+     view: {
+       type: Boolean,
+       required: true,
+       default: true
+    }
+  },
   data () {
     return {
       columns1: [
@@ -48,13 +62,15 @@ export default {
           sortable: true
         }
       ],
-    }
-  },
+      quest: null,
 
-  computed: {
-    ...mapState('quests', {
-       quests: state => state.quests
-    }),
+    }
   }
 }
 </script>
+
+<style>
+q-td {
+  font-size: 30%;
+}
+</style>

@@ -7,37 +7,48 @@ export async function getQuests(token) {
       'Authorization': `Bearer ${token}`
     }
   } : {};
-  return axiosInstance.get("/quests", options
+  return await axiosInstance.get("/quests", options
   ).then(function(response) {
      return response;
    }).catch(function(error){
       console.log("Error in getQuests");
    });
   }
-
   export async function getQuestById(quest_id, token) {
     const options = token ? {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-    return axiosInstance.get("/quests?id=eq." + quest_id, options
+    return await axiosInstance.get("/quests?id=eq." + quest_id, options
     ).then(function(response) {
        return response;
      }).catch(function(error){
         console.log("Error in getQuests");
      });
     }
-
-  export async function updateQuest(quest, token) {
-    const options = token ? {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    export async function getQuestByHandle(questHandle, token) {
+      const options = token ? {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      } : {};
+      return await axiosInstance.get("/quests?handle=eq." + questHandle, options
+      ).then(function(response) {
+         return response;
+       }).catch(function(error){
+          console.log("Error in getQuests");
+       });
       }
-    } : {};
-    const id = quest.id;
-    return axiosInstance.patch(`/quests?id=eq.${id}`,
-    {
+    export async function updateQuest(quest, token) {
+      const options = token ? {
+        headers: {
+        'Authorization': `Bearer ${token}`
+        }
+      } : {};
+      const id = quest.id;
+      return await axiosInstance.patch(`/quests?id=eq.${id}`,
+      {
       "name": quest.name,
       "handle": quest.handle,
       "description": quest.description,
@@ -45,23 +56,22 @@ export async function getQuests(token) {
       "creator": quest.creator,
       "status": quest.status,
       "updated_at": quest.updated_at
-    }, options
-   ).then (function (response) {
+      }, options
+    ).then (function (response) {
       return response;
-    }).catch (function (err)  {
-      if (err.response) {
-        console.log("Error in updating quest ", err.response)
-      }
-    });
-}
-
-  export  function createQuest(quest, token) {
+      }).catch (function (err)  {
+        if (err.response) {
+          console.log("Error in updating quest ", err.response)
+        }
+      });
+    }
+  export async function createQuest(quest, token) {
     const options = token ? {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     } : {};
-    return axiosInstance.post("/quests", {
+    return await axiosInstance.post("/quests", {
       "name": quest.name,
        "handle": quest.handle,
        "description": quest.description,
@@ -69,12 +79,9 @@ export async function getQuests(token) {
        "created_at": quest.created_at,
        "updated_at": quest.updated_at
     }, options
-    ).then (function(response) {
-      Notify.create({
-         message: `New quest was created successfully`,
-         color: "positive"
+    ).then (function(createResponse) {
+      return createResponse
      })
-   })
      .catch(err => {
       if (err.response) {
         let errorCode = err.response.data.code;

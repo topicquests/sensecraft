@@ -49,7 +49,7 @@
 
 <script>
 
-import {mapGetters, mapActions} from "vuex";
+import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 
@@ -96,7 +96,8 @@ export default {
     ...mapGetters('member', ['getUser']),
     ...mapActions('guilds', [
       'createGuilds',
-      'checkBelongsToGuild'
+      'checkBelongsToGuild',
+      'getGuildByHandle'
     ]),
 
     async doSubmit() {
@@ -106,7 +107,8 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      const guild = this.createGuilds(this.guild);
+      debugger;
+      const guild = await this.createGuilds(this.guild);
       const gm = await this.checkBelongsToGuild(this.member.id)
     },
   },
