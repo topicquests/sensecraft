@@ -163,6 +163,6 @@ async beforeMount() {
 };
 </script>
 
-<style lang="styl">
+<style>
 </style>
 

@@ -308,7 +308,7 @@ export default {
 };
 </script>
 
-<style lang="styl">
+<style>
 .q-item-image {
   min-width: 20px;
   max-width: 20px;

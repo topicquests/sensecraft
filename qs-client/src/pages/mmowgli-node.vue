@@ -141,7 +141,7 @@ import {mapState, mapGetters, mapActions} from 'vuex'
   }
 
 </script>
-<style lang="styl">
+<style>
 .q-item-image {
 min-width: 10px;
 max-width: 10px;

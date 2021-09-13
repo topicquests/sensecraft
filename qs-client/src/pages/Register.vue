@@ -152,7 +152,7 @@ export default {
 };
 </script>
 
-<style lang="styl">
+<style>
 input:focus {
   background-color: rgb(204, 208, 212);
 }

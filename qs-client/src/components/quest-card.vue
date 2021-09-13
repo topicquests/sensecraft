@@ -36,7 +36,7 @@ export default {
   }
 }
 </script>
-<style lang="styl">
+<style>
 #quest_card {
   border: 3px solid black;
   font-size: 10pt;

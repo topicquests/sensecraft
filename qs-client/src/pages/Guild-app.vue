@@ -454,7 +454,7 @@ export default {
   }
 </script>
 
-<style lang="styl">
+<style>
 .handles {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;
