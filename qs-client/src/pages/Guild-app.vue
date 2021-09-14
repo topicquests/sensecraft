@@ -235,8 +235,7 @@ export default {
       quests = await this.getQuests();
       let thisQuest = quests[0];
       this.questId = thisQuest.id;
-      this.getCurrentQuest()
-      await this.setFocusNode();
+      await this.getCurrentQuest();
       const node = await this.getParentsNode();
       console.log("Parent Node", this.parentNode);
       const response = await this.checkGuildGamePlay();
@@ -266,20 +265,19 @@ export default {
       return
     },
     async registerMembersToQuest () {
-        let registerToQuest = this.registerQuest;
         const game_play = await this.getGamePlay()
         game_play.forEach(async element => {
-        registerToQuest(element.quest_id);
-         if (checkCasting(element.quest_id) == true) {
+          const result = await this.checkForCasting(element.quest_id)
+         if ( result == true) {
           let registerPayload = {
             guildid: this.guildId,
             questid: element.quest_id,
-      }
+          }
           const registerMembersResponse = await this.registerAllMembersToQuest(registerPayload);
          }
         });
     },
-    async checkCasting(quId) {
+    async checkForCasting(quId) {
       let param = {
         quest_id: quId,
         guild_id: this.guildId,
@@ -348,8 +346,11 @@ export default {
     },
     async getParentsNode() {
       const nodeId = this.gamePlay[0].focus_node_id;
-      const parentNode = await this.getParentNode(nodeId);
-      return parentNode;
+      if (nodeId) {
+        const parentNode = await this.getParentNode(nodeId);
+        return parentNode;
+      }
+      return
     },
     async getCurrentQuest() {
       const thisQuest = this.getQuestById(this.questId);
@@ -426,11 +427,9 @@ export default {
           quest_id: questId
         }
         const registerResponse = await this.registerQuest(payload);
-        this.registerMembersToQuest();
-        const hasQuests = await this.checkGuildHasQuests();
-      if(hasQuests) {
+        await this.registerMembersToQuest();
+        await this.setFocusNode();
         const response = await this.initializeQuest();
-      }
         this.$q.notify({
           type: "positive",
           message: "You have registered to Quest "

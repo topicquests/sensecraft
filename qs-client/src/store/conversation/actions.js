@@ -60,7 +60,7 @@ export async function logout ({commit}) {
   }
 export function setConversationNode({commit, getters}, parent_id) {
     const node = getters.getConversationNodeById(parent_id)
-    return Promise.resolve(commit('SET_PARENT_CONVERSATION' ,node))
+    return Promise.resolve(commit('SET_PARENT_NODE' ,node[0]))
 }
 export async function getParentNode({commit}, nodeId) {
     try {
