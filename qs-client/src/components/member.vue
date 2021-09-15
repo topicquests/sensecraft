@@ -1,6 +1,6 @@
 <template>
 
-  <div class="column items-right">
+  <div class="column items-right" v-if="member">
     <div class="col-12">
       <div class="member q-pr-md">{{this.member.handle}}
       </div>

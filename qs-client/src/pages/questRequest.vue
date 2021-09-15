@@ -93,7 +93,7 @@ export default {
   },
 
   async mounted() {
-    this.guilds = this.store.getters['guilds/getMyGuilds']
+    this.guilds = this.$store.getters['guilds/getMyGuilds']
   }
   // name: 'PageName',
 }

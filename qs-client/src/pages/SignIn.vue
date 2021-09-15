@@ -138,7 +138,7 @@ export default {
     },
     async goNext() {
       try {
-          const checkGuildsBelongToUser = this.store.getters['guilds/getMyGuilds'].length > 0;
+          const checkGuildsBelongToUser = this.$store.getters['guilds/getMyGuilds'].length > 0;
           console.log("checked guilds :", checkGuildsBelongToUser )
           this.goLobby();
       }

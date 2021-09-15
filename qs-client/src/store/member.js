@@ -2,11 +2,14 @@ import MyVapi from "./base"
 const {hash} = require('bcryptjs')
 import {Notify} from 'quasar'
 
+TOKEN_EXPIRATION = 1000000
+TOKEN_RENEWAL = TOKEN_EXPIRATION * 9 / 10
+
 const baseState = {
   member: null,
   email: null,
   token: null,
-  tokenDate: null,
+  tokenExpiry: null,
   isAuthenticated: false,
 };
 
@@ -42,11 +45,15 @@ const member = new MyVapi({
     },
     onSuccess: (state, res, axios, { params, data }) => {
       state.token = res.data
-      state.tokenDate = new Date()
+      state.tokenExpiry = Date.now() + TOKEN_EXPIRATION
       state.email = data.mail
       const storage = window.localStorage
       storage.setItem('token', state.token)
+      storage.setItem('tokenExpiry', state.tokenExpiry)
       storage.setItem('email', state.email)
+      window.setTimeout(() => {
+        MyVapi.store.dispatch('member/renewToken', {params: {token: state.token}})
+      }, TOKEN_RENEWAL);
       // Ideally, I should be able to chain another action as below.
       // But onSuccess is part of the mutator, not the action, so no async.
       // return await MyVapi.store.dispatch('member/fetchLoginUser', {email: data.mail})
@@ -60,6 +67,9 @@ const member = new MyVapi({
       if (!state.token) {
         state.token = window.localStorage.getItem('token')
       }
+      if (!state.tokenExpiry) {
+        state.token = window.localStorage.getItem('tokenExpiry')
+      }
       if (!state.email) {
         state.email = window.localStorage.getItem('email')
       }
@@ -71,6 +81,7 @@ const member = new MyVapi({
       state.member = res.data[0]
       state.isAuthenticated = true
       state.token = state.token || window.localStorage.getItem('token')
+      state.tokenExpiry = state.tokenExpiry || window.localStorage.getItem('tokenExpiry')
       Notify.create({
         message: "Login Success",
         color: "positive",
@@ -80,6 +91,7 @@ const member = new MyVapi({
     },
     onError: (state, error, axios, { params, data }) => {
       window.localStorage.removeItem('token');
+      window.localStorage.removeItem('tokenExpiry');
       console.log(error)
     },
   }).post({
@@ -110,6 +122,18 @@ const member = new MyVapi({
       });
     }
   })
+  .call({
+    action: "renewToken",
+    path: ({ token }) => `/rpc/renew_token?token=${token}`,
+    readOnly: true,
+    onSuccess: (state, res, axios, { params, data }) => {
+      state.token = res.data
+      state.tokenExpiry = Date.now() + TOKEN_EXPIRATION
+      window.setTimeout(() => {
+        MyVapi.store.dispatch('member/renewToken', {params: {token: state.token}})
+      }, TOKEN_RENEWAL);
+    }
+  })
   // Step 4
   .getStore({
     getters: {
@@ -126,6 +150,7 @@ const member = new MyVapi({
       LOGOUT: (state) => {
         window.localStorage.removeItem('token');
         window.localStorage.removeItem('email');
+        window.localStorage.removeItem('tokenExpiry');
         return Object.assign(state, baseState)
       },
     },

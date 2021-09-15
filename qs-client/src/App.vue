@@ -28,7 +28,7 @@ const app = new Vue({
     }
   },
   created: async function() {
-    if (window.localStorage.getItem('token')) {
+    if (window.localStorage.getItem('tokenExpiry') > Date.now()) {
       const res = await this.$store.dispatch("member/fetchLoginUser");
       console.log(res);
     }

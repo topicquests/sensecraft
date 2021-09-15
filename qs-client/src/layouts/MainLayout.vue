@@ -148,12 +148,8 @@ export default {
     ...mapState('conversation', {
       showTree: state => state.showTree,
       conversation: state => state.conversation,
-      conversationTree: state => state.conversationTree,
-      treeView: state => state.conversationTree,
+      treeView: state => state.neighbourhood,
     }),
-    ...mapGetters('conversation', [
-      'getTreeView'
-    ]),
     ...mapGetters([
       'hasPermission'
     ]),

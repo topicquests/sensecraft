@@ -2,33 +2,79 @@ import MyVapi from "./base"
 
 const conversation = new MyVapi({
   state: {
+    node: null,
+    currentQuest: null,
     conversation: [],
-    conversationTree: [],
+    neighbourhoodRoot: null,
+    neighbourhood: [],
+    conversationRoot: null,
   },
 })
   // Step 3
   .get({
-    action: "getConversationNodeById",
+    action: "fetchConversationNode",
     queryParams: true,
     path: (id) => `/conversation_node?id=eq.${id}`,
-    property: "nodes",
+    property: "node",
   })
   .get({
-    path: '/conversation_node',
-    property: "nodes",
-    action: "getConversation",
+    path: (quest_id) => `/conversation_node?quest_id=eq.${quest_id}`,
+    property: "conversation",
+    action: "fetchConversation",
+    queryParams: true,
+    onSuccess: (state, payload, axios, { params, data }) => {
+      if (state.currentQuest !== params.quest_id) {
+        state.currentQuest = params.quest_id
+        state.neighbourhood = []
+        state.neighbourhoodRoot = null
+      }
+      state.conversation = payload.data
+      state.conversationRoot = data.find((node) => node.parent_id === null)
+    },
+  })
+  .get({
+    path: ({quest_id}) => {
+      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null`
+    },
+    property: "conversationRoot",
+    action: "fetchRootNode",
+    // queryParams: true,
+    onSuccess: (state, payload, axios, { params, data }) => {
+      if (state.currentQuest !== params.quest_id) {
+        state.currentQuest = params.quest_id
+        state.conversation = []
+        state.neighbourhood = []
+        state.neighbourhoodRoot = null
+      }
+      state.conversationRoot = payload.data[0]
+    },
+  })
+  .call({
+    path: 'node_neighbourhood',
+    property: "conversation",
+    action: "fetchConversationNeighbourhood",
+    readOnly: true,
+    onSuccess: (state, payload, axios, { params, data }) => {
+      /*
+      if (state.currentQuest !== params.quest_id) {
+        state.currentQuest = params.quest_id
+        state.conversation = []
+        state.conversationRoot = null
+      }
+      */
+      state.neighbourhood = payload.data
+      state.neighbourhoodRoot = params.node_id
+    },
   })
   // Step 4
   .getStore({
     getters: {
       getConversation: (state) =>
         state.conversation,
-      getTreeView: (state) =>
-        state.conversationTree,
       getConversationNodeById: (state) => (id) =>
-        state.conversation.find(node => node.id === id),
-      getFirstNode: (state) => (questId) =>
-        state.conversation.find(node => node.quest_id === questId && node.guild_id === null),
+        state.conversation.find(node => node.id == id),
+      getRootNode: (state) => state.conversationRoot,
+      getNeighbourhood: (state) => state.neighbourhood,
     }
   });
 
