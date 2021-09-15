@@ -2,8 +2,10 @@ import MyVapi from "./base"
 const {hash} = require('bcryptjs')
 import {Notify} from 'quasar'
 
-TOKEN_EXPIRATION = 1000000
-TOKEN_RENEWAL = TOKEN_EXPIRATION * 9 / 10
+// TODO: right now expiry is shared knowledge with backend.
+// Ideally, I should read it from the token.
+const TOKEN_EXPIRATION = 1000000
+const TOKEN_RENEWAL = TOKEN_EXPIRATION * 9 / 10
 
 const baseState = {
   member: null,
