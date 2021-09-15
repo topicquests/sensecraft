@@ -5,9 +5,9 @@
 </template>
 <script>
 import Vue from 'vue'
-import { onMounted, watch } from "@vue/composition-api";
 import store from './store'
 import router from './router'
+import { mapState } from 'vuex'
 
 const app = new Vue({
   name: "App",
@@ -28,15 +28,21 @@ const app = new Vue({
     }
   },
   created: async function() {
-    if (window.localStorage.getItem('tokenExpiry') > Date.now()) {
+    const prevTokenExpiry = window.localStorage.getItem('tokenExpiry')
+    if (prevTokenExpiry > Date.now()) {
       const res = await this.$store.dispatch("member/fetchLoginUser");
+      if (res.user) {
+        window.setTimeout(function() {
+          this.$store.dispatch("member/renewToken", {params: {token: this.$store.state.member.token}});
+        }, Math.min(0, prevTokenExpiry - Date.now() - 10000));
+      }
       console.log(res);
     }
   },
   computed: {
-    currentUser() {
-      return this.$store.state.member.member;
-    }
+    ...mapState('member', {
+      currentUser: state => state.member,
+    }),
   }
 });
 

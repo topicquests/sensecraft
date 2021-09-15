@@ -20,7 +20,7 @@ const store = new Vuex.Store({
       if (member.permissions.indexOf(permission) >= 0) return true;
       if (member.permissions.indexOf('superadmin') >= 0) return true;
       if (guild) {
-        if (typeof guild == 'number') {
+        if (!!Number.parseInt(guild)) {
           guild = store.getters['guilds/getGuildById'](guild);
         }
         const membership = (guild.guild_membership || []).find(
@@ -32,7 +32,7 @@ const store = new Vuex.Store({
         }
       }
       if (quest) {
-        if (typeof quest == 'number') {
+        if (!!Number.parseInt(quest)) {
           quest = store.getters['quests/getGuildById'](quest);
         }
         const membership = (quest.quest_membership || []).find(

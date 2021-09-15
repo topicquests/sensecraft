@@ -46,7 +46,7 @@ const guilds = new MyVapi({
       getMyGuilds: (state) =>
         state.guilds.filter(guild => guild.guild_membership.find(m => m.member_id == MyVapi.store.getters["member/getUserId"])),
       isGuildMember: (state) => (guild_id) =>
-        state.guilds.find(guild => guild.id == id)?.guild_membership.find(m => m.member_id == MyVapi.store.getters["member/getUserId"]),
+        state.guilds.find(guild => guild.id == guild_id)?.guild_membership.find(m => m.member_id == MyVapi.store.getters["member/getUserId"]),
     },
     actions: {
       setCurrentGuild: (context, guild) => {

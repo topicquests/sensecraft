@@ -8,19 +8,54 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="column items-center">
+
+    <div class="column items-center" v-if="pastQuests.length > 0">
       <div class="col-4" style="width: 900px">
-        <q-card v-if = "canRegisterToQuest">
-          <q-table title="Quests" :data="quests" :columns="columns1" row-key = "desc" id="quest_table">
+        <q-card>
+          <q-table title="Past Quests" :data="pastQuests" :columns="columns1" row-key = "desc" id="quest_table">
+            <template slot="body" slot-scope="props">
+              <q-tr :props="props">
+                <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
+                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                <q-td key="status" :props="props">{{props.row.status}}</q-td>
+                <q-td key="end" :props="props">{{props.row.end}}</q-td>
+                <q-td key="questNodeId" auto-width :props="props">
+                  <router-link :to="{ name: 'quest', params: { quest_id:  props.row.id }}" >Enter</router-link>
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </q-card>
+      </div>
+    </div>
+
+    <div class="column items-center" v-if="canRegisterToQuest && (potentialQuests.length > 0)">
+      <div class="col-4" style="width: 900px">
+        <q-card>
+          <q-table title="Potential Quests" :data="potentialQuests" :columns="columns1" row-key = "desc" id="quest_table">
             <template slot="body" slot-scope="props">
               <q-tr :props="props">
                 <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
                 <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
                 <q-td key="status" :props="props">{{props.row.status}}</q-td>
                 <q-td key="start" :props="props">{{props.row.start}}</q-td>
-                <q-td key="questNodeId" auto-width :props="props">
-                  <q-btn label="Register" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
-                </q-td>
+                <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId })">
+                  <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId }).status == 'invitation'">
+                    <q-td key="questNodeId" auto-width :props="props">
+                      <q-btn label="Invitation" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
+                    </q-td>
+                  </span>
+                  <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId }).status == 'requested'">
+                    <q-td key="questNodeId" auto-width :props="props">
+                      Waiting for response
+                    </q-td>
+                  </span>
+                </span>
+                <span v-if="!props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId })">
+                  <q-td key="questNodeId" auto-width :props="props">
+                    <q-btn label="Register" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
+                  </q-td>
+                </span>
               </q-tr>
             </template>
           </q-table>
@@ -30,9 +65,9 @@
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <q-card class="bg-light-blue no-border">
-          <div v-if="guildGamePlays.length>0">
-            <div v-for="quest in guildGamePlays" :key="quest.id">
-            <q-radio v-model="questId" v-on:click.native="getCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
+          <div v-if="activeQuests.length>0">
+            <div v-for="quest in activeQuests" :key="quest.id">
+            <q-radio v-model="currentQuestId" v-on:click.native="setCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
             </div>
           </div>
           <div v-else>
@@ -159,6 +194,9 @@ export default {
       memberPlaysQuestInThisGuild: false,
       casting: null,
       guildGamePlays: [],
+      pastQuests: [],
+      activeQuests: [],
+      potentialQuests: [],
       questGamePlay:[],
       isMember: false,
       isAdmin: false,
@@ -180,7 +218,10 @@ export default {
       quests: state => state.quests,
       currentQuestId: state => state.currentQuest
     }),
-    ...mapGetters('quests', ['getCurrentQuest']),
+    ...mapGetters('quests', [
+      'getQuestById',
+      'getCurrentQuest',
+    ]),
     ...mapState('member', {
       member: state => state.member,
       member_id: state => state.member?.id
@@ -189,11 +230,16 @@ export default {
     ...mapState('guilds', {
       currentGuildId: state=> state.currentGuild,
     }),
-    ...mapGetters('guilds', ['getCurrentGuild']),
+    ...mapGetters('guilds', [
+      'isGuildMember',
+      'getGuildById',
+      'getCurrentGuild',
+    ]),
     ...mapState('conversation', {
       nodes: state => state.neighbourhood,
       rootNode: state => state.conversationRoot,
     }),
+    ...mapGetters(['hasPermission']),
   },
   methods: {
     ...mapActions('conversation', [
@@ -217,16 +263,6 @@ export default {
       'setCurrentGuild',
       'setFocusNodeId',
     ]),
-    ...mapGetters(['hasPermission']),
-    ...mapGetters('guilds', [
-      'isGuildMember',
-      'getGuildById',
-      // 'getCurrentGuild',
-    ]),
-    ...mapGetters('quests', [
-      'getQuestById',
-      // 'getCurrentQuest',
-    ]),
     async initialize() {
       await this.setCurrentGuild(this.guildId);
       // Do we know the person wants to join the guild,
@@ -238,8 +274,15 @@ export default {
       this.checkPermissions();
       // should be useful but unused for now
       // const memb = await this.getGuildMembers();
-      // TODO: Maybe add the invitations so we can accept them?
+      const playQuestIds = this.getCurrentGuild.game_play.map(gp=>gp.quest_id);
       this.guildGamePlays = this.getCurrentGuild.game_play.filter(gp => gp.status == 'confirmed');
+      const confirmedPlayQuestIds = this.guildGamePlays.map(gp=>gp.quest_id);
+      if (this.canRegisterToQuest) {
+        this.potentialQuests = this.quests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
+      }
+      this.pastQuests = this.quests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
+      this.activeQuests = this.quests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
+
       if (this.guildGamePlays.length > 0) {
         const response = await this.initializeQuest();
       }
