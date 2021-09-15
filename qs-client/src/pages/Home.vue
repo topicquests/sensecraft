@@ -47,13 +47,13 @@ import {mapActions} from "vuex";
         }
       },
   methods: {
-   ...mapActions('guilds', ['findGuilds']),
-   ...mapActions('quests', ['findQuests'], )
+   ...mapActions('guilds', ['fetchGuilds']),
+   ...mapActions('quests', ['fetchQuests'], )
   },
 
   async beforeMount() {
-     const quests = await this.findQuests;
-     const guilds = await this.findGuilds;
+     const quests = await this.fetchQuests;
+     const guilds = await this.fetchGuilds;
   }
 };
 </script>

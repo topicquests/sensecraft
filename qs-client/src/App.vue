@@ -16,8 +16,8 @@ const app = new Vue({
   watch: {
     currentUser(newUser, oldUser) {
       // reload quests an guilds
-      this.$store.dispatch("quests/findQuests")
-      this.$store.dispatch("guilds/findGuilds")
+      this.$store.dispatch("quests/fetchQuests")
+      this.$store.dispatch("guilds/fetchGuilds")
       if (newUser === null) {
         this.$router.push("/");
       } else {

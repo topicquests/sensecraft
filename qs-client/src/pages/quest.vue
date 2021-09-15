@@ -113,7 +113,7 @@ export default {
   },
 
   async beforeMount() {
-     const quests = await this.$store.dispatch('quests/findQuests');
+     const quests = await this.$store.dispatch('quests/fetchQuests');
      console.log('find quests returns: ', quests);
   }
 };

@@ -83,7 +83,6 @@ export default {
           sortable: true
         }
       ],
-      isAuthenticated: false,
       serverPagination: {},
       serverData: []
     };

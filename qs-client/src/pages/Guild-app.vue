@@ -254,15 +254,14 @@ export default {
       'fetchRootNode'
     ]),
     ...mapActions('quests',[
-      'findQuests',
+      'fetchQuests',
       'setCurrentQuest',
-      'registerAllMembers',
       'addCasting',
     ]),
     ...mapActions('member',['getUserById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('guilds',[
-      'findGuilds',
+      'fetchGuilds',
       'getMemberByGuildIdandUserId',
       'getGamePlayByGuildIdAndQuestId',
       'getGamePlayByGuildId',
@@ -396,7 +395,7 @@ export default {
       }
       return
     },
-    
+
     async setGamePlay() {
       let payload = {
         quest_id: null,
@@ -452,9 +451,9 @@ export default {
   },
   async beforeMount() {
       this.guildId = this.$route.params.guild_id;
-      const quests = await this.findQuests();
-      const guilds = await this.findGuilds();
-      await this.initialize();
+      const quests = await this.fetchQuests();
+      const guilds = await this.fetchGuilds();
+      this.initialize();
     },
   }
 </script>

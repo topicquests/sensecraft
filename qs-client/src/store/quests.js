@@ -13,7 +13,7 @@ const quests = new MyVapi({
     path: (id) => `/quests?id=eq.${id}`,
   })
   .get({
-    action: "findQuests",
+    action: "fetchQuests",
     property: "quests",
     path: '/quests',
     queryParams: true,

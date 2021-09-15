@@ -97,13 +97,13 @@ export default {
   },
    methods: {
     ...mapActions('quests',[
-      'findQuests']),
+      'fetchQuests']),
     ...mapActions('guilds',[
-      'findGuilds',
+      'fetchGuilds',
       ]),
     async beforeMount() {
-      const quests = await this.findQuests;
-      const guilds = await this.findGuilds;
+      const quests = await this.fetchQuests;
+      const guilds = await this.fetchGuilds;
     }
   }
 };

@@ -21,9 +21,9 @@
     "quasar": "~1.15",
     "socket.io-client": "~4.2",
     "uuid": "^8.3.2",
+    "vue": "~2.6",
     "vue-ckeditor5": "^0.5.0",
     "vuelidate": "^0.7.6",
-    "vue": "~2.6",
     "vuex": "~3.6",
     "vuex-rest-api": "^2.14.0"
   },

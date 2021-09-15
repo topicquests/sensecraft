@@ -2,7 +2,7 @@
 
   <div class="column items-right" v-if="member">
     <div class="col-12">
-      <div class="member q-pr-md">{{this.member.handle}}
+      <div class="member q-pr-md">{{member.handle}}
       </div>
     </div>
   </div>
@@ -13,12 +13,14 @@
 import { mapState } from 'vuex'
 export default {
   // props: ['member'],
-  // name: 'ComponentName',
+  name: 'Member',
   data () {
     return {}
   },
 
-  computed: mapState('member', ['member']),
+  computed: {
+    ...mapState('member', {member: state =>state.member.member}),
+  },
 }
 </script>
 <style>

@@ -14,7 +14,7 @@ const guilds = new MyVapi({
     property: "guilds",
   })
   .get({
-    action: "findGuilds",
+    action: "fetchGuilds",
     path: '/guilds',
     property: "guilds",
     queryParams: true,

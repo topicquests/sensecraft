@@ -49,6 +49,7 @@ const member = new MyVapi({
       state.token = res.data
       state.tokenExpiry = Date.now() + TOKEN_EXPIRATION
       state.email = data.mail
+      state.isAuthenticated = true
       const storage = window.localStorage
       storage.setItem('token', state.token)
       storage.setItem('tokenExpiry', state.tokenExpiry)

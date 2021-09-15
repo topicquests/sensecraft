@@ -88,16 +88,14 @@ export default {
       signonEmail: null,
       password: null,
     },
-    title: "Sign on",
-    userId: null,
-    err: null
+
   };
   },
   methods: {
     ...mapActions('member', ['signin', 'fetchLoginUser']),
     ...mapGetters('member', ['getUserId', 'getUserEmail']),
-    ...mapActions('quests',['findQuests']),
-    ...mapActions('guilds',['findGuilds']),
+    ...mapActions('quests',['fetchQuests']),
+    ...mapActions('guilds',['fetchGuilds']),
    async doLogin() {
       try {
         const loginResponse = await this.login(this.formData.signonEmail)
@@ -121,12 +119,9 @@ export default {
         if (!signInResp) {
           throw 'login failed'
         }
-        const fetchResp = await this.fetchLoginUser(
-          {email: this.getUserEmail()});
-        if (!fetchResp) {
-          throw 'fetch failed'
-        }
-        this.userId = this.getUserId();
+        this.fetchLoginUser();
+        const quests = await this.fetchQuests();
+        const guilds = await this.fetchGuilds();
         return
       }
       catch (error) {
@@ -138,8 +133,6 @@ export default {
     },
     async goNext() {
       try {
-          const checkGuildsBelongToUser = this.$store.getters['guilds/getMyGuilds'].length > 0;
-          console.log("checked guilds :", checkGuildsBelongToUser )
           this.goLobby();
       }
       catch (error) {
@@ -163,8 +156,8 @@ export default {
   },
 },
 async beforeMount() {
-     const quests = await this.findQuests();
-     const guilds = await this.findGuilds();
+     //const quests = await this.fetchQuests();
+     //const guilds = await this.fetchGuilds();
   }
 };
 </script>

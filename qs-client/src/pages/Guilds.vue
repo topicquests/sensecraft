@@ -94,7 +94,7 @@ export default {
   },
 
   async beforeCreate() {
-     const guilds = await this.$store.dispatch('guilds/findGuilds');
+     const guilds = await this.$store.dispatch('guilds/fetchGuilds');
      console.log('find guilds returns: ', guilds);
   }
 };

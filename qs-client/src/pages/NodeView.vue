@@ -167,7 +167,7 @@
   </q-page>
 </template>
 <script>
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 //const treeview = api.service("tree-view");
 console.log("QVTV", treeview);
 export default {
@@ -185,7 +185,42 @@ export default {
       });
     }, 500);
   },
-  computed: {},
+ computed: {
+   ...mapState('member', [
+     isAuthenticated => state => state.isAuthenticated
+   ]),
+
+    isRelation() {
+      return this.q.type === "relation";
+    },
+    isTopic() {
+      return this.q.type === "topic";
+    },
+    notTopic() {
+      return this.q.type !== "topic";
+    },
+    canEdit() {
+      let result = this.$store.getters.isAdmin;
+      console.info("CE-1", result);
+      let cid;
+      let uid;
+      let usx = this.$store.getters.member;
+      if (usx) {
+        cid = this.$store.getters.node.creator;
+        uid = usx._id;
+      }
+      console.info("CE-2", cid, uid);
+      if (result) {
+        return result;
+      } else if (!usx) {
+        return false;
+      } else if (cid === uid) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
   mounted() {
     const id = this.$route.params.id;
     this.$data.rightDrawerOpen = false; //turn off conversation tree
@@ -268,42 +303,7 @@ export default {
     ...mapActions("conversation", { findConversations: "find" }),
     ...mapMutations("conversation", { setCurrentConversation: "setCurrent" })
   },
-  computed: {
-    ...mapGetters({ q: "conversation/current" }),
-    isAuthenticated() {
-      return this.$store.getters.isAuthenticated;
-    },
-    isRelation() {
-      return this.q.type === "relation";
-    },
-    isTopic() {
-      return this.q.type === "topic";
-    },
-    notTopic() {
-      return this.q.type !== "topic";
-    },
-    canEdit() {
-      let result = this.$store.getters.isAdmin;
-      console.info("CE-1", result);
-      let cid;
-      let uid;
-      let usx = this.$store.getters.member;
-      if (usx) {
-        cid = this.$store.getters.node.creator;
-        uid = usx._id;
-      }
-      console.info("CE-2", cid, uid);
-      if (result) {
-        return result;
-      } else if (!usx) {
-        return false;
-      } else if (cid === uid) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
+
 };
 </script>
 

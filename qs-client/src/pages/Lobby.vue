@@ -124,14 +124,10 @@ export default {
        quests: state => state.quests
     }),
     ...mapState('member', {
-      member: state => state.member
+      member: state => state.member.member
     }),
   },
   methods: {
-    ...mapActions('quests',['findQuests']),
-    ...mapActions('guilds',[
-      'findGuilds',
-      ]),
     ...mapGetters('guilds', ['getMyGuilds']),
     guildBelongsTo (id) {
       const guildId = this.getMyGuilds().find(el => el.id ==id);
@@ -143,8 +139,7 @@ export default {
     }
   },
   async beforeMount() {
-     const quests = await this.findQuests();
-     const guilds = await this.findGuilds();
+
   }
 }
 </script>

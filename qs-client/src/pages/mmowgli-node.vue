@@ -100,10 +100,10 @@ import {mapState, mapGetters, mapActions} from 'vuex'
         'getQuestById'
       ]),
       ...mapActions('quests',[
-      'findQuests',
+      'fetchQuests',
       'setCurrentQuest']),
       ...mapActions('guilds', [
-        'findGuilds'
+        'fetchGuilds'
       ]),
       async initialize (id = null) {
         //this.$store.commit('questView', true)
@@ -133,8 +133,8 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     async beforeMount() {
       this.questId = this.$route.params.quest_id;
-      const quests = await this.findQuests;
-      const guilds = await this.findGuilds;
+      const quests = await this.fetchQuests;
+      const guilds = await this.fetchGuilds;
       this.setCurrentQuest(this.questId);
       console.log("Current quest: ")
     }

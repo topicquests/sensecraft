@@ -16,7 +16,7 @@
           </q-btn>
         </q-toolbar-title>
       <div>
-        <q-btn v-if = '!this.member'
+        <q-btn v-if = '!isAuthenticated'
           @click="goTo('signin')"
           outline
           roundeded
@@ -24,7 +24,7 @@
           name="signin"
           class="q-mr-sm">
         </q-btn>
-      <q-btn v-if = '!this.member'
+      <q-btn v-if = '!isAuthenticated'
           @click="goTo('register')"
           outline
           roundeded
@@ -33,7 +33,7 @@
           ></q-btn>
       </div>
       <div>
-        <q-btn  v-if = 'this.member'
+        <q-btn  v-if = 'isAuthenticated'
           @click="logout()"
           outline
           roundeded
@@ -73,7 +73,7 @@
           </div>
           <div>
             <q-item>
-              <router-link v-if = '$store.state.member.member'
+              <router-link v-if = 'isAuthenticated'
                 to= "/lobby">  Lobby
               </router-link>
             </q-item>
@@ -154,7 +154,7 @@ export default {
       'hasPermission'
     ]),
     ...mapState('member', {
-      member: state => state.member
+      isAuthenticated: state => state.isAuthenticated
     }),
 
   },
