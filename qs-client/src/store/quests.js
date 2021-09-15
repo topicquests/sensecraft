@@ -32,6 +32,20 @@ const quests = new MyVapi({
       }
     },
   })
+  .post({
+    action: "addCasting",
+    path: '/casting',
+    onSuccess: (state, res, axios, actionParams) => {
+      const casting = res.data;
+      console.log(res);
+      const quest = state.quests.find(q => q.id === casting.quest_id);
+      if (quest) {
+        if (quest.casting === undefined)
+          quest.casting = [];
+        quest.casting.append(casting);
+      }
+    },
+  })
   .call({
     action: 'registerAllMembers',
     path: 'register_all_members',

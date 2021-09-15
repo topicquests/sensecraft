@@ -39,13 +39,13 @@
                 <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
                 <q-td key="status" :props="props">{{props.row.status}}</q-td>
                 <q-td key="start" :props="props">{{props.row.start}}</q-td>
-                <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId })">
-                  <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId }).status == 'invitation'">
+                <span v-if="findPlayOfGuild(props.row.game_play)">
+                  <span v-if="findPlayOfGuild(props.row.game_play).status == 'invitation'">
                     <q-td key="questNodeId" auto-width :props="props">
                       <q-btn label="Invitation" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
                     </q-td>
                   </span>
-                  <span v-if="props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId }).status == 'requested'">
+                  <span v-if="findPlayOfGuild(props.row.game_play).status == 'requested'">
                     <q-td key="questNodeId" auto-width :props="props">
                       Waiting for response
                     </q-td>
@@ -67,7 +67,10 @@
         <q-card class="bg-light-blue no-border">
           <div v-if="activeQuests.length>0">
             <div v-for="quest in activeQuests" :key="quest.id">
-            <q-radio v-model="currentQuestId" v-on:click.native="setCurrentQuest" color="black" style="font-size:20px" :val="quest.id" :label="quest.name"> </q-radio>
+            <q-radio v-model="currentQuestIdS" color="black" style="font-size:20px" :val="quest.id" :label="quest.name">
+              <q-btn v-if="!findGuildOfCasting(quest.casting)" label="Play" @click="doAddCasting(quest.id)" style="margin-right: 1em" class="bg-dark-blue"/>
+              <router-link  v-if="findGuildOfCasting(quest.casting) && findGuildOfCasting(quest.casting) != currentGuildId" :to="{ name: 'guild', params: { guild_id: findGuildOfCasting(quest.casting) }}" >Playing in guild</router-link>
+            </q-radio>
             </div>
           </div>
           <div v-else>
@@ -218,13 +221,17 @@ export default {
       quests: state => state.quests,
       currentQuestId: state => state.currentQuest
     }),
+    currentQuestIdS: {
+      get: function() { return this.currentQuestId },
+      set: function(value) { this.$store.dispatch('setCurrentQuestId', value); }
+    },
     ...mapGetters('quests', [
       'getQuestById',
       'getCurrentQuest',
     ]),
     ...mapState('member', {
       member: state => state.member,
-      member_id: state => state.member?.id
+      memberId: state => state.member?.id
     }),
     ...mapGetters('member', ['getUserId']),
     ...mapState('guilds', {
@@ -249,7 +256,9 @@ export default {
     ...mapActions('quests',[
       'findQuests',
       'setCurrentQuest',
-      'registerAllMembers']),
+      'registerAllMembers',
+      'addCasting',
+    ]),
     ...mapActions('member',['getUserById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('guilds',[
@@ -337,7 +346,18 @@ export default {
             gp => registerAllMembers({params:{ guild_id , quest_id: gp.quest_id}}));
       await Promise.all(calls);
     },
-
+    findPlayOfGuild(gamePlays) {
+      if (gamePlays)
+        return gamePlays.find(gp => gp.guild_id == this.currentGuildId);
+    },
+    findGuildOfCasting(castings) {
+      if (castings)
+        return castings.find(ct => ct.member_id == this.memberId)?.guild_id;
+    },
+    doAddCasting(quest_id) {
+      this.addCasting({data: {
+        quest_id, guild_id: this.currentGuildId, member_id: this.memberId}});
+    },
     checkPermissions() {
       this.isMember = this.isGuildMember(this.currentGuildId);
       if (this.isMember) {

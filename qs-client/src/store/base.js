@@ -39,7 +39,7 @@ class MyVapi extends Vapi {
       headers: (params) => {
         const token = MyVapi.store?.state.member.token;
         const tokenExpiry = MyVapi.store?.state.member.tokenExpiry;
-        if (token && tokenExpiry && tokenExpiry < Date.now()) {
+        if (token && tokenExpiry && Date.now() < tokenExpiry) {
           return Object.assign(baseHeaders, {
             Authorization: `Bearer ${token}`
           })

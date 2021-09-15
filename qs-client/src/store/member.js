@@ -70,7 +70,7 @@ const member = new MyVapi({
         state.token = window.localStorage.getItem('token')
       }
       if (!state.tokenExpiry) {
-        state.token = window.localStorage.getItem('tokenExpiry')
+        state.tokenExpiry = window.localStorage.getItem('tokenExpiry')
       }
       if (!state.email) {
         state.email = window.localStorage.getItem('email')
