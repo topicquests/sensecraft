@@ -192,7 +192,6 @@ export default {
           sortable: true
         }
       ],
-      currentGamePlay: false,
       memberPlaysQuestSomewhere: false,
       memberPlaysQuestInThisGuild: false,
       casting: null,
@@ -223,7 +222,7 @@ export default {
     }),
     currentQuestIdS: {
       get: function() { return this.currentQuestId },
-      set: function(value) { this.$store.dispatch('setCurrentQuestId', value); }
+      set: function(value) { this.setCurrentQuest(value) }
     },
     ...mapGetters('quests', [
       'getQuestById',
@@ -247,6 +246,9 @@ export default {
       rootNode: state => state.conversationRoot,
     }),
     ...mapGetters(['hasPermission']),
+  },
+  watch: {
+    currentQuestId: 'onCurrentQuestChange',
   },
   methods: {
     ...mapActions('conversation', [
@@ -301,13 +303,15 @@ export default {
         quest_id = null;
       }
       if (!quest_id) {
-        this.currentGamePlay = this.guildGamePlays[0];
-        await this.setCurrentQuest(this.currentGamePlay.quest_id);
-      } else {
-        this.currentGamePlay = this.guildGamePlays.find(gp => gp.quest_id == quest_id);
+        const gamePlay = this.guildGamePlays[0];
+        await this.setCurrentQuest(gamePlay.quest_id);
       }
-      // there should be one...
-      const casting = this.getCurrentQuest?.casting?.find(ct => ct.user_id == this.memberId);
+      // this.onCurrentQuestChange();
+    },
+    async onCurrentQuestChange() {
+      // we should not get here without a current quest
+      const quest = this.getCurrentQuest;
+      const casting = quest.casting?.find(ct => ct.user_id == this.memberId);
       if (casting) {
         this.memberPlaysQuestSomewhere = casting.guild_id;
         if (casting.guild_id == this.currentGuildId) {
@@ -316,14 +320,22 @@ export default {
         }
       }
       const guild = this.currentGuildId;
-      var node_id = this.currentGamePlay.focus_node_id;
+      const gamePlay = this.findPlayOfGuild(quest.game_play);
+      var node_id = gamePlay.focus_node_id;
       if (!node_id) {
         await this.fetchRootNode({params: {quest_id: this.currentQuestId}});
-        node_id = this.rootNode.id;
+        node_id = this.rootNode?.id;
       }
-      await this.fetchConversationNeighbourhood({params: {guild, node_id}});
-      this.focusNode = this.nodes.find(n => n.id == node_id);
-      this.selectedNode = this.focusNode;
+      if (node_id) {
+        await this.fetchConversationNeighbourhood({params: {guild, node_id}});
+        this.focusNode = this.nodes.find(n => n.id == node_id);
+        this.selectedNode = this.focusNode;
+      } else {
+        // ill-constructed quest
+        this.focusNode = null;
+        this.selectedNode = null;
+        this.$store.commit('RESET_CONVERSATION');
+      }
       return "success";
     },
 
@@ -394,18 +406,6 @@ export default {
         return selectedNode;
       }
       return
-    },
-
-    async setGamePlay() {
-      let payload = {
-        quest_id: null,
-        guild_id: null
-      };
-      payload.quest_id = this.getCurrentQuest.id;
-      payload.guild_id = this.currentGuildId;
-      const game_play =  await this.getGamePlayByGuildIdAndQuestId(payload)
-      this.gamePlay = game_play;
-      return game_play;
     },
     async setFocusNode() {
       let payload = {

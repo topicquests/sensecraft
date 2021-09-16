@@ -19,7 +19,7 @@ export default {
   },
 
   computed: {
-    ...mapState('member', {member: state =>state.member.member}),
+    ...mapState('member', ['member']),
   },
 }
 </script>

@@ -75,7 +75,16 @@ const conversation = new MyVapi({
         state.conversation.find(node => node.id == id),
       getRootNode: (state) => state.conversationRoot,
       getNeighbourhood: (state) => state.neighbourhood,
-    }
+    },
+    mutations: {
+      RESET_CONVERSATION: (state) => {
+        state.conversation = []
+        state.conversationRoot = null
+        state.neighbourhood = []
+        state.neighbourhoodRoot = null
+        state.currentQuest = null
+      },
+    },
   });
 
 export default conversation;
