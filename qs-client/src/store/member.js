@@ -19,7 +19,7 @@ const member = new MyVapi({
   state: baseState,
 })
   // Step 3
-  patch({
+  .patch({
     action: "updateUser",
     queryParams: true,
     property: "member",
