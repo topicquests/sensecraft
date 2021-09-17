@@ -15,15 +15,15 @@ const quests = new MyVapi({
       params.id = `eq.${params.id}`
       const userId = MyVapi.store.getters["member/getUserId"]
       if (userId) {
-        params.params = {
+        Object.assign(params, {
           select: '*,quest_membership(*),casting(*),game_play(*)',
           'guild_membership.member_id': `eq.${userId}`,
           'casting.member_id': `eq.${userId}`
-        }
+        })
       } else {
-        params.params = {
+        Object.assign(params, {
           select: '*,game_play(*)',
-        }
+        })
       }
     },
     onSuccess: (state, res, axios, actionParams) => {
