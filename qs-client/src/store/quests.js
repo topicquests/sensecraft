@@ -8,9 +8,9 @@ const quests = new MyVapi({
 })
   // Step 3
   .get({
-    action: "getQuestById",
+    action: "fetchQuestById",
     queryParams: true,
-    path: (id) => `/quests?id=eq.${id}`,
+    path: ({id}) => `/quests?id=eq.${id}`,
     onSuccess: (state, res, axios, actionParams) => {
       quest = res.data[0]
       if (state.quests) {

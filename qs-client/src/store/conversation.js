@@ -14,11 +14,11 @@ const conversation = new MyVapi({
   .get({
     action: "fetchConversationNode",
     queryParams: true,
-    path: (id) => `/conversation_node?id=eq.${id}`,
+    path: ({id}) => `/conversation_node?id=eq.${id}`,
     property: "node",
   })
   .get({
-    path: (quest_id) => `/conversation_node?quest_id=eq.${quest_id}`,
+    path: ({quest_id}) => `/conversation_node?quest_id=eq.${quest_id}`,
     property: "conversation",
     action: "fetchConversation",
     queryParams: true,

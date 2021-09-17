@@ -23,7 +23,7 @@ const member = new MyVapi({
     action: "updateUser",
     queryParams: true,
     property: "member",
-    path: (id) => `/members?id=eq.${id}`,
+    path: ({id}) => `/members?id=eq.${id}`,
   }).call({
     action: "signin",
     property: "token",

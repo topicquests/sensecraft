@@ -8,9 +8,9 @@ const guilds = new MyVapi({
 })
   // Step 3
   .get({
-    action: "getGuildById",
+    action: "fetchGuildById",
     queryParams: true,
-    path: (id) => `/guilds?id=eq.${id}`,
+    path: ({id}) => `/guilds?id=eq.${id}`,
     property: "guilds",
   })
   .get({

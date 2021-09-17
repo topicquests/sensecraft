@@ -9,7 +9,7 @@ const members = new MyVapi({
   .get({
     action: "fetchUserById",
     queryParams: true,
-    path: (id) => `/members?id=eq.${id}`,
+    path: ({id}) => `/members?id=eq.${id}`,
     property: "member",
   })
   .get({
@@ -19,7 +19,7 @@ const members = new MyVapi({
   })
   .post({
     action: "updateUser",
-    path: (id) => `/members?id=eq.${id}`,
+    path: ({id}) => `/members?id=eq.${id}`,
     property: "members",
     queryParams: true,
   })
