@@ -19,11 +19,7 @@ const member = new MyVapi({
   state: baseState,
 })
   // Step 3
-  .get({
-    action: "getUserById",
-    property: "member",
-    path: (id) => `/members?id=eq.${id}`,
-  }).patch({
+  patch({
     action: "updateUser",
     queryParams: true,
     property: "member",

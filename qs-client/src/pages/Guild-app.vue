@@ -260,7 +260,7 @@ export default {
       'setCurrentQuest',
       'addCasting',
     ]),
-    ...mapActions('member',['getUserById']),
+    ...mapActions('members',['fetchUserById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('guilds',[
       'fetchGuilds',
@@ -383,7 +383,7 @@ export default {
       const guildMembers = await this.getMembersByGuildId(this.currentGuildId);
       const resp = await Promise.all(guildMembers.map(async (player) => {
         try {
-          const respUser = await this.getUserById(player.member_id);
+          const respUser = await this.fetchUserById(player.member_id);
           return respUser.data;
         }
         catch (error) {

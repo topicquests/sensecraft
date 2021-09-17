@@ -7,10 +7,10 @@ const members = new MyVapi({
 })
   // Step 3
   .get({
-    action: "getUserById",
+    action: "fetchUserById",
     queryParams: true,
     path: (id) => `/members?id=eq.${id}`,
-    property: "members",
+    property: "member",
   })
   .get({
     path: '/members',
