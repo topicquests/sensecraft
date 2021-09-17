@@ -76,6 +76,11 @@ const conversation = new MyVapi({
       getRootNode: (state) => state.conversationRoot,
       getNeighbourhood: (state) => state.neighbourhood,
     },
+    actions: {
+      resetConversation: (context) => {
+        context.commit("RESET_CONVERSATION")
+      },
+    },
     mutations: {
       RESET_CONVERSATION: (state) => {
         state.conversation = []

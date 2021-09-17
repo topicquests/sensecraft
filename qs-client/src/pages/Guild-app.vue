@@ -68,7 +68,7 @@
           <div v-if="activeQuests.length>0">
             <div v-for="quest in activeQuests" :key="quest.id">
             <q-radio v-model="currentQuestIdS" color="black" style="font-size:20px" :val="quest.id" :label="quest.name">
-              <q-btn v-if="!findGuildOfCasting(quest.casting)" label="Play" @click="doAddCasting(quest.id)" style="margin-right: 1em" class="bg-dark-blue"/>
+              <q-btn v-if="isMember && !findGuildOfCasting(quest.casting)" label="Play" @click="doAddCasting(quest.id)" style="margin-right: 1em" class="bg-dark-blue"/>
               <router-link  v-if="findGuildOfCasting(quest.casting) && findGuildOfCasting(quest.casting) != currentGuildId" :to="{ name: 'guild', params: { guild_id: findGuildOfCasting(quest.casting) }}" >Playing in guild</router-link>
             </q-radio>
             </div>
