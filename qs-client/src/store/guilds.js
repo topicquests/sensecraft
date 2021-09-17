@@ -26,7 +26,7 @@ const guilds = new MyVapi({
       }
     },
     onSuccess: (state, res, axios, actionParams) => {
-      guild = res.data[0]
+      const guild = res.data[0]
       if (state.guilds) {
         const guilds = state.guilds.filter(q => q.id !== guild.id)
         guilds.push(guild)

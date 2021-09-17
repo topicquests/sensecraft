@@ -27,7 +27,7 @@ const quests = new MyVapi({
       }
     },
     onSuccess: (state, res, axios, actionParams) => {
-      quest = res.data[0]
+      const quest = res.data[0]
       if (state.quests) {
         const quests = state.quests.filter(q => q.id !== quest.id)
         quests.push(quest)
