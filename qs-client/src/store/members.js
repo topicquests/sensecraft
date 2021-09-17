@@ -8,13 +8,22 @@ const members = new MyVapi({
   // Step 3
   .get({
     action: "fetchUserById",
-    path: ({id}) => `/members?id=eq.${id}`,
-    property: "member",
+    path: ({id})=> `/members?eq.${id}`,
+    onSuccess: (state, res, axios, actionParams) => {
+      const member = res.data[0]
+      if (state.members) {
+        const members = state.members.filter(q => q.id !== member.id)
+        members.push(member)
+        state.members = members
+      } else {
+        state.members = [member]
+      }
+    },
   })
   .get({
     path: '/members',
     property: "members",
-    action: "listMembers",
+    action: "fetchMembers",
   })
   .post({
     action: "updateUser",
@@ -22,6 +31,11 @@ const members = new MyVapi({
     property: "members",
   })
   // Step 4
-  .getStore();
+  .getStore({
+    getters: {
+      getMemberById: (state) => (id) =>
+        state.members.find(member => member.id == id),
+    }
+  });
 
 export default members;
