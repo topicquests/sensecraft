@@ -2,6 +2,7 @@ import MyVapi from "./base"
 
 const guilds = new MyVapi({
   state: {
+    singleFetch: true,
     currentGuild: null,
     guilds: []
   },
@@ -74,7 +75,21 @@ const guilds = new MyVapi({
     actions: {
       setCurrentGuild: (context, guild) => {
         context.commit('SET_CURRENT_GUILD', guild);
-      }
+      },
+      ensureGuild: async (context, guild_id) => {
+        if (context.getters.getGuildById(guild_id) === undefined) {
+          await context.dispatch('fetchGuildById', { params: { id: guild_id } });
+        }
+      },
+      ensureAllGuilds: async (context) => {
+        if (context.state.guilds.length === 0 || context.state.singleFetch) {
+          await context.dispatch('fetchGuilds');
+        }
+      },
+      ensureCurrentGuild: async (context, guild_id) => {
+        await context.dispatch('ensureGuild', guild_id);
+        await context.dispatch('setCurrentGuild', guild_id);
+      },
     },
     mutations: {
       SET_CURRENT_GUILD: (state, guild) => {

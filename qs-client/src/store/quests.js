@@ -3,6 +3,7 @@ import MyVapi from "./base"
 const quests = new MyVapi({
   state: {
     currentQuest: null,
+    singleFetch: true,
     quests: []
   },
 })
@@ -34,6 +35,7 @@ const quests = new MyVapi({
         state.quests = quests
       } else {
         state.quests = [quest]
+        state.singleFetch = true
       }
     },
   })
@@ -55,6 +57,10 @@ const quests = new MyVapi({
           select: '*,game_play(*)',
         }
       }
+    },
+    onSuccess: (state, res, axios, actionParams) => {
+      state.quests = res.data
+      state.singleFetch = false
     },
   })
   .post({
@@ -98,7 +104,21 @@ const quests = new MyVapi({
     actions: {
       setCurrentQuest: (context, quest_id) => {
         context.commit('SET_CURRENT_QUEST', quest_id);
-      }
+      },
+      ensureQuest: async (context, quest_id) => {
+        if (context.getters.getQuestById(quest_id) === undefined) {
+          await context.dispatch('fetchQuestById', { params: { id: quest_id } });
+        }
+      },
+      ensureAllQuests: async (context) => {
+        if (context.state.quests.length === 0 || context.state.singleFetch) {
+          await context.dispatch('fetchQuests');
+        }
+      },
+      ensureCurrentQuest: async (context, quest_id) => {
+        await context.dispatch('ensureQuest', quest_id);
+        await context.dispatch('setCurrentQuest', quest_id);
+      },
     },
     mutations: {
       SET_CURRENT_QUEST: (state, quest_id) => {
