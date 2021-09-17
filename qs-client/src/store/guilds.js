@@ -9,9 +9,32 @@ const guilds = new MyVapi({
   // Step 3
   .get({
     action: "fetchGuildById",
+    path: '/guilds',
     queryParams: true,
-    path: ({id}) => `/guilds?id=eq.${id}`,
-    property: "guilds",
+    beforeRequest: (state, {params}) => {
+      params.id = `eq.${params.id}`
+      const userId = MyVapi.store.getters["member/getUserId"]
+      if (userId) {
+        actionParams.params = {
+          select: '*,game_play(*),guild_membership(*)',
+          'guild_membership.member_id': `eq.${userId}`
+        }
+      } else {
+        actionParams.params = {
+          select: '*,game_play(*)'
+        }
+      }
+    },
+    onSuccess: (state, res, axios, actionParams) => {
+      guild = res.data[0]
+      if (state.guilds) {
+        const guilds = state.guilds.filter(q => q.id !== guild.id)
+        guilds.push(guild)
+        state.guilds = guilds
+      } else {
+        state.guilds = [guild]
+      }
+    },
   })
   .get({
     action: "fetchGuilds",

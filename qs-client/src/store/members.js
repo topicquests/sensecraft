@@ -8,7 +8,6 @@ const members = new MyVapi({
   // Step 3
   .get({
     action: "fetchUserById",
-    queryParams: true,
     path: ({id}) => `/members?id=eq.${id}`,
     property: "member",
   })
@@ -21,7 +20,6 @@ const members = new MyVapi({
     action: "updateUser",
     path: ({id}) => `/members?id=eq.${id}`,
     property: "members",
-    queryParams: true,
   })
   // Step 4
   .getStore();

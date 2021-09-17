@@ -21,7 +21,6 @@ const member = new MyVapi({
   // Step 3
   .patch({
     action: "updateUser",
-    queryParams: true,
     property: "member",
     path: ({id}) => `/members?id=eq.${id}`,
   }).call({
