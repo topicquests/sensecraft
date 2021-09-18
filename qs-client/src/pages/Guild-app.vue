@@ -253,6 +253,7 @@ export default {
         const gamePlay = this.guildGamePlays[0];
         await this.setCurrentQuest(gamePlay.quest_id);
       }
+      // TODO: figure out why is this not triggered reliably by the watch and the change above?
       this.onCurrentQuestChange();
     },
     async onCurrentQuestChange() {
