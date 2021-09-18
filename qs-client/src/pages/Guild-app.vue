@@ -68,9 +68,9 @@
         </q-card>
         </div>
       </div>
-      <div class="col-12 col-md q-pa-md" style="width:200%;">
+      <div class="col-12 col-md q-pa-md" style="width:200%;" v-if="getCurrentQuest">
         <div>
-            <questCard v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()"></questCard>
+            <questCard v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()" v-if="getCurrentQuest"></questCard>
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@ export default {
     ...mapActions('members',['fetchUserById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('guilds',[
-      'fetchGuilds',
+      'ensureGuild',
       'getMemberByGuildIdandUserId',
       'getGamePlayByGuildIdAndQuestId',
       'getGamePlayByGuildId',
@@ -253,11 +253,12 @@ export default {
         const gamePlay = this.guildGamePlays[0];
         await this.setCurrentQuest(gamePlay.quest_id);
       }
-      // this.onCurrentQuestChange();
+      this.onCurrentQuestChange();
     },
     async onCurrentQuestChange() {
       // we should not get here without a current quest
       const quest = this.getCurrentQuest;
+      await this.fetchUserById({params: {id: quest.creator}})
       const casting = quest.casting?.find(ct => ct.user_id == this.memberId);
       if (casting) {
         this.memberPlaysQuestSomewhere = casting.guild_id;
@@ -358,7 +359,7 @@ export default {
       let payload = {
           guild_id: this.currentGuildId,
           quest_id: this.questId
-        }
+      }
       const conv = await this.setConversationQuest(payload.quest_id);
       const gpResponse = await this.getGamePlayByGuildIdAndQuestId(payload);
       gpResponse[0].focus_node_id = conv[0].id;
@@ -395,25 +396,19 @@ export default {
         console.log("error registering to quest: ", err);
       }
     },
-    async getQuestCreator() {
-      try {
-       const quest = this.getCurrentQuest;
-       const user = await this.fetchUserById({params: {id: quest.creator}});
-       const resp = this.getMemberById(quest.creator)
-       console.log("Response ", resp);
-       return this.getMemberById(quest.creator);
+    getQuestCreator() {
+      const quest = this.getCurrentQuest;
+      if (quest) {
+        return this.getMemberById(quest.creator);
       }
-      catch(error) {
-        console.log ("getQuestCreator error ", error)
-      }
-    }
+    },
   },
   async beforeMount() {
-      this.guildId = this.$route.params.guild_id;
-      const quests = await this.fetchQuests();
-      const guilds = await this.fetchGuilds();
-      this.initialize();
-    },
+    this.guildId = this.$route.params.guild_id;
+    const quests = await this.fetchQuests();
+    const guilds = await this.ensureGuild(this.guildId);
+    this.initialize();
+  },
 }
 </script>
 

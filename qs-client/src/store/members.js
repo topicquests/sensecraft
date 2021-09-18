@@ -8,7 +8,7 @@ const members = new MyVapi({
   // Step 3
   .get({
     action: "fetchUserById",
-    path: ({id})=> `/members?eq.${id}`,
+    path: ({id})=> `/members?id=eq.${id}`,
     onSuccess: (state, res, axios, actionParams) => {
       const member = res.data[0]
       if (state.members) {
