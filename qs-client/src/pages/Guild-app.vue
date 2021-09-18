@@ -8,60 +8,6 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-
-    <div class="column items-center" v-if="pastQuests.length > 0">
-      <div class="col-4" style="width: 900px">
-        <q-card>
-          <q-table title="Past Quests" :data="pastQuests" :columns="columns1" row-key = "desc" id="quest_table">
-            <template slot="body" slot-scope="props">
-              <q-tr :props="props">
-                <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                <q-td key="status" :props="props">{{props.row.status}}</q-td>
-                <q-td key="end" :props="props">{{props.row.end}}</q-td>
-                <q-td key="questNodeId" auto-width :props="props">
-                  <router-link :to="{ name: 'quest', params: { quest_id:  props.row.id }}" >Enter</router-link>
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card>
-      </div>
-    </div>
-
-    <div class="column items-center" v-if="canRegisterToQuest && (potentialQuests.length > 0)">
-      <div class="col-4" style="width: 900px">
-        <q-card>
-          <q-table title="Potential Quests" :data="potentialQuests" :columns="columns1" row-key = "desc" id="quest_table">
-            <template slot="body" slot-scope="props">
-              <q-tr :props="props">
-                <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                <q-td key="status" :props="props">{{props.row.status}}</q-td>
-                <q-td key="start" :props="props">{{props.row.start}}</q-td>
-                <span v-if="findPlayOfGuild(props.row.game_play)">
-                  <span v-if="findPlayOfGuild(props.row.game_play).status == 'invitation'">
-                    <q-td key="questNodeId" auto-width :props="props">
-                      <q-btn label="Invitation" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
-                    </q-td>
-                  </span>
-                  <span v-if="findPlayOfGuild(props.row.game_play).status == 'requested'">
-                    <q-td key="questNodeId" auto-width :props="props">
-                      Waiting for response
-                    </q-td>
-                  </span>
-                </span>
-                <span v-if="!props.row.game_play.find(function(gp) { return gp.guild_id == currentGuildId })">
-                  <q-td key="questNodeId" auto-width :props="props">
-                    <q-btn label="Register" @click="doRegister(props.row.id)" class = "q-mr-md q-ml-md"/>
-                  </q-td>
-                </span>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card>
-      </div>
-    </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <q-card class="bg-light-blue no-border">
@@ -79,11 +25,11 @@
         </q-card>
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 900px" v-if="getCurrentGuild">
-        <p style="text-align:center; font-size:40px"> {{getCurrentGuild.name}}</p>
+      <div class="column items-center">
+        <div class="col-4 q-pa-md" style="width: 900px" v-if="getCurrentGuild">
+          <p style="text-align:center; font-size:40px"> {{getCurrentGuild.name}}</p>
+        </div>
       </div>
-    </div>
     <div class="row">
        <div class="col-12 col-md q-pa-md">
           <p style="text-align:center; font-size:20px">Team</p>
@@ -95,7 +41,7 @@
             <p style="text-align:center; font-size:20px">Current Quest</p>
         </div>
     </div>
-    <div class="row ">
+    <div class="row">
         <div class="col-12 col-md q-pa-md">
         <q-card>
           <ul  style="font-size:20px; color: red; background: lightblue;">
@@ -105,7 +51,8 @@
           </ul>
         </q-card>
       </div>
-      <div v-if = "selectedNode" class="col-12 col-md q-pa-md">
+      <div class="col-12 col-md q-pa-md">
+        <div v-if = "selectedNode" class="col-12 col-md q-pa-md">
         <q-card  class="q-pa-md" id="node_card">
             <q-input
               v-model='selectedNode.title'
@@ -119,31 +66,26 @@
             Details<br/>
           <div v-html="selectedNode.description" style="font-size:17px;"></div>
         </q-card>
+        </div>
       </div>
-      <div v-if="getCurrentQuest" class="col-12 col-md q-pa-md">
-        <q-card id="quest_card">
-          <q-card-section>
-            <h6 v-if="getCurrentQuest" style="text-align:center; color: darkgreen;">
-              {{getCurrentQuest.name}}
-            </h6>
-          </q-card-section>
-          <q-card-section >
-              <div v-if="getCurrentQuest" style="font-size:17px">
-                <div v-html="getCurrentQuest.description"></div>
-              </div>
-          </q-card-section>
-          <div v-if = "this.getCurrentQuest" align="center">
-            <router-link :to="{ name: 'nodeEditor', params: { quest_id: this.getCurrentQuest.id }}">Go To Quest</router-link>
-          </div>
-        </q-card>
+      <div class="col-12 col-md q-pa-md" style="width:200%;">
+        <div>
+            <questCard v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()"></questCard>
+        </div>
       </div>
     </div>
+    <div v-if="getCurrentQuest" class="col-12 col-md q-pa-md">
+        <div v-if = "this.getCurrentQuest" align="center">
+          <router-link :to="{ name: 'game_play', params: { quest_id: this.getCurrentQuest.id }}">Go To Quest</router-link>
+        </div>
+      </div>
   </q-page>
 </template>
 
 <script>
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
+import questCard from '../components/quest-card.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
@@ -213,12 +155,14 @@ export default {
   },
   components: {
     "scoreboard": scoreboard,
-    "member": member
+    "member": member,
+    "questCard": questCard,
   },
   computed: {
     ...mapState('quests', {
       quests: state => state.quests,
-      currentQuestId: state => state.currentQuest
+      currentQuestId: state => state.currentQuest,
+      "questCard": questCard,
     }),
     currentQuestIdS: {
       get: function() { return this.currentQuestId },
@@ -232,10 +176,12 @@ export default {
       member: state => state.member,
       memberId: state => state.member?.id
     }),
-    ...mapGetters('member', ['getUserId']),
     ...mapState('guilds', {
       currentGuildId: state=> state.currentGuild,
     }),
+    ...mapGetters("members", [
+     "getMemberById",
+    ]),
     ...mapGetters('guilds', [
       'isGuildMember',
       'getGuildById',
@@ -259,6 +205,7 @@ export default {
       'fetchQuests',
       'setCurrentQuest',
       'addCasting',
+      "fetchQuestById",
     ]),
     ...mapActions('members',['fetchUserById']),
     // ...mapGetters('member', ['getUserId']),
@@ -448,6 +395,18 @@ export default {
         console.log("error registering to quest: ", err);
       }
     },
+    async getQuestCreator() {
+      try {
+       const quest = this.getCurrentQuest;
+       const user = await this.fetchUserById({params: {id: quest.creator}});
+       const resp = this.getMemberById(quest.creator)
+       console.log("Response ", resp);
+       return this.getMemberById(quest.creator);
+      }
+      catch(error) {
+        console.log ("getQuestCreator error ", error)
+      }
+    }
   },
   async beforeMount() {
       this.guildId = this.$route.params.guild_id;
@@ -455,7 +414,7 @@ export default {
       const guilds = await this.fetchGuilds();
       this.initialize();
     },
-  }
+}
 </script>
 
 <style>
@@ -475,8 +434,6 @@ export default {
   color:darkblue;
   height: 400px;
 }
-#scoreboard {
-  width: 900px;
-  border: 1px solid blue;}
+
 
 </style>

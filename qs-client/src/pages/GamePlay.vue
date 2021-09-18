@@ -1,29 +1,37 @@
 <template>
-  <q-page style ="background-color:lightgrey" >
-    <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
-        <scoreboard></scoreboard>
-        </div>
+ <q-page style ="background-color:lightgrey" >
+
+     <div>
+      <member></member>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-        <questCard v-bind:currentQuestCard ="getCurrentQuest" :creator="getQuestCreator()"></questCard>
+    <div class="column items-center q-mb-md">
+      <div class="col-4" id="scoreboard">
+        <scoreboard></scoreboard>
       </div>
     </div>
+    <questCard v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()"></questCard>
+   </div>
   </q-page>
 </template>
 
 <script>
-import questCard from '../components/quest-card.vue'
+import {mapGetters, mapActions, mapState} from 'vuex'
 import scoreboard from '../components/scoreboard.vue'
-import {mapActions, mapState, mapGetters} from 'vuex'
-
+import member from '../components/member.vue'
+import questCard from '../components/quest-card.vue'
 export default {
-  name: 'questview',
-  data() {
-    return {
-
-    }
+   name: 'GamePlay',
+   data() {
+     return {
+       guildId: null,
+       questId: null,
+     }
+   },
+   components: {
+    "scoreboard": scoreboard,
+    "member": member,
+    "questCard": questCard,
   },
   computed: {
     ...mapState("quests", {
@@ -36,10 +44,6 @@ export default {
      "getMemberById",
    ])
   },
-  components: {
-    "questCard": questCard,
-    "scoreboard": scoreboard
-  },
   methods: {
     ...mapActions("quests", [
     "setCurrentQuest",
@@ -49,13 +53,17 @@ export default {
       "fetchUserById"
     ]),
     getQuestCreator() {
+
       return this.getMemberById(this.getCurrentQuest.creator)
     }
   },
   async created() {
     try {
+
+    this.guildId = this.$route.params.guild_id;
+    this.questId = this.$route.params.quest_id;
     const questId = this.$route.params.quest_id;
-    await this.setCurrentQuest(questId)
+    await this.setCurrentQuest(this.questId)
     const thisQuest = await this.fetchQuestById({params: {id: questId}});
     const quest = this.getCurrentQuest;
     await this.fetchUserById({params: {id: quest.creator}});

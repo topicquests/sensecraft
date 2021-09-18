@@ -27,7 +27,7 @@ export default {
 .member {
   text-align: right;
   color: blue;
-  font-size: 110%;
+  font-size: 1.5em;
   font-family: Arial, Helvetica, sans-serif;
 }
 </style>

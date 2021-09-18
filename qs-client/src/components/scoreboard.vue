@@ -40,4 +40,7 @@ export default {
   color:yellow;
   background-color: black;
 }
+#scoreboard {
+  width: 900px;
+  border: 1px solid blue;}
 </style>

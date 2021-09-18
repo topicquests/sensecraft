@@ -1,31 +1,32 @@
 <template>
   <div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 45%">
-        <q-card id="quest_card">
-          <q-card-section>
-            <h6 v-if="currentQuest" style="text-align:center; color: darkgreen;">
-              {{currentQuest.name}}
-            </h6>
-          </q-card-section>
-          <q-card-section >
-              <div v-if="currentQuest" style="font-size:17px">
-                <div v-html="currentQuest.description"></div>
-              </div>
-          </q-card-section>
+    <div class="col-4 q-pa-lg">
+        <q-card v-if="currentQuestCard" class="quest_card">
+          <q-avatar size="56px" class="q-ma-sm">
+            <img src="../statics/images/question.png">
+          </q-avatar>
+          <h5 class="q-ma-md">
+              {{currentQuestCard.name}}
+          </h5>
+          <div v-html="currentQuestCard.description" class="quest_card q-mb-xl" style="border: none;"></div>
+            <section style="text-align: left" >
+              <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest_card" style="font-size: 1.2em; border: none; text-align:left;"> Quest Creator: {{creator.handle}}</p>
+              <p class="q-pt-none q-ml-md q-mb-sm quest_card" style="font-size: 1.2em; border: none; text-align:left;"> Quest Handle: {{currentQuestCard.handle}}</p>
+               <p class="q-pt-sm q-ml-md quest_card" style="font-size: 1.2em; border: none; text-align:left;"> Start Date: {{currentQuestCard.start}}</p>
+            </section>
         </q-card>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 export default {
    name: 'questCard',
    props: {
-     currentQuest: {
+     currentQuestCard: {
+       type: Object
+     },
+     creator: {
        type: Object
      }
    },
@@ -33,14 +34,18 @@ export default {
     return {
 
     }
-  }
+  },
+  computed: {
+
+  },
 }
 </script>
 <style>
-#quest_card {
+.quest_card {
+  text-align:center;
   border: 3px solid black;
-  font-size: 10pt;
+  font-size: 1.2em;
   color:darkgreen;
-  height: 400px;
+  background-color: aquamarine;
 }
 </style>

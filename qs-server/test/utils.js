@@ -16,7 +16,7 @@ class AxiosUtil {
     return Object.fromEntries(
       Object.entries(id).map(([key, value]) => [key, `eq.${value}`]));
   }
-  
+
   async get(path, id, token) {
     const params = this.as_params(id);
     try {
