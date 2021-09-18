@@ -27,7 +27,9 @@
     </div>
       <div class="column items-center">
         <div class="col-4 q-pa-md" style="width: 900px" v-if="getCurrentGuild">
-          <p style="text-align:center; font-size:40px"> {{getCurrentGuild.name}}</p>
+          <p style="text-align:center; font-size:40px"> {{getCurrentGuild.name}}
+            <router-link  v-if="canRegisterToQuest" :to="{ name: 'guild_admin', params: { guild_id: currentGuildId }}" style="font-size: smaller">Admin</router-link>
+          </p>
         </div>
       </div>
     <div class="row">
@@ -78,8 +80,30 @@
         <div v-if = "this.getCurrentQuest" align="center">
           <router-link :to="{ name: 'game_play', params: { quest_id: this.getCurrentQuest.id }}">Go To Quest</router-link>
         </div>
+    </div>
+
+   <div class="column items-center" v-if="pastQuests.length > 0">
+      <div class="col-4" style="width: 900px">
+        <q-card>
+          <q-table title="Past Quests" :data="pastQuests" :columns="columns1" row-key = "desc" id="quest_table">
+            <template slot="body" slot-scope="props">
+              <q-tr :props="props">
+                <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
+                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
+                <q-td key="status" :props="props">{{props.row.status}}</q-td>
+                <q-td key="end" :props="props">{{props.row.end}}</q-td>
+                <q-td key="questNodeId" auto-width :props="props">
+                  <router-link :to="{ name: 'quest', params: { quest_id:  props.row.id }}" >Enter</router-link>
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </q-card>
       </div>
+    </div>
+
   </q-page>
+
 </template>
 
 <script>
@@ -202,7 +226,7 @@ export default {
       'fetchRootNode'
     ]),
     ...mapActions('quests',[
-      'fetchQuests',
+      'ensureQuests',
       'setCurrentQuest',
       'addCasting',
       "fetchQuestById",
@@ -406,7 +430,7 @@ export default {
   },
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
-    const quests = await this.fetchQuests();
+    const quests = await this.ensureQuests();
     const guilds = await this.ensureGuild(this.guildId);
     this.initialize();
   },

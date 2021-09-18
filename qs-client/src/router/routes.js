@@ -56,6 +56,10 @@ const routes = [
         name: "guildedit",
         component: () => import('pages/guildEdit.vue')
       },
+      { path: '/guildAdmin/:guild_id',
+        name: "guild_admin",
+        component: () => import('pages/guildAdmin.vue')
+      },
       {path: 'guildform',
         name: "guildform",
         component: () => import('pages/guildForm.vue')

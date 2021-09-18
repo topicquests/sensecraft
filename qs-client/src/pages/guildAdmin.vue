@@ -1,28 +1,12 @@
 <template>
   <q-page padding>
-   <div class="column items-center" v-if="pastQuests.length > 0">
-      <div class="col-4" style="width: 900px">
-        <q-card>
-          <q-table title="Past Quests" :data="pastQuests" :columns="columns1" row-key = "desc" id="quest_table">
-            <template slot="body" slot-scope="props">
-              <q-tr :props="props">
-                <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
-                <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
-                <q-td key="status" :props="props">{{props.row.status}}</q-td>
-                <q-td key="end" :props="props">{{props.row.end}}</q-td>
-                <q-td key="questNodeId" auto-width :props="props">
-                  <router-link :to="{ name: 'quest', params: { quest_id:  props.row.id }}" >Enter</router-link>
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card>
-      </div>
-    </div>
 
-    <div class="column items-center" v-if="canRegisterToQuest && (potentialQuests.length > 0)">
+    <div class="column items-center" v-if="potentialQuests.length > 0">
       <div class="col-4" style="width: 900px">
         <q-card>
+          <h2>{{getCurrentGuild.name}}
+            <router-link :to="{ name: 'guild', params: { guild_id: currentGuildId }}" style="font-size: smaller">Guild</router-link>
+          </h2>
           <q-table title="Potential Quests" :data="potentialQuests" :columns="columns1" row-key = "desc" id="quest_table">
             <template slot="body" slot-scope="props">
               <q-tr :props="props">
@@ -57,7 +41,127 @@
 </template>
 
 <script>
+import member from '../components/member.vue'
+import { mapActions, mapState, mapGetters } from 'vuex'
+
 export default {
-  // name: 'PageName',
+  props: ["guild_id"],
+  data () {
+    return {
+      columns1: [
+        {
+          name: 'desc',
+          required: true,
+          label: "Quest",
+          align: "left",
+          field: "name",
+          sortable: true
+        },
+        {
+          name: "status",
+          required: false,
+          label: "Handle",
+          align: "left",
+          field: "status",
+          sortable: true
+        },
+        {
+          name: "handle",
+          required: false,
+          label: "Status",
+          align: "left",
+          field: "handle",
+          sortable: true
+        },
+        {
+          name: "start",
+          required: false,
+          label: "Start Date",
+          align: "left",
+          field: "start",
+          sortable: true
+        },
+        {
+          name: "questNodeId",
+          required: false,
+          label: "Action",
+          align: "left",
+          field: "id",
+          sortable: true
+        }
+      ],
+      guildGamePlays: [],
+      pastQuests: [],
+      activeQuests: [],
+      potentialQuests: [],
+      questGamePlay:[],
+      isAdmin: false,
+      members: [],
+      label: '',
+      questId:null,
+      gamePlay: null,
+      selectedNode: null,
+      focusNode: null,
+    }
+  },
+  name: 'Guild administration',
+  computed: {
+    ...mapState('quests', {
+      quests: state => state.quests,
+    }),
+    ...mapState('member', {
+      member: state => state.member,
+      memberId: state => state.member?.id
+    }),
+    ...mapState('guilds', {
+      currentGuildId: state=> state.currentGuild,
+    }),
+    ...mapGetters("members", [
+     "getMemberById",
+    ]),
+    ...mapGetters('guilds', [
+      'getCurrentGuild',
+    ]),
+    ...mapGetters(['hasPermission']),
+  },
+  methods: {
+    ...mapActions('members',['fetchUserById']),
+    // ...mapGetters('member', ['getUserId']),
+    ...mapActions('quests',[
+      'ensureQuests',
+    ]),
+    ...mapActions('guilds',[
+      'ensureGuild',
+      'getMembersByGuildId',
+      'setCurrentGuild',
+    ]),
+    async initialize() {
+      await this.setCurrentGuild(this.guildId);
+      // should be useful but unused for now
+      // const memb = await this.getGuildMembers();
+      const playQuestIds = this.getCurrentGuild.game_play.map(gp=>gp.quest_id);
+      this.guildGamePlays = this.getCurrentGuild.game_play.filter(gp => gp.status == 'confirmed');
+      const confirmedPlayQuestIds = this.guildGamePlays.map(gp=>gp.quest_id);
+      this.potentialQuests = this.quests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
+      this.pastQuests = this.quests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
+      this.activeQuests = this.quests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
+
+    },
+    findPlayOfGuild(gamePlays) {
+      if (gamePlays)
+        return gamePlays.find(gp => gp.guild_id == this.currentGuildId);
+    },
+  },
+  async beforeMount() {
+    this.guildId = this.$route.params.guild_id;
+    const guilds = await this.ensureGuild(this.guildId);
+    this.isAdmin = this.hasPermission('guildAdmin', this.currentGuildId);
+    const canRegisterToQuest = this.hasPermission('joinQuest', this.currentGuildId);
+    if (!canRegisterToQuest) {
+      this.$router.push({ name: "guild", guild_id: this.guildId });
+    }
+    await this.ensureQuests();
+    this.initialize();
+  },
 }
 </script>
