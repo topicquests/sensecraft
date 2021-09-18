@@ -93,11 +93,10 @@ const member = new MyVapi({
       console.log(error)
     },
   }).post({
-    action: "registerUser",
+    action: "registerUserCrypted",
     property: "member",
     path: "/members",
     onError: (state, error, axios, { params, data }) => {
-      data.password = hash(data.password, 10)
       const errorCode = data.code;
       if (errorCode === 409) {
         Notify.create({
@@ -156,6 +155,11 @@ const member = new MyVapi({
       logout: (context) => {
         context.commit("LOGOUT")
       },
+      registerUser: async (context, data) => {
+        const password = await hash(data.password, 10)
+        data = { ...data, password }
+        return await context.dispatch("registerUserCrypted", { data })
+      }
     }
   });
 

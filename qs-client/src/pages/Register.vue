@@ -134,8 +134,7 @@ export default {
       this.$q.notify({ type: "negative", message: "Missing Password" });
       return;
     }
-
-    this.$store.dispatch("member/registerUser", {formdata: this.formdata})
+    this.$store.dispatch("member/registerUser", this.formdata)
   },
 
   goHome() {
