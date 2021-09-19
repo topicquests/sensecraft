@@ -219,7 +219,7 @@ export default {
         if (this.group === false) {
           this.quest.public = false;
       }
-      const questUpdateResponse = await this.updateQuests(this.quest);
+      const questUpdateResponse = await this.updateQuest({data: this.quest});
       console.log("Quest update: ", questUpdateResponse);
        this.$q.notify({
         message: `Quest was updated successfully`,

@@ -21,7 +21,7 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests = "quests" :view=false></questTable>
+        <questTable v-bind:quests = "getQuests" :view=false></questTable>
       </div>
     </div>
   </q-page>
@@ -85,11 +85,6 @@ export default {
       serverData: []
     };
   },
-  computed: {
-    ...mapState('quests', {
-      quests: state => state.quests
-    })
-  },
   components: {
     "scoreboard": scoreboard,
     "questTable": questTable,
@@ -97,13 +92,19 @@ export default {
   },
    methods: {
     ...mapActions('quests',[
-      'fetchQuests']),
+      'ensureAllQuests']),
     ...mapActions('guilds',[
-      'fetchGuilds',
+      'ensureAllGuilds',
+      ]),
+    ...mapGetters('quests', [
+      'getQuests',
+      ]),
+    ...mapGetters('guilds', [
+      'getGuilds',
       ]),
     async beforeMount() {
-      const quests = await this.fetchQuests;
-      const guilds = await this.fetchGuilds;
+      await this.ensureAllQuests();
+      await this.ensureAllGuilds();
     }
   }
 };

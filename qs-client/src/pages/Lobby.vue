@@ -10,7 +10,7 @@
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests="quests" :view="true" title="Quests"></questTable>
+        <questTable v-bind:quests="getQuests" :view="true" title="Quests"></questTable>
         </div>
     </div>
     <div class="column items-center">
@@ -22,7 +22,7 @@
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
         <q-card >
-          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
+          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="getGuilds" :columns="columns2" row-key = "desc">
             <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="guildDesc" :props="props"> {{props.row.name}}</q-td>
@@ -117,20 +117,20 @@ export default {
     "member": member
   },
   computed: {
-    ...mapState('guilds', {
-      guilds: state => state.guilds,
-    }),
-    ...mapState('quests', {
-       quests: state => state.quests
-    }),
+    ...mapGetters('guilds', [
+      'getGuilds',
+      'getMyGuilds',
+    ]),
+    ...mapGetters('quests', [
+      'getQuests'
+    ]),
     ...mapState('member', {
       member: state => state.member.member
     }),
   },
   methods: {
-    ...mapGetters('guilds', ['getMyGuilds']),
     guildBelongsTo (id) {
-      const guildId = this.getMyGuilds().find(el => el.id ==id);
+      const guildId = this.getMyGuilds.find(el => el.id ==id);
       if (guildId){
         return true
       } else {

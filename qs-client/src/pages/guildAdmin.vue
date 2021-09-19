@@ -106,9 +106,6 @@ export default {
   },
   name: 'Guild administration',
   computed: {
-    ...mapState('quests', {
-      quests: state => state.quests,
-    }),
     ...mapState('member', {
       member: state => state.member,
       memberId: state => state.member?.id
@@ -116,6 +113,9 @@ export default {
     ...mapState('guilds', {
       currentGuildId: state=> state.currentGuild,
     }),
+    ...mapGetters("quests", [
+     "getQuests",
+    ]),
     ...mapGetters("members", [
      "getMemberById",
     ]),
@@ -128,7 +128,7 @@ export default {
     ...mapActions('members',['fetchUserById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('quests',[
-      'ensureQuests',
+      'ensureAllQuests',
     ]),
     ...mapActions('guilds',[
       'ensureGuild',
@@ -142,9 +142,9 @@ export default {
       const playQuestIds = this.getCurrentGuild.game_play.map(gp=>gp.quest_id);
       this.guildGamePlays = this.getCurrentGuild.game_play.filter(gp => gp.status == 'confirmed');
       const confirmedPlayQuestIds = this.guildGamePlays.map(gp=>gp.quest_id);
-      this.potentialQuests = this.quests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
-      this.pastQuests = this.quests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
-      this.activeQuests = this.quests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
+      this.potentialQuests = this.getQuests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
+      this.pastQuests = this.getQuests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
+      this.activeQuests = this.getQuests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
 
     },
     findPlayOfGuild(gamePlays) {
@@ -160,7 +160,7 @@ export default {
     if (!canRegisterToQuest) {
       this.$router.push({ name: "guild", guild_id: this.guildId });
     }
-    await this.ensureQuests();
+    await this.ensureAllQuests();
     this.initialize();
   },
 }

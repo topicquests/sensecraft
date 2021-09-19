@@ -63,6 +63,18 @@ const guilds = new MyVapi({
       state.guilds = [...state.guilds, res.data]
     }
   })
+  .patch({
+    action: "updateGuild",
+    path: (id) => `/guilds?id=eq.${id}`,
+    beforeRequest: (state, { params, data }) => {
+      params.id = data.id
+    },
+    onSuccess: (state, res, axios, { data }) => {
+      const guilds = state.guilds.filter(q => q.id !== guild.id)
+      guilds.push(data)
+      state.guilds = guilds
+    }
+  })
   // Step 4
   .getStore({
     getters: {

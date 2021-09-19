@@ -184,7 +184,6 @@ export default {
   },
   computed: {
     ...mapState('quests', {
-      quests: state => state.quests,
       currentQuestId: state => state.currentQuest,
       "questCard": questCard,
     }),
@@ -194,6 +193,7 @@ export default {
     },
     ...mapGetters('quests', [
       'getQuestById',
+      'getQuests',
       'getCurrentQuest',
     ]),
     ...mapState('member', {
@@ -226,7 +226,7 @@ export default {
       'fetchRootNode'
     ]),
     ...mapActions('quests',[
-      'ensureQuests',
+      'ensureAllQuests',
       'setCurrentQuest',
       'addCasting',
       "fetchQuestById",
@@ -259,10 +259,10 @@ export default {
       this.guildGamePlays = this.getCurrentGuild.game_play.filter(gp => gp.status == 'confirmed');
       const confirmedPlayQuestIds = this.guildGamePlays.map(gp=>gp.quest_id);
       if (this.canRegisterToQuest) {
-        this.potentialQuests = this.quests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
+        this.potentialQuests = this.getQuests.filter(q => (q.status == 'registration' || q.status == 'ongoing') && !confirmedPlayQuestIds.includes(q.id));
       }
-      this.pastQuests = this.quests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
-      this.activeQuests = this.quests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
+      this.pastQuests = this.getQuests.filter(q => (q.status == 'finished' || q.status == 'scoring') && playQuestIds.includes(q.id));
+      this.activeQuests = this.getQuests.filter(q => (q.status == 'ongoing' || q.status == 'paused' || q.status == 'registration') && confirmedPlayQuestIds.includes(q.id));
 
       if (this.guildGamePlays.length > 0) {
         const response = await this.initializeQuest();
@@ -430,8 +430,8 @@ export default {
   },
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
-    const quests = await this.ensureQuests();
-    const guilds = await this.ensureGuild(this.guildId);
+    await this.ensureAllQuests();
+    await this.ensureGuild(this.guildId);
     this.initialize();
   },
 }

@@ -10,7 +10,7 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <questCard v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()"></questCard>
+    <questCard v-if="getCurrentQuest" v-bind:currentQuestCard ="getCurrentQuest" style="width: 100%" :creator="getQuestCreator()"></questCard>
    </div>
   </q-page>
 </template>
@@ -34,9 +34,6 @@ export default {
     "questCard": questCard,
   },
   computed: {
-    ...mapState("quests", {
-      questId: state => state.currentQuest
-    }),
    ...mapGetters('quests', [
       'getCurrentQuest',
    ]),
@@ -47,7 +44,11 @@ export default {
   methods: {
     ...mapActions("quests", [
     "setCurrentQuest",
-    "fetchQuestById"
+    "ensureQuest",
+    ]),
+    ...mapActions("guilds", [
+    "setCurrentGuild",
+    "ensureGuild",
     ]),
     ...mapActions("members", [
       "fetchUserById"
@@ -58,20 +59,15 @@ export default {
     }
   },
   async created() {
-    try {
-
     this.guildId = this.$route.params.guild_id;
     this.questId = this.$route.params.quest_id;
-    const questId = this.$route.params.quest_id;
-    await this.setCurrentQuest(this.questId)
-    const thisQuest = await this.fetchQuestById({params: {id: questId}});
+    await this.setCurrentQuest(this.questId);
+    await this.setCurrentGuild(this.guildId)
+    await this.ensureQuest(this.questId);
+    await this.ensureGuild(this.guildId);
     const quest = this.getCurrentQuest;
     await this.fetchUserById({params: {id: quest.creator}});
-    const creator = this.getMemberById(quest.creator);
-    }
-    catch(error) {
-      console.log("Error in questview create: ", error)
-    }
+    // const creator = this.getMemberById(quest.creator);
   }
 }
 

@@ -83,7 +83,6 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     computed: {
       ...mapState('quests', {
-      quests: state => state.quests,
       currentQuest: state => state.currentQuest
     }),
       canEdit () {
@@ -97,18 +96,19 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     methods: {
       ...mapGetters('quests', [
-        'getQuestById'
+        'getQuestById',
+        'getQuests',
       ]),
       ...mapActions('quests',[
-      'fetchQuests',
+      'ensureAllQuests',
       'setCurrentQuest']),
       ...mapActions('guilds', [
-        'fetchGuilds'
+        'ensureAllGuilds'
       ]),
       async initialize (id = null) {
         //this.$store.commit('questView', true)
         const nodeId = id || this.$route.params.id
-        console.info('Initialize', 'fetching data for ', nodeId)
+        console.info('Initialize', 'ensureing data for ', nodeId)
         //this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
         console.info('node', this.q)
         if (this.q !== null) {
@@ -133,8 +133,8 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     async beforeMount() {
       this.questId = this.$route.params.quest_id;
-      const quests = await this.fetchQuests;
-      const guilds = await this.fetchGuilds;
+      await this.ensureAllQuests();
+      await this.ensureAllGuilds();
       this.setCurrentQuest(this.questId);
       console.log("Current quest: ")
     }

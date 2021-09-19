@@ -95,8 +95,10 @@ export default {
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
     ...mapGetters('member', ['getUser']),
+    ...mapGetters('guilds', ['getGuildById']),
+    ...mapActions('guilds', ['updateGuild']),
 
-    doSubmit: function() {
+    doSubmit: async function() {
       if (this.group === true) {
         this.guild.public = true;
       }
@@ -105,14 +107,14 @@ export default {
         this.guild.public = false;
       }
       //console.log("Name ", quest.member.name);
-      const conversations = this.$store.dispatch("guilds/updateGuilds", this.guild);
+      const res = await this.updateGuild({data: this.guild});
     }
   },
 
   mounted() {
    this.$data.guild.id = this.$route.params.id;
    console.log("Guild id: ", this.$data.guild.id);
-   const response = this.$store.getters['guilds/getGuildById'] (this.$data.guild.id);
+   const response = this.getGuildById(this.$data.guild.id);
    console.log("Guild respone: ", response[0]);
    this.$data.guild = response[0];
   }
