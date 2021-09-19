@@ -94,21 +94,21 @@ export default {
     QuestTable
   },
   computed: {
-    ...mapGetters('quests', ['getQuestByStatus']),
+    ...mapGetters('quests', ['getQuestsByStatus']),
     notStartedQuests() {
-      return this.getQuestByStatus('draft');
+      return this.getQuestsByStatus('draft');
     },
 
     registrationQuests() {
-      return this.getQuestByStatus('registration');
+      return this.getQuestsByStatus('registration');
     },
 
     ongoingQuests() {
-      return this.getQuestByStatus('ongoing');
+      return this.getQuestsByStatus('ongoing');
     },
 
     finishedQuests() {
-      return this.getQuestByStatus('finished');
+      return this.getQuestsByStatus('finished');
     },
   },
 

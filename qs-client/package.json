@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^27.1.0",
-    "@ckeditor/ckeditor5-vue": "2.0.1",
+    "@ckeditor/ckeditor5-vue2": "~1.0",
     "@quasar/extras": "~1.10",
     "@vue/composition-api": "~1.1",
     "axios": "~0.21",

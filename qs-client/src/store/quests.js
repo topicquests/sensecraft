@@ -64,6 +64,13 @@ const quests = new MyVapi({
     },
   })
   .post({
+    action: "createQuest",
+    path: '/quests',
+    onSuccess: (state, res, axios, { data }) => {
+      state.quests = [...state.quests, res.data]
+    }
+  })
+  .post({
     action: "addCasting",
     path: '/casting',
     onSuccess: (state, res, axios, actionParams) => {
@@ -86,7 +93,7 @@ const quests = new MyVapi({
   // Step 4
   .getStore({
     getters: {
-      getQuestByStatus: (state) => (status) =>
+      getQuestsByStatus: (state) => (status) =>
         state.quests.filter(quest => quest.status == status),
       getQuests: (state) =>
         state.quests,

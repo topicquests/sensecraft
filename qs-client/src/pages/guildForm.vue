@@ -52,6 +52,7 @@
 import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
@@ -78,6 +79,7 @@ export default {
       details: "",
       handle: "",
       type: false,
+      editor: ClassicEditor,
       member: this.$store.getters['member/getUser']
     };
   },

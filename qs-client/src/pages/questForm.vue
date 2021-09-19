@@ -33,7 +33,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <q-editor :editor="editor" v-model="quest.description" style="width: 80%" ></q-editor>
+      <ckeditor :editor="editor" v-model="quest.description" style="width: 80%" ></ckeditor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.handle" label = "Handle" style="width: 40%"/>
@@ -54,11 +54,13 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions} from "vuex";
 import { Notify } from "quasar";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
     return {
       group: 'public',
+      editor: ClassicEditor,
       options: [
         {
           label: 'Public',
@@ -89,7 +91,7 @@ export default {
   },
   methods: {
     ...mapActions('quests', [
-      'createQuests',
+      'createQuest',
       'findquests',
       'getQuestByHandle']),
     async doSubmit() {
@@ -99,7 +101,7 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      const conversations = await this.createQuests(this.quest);
+      const quest_data = await this.createQuest({data: this.quest});
       const questByHandle = await this.getQuestByHandle(this.quest.handle);
       Notify.create({
          message: `New quest was created successfully`,

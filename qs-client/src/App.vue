@@ -8,6 +8,9 @@ import Vue from 'vue'
 import store from './store'
 import router from './router'
 import { mapState } from 'vuex'
+import CKEditor from '@ckeditor/ckeditor5-vue2';
+
+Vue.use(CKEditor);
 
 const app = new Vue({
   name: "App",
