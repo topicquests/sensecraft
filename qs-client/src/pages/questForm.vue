@@ -101,13 +101,13 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      const quest_data = await this.createQuest({data: this.quest});
-      const questByHandle = await this.getQuestByHandle(this.quest.handle);
+      const res = await this.createQuest({data: this.quest});
+      const quest = await this.getQuestById(res.data.id);
       Notify.create({
          message: `New quest was created successfully`,
          color: "positive"
       })
-      this.$router.push({name: 'questedit', params: {quest_id: questByHandle.id}})
+      this.$router.push({name: 'questedit', params: {quest_id: quest.id}})
     }
   }
 };

@@ -28,9 +28,6 @@
    <div class = "row justify-start q-pb-xs">
       Details<br/>
     </div>
-     <div class = "row justify-start q-pb-lg">
-      <q-editor v-model="guild.description" style="width: 55%" ></q-editor>
-    </div>
     <div class = "row justify-start q-pb-lg">
       <ckeditor :editor="editor" v-model="guild.description" ></ckeditor>
     </div>
@@ -99,6 +96,7 @@ export default {
     ...mapActions('guilds', [
       'createGuild',
     ]),
+    ...mapGetters('guilds', ['getGuildById']),
 
     async doSubmit() {
       if (this.group === "public") {
@@ -107,7 +105,9 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      const guild = await this.createGuild(this.guild);
+      const res = await this.createGuild({data: this.guild});
+      const guild = await this.getGuildById(res.data.id);
+      this.$router.push({name: 'guildedit', params: {guild_id: guild.id}})
     },
   },
 };

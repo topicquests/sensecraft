@@ -56,6 +56,13 @@ const guilds = new MyVapi({
       }
     },
   })
+  .post({
+    action: "createGuild",
+    path: '/guilds',
+    onSuccess: (state, res, axios, { data }) => {
+      state.guilds = [...state.guilds, res.data]
+    }
+  })
   // Step 4
   .getStore({
     getters: {
