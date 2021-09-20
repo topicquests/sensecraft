@@ -107,6 +107,8 @@ const quests = new MyVapi({
         state.quests.filter(quest => quest.casting && quest.casting.length),
       isQuestMember: (state) => (guild_id) =>
         state.quests.find(quest => quest.id == id)?.quest_membership.find(m => m.member_id == MyVapi.store.getters["member/getUserId"]),
+      castingInQuest: (state) => (quest_id) =>
+        state.quests.find(quest => quest.id == quest_id)?.casting.find(c => c.member_id == MyVapi.store.getters["member/getUserId"]),
     },
     actions: {
       setCurrentQuest: (context, quest_id) => {

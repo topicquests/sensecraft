@@ -2,15 +2,15 @@
   <q-page padding>
    <div class="q-pa-md">
     <div class="q-gutter-sm">
-        <div v-for="guild in guilds" v-bind:data="guild" v-bind:key="guild.name">
+        <div v-for="guild in getMyGuilds" v-bind:data="getMyGuilds" v-bind:key="guild.id">
           <q-checkbox
-          v-model="guild[0].check"
-          :val="guild[0].check"
+          v-model="guild.check"
+          :val="guild.check"
           :value="true"
           :checked="true"
-          :label="guild[0].name"
-          :name="guild[0].handle"
-          v-on:click.native="toggleCheckbox(guild[0])"
+          :label="guild.name"
+          :name="guild.handle"
+          v-on:click.native="toggleCheckbox(guild.id)"
           />
         </div>
          </div>
@@ -22,13 +22,11 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { mapActions, mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      quest: null,
-      guilds: null,
-      userId: null,
+      quest_id: null,
       val: false,
       columns: [
         {
@@ -82,18 +80,24 @@ export default {
       ]
     }
   },
-
+  computed: {
+    ...mapGetters('guilds', ['getMyGuilds'])
+  },
   methods: {
+    ...mapActions('guilds', ['ensureAllGuilds']),
+    ...mapActions('guilds', ['ensureQuest']),
     joinQuest(quest) {
 
     },
     toggleCheckbox: function(guild) {
-    }
-
+    },
+  
   },
 
-  async mounted() {
-    this.guilds = this.$store.getters['guilds/getMyGuilds']
+  async beforeMount() {
+    this.quest_id = this.$route.params.quest_id;
+    this.ensureQuest(this.quest_id);
+    this.ensureAllGuilds();
   }
   // name: 'PageName',
 }

@@ -75,6 +75,23 @@ const conversation = new MyVapi({
         state.conversation.find(node => node.id == id),
       getRootNode: (state) => state.conversationRoot,
       getNeighbourhood: (state) => state.neighbourhood,
+      canEdit: (state) => (node_id) => {
+        const userId = MyVapi.store.getters["member/getUserId"]
+        const node = state.conversation.find(node => node.id == node_id);
+        if (node && userId) {
+          if (node.state == "draft") {
+            return node.creator == userId
+          // TODO: role_draft
+          } else if (node.state == 'guild_draft') {
+            const casting = MyVapi.store.castingInQuest["quest/isPlaying"](node.quest_id)
+            return casting?.guild_id == node.guild_id
+          } else if (node.state == 'proposed') {
+            return MyVapi.store.getters['hasPermission']('guild_admin', node.guild_id, node.quest_id)
+          }
+          // TODO: Check that the node is under the focus node
+        }
+        return false;
+      },
     },
     actions: {
       resetConversation: (context) => {

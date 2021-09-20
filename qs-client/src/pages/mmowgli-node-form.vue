@@ -88,7 +88,7 @@ export default {
       })
     }
   },
-  mounted () {
+  beforeMount() {
     console.info('MMOWGLIEdit', 'mounted', this.type, this.id, this.isDetails);
 
     router = this.$router
@@ -96,11 +96,7 @@ export default {
 
     //this.$store.commit('questView', false)
   },
-  computed: {
-    //member () {
-      //return this.$store.getters.member
-    }
-  }
+}
 
 </script>
 

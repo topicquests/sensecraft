@@ -83,21 +83,21 @@
     },
     computed: {
       ...mapState('quests', {
-      currentQuest: state => state.currentQuest
-    }),
-      canEdit () {
-        return false;
-        //TODO
-      },
+        currentQuest: state => state.currentQuest
+      }),
+      ...mapState('member', ['member']),
       isAuthenticated () {
-        return true;
-        //TODO return this.$store.getters.isAuthenticated
+        return this.member != null;
       }
     },
     methods: {
       ...mapGetters('quests', [
         'getQuestById',
         'getQuests',
+      ]),
+      ...mapGetters('conversation', [
+        'canEdit',
+        'getConversationById',
       ]),
       ...mapActions('quests',[
       'ensureAllQuests',
