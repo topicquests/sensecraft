@@ -9,7 +9,7 @@
       <div class="col-4 q-pa-lg" style="width: 1000px">
         <q-card>
           <div>
-            <q-table title="Guild List" :data="guildList" :columns="columns" row-key = "desc">
+            <q-table title="Guild List" :data="getGuilds" :columns="columns" row-key = "desc">
               <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -33,7 +33,7 @@
 <script>
 
 import scoreboard from '../components/scoreboard.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   props: ["member"],
@@ -92,10 +92,12 @@ export default {
       return  this.getGuilds;
     }
   },
+  methods: {
+    ...mapActions('guilds', ['ensureAllGuilds']),
+  },
 
-  async beforeCreate() {
-     const guilds = await this.$store.dispatch('guilds/fetchGuilds');
-     console.log('find guilds returns: ', guilds);
+  async beforeMount() {
+     await this.ensureAllGuilds();
   }
 };
 </script>

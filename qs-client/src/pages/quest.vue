@@ -12,12 +12,12 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
-         <QuestTable v-bind:quests="registrationQuests" title="Registered" :view=true></QuestTable>
+         <QuestTable v-bind:quests="registrationQuests" title="Registering" :view=true></QuestTable>
       </div>
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
-        <QuestTable v-bind:quests="ongoingQuests" title="On Going" :view=true></QuestTable>
+        <QuestTable v-bind:quests="ongoingQuests" title="Ongoing" :view=true></QuestTable>
       </div>
     </div>
     <div class="column items-center">
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import QuestTable from '../components/quest-table.vue';
 
@@ -111,10 +111,11 @@ export default {
       return this.getQuestsByStatus('finished');
     },
   },
-
+  methods: {
+    ...mapActions('quests', ['ensureAllQuests'])
+  },
   async beforeMount() {
-     const quests = await this.$store.dispatch('quests/fetchQuests');
-     console.log('find quests returns: ', quests);
+     await this.ensureAllQuests();
   }
 };
 </script>
