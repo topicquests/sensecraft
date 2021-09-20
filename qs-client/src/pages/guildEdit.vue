@@ -52,7 +52,7 @@
 
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
-import { mapActions, mapGetters} from "vuex";
+import { mapActions, mapState, mapGetters} from "vuex";
 
 
 export default {
@@ -85,16 +85,17 @@ export default {
       details: "",
       handle: "",
       type: false,
-      member: this.$store.getters['member/getUser']
     };
   },
    components: {
     "scoreboard": scoreboard,
     "member": member
   },
+  computed: {
+    ...mapState('member', ['member']),
+  },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('member', ['getUser']),
     ...mapGetters('guilds', ['getGuildById']),
     ...mapActions('guilds', ['updateGuild']),
 

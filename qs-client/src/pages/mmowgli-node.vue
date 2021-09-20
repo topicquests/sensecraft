@@ -69,7 +69,7 @@
 
 <script>
 
-import {mapState, mapGetters, mapActions} from 'vuex'
+  import {mapState, mapGetters, mapActions} from 'vuex';
   export default {
 
     props: ["id", "context"],

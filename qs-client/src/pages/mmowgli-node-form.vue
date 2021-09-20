@@ -26,6 +26,7 @@
 //https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/vuejs.html
 
 //import api from 'src/api'
+import { mapState } from 'vuex';
 const api = null;
 //TODO we may use another method for node ID
 //const uuidv4 = require('uuid/v4')
@@ -48,9 +49,7 @@ export default {
     }
   },
   computed: {
-    member() {
-      return this.$store.getters.member;
-    }
+    ...mapState('member', ['member']),
   },
   methods: {
     doSubmit: function () {

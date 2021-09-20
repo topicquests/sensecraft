@@ -20,7 +20,7 @@
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-md" style="width: 55%">
-          <q-table id="guildTable" title="Guilds" :data="rootConversations" :columns="columns" row-key = "desc">
+          <q-table id="guildTable" title="Guilds" :data="getGuilds" :columns="columns" row-key = "desc">
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -93,10 +93,8 @@ export default {
   },
 
   computed: {
-    rootConversations() {
-      return  this.$store.getters['guilds/getGuilds'];
-    }
-
+    ...mapGetters(
+      'guilds', ['getGuilds']),
   },
 };
 </script>

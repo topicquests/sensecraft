@@ -77,13 +77,10 @@ export default {
       handle: "",
       type: false,
       editor: ClassicEditor,
-      member: this.$store.getters['member/getUser']
     };
   },
   computed: {
-    ...mapState('member', {
-      member: state => state.member
-    })
+    ...mapState('member', ['member']),
   },
 
    components: {
@@ -92,7 +89,6 @@ export default {
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('member', ['getUser']),
     ...mapActions('guilds', [
       'createGuild',
     ]),
