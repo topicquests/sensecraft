@@ -1,5 +1,5 @@
 <template>
-   <q-page style ="background-color:lightgrey" >
+   <q-page style="background-color: #CAF0F8">
      <div>
       <member></member>
     </div>
@@ -53,21 +53,10 @@
           </ul>
         </q-card>
       </div>
+
       <div class="col-12 col-md q-pa-md">
         <div v-if = "selectedNode" class="col-12 col-md q-pa-md">
-        <q-card  class="q-pa-md" id="node_card">
-            <q-input
-              v-model='selectedNode.title'
-              label = "Parent Node"
-              style="color: darkblue"/>
-              <q-input
-              v-model="selectedNode.node_type"
-              label = "Type"
-              style="font-size:17px;
-                      color: darkblue;"/>
-            Details<br/>
-          <div v-html="selectedNode.description" style="font-size:17px;"></div>
-        </q-card>
+          <nodeCard v-bind:nodeCard ='selectedNode'></nodeCard>
         </div>
       </div>
       <div class="col-12 col-md q-pa-md" style="width:200%;" v-if="getCurrentQuest">
@@ -102,6 +91,7 @@
       </div>
     </div>
 
+
   </q-page>
 
 </template>
@@ -110,6 +100,7 @@
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import questCard from '../components/quest-card.vue'
+import nodeCard from '../components/node-card.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
@@ -181,6 +172,7 @@ export default {
     "scoreboard": scoreboard,
     "member": member,
     "questCard": questCard,
+    "nodeCard": nodeCard,
   },
   computed: {
     ...mapState('quests', {
@@ -442,12 +434,7 @@ export default {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;
 }
-#quest_card {
-  border: 3px solid black;
-  font-size: 10pt;
-  color:darkgreen;
-  height: 400px;
-}
+
 #node_card {
   border: 3px solid black;
   font-size: 10pt;

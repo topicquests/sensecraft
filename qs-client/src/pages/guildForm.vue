@@ -29,7 +29,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <ckeditor :editor="editor" v-model="guild.description" ></ckeditor>
+      <q-editor v-model="guild.description" ></q-editor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="guild.handle" label = "Handle" class="guildText" />
@@ -49,7 +49,6 @@
 import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {

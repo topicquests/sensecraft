@@ -33,7 +33,7 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <ckeditor :editor="editor" v-model="quest.description" style="width: 80%" ></ckeditor>
+      <q-editor v-model="quest.description" style="width: 80%" ></q-editor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.handle" label = "Handle" style="width: 40%"/>
@@ -54,13 +54,11 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions} from "vuex";
 import { Notify } from "quasar";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
     return {
       group: 'public',
-      editor: ClassicEditor,
       options: [
         {
           label: 'Public',
