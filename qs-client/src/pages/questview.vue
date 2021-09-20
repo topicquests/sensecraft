@@ -19,7 +19,7 @@ import scoreboard from '../components/scoreboard.vue'
 import {mapActions, mapState, mapGetters} from 'vuex'
 
 export default {
-  name: 'questview',
+  name: 'quest_page',
   data() {
     return {
 

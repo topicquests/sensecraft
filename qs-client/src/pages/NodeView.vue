@@ -18,7 +18,7 @@
       <!-- parent refers to type, this node being an instanceOf type -->
       <span v-if="q.parentLabel">
         <b>Responds to</b>
-        <router-link :to="{ name: 'questview', params: { id: q.parentId }}">{{ q.parentLabel }}</router-link>
+        <router-link :to="{ name: 'quest_page', params: { id: q.parentId }}">{{ q.parentLabel }}</router-link>
       </span>
       <!-- TODO enumerate superclasses if any -->
       <hr>
@@ -37,10 +37,10 @@
     <span v-if="isRelation" style="margen-left:20px;">
       <br>
       <b style="margin-left:20px;">Source Node</b>
-      <router-link :to="{ name: 'questview', params: { id: q.sourceNode }}">{{ q.sourceLabel }}</router-link>
+      <router-link :to="{ name: 'quest_page', params: { id: q.sourceNode }}">{{ q.sourceLabel }}</router-link>
       <br>
       <b style="margin-left:20px;">Target Node</b>
-      <router-link :to="{ name: 'questview', params: { id: q.targetNode }}">{{ q.targetLabel }}</router-link>
+      <router-link :to="{ name: 'quest_page', params: { id: q.targetNode }}">{{ q.targetLabel }}</router-link>
     </span>
     <!-- What follows is any child nodes and tags around this topic -->
     <q-list>
@@ -52,7 +52,7 @@
           <q-list>
             <q-item class="node wordwrap" v-for="question in q.questions" :key="question.nodeId">
               <router-link
-                :to="{ name: 'questview', params: { id: question.nodeId }}"
+                :to="{ name: 'quest_page', params: { id: question.nodeId }}"
               >{{ question.label }}</router-link>
             </q-item>
           </q-list>
@@ -67,7 +67,7 @@
         <q-list>
           <q-item class="node" v-for="answer in q.answers" :key="answer.nodeId">
             <router-link
-              :to="{ name: 'questview', params: { id: answer.nodeId }}"
+              :to="{ name: 'quest_page', params: { id: answer.nodeId }}"
             >{{ answer.label }}</router-link>
           </q-item>
         </q-list>
@@ -80,7 +80,7 @@
         </div>
         <q-list>
           <q-item class="node" v-for="pro in q.pros" :key="pro.nodeId">
-            <router-link :to="{ name: 'questview', params: { id: pro.nodeId }}">{{ pro.label }}</router-link>
+            <router-link :to="{ name: 'quest_page', params: { id: pro.nodeId }}">{{ pro.label }}</router-link>
           </q-item>
         </q-list>
       </q-collapsible>
@@ -92,7 +92,7 @@
         </div>
         <q-list>
           <q-item class="node" v-for="con in q.cons" :key="con.nodeId">
-            <router-link :to="{ name: 'questview', params: { id: con.nodeId }}">{{ con.label }}</router-link>
+            <router-link :to="{ name: 'quest_page', params: { id: con.nodeId }}">{{ con.label }}</router-link>
           </q-item>
         </q-list>
       </q-collapsible>
@@ -237,7 +237,7 @@ export default {
           name,
           params: { id }
         } = to;
-        if (name === "topicview" || (name === "questview" && id)) {
+        if (name === "topicview" || (name === "quest_page" && id)) {
           this.initialize(id);
         }
       } catch (e) {
