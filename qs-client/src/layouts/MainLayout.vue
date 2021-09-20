@@ -15,8 +15,8 @@
             style="width:150px"></q-img>
           </q-btn>
         </q-toolbar-title>
-      <div>
-        <q-btn v-if = '!isAuthenticated'
+      <div v-if = '!isAuthenticated'>
+        <q-btn
           @click="goTo('signin')"
           outline
           roundeded
@@ -24,7 +24,7 @@
           name="signin"
           class="q-mr-sm">
         </q-btn>
-      <q-btn v-if = '!isAuthenticated'
+      <q-btn
           @click="goTo('register')"
           outline
           roundeded
@@ -32,8 +32,8 @@
           name= "register"
           ></q-btn>
       </div>
-      <div>
-        <q-btn  v-if = 'isAuthenticated'
+      <div v-if = 'isAuthenticated'>
+        <q-btn
           @click="logout()"
           outline
           roundeded
@@ -71,45 +71,45 @@
             About
             </q-item>
           </div>
-          <div>
+          <div v-if="isAuthenticated">
             <q-item>
-              <router-link v-if = 'isAuthenticated'
-                to= "/lobby">  Lobby
+              <router-link 
+                :to="{name: 'lobby'}">  Lobby
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
               <router-link
-                to= "/quest">  Quest list
+                :to="{name: 'quest_list'}">  Quest list
               </router-link>
             </q-item>
           </div>
-          <div>
+          <div v-if="hasPermission('createQuest')">
             <q-item>
-              <router-link v-if = 'hasPermission("createQuest")'
-                to= "/quest-landing">  Quest create
+              <router-link
+                :to="{name: 'quest-landing'}">  Quest create
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
             <router-link
-              to= "/guilds"> Guild list
+              :to="{name: 'guild_list'}"> Guild list
             </router-link>
             </q-item>
           </div>
-          <div>
+          <div v-if='hasPermission("createGuild")'>
             <q-item>
-              <router-link v-if = 'hasPermission("createGuild")'
-                to= "/guild-landing">  Guild create
+              <router-link
+                :to="{name: 'guild-landing'}">  Guild create
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
             <router-link
-              to= "/"> Home
+              :to="{name: 'root'}"> Home
             </router-link>
             </q-item>
           </div>

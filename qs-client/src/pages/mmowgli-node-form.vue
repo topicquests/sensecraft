@@ -12,7 +12,7 @@
         <q-input v-model="details" />
       </div>
       <div>
-        <q-btn label="Submit" @click="doSubmit" /><q-btn label="Cancel" @click="$router.replace('/home')" />
+        <q-btn label="Submit" @click="doSubmit" /><q-btn label="Cancel" @click="$router.push({name: '/home'})" />
       </div>
   </q-page>
 </template>

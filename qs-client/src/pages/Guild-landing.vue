@@ -14,8 +14,7 @@
           v-if = '$store.state.member.member'
           id="newGuildBtn"
           label="New Guild"
-
-      @click="$router.replace('/guildform')"
+          @click="$router.push({name: 'create_guild'})"
         />
       </div>
     </div>
@@ -29,7 +28,7 @@
           <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
           <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
           <q-td key="nodeId" auto-width :props="props">
-            <router-link :to="{ name: 'guildedit', params: { id:  props.row.id }}">Edit</router-link>
+            <router-link :to="{ name: 'guild_edit', params: { id:  props.row.id }}">Edit</router-link>
           </q-td>
         </q-tr>
       </template>

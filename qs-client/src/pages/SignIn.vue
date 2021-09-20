@@ -62,7 +62,7 @@
             <q-card-section>
               <q-card-actions class="q-px-lg">
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Sign on" @click="doLogin"/>
-                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.replace('/home')"/>
+                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.push({name: 'home'})"/>
               </q-card-actions>
             </q-card-section>
           </div>

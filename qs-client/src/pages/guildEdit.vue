@@ -40,7 +40,7 @@
           </div>
           <div class = "row justify-start q-pb-lg">
             <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-            <q-btn label="Cancel" @click="$router.replace('/home')" />
+            <q-btn label="Cancel" @click="$router.push({name: 'home'})" />
           </div>
         </q-card>
       </div>

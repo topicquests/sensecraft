@@ -93,7 +93,7 @@
                 <q-td key="status" :props="props">{{props.row.status}}</q-td>
                 <q-td key="end" :props="props">{{props.row.end}}</q-td>
                 <q-td key="questNodeId" auto-width :props="props">
-                  <router-link :to="{ name: 'quest', params: { quest_id:  props.row.id }}" >Enter</router-link>
+                  <router-link :to="{ name: 'questview', params: { quest_id:  props.row.id }}" >Enter</router-link>
                 </q-td>
               </q-tr>
             </template>

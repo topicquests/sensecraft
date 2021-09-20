@@ -15,7 +15,7 @@
       v-if = '$store.state.member.member'
       style="margin-bottom: 4px"
       label="New Quest"
-      @click="$router.replace('/questform')"
+      @click="$router.push({name: 'create_quest'})"
     />
     </div>
     </div>
@@ -32,7 +32,7 @@
 import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
-import {mapActions, mapState} from 'vuex'
+import {mapActions, mapState, mapGetters} from 'vuex'
 
 export default {
   props: ["member"],
@@ -90,17 +90,19 @@ export default {
     "questTable": questTable,
     "member": member
   },
-   methods: {
-    ...mapActions('quests',[
-      'ensureAllQuests']),
-    ...mapActions('guilds',[
-      'ensureAllGuilds',
-      ]),
+  computed: {
     ...mapGetters('quests', [
       'getQuests',
       ]),
     ...mapGetters('guilds', [
       'getGuilds',
+      ]),
+  },
+  methods: {
+    ...mapActions('quests',[
+      'ensureAllQuests']),
+    ...mapActions('guilds',[
+      'ensureAllGuilds',
       ]),
     async beforeMount() {
       await this.ensureAllQuests();
