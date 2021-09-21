@@ -69,7 +69,9 @@
 
 <script>
 
-import {mapState, mapGetters, mapActions} from 'vuex'
+  import {mapState, mapGetters, mapActions} from 'vuex';
+  import app from '../App'
+
   export default {
 
     props: ["id", "context"],
@@ -83,32 +85,34 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     computed: {
       ...mapState('quests', {
-      quests: state => state.quests,
-      currentQuest: state => state.currentQuest
-    }),
-      canEdit () {
-        return false;
-        //TODO
-      },
+        currentQuest: state => state.currentQuest
+      }),
+      ...mapState('member', ['member']),
       isAuthenticated () {
-        return true;
-        //TODO return this.$store.getters.isAuthenticated
+        return this.member != null;
       }
     },
     methods: {
       ...mapGetters('quests', [
-        'getQuestById'
+        'getQuestById',
+        'getQuests',
+      ]),
+      ...mapGetters('conversation', [
+        'canEdit',
+        'getConversationById',
       ]),
       ...mapActions('quests',[
-      'findQuests',
-      'setCurrentQuest']),
+        'ensureAllQuests',
+        'ensureQuest',
+        'setCurrentQuest'
+      ]),
       ...mapActions('guilds', [
-        'findGuilds'
+        'ensureAllGuilds'
       ]),
       async initialize (id = null) {
         //this.$store.commit('questView', true)
         const nodeId = id || this.$route.params.id
-        console.info('Initialize', 'fetching data for ', nodeId)
+        console.info('Initialize', 'ensureing data for ', nodeId)
         //this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
         console.info('node', this.q)
         if (this.q !== null) {
@@ -133,10 +137,14 @@ import {mapState, mapGetters, mapActions} from 'vuex'
     },
     async beforeMount() {
       this.questId = this.$route.params.quest_id;
-      const quests = await this.findQuests;
-      const guilds = await this.findGuilds;
-      this.setCurrentQuest(this.questId);
-      console.log("Current quest: ")
+      await app.memberLoaded
+      await Promise.all([
+        this.setCurrentQuest(this.questId),
+        this.ensurQuest(this.questId),
+        // TODO: Maybe only guilds playing the quest?
+        // should we also get corresponding members?
+        this.ensureAllGuilds(),
+      ]);
     }
   }
 

@@ -15,8 +15,8 @@
             style="width:150px"></q-img>
           </q-btn>
         </q-toolbar-title>
-      <div>
-        <q-btn v-if = '!this.member'
+      <div v-if = '!isAuthenticated'>
+        <q-btn
           @click="goTo('signin')"
           outline
           roundeded
@@ -24,7 +24,7 @@
           name="signin"
           class="q-mr-sm">
         </q-btn>
-      <q-btn v-if = '!this.member'
+      <q-btn
           @click="goTo('register')"
           outline
           roundeded
@@ -32,8 +32,8 @@
           name= "register"
           ></q-btn>
       </div>
-      <div>
-        <q-btn  v-if = 'this.member'
+      <div v-if = 'isAuthenticated'>
+        <q-btn
           @click="logout()"
           outline
           roundeded
@@ -71,45 +71,45 @@
             About
             </q-item>
           </div>
-          <div>
+          <div v-if="isAuthenticated">
             <q-item>
-              <router-link v-if = '$store.state.member.member'
-                to= "/lobby">  Lobby
+              <router-link 
+                :to="{name: 'lobby'}">  Lobby
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
               <router-link
-                to= "/quest">  Quest list
+                :to="{name: 'quest_list'}">  Quest list
               </router-link>
             </q-item>
           </div>
-          <div>
+          <div v-if="hasPermission('createQuest')">
             <q-item>
-              <router-link v-if = '$store.state.member.member'
-                to= "/quest-landing">  Quest create
+              <router-link
+                :to="{name: 'quest-landing'}">  Quest create
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
             <router-link
-              to= "/guilds"> Guild list
+              :to="{name: 'guild_list'}"> Guild list
             </router-link>
             </q-item>
           </div>
-          <div>
+          <div v-if='hasPermission("createGuild")'>
             <q-item>
-              <router-link v-if = '$store.state.member.member'
-                to= "/guild-landing">  Guild create
+              <router-link
+                :to="{name: 'guild-landing'}">  Guild create
               </router-link>
             </q-item>
           </div>
           <div>
             <q-item>
             <router-link
-              to= "/"> Home
+              :to="{name: 'root'}"> Home
             </router-link>
             </q-item>
           </div>
@@ -120,9 +120,9 @@
     <q-page-container>
       <router-view />
     </q-page-container>
-    <q-layout-footer style="background-color: aquamarine" class="footer">
+    <q-footer style="background-color: aquamarine" class="footer">
       <p id="Pfooter" >Sensecraft 2021</p>
-    </q-layout-footer>
+    </q-footer>
   </q-layout>
 </template>
 <script>
@@ -148,14 +148,13 @@ export default {
     ...mapState('conversation', {
       showTree: state => state.showTree,
       conversation: state => state.conversation,
-      conversationTree: state => state.conversationTree,
-      treeView: state => state.conversationTree,
+      treeView: state => state.neighbourhood,
     }),
-    ...mapGetters('conversation', [
-      'getTreeView'
+    ...mapGetters([
+      'hasPermission'
     ]),
     ...mapState('member', {
-      member: state => state.member
+      isAuthenticated: state => state.isAuthenticated
     }),
 
   },
@@ -192,9 +191,6 @@ export default {
       this.leftDrawer = false;
       document.getElementById("mySidenav").style.width = "0";
       this.$store.dispatch("member/logout")
-      this.$store.dispatch("conversation/logout")
-      this.$store.dispatch("quests/logout")
-      this.$store.dispatch("guilds/logout")
       .then(response => {
           this.$q.notify({
             type: "positive",

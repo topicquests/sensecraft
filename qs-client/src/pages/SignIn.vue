@@ -62,7 +62,7 @@
             <q-card-section>
               <q-card-actions class="q-px-lg">
                 <q-btn unelevated size="md" color="purple-4" class="text-white" label="Sign on" @click="doLogin"/>
-                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.replace('/home')"/>
+                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.push({name: 'home'})"/>
               </q-card-actions>
             </q-card-section>
           </div>
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
@@ -88,15 +88,12 @@ export default {
       signonEmail: null,
       password: null,
     },
-    title: "Sign on",
-    userId: null,
-    err: null
+
   };
   },
   methods: {
-    ...mapActions('member', ['signin']),
-    ...mapActions('quests',['findQuests']),
-    ...mapActions('guilds',['findGuilds']),
+    ...mapActions('member', ['signin', 'ensureLoginUser']),
+    ...mapGetters('member', ['getUserId', 'getUserEmail']),
    async doLogin() {
       try {
         const loginResponse = await this.login(this.formData.signonEmail)
@@ -120,10 +117,9 @@ export default {
         if (!signInResp) {
           throw 'login failed'
         }
-        this.userId = this.$store.state.member.member.id;
-        return
+        await this.ensureLoginUser();
       }
-      catch {
+      catch (error) {
         console.log("Error with sign in ", error)
         this.$q.notify({
           type: "negative",
@@ -132,8 +128,6 @@ export default {
     },
     async goNext() {
       try {
-          const checkGuildsBelongToUser = await this.$store.dispatch('guilds/checkBelongsToGuild', this.userId)
-          console.log("checked guilds :", checkGuildsBelongToUser )
           this.goLobby();
       }
       catch (error) {
@@ -156,9 +150,7 @@ export default {
     }, 50);
   },
 },
-async beforeMount() {
-     const quests = await this.findQuests();
-     const guilds = await this.findGuilds();
+  async beforeMount() {
   }
 };
 </script>

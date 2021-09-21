@@ -4,57 +4,84 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '/',
+      { // TODO: clear up the role of each of those four pages.
+        path: '/',
+        name: 'root',
         component: () => import('pages/Home.vue')
       },
+      {
+        path: '/home',
+        name: "home",
+        component: () => import('pages/Home.vue'),
+      },
+      { path: '/landing',
+        name: "landingPage",
+        component: () => import('pages/Landing-page.vue')
+      },
+      { path: '/lobby',
+        name: "lobby",
+        component: () => import('pages/Lobby.vue')
+      },
      //Quest pages
-      { path: '/quest-app',
+      { // What is the intent of this page?
+        path: '/quest/app',
         name: "quests",
         component: () => import('pages/Quest-app.vue')
       },
       { path: '/quest',
-        name: "quest",
+        name: "quest_list",
         component: () => import('pages/quest.vue')
       },
-      {path: 'questform',
-        name: "questform",
-        component: () => import('pages/questForm.vue')
-      },
-      { path: '/quest-landing',
+      { // suggestion: fuse quest_list and quest-landing pages
+        path: '/quest/landing',
         name: "quest-landing",
         component: () => import('pages/Quest-landing.vue')
       },
-      { path: '/questEdit',
-        name: "questedit",
+      {path: '/quest/create',
+        name: "create_quest",
+        component: () => import('pages/questForm.vue')
+      },
+      { path: '/quest/:quest_id/edit',
+        name: "quest_edit",
         component: () => import('pages/questEdit.vue')
       },
-      {path: '/questRequest/:quest_id',
-       name: 'questRequest',
-       component: () => import('pages/questRequest.vue')
+      { // what is the intent of this page?
+        path: '/quest/:quest_id/request',
+        name: 'questRequest',
+        component: () => import('pages/questRequest.vue')
       },
-      {path: '/questview/:quest_id',
-       name: 'questView',
+      {path: '/quest/:quest_id',
+       name: 'quest_page',
        component: () => import('pages/questview.vue')
       },
-      { path: '/guilds',
-        name: "guilds",
+      { path: '/guild',
+        name: "guild_list",
         component: () => import('pages/Guilds.vue')
       },
-      { path: '/guild-landing',
+      { // suggestion: fuse guild_list and guild-landing pages
+        path: '/guild/landing',
         name: "guild-landing",
         component: () => import('pages/Guild-landing.vue')
+      },
+      {path: 'guild/create',
+        name: "create_guild",
+        component: () => import('pages/guildForm.vue')
       },
       { path: '/guild/:guild_id',
         name: "guild",
         component: () => import('pages/Guild-app.vue')
       },
-      { path: '/guildEdit',
-        name: "guildedit",
+      { path: '/guild/:guild_id/play/:quest_id',
+        name: "game_play",
+        component: () => import('pages/GamePlay.vue')
+      },
+      { path: '/guild/:guild_id/edit',
+        name: "guild_edit",
         component: () => import('pages/guildEdit.vue')
       },
-      {path: 'guildform',
-        name: "guildform",
-        component: () => import('pages/guildForm.vue')
+      { path: '/guild/:guild_id/admin',
+        name: "guild_admin",
+        component: () => import('pages/guildAdmin.vue')
       },
       { path: '/register',
         name: "register",
@@ -66,14 +93,6 @@ const routes = [
       },
       { path: '',
         component: () => import('pages/Index.vue')
-      },
-      { path: '/home',
-        name: "home",
-        component: () => import('pages/Home.vue'),
-      },
-      { path: '/landing',
-        name: "landingPage",
-        component: () => import('pages/Landing-page.vue')
       },
       { path: '/role/:id',
         name: "role",
@@ -93,10 +112,6 @@ const routes = [
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')
       },
-      { path: '/lobby',
-        name: "lobby",
-        component: () => import('pages/Lobby.vue')
-      }
     ]
   },
 

@@ -15,13 +15,13 @@
       v-if = '$store.state.member.member'
       style="margin-bottom: 4px"
       label="New Quest"
-      @click="$router.replace('/questform')"
+      @click="$router.push({name: 'create_quest'})"
     />
     </div>
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests = "quests" :view=false></questTable>
+        <questTable v-bind:quests = "getQuests" :view=false></questTable>
       </div>
     </div>
   </q-page>
@@ -32,7 +32,8 @@
 import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
-import {mapActions, mapState} from 'vuex'
+import {mapActions, mapState, mapGetters} from 'vuex'
+import app from '../App'
 
 export default {
   props: ["member"],
@@ -85,26 +86,33 @@ export default {
       serverData: []
     };
   },
-  computed: {
-    ...mapState('quests', {
-      quests: state => state.quests
-    })
-  },
   components: {
     "scoreboard": scoreboard,
     "questTable": questTable,
     "member": member
   },
-   methods: {
-    ...mapActions('quests',[
-      'findQuests']),
-    ...mapActions('guilds',[
-      'findGuilds',
+  computed: {
+    ...mapGetters('quests', [
+      'getQuests',
       ]),
-    async beforeMount() {
-      const quests = await this.findQuests;
-      const guilds = await this.findGuilds;
-    }
+    ...mapGetters('guilds', [
+      'getGuilds',
+      ]),
+  },
+  methods: {
+    ...mapActions('quests',[
+      'ensureAllQuests']),
+    ...mapActions('guilds',[
+      'ensureAllGuilds',
+      ]),
+  },
+  async beforeMount() {
+    await app.userLoaded
+    // not using those yet?
+    // await Promise.all([
+    //   this.ensureAllQuests(),
+    //   this.ensureAllGuilds(),
+    // ])
   }
 };
 </script>

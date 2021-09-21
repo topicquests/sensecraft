@@ -1,31 +1,36 @@
 <template>
   <div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 45%">
-        <q-card id="quest_card">
-          <q-card-section>
-            <h6 v-if="currentQuest" style="text-align:center; color: darkgreen;">
-              {{currentQuest.name}}
-            </h6>
-          </q-card-section>
-          <q-card-section >
-              <div v-if="currentQuest" style="font-size:17px">
-                <div v-html="currentQuest.description"></div>
-              </div>
-          </q-card-section>
+    <div class="col-4 q-pa-lg">
+        <q-card v-if="currentQuestCard" class="quest_card">
+          <section id="quest-card-title">
+            <q-avatar size="56px" class="q-ma-sm">
+              <img src="../statics/images/question.png">
+            </q-avatar>
+            <h5 class="q-ma-md">
+                {{currentQuestCard.name}}
+            </h5>
+          </section>
+          <section id="quest-card-details">
+            <div v-html="currentQuestCard.description" class ="q-mb-xl"></div>
+          </section>
+            <section id="quest-card-data" >
+              <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl"> Quest Creator: {{creator.handle}}</p>
+              <p class="q-pt-none q-ml-md q-mb-sm"> Quest Handle: {{currentQuestCard.handle}}</p>
+               <p class="q-pt-sm q-ml-md"> Start Date: {{currentQuestCard.start}}</p>
+            </section>
         </q-card>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 export default {
    name: 'questCard',
    props: {
-     currentQuest: {
+     currentQuestCard: {
+       type: Object
+     },
+     creator: {
        type: Object
      }
    },
@@ -33,14 +38,35 @@ export default {
     return {
 
     }
-  }
+  },
+  computed: {
+
+  },
 }
 </script>
 <style>
-#quest_card {
+.quest_card {
+  text-align:center;
   border: 3px solid black;
-  font-size: 10pt;
+  font-size: 1.2em;
   color:darkgreen;
-  height: 400px;
+  background-color: aquamarine;
+}
+#quest-card-details {
+ background-color: aquamarine;
+ text-align: left;
+ font-size: 1.2em;
+ padding-top: 3%;
+ padding-left: 1%;
+ border: 1px solid gray;
+}
+#quest-card-title {
+  border: 1px solid gray;
+  background-color: lightgray;
+}
+#quest-card-data {
+  text-align: left;
+  font-size: 1.2em;
+  background-color: aquamarine;
 }
 </style>

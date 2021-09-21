@@ -10,7 +10,7 @@
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests="quests" title="Quests"></questTable>
+        <questTable v-bind:quests="getQuests" :view="true" title="Quests"></questTable>
         </div>
     </div>
     <div class="column items-center">
@@ -22,7 +22,7 @@
     <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 55%">
         <q-card >
-          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="this.guilds" :columns="columns2" row-key = "desc">
+          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="getGuilds" :columns="columns2" row-key = "desc">
             <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="guildDesc" :props="props"> {{props.row.name}}</q-td>
@@ -49,8 +49,8 @@
 import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
-import { computed } from '@vue/composition-api'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
+import app from '../App'
 
 export default {
   props: ["guild"],
@@ -117,24 +117,22 @@ export default {
     "member": member
   },
   computed: {
-    ...mapState('guilds', {
-      guilds: state => state.guilds,
-      belongsTo: state => state.belongsTo
-    }),
-    ...mapState('quests', {
-       quests: state => state.quests
-    }),
+    ...mapGetters('guilds', [
+      'getGuilds',
+      'getMyGuilds',
+    ]),
+    ...mapGetters('quests', [
+      'getQuests'
+    ]),
     ...mapState('member', {
-      member: state => state.member
-    })
+      member: state => state.member.member
+    }),
   },
   methods: {
-    ...mapActions('quests',['findQuests']),
-    ...mapActions('guilds',[
-      'findGuilds',
-      ]),
+    ...mapActions('quests', ['ensureAllQuests']),
+    ...mapActions('guilds', ['ensureAllGuilds']),
     guildBelongsTo (id) {
-      const guildId = this.belongsTo.find(el => el.guild_id ==id);
+      const guildId = this.getMyGuilds.find(el => el.id ==id);
       if (guildId){
         return true
       } else {
@@ -143,8 +141,11 @@ export default {
     }
   },
   async beforeMount() {
-     const quests = await this.findQuests();
-     const guilds = await this.findGuilds();
+    await app.userLoaded
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.ensureAllGuilds()
+    ]);
   }
 }
 </script>

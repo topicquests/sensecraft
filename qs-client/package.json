@@ -9,35 +9,27 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^27.1.0",
-    "@ckeditor/ckeditor5-vue": "^2.0.1",
-    "@ckeditor/ckeditor5-vue2": "^1.0.5",
-    "@feathersjs/authentication-client": "^4.5.11",
-    "@feathersjs/feathers": "^4.5.11",
-    "@feathersjs/rest-client": "^4.5.11",
-    "@feathersjs/socketio-client": "^4.5.11",
-    "@quasar/extras": "^1.10.9",
-    "@vue/composition-api": "*",
-    "axios": "^0.21.1",
+    "@quasar/extras": "~1.10",
+    "@vue/composition-api": "~1.1",
+    "axios": "~0.21",
     "bcryptjs": "^2.4.3",
     "core-js": "^3.6.5",
-    "feathers-hooks-common": "^5.0.5",
-    "feathers-vuex": "^3.16.0",
-    "grant": "^5.4.13",
-    "pg-hstore": "^2.3.3",
-    "quasar": "^1.15.23",
-    "socket.io-client": "2.0.1",
+    "grant": "~5.4",
+    "pg-hstore": "~2.3",
+    "quasar": "~1.15",
+    "socket.io-client": "~4.2",
     "uuid": "^8.3.2",
-    "vue-ckeditor5": "^0.5.0",
+    "vue": "~2.6",
     "vuelidate": "^0.7.6",
-    "vuex": "^3.6.0"
+    "vuex": "~3.6",
+    "vuex-rest-api": "^2.14.0"
   },
   "devDependencies": {
     "@quasar/app": "^2.2.10",
     "babel-eslint": "^10.0.1",
-    "eslint": "^7.21.0",
+    "eslint": "~7",
     "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-vue": "^7.7.0",
+    "eslint-plugin-vue": "~7",
     "eslint-webpack-plugin": "^2.4.0",
     "vue-cli-plugin-store": "~0.0.7"
   },
@@ -53,7 +45,7 @@
     "last 5 Opera versions"
   ],
   "engines": {
-    "node": ">= 10.18.1",
+    "node": ">= 14",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   },

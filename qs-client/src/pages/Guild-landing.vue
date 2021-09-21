@@ -14,14 +14,13 @@
           v-if = '$store.state.member.member'
           id="newGuildBtn"
           label="New Guild"
-
-      @click="$router.replace('/guildform')"
+          @click="$router.push({name: 'create_guild'})"
         />
       </div>
     </div>
     <div class="column items-center">
         <div class="col-4 q-pa-md" style="width: 55%">
-          <q-table id="guildTable" title="Guilds" :data="rootConversations" :columns="columns" row-key = "desc">
+          <q-table id="guildTable" title="Guilds" :data="getGuilds" :columns="columns" row-key = "desc">
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -29,7 +28,7 @@
           <q-td key="handle" :props="props">{{props.row.handle}}</q-td>
           <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
           <q-td key="nodeId" auto-width :props="props">
-            <router-link :to="{ name: 'guildedit', params: { id:  props.row.id }}">Edit</router-link>
+            <router-link :to="{ name: 'guild_edit', params: { guild_id:  props.row.id }}">Edit</router-link>
           </q-td>
         </q-tr>
       </template>
@@ -41,9 +40,10 @@
 
 <script>
 
-import {mapGetters } from "vuex";
+import {mapGetters, mapActions } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
+import app from '../App'
 
 export default {
   props: ["member"],
@@ -83,7 +83,6 @@ export default {
           sortable: true
         }
       ],
-      isAuthenticated: false,
       serverPagination: {},
       serverData: []
     };
@@ -95,11 +94,16 @@ export default {
   },
 
   computed: {
-    rootConversations() {
-      return  this.$store.getters['guilds/getGuilds'];
-    }
-
+    ...mapGetters(
+      'guilds', ['getGuilds']),
   },
+  methods: {
+    ...mapActions('guilds', ['ensureAllGuilds']),
+  },
+  async beforeMount() {
+    await app.userLoaded
+    await this.ensureAllGuilds()
+  }
 };
 </script>
 

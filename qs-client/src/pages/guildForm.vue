@@ -28,18 +28,15 @@
    <div class = "row justify-start q-pb-xs">
       Details<br/>
     </div>
-     <div class = "row justify-start q-pb-lg">
-      <q-editor v-model="guild.description" style="width: 55%" ></q-editor>
-    </div>
     <div class = "row justify-start q-pb-lg">
-      <ckeditor :editor="editor" v-model="guild.description" ></ckeditor>
+      <q-editor v-model="guild.description" ></q-editor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="guild.handle" label = "Handle" class="guildText" />
     </div>
    <div class = "row justify-start q-pb-lg">
       <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-      <q-btn label="Cancel" @click="$router.replace('/home')" />
+      <q-btn label="Cancel" @click="$router.push({name: 'home'})" />
     </div>
         </q-card>
       </div>
@@ -52,6 +49,7 @@
 import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
+import app from '../App'
 
 export default {
   data() {
@@ -78,13 +76,10 @@ export default {
       details: "",
       handle: "",
       type: false,
-      member: this.$store.getters['member/getUser']
     };
   },
   computed: {
-    ...mapState('member', {
-      member: state => state.member
-    })
+    ...mapState('member', ['member']),
   },
 
    components: {
@@ -93,12 +88,10 @@ export default {
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('member', ['getUser']),
     ...mapActions('guilds', [
-      'createGuilds',
-      'checkBelongsToGuild',
-      'getGuildByHandle'
+      'createGuild',
     ]),
+    ...mapGetters('guilds', ['getGuildById']),
 
     async doSubmit() {
       if (this.group === "public") {
@@ -107,10 +100,15 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
-      const guild = await this.createGuilds(this.guild);
-      const gm = await this.checkBelongsToGuild(this.member.id)
+      console.log('wtf')
+      const res = await this.createGuild({data: this.guild});
+      const guild = await this.getGuildById(res.data.id);
+      this.$router.push({name: 'guild_edit', params: {guild_id: guild.id}})
     },
   },
+  async beforeMount() {
+    await app.userLoaded
+  }
 };
 </script>
 

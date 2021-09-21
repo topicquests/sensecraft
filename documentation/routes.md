@@ -24,7 +24,7 @@ If authenticated:
 
 ## Quest App pages
 
-### quest_page `/quest/:quest_id/`
+### quest_page `/quest/:quest_id`
 
 the landing page of the quest.
 Also show the involved guilds.

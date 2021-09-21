@@ -12,7 +12,7 @@
         <q-input v-model="details" />
       </div>
       <div>
-        <q-btn label="Submit" @click="doSubmit" /><q-btn label="Cancel" @click="$router.replace('/home')" />
+        <q-btn label="Submit" @click="doSubmit" /><q-btn label="Cancel" @click="$router.push({name: '/home'})" />
       </div>
   </q-page>
 </template>
@@ -25,7 +25,9 @@
 //Note that topic nodes are edited with NodeForm.vue
 //https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/vuejs.html
 
-import api from 'src/api'
+//import api from 'src/api'
+import { mapState } from 'vuex';
+const api = null;
 //TODO we may use another method for node ID
 //const uuidv4 = require('uuid/v4')
 const conversation = api.service('conversation')
@@ -47,9 +49,7 @@ export default {
     }
   },
   computed: {
-    member() {
-      return this.$store.getters.member;
-    }
+    ...mapState('member', ['member']),
   },
   methods: {
     doSubmit: function () {
@@ -88,7 +88,7 @@ export default {
       })
     }
   },
-  mounted () {
+  beforeMount() {
     console.info('MMOWGLIEdit', 'mounted', this.type, this.id, this.isDetails);
 
     router = this.$router
@@ -96,11 +96,7 @@ export default {
 
     //this.$store.commit('questView', false)
   },
-  computed: {
-    //member () {
-      //return this.$store.getters.member
-    }
-  }
+}
 
 </script>
 

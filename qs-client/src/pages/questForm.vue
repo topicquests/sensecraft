@@ -33,14 +33,14 @@
       Details<br/>
     </div>
     <div class = "row justify-start q-pb-lg">
-      <q-editor :editor="editor" v-model="quest.description" style="width: 80%" ></q-editor>
+      <q-editor v-model="quest.description" style="width: 80%" ></q-editor>
     </div>
     <div class = "row justify-start q-pb-lg">
       <q-input v-model="quest.handle" label = "Handle" style="width: 40%"/>
     </div>
    <div class = "row justify-start q-pb-lg">
       <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-      <q-btn label="Cancel" @click="$router.replace('/home')" />
+      <q-btn label="Cancel" @click="$router.push({name: 'home'})" />
     </div>
         </q-card>
       </div>
@@ -54,6 +54,7 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions} from "vuex";
 import { Notify } from "quasar";
+import app from '../App'
 
 export default {
   data() {
@@ -89,7 +90,7 @@ export default {
   },
   methods: {
     ...mapActions('quests', [
-      'createQuests',
+      'createQuest',
       'findquests',
       'getQuestByHandle']),
     async doSubmit() {
@@ -99,14 +100,17 @@ export default {
        if (this.group === "private") {
         this.quest.public = false;
       }
-      const conversations = await this.createQuests(this.quest);
-      const questByHandle = await this.getQuestByHandle(this.quest.handle);
+      const res = await this.createQuest({data: this.quest});
+      const quest = await this.getQuestById(res.data.id);
       Notify.create({
          message: `New quest was created successfully`,
          color: "positive"
       })
-      this.$router.push({name: 'questedit', params: {quest_id: questByHandle.id}})
+      this.$router.push({name: 'quest_edit', params: {quest_id: quest.id}})
     }
+  },
+  async beforeMount() {
+    await app.userLoaded
   }
 };
 </script>

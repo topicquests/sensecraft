@@ -110,44 +110,44 @@ export default {
   },
 
   methods: {
-  doRegister() {
-    const theEmail = this.formdata.email;
-    const theHandle = this.formdata.handle;
-    const theName = this.formdata.name;
+    ...mapActions("member", ["registerUser"]),
+    async doRegister() {
+      const theEmail = this.formdata.email;
+      const theHandle = this.formdata.handle;
+      const theName = this.formdata.name;
 
-    if (!theEmail) {
-      this.$q.notify({ type: "negative", message: "Missing Email" });
-      return;
-    }
+      if (!theEmail) {
+        this.$q.notify({ type: "negative", message: "Missing Email" });
+        return;
+      }
 
-    if (!theHandle) {
-      this.$q.notify({ type: "negative", message: "Missing Handle" });
-      return;
-    }
+      if (!theHandle) {
+        this.$q.notify({ type: "negative", message: "Missing Handle" });
+        return;
+      }
 
-    if (!theName) {
-      this.$q.notify({ type: "negative", message: "Missing name field" });
-      return;
-    }
+      if (!theName) {
+        this.$q.notify({ type: "negative", message: "Missing name field" });
+        return;
+      }
 
-    if (!this.formdata.password) {
-      this.$q.notify({ type: "negative", message: "Missing Password" });
-      return;
-    }
-
-    this.$store.dispatch("member/registerUser", {formdata: this.formdata})
-  },
-
-  goHome() {
-    this.$router.push({ name: "home" });
-  },
-
-  onHide() {
-  // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-    setTimeout(() => {
-      this.goHome();
-      }, 50);
+      if (!this.formdata.password) {
+        this.$q.notify({ type: "negative", message: "Missing Password" });
+        return;
+      }
+      await this.registerUser(this.formdata);
     },
+
+    goHome() {
+      this.$router.push({ name: "home" });
+    },
+
+    onHide() {
+    // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
+      setTimeout(() => {
+        this.goHome();
+        }, 50);
+      },
   },
 };
 </script>

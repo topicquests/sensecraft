@@ -1,47 +1,60 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { FeathersVuex } from "../boot/feathersClient";
-import authvuex from "./store.auth";
-import quests from './quest'
+import quests from './quests'
+import members from './members'
 import member from './member'
-import guilds from './guild'
+import guilds from './guilds'
 import conversation from './conversation'
-
-
-const requireModule = require.context(
-  // The path where the service modules live
-  "../services/feathers-client",
-  // Whether to look in subfolders
-  false,
-  // Only include .js files (prevents duplicate imports`)
-  /.js$/
-);
-// import example from './module-example'
-const servicePlugins = requireModule
-  .keys()
-  .map(modulePath => requireModule(modulePath).default);
+import MyVapi from './base'
 
 Vue.use(Vuex)
-Vue.use(FeathersVuex);
 
+const store = new Vuex.Store({
+  modules: {
+    member, members, conversation, quests, guilds
+  },
+  getters: {
+    hasPermission: (state) => (permission, guild, quest) => {
+      const member = store.getters['member/getUser'];
+      if (!member) return false;
+      if (member.permissions.indexOf(permission) >= 0) return true;
+      if (member.permissions.indexOf('superadmin') >= 0) return true;
+      if (guild) {
+        if (!!Number.parseInt(guild)) {
+          guild = store.getters['guilds/getGuildById'](guild);
+        }
+        const membership = (guild.guild_membership || []).find(
+          m => m.member_id == member.id && m.status == 'confirmed');
+        if (membership) {
+          if (membership.permissions.indexOf(permission) >= 0) return true;
+          // TODO: check that permission is a guild permission
+          if (membership.permissions.indexOf('guildAdmin') >= 0) return true;
+        }
+      }
+      if (quest) {
+        if (!!Number.parseInt(quest)) {
+          quest = store.getters['quests/getQuestById'](quest);
+        }
+        const membership = (quest.quest_membership || []).find(
+          m => m.member_id == member.id && m.status == 'confirmed');
+        if (membership) {
+          if (membership.permissions.indexOf(permission) >= 0) return true;
+          // TODO: check that permission is a quest permission
+          if (membership.permissions.indexOf('questAdmin') >= 0) return true;
+        }
+      }
+      if (guild && quest) {
+        const casting = (quest.casting || []).find((c) => c.guild_id == guild.id && c.quest_id == quest.id && c.member_id == member.id);
+        if (casting) {
+          if (casting.permissions.indexOf(permission) >= 0) return true;
+        }
+      }
+      return false;
+    }
+  },
+});
 
-export default function (/* { ssrContext } */) {
-  const Store = new Vuex.Store({
-    state: {},
-    mutations: {},
-    actions: {},
-    plugins: [...servicePlugins, authvuex],
-    modules: {
-      quests,
-      member,
-      guilds,
-      conversation
-    },
+// make the store available to all components
+MyVapi.store = store;
 
-    // enable strict mode (adds overhead!)
-    // for dev mode only
-    strict: process.env.DEBUGGING
-  })
-
-  return Store
-}
+export default store;

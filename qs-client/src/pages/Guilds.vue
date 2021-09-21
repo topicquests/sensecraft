@@ -9,7 +9,7 @@
       <div class="col-4 q-pa-lg" style="width: 1000px">
         <q-card>
           <div>
-            <q-table title="Guild List" :data="guildList" :columns="columns" row-key = "desc">
+            <q-table title="Guild List" :data="getGuilds" :columns="columns" row-key = "desc">
               <template slot="body" slot-scope="props">
                 <q-tr :props="props">
                   <q-td key="desc" :props="props"> {{props.row.name}}</q-td>
@@ -18,7 +18,7 @@
                   <q-td key="public" :props="props">{{props.row.public}}</q-td>
                   <q-td key="date" :props="props">{{props.row.created_at}}</q-td>
                   <q-td key="nodeId" auto-width :props="props">
-                    <router-link :to="{ name: 'guildview', params: { id:  props.row.id }}">View</router-link>
+                    <router-link :to="{ name: 'guild', params: { id:  props.row.id }}">View</router-link>
                   </q-td>
                 </q-tr>
               </template>
@@ -33,7 +33,8 @@
 <script>
 
 import scoreboard from '../components/scoreboard.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import app from '../App'
 
 export default {
   props: ["member"],
@@ -92,10 +93,13 @@ export default {
       return  this.getGuilds;
     }
   },
+  methods: {
+    ...mapActions('guilds', ['ensureAllGuilds']),
+  },
 
-  async beforeCreate() {
-     const guilds = await this.$store.dispatch('guilds/findGuilds');
-     console.log('find guilds returns: ', guilds);
+  async beforeMount() {
+    await app.userLoaded
+    await this.ensureAllGuilds();
   }
 };
 </script>

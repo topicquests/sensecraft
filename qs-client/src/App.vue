@@ -4,12 +4,25 @@
   </div>
 </template>
 <script>
-import { onMounted, watch } from "@vue/composition-api";
+import Vue from 'vue'
+import store from './store'
+import router from './router'
+import { mapState, mapActions } from 'vuex'
 
-export default {
+var userLoadedResolve = null;
+
+
+const app = new Vue({
   name: "App",
+  store: store,
+  router: router(store),
   watch: {
     currentUser(newUser, oldUser) {
+      // reload quests an guilds
+      if (newUser?.id !== oldUser?.id) {
+        this.$store.dispatch("quests/clearState")
+        this.$store.dispatch("guilds/clearState")
+      }
       if (newUser === null) {
         this.$router.push("/");
       } else {
@@ -19,22 +32,33 @@ export default {
       }
     }
   },
-  setup(props, context) {
-    const { $store } = context.root;
-    // Attempt jwt auth when the app mounts.
-    onMounted(() => {
-      $store.dispatch("auth/authenticate").catch(error => {
-        if (!error.message.includes("Could not find stored JWT")) {
-          console.error(error);
-        }
-      });
-    });
-    return {};
+  data: () => ({
+    userLoaded: new Promise(resolve => {
+      userLoadedResolve = resolve;
+    }),
+  }),
+  methods: {
+    ...mapActions('member', ['ensureLoginUser', 'renewToken']),
+  },
+  created: async function() {
+    const member = await this.ensureLoginUser()
+    userLoadedResolve(member);
+    if (member) {
+      const prevTokenExpiry = Number.parseInt(window.localStorage.getItem('tokenExpiry'))
+      const prevToken = window.localStorage.getItem('token')
+      const renewToken = this.renewToken
+      const interval = Math.max(0, prevTokenExpiry - Date.now() - 10000)
+      window.setTimeout(function() {
+        renewToken({params: {token: prevToken}});
+      }, interval);
+    }
   },
   computed: {
-    currentUser() {
-      return this.$store.state.auth.user;
-    }
+    ...mapState('member', {
+      currentUser: state => state.member,
+    }),
   }
-};
+});
+
+export default app
 </script>

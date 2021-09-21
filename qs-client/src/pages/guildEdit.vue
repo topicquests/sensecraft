@@ -13,7 +13,7 @@
       <h3>Edit Guild</h3>
     </div>
     </div>
-    <div class="column items-center">
+    <div class="column items-center" v-if="guild">
       <div class="col-4 q-pa-lg" style="width: 55%">
         <q-card class="q-pl-md">
           <div class="row justify-start q-pa-lg">
@@ -35,12 +35,12 @@
           <div class = "row justify-start q-pb-lg q-ml-lg">
             <q-editor v-model="guild.description"></q-editor>
           </div>
-          <div class = "row justify-start q-pb-lg">
-            <q-input v-model="guild.handle" label = "Handle" />
+          <div class = "row justify-start q-pb-lg q-ml-lg">
+            <span label = "Handle">{{guild.handle}}</span>
           </div>
           <div class = "row justify-start q-pb-lg">
             <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-            <q-btn label="Cancel" @click="$router.replace('/home')" />
+            <q-btn label="Cancel" @click="$router.push({name: 'home'})" />
           </div>
         </q-card>
       </div>
@@ -52,8 +52,8 @@
 
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
-import { mapActions, mapGetters} from "vuex";
-
+import { mapActions, mapState, mapGetters} from "vuex";
+import app from '../App'
 
 export default {
   data() {
@@ -69,34 +69,34 @@ export default {
           value: false
         }
       ],
-      guild: {
-        name: null,
-        handle: null,
-        open_for_applications: null,
-        public: false,
-        id: null,
-        description: null,
-        creator: null,
-        created_at: null,
-        updated_at: null
-      },
+      guild_id: null,
+      isAdmin: false,
       shape: 'line',
       submitResult: [],
       details: "",
       handle: "",
       type: false,
-      member: this.$store.getters['member/getUser']
     };
   },
    components: {
     "scoreboard": scoreboard,
     "member": member
   },
+  computed: {
+    ...mapState('member', ['member']),
+    ...mapGetters('guilds', ['getGuildById']),
+    ...mapGetters(['hasPermission']),
+    guild: function() {
+      return this.getGuildById(this.guild_id)
+    },
+  },
   methods: {
-    //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('member', ['getUser']),
+    ...mapActions('guilds', [
+      'updateGuild',
+      'ensureGuild'
+    ]),
 
-    doSubmit: function() {
+    doSubmit: async function() {
       if (this.group === true) {
         this.guild.public = true;
       }
@@ -104,18 +104,28 @@ export default {
        if (this.group === false) {
         this.guild.public = false;
       }
-      //console.log("Name ", quest.member.name);
-      const conversations = this.$store.dispatch("guilds/updateGuilds", this.guild);
+      try {
+        await this.updateGuild({data: this.guild});
+        this.$q.notify({
+          message: 'Guild was updated successfully',
+          color: "positive"
+        });
+      } catch (err) {
+        console.log("there was an error in updating guild ", err);
+        this.$q.notify({
+          message: 'There was an error updating guild. If this issue persists, contact support.',
+          color: "negative"
+        });
+      }
     }
   },
 
-  mounted() {
-   this.$data.guild.id = this.$route.params.id;
-   console.log("Guild id: ", this.$data.guild.id);
-   const response = this.$store.getters['guilds/getGuildById'] (this.$data.guild.id);
-   console.log("Guild respone: ", response[0]);
-   this.$data.guild = response[0];
-  }
+  async beforeMount() {
+    this.guild_id = this.$route.params.guild_id;
+    await app.userLoaded
+    await this.ensureGuild(this.guild_id)
+    this.isAdmin = this.hasPermission('guild_admin', this.guild_id);
+}
 };
 </script>
 

@@ -1,8 +1,8 @@
 <template>
 
-  <div class="column items-right">
+  <div class="column items-right" v-if="member">
     <div class="col-12">
-      <div class="member q-pr-md">{{this.member.handle}}
+      <div class="member q-pr-md">{{member.handle}}
       </div>
     </div>
   </div>
@@ -12,24 +12,22 @@
 <script>
 import { mapState } from 'vuex'
 export default {
-  props: ['member'],
-  // name: 'ComponentName',
+  // props: ['member'],
+  name: 'Member',
   data () {
     return {}
   },
 
   computed: {
-    ...mapState('member', {
-      member: state => state.member
-    })
-  }
+    ...mapState('member', ['member']),
+  },
 }
 </script>
 <style>
 .member {
   text-align: right;
   color: blue;
-  font-size: 110%;
+  font-size: 1.5em;
   font-family: Arial, Helvetica, sans-serif;
 }
 </style>
