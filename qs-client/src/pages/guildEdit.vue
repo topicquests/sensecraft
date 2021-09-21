@@ -20,7 +20,7 @@
             <div class="q-gutter-sm">
               <q-option-group
               v-model="guild.public"
-              :options="choices"
+              :options="public_private_bool"
               color="primary"
               inline>
               </q-option-group>
@@ -54,21 +54,13 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions, mapState, mapGetters} from "vuex";
 import app from '../App'
+import { public_private_bool } from '../enums'
 
 export default {
   data() {
     return {
       group: 'public',
-      choices: [
-        {
-          label: 'Public',
-          value: true
-        },
-        {
-          label: 'Private',
-          value: false
-        }
-      ],
+      public_private_bool,
       guild_id: null,
       isAdmin: false,
       shape: 'line',

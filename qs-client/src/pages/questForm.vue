@@ -19,8 +19,8 @@
         <div class="row justify-start">
           <div class="q-gutter-sm">
             <q-option-group
-            v-model="group"
-            :options="options"
+            v-model="quest.public"
+            :options="public_private_bool"
             color="primary"
             inline>
             </q-option-group>
@@ -55,21 +55,13 @@ import member from '../components/member.vue'
 import { mapActions} from "vuex";
 import { Notify } from "quasar";
 import app from '../App'
+import { public_private_bool } from '../enums'
 
 export default {
   data() {
     return {
       group: 'public',
-      options: [
-        {
-          label: 'Public',
-          value: 'public'
-        },
-        {
-          label: 'Private',
-          value: 'private'
-        }
-      ],
+      public_private_bool,
       quest: {
         name: null,
         handle: null,
@@ -94,12 +86,6 @@ export default {
       'findquests',
       'getQuestByHandle']),
     async doSubmit() {
-      if (this.group === "public") {
-        this.quest.public = true;
-      }
-       if (this.group === "private") {
-        this.quest.public = false;
-      }
       const res = await this.createQuest({data: this.quest});
       const quest = await this.getQuestById(res.data.id);
       Notify.create({

@@ -17,13 +17,13 @@
           <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
             <q-option-group
               v-model="quest.public"
-              :options="choices"
+              :options="public_private_bool"
               color="primary"
               inline>
             </q-option-group>
           </div>
         <div class = "row justify-start q-pb-lg q-ml-lg">
-          <q-select v-model="quest.status" :options="quest_status" label = "Status" style="width: 25%"/>
+          <q-select v-model="quest.status" :options="quest_status_enum" label = "Status" style="width: 25%"/>
         </div>
         <div class = "row justify-start q-pb-lg q-ml-lg" >
           <q-input class="field-name" v-model="quest.name" label = "Quest name" style='width: 350px'/>
@@ -68,7 +68,7 @@
             <q-editor v-model="node.description" class="q-editor"/>
           </div>
           <div class = "row justify-start q-pb-lg q-ml-lg">
-            <q-select v-model="node.status" :options="node_status" label = "Status" style="width: 25%"/>
+            <q-select v-model="node.status" :options="node_status_enum" label = "Status" style="width: 25%"/>
           </div>
           <div class = "row justify-center q-pb-lg">
             <q-btn v-if="node.id" v-bind:disabled="!isAdmin" label="Update" @click="updateNode" color = "primary" class = "q-mr-md q-ml-md"/>
@@ -87,35 +87,14 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import btnQuestion from '../components/btn-question.vue'
 import app from '../App'
+import {quest_status_enum, node_status_enum, public_private_bool} from '../enums'
 
 export default {
   data() {
     return {
-      group: 'private',
-      choices: [
-        {
-          label: 'Public',
-          value: true
-        },
-        {
-          label: 'Private',
-          value: false
-        }
-      ],
-      quest_status: [
-        "draft",
-        "registration",
-        "ongoing",
-        "finished"
-      ],
-      node_status: [
-        'obsolete',
-        'private_draft',
-        'guild_draft',
-        'proposed',
-        'submitted',
-        'published'
-      ],
+      public_private_bool,
+      quest_status_enum,
+      node_status_enum,
       defaultNode: {
         title: '',
         description: '',
@@ -201,18 +180,11 @@ export default {
 
     async doSubmitQuest() {
       try {
-        if (this.group === true) {
-          this.quest.public = true;
-        }
-
-        if (this.group === false) {
-          this.quest.public = false;
-      }
-      const questUpdateResponse = await this.updateQuest({data: this.quest});
-      this.$q.notify({
-        message: 'Quest was updated successfully',
-        color: "positive"
-       });
+        const questUpdateResponse = await this.updateQuest({data: this.quest});
+        this.$q.notify({
+          message: 'Quest was updated successfully',
+          color: "positive"
+          });
       }
       catch(err) {
         console.log("there was an error in updating quest ", err);

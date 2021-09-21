@@ -16,8 +16,8 @@
         <q-card class="q-pl-md">
           <div class="row justify-start q-pa-lg">
             <q-option-group
-            v-model="group"
-            :options="options"
+            v-model="guild.public"
+            :options="public_private_bool"
             color="primary"
             inline>
             </q-option-group>
@@ -50,21 +50,12 @@ import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import app from '../App'
+import { public_private_bool } from '../enums'
 
 export default {
   data() {
     return {
-      group: 'private',
-      options: [
-        {
-          label: 'Public',
-          value: 'public'
-        },
-        {
-          label: 'Private',
-          value: 'private'
-        }
-      ],
+      public_private_bool,
       guild: {
         name: null,
         handle: null,
@@ -94,12 +85,6 @@ export default {
     ...mapGetters('guilds', ['getGuildById']),
 
     async doSubmit() {
-      if (this.group === "public") {
-        this.guild.public = true;
-      }
-       if (this.group === "private") {
-        this.guild.public = false;
-      }
       console.log('wtf')
       const res = await this.createGuild({data: this.guild});
       const guild = await this.getGuildById(res.data.id);
