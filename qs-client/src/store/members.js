@@ -25,10 +25,13 @@ const members = new MyVapi({
     property: "members",
     action: "fetchMembers",
   })
-  .post({
+  .patch({
     action: "updateUser",
     path: ({id}) => `/members?id=eq.${id}`,
     property: "members",
+    beforeRequest: (state, { params, data }) => {
+      params.id = data.id
+    },
   })
   // Step 4
   .getStore({

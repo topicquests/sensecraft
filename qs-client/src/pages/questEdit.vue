@@ -209,9 +209,8 @@ export default {
           this.quest.public = false;
       }
       const questUpdateResponse = await this.updateQuest({data: this.quest});
-      console.log("Quest update: ", questUpdateResponse);
-       this.$q.notify({
-        message: `Quest was updated successfully`,
+      this.$q.notify({
+        message: 'Quest was updated successfully',
         color: "positive"
        });
       }
