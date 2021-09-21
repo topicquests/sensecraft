@@ -80,11 +80,6 @@ const member = new MyVapi({
       state.isAuthenticated = true
       state.token = state.token || window.localStorage.getItem('token')
       state.tokenExpiry = state.tokenExpiry || window.localStorage.getItem('tokenExpiry')
-      Notify.create({
-        message: "Login Success",
-        color: "positive",
-        position: "top"
-      })
       return state.member
     },
     onError: (state, error, axios, { params, data }) => {
@@ -159,6 +154,19 @@ const member = new MyVapi({
         const password = await hash(data.password, 10)
         data = { ...data, password }
         return await context.dispatch("registerUserCrypted", { data })
+      },
+      ensureLoginUser: async (context) => {
+        // TODO: the case where the member is pending
+        if (!context.state.member) {
+          const expiry = context.state.tokenExpiry || window.localStorage.getItem('tokenExpiry')
+          if (expiry && Date.now() < Number.parseInt(expiry)) {
+            await context.dispatch("fetchLoginUser")
+            if (!context.state.tokenExpiry) {
+              // add a commit for expiry?
+            }
+            return context.state.member
+          }
+        }
       }
     }
   });

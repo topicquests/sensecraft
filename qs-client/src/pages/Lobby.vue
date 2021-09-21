@@ -129,6 +129,8 @@ export default {
     }),
   },
   methods: {
+    ...mapActions('quests', ['ensureAllQuests']),
+    ...mapActions('guilds', ['ensureAllGuilds']),
     guildBelongsTo (id) {
       const guildId = this.getMyGuilds.find(el => el.id ==id);
       if (guildId){
@@ -139,7 +141,10 @@ export default {
     }
   },
   async beforeMount() {
-
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.ensureAllGuilds()
+    ]);
   }
 }
 </script>

@@ -22,6 +22,10 @@ class MyVapi extends Vapi {
     options.headers = Object.assign({}, options.headers, { Prefer: 'return=representation' });
     return super.post(options);
   }
+  patch(options) {
+    options.headers = Object.assign({}, options.headers, { Prefer: 'return=representation' });
+    return super.patch(options);
+  }
   call(options) {
     if (typeof options.path == 'string') {
       options.path = `/rpc/${options.path}`

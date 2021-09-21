@@ -40,7 +40,7 @@
 
 <script>
 
-import {mapGetters } from "vuex";
+import {mapGetters, mapActions } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 
@@ -96,6 +96,12 @@ export default {
     ...mapGetters(
       'guilds', ['getGuilds']),
   },
+  methods: {
+    ...mapActions('guilds', ['ensureAllGuilds']),
+  },
+  async beforeMount() {
+    await this.ensureAllGuilds()
+  }
 };
 </script>
 

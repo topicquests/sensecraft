@@ -7,7 +7,7 @@
 import Vue from 'vue'
 import store from './store'
 import router from './router'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 
 const app = new Vue({
@@ -17,8 +17,10 @@ const app = new Vue({
   watch: {
     currentUser(newUser, oldUser) {
       // reload quests an guilds
-      this.$store.dispatch("quests/fetchQuests")
-      this.$store.dispatch("guilds/fetchGuilds")
+      if (newUser?.id !== oldUser?.id) {
+        this.$store.dispatch("quests/clearState")
+        this.$store.dispatch("guilds/clearState")
+      }
       if (newUser === null) {
         this.$router.push("/");
       } else {
@@ -28,16 +30,19 @@ const app = new Vue({
       }
     }
   },
+  methods: {
+    ...mapActions('member', ['ensureLoginUser', 'renewToken']),
+  },
   created: async function() {
-    const prevTokenExpiry = window.localStorage.getItem('tokenExpiry')
-    if (prevTokenExpiry > Date.now()) {
-      const res = await this.$store.dispatch("member/fetchLoginUser");
-      if (res.user) {
-        window.setTimeout(function() {
-          this.$store.dispatch("member/renewToken", {params: {token: this.$store.state.member.token}});
-        }, Math.min(0, prevTokenExpiry - Date.now() - 10000));
-      }
-      console.log(res);
+    const member = await this.ensureLoginUser()
+    if (member) {
+      const prevTokenExpiry = Number.parseInt(window.localStorage.getItem('tokenExpiry'))
+      const prevToken = window.localStorage.getItem('token')
+      const renewToken = this.renewToken
+      const interval = Math.max(0, prevTokenExpiry - Date.now() - 10000)
+      window.setTimeout(function() {
+        renewToken({params: {token: prevToken}});
+      }, interval);
     }
   },
   computed: {

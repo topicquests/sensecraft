@@ -12,16 +12,17 @@ const guilds = new MyVapi({
     action: "fetchGuildById",
     path: '/guilds',
     queryParams: true,
-    beforeRequest: (state, {params}) => {
+    beforeRequest: (state, actionParams) => {
+      const { params } = actionParams
       params.id = `eq.${params.id}`
       const userId = MyVapi.store.getters["member/getUserId"]
       if (userId) {
-        Object.assign(params, {
+        actionParams.params = Object.assign(params, {
           select: '*,game_play(*),guild_membership(*)',
           'guild_membership.member_id': `eq.${userId}`
         })
       } else {
-        Object.assign(params, {
+        actionParams.params = Object.assign(params, {
           select: '*,game_play(*)'
         })
       }
@@ -65,13 +66,15 @@ const guilds = new MyVapi({
   })
   .patch({
     action: "updateGuild",
-    path: (id) => `/guilds?id=eq.${id}`,
+    path: ({id}) => `/guilds?id=eq.${id}`,
     beforeRequest: (state, { params, data }) => {
+      Object.assign(data, {casting: undefined, guild_membership: undefined, game_play: undefined, updated_at: undefined})
       params.id = data.id
     },
     onSuccess: (state, res, axios, { data }) => {
+      const guild = res.data[0]
       const guilds = state.guilds.filter(q => q.id !== guild.id)
-      guilds.push(data)
+      guilds.push(guild)
       state.guilds = guilds
     }
   })
@@ -87,9 +90,9 @@ const guilds = new MyVapi({
       getCurrentGuild: (state) =>
         state.guilds.find(g => g.id == state.currentGuild),
       getMyGuilds: (state) =>
-        state.guilds.filter(guild => guild?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"])),
+        state.guilds.filter(guild => guild?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.status == 'confirmed')),
       isGuildMember: (state) => (guild_id) =>
-        state.guilds.find(guild => guild.id == guild_id)?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"]),
+        state.guilds.find(guild => guild.id == guild_id)?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.status == 'confirmed'),
     },
     actions: {
       setCurrentGuild: (context, guild) => {
@@ -109,11 +112,19 @@ const guilds = new MyVapi({
         await context.dispatch('ensureGuild', guild_id);
         await context.dispatch('setCurrentGuild', guild_id);
       },
+      clearState: (context) => {
+        context.commit('CLEAR_STATE');
+      },
     },
     mutations: {
       SET_CURRENT_GUILD: (state, guild) => {
         state.currentGuild = guild;
-      }
+      },
+      CLEAR_STATE: (state) => {
+        state.guilds = [];
+        state.currentGuild = null;
+        state.singleFetch = true;
+      },
     },
   })
 

@@ -38,7 +38,6 @@ const conversation = new MyVapi({
     },
     property: "conversationRoot",
     action: "fetchRootNode",
-    // queryParams: true,
     onSuccess: (state, payload, axios, { params, data }) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id
@@ -65,6 +64,35 @@ const conversation = new MyVapi({
       state.neighbourhood = payload.data
       state.neighbourhoodRoot = params.node_id
     },
+  })
+  .post({
+    action: "createConversationNode",
+    path: "/conversation_node",
+    onSuccess: (state, res, axios, { params, data }) => {
+      state.node = res.data[0]
+      if (!state.node.parent) {
+        state.conversationRoot = state.node
+      }
+    },
+  })
+  .patch({
+    action: "updateConversationNode",
+    path: ({id}) => `/conversation_node?id=eq.${id}`,
+    beforeRequest: (state, { params, data }) => {
+      console.log(params, data)
+      params.id = data.id
+      data.updated_at = undefined
+    },
+    onSuccess: (state, res, axios, { data }) => {
+      const node = res.data[0]
+      const conversation = state.conversation.filter(q => q.id !== node.id)
+      conversation.push(node)
+      state.conversation = conversation
+      state.node = node
+      if (!node.id) {
+        state.conversationRoot = node
+      }
+    }
   })
   // Step 4
   .getStore({
