@@ -108,6 +108,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import btnQuestion from '../components/btn-question.vue'
+import app from '../App'
 
 export default {
   data() {
@@ -209,9 +210,12 @@ export default {
       }
     },
   },
-  async mounted() {
-  //  this.quest.id = this.$route.params.quest_id;
-    this.initialize();
+  async beforeMount() {
+    // how do I know which node?
+    await app.userLoaded
+    // TODO: Ensure quest, node, guild
+    // this.quest.id = this.$route.params.quest_id;
+    await this.initialize();
   }
 };
 </script>

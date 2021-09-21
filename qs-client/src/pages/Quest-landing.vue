@@ -33,6 +33,7 @@ import scoreboard from '../components/scoreboard.vue'
 import questTable from '../components/quest-table.vue'
 import member from '../components/member.vue'
 import {mapActions, mapState, mapGetters} from 'vuex'
+import app from '../App'
 
 export default {
   props: ["member"],
@@ -104,10 +105,14 @@ export default {
     ...mapActions('guilds',[
       'ensureAllGuilds',
       ]),
-    async beforeMount() {
-      await this.ensureAllQuests();
-      await this.ensureAllGuilds();
-    }
+  },
+  async beforeMount() {
+    await app.userLoaded
+    // not using those yet?
+    // await Promise.all([
+    //   this.ensureAllQuests(),
+    //   this.ensureAllGuilds(),
+    // ])
   }
 };
 </script>

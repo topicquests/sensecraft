@@ -70,6 +70,8 @@
 <script>
 
   import {mapState, mapGetters, mapActions} from 'vuex';
+  import app from '../App'
+
   export default {
 
     props: ["id", "context"],
@@ -100,8 +102,10 @@
         'getConversationById',
       ]),
       ...mapActions('quests',[
-      'ensureAllQuests',
-      'setCurrentQuest']),
+        'ensureAllQuests',
+        'ensureQuest',
+        'setCurrentQuest'
+      ]),
       ...mapActions('guilds', [
         'ensureAllGuilds'
       ]),
@@ -133,10 +137,14 @@
     },
     async beforeMount() {
       this.questId = this.$route.params.quest_id;
-      await this.ensureAllQuests();
-      await this.ensureAllGuilds();
-      this.setCurrentQuest(this.questId);
-      console.log("Current quest: ")
+      await app.memberLoaded
+      await Promise.all([
+        this.setCurrentQuest(this.questId),
+        this.ensurQuest(this.questId),
+        // TODO: Maybe only guilds playing the quest?
+        // should we also get corresponding members?
+        this.ensureAllGuilds(),
+      ]);
     }
   }
 

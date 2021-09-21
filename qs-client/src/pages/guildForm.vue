@@ -49,6 +49,7 @@
 import {mapGetters, mapActions, mapState} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
+import app from '../App'
 
 export default {
   data() {
@@ -75,7 +76,6 @@ export default {
       details: "",
       handle: "",
       type: false,
-      editor: ClassicEditor,
     };
   },
   computed: {
@@ -100,11 +100,15 @@ export default {
        if (this.group === "private") {
         this.guild.public = false;
       }
+      console.log('wtf')
       const res = await this.createGuild({data: this.guild});
       const guild = await this.getGuildById(res.data.id);
       this.$router.push({name: 'guild_edit', params: {guild_id: guild.id}})
     },
   },
+  async beforeMount() {
+    await app.userLoaded
+  }
 };
 </script>
 

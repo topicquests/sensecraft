@@ -20,6 +20,7 @@ import {mapGetters, mapActions, mapState} from 'vuex'
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import questCard from '../components/quest-card.vue'
+import app from '../App'
 export default {
    name: 'GamePlay',
    data() {
@@ -61,10 +62,13 @@ export default {
   async created() {
     this.guildId = this.$route.params.guild_id;
     this.questId = this.$route.params.quest_id;
-    await this.setCurrentQuest(this.questId);
-    await this.setCurrentGuild(this.guildId)
-    await this.ensureQuest(this.questId);
-    await this.ensureGuild(this.guildId);
+    await app.userLoaded
+    await Promise.all([
+      this.setCurrentQuest(this.questId),
+      this.setCurrentGuild(this.guildId),
+      this.ensureQuest(this.questId),
+      this.ensureGuild(this.guildId),
+    ])
     const quest = this.getCurrentQuest;
     await this.fetchUserById({params: {id: quest.creator}});
     // const creator = this.getMemberById(quest.creator);

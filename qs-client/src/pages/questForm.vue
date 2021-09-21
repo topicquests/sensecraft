@@ -54,6 +54,7 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions} from "vuex";
 import { Notify } from "quasar";
+import app from '../App'
 
 export default {
   data() {
@@ -107,6 +108,9 @@ export default {
       })
       this.$router.push({name: 'quest_edit', params: {quest_id: quest.id}})
     }
+  },
+  async beforeMount() {
+    await app.userLoaded
   }
 };
 </script>

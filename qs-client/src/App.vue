@@ -9,6 +9,8 @@ import store from './store'
 import router from './router'
 import { mapState, mapActions } from 'vuex'
 
+var userLoadedResolve = null;
+
 
 const app = new Vue({
   name: "App",
@@ -30,11 +32,17 @@ const app = new Vue({
       }
     }
   },
+  data: () => ({
+    userLoaded: new Promise(resolve => {
+      userLoadedResolve = resolve;
+    }),
+  }),
   methods: {
     ...mapActions('member', ['ensureLoginUser', 'renewToken']),
   },
   created: async function() {
     const member = await this.ensureLoginUser()
+    userLoadedResolve(member);
     if (member) {
       const prevTokenExpiry = Number.parseInt(window.localStorage.getItem('tokenExpiry'))
       const prevToken = window.localStorage.getItem('token')

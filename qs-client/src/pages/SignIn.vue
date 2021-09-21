@@ -92,10 +92,8 @@ export default {
   };
   },
   methods: {
-    ...mapActions('member', ['signin', 'fetchLoginUser']),
+    ...mapActions('member', ['signin', 'ensureLoginUser']),
     ...mapGetters('member', ['getUserId', 'getUserEmail']),
-    ...mapActions('quests',['fetchQuests']),
-    ...mapActions('guilds',['fetchGuilds']),
    async doLogin() {
       try {
         const loginResponse = await this.login(this.formData.signonEmail)
@@ -119,10 +117,7 @@ export default {
         if (!signInResp) {
           throw 'login failed'
         }
-        this.fetchLoginUser();
-        const quests = await this.fetchQuests();
-        const guilds = await this.fetchGuilds();
-        return
+        await this.ensureLoginUser();
       }
       catch (error) {
         console.log("Error with sign in ", error)
@@ -155,9 +150,7 @@ export default {
     }, 50);
   },
 },
-async beforeMount() {
-     //const quests = await this.fetchQuests();
-     //const guilds = await this.fetchGuilds();
+  async beforeMount() {
   }
 };
 </script>

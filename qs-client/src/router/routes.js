@@ -63,6 +63,10 @@ const routes = [
         name: "guild-landing",
         component: () => import('pages/Guild-landing.vue')
       },
+      {path: 'guild/create',
+        name: "create_guild",
+        component: () => import('pages/guildForm.vue')
+      },
       { path: '/guild/:guild_id',
         name: "guild",
         component: () => import('pages/Guild-app.vue')
@@ -78,10 +82,6 @@ const routes = [
       { path: '/guild/:guild_id/admin',
         name: "guild_admin",
         component: () => import('pages/guildAdmin.vue')
-      },
-      {path: 'guild/create',
-        name: "create_guild",
-        component: () => import('pages/guildForm.vue')
       },
       { path: '/register',
         name: "register",

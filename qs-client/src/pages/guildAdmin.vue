@@ -43,6 +43,7 @@
 <script>
 import member from '../components/member.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
+import app from '../App'
 
 export default {
   props: ["guild_id"],
@@ -154,14 +155,17 @@ export default {
   },
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
-    const guilds = await this.ensureGuild(this.guildId);
+    await app.userLoaded
+    await Promise.all([
+      this.ensureGuild(this.guildId),
+      this.ensureAllQuests(),
+    ])
     this.isAdmin = this.hasPermission('guildAdmin', this.currentGuildId);
     const canRegisterToQuest = this.hasPermission('joinQuest', this.currentGuildId);
     if (!canRegisterToQuest) {
       this.$router.push({ name: "guild", guild_id: this.guildId });
     }
-    await this.ensureAllQuests();
-    this.initialize();
+    await this.initialize();
   },
 }
 </script>

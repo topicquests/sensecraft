@@ -23,6 +23,8 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import app from '../App'
+
 export default {
   data() {
     return {
@@ -96,8 +98,11 @@ export default {
 
   async beforeMount() {
     this.quest_id = this.$route.params.quest_id;
-    this.ensureQuest(this.quest_id);
-    this.ensureAllGuilds();
+    await app.userLoaded
+    await Promise.all([
+      this.ensureQuest(this.quest_id),
+      this.ensureAllGuilds(),
+    ])
   }
   // name: 'PageName',
 }

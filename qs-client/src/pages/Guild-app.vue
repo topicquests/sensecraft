@@ -102,6 +102,7 @@ import member from '../components/member.vue'
 import questCard from '../components/quest-card.vue'
 import nodeCard from '../components/node-card.vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
+import app from '../App'
 
 export default {
   props: ["guild_id"],
@@ -221,7 +222,6 @@ export default {
       'ensureAllQuests',
       'setCurrentQuest',
       'addCasting',
-      "fetchQuestById",
     ]),
     ...mapActions('members',['fetchUserById']),
     // ...mapGetters('member', ['getUserId']),
@@ -422,6 +422,7 @@ export default {
   },
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
+    await app.userLoaded
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild(this.guildId)

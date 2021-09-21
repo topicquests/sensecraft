@@ -34,6 +34,7 @@
 
 import scoreboard from '../components/scoreboard.vue'
 import { mapGetters, mapActions } from 'vuex'
+import app from '../App'
 
 export default {
   props: ["member"],
@@ -97,7 +98,8 @@ export default {
   },
 
   async beforeMount() {
-     await this.ensureAllGuilds();
+    await app.userLoaded
+    await this.ensureAllGuilds();
   }
 };
 </script>

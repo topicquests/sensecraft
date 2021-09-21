@@ -39,6 +39,7 @@
 <script>
 
 import {mapActions} from "vuex";
+import app from '../App'
 
   export default {
     data() {
@@ -47,13 +48,17 @@ import {mapActions} from "vuex";
         }
       },
   methods: {
-   ...mapActions('guilds', ['fetchGuilds']),
-   ...mapActions('quests', ['fetchQuests'], )
+   ...mapActions('guilds', ['ensureAllGuilds']),
+   ...mapActions('quests', ['ensureAllQuests'], )
   },
 
   async beforeMount() {
-     const quests = await this.fetchQuests;
-     const guilds = await this.fetchGuilds;
+    await app.userLoaded
+    // is this needed here?
+    // await Promise.all([
+    //   this.ensureAllQuests(),
+    //   this.ensureAllGuilds(),
+    // ])
   }
 };
 </script>

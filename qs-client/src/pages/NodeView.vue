@@ -168,8 +168,8 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
-//const treeview = api.service("tree-view");
-console.log("QVTV", treeview);
+import app from '../App'
+
 export default {
   data() {
     return {
@@ -185,7 +185,7 @@ export default {
       });
     }, 500);
   },
- computed: {
+  computed: {
    ...mapState('member', [
      isAuthenticated => state => state.isAuthenticated
    ]),
@@ -221,12 +221,13 @@ export default {
       }
     }
   }
-  mounted() {
+  async beforeMount() {
     const id = this.$route.params.id;
     this.$data.rightDrawerOpen = false; //turn off conversation tree
+    await app.userLoaded
     //this.$store.commit("questView", false);
 
-    this.initialize();
+    await this.initialize();
   },
 
   watch: {

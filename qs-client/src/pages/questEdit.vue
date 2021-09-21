@@ -86,6 +86,7 @@ import { mapActions, mapGetters, mapState, mapMutations} from "vuex";
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import btnQuestion from '../components/btn-question.vue'
+import app from '../App'
 
 export default {
   data() {
@@ -229,12 +230,7 @@ export default {
 
   async beforeMount() {
     this.quest_id = this.$route.params.quest_id;
-    // TODO: ensureLoginUser was done by the App, but may not have returned yet.
-    // it seems App.create and this beforeMount are called in parallel.
-    // it gives incomplete parameters to ensureQuest.
-    // Having to ensure it here again is a leak of abstraction, find how to fix it.
-    // maybe create a promise in the app and wait on it here?
-    await this.ensureLoginUser()
+    await app.userLoaded
     await this.ensureQuest(this.quest_id);
     // TODO: Add this permission
     // this.isAdmin = this.hasPermission('quest_admin', null, this.quest_id);

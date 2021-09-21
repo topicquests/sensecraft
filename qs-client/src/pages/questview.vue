@@ -17,6 +17,7 @@
 import questCard from '../components/quest-card.vue'
 import scoreboard from '../components/scoreboard.vue'
 import {mapActions, mapState, mapGetters} from 'vuex'
+import app from '../App'
 
 export default {
   name: 'quest_page',
@@ -43,7 +44,7 @@ export default {
   methods: {
     ...mapActions("quests", [
     "setCurrentQuest",
-    "fetchQuestById"
+    "ensureQuest"
     ]),
     ...mapActions("members", [
       "fetchUserById"
@@ -52,14 +53,15 @@ export default {
       return this.getMemberById(this.getCurrentQuest.creator)
     }
   },
-  async created() {
+  async beforeMount() {
     try {
-    const questId = this.$route.params.quest_id;
-    await this.setCurrentQuest(questId)
-    const thisQuest = await this.fetchQuestById({params: {id: questId}});
-    const quest = this.getCurrentQuest;
-    await this.fetchUserById({params: {id: quest.creator}});
-    const creator = this.getMemberById(quest.creator);
+      const questId = this.$route.params.quest_id;
+      await app.userLoaded
+      await this.setCurrentQuest(questId)
+      await this.ensureQuest(questId);
+      const quest = this.getCurrentQuest;
+      await this.fetchUserById({params: {id: quest.creator}});
+      const creator = this.getMemberById(quest.creator);
     }
     catch(error) {
       console.log("Error in questview create: ", error)

@@ -53,7 +53,7 @@
 import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import { mapActions, mapState, mapGetters} from "vuex";
-
+import app from '../App'
 
 export default {
   data() {
@@ -69,17 +69,7 @@ export default {
           value: false
         }
       ],
-      guild: {
-        name: null,
-        handle: null,
-        open_for_applications: null,
-        public: false,
-        id: null,
-        description: null,
-        creator: null,
-        created_at: null,
-        updated_at: null
-      },
+      guild_id: null,
       shape: 'line',
       submitResult: [],
       details: "",
@@ -93,6 +83,9 @@ export default {
   },
   computed: {
     ...mapState('member', ['member']),
+    guild: () => {
+      this.getGuildById(this.guild_id)
+    },
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
@@ -112,12 +105,10 @@ export default {
     }
   },
 
-  mounted() {
-   this.$data.guild.id = this.$route.params.id;
-   console.log("Guild id: ", this.$data.guild.id);
-   const response = this.getGuildById(this.$data.guild.id);
-   console.log("Guild respone: ", response[0]);
-   this.$data.guild = response[0];
+  async beforeMount() {
+    this.guild_id = this.$route.params.id;
+    await app.userLoaded
+    await ensureGuild(this.guild_id)
   }
 };
 </script>
