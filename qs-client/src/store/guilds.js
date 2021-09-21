@@ -35,6 +35,7 @@ const guilds = new MyVapi({
         state.guilds = guilds
       } else {
         state.guilds = [guild]
+        state.singleFetch = true
       }
     },
   })

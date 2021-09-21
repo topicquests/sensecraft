@@ -137,9 +137,6 @@ export default {
       'getQuestById',
       'isQuestMember',
     ]),
-    ...mapGetters('member', [
-      'getUser'
-    ]),
     ...mapGetters('conversation', [
       'getRootNode'
     ]),

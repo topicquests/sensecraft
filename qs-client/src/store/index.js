@@ -33,7 +33,7 @@ const store = new Vuex.Store({
       }
       if (quest) {
         if (!!Number.parseInt(quest)) {
-          quest = store.getters['quests/getGuildById'](quest);
+          quest = store.getters['quests/getQuestById'](quest);
         }
         const membership = (quest.quest_membership || []).find(
           m => m.member_id == member.id && m.status == 'confirmed');

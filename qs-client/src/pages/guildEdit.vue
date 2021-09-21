@@ -13,7 +13,7 @@
       <h3>Edit Guild</h3>
     </div>
     </div>
-    <div class="column items-center">
+    <div class="column items-center" v-if="guild">
       <div class="col-4 q-pa-lg" style="width: 55%">
         <q-card class="q-pl-md">
           <div class="row justify-start q-pa-lg">
@@ -35,8 +35,8 @@
           <div class = "row justify-start q-pb-lg q-ml-lg">
             <q-editor v-model="guild.description"></q-editor>
           </div>
-          <div class = "row justify-start q-pb-lg">
-            <q-input v-model="guild.handle" label = "Handle" />
+          <div class = "row justify-start q-pb-lg q-ml-lg">
+            <span label = "Handle">{{guild.handle}}</span>
           </div>
           <div class = "row justify-start q-pb-lg">
             <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
@@ -70,6 +70,7 @@ export default {
         }
       ],
       guild_id: null,
+      isAdmin: false,
       shape: 'line',
       submitResult: [],
       details: "",
@@ -83,14 +84,17 @@ export default {
   },
   computed: {
     ...mapState('member', ['member']),
-    guild: () => {
-      this.getGuildById(this.guild_id)
+    ...mapGetters('guilds', ['getGuildById']),
+    ...mapGetters(['hasPermission']),
+    guild: function() {
+      return this.getGuildById(this.guild_id)
     },
   },
   methods: {
-    //...mapActions('quests', ['quest/createQuests']),
-    ...mapGetters('guilds', ['getGuildById']),
-    ...mapActions('guilds', ['updateGuild']),
+    ...mapActions('guilds', [
+      'updateGuild',
+      'ensureGuild'
+    ]),
 
     doSubmit: async function() {
       if (this.group === true) {
@@ -100,16 +104,28 @@ export default {
        if (this.group === false) {
         this.guild.public = false;
       }
-      //console.log("Name ", quest.member.name);
-      const res = await this.updateGuild({data: this.guild});
+      try {
+        await this.updateGuild({data: this.guild});
+        this.$q.notify({
+          message: 'Guild was updated successfully',
+          color: "positive"
+        });
+      } catch (err) {
+        console.log("there was an error in updating guild ", err);
+        this.$q.notify({
+          message: 'There was an error updating guild. If this issue persists, contact support.',
+          color: "negative"
+        });
+      }
     }
   },
 
   async beforeMount() {
-    this.guild_id = this.$route.params.id;
+    this.guild_id = this.$route.params.guild_id;
     await app.userLoaded
-    await ensureGuild(this.guild_id)
-  }
+    await this.ensureGuild(this.guild_id)
+    this.isAdmin = this.hasPermission('guild_admin', this.guild_id);
+}
 };
 </script>
 
