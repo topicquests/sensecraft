@@ -73,7 +73,7 @@
           </div>
           <div v-if="isAuthenticated">
             <q-item>
-              <router-link 
+              <router-link
                 :to="{name: 'lobby'}">  Lobby
               </router-link>
             </q-item>
@@ -111,6 +111,13 @@
             <router-link
               :to="{name: 'root'}"> Home
             </router-link>
+            </q-item>
+          </div>
+          <div v-if='hasPermission("superadmin")'>
+            <q-item>
+              <router-link
+                :to="{name: 'admin', params: {member_id: memberId}}">  Administration
+              </router-link>
             </q-item>
           </div>
           </q-list>
@@ -154,7 +161,8 @@ export default {
       'hasPermission'
     ]),
     ...mapState('member', {
-      isAuthenticated: state => state.isAuthenticated
+      isAuthenticated: state => state.isAuthenticated,
+      memberId: state => state.member.id,
     }),
 
   },

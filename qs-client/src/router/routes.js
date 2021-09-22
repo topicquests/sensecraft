@@ -112,6 +112,10 @@ const routes = [
         name: "mmowglieditor",
         component: () => import('pages/mmowgli-node-form.vue')
       },
+      { path: '/admin/:member_id',
+        name: "admin",
+        component: () => import('pages/Admin-app.vue')
+      },
     ]
   },
 
