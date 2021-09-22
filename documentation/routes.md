@@ -18,6 +18,13 @@ If authenticated:
 * my quests
 * guilds I could join
 
+### Admin-app `/admin/:member_id`
+
+Administration page. Sets global permissions
+
+* creatQuest
+* CreateGuild
+
 ### register `/register`
 
 ### signin `/signin`
