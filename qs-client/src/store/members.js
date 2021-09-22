@@ -38,6 +38,10 @@ const members = new MyVapi({
     getters: {
       getMemberById: (state) => (id) =>
         state.members.find(member => member.id == id),
+      membersByHandle: (state) =>
+        Map.of(state.members.map(member => [member.handle, member])),
+      memberHandles: (state) =>
+        state.members.map(member => member.handle).sort(),
     }
   });
 
