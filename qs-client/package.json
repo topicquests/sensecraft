@@ -9,11 +9,10 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "~1.10",
-    "@vue/composition-api": "~1.1",
+    "@quasar/extras": "~1.11",
     "axios": "~0.21",
     "bcryptjs": "^2.4.3",
-    "core-js": "^3.6.5",
+    "core-js": "^3.18",
     "grant": "~5.4",
     "pg-hstore": "~2.3",
     "quasar": "~1.15",
@@ -29,7 +28,7 @@
     "babel-eslint": "^10.0.1",
     "eslint": "~7",
     "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-vue": "~7",
+    "eslint-plugin-vue": "~7.18",
     "eslint-webpack-plugin": "^2.4.0",
     "vue-cli-plugin-store": "~0.0.7"
   },
