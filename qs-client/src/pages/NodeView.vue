@@ -220,7 +220,7 @@ export default {
         return false;
       }
     }
-  }
+  },
   async beforeMount() {
     const id = this.$route.params.id;
     this.$data.rightDrawerOpen = false; //turn off conversation tree
