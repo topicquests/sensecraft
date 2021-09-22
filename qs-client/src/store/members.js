@@ -2,12 +2,13 @@ import MyVapi from "./base"
 
 const members = new MyVapi({
   state: {
+    singleFetch: true,
     members: []
   },
 })
   // Step 3
   .get({
-    action: "fetchUserById",
+    action: "fetchMemberById",
     path: ({id})=> `/members?id=eq.${id}`,
     onSuccess: (state, res, axios, actionParams) => {
       const member = res.data[0]
@@ -17,6 +18,7 @@ const members = new MyVapi({
         state.members = members
       } else {
         state.members = [member]
+        state.singleFetch = true
       }
     },
   })
@@ -24,14 +26,25 @@ const members = new MyVapi({
     path: '/members',
     property: "members",
     action: "fetchMembers",
+    onSuccess: (state, res, axios, actionParams) => {
+      state.members = res.data
+      state.singleFetch = false
+    },
   })
   .patch({
-    action: "updateUser",
+    action: "updateMember",
     path: ({id}) => `/members?id=eq.${id}`,
     property: "members",
     beforeRequest: (state, { params, data }) => {
       params.id = data.id
     },
+    onSuccess: (state, res, axios, { data }) => {
+      console.log(res.data)
+      const quest = res.data[0]
+      const members = state.members.filter(q => q.id !== member.id)
+      members.push(member)
+      state.members = members
+    }
   })
   // Step 4
   .getStore({
@@ -42,6 +55,13 @@ const members = new MyVapi({
         Map.of(state.members.map(member => [member.handle, member])),
       memberHandles: (state) =>
         state.members.map(member => member.handle).sort(),
+    },
+    actions: {
+      ensureAllMembers: async (context) => {
+        if (context.state.members.length === 0 || context.state.singleFetch) {
+          await context.dispatch('fetchMembers');
+        }
+      },
     }
   });
 
