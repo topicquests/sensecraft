@@ -68,7 +68,7 @@
             <q-editor v-model="node.description" class="q-editor"/>
           </div>
           <div class = "row justify-start q-pb-lg q-ml-lg">
-            <q-select v-model="node.status" :options="node_status_enum" label = "Status" style="width: 25%"/>
+            <q-select v-model="node.status" :options="publication_state_enum" label = "Status" style="width: 25%"/>
           </div>
           <div class = "row justify-center q-pb-lg">
             <q-btn v-if="node.id" v-bind:disabled="!isAdmin" label="Update" @click="updateNode" color = "primary" class = "q-mr-md q-ml-md"/>
@@ -87,14 +87,14 @@ import scoreboard from '../components/scoreboard.vue'
 import member from '../components/member.vue'
 import btnQuestion from '../components/btn-question.vue'
 import app from '../App'
-import {quest_status_enum, node_status_enum, public_private_bool} from '../enums'
+import {quest_status_enum, publication_state_enum, public_private_bool} from '../enums'
 
 export default {
   data() {
     return {
       public_private_bool,
       quest_status_enum,
-      node_status_enum,
+      publication_state_enum,
       defaultNode: {
         title: '',
         description: '',
