@@ -6,7 +6,9 @@
   "author": "byroncoughlinsr <byroncoughlinsr@gmail.com>",
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
-    "test": "echo \"No test specified\" && exit 0"
+    "lint-staged": "lint-staged",
+    "test": "echo \"No test specified\" && exit 0",
+    "prepare": "cd .. ; husky install"
   },
   "dependencies": {
     "@quasar/extras": "~1.11",
@@ -30,6 +32,9 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "~7.18",
     "eslint-webpack-plugin": "^2.4.0",
+    "husky": "~7.0",
+    "lint-staged": "~11.1",
+    "prettier": "~2.4",
     "vue-cli-plugin-store": "~0.0.7"
   },
   "browserslist": [
@@ -47,6 +52,12 @@
     "node": ">= 14",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
+  },
+  "lint-staged": {
+    "**/*": [
+      "eslint",
+      "prettier --write --ignore-unknown"
+    ]
   },
   "productName": "Quasar App"
 }

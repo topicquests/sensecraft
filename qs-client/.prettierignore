@@ -1,0 +1,5 @@
+dist
+.quasar
+.eslintrc
+.eslintignore
+.prettierignore
