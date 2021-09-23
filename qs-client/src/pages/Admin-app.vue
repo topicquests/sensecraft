@@ -3,19 +3,59 @@
     <div>
       <member></member>
     </div>
-    <div class = "row">
-      <div class = "col-3">
-        <q-select v-model="members.name" :options="membersName">
-
-        </q-select>
+     <div class="column items-center q-mb-md">
+      <div class="col-4" id="scoreboard">
+        <scoreboard></scoreboard>
       </div>
     </div>
+    <div class = "row q-mt-xl ">
+        <div class="col-2 q-ml-xl q-mr-xl">
+        <q-select
+      v-model='members.handle'
+      :options="members"
+      option-label="handle"
+      option-value="id"
+      label="Handle"
+      emit-value
+      map-options
+      id="qselect">
+        </q-select>
+        </div>
+        <div class="col-2">
+        <q-checkbox
+          v-model="superAdmin"
+          label="superAdmin"
+          left-label
+          name="superadmin"/>
+        </div>
+        <div class="col-2">
+        <q-checkbox
+          v-model="createQuest"
+           label="createQuest"
+          left-label
+          name="create-quest"/>
+        </div>
+        <div class="col-2">
+        <q-checkbox
+          v-model="createGuild"
+          label="createGuilde"
+          left-label
+          name="create-guild"/>
+        </div>
+        <div class="col-2">
+           <q-btn
+           color="primary"
+           label="Update"
+           />
+        </div>
+      </div>
   </q-page>
 </template>
 
 <script>
 import member from '../components/member.vue'
-import {mapActions} from 'vuex'
+import scoreboard from '../components/scoreboard.vue'
+import {mapActions, mapState} from 'vuex'
 export default {
    name: 'Admin-app',
    props: {
@@ -23,36 +63,36 @@ export default {
   },
   data () {
     return {
-      members: null,
-      options: members,
-      membersName: [],
+      createQuest: null,
+      createGuild: null,
+      superAdmin: null,
     }
   },
   computed: {
-
+    ...mapState('members', {
+      members: state => state.members,
+    })
   },
   components: {
-    "member": member
+    "member": member,
+    "scoreboard": scoreboard,
   },
   methods: {
     ...mapActions('members', [
       'fetchMembers'
     ]),
-    async getAllMembers() {
-      const response = await this.fetchMembers();
-       debugger;
-      this.members = response.data
-
-      this.members.forEach(e => {this.membersName.push(e.name);
-      });
-       debugger;
-    }
   },
-  mounted() {
-    this.getAllMembers();
+  async created() {
+    await this.fetchMembers();
+
   }
 }
 </script>
+<style>
+  #qselect {
+    width: 10%;
+  }
+</style>
 
 
 
