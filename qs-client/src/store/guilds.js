@@ -2,9 +2,10 @@ import MyVapi from "./base"
 
 const guilds = new MyVapi({
   state: {
-    singleFetch: true,
     currentGuild: null,
-    guilds: []
+    fullFetch: false,
+    guilds: {},
+    fullGuilds: {},
   },
 })
   // Step 3
@@ -12,100 +13,127 @@ const guilds = new MyVapi({
     action: "fetchGuildById",
     path: '/guilds',
     queryParams: true,
-    beforeRequest: (state, actionParams) => {
-      const { params } = actionParams
-      params.id = `eq.${params.id}`
+    beforeRequest: (state, { full, params }) => {
+      if (Array.isArray(params.id)) {
+        params.id = `in.(${params.id.join(',')})`
+      } else {
+        params.id = `eq.${params.id}`
+      }
       const userId = MyVapi.store.getters["member/getUserId"]
       if (userId) {
-        actionParams.params = Object.assign(params, {
-          select: '*,game_play(*),guild_membership(*)',
-          'guild_membership.member_id': `eq.${userId}`
-        })
+        params.select = '*,guild_membership(*),casting(*),game_play(*)'
+        if (!full) {
+          Object.assign(params, {
+            'guild_membership.member_id': `eq.${userId}`,
+            'casting.member_id': `eq.${userId}`
+          })
+        }
       } else {
-        actionParams.params = Object.assign(params, {
-          select: '*,game_play(*)'
-        })
+        params.select = '*,game_play(*)'
       }
     },
     onSuccess: (state, res, axios, actionParams) => {
-      const guild = res.data[0]
-      if (state.guilds) {
-        const guilds = state.guilds.filter(q => q.id !== guild.id)
-        guilds.push(guild)
-        state.guilds = guilds
-      } else {
-        state.guilds = [guild]
-        state.singleFetch = true
+      state.guilds = {
+        ...state.guilds,
+        ...Object.fromEntries(res.data.map(guild => [guild.id, guild]))
+      }
+      if (actionParams.full) {
+        state.fullGuilds = {
+          ...state.fullGuilds,
+          ...Object.fromEntries(res.data.map(guild => [guild.id, true]))
+        }
       }
     },
   })
   .get({
     action: "fetchGuilds",
-    path: '/guilds',
     property: "guilds",
+    path: '/guilds',
     queryParams: true,
-    beforeRequest: (state, actionParams) => {
+    beforeRequest: (state, { params }) => {
       const userId = MyVapi.store.getters["member/getUserId"]
       if (userId) {
-        actionParams.params = {
-          select: '*,game_play(*),guild_membership(*)',
-          'guild_membership.member_id': `eq.${userId}`
-        }
+        Object.assign(params, {
+          select: '*,guild_membership(*),casting(*),game_play(*)',
+          'guild_membership.member_id': `eq.${userId}`,
+          'casting.member_id': `eq.${userId}`
+        });
       } else {
-        actionParams.params = {
-          select: '*,game_play(*)'
+        params.select = '*,game_play(*)';
+      }
+    },
+    onSuccess: (state, res, axios, actionParams) => {
+      const fullGuilds = Object.values(state.guilds).filter(guild => state.fullGuilds[guild.id])
+      const guilds = Object.fromEntries(res.data.map(guild => [guild.id, guild]))
+      for (const guild of fullGuilds) {
+        if (guilds[guild.id]) {
+          guilds[guild.id] = Object.assign(guilds[guild.id], {
+            casting: guild.casting, guild_membership: guild.guild_membership
+          })
         }
       }
+      state.guilds = guilds
+      state.fullFetch = true
     },
   })
   .post({
     action: "createGuild",
     path: '/guilds',
     onSuccess: (state, res, axios, { data }) => {
-      state.guilds = [...state.guilds, res.data]
+      state.guilds = { ...state.guilds, [res.data.id]: res.data }
     }
   })
   .patch({
     action: "updateGuild",
     path: ({id}) => `/guilds?id=eq.${id}`,
     beforeRequest: (state, { params, data }) => {
-      Object.assign(data, {casting: undefined, guild_membership: undefined, game_play: undefined, updated_at: undefined})
       params.id = data.id
+      Object.assign(data, {casting: undefined, guild_membership: undefined, game_play: undefined, updated_at: undefined})
     },
     onSuccess: (state, res, axios, { data }) => {
-      const guild = res.data[0]
-      const guilds = state.guilds.filter(q => q.id !== guild.id)
-      guilds.push(guild)
-      state.guilds = guilds
+      var guild = res.data[0]
+      guild = Object.assign(state.guilds[id], guild)
+      state.guilds = {...state.guilds, [guild.id]: guild}
     }
+  })
+  .call({
+    action: 'registerAllMembers',
+    path: 'register_all_members',
+    queryParams: true,
+    // TODO: modify quests's castings appropriately. May need an appropriate mutation.
   })
   // Step 4
   .getStore({
     getters: {
-      getGuildByStatus: (state) => (status) =>
-        state.guilds.filter(guild => guild.status == status),
-      getGuildById: (state) => (id) =>
-        state.guilds.find(guild => guild.id == id),
+      getGuildsByStatus: (state) => (status) =>
+        Object.values(state.guilds).filter(guild => guild.status == status),
       getGuilds: (state) =>
-        state.guilds,
+        Object.values(state.guilds),
+      getGuildById: (state) => (id) =>
+        state.guilds[id],
       getCurrentGuild: (state) =>
-        state.guilds.find(g => g.id == state.currentGuild),
+        state.guilds[state.currentGuild],
       getMyGuilds: (state) =>
-        state.guilds.filter(guild => guild?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.status == 'confirmed')),
+        Object.values(state.guilds).filter(guild => guild?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.confirmed)),
       isGuildMember: (state) => (guild_id) =>
-        state.guilds.find(guild => guild.id == guild_id)?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.status == 'confirmed'),
+        state.guilds[guild_id]?.guild_membership?.find(m => m.member_id == MyVapi.store.getters["member/getUserId"] && m.confirmed),
+      getGuildsPlayingQuest: (state) => (quest) => {
+        var guildId = quest.game_play.map(gp => gp.guild_id);
+        return Object.values(state.guilds).filter(guild => guildId.includes(guild.id));
+      },
     },
     actions: {
-      setCurrentGuild: (context, guild) => {
-        context.commit('SET_CURRENT_GUILD', guild);
+      setCurrentGuild: (context, guild_id) => {
+        context.commit('SET_CURRENT_QUEST', guild_id);
       },
-      ensureGuild: async (context, guild_id) => {
-        if (context.getters.getGuildById(guild_id) === undefined) {
-          await context.dispatch('fetchGuildById', { params: { id: guild_id } });
+      ensureGuild: async (context, guild_id, full) => {
+        if ((context.getters.getGuildById(guild_id) === undefined)
+          || (full && !context.state.fullGuilds[guild_id])) {
+          await context.dispatch('fetchGuildById', { full, params: { id: guild_id } });
         }
       },
       ensureAllGuilds: async (context) => {
-        if (context.state.guilds.length === 0 || context.state.singleFetch) {
+        if (context.state.guilds.length === 0 || !context.state.fullFetch) {
           await context.dispatch('fetchGuilds');
         }
       },
@@ -113,18 +141,32 @@ const guilds = new MyVapi({
         await context.dispatch('ensureGuild', guild_id);
         await context.dispatch('setCurrentGuild', guild_id);
       },
+      ensureGuildsPlayingQuest: async (context, questId, full) => {
+        await MyVapi.store.dispatch('quests/ensureQuest', questId, true);
+        const quest = MyVapi.store.getters['quests/getQuestById'](questId);
+        var guildId = quest.game_play.map(gp => gp.guild_id);
+        if (full) {
+          guildId = guildId.filter(id => !context.state.fullGuilds[id]);
+        } else {
+          guildId = guildId.filter(id => !context.state.guilds[id]);
+        }
+        if (guildId.length > 0) {
+          await context.dispatch('fetchGuilds', {full, params: {id: guildId}});
+        }
+      },
       clearState: (context) => {
         context.commit('CLEAR_STATE');
       },
     },
     mutations: {
-      SET_CURRENT_GUILD: (state, guild) => {
-        state.currentGuild = guild;
+      SET_CURRENT_QUEST: (state, guild_id) => {
+        state.currentGuild = Number.parseInt(guild_id);
       },
       CLEAR_STATE: (state) => {
-        state.guilds = [];
+        state.guilds = {};
         state.currentGuild = null;
-        state.singleFetch = true;
+        state.fullFetch = false;
+        state.fullGuilds = {};
       },
     },
   })

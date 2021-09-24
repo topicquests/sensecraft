@@ -2,23 +2,34 @@ import MyVapi from "./base"
 
 const members = new MyVapi({
   state: {
-    singleFetch: true,
-    members: []
+    fullFetch: false,
+    questFetch: null,
+    guildFetch: null,
+    members: {},
   },
 })
   // Step 3
   .get({
     action: "fetchMemberById",
-    path: ({id})=> `/members?id=eq.${id}`,
-    onSuccess: (state, res, axios, actionParams) => {
-      const member = res.data[0]
-      if (state.members) {
-        const members = state.members.filter(q => q.id !== member.id)
-        members.push(member)
-        state.members = members
+    path: '/members',
+    queryParams: true,
+    beforeRequest: (state, { params }) => {
+      if (Array.isArray(params.id)) {
+        params.id = `in.(${params.id.join(',')})`
       } else {
-        state.members = [member]
-        state.singleFetch = true
+        params.id = `eq.${params.id}`
+      }
+    },
+    onSuccess: (state, res, axios, actionParams) => {
+      state.members = {
+        ...state.members,
+        ...Object.fromEntries(res.data.map(member => [member.id, member]))
+      }
+      if (actionParams.full) {
+        state.fullmembers = {
+          ...state.fullmembers,
+          ...Object.fromEntries(res.data.map(member => [member.id, true]))
+        }
       }
     },
   })
@@ -27,8 +38,9 @@ const members = new MyVapi({
     property: "members",
     action: "fetchMembers",
     onSuccess: (state, res, axios, actionParams) => {
-      state.members = res.data
-      state.singleFetch = false
+      const members = Object.fromEntries(res.data.map(member => [member.id, member]))
+      state.members = members
+      state.fullFetch = true
     },
   })
   .patch({
@@ -39,29 +51,58 @@ const members = new MyVapi({
       params.id = data.id
     },
     onSuccess: (state, res, axios, { data }) => {
-      console.log(res.data)
-      const quest = res.data[0]
-      const members = state.members.filter(q => q.id !== member.id)
-      members.push(member)
-      state.members = members
+      const member = res.data[0]
+      state.members = {...state.members, [member.id]: member}
     }
   })
   // Step 4
   .getStore({
     getters: {
       getMemberById: (state) => (id) =>
-        state.members.find(member => member.id == id),
+        state.members[id],
       getMemberByHandle: (state) => (handle) =>
-        state.members.find(member => member.handle == handle),
+        Object.values(state.members).find(member => member.handle == handle),
       getMembersByHandle: (state) =>
-        Map.of(state.members.map(member => [member.handle, member])),
+        Map.of(Object.values(state.members).map(member => [member.handle, member])),
       getMemberHandles: (state) =>
-        state.members.map(member => member.handle).sort(),
+        Object.values(state.members).map(member => member.handle).sort(),
+      getMembersOfGuild: (state) => (guild) => {
+        var memberIds = guild.guild_membership.map(gm => gm.member_id);
+        return Object.values(state.members).filter(member => memberIds.includes(member.id));
+      },
+      getMembersOfQuest: (state) => (quest) => {
+        var memberIds = quest.quest_membership.map(qm => qm.member_id);
+        return Object.values(state.members).filter(member => memberIds.includes(member.id));
+      },
+      getPlayersOfQuest: (state) => (quest) => {
+        var memberIds = quest.casting.map(qm => qm.member_id);
+        return Object.values(state.members).filter(member => memberIds.includes(member.id));
+      },
     },
     actions: {
       ensureAllMembers: async (context) => {
-        if (context.state.members.length === 0 || context.state.singleFetch) {
+        if (context.state.members.length === 0 || !context.state.fullFetch) {
           await context.dispatch('fetchMembers');
+        }
+      },
+      ensureMembersOfGuild: async (context, guildId) => {
+        await MyVapi.store.dispatch('guilds/ensureGuild', guildId, true);
+        const guild = MyVapi.store.getters['guilds/getGuildById'](guildId);
+        var membersId = guild.guild_membership.map(mp => mp.member_id);
+        membersId = membersId.filter(id => !context.state.members[id]);
+        if (membersId.length > 0) {
+          await context.dispatch('fetchMembers', {id: membersId});
+        }
+      },
+      ensurePlayersOfQuest: async (context, questId) => {
+        await MyVapi.store.dispatch('quests/ensureQuest', questId, true);
+        const quest = MyVapi.store.getters['quests/getQuestById'](questId);
+        var membersId = quest.casting.map(mp => mp.member_id);
+        membersId.concat(quest.quest_membership.map(mp => mp.member_id));
+        membersId = [...new Set(membersId)];
+        membersId = membersId.filter(id => !context.state.members[id]);
+        if (membersId.length > 0) {
+          await context.dispatch('fetchMembers', { params: { id: membersId } });
         }
       },
     }
