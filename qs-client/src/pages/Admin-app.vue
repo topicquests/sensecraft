@@ -38,7 +38,7 @@
         <div class="col-2">
         <q-checkbox
           v-model="createGuild"
-          label="createGuilde"
+          label="createGuild"
           left-label
           name="create-guild"/>
         </div>
@@ -46,6 +46,7 @@
            <q-btn
            color="primary"
            label="Update"
+           @click="updatePermissions"
            />
         </div>
       </div>
@@ -55,7 +56,7 @@
 <script>
 import member from '../components/member.vue'
 import scoreboard from '../components/scoreboard.vue'
-import {mapActions, mapState} from 'vuex'
+import {mapActions, mapGetters, mapState} from 'vuex'
 export default {
    name: 'Admin-app',
    props: {
@@ -63,15 +64,15 @@ export default {
   },
   data () {
     return {
-      createQuest: null,
-      createGuild: null,
-      superAdmin: null,
+      createQuest: false,
+      createGuild: false,
+      superAdmin: false,
     }
   },
   computed: {
     ...mapState('members', {
       members: state => state.members,
-    })
+    }),
   },
   components: {
     "member": member,
@@ -79,13 +80,29 @@ export default {
   },
   methods: {
     ...mapActions('members', [
-      'fetchMembers'
-    ]),
-  },
-  async created() {
+      'fetchMembers',
+      'getMemberById',
+      'updateMember',
+      ]),
+      async updatePermissions() {
+        let permissions = [];
+        const member = await this.getMemberById(this.members.handle);
+        if(this.createQuest) {
+          permissions.push("createQuest");
+        }
+        if(this.createGuild) {
+          permissions.push("createGuild");
+        }
+        if (this.superAdmin) {
+          permissions.push("superadmin");
+        }
+        member.permissions=[...permissions]
+        await this.updateMember({data: {id: member.id, permissions: member.permissions}})
+      },
+    },
+  async beforeMount() {
     await this.fetchMembers();
-
-  }
+  },
 }
 </script>
 <style>

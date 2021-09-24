@@ -126,7 +126,7 @@ export default {
     ...mapGetters(['hasPermission']),
   },
   methods: {
-    ...mapActions('members',['fetchUserById']),
+    ...mapActions('members',['fetchMemberById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('quests',[
       'ensureAllQuests',

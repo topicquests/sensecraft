@@ -223,7 +223,7 @@ export default {
       'setCurrentQuest',
       'addCasting',
     ]),
-    ...mapActions('members',['fetchUserById']),
+    ...mapActions('members',['fetchMemberById']),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions('guilds',[
       'ensureGuild',
@@ -275,7 +275,7 @@ export default {
     async onCurrentQuestChange() {
       // we should not get here without a current quest
       const quest = this.getCurrentQuest;
-      await this.fetchUserById({params: {id: quest.creator}})
+      await this.fetchMemberById({params: {id: quest.creator}})
       const casting = quest.casting?.find(ct => ct.user_id == this.memberId);
       if (casting) {
         this.memberPlaysQuestSomewhere = casting.guild_id;
@@ -348,7 +348,7 @@ export default {
       const guildMembers = await this.getMembersByGuildId(this.currentGuildId);
       const resp = await Promise.all(guildMembers.map(async (player) => {
         try {
-          const respUser = await this.fetchUserById(player.member_id);
+          const respUser = await this.fetchMemberById(player.member_id);
           return respUser.data;
         }
         catch (error) {
