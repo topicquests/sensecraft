@@ -60,6 +60,10 @@ const members = new MyVapi({
   // Step 4
   .getStore({
     getters: {
+      getMembers: (state) =>
+        Object.values(state.members).sort((a, b) =>
+          a.name.localeCompare(b.handle)
+        ),
       getMemberById: (state) => (id) => state.members[id],
       getMemberByHandle: (state) => (handle) =>
         Object.values(state.members).find((member) => member.handle == handle),

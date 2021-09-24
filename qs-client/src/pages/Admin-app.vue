@@ -11,8 +11,8 @@
     <div class="row q-mt-xl">
       <div class="col-2 q-ml-xl q-mr-xl">
         <q-select
-          v-model="member.handle"
-          :options="member"
+          v-model="member_id"
+          :options="getMembers"
           option-label="handle"
           option-value="id"
           label="Handle"
@@ -50,7 +50,7 @@
         <q-btn
           color="primary"
           label="Update"
-          :enabled="userIsSuperAdmin"
+          v-bind:disabled="!userIsSuperAdmin"
           @click="updatePermissions"
         />
       </div>
@@ -61,24 +61,65 @@
 <script>
 import member from "../components/member.vue";
 import scoreboard from "../components/scoreboard.vue";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters } from "vuex";
+
+function ensure(array, value, present) {
+  if (!array) return;
+  if (present) {
+    if (!array.includes(value)) {
+      array.push(value);
+    }
+  } else {
+    if (array.includes(value)) {
+      array.splice(array.indexOf(value), 1);
+    }
+  }
+}
+
 export default {
   name: "Admin-app",
   props: {},
   data() {
     return {
-      createQuest: false,
-      createGuild: false,
-      superAdmin: false,
       userIsSuperAdmin: false,
       member_id: null,
     };
   },
   computed: {
     ...mapGetters(["hasPermission"]),
-    ...mapGetters("members", ["getMemberById"]),
+    ...mapGetters("member", ["getUserId"]),
+    ...mapGetters("members", [
+      "getMembers",
+      "getMemberByHandle",
+      "getMemberById",
+      "getMemberHandles",
+    ]),
     member: function () {
       return this.getMemberById(this.member_id);
+    },
+    superAdmin: {
+      get() {
+        return this.member?.permissions.includes("superadmin");
+      },
+      set(value) {
+        ensure(this.member?.permissions, "superadmin", value);
+      },
+    },
+    createQuest: {
+      get() {
+        return this.member?.permissions.includes("createQuest");
+      },
+      set(value) {
+        ensure(this.member?.permissions, "createQuest", value);
+      },
+    },
+    createGuild: {
+      get() {
+        return this.member?.permissions.includes("createGuild");
+      },
+      set(value) {
+        ensure(this.member?.permissions, "createGuild", value);
+      },
     },
   },
   components: {
@@ -86,29 +127,17 @@ export default {
     scoreboard: scoreboard,
   },
   methods: {
-    ...mapActions("members", ["fetchMemberById", "updateMember"]),
+    ...mapActions("members", ["updateMember", "ensureAllMembers"]),
     async updatePermissions() {
-      var permissions = this.member.permissions;
-      const member = this.getMemberByHandle(this.members.handle);
-      if (this.createQuest) {
-        permissions.push("createQuest");
-      }
-      if (this.createGuild) {
-        permissions.push("createGuild");
-      }
-      if (this.superAdmin) {
-        permissions.push("superadmin");
-      }
-      permissions = [...new Set(permissions + member.permissions)];
-      await this.updateMember({ data: { id: member.id, permissions } });
+      const member = this.member;
+      await this.updateMember({
+        data: { id: member.id, permissions: member.permissions },
+      });
     },
   },
   async beforeMount() {
-    this.member_id = this.$route.params.member_id;
-    await this.fetchMemberById({ params: { id: this.member_id } });
-    this.superAdmin = this.member.permissions.includes("superadmin");
-    this.createQuest = this.member.permissions.includes("createQuest");
-    this.createGuild = this.member.permissions.includes("createGuild");
+    await this.ensureAllMembers();
+    this.member_id = this.getUserId;
     this.userIsSuperAdmin = this.hasPermission("superadmin");
   },
 };
