@@ -145,7 +145,7 @@ const guilds = new MyVapi({
       setCurrentGuild: (context, guild_id) => {
         context.commit("SET_CURRENT_QUEST", guild_id);
       },
-      ensureGuild: async (context, guild_id, full) => {
+      ensureGuild: async (context, guild_id, full = true) => {
         if (
           context.getters.getGuildById(guild_id) === undefined ||
           (full && !context.state.fullGuilds[guild_id])
@@ -161,8 +161,8 @@ const guilds = new MyVapi({
           await context.dispatch("fetchGuilds");
         }
       },
-      ensureCurrentGuild: async (context, guild_id) => {
-        await context.dispatch("ensureGuild", guild_id);
+      ensureCurrentGuild: async (context, guild_id, full = true) => {
+        await context.dispatch("ensureGuild", guild_id, full);
         await context.dispatch("setCurrentGuild", guild_id);
       },
       ensureGuildsPlayingQuest: async (context, questId, full) => {
