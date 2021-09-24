@@ -1,27 +1,29 @@
 <template>
   <q-page :padding="true" v-if="!!q">
     <div id="topbox">
-      <span style="float:right; font-size:small;">
-        <a :href="`/userview/${q.creator}`">{{q.handle}}</a>
-        {{q.date}}
+      <span style="float: right; font-size: small">
+        <a :href="`/userview/${q.creator}`">{{ q.handle }}</a>
+        {{ q.date }}
       </span>
       <h4>
-        <img style="margin-right:4px;" :src="q.img">
+        <img style="margin-right: 4px" :src="q.img" />
         {{ q.label }}
       </h4>
       <span v-if="q.url">
         <b>URL:</b>
-        <a :href="q.url">{{ q.url}}</a>
-        <br>
-        <br>
+        <a :href="q.url">{{ q.url }}</a>
+        <br />
+        <br />
       </span>
       <!-- parent refers to type, this node being an instanceOf type -->
       <span v-if="q.parentLabel">
         <b>Responds to</b>
-        <router-link :to="{ name: 'quest_page', params: { id: q.parentId }}">{{ q.parentLabel }}</router-link>
+        <router-link :to="{ name: 'quest_page', params: { id: q.parentId } }">{{
+          q.parentLabel
+        }}</router-link>
       </span>
       <!-- TODO enumerate superclasses if any -->
-      <hr>
+      <hr />
       <div class="details">
         <div v-html="q.details"></div>
       </div>
@@ -29,31 +31,42 @@
     <!-- Edit and other controls go here -->
     <router-link
       v-if="canEdit"
-      style="margin-left:20px;"
-      :to="{ name: 'nodeupdate', params: { type: 'update', id: q.nodeId }}"
+      style="margin-left: 20px"
+      :to="{ name: 'nodeupdate', params: { type: 'update', id: q.nodeId } }"
     >
       <b>Edit This Node</b>
     </router-link>
-    <span v-if="isRelation" style="margen-left:20px;">
-      <br>
-      <b style="margin-left:20px;">Source Node</b>
-      <router-link :to="{ name: 'quest_page', params: { id: q.sourceNode }}">{{ q.sourceLabel }}</router-link>
-      <br>
-      <b style="margin-left:20px;">Target Node</b>
-      <router-link :to="{ name: 'quest_page', params: { id: q.targetNode }}">{{ q.targetLabel }}</router-link>
+    <span v-if="isRelation" style="margen-left: 20px">
+      <br />
+      <b style="margin-left: 20px">Source Node</b>
+      <router-link :to="{ name: 'quest_page', params: { id: q.sourceNode } }">{{
+        q.sourceLabel
+      }}</router-link>
+      <br />
+      <b style="margin-left: 20px">Target Node</b>
+      <router-link :to="{ name: 'quest_page', params: { id: q.targetNode } }">{{
+        q.targetLabel
+      }}</router-link>
     </span>
     <!-- What follows is any child nodes and tags around this topic -->
     <q-list>
       <q-collapsible image="statics/images/issue.png" label="Questions">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/question/${q.type}/${q.nodeId}`">New Question</a>
+            <a :href="`/nodeedit/question/${q.type}/${q.nodeId}`"
+              >New Question</a
+            >
           </div>
           <q-list>
-            <q-item class="node wordwrap" v-for="question in q.questions" :key="question.nodeId">
+            <q-item
+              class="node wordwrap"
+              v-for="question in q.questions"
+              :key="question.nodeId"
+            >
               <router-link
-                :to="{ name: 'quest_page', params: { id: question.nodeId }}"
-              >{{ question.label }}</router-link>
+                :to="{ name: 'quest_page', params: { id: question.nodeId } }"
+                >{{ question.label }}</router-link
+              >
             </q-item>
           </q-list>
         </div>
@@ -67,36 +80,51 @@
         <q-list>
           <q-item class="node" v-for="answer in q.answers" :key="answer.nodeId">
             <router-link
-              :to="{ name: 'quest_page', params: { id: answer.nodeId }}"
-            >{{ answer.label }}</router-link>
+              :to="{ name: 'quest_page', params: { id: answer.nodeId } }"
+              >{{ answer.label }}</router-link
+            >
           </q-item>
         </q-list>
       </q-collapsible>
       <q-collapsible image="statics/images/plus.png" label="Pro Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/pro/${q.type}/${q.nodeId}`">New Pro Argument</a>
+            <a :href="`/nodeedit/pro/${q.type}/${q.nodeId}`"
+              >New Pro Argument</a
+            >
           </div>
         </div>
         <q-list>
           <q-item class="node" v-for="pro in q.pros" :key="pro.nodeId">
-            <router-link :to="{ name: 'quest_page', params: { id: pro.nodeId }}">{{ pro.label }}</router-link>
+            <router-link
+              :to="{ name: 'quest_page', params: { id: pro.nodeId } }"
+              >{{ pro.label }}</router-link
+            >
           </q-item>
         </q-list>
       </q-collapsible>
       <q-collapsible image="statics/images/minus.png" label="Con Arguments">
         <div>
           <div v-if="isAuthenticated" class="node">
-            <a :href="`/nodeedit/con/${q.type}/${q.nodeId}`">New Con Argument</a>
+            <a :href="`/nodeedit/con/${q.type}/${q.nodeId}`"
+              >New Con Argument</a
+            >
           </div>
         </div>
         <q-list>
           <q-item class="node" v-for="con in q.cons" :key="con.nodeId">
-            <router-link :to="{ name: 'quest_page', params: { id: con.nodeId }}">{{ con.label }}</router-link>
+            <router-link
+              :to="{ name: 'quest_page', params: { id: con.nodeId } }"
+              >{{ con.label }}</router-link
+            >
           </q-item>
         </q-list>
       </q-collapsible>
-      <q-collapsible v-if="isTopic" image="statics/images/cogwheel.png" label="Subclasses">
+      <q-collapsible
+        v-if="isTopic"
+        image="statics/images/cogwheel.png"
+        label="Subclasses"
+      >
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/topicchild/${q.nodeId}/subclass`">New Subclass Topic</a>
@@ -104,18 +132,28 @@
         </div>
         <q-list>
           <q-item class="node" v-for="sub in q.subclasses" :key="sub.nodeId">
-            <router-link :to="{ name: 'topicview', params: { id: sub.nodeId }}">{{ sub.label }}</router-link>
+            <router-link
+              :to="{ name: 'topicview', params: { id: sub.nodeId } }"
+              >{{ sub.label }}</router-link
+            >
           </q-item>
         </q-list>
       </q-collapsible>
-      <q-collapsible v-if="isTopic" image="statics/images/cogwheel.png" label="Instances">
+      <q-collapsible
+        v-if="isTopic"
+        image="statics/images/cogwheel.png"
+        label="Instances"
+      >
         <div>
           <div v-if="isAuthenticated" class="node">
             <a :href="`/topicchild/${q.nodeId}/instance`">New Instance Topic</a>
           </div>
           <q-list>
             <q-item class="node" v-for="inst in q.instances" :key="inst.nodeId">
-              <router-link :to="{ name: 'topicview', params: { id: inst.nodeId }}">{{ inst.label }}</router-link>
+              <router-link
+                :to="{ name: 'topicview', params: { id: inst.nodeId } }"
+                >{{ inst.label }}</router-link
+              >
             </q-item>
           </q-list>
         </div>
@@ -128,7 +166,10 @@
         </div>
         <q-list>
           <q-item class="node" v-for="tag in q.tags" :key="tag.nodeId">
-            <router-link :to="{ name: 'tagview', params: { id: tag.nodeId }}">{{ tag.label }}</router-link>
+            <router-link
+              :to="{ name: 'tagview', params: { id: tag.nodeId } }"
+              >{{ tag.label }}</router-link
+            >
           </q-item>
         </q-list>
       </q-collapsible>
@@ -141,7 +182,10 @@
           </div>
           <q-list>
             <q-item class="node" v-for="reln in q.relations" :key="reln.nodeId">
-              <router-link :to="{ name: 'topicview', params: { id: reln.nodeId}}">{{ reln.label }}</router-link>
+              <router-link
+                :to="{ name: 'topicview', params: { id: reln.nodeId } }"
+                >{{ reln.label }}</router-link
+              >
             </q-item>
           </q-list>
         </div>
@@ -154,11 +198,15 @@
             </div>
           </div>
           <q-list>
-            <q-item class="node" v-for="{value, key} in q.properties" :key="key">
+            <q-item
+              class="node"
+              v-for="{ value, key } in q.properties"
+              :key="key"
+            >
               <b>Key:</b>
-              {{key}} &nbsp;
+              {{ key }} &nbsp;
               <b>Value:</b>
-              {{cleanup(value)}}
+              {{ cleanup(value) }}
             </q-item>
           </q-list>
         </div>
@@ -168,12 +216,12 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
-import app from '../App'
+import app from "../App";
 
 export default {
   data() {
     return {
-      rightDrawerOpen: this.$q.platform.is.desktop
+      rightDrawerOpen: this.$q.platform.is.desktop,
     };
   },
   beforeRouterUpdate() {
@@ -186,9 +234,9 @@ export default {
     }, 500);
   },
   computed: {
-   ...mapState('member', [
-     isAuthenticated => state => state.isAuthenticated
-   ]),
+    ...mapState("member", [
+      (isAuthenticated) => (state) => state.isAuthenticated,
+    ]),
 
     isRelation() {
       return this.q.type === "relation";
@@ -219,12 +267,12 @@ export default {
       } else {
         return false;
       }
-    }
+    },
   },
   async beforeMount() {
     const id = this.$route.params.id;
     this.$data.rightDrawerOpen = false; //turn off conversation tree
-    await app.userLoaded
+    await app.userLoaded;
     //this.$store.commit("questView", false);
 
     await this.initialize();
@@ -236,7 +284,7 @@ export default {
       try {
         const {
           name,
-          params: { id }
+          params: { id },
         } = to;
         if (name === "topicview" || (name === "quest_page" && id)) {
           this.initialize(id);
@@ -245,7 +293,7 @@ export default {
         console.error(e);
       }
       // react to route changes...
-    }
+    },
   },
   methods: {
     cleanup(val) {
@@ -267,11 +315,11 @@ export default {
       try {
         const result = await this.findConversations({
           query: { nodeId },
-          depth: 1
+          depth: 1,
         });
         console.info("Initialize", "result", { result });
         const {
-          data: [single]
+          data: [single],
         } = result;
 
         this.setCurrentConversation(single);
@@ -287,24 +335,23 @@ export default {
         // rather than 'map' to paint a tree view
         //treeview.get(nodeId).then(function(tree) {
         //  console.info("TopicTreeView", tree);
-          //const img = tree.img
-          // only show the tree if the root is a map
-          //if (img === 'statics/images/map_sm.png' ||
-          //    img === 'statics/images/bookmark_sm.png') {
-          const result = [];
-          // result.push(tree);
-          // self.$store.commit("tree", result);
-          // self.$store.commit("questView", true);
-          //}
+        //const img = tree.img
+        // only show the tree if the root is a map
+        //if (img === 'statics/images/map_sm.png' ||
+        //    img === 'statics/images/bookmark_sm.png') {
+        const result = [];
+        // result.push(tree);
+        // self.$store.commit("tree", result);
+        // self.$store.commit("questView", true);
+        //}
         //});
       } catch (err) {
         console.log("QuestViewTreeError", err);
       }
     },
     ...mapActions("conversation", { findConversations: "find" }),
-    ...mapMutations("conversation", { setCurrentConversation: "setCurrent" })
+    ...mapMutations("conversation", { setCurrentConversation: "setCurrent" }),
   },
-
 };
 </script>
 

@@ -1,56 +1,85 @@
 <template>
-  <q-page style ="background-color:lightgrey" >
+  <q-page style="background-color: lightgrey">
     <div>
       <member></member>
     </div>
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
+      <div class="col-4 q-pa-lg" style="width: 55%">
         <scoreboard></scoreboard>
-        </div>
+      </div>
     </div>
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests="getQuests" :view="true" title="Quests"></questTable>
-        </div>
+      <div class="col-4 q-pa-lg" style="width: 55%">
+        <questTable
+          v-bind:quests="getQuests"
+          :view="true"
+          title="Quests"
+        ></questTable>
+      </div>
     </div>
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
-        <p> If you have not already choosen a guild to join. Select one from the list
-         If you are already a member of a guild, click on enter button to go to that guild's page</p>
-        </div>
+      <div class="col-4 q-pa-lg" style="width: 55%">
+        <p>
+          If you have not already choosen a guild to join. Select one from the
+          list If you are already a member of a guild, click on enter button to
+          go to that guild's page
+        </p>
+      </div>
     </div>
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
-        <q-card >
-          <q-table style="color: blue; background-color: lightgreen;" title="Guilds" :data="getGuilds" :columns="columns2" row-key = "desc">
+      <div class="col-4 q-pa-lg" style="width: 55%">
+        <q-card>
+          <q-table
+            style="color: blue; background-color: lightgreen"
+            title="Guilds"
+            :data="getGuilds"
+            :columns="columns2"
+            row-key="desc"
+          >
             <template slot="body" slot-scope="props">
-                <q-tr :props="props">
-                  <q-td key="guildDesc" :props="props"> {{props.row.name}}</q-td>
-                  <q-td key="label" :props="props">{{props.row.label}}</q-td>
-                  <q-td key="guildHandle" :props="props">{{props.row.handle}}</q-td>
-                  <q-td key="guildNodeId" auto-width :props="props">
-                    <div v-if="guildBelongsTo(props.row.id)">
-                      <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Enter</router-link>
-                    </div>
-                    <div v-else>
-                      <router-link :to="{ name: 'guild', params: { guild_id:  props.row.id }}" >Join</router-link>
-                    </div>
-                  </q-td>
-                </q-tr>
+              <q-tr :props="props">
+                <q-td key="guildDesc" :props="props">
+                  {{ props.row.name }}</q-td
+                >
+                <q-td key="label" :props="props">{{ props.row.label }}</q-td>
+                <q-td key="guildHandle" :props="props">{{
+                  props.row.handle
+                }}</q-td>
+                <q-td key="guildNodeId" auto-width :props="props">
+                  <div v-if="guildBelongsTo(props.row.id)">
+                    <router-link
+                      :to="{
+                        name: 'guild',
+                        params: { guild_id: props.row.id },
+                      }"
+                      >Enter</router-link
+                    >
+                  </div>
+                  <div v-else>
+                    <router-link
+                      :to="{
+                        name: 'guild',
+                        params: { guild_id: props.row.id },
+                      }"
+                      >Join</router-link
+                    >
+                  </div>
+                </q-td>
+              </q-tr>
             </template>
           </q-table>
         </q-card>
-        </div>
+      </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import scoreboard from '../components/scoreboard.vue'
-import questTable from '../components/quest-table.vue'
-import member from '../components/member.vue'
-import { mapActions, mapState, mapGetters } from 'vuex'
-import app from '../App'
+import scoreboard from "../components/scoreboard.vue";
+import questTable from "../components/quest-table.vue";
+import member from "../components/member.vue";
+import { mapActions, mapState, mapGetters } from "vuex";
+import app from "../App";
 
 export default {
   props: ["guild"],
@@ -58,12 +87,12 @@ export default {
     return {
       columns1: [
         {
-          name: 'desc',
+          name: "desc",
           required: true,
           label: "Label",
           align: "left",
           field: "name",
-          sortable: true
+          sortable: true,
         },
         {
           name: "handle",
@@ -71,7 +100,7 @@ export default {
           label: "Handle",
           align: "left",
           field: "handle",
-          sortable: true
+          sortable: true,
         },
 
         {
@@ -80,17 +109,17 @@ export default {
           label: "Action",
           align: "left",
           field: "id",
-          sortable: true
-        }
+          sortable: true,
+        },
       ],
-      columns2:[
+      columns2: [
         {
-          name: 'guildDesc',
+          name: "guildDesc",
           required: true,
           label: "Label",
           align: "left",
           field: "name",
-          sortable: true
+          sortable: true,
         },
         {
           name: "guildHandle",
@@ -98,7 +127,7 @@ export default {
           label: "Handle",
           align: "left",
           field: "handle",
-          sortable: true
+          sortable: true,
         },
         {
           name: "guildNodeId",
@@ -106,53 +135,45 @@ export default {
           label: "Action",
           align: "left",
           field: "id",
-          sortable: true
-        }
-      ]
+          sortable: true,
+        },
+      ],
     };
   },
   components: {
-    "scoreboard": scoreboard,
-    "questTable": questTable,
-    "member": member
+    scoreboard: scoreboard,
+    questTable: questTable,
+    member: member,
   },
   computed: {
-    ...mapGetters('guilds', [
-      'getGuilds',
-      'getMyGuilds',
-    ]),
-    ...mapGetters('quests', [
-      'getQuests'
-    ]),
-    ...mapState('member', {
-      member: state => state.member.member
+    ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
+    ...mapGetters("quests", ["getQuests"]),
+    ...mapState("member", {
+      member: (state) => state.member.member,
     }),
   },
   methods: {
-    ...mapActions('quests', ['ensureAllQuests']),
-    ...mapActions('guilds', ['ensureAllGuilds']),
-    guildBelongsTo (id) {
-      const guildId = this.getMyGuilds.find(el => el.id ==id);
-      if (guildId){
-        return true
+    ...mapActions("quests", ["ensureAllQuests"]),
+    ...mapActions("guilds", ["ensureAllGuilds"]),
+    guildBelongsTo(id) {
+      const guildId = this.getMyGuilds.find((el) => el.id == id);
+      if (guildId) {
+        return true;
       } else {
-        return false
+        return false;
       }
-    }
+    },
   },
   async beforeMount() {
-    await app.userLoaded
-    await Promise.all([
-      this.ensureAllQuests(),
-      this.ensureAllGuilds()
-    ]);
-  }
-}
+    await app.userLoaded;
+    await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
+  },
+};
 </script>
 <style>
-  p {
-    background-color:lightgrey;
-    color:blue;
-    font-size: 15pt;
-  }
+p {
+  background-color: lightgrey;
+  color: blue;
+  font-size: 15pt;
+}
 </style>

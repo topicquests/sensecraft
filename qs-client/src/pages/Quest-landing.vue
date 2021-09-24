@@ -1,39 +1,38 @@
 <template>
-  <q-page :padding="true" class = 'bg-grey-4'>
+  <q-page :padding="true" class="bg-grey-4">
     <div>
       <member></member>
     </div>
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
+      <div class="col-4 q-pa-lg" style="width: 55%">
         <scoreboard></scoreboard>
-        </div>
+      </div>
     </div>
     <div class="column items-center">
-    <div class="col-4 q-pa-lg q-pl-lg" style="width: 55%">
-    <q-btn
-      color = secondary
-      v-if = '$store.state.member.member'
-      style="margin-bottom: 4px"
-      label="New Quest"
-      @click="$router.push({name: 'create_quest'})"
-    />
-    </div>
+      <div class="col-4 q-pa-lg q-pl-lg" style="width: 55%">
+        <q-btn
+          color="secondary"
+          v-if="$store.state.member.member"
+          style="margin-bottom: 4px"
+          label="New Quest"
+          @click="$router.push({ name: 'create_quest' })"
+        />
+      </div>
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
-        <questTable v-bind:quests = "getQuests" :view=false></questTable>
+        <questTable v-bind:quests="getQuests" :view="false"></questTable>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-
-import scoreboard from '../components/scoreboard.vue'
-import questTable from '../components/quest-table.vue'
-import member from '../components/member.vue'
-import {mapActions, mapState, mapGetters} from 'vuex'
-import app from '../App'
+import scoreboard from "../components/scoreboard.vue";
+import questTable from "../components/quest-table.vue";
+import member from "../components/member.vue";
+import { mapActions, mapState, mapGetters } from "vuex";
+import app from "../App";
 
 export default {
   props: ["member"],
@@ -41,12 +40,12 @@ export default {
     return {
       columns: [
         {
-          name: 'desc',
+          name: "desc",
           required: true,
           label: "Label",
           align: "left",
           field: "name",
-          sortable: true
+          sortable: true,
         },
         {
           name: "handle",
@@ -54,7 +53,7 @@ export default {
           label: "Handle",
           align: "left",
           field: "handle",
-          sortable: true
+          sortable: true,
         },
         {
           name: "status",
@@ -62,7 +61,7 @@ export default {
           label: "Status",
           align: "left",
           field: "status",
-          sortable: true
+          sortable: true,
         },
         {
           name: "date",
@@ -70,7 +69,7 @@ export default {
           label: "Date",
           align: "left",
           field: "created_at",
-          sortable: true
+          sortable: true,
         },
         {
           name: "nodeId",
@@ -78,44 +77,36 @@ export default {
           label: "Action",
           align: "left",
           field: "id",
-          sortable: true
-        }
+          sortable: true,
+        },
       ],
       isAuthenticated: false,
       serverPagination: {},
-      serverData: []
+      serverData: [],
     };
   },
   components: {
-    "scoreboard": scoreboard,
-    "questTable": questTable,
-    "member": member
+    scoreboard: scoreboard,
+    questTable: questTable,
+    member: member,
   },
   computed: {
-    ...mapGetters('quests', [
-      'getQuests',
-      ]),
-    ...mapGetters('guilds', [
-      'getGuilds',
-      ]),
+    ...mapGetters("quests", ["getQuests"]),
+    ...mapGetters("guilds", ["getGuilds"]),
   },
   methods: {
-    ...mapActions('quests',[
-      'ensureAllQuests']),
-    ...mapActions('guilds',[
-      'ensureAllGuilds',
-      ]),
+    ...mapActions("quests", ["ensureAllQuests"]),
+    ...mapActions("guilds", ["ensureAllGuilds"]),
   },
   async beforeMount() {
-    await app.userLoaded
+    await app.userLoaded;
     // not using those yet?
     // await Promise.all([
     //   this.ensureAllQuests(),
     //   this.ensureAllGuilds(),
     // ])
-  }
+  },
 };
 </script>
 
-<style>
-</style>
+<style></style>

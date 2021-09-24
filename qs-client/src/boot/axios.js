@@ -5,20 +5,18 @@ import { LoadingBar } from "quasar";
 LoadingBar.setDefaults({
   color: "secondary",
   size: "15px",
-  position: "top"
+  position: "top",
 });
-
-
 
 const axiosInstance = axios.create({ baseURL: server_url });
 
 //axiosInstance.defaults.withCredentials = true;
 axiosInstance.interceptors.request.use(
-  function(config) {
+  function (config) {
     LoadingBar.start();
     return config;
   },
-  function(error) {
+  function (error) {
     LoadingBar.stop();
 
     return Promise.reject(error);
@@ -26,11 +24,11 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  function(response) {
+  function (response) {
     LoadingBar.stop();
     return response;
   },
-  function(error) {
+  function (error) {
     LoadingBar.stop();
     return Promise.reject(error);
   }

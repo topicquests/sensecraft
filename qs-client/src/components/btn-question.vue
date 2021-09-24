@@ -1,16 +1,16 @@
 <template>
   <q-btn round>
-      <q-avatar size="36px">
-        <img src="../statics/images/question.png">
-      </q-avatar>
-    </q-btn>
+    <q-avatar size="36px">
+      <img src="../statics/images/question.png" />
+    </q-avatar>
+  </q-btn>
 </template>
 
 <script>
 export default {
   // name: 'ComponentName',
-  data () {
-    return {}
-  }
-}
+  data() {
+    return {};
+  },
+};
 </script>

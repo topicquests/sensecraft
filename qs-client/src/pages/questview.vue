@@ -1,72 +1,62 @@
 <template>
-   <q-page style="background-color: #CAF0F8">
+  <q-page style="background-color: #caf0f8">
     <div class="column items-center">
-        <div class="col-4 q-pa-lg" style="width: 55%">
+      <div class="col-4 q-pa-lg" style="width: 55%">
         <scoreboard></scoreboard>
-        </div>
+      </div>
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
-        <questCard v-bind:currentQuestCard ="getCurrentQuest" :creator="getQuestCreator()"></questCard>
+        <questCard
+          v-bind:currentQuestCard="getCurrentQuest"
+          :creator="getQuestCreator()"
+        ></questCard>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import questCard from '../components/quest-card.vue'
-import scoreboard from '../components/scoreboard.vue'
-import {mapActions, mapState, mapGetters} from 'vuex'
-import app from '../App'
+import questCard from "../components/quest-card.vue";
+import scoreboard from "../components/scoreboard.vue";
+import { mapActions, mapState, mapGetters } from "vuex";
+import app from "../App";
 
 export default {
-  name: 'quest_page',
+  name: "quest_page",
   data() {
-    return {
-
-    }
+    return {};
   },
   computed: {
     ...mapState("quests", {
-      questId: state => state.currentQuest
+      questId: (state) => state.currentQuest,
     }),
-   ...mapGetters('quests', [
-      'getCurrentQuest',
-   ]),
-   ...mapGetters("members", [
-     "getMemberById",
-   ])
+    ...mapGetters("quests", ["getCurrentQuest"]),
+    ...mapGetters("members", ["getMemberById"]),
   },
   components: {
-    "questCard": questCard,
-    "scoreboard": scoreboard
+    questCard: questCard,
+    scoreboard: scoreboard,
   },
   methods: {
-    ...mapActions("quests", [
-    "setCurrentQuest",
-    "ensureQuest"
-    ]),
-    ...mapActions("members", [
-      "fetchMemberById"
-    ]),
+    ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
+    ...mapActions("members", ["fetchMemberById"]),
     getQuestCreator() {
-      return this.getMemberById(this.getCurrentQuest.creator)
-    }
+      return this.getMemberById(this.getCurrentQuest.creator);
+    },
   },
   async beforeMount() {
     try {
       const questId = this.$route.params.quest_id;
-      await app.userLoaded
-      await this.setCurrentQuest(questId)
+      await app.userLoaded;
+      await this.setCurrentQuest(questId);
       await this.ensureQuest(questId);
       const quest = this.getCurrentQuest;
-      await this.fetchMemberById({params: {id: quest.creator}});
+      await this.fetchMemberById({ params: { id: quest.creator } });
       const creator = this.getMemberById(quest.creator);
+    } catch (error) {
+      console.log("Error in questview create: ", error);
     }
-    catch(error) {
-      console.log("Error in questview create: ", error)
-    }
-  }
-}
-
+  },
+};
 </script>

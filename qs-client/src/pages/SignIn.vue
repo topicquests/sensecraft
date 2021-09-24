@@ -1,43 +1,52 @@
 <template>
   <q-page
     class="window-height window-width row justify-center items-center"
-    style="background: linear-gradient(#8274C5, #5A4A9F);">
+    style="background: linear-gradient(#8274c5, #5a4a9f)"
+  >
     <div class="column q-pa-lg">
       <div class="row">
-        <q-card square class="shadow-24" style="width:300px;height:485px;">
+        <q-card square class="shadow-24" style="width: 300px; height: 485px">
           <q-card-section class="bg-deep-purple-7">
             <h4 class="text-h5 text-white q-my-md">Guild's Quest</h4>
-            <div class="absolute-bottom-right q-pr-md" style="transform: translateY(50%);">
+            <div
+              class="absolute-bottom-right q-pr-md"
+              style="transform: translateY(50%)"
+            >
               <q-btn fab icon="add" color="purple-4" />
             </div>
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
-              <div >
-              <q-input square clearable
-                v-model="formData.signonEmail"
-                :tabindex="1"
-                type="email"
-                label="Email">
-                <template v-slot:prepend>
-                  <q-icon name="email"
-                  :tabindex="-1" />
-                </template>
-              </q-input>
+              <div>
+                <q-input
+                  square
+                  clearable
+                  v-model="formData.signonEmail"
+                  :tabindex="1"
+                  type="email"
+                  label="Email"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="email" :tabindex="-1" />
+                  </template>
+                </q-input>
               </div>
-               <q-input
+              <q-input
                 square
                 v-model="formData.password"
                 tabindex="2"
-                filled :type="isPwdSignIn ? 'password' : 'text'"
+                filled
+                :type="isPwdSignIn ? 'password' : 'text'"
                 v-on:keyup.enter="doLogin"
-                label = Password>
+                label="Password"
+              >
                 <template v-slot:append>
                   <q-icon
                     :tabindex="-1"
                     :name="isPwdSignIn ? 'visibility_off' : 'visibility'"
                     class="cursor-pointer"
-                    @click="isPwdSignIn = !isPwdSignIn"/>
+                    @click="isPwdSignIn = !isPwdSignIn"
+                  />
                 </template>
                 <template v-slot:prepend>
                   <q-icon name="lock" />
@@ -61,8 +70,22 @@
           <div class="text-center q-pa-md q-gutter-md">
             <q-card-section>
               <q-card-actions class="q-px-lg">
-                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Sign on" @click="doLogin"/>
-                <q-btn unelevated size="md" color="purple-4" class="text-white" label="Cancel" @click="$router.push({name: 'home'})"/>
+                <q-btn
+                  unelevated
+                  size="md"
+                  color="purple-4"
+                  class="text-white"
+                  label="Sign on"
+                  @click="doLogin"
+                />
+                <q-btn
+                  unelevated
+                  size="md"
+                  color="purple-4"
+                  class="text-white"
+                  label="Cancel"
+                  @click="$router.push({ name: 'home' })"
+                />
               </q-card-actions>
             </q-card-section>
           </div>
@@ -80,81 +103,76 @@ import { mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
-  return {
-    isPwd: true,
-    isPwdSignIn: true,
-    showDialog: true,
-    formData: {
-      signonEmail: null,
-      password: null,
-    },
-
-  };
+    return {
+      isPwd: true,
+      isPwdSignIn: true,
+      showDialog: true,
+      formData: {
+        signonEmail: null,
+        password: null,
+      },
+    };
   },
   methods: {
-    ...mapActions('member', ['signin', 'ensureLoginUser']),
-    ...mapGetters('member', ['getUserId', 'getUserEmail']),
-   async doLogin() {
+    ...mapActions("member", ["signin", "ensureLoginUser"]),
+    ...mapGetters("member", ["getUserId", "getUserEmail"]),
+    async doLogin() {
       try {
-        const loginResponse = await this.login(this.formData.signonEmail)
-            this.$q.notify({
-              type: "positive",
-              message: "You are now signed in"
-              })
-              this.goNext();
-      }
-      catch (error) {
-        console.log("Error with sign in ", error)
+        const loginResponse = await this.login(this.formData.signonEmail);
+        this.$q.notify({
+          type: "positive",
+          message: "You are now signed in",
+        });
+        this.goNext();
+      } catch (error) {
+        console.log("Error with sign in ", error);
         this.$q.notify({
           type: "negative",
-          message: "Issue with sign in. Verify your email and password"
-      })}
+          message: "Issue with sign in. Verify your email and password",
+        });
+      }
     },
     async login(email) {
       try {
         email = email && email.toString().toLowerCase();
         const signInResp = await this.signin(this.formData);
         if (!signInResp) {
-          throw 'login failed'
+          throw "login failed";
         }
         await this.ensureLoginUser();
-      }
-      catch (error) {
-        console.log("Error with sign in ", error)
+      } catch (error) {
+        console.log("Error with sign in ", error);
         this.$q.notify({
           type: "negative",
-          message: "Issue with sign in. Verify your email and password"
-      })}
+          message: "Issue with sign in. Verify your email and password",
+        });
+      }
     },
     async goNext() {
       try {
-          this.goLobby();
-      }
-      catch (error) {
-        console.log("Error in going to next page", error)
+        this.goLobby();
+      } catch (error) {
+        console.log("Error in going to next page", error);
       }
     },
     goHome() {
       this.$router.push({ name: "home" });
     },
     goLanding() {
-      this.$router.push({name: "landingPage"});
+      this.$router.push({ name: "landingPage" });
     },
     goLobby() {
-      this.$router.push({name: "lobby"});
+      this.$router.push({ name: "lobby" });
     },
     onHide() {
-// Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-    setTimeout(() => {
-      this.goHome();
-    }, 50);
+      // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
+      setTimeout(() => {
+        this.goHome();
+      }, 50);
+    },
   },
-},
-  async beforeMount() {
-  }
+  async beforeMount() {},
 };
 </script>
 
-<style>
-</style>
-
+<style></style>

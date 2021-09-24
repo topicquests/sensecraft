@@ -1,27 +1,24 @@
 <template>
-
   <div class="column items-right" v-if="member">
     <div class="col-12">
-      <div class="member q-pr-md">{{member.handle}}
-      </div>
+      <div class="member q-pr-md">{{ member.handle }}</div>
     </div>
   </div>
-
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 export default {
   // props: ['member'],
-  name: 'Member',
-  data () {
-    return {}
+  name: "Member",
+  data() {
+    return {};
   },
 
   computed: {
-    ...mapState('member', ['member']),
+    ...mapState("member", ["member"]),
   },
-}
+};
 </script>
 <style>
 .member {
@@ -31,5 +28,3 @@ export default {
   font-family: Arial, Helvetica, sans-serif;
 }
 </style>
-
-

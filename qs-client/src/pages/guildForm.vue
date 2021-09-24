@@ -1,5 +1,5 @@
- <template>
-  <q-page style ="background-color:lightgrey" >
+<template>
+  <q-page style="background-color: lightgrey">
     <div>
       <member></member>
     </div>
@@ -8,7 +8,7 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class = "row justify-center">
+    <div class="row justify-center">
       <h4 id="h4" class="q-pa-xs q-ma-xs">Create New Guild</h4>
     </div>
     <div class="column items-center">
@@ -16,28 +16,32 @@
         <q-card class="q-pl-md">
           <div class="row justify-start q-pa-lg">
             <q-option-group
-            v-model="guild.public"
-            :options="public_private_bool"
-            color="primary"
-            inline>
+              v-model="guild.public"
+              :options="public_private_bool"
+              color="primary"
+              inline
+            >
             </q-option-group>
           </div>
-          <div class = "row justify-start q-pb-lg" >
-            <q-input class="guildText" v-model="guild.name" label="Name"/>
+          <div class="row justify-start q-pb-lg">
+            <q-input class="guildText" v-model="guild.name" label="Name" />
           </div>
-   <div class = "row justify-start q-pb-xs">
-      Details<br/>
-    </div>
-    <div class = "row justify-start q-pb-lg">
-      <q-editor v-model="guild.description" ></q-editor>
-    </div>
-    <div class = "row justify-start q-pb-lg">
-      <q-input v-model="guild.handle" label = "Handle" class="guildText" />
-    </div>
-   <div class = "row justify-start q-pb-lg">
-      <q-btn label="Submit" @click="doSubmit" color = "primary" class = "q-mr-md q-ml-md"/>
-      <q-btn label="Cancel" @click="$router.push({name: 'home'})" />
-    </div>
+          <div class="row justify-start q-pb-xs">Details<br /></div>
+          <div class="row justify-start q-pb-lg">
+            <q-editor v-model="guild.description"></q-editor>
+          </div>
+          <div class="row justify-start q-pb-lg">
+            <q-input v-model="guild.handle" label="Handle" class="guildText" />
+          </div>
+          <div class="row justify-start q-pb-lg">
+            <q-btn
+              label="Submit"
+              @click="doSubmit"
+              color="primary"
+              class="q-mr-md q-ml-md"
+            />
+            <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+          </div>
         </q-card>
       </div>
     </div>
@@ -45,12 +49,11 @@
 </template>
 
 <script>
-
-import {mapGetters, mapActions, mapState} from "vuex";
-import scoreboard from '../components/scoreboard.vue'
-import member from '../components/member.vue'
-import app from '../App'
-import { public_private_bool } from '../enums'
+import { mapGetters, mapActions, mapState } from "vuex";
+import scoreboard from "../components/scoreboard.vue";
+import member from "../components/member.vue";
+import app from "../App";
+import { public_private_bool } from "../enums";
 
 export default {
   data() {
@@ -60,9 +63,9 @@ export default {
         name: null,
         handle: null,
         public: false,
-        description: null
+        description: null,
       },
-      shape: 'line',
+      shape: "line",
       submitResult: [],
       details: "",
       handle: "",
@@ -70,30 +73,28 @@ export default {
     };
   },
   computed: {
-    ...mapState('member', ['member']),
+    ...mapState("member", ["member"]),
   },
 
-   components: {
-    "scoreboard": scoreboard,
-    "member": member,
+  components: {
+    scoreboard: scoreboard,
+    member: member,
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapActions('guilds', [
-      'createGuild',
-    ]),
-    ...mapGetters('guilds', ['getGuildById']),
+    ...mapActions("guilds", ["createGuild"]),
+    ...mapGetters("guilds", ["getGuildById"]),
 
     async doSubmit() {
-      console.log('wtf')
-      const res = await this.createGuild({data: this.guild});
+      console.log("wtf");
+      const res = await this.createGuild({ data: this.guild });
       const guild = await this.getGuildById(res.data.id);
-      this.$router.push({name: 'guild_edit', params: {guild_id: guild.id}})
+      this.$router.push({ name: "guild_edit", params: { guild_id: guild.id } });
     },
   },
   async beforeMount() {
-    await app.userLoaded
-  }
+    await app.userLoaded;
+  },
 };
 </script>
 

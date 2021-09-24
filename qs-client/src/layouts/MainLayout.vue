@@ -2,50 +2,55 @@
   <q-layout view="hHh LpR fFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          dense
-          flat
-          round icon="menu"
-          @click="leftDrawer = !leftDrawer" />
+        <q-btn dense flat round icon="menu" @click="leftDrawer = !leftDrawer" />
         <q-toolbar-title>
-          <q-btn
-            flat
-            @click="goTo('home')">
-            <q-img src="../statics/guild_quest.png"
-            style="width:150px"></q-img>
+          <q-btn flat @click="goTo('home')">
+            <q-img
+              src="../statics/guild_quest.png"
+              style="width: 150px"
+            ></q-img>
           </q-btn>
         </q-toolbar-title>
-      <div v-if = '!isAuthenticated'>
-        <q-btn
-          @click="goTo('signin')"
-          outline
-          roundeded
-          label="sign in"
-          name="signin"
-          class="q-mr-sm">
-        </q-btn>
-      <q-btn
-          @click="goTo('register')"
-          outline
-          roundeded
-          label="sign up"
-          name= "register"
+        <div v-if="!isAuthenticated">
+          <q-btn
+            @click="goTo('signin')"
+            outline
+            roundeded
+            label="sign in"
+            name="signin"
+            class="q-mr-sm"
+          >
+          </q-btn>
+          <q-btn
+            @click="goTo('register')"
+            outline
+            roundeded
+            label="sign up"
+            name="register"
           ></q-btn>
-      </div>
-      <div v-if = 'isAuthenticated'>
-        <q-btn
-          @click="logout()"
-          outline
-          roundeded
-          label="log off"
-          name="logoff">
-        </q-btn>
-      </div>
-      <div>
-        <q-btn v-if='showTree' flat dense round aria-label="Tree View" @click="toggleNav">
-          <q-icon name="menu"/>
-        </q-btn>
-      </div>
+        </div>
+        <div v-if="isAuthenticated">
+          <q-btn
+            @click="logout()"
+            outline
+            roundeded
+            label="log off"
+            name="logoff"
+          >
+          </q-btn>
+        </div>
+        <div>
+          <q-btn
+            v-if="showTree"
+            flat
+            dense
+            round
+            aria-label="Tree View"
+            @click="toggleNav"
+          >
+            <q-icon name="menu" />
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
     <div id="mySidenav" class="sidenav">
@@ -54,128 +59,117 @@
           :nodes="treeView"
           node-key="id"
           default-expand-all
-          :selected.sync="selected">
+          :selected.sync="selected"
+        >
         </q-tree>
       </div>
     </div>
-    <q-drawer
-        v-model="leftDrawer"
-        :breakpoint="200"
-        bordered
-      >
-        <q-scroll-area class="fit">
-         <div>
-           <q-list>
-          <div>
-            <q-item>
-            About
-            </q-item>
-          </div>
-          <div v-if="isAuthenticated">
-            <q-item>
-              <router-link
-                :to="{name: 'lobby'}">  Lobby
-              </router-link>
-            </q-item>
-          </div>
-          <div>
-            <q-item>
-              <router-link
-                :to="{name: 'quest_list'}">  Quest list
-              </router-link>
-            </q-item>
-          </div>
-          <div v-if="hasPermission('createQuest')">
-            <q-item>
-              <router-link
-                :to="{name: 'quest-landing'}">  Quest create
-              </router-link>
-            </q-item>
-          </div>
-          <div>
-            <q-item>
-            <router-link
-              :to="{name: 'guild_list'}"> Guild list
-            </router-link>
-            </q-item>
-          </div>
-          <div v-if='hasPermission("createGuild")'>
-            <q-item>
-              <router-link
-                :to="{name: 'guild-landing'}">  Guild create
-              </router-link>
-            </q-item>
-          </div>
-          <div>
-            <q-item>
-            <router-link
-              :to="{name: 'root'}"> Home
-            </router-link>
-            </q-item>
-          </div>
-          <div v-if='hasPermission("superadmin")'>
-            <q-item>
-              <router-link
-                :to="{name: 'admin', params: {member_id: memberId}}">  Administration
-              </router-link>
-            </q-item>
-          </div>
+    <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
+      <q-scroll-area class="fit">
+        <div>
+          <q-list>
+            <div>
+              <q-item> About </q-item>
+            </div>
+            <div v-if="isAuthenticated">
+              <q-item>
+                <router-link :to="{ name: 'lobby' }"> Lobby </router-link>
+              </q-item>
+            </div>
+            <div>
+              <q-item>
+                <router-link :to="{ name: 'quest_list' }">
+                  Quest list
+                </router-link>
+              </q-item>
+            </div>
+            <div v-if="hasPermission('createQuest')">
+              <q-item>
+                <router-link :to="{ name: 'quest-landing' }">
+                  Quest create
+                </router-link>
+              </q-item>
+            </div>
+            <div>
+              <q-item>
+                <router-link :to="{ name: 'guild_list' }">
+                  Guild list
+                </router-link>
+              </q-item>
+            </div>
+            <div v-if="hasPermission('createGuild')">
+              <q-item>
+                <router-link :to="{ name: 'guild-landing' }">
+                  Guild create
+                </router-link>
+              </q-item>
+            </div>
+            <div>
+              <q-item>
+                <router-link :to="{ name: 'root' }"> Home </router-link>
+              </q-item>
+            </div>
+            <div v-if="hasPermission('superadmin')">
+              <q-item>
+                <router-link
+                  :to="{ name: 'admin', params: { member_id: memberId } }"
+                >
+                  Administration
+                </router-link>
+              </q-item>
+            </div>
           </q-list>
-          </div>
+        </div>
       </q-scroll-area>
     </q-drawer>
     <q-page-container>
       <router-view />
     </q-page-container>
     <q-footer style="background-color: aquamarine" class="footer">
-      <p id="Pfooter" >Sensecraft 2021</p>
+      <p id="Pfooter">Sensecraft 2021</p>
     </q-footer>
   </q-layout>
 </template>
 <script>
-import {mapState, mapGetters, mapActions} from 'vuex'
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   name: "MainLayout",
-  data () {
+  data() {
     return {
       simple: [
         {
-          label: 'Satisfied customers (with avatar)',
-          avatar: 'https://cdn.quasar.dev/img/boy-avatar.png'
-      }],
+          label: "Satisfied customers (with avatar)",
+          avatar: "https://cdn.quasar.dev/img/boy-avatar.png",
+        },
+      ],
       leftDrawer: false,
       rightDrawerOpen: false,
-      selected: null
-    }
-
+      selected: null,
+    };
   },
   computed: {
-
-    ...mapState('conversation', {
-      showTree: state => state.showTree,
-      conversation: state => state.conversation,
-      treeView: state => state.neighbourhood,
+    ...mapState("conversation", {
+      showTree: (state) => state.showTree,
+      conversation: (state) => state.conversation,
+      treeView: (state) => state.neighbourhood,
     }),
-    ...mapGetters([
-      'hasPermission'
-    ]),
-    ...mapState('member', {
-      isAuthenticated: state => state.isAuthenticated,
-      memberId: state => state.member.id,
+    ...mapGetters(["hasPermission"]),
+    ...mapState("member", {
+      isAuthenticated: (state) => state.isAuthenticated,
+      memberId: (state) => state.member.id,
     }),
-
   },
   watch: {
-    selected: function(val, oldVal) {
-      this.setConversationNode(val)
-   }
+    selected: function (val, oldVal) {
+      this.setConversationNode(val);
+    },
   },
 
   methods: {
-    ...mapActions('conversation', [
-      'getConversationNodeById',
-      'setConversationNode'
+    ...mapActions("conversation", [
+      "getConversationNodeById",
+      "setConversationNode",
     ]),
     toggleNav() {
       if (this.rightDrawerOpen) {
@@ -198,27 +192,26 @@ export default {
       this.rightDrawer = false;
       this.leftDrawer = false;
       document.getElementById("mySidenav").style.width = "0";
-      this.$store.dispatch("member/logout")
-      .then(response => {
-          this.$q.notify({
-            type: "positive",
-            message: "You are now logged out"
-          });
-           this.goTo('home');
-      })
+      this.$store.dispatch("member/logout").then((response) => {
+        this.$q.notify({
+          type: "positive",
+          message: "You are now logged out",
+        });
+        this.goTo("home");
+      });
     },
-  }
+  },
 };
 </script>
 <style>
-  #Pfooter {
-    text-align: center;
-    font-size: 15pt;
-    color:dodgerblue;
-    background-color: aquamarine;
-  }
+#Pfooter {
+  text-align: center;
+  font-size: 15pt;
+  color: dodgerblue;
+  background-color: aquamarine;
+}
 
-  .sidenav {
+.sidenav {
   height: 100%;
   width: 0;
   position: fixed;

@@ -4,13 +4,12 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import store from './store'
-import router from './router'
-import { mapState, mapActions } from 'vuex'
+import Vue from "vue";
+import store from "./store";
+import router from "./router";
+import { mapState, mapActions } from "vuex";
 
 var userLoadedResolve = null;
-
 
 const app = new Vue({
   name: "App",
@@ -20,8 +19,8 @@ const app = new Vue({
     currentUser(newUser, oldUser) {
       // reload quests an guilds
       if (newUser?.id !== oldUser?.id) {
-        this.$store.dispatch("quests/clearState")
-        this.$store.dispatch("guilds/clearState")
+        this.$store.dispatch("quests/clearState");
+        this.$store.dispatch("guilds/clearState");
       }
       if (newUser === null) {
         this.$router.push("/");
@@ -30,35 +29,37 @@ const app = new Vue({
           this.$router.push("/account");
         }
       }
-    }
+    },
   },
   data: () => ({
-    userLoaded: new Promise(resolve => {
+    userLoaded: new Promise((resolve) => {
       userLoadedResolve = resolve;
     }),
   }),
   methods: {
-    ...mapActions('member', ['ensureLoginUser', 'renewToken']),
+    ...mapActions("member", ["ensureLoginUser", "renewToken"]),
   },
-  created: async function() {
-    const member = await this.ensureLoginUser()
+  created: async function () {
+    const member = await this.ensureLoginUser();
     userLoadedResolve(member);
     if (member) {
-      const prevTokenExpiry = Number.parseInt(window.localStorage.getItem('tokenExpiry'))
-      const prevToken = window.localStorage.getItem('token')
-      const renewToken = this.renewToken
-      const interval = Math.max(0, prevTokenExpiry - Date.now() - 10000)
-      window.setTimeout(function() {
-        renewToken({params: {token: prevToken}});
+      const prevTokenExpiry = Number.parseInt(
+        window.localStorage.getItem("tokenExpiry")
+      );
+      const prevToken = window.localStorage.getItem("token");
+      const renewToken = this.renewToken;
+      const interval = Math.max(0, prevTokenExpiry - Date.now() - 10000);
+      window.setTimeout(function () {
+        renewToken({ params: { token: prevToken } });
       }, interval);
     }
   },
   computed: {
-    ...mapState('member', {
-      currentUser: state => state.member,
+    ...mapState("member", {
+      currentUser: (state) => state.member,
     }),
-  }
+  },
 });
 
-export default app
+export default app;
 </script>
