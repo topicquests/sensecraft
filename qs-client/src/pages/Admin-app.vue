@@ -11,8 +11,8 @@
     <div class = "row q-mt-xl ">
         <div class="col-2 q-ml-xl q-mr-xl">
         <q-select
-      v-model='members.handle'
-      :options="members"
+      v-model='member.handle'
+      :options="member"
       option-label="handle"
       option-value="id"
       label="Handle"
@@ -46,6 +46,7 @@
            <q-btn
            color="primary"
            label="Update"
+           :enabled="userIsSuperAdmin"
            @click="updatePermissions"
            />
         </div>
@@ -67,12 +68,20 @@ export default {
       createQuest: false,
       createGuild: false,
       superAdmin: false,
+      userIsSuperAdmin: false,
+      member_id: null,
     }
   },
   computed: {
-    ...mapState('members', {
-      members: state => state.members,
-    }),
+    ...mapGetters([
+      'hasPermission'
+    ]),
+    ...mapGetters('members', [
+      'getMemberById'
+    ]),
+    member: function() {
+      return this.getMemberById(this.member_id);
+    },
   },
   components: {
     "member": member,
@@ -80,13 +89,12 @@ export default {
   },
   methods: {
     ...mapActions('members', [
-      'fetchMembers',
-      'getMemberById',
+      'fetchMemberById',
       'updateMember',
       ]),
       async updatePermissions() {
-        let permissions = [];
-        const member = await this.getMemberById(this.members.handle);
+        var permissions = this.member.permissions;
+        const member = this.getMemberByHandle(this.members.handle);
         if(this.createQuest) {
           permissions.push("createQuest");
         }
@@ -96,12 +104,17 @@ export default {
         if (this.superAdmin) {
           permissions.push("superadmin");
         }
-        member.permissions=[...permissions]
-        await this.updateMember({data: {id: member.id, permissions: member.permissions}})
+        permissions=[...new Set(permissions + member.permissions)];
+        await this.updateMember({data: {id: member.id, permissions}})
       },
     },
   async beforeMount() {
-    await this.fetchMembers();
+    this.member_id = this.$route.params.member_id;
+    await this.fetchMemberById({params: {id: this.member_id}});
+    this.superAdmin = this.member.permissions.includes('superadmin');
+    this.createQuest = this.member.permissions.includes('createQuest');
+    this.createGuild = this.member.permissions.includes('createGuild');
+    this.userIsSuperAdmin = this.hasPermission('superadmin');
   },
 }
 </script>

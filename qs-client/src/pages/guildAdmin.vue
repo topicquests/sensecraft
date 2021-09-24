@@ -117,9 +117,6 @@ export default {
     ...mapGetters("quests", [
      "getQuests",
     ]),
-    ...mapGetters("members", [
-     "getMemberById",
-    ]),
     ...mapGetters('guilds', [
       'getCurrentGuild',
     ]),
