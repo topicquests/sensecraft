@@ -49,11 +49,14 @@ const members = new MyVapi({
   // Step 4
   .getStore({
     getters: {
-      getMemberById: (state) => (id) =>
-        state.members.find(member => member.id == id),
-      membersByHandle: (state) =>
+      getMemberById: (state) => (id) => {
+        console.log("id = ", id)
+         state.members.find(member => member.id == id)},
+      getMemberByHandle: (state) => (handle) =>
+        state.members.find(member => member.handle == handle),
+      getMembersByHandle: (state) =>
         Map.of(state.members.map(member => [member.handle, member])),
-      memberHandles: (state) =>
+      getMemberHandles: (state) =>
         state.members.map(member => member.handle).sort(),
     },
     actions: {
@@ -61,6 +64,9 @@ const members = new MyVapi({
         if (context.state.members.length === 0 || context.state.singleFetch) {
           await context.dispatch('fetchMembers');
         }
+      },
+      getMemberById: async (context, id) => {
+        return context.state.members.find(member => member.id == id)
       },
     }
   });

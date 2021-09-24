@@ -47,7 +47,7 @@ export default {
     "ensureQuest"
     ]),
     ...mapActions("members", [
-      "fetchUserById"
+      "fetchMemberById"
     ]),
     getQuestCreator() {
       return this.getMemberById(this.getCurrentQuest.creator)
@@ -60,7 +60,7 @@ export default {
       await this.setCurrentQuest(questId)
       await this.ensureQuest(questId);
       const quest = this.getCurrentQuest;
-      await this.fetchUserById({params: {id: quest.creator}});
+      await this.fetchMemberById({params: {id: quest.creator}});
       const creator = this.getMemberById(quest.creator);
     }
     catch(error) {

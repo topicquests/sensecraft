@@ -52,7 +52,6 @@ export default {
           field: "handle",
           sortable: true
         },
-
         {
           name: "questNodeId",
           required: false,
@@ -62,8 +61,6 @@ export default {
           sortable: true
         }
       ],
-      quest: null,
-
     }
   }
 }
