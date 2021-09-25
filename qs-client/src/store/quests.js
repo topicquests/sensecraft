@@ -85,7 +85,8 @@ const quests = new MyVapi({
     action: "createQuest",
     path: "/quests",
     onSuccess: (state, res, axios, { data }) => {
-      state.quests = { ...state.quests, [res.data.id]: res.data };
+      const quest = res.data[0];
+      state.quests = { ...state.quests, [quest.id]: quest };
     },
   })
   .patch({
@@ -110,7 +111,7 @@ const quests = new MyVapi({
     action: "addCasting",
     path: "/casting",
     onSuccess: (state, res, axios, actionParams) => {
-      const casting = res.data;
+      const casting = res.data[0];
       console.log(res);
       const quest = state.quests[quest_id];
       if (quest) {

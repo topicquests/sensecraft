@@ -85,7 +85,8 @@ const guilds = new MyVapi({
     action: "createGuild",
     path: "/guilds",
     onSuccess: (state, res, axios, { data }) => {
-      state.guilds = { ...state.guilds, [res.data.id]: res.data };
+      const guild = res.data[0];
+      state.guilds = { ...state.guilds, [guild.id]: guild };
     },
   })
   .patch({
