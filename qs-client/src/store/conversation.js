@@ -130,6 +130,32 @@ const conversation = new MyVapi({
       resetConversation: (context) => {
         context.commit("RESET_CONVERSATION");
       },
+      ensureConversation: async (context, quest_id) => {
+        if (
+          quest_id != context.state.currentQuest ||
+          context.state.conversation.length == 0
+        ) {
+          await context.dispatch("fetchConversation", { params: { quest_id } });
+        }
+      },
+      ensureRootNode: async (context, quest_id) => {
+        if (
+          quest_id != context.state.currentQuest ||
+          !context.state.conversationRoot
+        ) {
+          await context.dispatch("fetchRootNode", { params: { quest_id } });
+        }
+      },
+      ensureConversationNeighbourhood: async (context, node_id, guild) => {
+        if (
+          node_id != context.state.neighbourhoodRoot ||
+          context.state.neighbourhood.length == 0
+        ) {
+          await context.dispatch("fetchConversationNeighbourhood", {
+            params: { node_id, guild },
+          });
+        }
+      },
     },
     mutations: {
       RESET_CONVERSATION: (state) => {
