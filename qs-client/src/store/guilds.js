@@ -126,14 +126,14 @@ const guilds = new MyVapi({
           guild?.guild_membership?.find(
             (m) =>
               m.member_id == MyVapi.store.getters["member/getUserId"] &&
-              m.confirmed
+              m.status == "confirmed"
           )
         ),
       isGuildMember: (state) => (guild_id) =>
         state.guilds[guild_id]?.guild_membership?.find(
           (m) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
-            m.confirmed
+            m.status == "confirmed"
         ),
       getGuildsPlayingQuest: (state) => (quest) => {
         var guildId = quest.game_play.map((gp) => gp.guild_id);

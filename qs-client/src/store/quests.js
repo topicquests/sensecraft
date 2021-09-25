@@ -133,7 +133,7 @@ const quests = new MyVapi({
           quest?.quest_membership?.find(
             (m) =>
               m.member_id == MyVapi.store.getters["member/getUserId"] &&
-              m.confirmed
+              m.status == "confirmed"
           )
         ),
       getPlayingQuests: (state) =>
@@ -146,7 +146,7 @@ const quests = new MyVapi({
         state.quests[quest_id]?.quest_membership?.find(
           (m) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
-            m.confirmed
+            m.status == "confirmed"
         ),
       castingInQuest: (state) => (quest_id) =>
         state.quests[quest_id]?.casting?.find(
