@@ -200,15 +200,15 @@ export default {
           guild_id: this.currentGuildId,
           quest_id: questId,
         };
-        const registerResponse = await this.addGamePlay({ data: payload });
+        await this.addGamePlay({ data: payload });
         this.$q.notify({
           type: "positive",
           message: "You have registered to Quest ",
         });
-      } catch (e) {
+      } catch (err) {
         this.$q.notify({
           type: "negative",
-          message: `${e}`,
+          message: `${err}`,
         });
         console.log("error registering to quest: ", err);
       }

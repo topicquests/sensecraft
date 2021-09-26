@@ -238,7 +238,7 @@ const guilds = new MyVapi({
         state.fullFetch = false;
         state.fullGuilds = {};
       },
-      ADD_GAME_PLAY: (state, { game_play }) => {
+      ADD_GAME_PLAY: (state, game_play) => {
         const guild_id = game_play.guild_id;
         const guild = state.guilds[guild_id];
         // Assuming it is definitely not there
