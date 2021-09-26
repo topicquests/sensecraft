@@ -83,7 +83,7 @@ const quests = new MyVapi({
     },
   })
   .post({
-    action: "createQuest",
+    action: "createQuestBase",
     path: "/quests",
     onSuccess: (state, res, axios, { data }) => {
       const quest = res.data[0];
@@ -107,7 +107,37 @@ const quests = new MyVapi({
       quest = Object.assign({}, state.quests[id], quest);
       state.quests = { ...state.quests, [quest.id]: quest };
       state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
-      // TODO: update memberships in member
+    },
+  })
+  .post({
+    action: "addMembership",
+    path: "/quest_membership",
+    onSuccess: (state, res, axios, actionParams) => {
+      const membership = res.data[0];
+      const quest = state.quests[membership.quest_id];
+      if (quest) {
+        const memberships = quest.membership || [];
+        memberships.push(membership);
+        quest.membership = memberships;
+      }
+      MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
+    },
+  })
+  .patch({
+    action: "updateMembership",
+    path: "/quest_membership",
+    onSuccess: (state, res, axios, actionParams) => {
+      const membership = res.data[0];
+      const quest = state.quests[membership.quest_id];
+      if (quest) {
+        const memberships =
+          quest.membership?.filter(
+            (gp) => gp.quest_id !== membership.quest_id
+          ) || [];
+        memberships.push(membership);
+        quest.membership = memberships;
+      }
+      MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
     },
   })
   .post({

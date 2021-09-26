@@ -109,6 +109,37 @@ const guilds = new MyVapi({
       state.guilds = { ...state.guilds, [guild.id]: guild };
     },
   })
+  .post({
+    action: "addMembership",
+    path: "/guild_membership",
+    onSuccess: (state, res, axios, actionParams) => {
+      const membership = res.data[0];
+      const guild = state.quests[membership.quest_id];
+      if (guild) {
+        const memberships = guild.membership || [];
+        memberships.push(membership);
+        guild.membership = memberships;
+      }
+      MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
+    },
+  })
+  .patch({
+    action: "updateMembership",
+    path: "/quest_membership",
+    onSuccess: (state, res, axios, actionParams) => {
+      const membership = res.data[0];
+      const guild = state.quests[membership.quest_id];
+      if (guild) {
+        const memberships =
+          guild.membership?.filter(
+            (gp) => gp.quest_id !== membership.quest_id
+          ) || [];
+        memberships.push(membership);
+        guild.membership = memberships;
+      }
+      MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
+    },
+  })
   .call({
     action: "registerAllMembers",
     path: "register_all_members",

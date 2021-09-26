@@ -158,13 +158,34 @@ const member = new MyVapi({
         return Object.assign(state, baseState);
       },
       ADD_CASTING: (state, casting) => {
-        state?.member?.casting.push(casting);
+        if (state.member) {
+          const castings =
+            state.member.casting.filter(
+              (c) => c.quest_id != casting.quest_id
+            ) || [];
+          castings.push(casting);
+          state.member.casting = castings;
+        }
       },
-      ADD_GUILD_MEMBERSHIP: (state, guildMembership) => {
-        state?.member?.guild_membership.push(guildMembership);
+      ADD_GUILD_MEMBERSHIP: (state, membership) => {
+        if (state.member) {
+          const memberships =
+            state.member.guild_membership.filter(
+              (m) => m.guild_id != membership.guild_id
+            ) || [];
+          memberships.push(membership);
+          state.member.guild_membership = memberships;
+        }
       },
-      ADD_QUEST_MEMBERSHIP: (state, questMembership) => {
-        state?.member?.quest_membership.push(questMembership);
+      ADD_QUEST_MEMBERSHIP: (state, membership) => {
+        if (state.member) {
+          const memberships =
+            state.member.quest_membership.filter(
+              (m) => m.quest_id != membership.quest_id
+            ) || [];
+          memberships.push(membership);
+          state.member.quest_membership = memberships;
+        }
       },
     },
     actions: {
