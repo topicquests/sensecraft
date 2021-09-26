@@ -1,4 +1,3 @@
-import guild from "app/old_store/store/guild";
 import MyVapi from "./base";
 
 const quests = new MyVapi({
@@ -25,7 +24,7 @@ const quests = new MyVapi({
         params.select = "*,quest_membership(*),casting(*),game_play(*)";
         if (!full) {
           Object.assign(params, {
-            "guild_membership.member_id": `eq.${userId}`,
+            "quest_membership.member_id": `eq.${userId}`,
             "casting.member_id": `eq.${userId}`,
           });
         }
@@ -74,7 +73,7 @@ const quests = new MyVapi({
         if (quests[quest.id]) {
           quests[quest.id] = Object.assign(quests[quest.id], {
             casting: quest.casting,
-            guild_membership: quest.guild_membership,
+            quest_membership: quest.quest_membership,
           });
         }
       }
