@@ -51,6 +51,13 @@
       <div class="col-4 q-pa-md" style="width: 900px" v-if="getCurrentGuild">
         <p style="text-align: center; font-size: 40px">
           {{ getCurrentGuild.name }}
+          <q-btn
+            v-if="!isMember && getCurrentGuild.open_for_applications"
+            label="Join Guild"
+            @click="joinToGuild()"
+            style="margin-right: 1em"
+            class="bg-dark-blue"
+          />
           <router-link
             v-if="canRegisterToQuest"
             :to="{ name: 'guild_admin', params: { guild_id: currentGuildId } }"
@@ -289,12 +296,6 @@ export default {
     ]),
     async initialize() {
       await this.setCurrentGuild(this.guildId);
-      // Do we know the person wants to join the guild,
-      // vs just curious about it?
-      // TODO: Put this in a button.
-      // if(this.checkIfGuildMember() == false) {
-      //   await this.joinToGuild();
-      // }
       this.checkPermissions();
       // should be useful but unused for now
       // const memb = await this.getGuildMembers();
@@ -384,6 +385,7 @@ export default {
       await this.addGuildMembership({
         data: { guild_id: this.currentGuildId, member_id: this.memberId },
       });
+      this.isMember = true;
       this.$q.notify({
         type: "positive",
         message: "You are joining guild " + this.currentGuildId,

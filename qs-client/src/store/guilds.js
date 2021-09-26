@@ -114,7 +114,7 @@ const guilds = new MyVapi({
     path: "/guild_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];
-      const guild = state.quests[membership.quest_id];
+      const guild = state.guilds[membership.guild_id];
       if (guild) {
         const memberships = guild.membership || [];
         memberships.push(membership);
@@ -125,14 +125,14 @@ const guilds = new MyVapi({
   })
   .patch({
     action: "updateGuildMembership",
-    path: "/quest_membership",
+    path: "/guild_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];
-      const guild = state.quests[membership.quest_id];
+      const guild = state.guilds[membership.guild_id];
       if (guild) {
         const memberships =
           guild.membership?.filter(
-            (gp) => gp.quest_id !== membership.quest_id
+            (gp) => gp.guild_id !== membership.guild_id
           ) || [];
         memberships.push(membership);
         guild.membership = memberships;
