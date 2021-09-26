@@ -82,11 +82,13 @@ const guilds = new MyVapi({
     },
   })
   .post({
-    action: "createGuild",
+    action: "createGuildBase",
     path: "/guilds",
     onSuccess: (state, res, axios, { data }) => {
       const guild = res.data[0];
       state.guilds = { ...state.guilds, [guild.id]: guild };
+      state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
+      // TODO: update memberships in member.
     },
   })
   .patch({
@@ -103,7 +105,7 @@ const guilds = new MyVapi({
     },
     onSuccess: (state, res, axios, { data }) => {
       var guild = res.data[0];
-      guild = Object.assign(state.guilds[id], guild);
+      guild = Object.assign({}, state.guilds[id], guild);
       state.guilds = { ...state.guilds, [guild.id]: guild };
     },
   })
@@ -144,7 +146,7 @@ const guilds = new MyVapi({
     },
     actions: {
       setCurrentGuild: (context, guild_id) => {
-        context.commit("SET_CURRENT_QUEST", guild_id);
+        context.commit("SET_CURRENT_GUILD", guild_id);
       },
       ensureGuild: async (context, guild_id, full = true) => {
         if (
@@ -156,6 +158,15 @@ const guilds = new MyVapi({
             params: { id: guild_id },
           });
         }
+      },
+      createGuild: async (context, { data }) => {
+        const res = await context.dispatch("createGuildBase", { data });
+        // Refetch to get memberships.
+        // TODO: maybe add representation to creation instead?
+        const guild_id = res.data[0].id;
+        await context.dispatch("fetchGuildById", { params: { id: guild_id } });
+        // TODO: Get the membership from the guild
+        await MyVapi.store.dispatch("member/fetchLoginUser");
       },
       ensureAllGuilds: async (context) => {
         if (context.state.guilds.length === 0 || !context.state.fullFetch) {
@@ -187,7 +198,7 @@ const guilds = new MyVapi({
       },
     },
     mutations: {
-      SET_CURRENT_QUEST: (state, guild_id) => {
+      SET_CURRENT_GUILD: (state, guild_id) => {
         state.currentGuild = Number.parseInt(guild_id);
       },
       CLEAR_STATE: (state) => {
@@ -195,6 +206,19 @@ const guilds = new MyVapi({
         state.currentGuild = null;
         state.fullFetch = false;
         state.fullGuilds = {};
+      },
+      ADD_GAME_PLAY: (state, { game_play }) => {
+        const guild_id = game_play.guild_id;
+        const guild = state.guilds[guild_id];
+        // Assuming it is definitely not there
+        if (guild) {
+          const game_plays =
+            guild.game_play?.filter(
+              (gp) => gp.quest_id !== game_play.quest_id
+            ) || [];
+          game_plays.push(game_play);
+          guild.game_play = game_plays;
+        }
       },
     },
   });

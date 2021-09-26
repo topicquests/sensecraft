@@ -23,6 +23,9 @@ const member = new MyVapi({
     action: "updateUser",
     property: "member",
     path: ({ id }) => `/members?id=eq.${id}`,
+    onSuccess: (state, res, axios, { params, data }) => {
+      state.member = Object.assign({}, state.member, res.data[0]);
+    },
   })
   .call({
     action: "signin",
@@ -65,7 +68,7 @@ const member = new MyVapi({
     property: "member",
     path: "/members",
     queryParams: true,
-    beforeRequest: (state, actionParams) => {
+    beforeRequest: (state, { params }) => {
       if (!state.token) {
         state.token = window.localStorage.getItem("token");
       }
@@ -76,8 +79,9 @@ const member = new MyVapi({
         state.email = window.localStorage.getItem("email");
       }
       if (state.token && state.email) {
-        actionParams.params.email = `eq.${state.email}`;
+        params.email = `eq.${state.email}`;
       }
+      params.select = "*,quest_membership(*),guild_membership(*),casting(*)";
     },
     onSuccess: (state, res, axios, { params, data }) => {
       state.member = res.data[0];
@@ -152,6 +156,15 @@ const member = new MyVapi({
         window.localStorage.removeItem("email");
         window.localStorage.removeItem("tokenExpiry");
         return Object.assign(state, baseState);
+      },
+      ADD_CASTING: (state, casting) => {
+        state?.member?.casting.push(casting);
+      },
+      ADD_GUILD_MEMBERSHIP: (state, guildMembership) => {
+        state?.member?.guild_membership.push(guildMembership);
+      },
+      ADD_QUEST_MEMBERSHIP: (state, questMembership) => {
+        state?.member?.quest_membership.push(questMembership);
       },
     },
     actions: {

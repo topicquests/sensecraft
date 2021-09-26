@@ -1,3 +1,4 @@
+import guild from "app/old_store/store/guild";
 import MyVapi from "./base";
 
 const quests = new MyVapi({
@@ -103,8 +104,40 @@ const quests = new MyVapi({
     },
     onSuccess: (state, res, axios, { data }) => {
       var quest = res.data[0];
-      quest = Object.assign(state.quests[id], quest);
+      quest = Object.assign({}, state.quests[id], quest);
       state.quests = { ...state.quests, [quest.id]: quest };
+      state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
+      // TODO: update memberships in member
+    },
+  })
+  .post({
+    action: "addGamePlay",
+    path: "/game_play",
+    onSuccess: (state, res, axios, actionParams) => {
+      const game_play = res.data[0];
+      const quest = state.quests[game_play.quest_id];
+      if (quest) {
+        const game_plays = quest.game_play || [];
+        game_plays.push(game_play);
+        quest.game_play = game_plays;
+      }
+      MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
+    },
+  })
+  .patch({
+    action: "updateGamePlay",
+    path: "/game_play",
+    onSuccess: (state, res, axios, actionParams) => {
+      const game_play = res.data[0];
+      const quest = state.quests[game_play.quest_id];
+      if (quest) {
+        const game_plays =
+          quest.game_play?.filter((gp) => gp.quest_id !== game_play.quest_id) ||
+          [];
+        game_plays.push(game_play);
+        quest.game_play = game_plays;
+      }
+      MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
     },
   })
   .post({
@@ -116,7 +149,11 @@ const quests = new MyVapi({
       const quest = state.quests[quest_id];
       if (quest) {
         if (quest.casting === undefined) quest.casting = [];
-        quest.casting.append(casting);
+        quest.casting.push(casting);
+      }
+      const store = MyVapi.store;
+      if ((casting.member_id = store.getters["member/getUserId"])) {
+        store.commit("member/addCasting", casting);
       }
     },
   })
@@ -167,6 +204,15 @@ const quests = new MyVapi({
             params: { id: quest_id },
           });
         }
+      },
+      createQuest: async (context, { data }) => {
+        const res = await context.dispatch("createQuestBase", { data });
+        // Refetch to get memberships.
+        // TODO: maybe add representation to creation instead?
+        const quest_id = res.data[0].id;
+        await context.dispatch("fetchQuestById", { params: { id: quest_id } });
+        // TODO: Get the membership from the quest
+        await MyVapi.store.dispatch("member/fetchLoginUser");
       },
       ensureAllQuests: async (context) => {
         if (context.state.quests.length === 0 || !context.state.fullFetch) {
