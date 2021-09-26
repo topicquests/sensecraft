@@ -285,6 +285,7 @@ export default {
       "joinGuild",
       "setCurrentGuild",
       "setFocusNodeId",
+      "addGuildMembership",
     ]),
     async initialize() {
       await this.setCurrentGuild(this.guildId);
@@ -380,8 +381,9 @@ export default {
     },
 
     async joinToGuild() {
-      await this.joinGuild(this.currentGuildId);
-      this.registerMembersToGuild();
+      await this.addGuildMembership({
+        data: { guild_id: this.currentGuildId, member_id: this.memberId },
+      });
       this.$q.notify({
         type: "positive",
         message: "You are joining guild " + this.currentGuildId,
@@ -470,33 +472,6 @@ export default {
       const game_play = await this.getGamePlayByGuildIdAndQuestId(payload);
       this.gamePlay = [...game_play];
       return "focus node set";
-    },
-    async doRegister(questId) {
-      try {
-        this.questId = questId;
-        const regQuest = await this.getQuestById(questId);
-        if (regQuest[0].status === "draft") {
-          throw "Can not register quest in draft status";
-        }
-        let payload = {
-          guild_id: this.currentGuildId,
-          quest_id: questId,
-        };
-        const registerResponse = await this.registerQuest(payload);
-        await this.registerMembersToGuild();
-        await this.setFocusNode();
-        const response = await this.initializeQuest();
-        this.$q.notify({
-          type: "positive",
-          message: "You have registered to Quest ",
-        });
-      } catch (e) {
-        this.$q.notify({
-          type: "negative",
-          message: `${e}`,
-        });
-        console.log("error registering to quest: ", err);
-      }
     },
     getQuestCreator() {
       const quest = this.getCurrentQuest;

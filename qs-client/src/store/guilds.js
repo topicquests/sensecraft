@@ -110,7 +110,7 @@ const guilds = new MyVapi({
     },
   })
   .post({
-    action: "addMembership",
+    action: "addGuildMembership",
     path: "/guild_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];
@@ -124,7 +124,7 @@ const guilds = new MyVapi({
     },
   })
   .patch({
-    action: "updateMembership",
+    action: "updateGuildMembership",
     path: "/quest_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];

@@ -138,7 +138,7 @@ export default {
       focusNode: null,
     };
   },
-  name: "Guild administration",
+  name: "guild_admin",
   computed: {
     ...mapState("member", {
       member: (state) => state.member,
@@ -147,12 +147,12 @@ export default {
     ...mapState("guilds", {
       currentGuildId: (state) => state.currentGuild,
     }),
-    ...mapGetters("quests", ["getQuests"]),
+    ...mapGetters("quests", ["getQuests", "getQuestById"]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests"]),
+    ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
     ...mapActions("guilds", [
       "ensureGuild",
       "getMembersByGuildId",
@@ -188,6 +188,30 @@ export default {
             q.status == "registration") &&
           confirmedPlayQuestIds.includes(q.id)
       );
+    },
+    async doRegister(questId) {
+      try {
+        this.questId = questId;
+        const regQuest = await this.getQuestById(questId);
+        if (["ongoing", "registration"].indexOf(regQuest.status) < 0) {
+          throw `Can not register quest in ${regQuest.status} status`;
+        }
+        let payload = {
+          guild_id: this.currentGuildId,
+          quest_id: questId,
+        };
+        const registerResponse = await this.addGamePlay({ data: payload });
+        this.$q.notify({
+          type: "positive",
+          message: "You have registered to Quest ",
+        });
+      } catch (e) {
+        this.$q.notify({
+          type: "negative",
+          message: `${e}`,
+        });
+        console.log("error registering to quest: ", err);
+      }
     },
     findPlayOfGuild(gamePlays) {
       if (gamePlays)

@@ -109,7 +109,7 @@ const quests = new MyVapi({
     },
   })
   .post({
-    action: "addMembership",
+    action: "addQuestMembership",
     path: "/quest_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];
@@ -123,7 +123,7 @@ const quests = new MyVapi({
     },
   })
   .patch({
-    action: "updateMembership",
+    action: "updateQuestMembership",
     path: "/quest_membership",
     onSuccess: (state, res, axios, actionParams) => {
       const membership = res.data[0];
