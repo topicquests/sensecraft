@@ -1,6 +1,45 @@
 import MyVapi from "./base";
+import { Member, QuestMembership, Casting } from "./members";
+import { Store as VuexStore } from "vuex";
 
-const quests = new MyVapi({
+export interface GamePlay {
+  quest_id: number;
+  guild_id: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  accepted_at?: string;
+  scores?: Object;
+  focus_node_id?: number;
+}
+export interface Quest {
+  id: number;
+  handle: string;
+  name: string;
+  description?: string;
+  creator: number;
+  public: boolean;
+  status: string;
+  start?: string;
+  end?: string;
+  created_at: string;
+  updated_at: string;
+  quest_membership?: QuestMembership[];
+  casting?: Casting[];
+  game_play?: GamePlay[];
+}
+
+interface QuestMap {
+  [key: number]: Quest;
+}
+export interface QuestsState {
+  quests: QuestMap;
+  fullQuests: { [key: number]: boolean };
+  fullFetch: boolean;
+  currentQuest?: number;
+}
+
+export const quests = new MyVapi<QuestsState>({
   state: {
     currentQuest: null,
     fullFetch: false,
@@ -13,7 +52,7 @@ const quests = new MyVapi({
     action: "fetchQuestById",
     path: "/quests",
     queryParams: true,
-    beforeRequest: (state, { full, params }) => {
+    beforeRequest: (state: QuestsState, { full, params }) => {
       if (Array.isArray(params.id)) {
         params.id = `in.(${params.id.join(",")})`;
       } else {
@@ -32,7 +71,7 @@ const quests = new MyVapi({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       state.quests = {
         ...state.quests,
         ...Object.fromEntries(res.data.map((quest) => [quest.id, quest])),
@@ -50,7 +89,7 @@ const quests = new MyVapi({
     property: "quests",
     path: "/quests",
     queryParams: true,
-    beforeRequest: (state, { params }) => {
+    beforeRequest: (state: QuestsState, { params }) => {
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
         Object.assign(params, {
@@ -62,7 +101,7 @@ const quests = new MyVapi({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const fullQuests = Object.values(state.quests).filter(
         (quest) => state.fullQuests[quest.id]
       );
@@ -84,7 +123,7 @@ const quests = new MyVapi({
   .post({
     action: "createQuestBase",
     path: "/quests",
-    onSuccess: (state, res, axios, { data }) => {
+    onSuccess: (state: QuestsState, res, axios, { data }) => {
       const quest = res.data[0];
       state.quests = { ...state.quests, [quest.id]: quest };
     },
@@ -92,7 +131,7 @@ const quests = new MyVapi({
   .patch({
     action: "updateQuest",
     path: ({ id }) => `/quests?id=eq.${id}`,
-    beforeRequest: (state, { params, data }) => {
+    beforeRequest: (state: QuestsState, { params, data }) => {
       params.id = data.id;
       Object.assign(data, {
         casting: undefined,
@@ -101,9 +140,9 @@ const quests = new MyVapi({
         updated_at: undefined,
       });
     },
-    onSuccess: (state, res, axios, { data }) => {
-      var quest = res.data[0];
-      quest = Object.assign({}, state.quests[id], quest);
+    onSuccess: (state: QuestsState, res, axios, { data }) => {
+      let quest = res.data[0];
+      quest = Object.assign({}, state.quests[quest.id], quest);
       state.quests = { ...state.quests, [quest.id]: quest };
       state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
     },
@@ -111,13 +150,13 @@ const quests = new MyVapi({
   .post({
     action: "addQuestMembership",
     path: "/quest_membership",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const membership = res.data[0];
       const quest = state.quests[membership.quest_id];
       if (quest) {
-        const memberships = quest.membership || [];
+        const memberships = quest.quest_membership || [];
         memberships.push(membership);
-        quest.membership = memberships;
+        quest.quest_membership = memberships;
       }
       MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
     },
@@ -125,16 +164,16 @@ const quests = new MyVapi({
   .patch({
     action: "updateQuestMembership",
     path: "/quest_membership",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const membership = res.data[0];
       const quest = state.quests[membership.quest_id];
       if (quest) {
         const memberships =
-          quest.membership?.filter(
+          quest.quest_membership?.filter(
             (gp) => gp.quest_id !== membership.quest_id
           ) || [];
         memberships.push(membership);
-        quest.membership = memberships;
+        quest.quest_membership = memberships;
       }
       MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
     },
@@ -142,7 +181,7 @@ const quests = new MyVapi({
   .post({
     action: "addGamePlay",
     path: "/game_play",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const game_play = res.data[0];
       const quest = state.quests[game_play.quest_id];
       if (quest) {
@@ -156,7 +195,7 @@ const quests = new MyVapi({
   .patch({
     action: "updateGamePlay",
     path: "/game_play",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const game_play = res.data[0];
       const quest = state.quests[game_play.quest_id];
       if (quest) {
@@ -172,10 +211,10 @@ const quests = new MyVapi({
   .post({
     action: "addCasting",
     path: "/casting",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const casting = res.data[0];
       console.log(res);
-      const quest = state.quests[quest_id];
+      const quest = state.quests[casting.quest_id];
       if (quest) {
         if (quest.casting === undefined) quest.casting = [];
         quest.casting.push(casting);
@@ -187,14 +226,14 @@ const quests = new MyVapi({
     },
   })
   // Step 4
-  .getStore({
+  .getVuexStore({
     getters: {
-      getQuestsByStatus: (state) => (status) =>
+      getQuestsByStatus: (state: QuestsState) => (status) =>
         Object.values(state.quests).filter((quest) => quest.status == status),
-      getQuests: (state) => Object.values(state.quests),
-      getQuestById: (state) => (id) => state.quests[id],
-      getCurrentQuest: (state) => state.quests[state.currentQuest],
-      getMyQuests: (state) =>
+      getQuests: (state: QuestsState) => Object.values(state.quests),
+      getQuestById: (state: QuestsState) => (id) => state.quests[id],
+      getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
+      getMyQuests: (state: QuestsState) =>
         Object.values(state.quests).filter((quest) =>
           quest?.quest_membership?.find(
             (m) =>
@@ -202,19 +241,19 @@ const quests = new MyVapi({
               m.status == "confirmed"
           )
         ),
-      getPlayingQuests: (state) =>
+      getPlayingQuests: (state: QuestsState) =>
         Object.values(state.quests).filter((quest) =>
           quest.casting?.find(
             (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
           )
         ),
-      isQuestMember: (state) => (quest_id) =>
+      isQuestMember: (state: QuestsState) => (quest_id) =>
         state.quests[quest_id]?.quest_membership?.find(
           (m) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
             m.status == "confirmed"
         ),
-      castingInQuest: (state) => (quest_id) =>
+      castingInQuest: (state: QuestsState) => (quest_id) =>
         state.quests[quest_id]?.casting?.find(
           (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
         ),
@@ -257,10 +296,10 @@ const quests = new MyVapi({
       },
     },
     mutations: {
-      SET_CURRENT_QUEST: (state, quest_id) => {
+      SET_CURRENT_QUEST: (state: QuestsState, quest_id) => {
         state.currentQuest = Number.parseInt(quest_id);
       },
-      CLEAR_STATE: (state) => {
+      CLEAR_STATE: (state: QuestsState) => {
         state.quests = {};
         state.currentQuest = null;
         state.fullFetch = false;
@@ -268,5 +307,3 @@ const quests = new MyVapi({
       },
     },
   });
-
-export default quests;

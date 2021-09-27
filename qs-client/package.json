@@ -5,7 +5,7 @@
   "description": "A Quasar Framework app",
   "author": "byroncoughlinsr <byroncoughlinsr@gmail.com>",
   "scripts": {
-    "lint": "eslint --ext .js,.vue ./",
+    "lint": "eslint --ext .js,.vue,.ts ./",
     "lint-staged": "lint-staged",
     "test": "echo \"No test specified\" && exit 0",
     "prepare": "cd .. ; husky install"
@@ -27,6 +27,9 @@
   },
   "devDependencies": {
     "@quasar/app": "^2.2.10",
+    "@typescript-eslint/parser": "~4",
+    "@typescript-eslint/eslint-plugin": "~4",
+    "@vue/eslint-config-typescript": "~7",
     "babel-eslint": "^10.0.1",
     "eslint": "~7",
     "eslint-config-prettier": "^8.1.0",

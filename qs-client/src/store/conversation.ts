@@ -1,6 +1,31 @@
 import MyVapi from "./base";
+import { Store as VuexStore } from "vuex";
 
-const conversation = new MyVapi({
+export interface ConversationNode {
+  id: number;
+  quest_id: number;
+  guild_id?: number;
+  creator: number;
+  parent: number;
+  ancestry: string;
+  node_type: string;
+  status: string;
+  created_at: string;
+  published_at: string;
+  title: string;
+  description: string;
+}
+
+interface ConversationState extends Object {
+  node?: ConversationNode;
+  currentQuest?: number;
+  conversation: ConversationNode[];
+  neighbourhoodRoot?: number;
+  neighbourhood: ConversationNode[];
+  conversationRoot?: ConversationNode;
+}
+
+export const conversation = new MyVapi<ConversationState>({
   state: {
     node: null,
     currentQuest: null,
@@ -14,15 +39,16 @@ const conversation = new MyVapi({
   .get({
     action: "fetchConversationNode",
     queryParams: true,
-    path: ({ id }) => `/conversation_node?id=eq.${id}`,
+    path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
     property: "node",
   })
   .get({
-    path: ({ quest_id }) => `/conversation_node?quest_id=eq.${quest_id}`,
+    path: ({ quest_id }: { quest_id: number }) =>
+      `/conversation_node?quest_id=eq.${quest_id}`,
     property: "conversation",
     action: "fetchConversation",
     queryParams: true,
-    onSuccess: (state, payload, axios, { params, data }) => {
+    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
         state.neighbourhood = [];
@@ -33,19 +59,19 @@ const conversation = new MyVapi({
     },
   })
   .get({
-    path: ({ quest_id }) => {
+    path: ({ quest_id }: { quest_id: number }) => {
       return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null`;
     },
     property: "conversationRoot",
     action: "fetchRootNode",
-    onSuccess: (state, payload, axios, { params, data }) => {
+    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
         state.conversation = [];
         state.neighbourhood = [];
         state.neighbourhoodRoot = null;
       }
-      state.conversationRoot = payload.data[0];
+      state.conversationRoot = payload.data[0] as ConversationNode;
     },
   })
   .call({
@@ -53,7 +79,7 @@ const conversation = new MyVapi({
     property: "conversation",
     action: "fetchConversationNeighbourhood",
     readOnly: true,
-    onSuccess: (state, payload, axios, { params, data }) => {
+    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       /*
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id
@@ -68,8 +94,8 @@ const conversation = new MyVapi({
   .post({
     action: "createConversationNode",
     path: "/conversation_node",
-    onSuccess: (state, res, axios, { params, data }) => {
-      state.node = res.data[0];
+    onSuccess: (state: ConversationState, res, axios, { params, data }) => {
+      state.node = res.data[0] as ConversationNode;
       if (!state.node.parent) {
         state.conversationRoot = state.node;
       }
@@ -77,13 +103,12 @@ const conversation = new MyVapi({
   })
   .patch({
     action: "updateConversationNode",
-    path: ({ id }) => `/conversation_node?id=eq.${id}`,
+    path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
     beforeRequest: (state, { params, data }) => {
-      console.log(params, data);
       params.id = data.id;
       data.updated_at = undefined;
     },
-    onSuccess: (state, res, axios, { data }) => {
+    onSuccess: (state: ConversationState, res, axios, { data }) => {
       const node = res.data[0];
       const conversation = state.conversation.filter((q) => q.id !== node.id);
       conversation.push(node);
@@ -95,26 +120,27 @@ const conversation = new MyVapi({
     },
   })
   // Step 4
-  .getStore({
+  .getVuexStore({
     getters: {
-      getConversation: (state) => state.conversation,
-      getConversationNodeById: (state) => (id) =>
-        state.conversation.find((node) => node.id == id),
-      getRootNode: (state) => state.conversationRoot,
-      getNeighbourhood: (state) => state.neighbourhood,
-      canEdit: (state) => (node_id) => {
+      getConversation: (state: ConversationState): ConversationNode[] =>
+        state.conversation,
+      getConversationNodeById: (state: ConversationState) => (id: number) =>
+        state.conversation.find((node) => node.id == id) as ConversationNode,
+      getRootNode: (state: ConversationState) => state.conversationRoot,
+      getNeighbourhood: (state: ConversationState) => state.neighbourhood,
+      canEdit: (state: ConversationState) => (node_id: number) => {
         const userId = MyVapi.store.getters["member/getUserId"];
         const node = state.conversation.find((node) => node.id == node_id);
         if (node && userId) {
-          if (node.state == "draft") {
+          if (node.status == "draft") {
             return node.creator == userId;
             // TODO: role_draft
-          } else if (node.state == "guild_draft") {
-            const casting = MyVapi.store.castingInQuest["quest/isPlaying"](
+          } else if (node.status == "guild_draft") {
+            const casting = MyVapi.store.getters["quests/castingInQuest"](
               node.quest_id
             );
             return casting?.guild_id == node.guild_id;
-          } else if (node.state == "proposed") {
+          } else if (node.status == "proposed") {
             return MyVapi.store.getters["hasPermission"](
               "guild_admin",
               node.guild_id,
@@ -130,7 +156,7 @@ const conversation = new MyVapi({
       resetConversation: (context) => {
         context.commit("RESET_CONVERSATION");
       },
-      ensureConversation: async (context, quest_id) => {
+      ensureConversation: async (context, quest_id: number) => {
         if (
           quest_id != context.state.currentQuest ||
           context.state.conversation.length == 0
@@ -138,7 +164,7 @@ const conversation = new MyVapi({
           await context.dispatch("fetchConversation", { params: { quest_id } });
         }
       },
-      ensureRootNode: async (context, quest_id) => {
+      ensureRootNode: async (context, quest_id: number) => {
         if (
           quest_id != context.state.currentQuest ||
           !context.state.conversationRoot
@@ -146,7 +172,11 @@ const conversation = new MyVapi({
           await context.dispatch("fetchRootNode", { params: { quest_id } });
         }
       },
-      ensureConversationNeighbourhood: async (context, node_id, guild) => {
+      ensureConversationNeighbourhood: async (
+        context,
+        node_id: number,
+        guild: number
+      ) => {
         if (
           node_id != context.state.neighbourhoodRoot ||
           context.state.neighbourhood.length == 0
@@ -158,7 +188,7 @@ const conversation = new MyVapi({
       },
     },
     mutations: {
-      RESET_CONVERSATION: (state) => {
+      RESET_CONVERSATION: (state: ConversationState) => {
         state.conversation = [];
         state.conversationRoot = null;
         state.neighbourhood = [];
@@ -167,5 +197,3 @@ const conversation = new MyVapi({
       },
     },
   });
-
-export default conversation;

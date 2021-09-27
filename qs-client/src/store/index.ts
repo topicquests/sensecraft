@@ -1,10 +1,10 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import quests from "./quests";
-import members from "./members";
-import member from "./member";
-import guilds from "./guilds";
-import conversation from "./conversation";
+import { quests } from "./quests";
+import { members } from "./members";
+import { member } from "./member";
+import { guilds } from "./guilds";
+import { conversation } from "./conversation";
 import MyVapi from "./base";
 
 Vue.use(Vuex);

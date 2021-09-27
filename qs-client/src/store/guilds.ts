@@ -1,6 +1,35 @@
 import MyVapi from "./base";
+import { Store as VuexStore } from "vuex";
+import { Member, GuildMembership, Casting } from "./members";
+import { GamePlay } from "./quests";
 
-const guilds = new MyVapi({
+export interface Guild {
+  id: number;
+  handle: string;
+  name: string;
+  description?: string;
+  creator: number;
+  public: boolean;
+  open_for_applications: boolean;
+  created_at: string;
+  updated_at: string;
+  application_needs_approval: boolean;
+  guild_membership?: GuildMembership[];
+  game_play?: GamePlay[];
+}
+
+interface GuildMap {
+  [key: number]: Guild;
+}
+
+export interface GuildsState {
+  guilds: GuildMap;
+  currentGuild?: number;
+  fullFetch: boolean;
+  fullGuilds: { [key: number]: boolean };
+}
+
+export const guilds = new MyVapi<GuildsState>({
   state: {
     currentGuild: null,
     fullFetch: false,
@@ -13,7 +42,7 @@ const guilds = new MyVapi({
     action: "fetchGuildById",
     path: "/guilds",
     queryParams: true,
-    beforeRequest: (state, { full, params }) => {
+    beforeRequest: (state: GuildsState, { full, params }) => {
       if (Array.isArray(params.id)) {
         params.id = `in.(${params.id.join(",")})`;
       } else {
@@ -32,7 +61,7 @@ const guilds = new MyVapi({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: GuildsState, res, axios, actionParams) => {
       state.guilds = {
         ...state.guilds,
         ...Object.fromEntries(res.data.map((guild) => [guild.id, guild])),
@@ -50,7 +79,7 @@ const guilds = new MyVapi({
     property: "guilds",
     path: "/guilds",
     queryParams: true,
-    beforeRequest: (state, { params }) => {
+    beforeRequest: (state: GuildsState, { params }) => {
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
         Object.assign(params, {
@@ -62,7 +91,7 @@ const guilds = new MyVapi({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: GuildsState, res, axios, actionParams) => {
       const fullGuilds = Object.values(state.guilds).filter(
         (guild) => state.fullGuilds[guild.id]
       );
@@ -84,7 +113,7 @@ const guilds = new MyVapi({
   .post({
     action: "createGuildBase",
     path: "/guilds",
-    onSuccess: (state, res, axios, { data }) => {
+    onSuccess: (state: GuildsState, res, axios, { data }) => {
       const guild = res.data[0];
       state.guilds = { ...state.guilds, [guild.id]: guild };
       state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
@@ -94,7 +123,7 @@ const guilds = new MyVapi({
   .patch({
     action: "updateGuild",
     path: ({ id }) => `/guilds?id=eq.${id}`,
-    beforeRequest: (state, { params, data }) => {
+    beforeRequest: (state: GuildsState, { params, data }) => {
       params.id = data.id;
       Object.assign(data, {
         casting: undefined,
@@ -103,22 +132,22 @@ const guilds = new MyVapi({
         updated_at: undefined,
       });
     },
-    onSuccess: (state, res, axios, { data }) => {
-      var guild = res.data[0];
-      guild = Object.assign({}, state.guilds[id], guild);
+    onSuccess: (state: GuildsState, res, axios, { data }) => {
+      let guild = res.data[0];
+      guild = Object.assign({}, state.guilds[guild.id], guild);
       state.guilds = { ...state.guilds, [guild.id]: guild };
     },
   })
   .post({
     action: "addGuildMembership",
     path: "/guild_membership",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: GuildsState, res, axios, actionParams) => {
       const membership = res.data[0];
       const guild = state.guilds[membership.guild_id];
       if (guild) {
-        const memberships = guild.membership || [];
+        const memberships = guild.guild_membership || [];
         memberships.push(membership);
-        guild.membership = memberships;
+        guild.guild_membership = memberships;
       }
       MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
     },
@@ -126,16 +155,16 @@ const guilds = new MyVapi({
   .patch({
     action: "updateGuildMembership",
     path: "/guild_membership",
-    onSuccess: (state, res, axios, actionParams) => {
+    onSuccess: (state: GuildsState, res, axios, actionParams) => {
       const membership = res.data[0];
       const guild = state.guilds[membership.guild_id];
       if (guild) {
         const memberships =
-          guild.membership?.filter(
+          guild.guild_membership?.filter(
             (gp) => gp.guild_id !== membership.guild_id
           ) || [];
         memberships.push(membership);
-        guild.membership = memberships;
+        guild.guild_membership = memberships;
       }
       MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
     },
@@ -147,14 +176,14 @@ const guilds = new MyVapi({
     // TODO: modify quests's castings appropriately. May need an appropriate mutation.
   })
   // Step 4
-  .getStore({
+  .getVuexStore({
     getters: {
-      getGuildsByStatus: (state) => (status) =>
+      getGuildsByStatus: (state: GuildsState) => (status) =>
         Object.values(state.guilds).filter((guild) => guild.status == status),
-      getGuilds: (state) => Object.values(state.guilds),
-      getGuildById: (state) => (id) => state.guilds[id],
-      getCurrentGuild: (state) => state.guilds[state.currentGuild],
-      getMyGuilds: (state) =>
+      getGuilds: (state: GuildsState) => Object.values(state.guilds),
+      getGuildById: (state: GuildsState) => (id) => state.guilds[id],
+      getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
+      getMyGuilds: (state: GuildsState) =>
         Object.values(state.guilds).filter((guild) =>
           guild?.guild_membership?.find(
             (m) =>
@@ -162,14 +191,14 @@ const guilds = new MyVapi({
               m.status == "confirmed"
           )
         ),
-      isGuildMember: (state) => (guild_id) =>
+      isGuildMember: (state: GuildsState) => (guild_id) =>
         state.guilds[guild_id]?.guild_membership?.find(
           (m) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
             m.status == "confirmed"
         ),
-      getGuildsPlayingQuest: (state) => (quest) => {
-        var guildId = quest.game_play.map((gp) => gp.guild_id);
+      getGuildsPlayingQuest: (state: GuildsState) => (quest) => {
+        const guildId = quest.game_play.map((gp) => gp.guild_id);
         return Object.values(state.guilds).filter((guild) =>
           guildId.includes(guild.id)
         );
@@ -211,7 +240,7 @@ const guilds = new MyVapi({
       ensureGuildsPlayingQuest: async (context, questId, full) => {
         await MyVapi.store.dispatch("quests/ensureQuest", questId, true);
         const quest = MyVapi.store.getters["quests/getQuestById"](questId);
-        var guildId = quest.game_play.map((gp) => gp.guild_id);
+        let guildId = quest.game_play.map((gp) => gp.guild_id);
         if (full) {
           guildId = guildId.filter((id) => !context.state.fullGuilds[id]);
         } else {
@@ -229,16 +258,16 @@ const guilds = new MyVapi({
       },
     },
     mutations: {
-      SET_CURRENT_GUILD: (state, guild_id) => {
+      SET_CURRENT_GUILD: (state: GuildsState, guild_id) => {
         state.currentGuild = Number.parseInt(guild_id);
       },
-      CLEAR_STATE: (state) => {
+      CLEAR_STATE: (state: GuildsState) => {
         state.guilds = {};
         state.currentGuild = null;
         state.fullFetch = false;
         state.fullGuilds = {};
       },
-      ADD_GAME_PLAY: (state, game_play) => {
+      ADD_GAME_PLAY: (state: GuildsState, game_play) => {
         const guild_id = game_play.guild_id;
         const guild = state.guilds[guild_id];
         // Assuming it is definitely not there
@@ -253,5 +282,3 @@ const guilds = new MyVapi({
       },
     },
   });
-
-export default guilds;
