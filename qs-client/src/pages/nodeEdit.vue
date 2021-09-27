@@ -10,7 +10,7 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pb-xs q-mt-md" style="width: 55%">
-        <div v-if="parentNode" class="col-12 col-md q-pa-md">
+        <div v-if="currentNode" class="col-12 col-md q-pa-md">
           <q-card id="quest_card">
             <h4 style="text-align: center">Quest</h4>
             <q-card-section>
@@ -35,17 +35,17 @@
         <div v-if="currentQuest" class="col-4">
           <q-card class="q-pa-md" id="node_card">
             <q-input
-              v-model="parentNode.title"
+              v-model="currentNode.title"
               label="Parent Node"
               style="color: darkblue"
             />
             <q-input
-              v-model="parentNode.node_type"
+              v-model="currentNode.node_type"
               label="Type"
               style="font-size: 17px; color: darkblue"
             />
             Details<br />
-            <div v-html="parentNode.description" style="font-size: 17px"></div>
+            <div v-html="currentNode.description" style="font-size: 17px"></div>
           </q-card>
         </div>
       </div>
@@ -160,7 +160,6 @@ export default {
       currentQuest: (state: QuestsState) => state.currentQuest,
     }),
     ...mapState("conversation", {
-      parentNode: (state: ConversationState) => state.parentNode,
       currentNode: (state: ConversationState) => state.node,
     }),
     ...mapState("guilds", {
@@ -204,8 +203,8 @@ export default {
     async addNode() {
       try {
         this.node.quest_id = this.currentQuest.id;
-        if (this.parentNode) {
-          this.node.parent_id = this.parentNode.id;
+        if (this.currentNode) {
+          this.node.parent_id = this.currentNode.id;
         }
         const nodeResponse = await this.addConversationNode(this.node);
         const resp = await this.show_tree();
