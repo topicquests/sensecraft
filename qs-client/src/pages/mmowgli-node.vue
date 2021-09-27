@@ -179,11 +179,7 @@ export default {
   methods: {
     ...mapGetters("quests", ["getQuestById", "getQuests"]),
     ...mapGetters("conversation", ["canEdit", "getConversationById"]),
-    ...mapActions("quests", [
-      "ensureAllQuests",
-      "ensureQuest",
-      "setCurrentQuest",
-    ]),
+    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
     ...mapActions("guilds", ["ensureAllGuilds"]),
     async initialize(id = null) {
       //this.$store.commit('questView', true)

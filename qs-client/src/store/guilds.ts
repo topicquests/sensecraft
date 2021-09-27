@@ -208,7 +208,10 @@ export const guilds = new MyVapi<GuildsState>({
       setCurrentGuild: (context, guild_id) => {
         context.commit("SET_CURRENT_GUILD", guild_id);
       },
-      ensureGuild: async (context, guild_id, full = true) => {
+      ensureGuild: async (
+        context,
+        { guild_id, full = true }: { guild_id: number; full?: boolean }
+      ) => {
         if (
           context.getters.getGuildById(guild_id) === undefined ||
           (full && !context.state.fullGuilds[guild_id])
@@ -233,12 +236,15 @@ export const guilds = new MyVapi<GuildsState>({
           await context.dispatch("fetchGuilds");
         }
       },
-      ensureCurrentGuild: async (context, guild_id, full = true) => {
-        await context.dispatch("ensureGuild", guild_id, full);
+      ensureCurrentGuild: async (context, { guild_id, full = true }) => {
+        await context.dispatch("ensureGuild", { guild_id, full });
         await context.dispatch("setCurrentGuild", guild_id);
       },
-      ensureGuildsPlayingQuest: async (context, questId, full) => {
-        await MyVapi.store.dispatch("quests/ensureQuest", questId, true);
+      ensureGuildsPlayingQuest: async (context, { questId, full }) => {
+        await MyVapi.store.dispatch("quests/ensureQuest", {
+          questId,
+          full: true,
+        });
         const quest = MyVapi.store.getters["quests/getQuestById"](questId);
         let guildId = quest.game_play.map((gp) => gp.guild_id);
         if (full) {

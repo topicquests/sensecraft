@@ -148,7 +148,10 @@ export const members = new MyVapi<MembersState>({
         }
       },
       ensureMembersOfGuild: async (context, guildId) => {
-        await MyVapi.store.dispatch("guilds/ensureGuild", guildId, true);
+        await MyVapi.store.dispatch("guilds/ensureGuild", {
+          guild_id: guildId,
+          force: true,
+        });
         const guild = MyVapi.store.getters["guilds/getGuildById"](guildId);
         let membersId = guild.guild_membership.map((mp) => mp.member_id);
         membersId = membersId.filter((id) => !context.state.members[id]);
@@ -157,7 +160,10 @@ export const members = new MyVapi<MembersState>({
         }
       },
       ensurePlayersOfQuest: async (context, questId) => {
-        await MyVapi.store.dispatch("quests/ensureQuest", questId, true);
+        await MyVapi.store.dispatch("quests/ensureQuest", {
+          questId,
+          full: true,
+        });
         const quest = MyVapi.store.getters["quests/getQuestById"](questId);
         let membersId = quest.casting.map((mp) => mp.member_id);
         membersId.concat(quest.quest_membership.map((mp) => mp.member_id));

@@ -174,8 +174,7 @@ export const conversation = new MyVapi<ConversationState>({
       },
       ensureConversationNeighbourhood: async (
         context,
-        node_id: number,
-        guild: number
+        { node_id, guild }: { node_id: number; guild: number }
       ) => {
         if (
           node_id != context.state.neighbourhoodRoot ||

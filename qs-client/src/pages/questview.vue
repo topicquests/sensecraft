@@ -50,7 +50,7 @@ export default {
       const questId = this.$route.params.quest_id;
       await app.userLoaded;
       await this.setCurrentQuest(questId);
-      await this.ensureQuest(questId);
+      await this.ensureQuest({ quest_id: questId });
       const quest = this.getCurrentQuest;
       await this.fetchMemberById({ params: { id: quest.creator } });
       const creator = this.getMemberById(quest.creator);

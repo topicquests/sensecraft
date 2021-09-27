@@ -100,7 +100,7 @@ export default {
     this.quest_id = this.$route.params.quest_id;
     await app.userLoaded;
     await Promise.all([
-      this.ensureQuest(this.quest_id),
+      this.ensureQuest({ quest_id: this.quest_id }),
       this.ensureAllGuilds(),
     ]);
   },

@@ -57,8 +57,8 @@ export default {
     await Promise.all([
       this.setCurrentQuest(this.questId),
       this.setCurrentGuild(this.guildId),
-      this.ensureQuest(this.questId),
-      this.ensureGuild(this.guildId),
+      this.ensureQuest({ quest_id: this.questId }),
+      this.ensureGuild({ guild_id: this.guildId }),
     ]);
     const quest = this.getCurrentQuest;
     await this.fetchMemberById({ params: { id: quest.creator } });

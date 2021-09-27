@@ -485,7 +485,10 @@ export default {
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
     await app.userLoaded;
-    await Promise.all([this.ensureAllQuests(), this.ensureGuild(this.guildId)]);
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.ensureGuild({ guild_id: this.guildId }),
+    ]);
     this.initialize();
   },
 };

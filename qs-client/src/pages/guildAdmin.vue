@@ -221,7 +221,10 @@ export default {
   async beforeMount() {
     this.guildId = this.$route.params.guild_id;
     await app.userLoaded;
-    await Promise.all([this.ensureGuild(this.guildId), this.ensureAllQuests()]);
+    await Promise.all([
+      this.ensureGuild({ guild_id: this.guildId }),
+      this.ensureAllQuests(),
+    ]);
     this.isAdmin = this.hasPermission("guildAdmin", this.currentGuildId);
     const canRegisterToQuest = this.hasPermission(
       "joinQuest",

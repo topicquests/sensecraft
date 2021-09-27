@@ -262,7 +262,7 @@ export const quests = new MyVapi<QuestsState>({
       setCurrentQuest: (context, quest_id) => {
         context.commit("SET_CURRENT_QUEST", quest_id);
       },
-      ensureQuest: async (context, quest_id, full = true) => {
+      ensureQuest: async (context, { quest_id, full = true }) => {
         if (
           context.getters.getQuestById(quest_id) === undefined ||
           (full && !context.state.fullQuests[quest_id])
@@ -287,8 +287,8 @@ export const quests = new MyVapi<QuestsState>({
           await context.dispatch("fetchQuests");
         }
       },
-      ensureCurrentQuest: async (context, quest_id, full = true) => {
-        await context.dispatch("ensureQuest", quest_id, full);
+      ensureCurrentQuest: async (context, { quest_id, full = true }) => {
+        await context.dispatch("ensureQuest", { quest_id, full });
         await context.dispatch("setCurrentQuest", quest_id);
       },
       clearState: (context) => {
