@@ -229,7 +229,7 @@ export default {
   async beforeMount() {
     this.quest_id = this.$route.params.quest_id;
     await app.userLoaded;
-    await this.ensureQuest(this.quest_id);
+    await this.ensureQuest({ quest_id: this.quest_id });
     // TODO: Add this permission
     // this.isAdmin = this.hasPermission('quest_admin', null, this.quest_id);
     this.isAdmin = this.isQuestMember(this.quest_id);

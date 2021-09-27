@@ -14,7 +14,7 @@ export interface QuestMembership {
   quest_id: number;
   member_id: number;
   permissions: string[];
-  status: string;
+  confirmed: boolean;
   created_at: string;
   updated_at: string;
 }
