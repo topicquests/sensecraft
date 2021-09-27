@@ -120,6 +120,11 @@ export const members = new MyVapi<MembersState>({
           await context.dispatch("fetchMembers");
         }
       },
+      ensureMemberById: async (context, id: number) => {
+        if (!context.state.members[id]) {
+          await context.dispatch("fetchMemberById", { id });
+        }
+      },
       ensureMembersOfGuild: async (context, guildId) => {
         await MyVapi.store.dispatch("guilds/ensureGuild", {
           guild_id: guildId,
