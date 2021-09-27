@@ -1,20 +1,5 @@
 import MyVapi from "./base";
-import { Store as VuexStore } from "vuex";
-
-export interface ConversationNode {
-  id: number;
-  quest_id: number;
-  guild_id?: number;
-  creator: number;
-  parent: number;
-  ancestry: string;
-  node_type: string;
-  status: string;
-  created_at: string;
-  published_at: string;
-  title: string;
-  description: string;
-}
+import { ConversationNode } from "../types";
 
 interface ConversationState extends Object {
   node?: ConversationNode;
@@ -130,7 +115,9 @@ export const conversation = new MyVapi<ConversationState>({
       getNeighbourhood: (state: ConversationState) => state.neighbourhood,
       canEdit: (state: ConversationState) => (node_id: number) => {
         const userId = MyVapi.store.getters["member/getUserId"];
-        const node = state.conversation.find((node) => node.id == node_id);
+        const node = state.conversation.find(
+          (node: ConversationNode) => node.id == node_id
+        );
         if (node && userId) {
           if (node.status == "draft") {
             return node.creator == userId;

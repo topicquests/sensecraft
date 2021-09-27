@@ -1,33 +1,5 @@
 import MyVapi from "./base";
-import { Member, QuestMembership, Casting } from "./members";
-import { Store as VuexStore } from "vuex";
-
-export interface GamePlay {
-  quest_id: number;
-  guild_id: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  accepted_at?: string;
-  scores?: Object;
-  focus_node_id?: number;
-}
-export interface Quest {
-  id: number;
-  handle: string;
-  name: string;
-  description?: string;
-  creator: number;
-  public: boolean;
-  status: string;
-  start?: string;
-  end?: string;
-  created_at: string;
-  updated_at: string;
-  quest_membership?: QuestMembership[];
-  casting?: Casting[];
-  game_play?: GamePlay[];
-}
+import { Quest } from "../types";
 
 interface QuestMap {
   [key: number]: Quest;
@@ -229,7 +201,9 @@ export const quests = new MyVapi<QuestsState>({
   .getVuexStore({
     getters: {
       getQuestsByStatus: (state: QuestsState) => (status) =>
-        Object.values(state.quests).filter((quest) => quest.status == status),
+        Object.values(state.quests).filter(
+          (quest: Quest) => quest.status == status
+        ),
       getQuests: (state: QuestsState) => Object.values(state.quests),
       getQuestById: (state: QuestsState) => (id) => state.quests[id],
       getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
@@ -242,27 +216,30 @@ export const quests = new MyVapi<QuestsState>({
           )
         ),
       getPlayingQuests: (state: QuestsState) =>
-        Object.values(state.quests).filter((quest) =>
+        Object.values(state.quests).filter((quest: Quest) =>
           quest.casting?.find(
             (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
           )
         ),
-      isQuestMember: (state: QuestsState) => (quest_id) =>
+      isQuestMember: (state: QuestsState) => (quest_id: number) =>
         state.quests[quest_id]?.quest_membership?.find(
           (m) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
             m.confirmed
         ),
-      castingInQuest: (state: QuestsState) => (quest_id) =>
+      castingInQuest: (state: QuestsState) => (quest_id: number) =>
         state.quests[quest_id]?.casting?.find(
           (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
         ),
     },
     actions: {
-      setCurrentQuest: (context, quest_id) => {
+      setCurrentQuest: (context, quest_id: number) => {
         context.commit("SET_CURRENT_QUEST", quest_id);
       },
-      ensureQuest: async (context, { quest_id, full = true }) => {
+      ensureQuest: async (
+        context,
+        { quest_id, full = true }: { quest_id: number; full?: boolean }
+      ) => {
         if (
           context.getters.getQuestById(quest_id) === undefined ||
           (full && !context.state.fullQuests[quest_id])
@@ -296,8 +273,8 @@ export const quests = new MyVapi<QuestsState>({
       },
     },
     mutations: {
-      SET_CURRENT_QUEST: (state: QuestsState, quest_id) => {
-        state.currentQuest = Number.parseInt(quest_id);
+      SET_CURRENT_QUEST: (state: QuestsState, quest_id: number) => {
+        state.currentQuest = quest_id;
       },
       CLEAR_STATE: (state: QuestsState) => {
         state.quests = {};

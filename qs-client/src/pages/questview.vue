@@ -47,7 +47,7 @@ export default {
   },
   async beforeMount() {
     try {
-      const questId = this.$route.params.quest_id;
+      const questId = Number.parseInt(this.$route.params.quest_id);
       await app.userLoaded;
       await this.setCurrentQuest(questId);
       await this.ensureQuest({ quest_id: questId });

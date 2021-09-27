@@ -270,7 +270,7 @@ export default {
     },
   },
   async beforeMount() {
-    const id = this.$route.params.id;
+    const id = Number.parseInt(this.$route.params.id);
     this.$data.rightDrawerOpen = false; //turn off conversation tree
     await app.userLoaded;
     //this.$store.commit("questView", false);
@@ -310,7 +310,7 @@ export default {
     // Pass id, or it will take it from current $route context
     async initialize(id = null) {
       //this.$store.commit('questView', true)
-      const nodeId = id || this.$route.params.id;
+      const nodeId = id || Number.parseInt(this.$route.params.id);
       console.info("Initialize", "fetching data for ", nodeId);
       try {
         const result = await this.findConversations({

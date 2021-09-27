@@ -183,7 +183,7 @@ export default {
     ...mapActions("guilds", ["ensureAllGuilds"]),
     async initialize(id = null) {
       //this.$store.commit('questView', true)
-      const nodeId = id || this.$route.params.id;
+      const nodeId = id || Number.parseInt(this.$route.params.id);
       console.info("Initialize", "ensureing data for ", nodeId);
       //this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
       console.info("node", this.q);
@@ -205,7 +205,7 @@ export default {
     this.initialize(this.nodeId);
   },
   async beforeMount() {
-    this.questId = this.$route.params.quest_id;
+    this.questId = Number.parseInt(this.$route.params.quest_id);
     await app.memberLoaded;
     await Promise.all([
       this.setCurrentQuest(this.questId),

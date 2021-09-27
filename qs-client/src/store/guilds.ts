@@ -1,22 +1,5 @@
 import MyVapi from "./base";
-import { Store as VuexStore } from "vuex";
-import { Member, GuildMembership, Casting } from "./members";
-import { GamePlay } from "./quests";
-
-export interface Guild {
-  id: number;
-  handle: string;
-  name: string;
-  description?: string;
-  creator: number;
-  public: boolean;
-  open_for_applications: boolean;
-  created_at: string;
-  updated_at: string;
-  application_needs_approval: boolean;
-  guild_membership?: GuildMembership[];
-  game_play?: GamePlay[];
-}
+import { Guild, GuildMembership, GamePlay, Quest } from "../types";
 
 interface GuildMap {
   [key: number]: Guild;
@@ -178,34 +161,34 @@ export const guilds = new MyVapi<GuildsState>({
   // Step 4
   .getVuexStore({
     getters: {
-      getGuildsByStatus: (state: GuildsState) => (status) =>
+      getGuildsByStatus: (state: GuildsState) => (status: string) =>
         Object.values(state.guilds).filter((guild) => guild.status == status),
       getGuilds: (state: GuildsState) => Object.values(state.guilds),
-      getGuildById: (state: GuildsState) => (id) => state.guilds[id],
+      getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
       getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
       getMyGuilds: (state: GuildsState) =>
-        Object.values(state.guilds).filter((guild) =>
+        Object.values(state.guilds).filter((guild: Guild) =>
           guild?.guild_membership?.find(
-            (m) =>
+            (m: GuildMembership) =>
               m.member_id == MyVapi.store.getters["member/getUserId"] &&
               m.status == "confirmed"
           )
         ),
-      isGuildMember: (state: GuildsState) => (guild_id) =>
+      isGuildMember: (state: GuildsState) => (guild_id: number) =>
         state.guilds[guild_id]?.guild_membership?.find(
-          (m) =>
+          (m: GuildMembership) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
             m.status == "confirmed"
         ),
-      getGuildsPlayingQuest: (state: GuildsState) => (quest) => {
-        const guildId = quest.game_play.map((gp) => gp.guild_id);
-        return Object.values(state.guilds).filter((guild) =>
+      getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
+        const guildId = quest.game_play.map((gp: GamePlay) => gp.guild_id);
+        return Object.values(state.guilds).filter((guild: Guild) =>
           guildId.includes(guild.id)
         );
       },
     },
     actions: {
-      setCurrentGuild: (context, guild_id) => {
+      setCurrentGuild: (context, guild_id: number) => {
         context.commit("SET_CURRENT_GUILD", guild_id);
       },
       ensureGuild: async (
@@ -264,7 +247,7 @@ export const guilds = new MyVapi<GuildsState>({
       },
     },
     mutations: {
-      SET_CURRENT_GUILD: (state: GuildsState, guild_id) => {
+      SET_CURRENT_GUILD: (state: GuildsState, guild_id: number) => {
         state.currentGuild = Number.parseInt(guild_id);
       },
       CLEAR_STATE: (state: GuildsState) => {
@@ -273,7 +256,7 @@ export const guilds = new MyVapi<GuildsState>({
         state.fullFetch = false;
         state.fullGuilds = {};
       },
-      ADD_GAME_PLAY: (state: GuildsState, game_play) => {
+      ADD_GAME_PLAY: (state: GuildsState, game_play: GamePlay) => {
         const guild_id = game_play.guild_id;
         const guild = state.guilds[guild_id];
         // Assuming it is definitely not there

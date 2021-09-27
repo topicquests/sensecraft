@@ -1,47 +1,11 @@
 import MyVapi from "./base";
-import { Store as VuexStore } from "vuex";
-
-export interface GuildMembership {
-  guild_id: number;
-  member_id: number;
-  permissions: string[];
-  available_roles?: string[];
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-export interface QuestMembership {
-  quest_id: number;
-  member_id: number;
-  permissions: string[];
-  confirmed: boolean;
-  created_at: string;
-  updated_at: string;
-}
-export interface Casting {
-  guild_id: number;
-  quest_id: number;
-  member_id: number;
-  permissions: string[];
-  roles?: string[];
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Member {
-  id: number;
-  email: string;
-  password: string;
-  handle: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  permissions: string[];
-  guild_membership?: GuildMembership[];
-  quest_membership?: QuestMembership[];
-  casting?: Casting[];
-}
+import {
+  Member,
+  GuildMembership,
+  QuestMembership,
+  Quest,
+  Casting,
+} from "../types";
 
 interface MemberMap {
   [key: number]: Member;
@@ -111,32 +75,41 @@ export const members = new MyVapi<MembersState>({
         Object.values(state.members).sort((a, b) =>
           a.name.localeCompare(b.handle)
         ),
-      getMemberById: (state: MembersState) => (id) => state.members[id],
-      getMemberByHandle: (state: MembersState) => (handle) =>
-        Object.values(state.members).find((member) => member.handle == handle),
+      getMemberById: (state: MembersState) => (id: number) => state.members[id],
+      getMemberByHandle: (state: MembersState) => (handle: string) =>
+        Object.values(state.members).find(
+          (member: Member) => member.handle == handle
+        ),
       getMembersByHandle: (state: MembersState) =>
         Object.fromEntries(
-          Object.values(state.members).map((member) => [member.handle, member])
+          Object.values(state.members).map((member: Member) => [
+            member.handle,
+            member,
+          ])
         ),
       getMemberHandles: (state: MembersState) =>
         Object.values(state.members)
-          .map((member) => member.handle)
+          .map((member: Member) => member.handle)
           .sort(),
       getMembersOfGuild: (state: MembersState) => (guild) => {
-        const memberIds = guild.guild_membership.map((gm) => gm.member_id);
-        return Object.values(state.members).filter((member) =>
+        const memberIds = guild.guild_membership.map(
+          (gm: GuildMembership) => gm.member_id
+        );
+        return Object.values(state.members).filter((member: Member) =>
           memberIds.includes(member.id)
         );
       },
-      getMembersOfQuest: (state: MembersState) => (quest) => {
-        const memberIds = quest.quest_membership.map((qm) => qm.member_id);
-        return Object.values(state.members).filter((member) =>
+      getMembersOfQuest: (state: MembersState) => (quest: Quest) => {
+        const memberIds = quest.quest_membership.map(
+          (qm: QuestMembership) => qm.member_id
+        );
+        return Object.values(state.members).filter((member: Member) =>
           memberIds.includes(member.id)
         );
       },
-      getPlayersOfQuest: (state: MembersState) => (quest) => {
-        const memberIds = quest.casting.map((qm) => qm.member_id);
-        return Object.values(state.members).filter((member) =>
+      getPlayersOfQuest: (state: MembersState) => (quest: Quest) => {
+        const memberIds = quest.casting.map((c: Casting) => c.member_id);
+        return Object.values(state.members).filter((member: Member) =>
           memberIds.includes(member.id)
         );
       },

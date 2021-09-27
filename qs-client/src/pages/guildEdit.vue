@@ -114,7 +114,7 @@ export default {
   },
 
   async beforeMount() {
-    this.guild_id = this.$route.params.guild_id;
+    this.guild_id = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
     await this.ensureGuild({ guild_id: this.guild_id });
     this.isAdmin = this.hasPermission("guild_admin", this.guild_id);

@@ -1,8 +1,7 @@
 import MyVapi from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
-import { Member, GuildMembership, QuestMembership, Casting } from "./members";
-import { Store as VuexStore } from "vuex";
+import { Member, GuildMembership, QuestMembership, Casting } from "../types";
 
 interface MemberState {
   member: Member;
@@ -166,7 +165,7 @@ export const member = new MyVapi<MemberState>({
       getUser: (state) => state.member,
       getUserEmail: (state) => state.email,
       getUserId: (state) => state.member?.id,
-      getUserById: (state) => (id) =>
+      getUserById: (state) => (id: number) =>
         state.member?.id == id ? state.member : null,
     },
     mutations: {

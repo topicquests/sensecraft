@@ -51,8 +51,8 @@ export default {
     },
   },
   async created() {
-    this.guildId = this.$route.params.guild_id;
-    this.questId = this.$route.params.quest_id;
+    this.guildId = Number.parseInt(this.$route.params.guild_id);
+    this.questId = Number.parseInt(this.$route.params.quest_id);
     await app.userLoaded;
     await Promise.all([
       this.setCurrentQuest(this.questId),
