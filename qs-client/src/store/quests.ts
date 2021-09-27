@@ -1,5 +1,5 @@
 import MyVapi from "./base";
-import { Quest } from "../types";
+import { Quest, Casting } from "../types";
 
 interface QuestMap {
   [key: number]: Quest;
@@ -221,6 +221,17 @@ export const quests = new MyVapi<QuestsState>({
             (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
           )
         ),
+      getPlayers: (state: QuestsState) => (quest_id: number) =>
+        state.quests[quest_id]?.casting?.map((c: Casting) =>
+          MyVapi.store.getters["members/getMemberById"](c.member_id)
+        ),
+      getPlayersInGuild:
+        (state: QuestsState) => (quest_id: number, guild_id: number) =>
+          state.quests[quest_id]?.casting
+            ?.filter((c: Casting) => c.guild_id == guild_id)
+            .map((c: Casting) =>
+              MyVapi.store.getters["members/getMemberById"](c.member_id)
+            ),
       isQuestMember: (state: QuestsState) => (quest_id: number) =>
         state.quests[quest_id]?.quest_membership?.find(
           (m) =>
