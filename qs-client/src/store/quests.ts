@@ -238,10 +238,13 @@ export const quests = new MyVapi<QuestsState>({
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
             m.confirmed
         ),
-      castingInQuest: (state: QuestsState) => (quest_id: number) =>
-        state.quests[quest_id]?.casting?.find(
-          (c) => c.member_id == MyVapi.store.getters["member/getUserId"]
-        ),
+      castingInQuest:
+        (state: QuestsState) => (quest_id?: number, member_id?: number) =>
+          state.quests[quest_id || state.currentQuest]?.casting?.find(
+            (c) =>
+              c.member_id ==
+              (member_id || MyVapi.store.getters["member/getUserId"])
+          ),
     },
     actions: {
       setCurrentQuest: (context, quest_id: number) => {
