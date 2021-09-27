@@ -56,7 +56,7 @@
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 import { public_private_bool } from "../enums";
 
 export default {

@@ -21,7 +21,7 @@ import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { QuestsState } from "../store/quests";
-import app from "../App";
+import app from "../App.vue";
 
 export default {
   name: "quest_page",

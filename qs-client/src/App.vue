@@ -15,7 +15,7 @@ var userLoadedResolve = null;
 const app = new Vue({
   name: "App",
   store: store,
-  router: router(store),
+  router: router(),
   watch: {
     currentUser(newUser, oldUser) {
       // reload quests an guilds

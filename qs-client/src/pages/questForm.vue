@@ -57,7 +57,7 @@ import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { mapActions } from "vuex";
 import { Notify } from "quasar";
-import app from "../App";
+import app from "../App.vue";
 import { public_private_bool } from "../enums";
 
 export default {

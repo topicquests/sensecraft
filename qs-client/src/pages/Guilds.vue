@@ -47,7 +47,7 @@
 <script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import { mapGetters, mapActions } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 
 export default {
   props: ["member"],

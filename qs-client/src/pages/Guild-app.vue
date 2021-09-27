@@ -161,7 +161,7 @@ import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 import { ConversationState } from "../store/conversation";
 import { QuestsState } from "../store/quests";
 import { GuildsState } from "../store/guilds";

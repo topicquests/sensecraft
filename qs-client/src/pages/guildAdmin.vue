@@ -76,7 +76,7 @@
 <script lang="ts">
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 import { GuildsState } from "../store/guilds";
 import { MemberState } from "../store/member";
 

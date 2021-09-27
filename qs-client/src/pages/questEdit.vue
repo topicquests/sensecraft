@@ -121,7 +121,7 @@ import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import btnQuestion from "../components/btn-question.vue";
-import app from "../App";
+import app from "../App.vue";
 import {
   quest_status_enum,
   publication_state_enum,

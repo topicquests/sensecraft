@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { mapActions } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 
 export default {
   data() {

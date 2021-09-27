@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { mapActions, mapGetters } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 
 export default {
   data() {

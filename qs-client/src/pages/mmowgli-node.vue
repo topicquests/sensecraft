@@ -155,7 +155,7 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
-import app from "../App";
+import app from "../App.vue";
 import { QuestsState } from "../store/quests";
 
 export default {

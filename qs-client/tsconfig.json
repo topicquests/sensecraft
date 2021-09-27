@@ -1,12 +1,9 @@
 {
+  "extends": "@quasar/app/tsconfig-preset",
   "compilerOptions": {
-    // this aligns with Vue's browser support
-    "target": "es5",
-    // this enables stricter inference for data properties on `this`
+    // this would enable stricter inference for data properties on `this`
     "strict": false,
-    // if using webpack 2+ or rollup, to leverage tree shaking:
-    "module": "es2015",
     "downlevelIteration": true,
-    "moduleResolution": "node"
+    "baseUrl": "."
   }
 }

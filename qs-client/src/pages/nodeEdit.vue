@@ -136,7 +136,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import btnQuestion from "../components/btn-question.vue";
-import app from "../App";
+import app from "../App.vue";
 import { QuestsState } from "../store/quests";
 import { ConversationState } from "../store/conversation";
 import { GuildsState } from "../store/guilds";

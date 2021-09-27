@@ -54,7 +54,7 @@
 import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import app from "../App";
+import app from "../App.vue";
 
 export default {
   props: ["member"],
