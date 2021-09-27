@@ -48,8 +48,14 @@
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 900px" v-if="getCurrentGuild">
-        <p style="text-align: center; font-size: 40px">
+      <div
+        class="col-4 q-pa-md"
+        style="width: 900px; background-color: #caf0f8"
+        v-if="getCurrentGuild"
+      >
+        <p
+          style="text-align: center; font-size: 40px; background-color: #caf0f8"
+        >
           {{ getCurrentGuild.name }}
           <q-btn
             v-if="!isMember && getCurrentGuild.open_for_applications"
@@ -68,17 +74,17 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-12 col-md q-pa-md">
-        <p style="text-align: center; font-size: 20px">Team</p>
+      <div class="col-12 col-md">
+        <p class="card-header">Team</p>
       </div>
-      <div class="col-12 col-md q-pa-md">
-        <p style="text-align: center; font-size: 20px">Quest Move</p>
+      <div class="col-12 col-md">
+        <p class="card-header">Quest Move</p>
       </div>
-      <div class="col-12 col-md q-pa-md">
-        <p style="text-align: center; font-size: 20px">Current Quest</p>
+      <div class="col-12 col-md">
+        <p class="card-header">Current Quest</p>
       </div>
     </div>
-    <div class="row">
+    <div class="row q-pt-sm">
       <div class="col-12 col-md q-pa-md">
         <q-card>
           <ul style="font-size: 20px; color: red; background: lightblue">
@@ -88,7 +94,6 @@
           </ul>
         </q-card>
       </div>
-
       <div class="col-12 col-md q-pa-md">
         <div v-if="selectedNode" class="col-12 col-md q-pa-md">
           <nodeCard v-bind:nodeCard="selectedNode"></nodeCard>
@@ -120,7 +125,6 @@
         >
       </div>
     </div>
-
     <div class="column items-center" v-if="pastQuests.length > 0">
       <div class="col-4" style="width: 900px">
         <q-card>
@@ -508,11 +512,17 @@ export default {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;
 }
-
+.card-header {
+  text-align: center;
+  font-size: 20px;
+  background-color: #caf0f8;
+  padding-bottom: sm;
+}
 #node_card {
   border: 3px solid black;
   font-size: 10pt;
   color: darkblue;
   height: 400px;
+  background-color: #caf0f8;
 }
 </style>

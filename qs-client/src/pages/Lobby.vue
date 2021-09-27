@@ -46,24 +46,14 @@
                   props.row.handle
                 }}</q-td>
                 <q-td key="guildNodeId" auto-width :props="props">
-                  <div v-if="guildBelongsTo(props.row.id)">
-                    <router-link
-                      :to="{
-                        name: 'guild',
-                        params: { guild_id: props.row.id },
-                      }"
-                      >Enter</router-link
-                    >
-                  </div>
-                  <div v-else>
-                    <router-link
-                      :to="{
-                        name: 'guild',
-                        params: { guild_id: props.row.id },
-                      }"
-                      >Join</router-link
-                    >
-                  </div>
+                  <router-link
+                    :to="{
+                      name: 'guild',
+                      params: { guild_id: props.row.id },
+                    }"
+                  >
+                    Enter
+                  </router-link>
                 </q-td>
               </q-tr>
             </template>
