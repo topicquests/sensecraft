@@ -155,13 +155,17 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App";
+import { ConversationState } from "../store/conversation";
+import { QuestsState } from "../store/quests";
+import { GuildsState } from "../store/guilds";
+import { MemberState } from "../store/member";
 
 export default {
   props: ["guild_id"],
@@ -236,8 +240,7 @@ export default {
   },
   computed: {
     ...mapState("quests", {
-      currentQuestId: (state) => state.currentQuest,
-      questCard: questCard,
+      currentQuestId: (state: QuestsState) => state.currentQuest,
     }),
     currentQuestIdS: {
       get: function () {
@@ -249,11 +252,11 @@ export default {
     },
     ...mapGetters("quests", ["getQuestById", "getQuests", "getCurrentQuest"]),
     ...mapState("member", {
-      member: (state) => state.member,
-      memberId: (state) => state.member?.id,
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
     }),
     ...mapState("guilds", {
-      currentGuildId: (state) => state.currentGuild,
+      currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("guilds", [
@@ -262,8 +265,8 @@ export default {
       "getCurrentGuild",
     ]),
     ...mapState("conversation", {
-      nodes: (state) => state.neighbourhood,
-      rootNode: (state) => state.conversationRoot,
+      nodes: (state: ConversationState) => state.neighbourhood,
+      rootNode: (state: ConversationState) => state.conversationRoot,
     }),
     ...mapGetters(["hasPermission"]),
   },

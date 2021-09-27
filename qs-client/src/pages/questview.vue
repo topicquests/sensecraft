@@ -16,10 +16,11 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
+import { QuestsState } from "../store/quests";
 import app from "../App";
 
 export default {
@@ -29,7 +30,7 @@ export default {
   },
   computed: {
     ...mapState("quests", {
-      questId: (state) => state.currentQuest,
+      questId: (state: QuestsState) => state.currentQuest,
     }),
     ...mapGetters("quests", ["getCurrentQuest"]),
     ...mapGetters("members", ["getMemberById"]),

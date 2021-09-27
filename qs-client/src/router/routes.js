@@ -115,21 +115,21 @@ const routes = [
         name: "role",
         component: () => import("pages/Role-room.vue"),
       },
-      {
-        path: "/node/:quest_id",
-        name: "node",
-        component: () => import("pages/mmowgli-node.vue"),
-      },
+      // {
+      //   path: "/node/:quest_id",
+      //   name: "node",
+      //   component: () => import("pages/mmowgli-node.vue"),
+      // },
       {
         path: "/nodeEdit/:quest_id",
         name: "nodeEditor",
         component: () => import("pages/nodeEdit.vue"),
       },
-      {
-        path: "/mnodeedit",
-        name: "mmowglieditor",
-        component: () => import("pages/mmowgli-node-form.vue"),
-      },
+      // {
+      //   path: "/mnodeedit",
+      //   name: "mmowglieditor",
+      //   component: () => import("pages/mmowgli-node-form.vue"),
+      // },
       {
         path: "/admin",
         name: "admin",

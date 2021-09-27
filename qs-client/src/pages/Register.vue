@@ -96,8 +96,8 @@
   </q-page>
 </template>
 
-<script>
-import { mapState, mapActions } from "vuex";
+<script lang="ts">
+import { mapActions } from "vuex";
 
 export default {
   data() {

@@ -4,7 +4,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   props: ["id"],
   data() {

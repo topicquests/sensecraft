@@ -19,8 +19,8 @@
   </q-page>
 </template>
 
-<script>
-import { mapGetters, mapActions, mapState } from "vuex";
+<script lang="ts">
+import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";

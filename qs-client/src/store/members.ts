@@ -10,7 +10,7 @@ import {
 interface MemberMap {
   [key: number]: Member;
 }
-interface MembersState {
+export interface MembersState {
   members: MemberMap;
   fullFetch: boolean;
   questFetch?: number;

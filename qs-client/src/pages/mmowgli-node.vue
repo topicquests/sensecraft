@@ -156,6 +156,7 @@
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
 import app from "../App";
+import { QuestsState } from "../store/quests";
 
 export default {
   props: ["id", "context"],
@@ -169,7 +170,7 @@ export default {
   },
   computed: {
     ...mapState("quests", {
-      currentQuest: (state) => state.currentQuest,
+      currentQuest: (state: QuestsState) => state.currentQuest,
     }),
     ...mapState("member", ["member"]),
     isAuthenticated() {

@@ -48,7 +48,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapActions, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";

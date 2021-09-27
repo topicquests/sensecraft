@@ -1,7 +1,7 @@
 import MyVapi from "./base";
 import { ConversationNode } from "../types";
 
-interface ConversationState extends Object {
+export interface ConversationState extends Object {
   node?: ConversationNode;
   currentQuest?: number;
   conversation: ConversationNode[];

@@ -248,7 +248,7 @@ export const guilds = new MyVapi<GuildsState>({
     },
     mutations: {
       SET_CURRENT_GUILD: (state: GuildsState, guild_id: number) => {
-        state.currentGuild = Number.parseInt(guild_id);
+        state.currentGuild = guild_id;
       },
       CLEAR_STATE: (state: GuildsState) => {
         state.guilds = {};

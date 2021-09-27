@@ -3,10 +3,11 @@
     <router-view />
   </div>
 </template>
-<script>
+<script lang="ts">
 import Vue from "vue";
 import store from "./store";
 import router from "./router";
+import { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
 
 var userLoadedResolve = null;
@@ -56,7 +57,7 @@ const app = new Vue({
   },
   computed: {
     ...mapState("member", {
-      currentUser: (state) => state.member,
+      currentUser: (state: MemberState) => state.member,
     }),
   },
 });

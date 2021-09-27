@@ -74,7 +74,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import questTable from "../components/quest-table.vue";
 import member from "../components/member.vue";
@@ -148,9 +148,7 @@ export default {
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
     ...mapGetters("quests", ["getQuests"]),
-    ...mapState("member", {
-      member: (state) => state.member.member,
-    }),
+    ...mapState("member", ["member"]),
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests"]),

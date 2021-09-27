@@ -130,8 +130,10 @@
     </q-footer>
   </q-layout>
 </template>
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
+import { ConversationState } from "../store/conversation";
+import { MemberState } from "../store/member";
 
 export default {
   name: "MainLayout",
@@ -146,18 +148,18 @@ export default {
       leftDrawer: false,
       rightDrawerOpen: false,
       selected: null,
+      showTree: false,
     };
   },
   computed: {
     ...mapState("conversation", {
-      showTree: (state) => state.showTree,
-      conversation: (state) => state.conversation,
-      treeView: (state) => state.neighbourhood,
+      conversation: (state: ConversationState) => state.conversation,
+      treeView: (state: ConversationState) => state.neighbourhood,
     }),
     ...mapGetters(["hasPermission"]),
     ...mapState("member", {
-      isAuthenticated: (state) => state.isAuthenticated,
-      memberId: (state) => state.member.id,
+      isAuthenticated: (state: MemberState) => state.isAuthenticated,
+      memberId: (state: MemberState) => state.member.id,
     }),
   },
   watch: {

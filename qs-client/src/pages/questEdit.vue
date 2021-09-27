@@ -116,7 +116,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";

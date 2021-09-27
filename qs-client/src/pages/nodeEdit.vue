@@ -131,12 +131,16 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import btnQuestion from "../components/btn-question.vue";
 import app from "../App";
+import { QuestsState } from "../store/quests";
+import { ConversationState } from "../store/conversation";
+import { GuildsState } from "../store/guilds";
+import { MemberState } from "../store/member";
 
 export default {
   data() {
@@ -153,17 +157,17 @@ export default {
   },
   computed: {
     ...mapState("quests", {
-      currentQuest: (state) => state.currentQuest,
+      currentQuest: (state: QuestsState) => state.currentQuest,
     }),
     ...mapState("conversation", {
-      parentNode: (state) => state.parentNode,
-      currentNode: (state) => state.node,
+      parentNode: (state: ConversationState) => state.parentNode,
+      currentNode: (state: ConversationState) => state.node,
     }),
     ...mapState("guilds", {
-      currentGuild: (state) => state.currentGuild,
+      currentGuild: (state: GuildsState) => state.currentGuild,
     }),
     ...mapState("member", {
-      member: (state) => state.member,
+      member: (state: MemberState) => state.member,
     }),
   },
   components: {

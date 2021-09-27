@@ -25,7 +25,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from "vuex";
 import app from "../App";
 

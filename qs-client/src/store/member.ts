@@ -1,9 +1,9 @@
 import MyVapi from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
-import { Member, GuildMembership, QuestMembership, Casting } from "../types";
+import { Member } from "../types";
 
-interface MemberState {
+export interface MemberState {
   member: Member;
   email?: string;
   token?: string;

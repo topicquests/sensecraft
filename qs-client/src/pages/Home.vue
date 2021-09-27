@@ -51,7 +51,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions } from "vuex";
 import app from "../App";
 

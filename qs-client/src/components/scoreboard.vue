@@ -17,7 +17,7 @@
     </div>
   </q-card>
 </template>
-<script>
+<script lang="ts">
 export default {
   name: "scoreboard",
   data() {

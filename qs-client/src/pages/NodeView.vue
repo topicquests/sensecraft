@@ -214,7 +214,7 @@
     </q-list>
   </q-page>
 </template>
-<script>
+<script lang="ts">
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import app from "../App";
 
@@ -234,10 +234,7 @@ export default {
     }, 500);
   },
   computed: {
-    ...mapState("member", [
-      (isAuthenticated) => (state) => state.isAuthenticated,
-    ]),
-
+    ...mapState("member", ["isAuthenticated"]),
     isRelation() {
       return this.q.type === "relation";
     },

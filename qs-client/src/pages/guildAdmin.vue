@@ -73,10 +73,12 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App";
+import { GuildsState } from "../store/guilds";
+import { MemberState } from "../store/member";
 
 export default {
   props: ["guild_id"],
@@ -141,11 +143,11 @@ export default {
   name: "guild_admin",
   computed: {
     ...mapState("member", {
-      member: (state) => state.member,
-      memberId: (state) => state.member?.id,
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
     }),
     ...mapState("guilds", {
-      currentGuildId: (state) => state.currentGuild,
+      currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
     ...mapGetters("quests", ["getQuests", "getQuestById"]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
