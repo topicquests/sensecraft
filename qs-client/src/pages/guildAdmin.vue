@@ -79,6 +79,12 @@ import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
 import { GuildsState } from "../store/guilds";
 import { MemberState } from "../store/member";
+import {
+  registration_status_enum,
+  quest_status_enum,
+  permission_enum,
+} from "../enums";
+import { Quest, GamePlay } from "../types";
 
 export default {
   props: ["guild_id"],
@@ -165,37 +171,43 @@ export default {
       // should be useful but unused for now
       // const memb = await this.getGuildMembers();
       const playQuestIds = this.getCurrentGuild.game_play.map(
-        (gp) => gp.quest_id
+        (gp: GamePlay) => gp.quest_id
       );
       this.guildGamePlays = this.getCurrentGuild.game_play.filter(
-        (gp) => gp.status == "confirmed"
+        (gp: GamePlay) => gp.status == registration_status_enum.confirmed
       );
       const confirmedPlayQuestIds = this.guildGamePlays.map(
-        (gp) => gp.quest_id
+        (gp: GamePlay) => gp.quest_id
       );
       this.potentialQuests = this.getQuests.filter(
-        (q) =>
-          (q.status == "registration" || q.status == "ongoing") &&
+        (q: Quest) =>
+          (q.status == quest_status_enum.registration ||
+            q.status == quest_status_enum.ongoing) &&
           !confirmedPlayQuestIds.includes(q.id)
       );
       this.pastQuests = this.getQuests.filter(
-        (q) =>
-          (q.status == "finished" || q.status == "scoring") &&
+        (q: Quest) =>
+          (q.status == quest_status_enum.finished ||
+            q.status == quest_status_enum.scoring) &&
           playQuestIds.includes(q.id)
       );
       this.activeQuests = this.getQuests.filter(
-        (q) =>
-          (q.status == "ongoing" ||
-            q.status == "paused" ||
-            q.status == "registration") &&
+        (q: Quest) =>
+          (q.status == quest_status_enum.ongoing ||
+            q.status == quest_status_enum.paused ||
+            q.status == quest_status_enum.registration) &&
           confirmedPlayQuestIds.includes(q.id)
       );
     },
-    async doRegister(questId) {
+    async doRegister(questId: number) {
       try {
         this.questId = questId;
         const regQuest = await this.getQuestById(questId);
-        if (["ongoing", "registration"].indexOf(regQuest.status) < 0) {
+        if (
+          [quest_status_enum.ongoing, quest_status_enum.registration].indexOf(
+            regQuest.status
+          ) < 0
+        ) {
           throw `Can not register quest in ${regQuest.status} status`;
         }
         let payload = {
@@ -227,9 +239,12 @@ export default {
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),
     ]);
-    this.isAdmin = this.hasPermission("guildAdmin", this.currentGuildId);
+    this.isAdmin = this.hasPermission(
+      permission_enum.guildAdmin,
+      this.currentGuildId
+    );
     const canRegisterToQuest = this.hasPermission(
-      "joinQuest",
+      permission_enum.joinQuest,
       this.currentGuildId
     );
     if (!canRegisterToQuest) {

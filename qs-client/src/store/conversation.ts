@@ -1,5 +1,6 @@
 import MyVapi from "./base";
 import { ConversationNode } from "../types";
+import { ibis_node_type_enum, publication_state_enum } from "../enums";
 
 export interface ConversationState extends Object {
   node?: ConversationNode;
@@ -119,15 +120,15 @@ export const conversation = new MyVapi<ConversationState>({
           (node: ConversationNode) => node.id == node_id
         );
         if (node && userId) {
-          if (node.status == "draft") {
+          if (node.status == publication_state_enum.private_draft) {
             return node.creator == userId;
             // TODO: role_draft
-          } else if (node.status == "guild_draft") {
+          } else if (node.status == publication_state_enum.guild_draft) {
             const casting = MyVapi.store.getters["quests/castingInQuest"](
               node.quest_id
             );
             return casting?.guild_id == node.guild_id;
-          } else if (node.status == "proposed") {
+          } else if (node.status == publication_state_enum.proposed) {
             return MyVapi.store.getters["hasPermission"](
               "guild_admin",
               node.guild_id,

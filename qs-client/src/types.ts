@@ -1,16 +1,24 @@
+import {
+  permission_type,
+  registration_status_type,
+  quest_status_type,
+  ibis_node_type_type,
+  publication_state_type,
+} from "./enums";
+
 export interface GuildMembership {
   guild_id: number;
   member_id: number;
-  permissions: string[];
+  permissions: permission_type[];
   available_roles?: string[];
-  status: string;
+  status: registration_status_type;
   created_at: string;
   updated_at: string;
 }
 export interface QuestMembership {
   quest_id: number;
   member_id: number;
-  permissions: string[];
+  permissions: permission_type[];
   confirmed: boolean;
   created_at: string;
   updated_at: string;
@@ -19,9 +27,9 @@ export interface Casting {
   guild_id: number;
   quest_id: number;
   member_id: number;
-  permissions: string[];
+  permissions: permission_type[];
   roles?: string[];
-  status: string;
+  status: registration_status_type;
   created_at: string;
   updated_at: string;
 }
@@ -34,7 +42,7 @@ export interface Member {
   created_at: string;
   updated_at: string;
   name: string;
-  permissions: string[];
+  permissions: permission_type[];
   guild_membership?: GuildMembership[];
   quest_membership?: QuestMembership[];
   casting?: Casting[];
@@ -43,7 +51,7 @@ export interface Member {
 export interface GamePlay {
   quest_id: number;
   guild_id: number;
-  status: string;
+  status: registration_status_type;
   created_at: string;
   updated_at: string;
   accepted_at?: string;
@@ -57,7 +65,7 @@ export interface Quest {
   description?: string;
   creator: number;
   public: boolean;
-  status: string;
+  status: quest_status_type;
   start?: string;
   end?: string;
   created_at: string;
@@ -74,8 +82,8 @@ export interface ConversationNode {
   creator: number;
   parent: number;
   ancestry: string;
-  node_type: string;
-  status: string;
+  node_type: ibis_node_type_type;
+  status: publication_state_type;
   created_at: string;
   published_at: string;
   title: string;

@@ -166,6 +166,12 @@ import { ConversationState } from "../store/conversation";
 import { QuestsState } from "../store/quests";
 import { GuildsState } from "../store/guilds";
 import { MemberState } from "../store/member";
+import {
+  registration_status_enum,
+  quest_status_enum,
+  permission_enum,
+} from "../enums";
+import { Quest, GamePlay, Casting, GuildMembership } from "../types";
 
 export default {
   props: ["guild_id"],
@@ -283,7 +289,7 @@ export default {
       "setCurrentQuest",
       "addCasting",
     ]),
-    ...mapActions("members", ["fetchMemberById"]),
+    ...mapActions("members", ["ensureMembersOfGuild"]),
     // ...mapGetters('member', ['getUserId']),
     ...mapActions("guilds", [
       "ensureGuild",
@@ -303,31 +309,33 @@ export default {
       // should be useful but unused for now
       // const memb = await this.getGuildMembers();
       const playQuestIds = this.getCurrentGuild.game_play.map(
-        (gp) => gp.quest_id
+        (gp: GamePlay) => gp.quest_id
       );
       this.guildGamePlays = this.getCurrentGuild.game_play.filter(
-        (gp) => gp.status == "confirmed"
+        (gp: GamePlay) => gp.status == registration_status_enum.confirmed
       );
       const confirmedPlayQuestIds = this.guildGamePlays.map(
-        (gp) => gp.quest_id
+        (gp: GamePlay) => gp.quest_id
       );
       if (this.canRegisterToQuest) {
         this.potentialQuests = this.getQuests.filter(
-          (q) =>
-            (q.status == "registration" || q.status == "ongoing") &&
+          (q: Quest) =>
+            (q.status == quest_status_enum.registration ||
+              q.status == quest_status_enum.ongoing) &&
             !confirmedPlayQuestIds.includes(q.id)
         );
       }
       this.pastQuests = this.getQuests.filter(
-        (q) =>
-          (q.status == "finished" || q.status == "scoring") &&
+        (q: Quest) =>
+          (q.status == quest_status_enum.finished ||
+            q.status == quest_status_enum.scoring) &&
           playQuestIds.includes(q.id)
       );
       this.activeQuests = this.getQuests.filter(
-        (q) =>
-          (q.status == "ongoing" ||
-            q.status == "paused" ||
-            q.status == "registration") &&
+        (q: Quest) =>
+          (q.status == quest_status_enum.ongoing ||
+            q.status == quest_status_enum.paused ||
+            q.status == quest_status_enum.registration) &&
           confirmedPlayQuestIds.includes(q.id)
       );
 
@@ -354,7 +362,9 @@ export default {
       // we should not get here without a current quest
       const quest = this.getCurrentQuest;
       await this.fetchMemberById({ params: { id: quest.creator } });
-      const casting = quest.casting?.find((ct) => ct.user_id == this.memberId);
+      const casting = quest.casting?.find(
+        (ct: Casting) => ct.user_id == this.memberId
+      );
       if (casting) {
         this.memberPlaysQuestSomewhere = casting.guild_id;
         if (casting.guild_id == this.currentGuildId) {
@@ -400,19 +410,24 @@ export default {
       const guild_id = this.currentGuildId;
       const registerAllMembers = this.registerAllMembers;
       const calls = this.getCurrentGuild.game_play
-        .filter((gp) => gp.status == "confirmed")
-        .map((gp) =>
+        .filter(
+          (gp: GamePlay) => gp.status == registration_status_enum.confirmed
+        )
+        .map((gp: GamePlay) =>
           registerAllMembers({ params: { guild_id, quest_id: gp.quest_id } })
         );
       await Promise.all(calls);
     },
     findPlayOfGuild(gamePlays) {
       if (gamePlays)
-        return gamePlays.find((gp) => gp.guild_id == this.currentGuildId);
+        return gamePlays.find(
+          (gp: GamePlay) => gp.guild_id == this.currentGuildId
+        );
     },
     findGuildOfCasting(castings) {
       if (castings)
-        return castings.find((ct) => ct.member_id == this.memberId)?.guild_id;
+        return castings.find((ct: Casting) => ct.member_id == this.memberId)
+          ?.guild_id;
     },
     doAddCasting(quest_id) {
       this.addCasting({
@@ -426,9 +441,12 @@ export default {
     checkPermissions() {
       this.isMember = this.isGuildMember(this.currentGuildId);
       if (this.isMember) {
-        this.isAdmin = this.hasPermission("guildAdmin", this.currentGuildId);
+        this.isAdmin = this.hasPermission(
+          permission_enum.guildAdmin,
+          this.currentGuildId
+        );
         this.canRegisterToQuest = this.hasPermission(
-          "joinQuest",
+          permission_enum.joinQuest,
           this.currentGuildId
         );
       }
@@ -437,25 +455,11 @@ export default {
       this.$store.commit("conversation/SHOW_TREE", show);
     },
     async getGuildMembers() {
-      const guildMembers = await this.getMembersByGuildId(this.currentGuildId);
-      const resp = await Promise.all(
-        guildMembers.map(async (player) => {
-          try {
-            const respUser = await this.fetchMemberById(player.member_id);
-            return respUser.data;
-          } catch (error) {
-            console.log("response error", error);
-          }
-        })
-      );
-      for (var i = 0; i < resp.length; i++) {
-        this.members.push(resp[i][0]);
-      }
-      return resp;
+      return this.getMembersOfGuild(this.currentGuildId);
     },
     async getPlayedQuests() {
       const play = this.guildGamePlays;
-      return play.map((gp) => this.getQuestById(gp.quest_id));
+      return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
     },
     async getParentsNode() {
       const nodeId = this.gamePlay[0].focus_node_id;
@@ -491,6 +495,7 @@ export default {
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),
+      this.ensureMembersOfGuild(this.guildId),
     ]);
     this.initialize();
   },

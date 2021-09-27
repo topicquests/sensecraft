@@ -1,6 +1,6 @@
 import MyVapi from "./base";
 import { Guild, GuildMembership, GamePlay, Quest } from "../types";
-
+import { registration_status_enum, permission_enum } from "../enums";
 interface GuildMap {
   [key: number]: Guild;
 }
@@ -171,14 +171,14 @@ export const guilds = new MyVapi<GuildsState>({
           guild?.guild_membership?.find(
             (m: GuildMembership) =>
               m.member_id == MyVapi.store.getters["member/getUserId"] &&
-              m.status == "confirmed"
+              m.status == registration_status_enum.confirmed
           )
         ),
       isGuildMember: (state: GuildsState) => (guild_id: number) =>
         state.guilds[guild_id]?.guild_membership?.find(
           (m: GuildMembership) =>
             m.member_id == MyVapi.store.getters["member/getUserId"] &&
-            m.status == "confirmed"
+            m.status == registration_status_enum.confirmed
         ),
       getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
         const guildId = quest.game_play.map((gp: GamePlay) => gp.guild_id);

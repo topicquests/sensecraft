@@ -26,7 +26,7 @@
           <div class="row justify-start q-pb-lg q-ml-lg">
             <q-select
               v-model="quest.status"
-              :options="quest_status_enum"
+              :options="quest_status_list"
               label="Status"
               style="width: 25%"
             />
@@ -87,7 +87,7 @@
           <div class="row justify-start q-pb-lg q-ml-lg">
             <q-select
               v-model="node.status"
-              :options="publication_state_enum"
+              :options="publication_state_list"
               label="Status"
               style="width: 25%"
             />
@@ -123,8 +123,8 @@ import member from "../components/member.vue";
 import btnQuestion from "../components/btn-question.vue";
 import app from "../App.vue";
 import {
-  quest_status_enum,
-  publication_state_enum,
+  quest_status_list,
+  publication_state_list,
   public_private_bool,
 } from "../enums";
 
@@ -132,8 +132,8 @@ export default {
   data() {
     return {
       public_private_bool,
-      quest_status_enum,
-      publication_state_enum,
+      quest_status_list,
+      publication_state_list,
       defaultNode: {
         title: "",
         description: "",
