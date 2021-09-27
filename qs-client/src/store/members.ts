@@ -122,7 +122,7 @@ export const members = new MyVapi<MembersState>({
       },
       ensureMemberById: async (context, id: number) => {
         if (!context.state.members[id]) {
-          await context.dispatch("fetchMemberById", { id });
+          await context.dispatch("fetchMemberById", { params: { id } });
         }
       },
       ensureMembersOfGuild: async (context, guildId) => {
@@ -131,7 +131,9 @@ export const members = new MyVapi<MembersState>({
           force: true,
         });
         const guild = MyVapi.store.getters["guilds/getGuildById"](guildId);
-        let membersId = guild.guild_membership.map((mp) => mp.member_id);
+        let membersId: number[] = guild.guild_membership.map(
+          (mp) => mp.member_id
+        );
         membersId = membersId.filter((id) => !context.state.members[id]);
         if (membersId.length > 0) {
           await context.dispatch("fetchMemberById", {
@@ -145,10 +147,16 @@ export const members = new MyVapi<MembersState>({
           full: true,
         });
         const quest = MyVapi.store.getters["quests/getQuestById"](questId);
-        let membersId = quest.casting.map((mp) => mp.member_id);
-        membersId.concat(quest.quest_membership.map((mp) => mp.member_id));
+        let membersId: number[] = quest.casting.map(
+          (mp: Casting) => mp.member_id
+        );
+        membersId.concat(
+          quest.quest_membership.map((mp: QuestMembership) => mp.member_id)
+        );
         membersId = [...new Set(membersId)];
-        membersId = membersId.filter((id) => !context.state.members[id]);
+        membersId = membersId.filter(
+          (id: number) => !context.state.members[id]
+        );
         if (membersId.length > 0) {
           await context.dispatch("fetchMemberById", {
             params: { id: membersId },

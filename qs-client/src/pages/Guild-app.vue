@@ -171,7 +171,7 @@ import {
   quest_status_enum,
   permission_enum,
 } from "../enums";
-import { Quest, GamePlay, Casting, GuildMembership } from "../types";
+import { Quest, GamePlay, Casting, ConversationNode } from "../types";
 
 export default {
   props: ["guild_id"],
@@ -281,8 +281,9 @@ export default {
   },
   methods: {
     ...mapActions("conversation", [
-      "fetchConversationNeighbourhood",
+      "ensureConversationNeighbourhood",
       "fetchRootNode",
+      "resetConversation",
     ]),
     ...mapActions("quests", [
       "ensureAllQuests",
@@ -347,7 +348,7 @@ export default {
       var quest_id = this.currentQuestId;
       if (
         quest_id &&
-        !this.guildGamePlays.find((gp) => gp.quest_id == quest_id)
+        !this.guildGamePlays.find((gp: GamePlay) => gp.quest_id == quest_id)
       ) {
         quest_id = null;
       }
@@ -361,7 +362,7 @@ export default {
     async onCurrentQuestChange() {
       // we should not get here without a current quest
       const quest = this.getCurrentQuest;
-      await this.ensureMemberById({ params: { id: quest.creator } });
+      await this.ensureMemberById(quest.creator);
       const casting = quest.casting?.find(
         (ct: Casting) => ct.member_id == this.memberId
       );
@@ -380,16 +381,16 @@ export default {
         node_id = this.rootNode?.id;
       }
       if (node_id) {
-        await this.fetchConversationNeighbourhood({
-          params: { guild, node_id },
-        });
-        this.focusNode = this.nodes.find((n) => n.id == node_id);
+        await this.ensureConversationNeighbourhood({ node_id, guild });
+        this.focusNode = this.nodes.find(
+          (n: ConversationNode) => n.id == node_id
+        );
         this.selectedNode = this.focusNode;
       } else {
         // ill-constructed quest
         this.focusNode = null;
         this.selectedNode = null;
-        this.$store.commit("RESET_CONVERSATION");
+        await this.resetConversation();
       }
       return "success";
     },
