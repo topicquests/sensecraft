@@ -329,7 +329,6 @@ export default {
       "registerQuest",
       "joinGuild",
       "setCurrentGuild",
-      "setFocusNodeId",
       "addGuildMembership",
       "ensureGuildsPlayingQuest",
     ]),
@@ -377,7 +376,8 @@ export default {
       return this.castingInQuest(null, member_id)?.guild_id;
     },
     playingAsGuild(member_id) {
-      return this.castingInQuest(null, member_id);
+      const guild_id = this.playingAsGuildId(member_id);
+      if (guild_id) return this.getGuildById(guild_id);
     },
     async initializeQuest() {
       var quest_id = this.currentQuestId;
@@ -500,31 +500,33 @@ export default {
       }
       return [];
     },
-    async getPlayedQuests() {
+    getPlayedQuests() {
       const play = this.guildGamePlays;
       return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
     },
-    async getParentsNode() {
+    getParentsNode() {
       const nodeId = this.gamePlay[0].focus_node_id;
       if (nodeId) {
-        const selectedNode = await this.getParentNode(nodeId);
+        const selectedNode = this.getParentNode(nodeId);
         return selectedNode;
       }
       return;
     },
+    /* TODO
     async setFocusNode() {
       let payload = {
         guild_id: this.currentGuildId,
         quest_id: this.questId,
       };
       const conv = await this.setConversationQuest(payload.quest_id);
-      const gpResponse = await this.getGamePlayByGuildIdAndQuestId(payload);
+      const gpResponse = this.getGamePlayByGuildIdAndQuestId(payload);
       gpResponse[0].focus_node_id = conv[0].id;
       const focus = await this.setFocusNodeId(gpResponse[0]);
-      const game_play = await this.getGamePlayByGuildIdAndQuestId(payload);
+      const game_play = this.getGamePlayByGuildIdAndQuestId(payload);
       this.gamePlay = [...game_play];
       return "focus node set";
     },
+    */
     getQuestCreator() {
       const quest = this.getCurrentQuest;
       if (quest) {
