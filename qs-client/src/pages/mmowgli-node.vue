@@ -176,10 +176,10 @@ export default {
     isAuthenticated() {
       return this.member != null;
     },
-  },
-  methods: {
     ...mapGetters("quests", ["getQuestById", "getQuests"]),
     ...mapGetters("conversation", ["canEdit", "getConversationById"]),
+  },
+  methods: {
     ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
     ...mapActions("guilds", ["ensureAllGuilds"]),
     async initialize(id = null) {

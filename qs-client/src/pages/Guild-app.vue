@@ -303,6 +303,7 @@ export default {
       rootNode: (state: ConversationState) => state.conversationRoot,
     }),
     ...mapGetters(["hasPermission"]),
+    // ...mapGetters('member', ['getUserId']),
   },
   watch: {
     currentQuestId: "onCurrentQuestChange",
@@ -319,7 +320,6 @@ export default {
       "addCasting",
     ]),
     ...mapActions("members", ["ensureMembersOfGuild", "ensureMemberById"]),
-    // ...mapGetters('member', ['getUserId']),
     ...mapActions("guilds", [
       "ensureGuild",
       "getMemberByGuildIdandUserId",

@@ -113,9 +113,11 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapGetters("member", ["getUserId", "getUserEmail"]),
+  },
   methods: {
     ...mapActions("member", ["signin", "ensureLoginUser"]),
-    ...mapGetters("member", ["getUserId", "getUserEmail"]),
     async doLogin() {
       try {
         this.formData.signonEmail = this.formData.signonEmail

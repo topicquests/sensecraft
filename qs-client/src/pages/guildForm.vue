@@ -82,13 +82,12 @@ export default {
   },
   methods: {
     //...mapActions('quests', ['quest/createQuests']),
-    ...mapActions("guilds", ["createGuild"]),
-    ...mapGetters("guilds", ["getGuildById"]),
+    ...mapActions("guilds", ["createGuild", "fetchGuildById"]),
 
     async doSubmit() {
       console.log("wtf");
       const res = await this.createGuild({ data: this.guild });
-      const guild = await this.getGuildById(res.data.id);
+      const guild = await this.fetchGuildById(res.data.id);
       this.$router.push({ name: "guild_edit", params: { guild_id: guild.id } });
     },
   },
