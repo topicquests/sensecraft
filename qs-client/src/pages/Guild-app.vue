@@ -392,7 +392,7 @@ export default {
         await this.setCurrentQuest(gamePlay.quest_id);
       }
       // TODO: figure out why is this not triggered reliably by the watch and the change above?
-      this.onCurrentQuestChange();
+      await this.onCurrentQuestChange();
     },
     async onCurrentQuestChange() {
       // we should not get here without a current quest

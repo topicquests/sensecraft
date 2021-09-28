@@ -41,7 +41,9 @@ export const conversation = new MyVapi<ConversationState>({
         state.neighbourhoodRoot = null;
       }
       state.conversation = payload.data;
-      state.conversationRoot = data.find((node) => node.parent_id === null);
+      state.conversationRoot = data.find(
+        (node: ConversationNode) => node.parent_id === null
+      );
     },
   })
   .get({
@@ -82,7 +84,7 @@ export const conversation = new MyVapi<ConversationState>({
     path: "/conversation_node",
     onSuccess: (state: ConversationState, res, axios, { params, data }) => {
       state.node = res.data[0] as ConversationNode;
-      if (!state.node.parent) {
+      if (!state.node.parent_id) {
         state.conversationRoot = state.node;
       }
     },
@@ -96,7 +98,9 @@ export const conversation = new MyVapi<ConversationState>({
     },
     onSuccess: (state: ConversationState, res, axios, { data }) => {
       const node = res.data[0];
-      const conversation = state.conversation.filter((q) => q.id !== node.id);
+      const conversation = state.conversation.filter(
+        (q: ConversationNode) => q.id !== node.id
+      );
       conversation.push(node);
       state.conversation = conversation;
       state.node = node;
@@ -111,7 +115,9 @@ export const conversation = new MyVapi<ConversationState>({
       getConversation: (state: ConversationState): ConversationNode[] =>
         state.conversation,
       getConversationNodeById: (state: ConversationState) => (id: number) =>
-        state.conversation.find((node) => node.id == id) as ConversationNode,
+        state.conversation.find(
+          (node: ConversationNode) => node.id == id
+        ) as ConversationNode,
       getRootNode: (state: ConversationState) => state.conversationRoot,
       getNeighbourhood: (state: ConversationState) => state.neighbourhood,
       canEdit: (state: ConversationState) => (node_id: number) => {

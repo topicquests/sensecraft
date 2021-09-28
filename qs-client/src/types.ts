@@ -80,7 +80,7 @@ export interface ConversationNode {
   quest_id: number;
   guild_id?: number;
   creator: number;
-  parent: number;
+  parent_id?: number;
   ancestry: string;
   node_type: ibis_node_type_type;
   status: publication_state_type;

@@ -1,7 +1,7 @@
 import MyVapi from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
-import { Member } from "../types";
+import { Member, GuildMembership, QuestMembership, Casting } from "../types";
 
 export interface MemberState {
   member: Member;
@@ -162,14 +162,14 @@ export const member = new MyVapi<MemberState>({
   // Step 4
   .getVuexStore({
     getters: {
-      getUser: (state) => state.member,
-      getUserEmail: (state) => state.email,
-      getUserId: (state) => state.member?.id,
-      getUserById: (state) => (id: number) =>
+      getUser: (state: MemberState) => state.member,
+      getUserEmail: (state: MemberState) => state.email,
+      getUserId: (state: MemberState) => state.member?.id,
+      getUserById: (state: MemberState) => (id: number) =>
         state.member?.id == id ? state.member : null,
     },
     mutations: {
-      LOGOUT: (state) => {
+      LOGOUT: (state: MemberState) => {
         window.localStorage.removeItem("token");
         window.localStorage.removeItem("email");
         window.localStorage.removeItem("tokenExpiry");
@@ -179,7 +179,7 @@ export const member = new MyVapi<MemberState>({
         if (state.member) {
           const castings =
             state.member.casting.filter(
-              (c) => c.quest_id != casting.quest_id
+              (c: Casting) => c.quest_id != casting.quest_id
             ) || [];
           castings.push(casting);
           state.member.casting = castings;
@@ -189,7 +189,7 @@ export const member = new MyVapi<MemberState>({
         if (state.member) {
           const memberships =
             state.member.guild_membership.filter(
-              (m) => m.guild_id != membership.guild_id
+              (m: GuildMembership) => m.guild_id != membership.guild_id
             ) || [];
           memberships.push(membership);
           state.member.guild_membership = memberships;
@@ -199,7 +199,7 @@ export const member = new MyVapi<MemberState>({
         if (state.member) {
           const memberships =
             state.member.quest_membership.filter(
-              (m) => m.quest_id != membership.quest_id
+              (m: QuestMembership) => m.quest_id != membership.quest_id
             ) || [];
           memberships.push(membership);
           state.member.quest_membership = memberships;

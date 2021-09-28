@@ -229,7 +229,9 @@ export default {
     },
     findPlayOfGuild(gamePlays) {
       if (gamePlays)
-        return gamePlays.find((gp) => gp.guild_id == this.currentGuildId);
+        return gamePlays.find(
+          (gp: GamePlay) => gp.guild_id == this.currentGuildId
+        );
     },
   },
   async beforeMount() {

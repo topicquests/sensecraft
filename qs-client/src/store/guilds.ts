@@ -47,12 +47,16 @@ export const guilds = new MyVapi<GuildsState>({
     onSuccess: (state: GuildsState, res, axios, actionParams) => {
       state.guilds = {
         ...state.guilds,
-        ...Object.fromEntries(res.data.map((guild) => [guild.id, guild])),
+        ...Object.fromEntries(
+          res.data.map((guild: Guild) => [guild.id, guild])
+        ),
       };
       if (actionParams.full) {
         state.fullGuilds = {
           ...state.fullGuilds,
-          ...Object.fromEntries(res.data.map((guild) => [guild.id, true])),
+          ...Object.fromEntries(
+            res.data.map((guild: Guild) => [guild.id, true])
+          ),
         };
       }
     },
@@ -76,10 +80,10 @@ export const guilds = new MyVapi<GuildsState>({
     },
     onSuccess: (state: GuildsState, res, axios, actionParams) => {
       const fullGuilds = Object.values(state.guilds).filter(
-        (guild) => state.fullGuilds[guild.id]
+        (guild: Guild) => state.fullGuilds[guild.id]
       );
       const guilds = Object.fromEntries(
-        res.data.map((guild) => [guild.id, guild])
+        res.data.map((guild: Guild) => [guild.id, guild])
       );
       for (const guild of fullGuilds) {
         if (guilds[guild.id]) {
@@ -144,7 +148,7 @@ export const guilds = new MyVapi<GuildsState>({
       if (guild) {
         const memberships =
           guild.guild_membership?.filter(
-            (gp) => gp.guild_id !== membership.guild_id
+            (gp: GuildMembership) => gp.guild_id !== membership.guild_id
           ) || [];
         memberships.push(membership);
         guild.guild_membership = memberships;
@@ -161,8 +165,6 @@ export const guilds = new MyVapi<GuildsState>({
   // Step 4
   .getVuexStore({
     getters: {
-      getGuildsByStatus: (state: GuildsState) => (status: string) =>
-        Object.values(state.guilds).filter((guild) => guild.status == status),
       getGuilds: (state: GuildsState) => Object.values(state.guilds),
       getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
       getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
@@ -236,11 +238,15 @@ export const guilds = new MyVapi<GuildsState>({
           full: true,
         });
         const quest = MyVapi.store.getters["quests/getQuestById"](quest_id);
-        let guildId = quest.game_play.map((gp) => gp.guild_id);
+        let guildId: number[] = quest.game_play.map(
+          (gp: GamePlay) => gp.guild_id
+        );
         if (full) {
-          guildId = guildId.filter((id) => !context.state.fullGuilds[id]);
+          guildId = guildId.filter(
+            (id: number) => !context.state.fullGuilds[id]
+          );
         } else {
-          guildId = guildId.filter((id) => !context.state.guilds[id]);
+          guildId = guildId.filter((id: number) => !context.state.guilds[id]);
         }
         if (guildId.length > 0) {
           await context.dispatch("fetchGuilds", {
@@ -270,7 +276,7 @@ export const guilds = new MyVapi<GuildsState>({
         if (guild) {
           const game_plays =
             guild.game_play?.filter(
-              (gp) => gp.quest_id !== game_play.quest_id
+              (gp: GamePlay) => gp.quest_id !== game_play.quest_id
             ) || [];
           game_plays.push(game_play);
           guild.game_play = game_plays;

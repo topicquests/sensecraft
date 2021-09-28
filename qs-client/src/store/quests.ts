@@ -1,6 +1,6 @@
 import MyVapi from "./base";
-import { Quest, Casting } from "../types";
-
+import { Quest, Casting, QuestMembership, GamePlay } from "../types";
+import { quest_status_enum } from "../enums";
 interface QuestMap {
   [key: number]: Quest;
 }
@@ -46,12 +46,16 @@ export const quests = new MyVapi<QuestsState>({
     onSuccess: (state: QuestsState, res, axios, actionParams) => {
       state.quests = {
         ...state.quests,
-        ...Object.fromEntries(res.data.map((quest) => [quest.id, quest])),
+        ...Object.fromEntries(
+          res.data.map((quest: Quest) => [quest.id, quest])
+        ),
       };
       if (actionParams.full) {
         state.fullQuests = {
           ...state.fullQuests,
-          ...Object.fromEntries(res.data.map((quest) => [quest.id, true])),
+          ...Object.fromEntries(
+            res.data.map((quest: Quest) => [quest.id, true])
+          ),
         };
       }
     },
@@ -75,10 +79,10 @@ export const quests = new MyVapi<QuestsState>({
     },
     onSuccess: (state: QuestsState, res, axios, actionParams) => {
       const fullQuests = Object.values(state.quests).filter(
-        (quest) => state.fullQuests[quest.id]
+        (quest: Quest) => state.fullQuests[quest.id]
       );
       const quests = Object.fromEntries(
-        res.data.map((quest) => [quest.id, quest])
+        res.data.map((quest: Quest) => [quest.id, quest])
       );
       for (const quest of fullQuests) {
         if (quests[quest.id]) {
@@ -142,7 +146,7 @@ export const quests = new MyVapi<QuestsState>({
       if (quest) {
         const memberships =
           quest.quest_membership?.filter(
-            (gp) => gp.quest_id !== membership.quest_id
+            (gp: QuestMembership) => gp.quest_id !== membership.quest_id
           ) || [];
         memberships.push(membership);
         quest.quest_membership = memberships;
@@ -172,8 +176,9 @@ export const quests = new MyVapi<QuestsState>({
       const quest = state.quests[game_play.quest_id];
       if (quest) {
         const game_plays =
-          quest.game_play?.filter((gp) => gp.quest_id !== game_play.quest_id) ||
-          [];
+          quest.game_play?.filter(
+            (gp: GamePlay) => gp.quest_id !== game_play.quest_id
+          ) || [];
         game_plays.push(game_play);
         quest.game_play = game_plays;
       }
@@ -200,25 +205,25 @@ export const quests = new MyVapi<QuestsState>({
   // Step 4
   .getVuexStore({
     getters: {
-      getQuestsByStatus: (state: QuestsState) => (status) =>
+      getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
         Object.values(state.quests).filter(
           (quest: Quest) => quest.status == status
         ),
       getQuests: (state: QuestsState) => Object.values(state.quests),
-      getQuestById: (state: QuestsState) => (id) => state.quests[id],
+      getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
       getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
       getMyQuests: (state: QuestsState) => {
         const member_id = MyVapi.store.getters["member/getUserId"];
         return Object.values(state.quests).filter((quest: Quest) =>
           quest?.quest_membership?.find(
-            (m) => m.member_id == member_id && m.confirmed
+            (m: QuestMembership) => m.member_id == member_id && m.confirmed
           )
         );
       },
       getPlayingQuests: (state: QuestsState) => {
         const member_id = MyVapi.store.getters["member/getUserId"];
         return Object.values(state.quests).filter((quest: Quest) =>
-          quest.casting?.find((c) => c.member_id == member_id)
+          quest.casting?.find((c: Casting) => c.member_id == member_id)
         );
       },
       getPlayers: (state: QuestsState) => (quest_id: number) =>
@@ -235,7 +240,7 @@ export const quests = new MyVapi<QuestsState>({
       isQuestMember: (state: QuestsState) => (quest_id: number) => {
         const member_id = MyVapi.store.getters["member/getUserId"];
         return state.quests[quest_id]?.quest_membership?.find(
-          (m) => m.member_id == member_id && m.confirmed
+          (m: QuestMembership) => m.member_id == member_id && m.confirmed
         );
       },
       castingInQuest:
@@ -243,7 +248,7 @@ export const quests = new MyVapi<QuestsState>({
           member_id = member_id || MyVapi.store.getters["member/getUserId"];
           quest_id = quest_id || state.currentQuest;
           return state.quests[quest_id]?.casting?.find(
-            (c) => c.member_id == member_id
+            (c: Casting) => c.member_id == member_id
           );
         },
     },
