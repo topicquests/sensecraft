@@ -2,12 +2,16 @@ import MyVapi from "./base";
 import { ConversationNode } from "../types";
 import { ibis_node_type_enum, publication_state_enum } from "../enums";
 
+interface ConversationMap {
+  [key: number]: ConversationNode;
+}
+
 export interface ConversationState extends Object {
   node?: ConversationNode;
   currentQuest?: number;
-  conversation: ConversationNode[];
+  conversation: ConversationMap;
   neighbourhoodRoot?: number;
-  neighbourhood: ConversationNode[];
+  neighbourhood: ConversationMap;
   conversationRoot?: ConversationNode;
 }
 
@@ -15,9 +19,9 @@ export const conversation = new MyVapi<ConversationState>({
   state: {
     node: null,
     currentQuest: null,
-    conversation: [],
+    conversation: {},
     neighbourhoodRoot: null,
-    neighbourhood: [],
+    neighbourhood: {},
     conversationRoot: null,
   },
 })
@@ -30,17 +34,15 @@ export const conversation = new MyVapi<ConversationState>({
     onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       state.node = payload.data[0];
       if (state.neighbourhoodRoot) {
-        const neighbourhoodRoot = state.neighbourhood.find(
-          (n) => n.id === state.neighbourhoodRoot
-        );
+        const neighbourhoodRoot = state.neighbourhood[state.neighbourhoodRoot];
         if (
           neighbourhoodRoot &&
           state.node.ancestry.startsWith(neighbourhoodRoot.ancestry)
         ) {
-          const neighbourhood = state.neighbourhood.filter(
-            (n) => n.id !== state.node.id
-          );
-          state.neighbourhood = [...neighbourhood, state.node];
+          state.neighbourhood = {
+            ...state.neighbourhood,
+            [state.node.id]: state.node,
+          };
         }
       }
     },
@@ -54,11 +56,13 @@ export const conversation = new MyVapi<ConversationState>({
     onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
-        state.neighbourhood = [];
+        state.neighbourhood = {};
         state.neighbourhoodRoot = null;
       }
-      state.conversation = payload.data;
-      state.conversationRoot = data.find(
+      state.conversation = Object.fromEntries(
+        payload.data.map((node: ConversationNode) => [node.id, node])
+      );
+      state.conversationRoot = payload.data.find(
         (node: ConversationNode) => node.parent_id === null
       );
     },
@@ -72,11 +76,12 @@ export const conversation = new MyVapi<ConversationState>({
     onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
-        state.conversation = [];
-        state.neighbourhood = [];
+        state.conversation = {};
+        state.neighbourhood = {};
         state.neighbourhoodRoot = null;
       }
       state.conversationRoot = payload.data[0] as ConversationNode;
+      // add to neighbourhood if appropriate?
     },
   })
   .call({
@@ -88,12 +93,20 @@ export const conversation = new MyVapi<ConversationState>({
       /*
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id
-        state.conversation = []
+        state.conversation = {}
         state.conversationRoot = null
       }
       */
-      state.neighbourhood = payload.data;
+      state.neighbourhood = Object.fromEntries(
+        payload.data.map((node: ConversationNode) => [node.id, node])
+      );
       state.neighbourhoodRoot = params.node_id;
+      const root = payload.data.find(
+        (node: ConversationNode) => node.parent_id == null
+      );
+      if (root) {
+        state.conversationRoot = root;
+      }
     },
   })
   .post({
@@ -115,13 +128,9 @@ export const conversation = new MyVapi<ConversationState>({
     },
     onSuccess: (state: ConversationState, res, axios, { data }) => {
       const node = res.data[0];
-      const conversation = state.conversation.filter(
-        (q: ConversationNode) => q.id !== node.id
-      );
-      conversation.push(node);
-      state.conversation = conversation;
+      state.conversation = { ...state.conversation, [node.id]: node };
       state.node = node;
-      if (!node.id) {
+      if (!node.parent_id) {
         state.conversationRoot = node;
       }
     },
@@ -130,20 +139,21 @@ export const conversation = new MyVapi<ConversationState>({
   .getVuexStore({
     getters: {
       getConversation: (state: ConversationState): ConversationNode[] =>
-        state.conversation,
+        Object.values(state.conversation),
       getConversationNodeById: (state: ConversationState) => (id: number) =>
-        state.neighbourhood.find((node: ConversationNode) => node.id == id) ||
-        state.conversation.find((node: ConversationNode) => node.id == id) ||
+        state.neighbourhood[id] ||
+        state.conversation[id] ||
         ((state.conversationRoot?.id == id
           ? state.conversationRoot
           : null) as ConversationNode),
       getRootNode: (state: ConversationState) => state.conversationRoot,
-      getNeighbourhood: (state: ConversationState) => state.neighbourhood,
+      getNeighbourhood: (state: ConversationState): ConversationNode[] =>
+        Object.values(state.neighbourhood),
+      getFocusNode: (state: ConversationState) =>
+        state.neighbourhood[state.neighbourhoodRoot],
       canEdit: (state: ConversationState) => (node_id: number) => {
         const userId = MyVapi.store.getters["member/getUserId"];
-        const node = state.conversation.find(
-          (node: ConversationNode) => node.id == node_id
-        );
+        const node = state.conversation[node_id];
         if (node && userId) {
           if (node.status == publication_state_enum.private_draft) {
             return node.creator == userId;
@@ -172,7 +182,7 @@ export const conversation = new MyVapi<ConversationState>({
       ensureConversation: async (context, quest_id: number) => {
         if (
           quest_id != context.state.currentQuest ||
-          context.state.conversation.length == 0
+          Object.keys(context.state.conversation).length == 0
         ) {
           await context.dispatch("fetchConversation", { params: { quest_id } });
         }
@@ -191,7 +201,7 @@ export const conversation = new MyVapi<ConversationState>({
       ) => {
         if (
           node_id != context.state.neighbourhoodRoot ||
-          context.state.neighbourhood.length == 0
+          Object.keys(context.state.neighbourhood).length == 0
         ) {
           await context.dispatch("fetchConversationNeighbourhood", {
             params: { node_id, guild },
@@ -201,9 +211,9 @@ export const conversation = new MyVapi<ConversationState>({
     },
     mutations: {
       RESET_CONVERSATION: (state: ConversationState) => {
-        state.conversation = [];
+        state.conversation = {};
         state.conversationRoot = null;
-        state.neighbourhood = [];
+        state.neighbourhood = {};
         state.neighbourhoodRoot = null;
         state.currentQuest = null;
       },

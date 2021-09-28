@@ -110,8 +110,8 @@
         </q-card>
       </div>
       <div class="col-12 col-md q-pa-md">
-        <div v-if="selectedNode" class="col-12 col-md q-pa-md">
-          <nodeCard v-bind:nodeCard="selectedNode"></nodeCard>
+        <div v-if="getFocusNode" class="col-12 col-md q-pa-md">
+          <nodeCard v-bind:nodeCard="getFocusNode"></nodeCard>
         </div>
       </div>
       <div
@@ -253,8 +253,6 @@ export default {
       label: "",
       questId: null,
       gamePlay: null,
-      selectedNode: null,
-      focusNode: null,
     };
   },
   components: {
@@ -299,9 +297,9 @@ export default {
       "getCurrentGuild",
     ]),
     ...mapState("conversation", {
-      nodes: (state: ConversationState) => state.neighbourhood,
       rootNode: (state: ConversationState) => state.conversationRoot,
     }),
+    ...mapGetters("conversation", ["getFocusNode"]),
     ...mapGetters(["hasPermission"]),
     // ...mapGetters('member', ['getUserId']),
   },
@@ -311,7 +309,7 @@ export default {
   methods: {
     ...mapActions("conversation", [
       "ensureConversationNeighbourhood",
-      "fetchRootNode",
+      "ensureRootNode",
       "resetConversation",
     ]),
     ...mapActions("quests", [
@@ -416,19 +414,12 @@ export default {
       const gamePlay = this.findPlayOfGuild(quest.game_play);
       var node_id = gamePlay.focus_node_id;
       if (!node_id) {
-        await this.fetchRootNode({ params: { quest_id: this.currentQuestId } });
+        await this.ensureRootNode(this.currentQuestId);
         node_id = this.rootNode?.id;
       }
       if (node_id) {
         await this.ensureConversationNeighbourhood({ node_id, guild });
-        this.focusNode = this.nodes.find(
-          (n: ConversationNode) => n.id == node_id
-        );
-        this.selectedNode = this.focusNode;
       } else {
-        // ill-constructed quest
-        this.focusNode = null;
-        this.selectedNode = null;
         await this.resetConversation();
       }
       return "success";
@@ -507,8 +498,8 @@ export default {
     getParentsNode() {
       const nodeId = this.gamePlay[0].focus_node_id;
       if (nodeId) {
-        const selectedNode = this.getParentNode(nodeId);
-        return selectedNode;
+        const getFocusNode = this.getParentNode(nodeId);
+        return getFocusNode;
       }
       return;
     },

@@ -56,7 +56,7 @@
     <div id="mySidenav" class="sidenav">
       <div class="q-pa-md q-gutter-sm">
         <q-tree
-          :nodes="treeView"
+          :nodes="getNeighbourhood"
           node-key="id"
           default-expand-all
           :selected.sync="selected"
@@ -152,10 +152,7 @@ export default {
     };
   },
   computed: {
-    ...mapState("conversation", {
-      conversation: (state: ConversationState) => state.conversation,
-      treeView: (state: ConversationState) => state.neighbourhood,
-    }),
+    ...mapGetters("conversation", ["getNeighbourhood", "getConversation"]),
     ...mapGetters(["hasPermission"]),
     ...mapState("member", {
       isAuthenticated: (state: MemberState) => state.isAuthenticated,
