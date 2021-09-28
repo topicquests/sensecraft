@@ -93,6 +93,21 @@
               :key="member"
             >
               {{ member.handle }}
+              <span v-if="playingAsGuildId(member.id)" style="color: black">
+                <span v-if="playingAsGuildId(member.id) == currentGuildId"
+                  >Playing</span
+                >
+                <span v-if="playingAsGuildId(member.id) != currentGuildId"
+                  >Playing in
+                  <router-link
+                    :to="{
+                      name: 'guild',
+                      params: { guild_id: playingAsGuildId(member.id) },
+                    }"
+                    >{{ playingAsGuild(member.id).name }}</router-link
+                  ></span
+                >
+              </span>
             </li>
           </ul>
         </q-card>
@@ -263,7 +278,12 @@ export default {
         this.setCurrentQuest(value);
       },
     },
-    ...mapGetters("quests", ["getQuestById", "getQuests", "getCurrentQuest"]),
+    ...mapGetters("quests", [
+      "getQuestById",
+      "getQuests",
+      "getCurrentQuest",
+      "castingInQuest",
+    ]),
     ...mapState("member", {
       member: (state: MemberState) => state.member,
       memberId: (state: MemberState) => state.member?.id,
@@ -354,6 +374,12 @@ export default {
       if (this.guildGamePlays.length > 0) {
         const response = await this.initializeQuest();
       }
+    },
+    playingAsGuildId(member_id) {
+      return this.castingInQuest(null, member_id)?.guild_id;
+    },
+    playingAsGuild(member_id) {
+      return this.castingInQuest(null, member_id);
     },
     async initializeQuest() {
       var quest_id = this.currentQuestId;
