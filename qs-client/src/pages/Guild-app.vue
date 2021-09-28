@@ -88,7 +88,10 @@
       <div class="col-12 col-md q-pa-md">
         <q-card>
           <ul style="font-size: 20px; color: red; background: lightblue">
-            <li v-for="member in members" :key="member.id">
+            <li
+              v-for="member in getMembersOfGuild(getCurrentGuild)"
+              :key="member"
+            >
               {{ member.handle }}
             </li>
           </ul>
@@ -268,7 +271,11 @@ export default {
     ...mapState("guilds", {
       currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
-    ...mapGetters("members", ["getMemberById"]),
+    ...mapGetters("members", [
+      "getMemberById",
+      "getMembersOfGuild",
+      "getMemberHandles",
+    ]),
     ...mapGetters("guilds", [
       "isGuildMember",
       "getGuildById",
