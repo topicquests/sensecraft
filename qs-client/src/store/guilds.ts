@@ -166,20 +166,24 @@ export const guilds = new MyVapi<GuildsState>({
       getGuilds: (state: GuildsState) => Object.values(state.guilds),
       getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
       getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
-      getMyGuilds: (state: GuildsState) =>
-        Object.values(state.guilds).filter((guild: Guild) =>
+      getMyGuilds: (state: GuildsState) => {
+        const memberId = MyVapi.store.getters["member/getUserId"];
+        return Object.values(state.guilds).filter((guild: Guild) =>
           guild?.guild_membership?.find(
             (m: GuildMembership) =>
-              m.member_id == MyVapi.store.getters["member/getUserId"] &&
+              m.member_id == memberId &&
               m.status == registration_status_enum.confirmed
           )
-        ),
-      isGuildMember: (state: GuildsState) => (guild_id: number) =>
-        state.guilds[guild_id]?.guild_membership?.find(
+        );
+      },
+      isGuildMember: (state: GuildsState) => (guild_id: number) => {
+        const memberId = MyVapi.store.getters["member/getUserId"];
+        return state.guilds[guild_id]?.guild_membership?.find(
           (m: GuildMembership) =>
-            m.member_id == MyVapi.store.getters["member/getUserId"] &&
+            m.member_id == memberId &&
             m.status == registration_status_enum.confirmed
-        ),
+        );
+      },
       getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
         const guildId = quest.game_play.map((gp: GamePlay) => gp.guild_id);
         return Object.values(state.guilds).filter((guild: Guild) =>
@@ -223,12 +227,15 @@ export const guilds = new MyVapi<GuildsState>({
         await context.dispatch("ensureGuild", { guild_id, full });
         await context.dispatch("setCurrentGuild", guild_id);
       },
-      ensureGuildsPlayingQuest: async (context, { questId, full }) => {
+      ensureGuildsPlayingQuest: async (
+        context,
+        { quest_id, full }: { quest_id: number; full: boolean }
+      ) => {
         await MyVapi.store.dispatch("quests/ensureQuest", {
-          questId,
+          quest_id,
           full: true,
         });
-        const quest = MyVapi.store.getters["quests/getQuestById"](questId);
+        const quest = MyVapi.store.getters["quests/getQuestById"](quest_id);
         let guildId = quest.game_play.map((gp) => gp.guild_id);
         if (full) {
           guildId = guildId.filter((id) => !context.state.fullGuilds[id]);

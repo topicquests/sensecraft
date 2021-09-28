@@ -88,10 +88,7 @@
       <div class="col-12 col-md q-pa-md">
         <q-card>
           <ul style="font-size: 20px; color: red; background: lightblue">
-            <li
-              v-for="member in getMembersOfGuild(getCurrentGuild)"
-              :key="member"
-            >
+            <li v-for="member in getGuildMembers()" :key="member.id">
               {{ member.handle }}
               <span v-if="playingAsGuildId(member.id)" style="color: black">
                 <span v-if="playingAsGuildId(member.id) == currentGuildId"
@@ -334,6 +331,7 @@ export default {
       "setCurrentGuild",
       "setFocusNodeId",
       "addGuildMembership",
+      "ensureGuildsPlayingQuest",
     ]),
     async initialize() {
       await this.setCurrentGuild(this.guildId);
@@ -398,8 +396,12 @@ export default {
     },
     async onCurrentQuestChange() {
       // we should not get here without a current quest
-      const quest = this.getCurrentQuest;
+      const quest: Quest = this.getCurrentQuest;
+      if (!quest) {
+        return;
+      }
       await this.ensureMemberById(quest.creator);
+      await this.ensureGuildsPlayingQuest({ quest_id: quest.id });
       const casting = quest.casting?.find(
         (ct: Casting) => ct.member_id == this.memberId
       );
@@ -492,8 +494,11 @@ export default {
     show_tree(show) {
       this.$store.commit("conversation/SHOW_TREE", show);
     },
-    async getGuildMembers() {
-      return this.getMembersOfGuild(this.currentGuildId);
+    getGuildMembers() {
+      if (this.getCurrentGuild) {
+        return this.getMembersOfGuild(this.getCurrentGuild);
+      }
+      return [];
     },
     async getPlayedQuests() {
       const play = this.guildGamePlays;

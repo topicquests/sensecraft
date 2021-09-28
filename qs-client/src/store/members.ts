@@ -5,6 +5,7 @@ import {
   QuestMembership,
   Quest,
   Casting,
+  Guild,
 } from "../types";
 
 interface MemberMap {
@@ -91,28 +92,18 @@ export const members = new MyVapi<MembersState>({
         Object.values(state.members)
           .map((member: Member) => member.handle)
           .sort(),
-      getMembersOfGuild: (state: MembersState) => (guild) => {
-        const memberIds = guild.guild_membership.map(
-          (gm: GuildMembership) => gm.member_id
-        );
-        return Object.values(state.members).filter((member: Member) =>
-          memberIds.includes(member.id)
-        );
-      },
-      getMembersOfQuest: (state: MembersState) => (quest: Quest) => {
-        const memberIds = quest.quest_membership.map(
-          (qm: QuestMembership) => qm.member_id
-        );
-        return Object.values(state.members).filter((member: Member) =>
-          memberIds.includes(member.id)
-        );
-      },
-      getPlayersOfQuest: (state: MembersState) => (quest: Quest) => {
-        const memberIds = quest.casting.map((c: Casting) => c.member_id);
-        return Object.values(state.members).filter((member: Member) =>
-          memberIds.includes(member.id)
-        );
-      },
+      getMembersOfGuild: (state: MembersState) => (guild: Guild) =>
+        guild.guild_membership
+          .map((gm: GuildMembership) => state.members[gm.member_id])
+          .filter((member) => member),
+      getMembersOfQuest: (state: MembersState) => (quest: Quest) =>
+        quest.quest_membership
+          .map((qm: QuestMembership) => state.members[qm.member_id])
+          .filter((member) => member),
+      getPlayersOfQuest: (state: MembersState) => (quest: Quest) =>
+        quest.casting
+          .map((c: Casting) => state.members[c.member_id])
+          .filter((member) => member),
     },
     actions: {
       ensureAllMembers: async (context) => {
