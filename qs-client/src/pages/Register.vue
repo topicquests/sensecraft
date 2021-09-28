@@ -139,7 +139,6 @@ export default {
           return;
         }
         this.formdata.email = theEmail.toLowerCase();
-        debugger;
         await this.registerUser(this.formdata);
         this.$router.push({ name: "signin" });
       } catch (error) {
