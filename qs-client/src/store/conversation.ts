@@ -90,13 +90,11 @@ export const conversation = new MyVapi<ConversationState>({
     action: "fetchConversationNeighbourhood",
     readOnly: true,
     onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
-      /*
       if (state.currentQuest !== params.quest_id) {
-        state.currentQuest = params.quest_id
-        state.conversation = {}
-        state.conversationRoot = null
+        state.currentQuest = params.quest_id;
+        state.conversation = {};
+        state.conversationRoot = null;
       }
-      */
       state.neighbourhood = Object.fromEntries(
         payload.data.map((node: ConversationNode) => [node.id, node])
       );
