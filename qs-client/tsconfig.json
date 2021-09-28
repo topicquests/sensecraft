@@ -1,9 +1,9 @@
 {
   "extends": "@quasar/app/tsconfig-preset",
   "compilerOptions": {
-    // this would enable stricter inference for data properties on `this`
     "strict": false,
     "downlevelIteration": true,
+    "experimentalDecorators": true,
     "baseUrl": "."
   }
 }

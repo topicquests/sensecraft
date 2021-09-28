@@ -181,80 +181,45 @@ import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
-import { ConversationState } from "../store/conversation";
-import { QuestsState } from "../store/quests";
-import { GuildsState } from "../store/guilds";
-import { MemberState } from "../store/member";
+import {
+  ConversationState,
+  ConversationGetterTypes,
+  ConversationActionTypes,
+} from "../store/conversation";
+import {
+  QuestsState,
+  QuestsActionTypes,
+  QuestsGetterTypes,
+} from "../store/quests";
+import {
+  GuildsState,
+  GuildsGetterTypes,
+  GuildsActionTypes,
+} from "../store/guilds";
+import {
+  MemberState,
+  MemberGetterTypes,
+  MemberActionTypes,
+} from "../store/member";
 import {
   registration_status_enum,
   quest_status_enum,
   permission_enum,
 } from "../enums";
-import { Quest, GamePlay, Casting, ConversationNode } from "../types";
+import {
+  Quest,
+  Guild,
+  GamePlay,
+  Casting,
+  ConversationNode,
+  Member,
+} from "../types";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+import { BaseGetterTypes } from "../store/baseStore";
 
-export default {
-  props: ["guild_id"],
-  data() {
-    return {
-      columns1: [
-        {
-          name: "desc",
-          required: true,
-          label: "Quest",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "status",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "status",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Status",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "start",
-          required: false,
-          label: "Start Date",
-          align: "left",
-          field: "start",
-          sortable: true,
-        },
-        {
-          name: "questNodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-      memberPlaysQuestSomewhere: false,
-      memberPlaysQuestInThisGuild: false,
-      casting: null,
-      guildGamePlays: [],
-      pastQuests: [],
-      activeQuests: [],
-      potentialQuests: [],
-      questGamePlay: [],
-      isMember: false,
-      isAdmin: false,
-      canRegisterToQuest: false,
-      members: [],
-      label: "",
-      questId: null,
-      gamePlay: null,
-    };
-  },
+@Component<GuildPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
@@ -321,7 +286,7 @@ export default {
     ...mapActions("guilds", [
       "ensureGuild",
       "getMemberByGuildIdandUserId",
-      "getGamePlayByGuildIdAndQuestId",
+      // "getGamePlayByGuildIdAndQuestId",
       "getGamePlayByGuildId",
       "getMembersByGuildId",
       "registerQuest",
@@ -330,199 +295,307 @@ export default {
       "addGuildMembership",
       "ensureGuildsPlayingQuest",
     ]),
-    async initialize() {
-      await this.setCurrentGuild(this.guildId);
-      this.checkPermissions();
-      // should be useful but unused for now
-      // const memb = await this.getGuildMembers();
-      const playQuestIds = this.getCurrentGuild.game_play.map(
-        (gp: GamePlay) => gp.quest_id
-      );
-      this.guildGamePlays = this.getCurrentGuild.game_play.filter(
-        (gp: GamePlay) => gp.status == registration_status_enum.confirmed
-      );
-      const confirmedPlayQuestIds = this.guildGamePlays.map(
-        (gp: GamePlay) => gp.quest_id
-      );
-      if (this.canRegisterToQuest) {
-        this.potentialQuests = this.getQuests.filter(
-          (q: Quest) =>
-            (q.status == quest_status_enum.registration ||
-              q.status == quest_status_enum.ongoing) &&
-            !confirmedPlayQuestIds.includes(q.id)
-        );
-      }
-      this.pastQuests = this.getQuests.filter(
-        (q: Quest) =>
-          (q.status == quest_status_enum.finished ||
-            q.status == quest_status_enum.scoring) &&
-          playQuestIds.includes(q.id)
-      );
-      this.activeQuests = this.getQuests.filter(
-        (q: Quest) =>
-          (q.status == quest_status_enum.ongoing ||
-            q.status == quest_status_enum.paused ||
-            q.status == quest_status_enum.registration) &&
-          confirmedPlayQuestIds.includes(q.id)
-      );
-
-      if (this.guildGamePlays.length > 0) {
-        const response = await this.initializeQuest();
-      }
-    },
-    playingAsGuildId(member_id) {
-      return this.castingInQuest(null, member_id)?.guild_id;
-    },
-    playingAsGuild(member_id) {
-      const guild_id = this.playingAsGuildId(member_id);
-      if (guild_id) return this.getGuildById(guild_id);
-    },
-    async initializeQuest() {
-      var quest_id = this.currentQuestId;
-      if (
-        quest_id &&
-        !this.guildGamePlays.find((gp: GamePlay) => gp.quest_id == quest_id)
-      ) {
-        quest_id = null;
-      }
-      if (!quest_id) {
-        const gamePlay = this.guildGamePlays[0];
-        await this.setCurrentQuest(gamePlay.quest_id);
-      }
-      // TODO: figure out why is this not triggered reliably by the watch and the change above?
-      await this.onCurrentQuestChange();
-    },
-    async onCurrentQuestChange() {
-      // we should not get here without a current quest
-      const quest: Quest = this.getCurrentQuest;
-      if (!quest) {
-        return;
-      }
-      await this.ensureMemberById(quest.creator);
-      await this.ensureGuildsPlayingQuest({ quest_id: quest.id });
-      const casting = quest.casting?.find(
-        (ct: Casting) => ct.member_id == this.memberId
-      );
-      if (casting) {
-        this.memberPlaysQuestSomewhere = casting.guild_id;
-        if (casting.guild_id == this.currentGuildId) {
-          this.memberPlaysQuestInThisGuild = true;
-          this.casting = casting;
-        }
-      }
-      const guild = this.currentGuildId;
-      const gamePlay = this.findPlayOfGuild(quest.game_play);
-      var node_id = gamePlay.focus_node_id;
-      if (!node_id) {
-        await this.ensureRootNode(this.currentQuestId);
-        node_id = this.rootNode?.id;
-      }
-      if (node_id) {
-        await this.ensureConversationNeighbourhood({ node_id, guild });
-      } else {
-        await this.resetConversation();
-      }
-      return "success";
-    },
-
-    async joinToGuild() {
-      await this.addGuildMembership({
-        data: { guild_id: this.currentGuildId, member_id: this.memberId },
-      });
-      this.isMember = true;
-      this.$q.notify({
-        type: "positive",
-        message: "You are joining guild " + this.currentGuildId,
-      });
-      return;
-    },
-    async registerAllMembersToQuest() {
-      // This was a temporary fix, let's not do this too often.
-      const guild_id = this.currentGuildId;
-      const registerAllMembers = this.registerAllMembers;
-      const calls = this.getCurrentGuild.game_play
-        .filter(
-          (gp: GamePlay) => gp.status == registration_status_enum.confirmed
-        )
-        .map((gp: GamePlay) =>
-          registerAllMembers({ params: { guild_id, quest_id: gp.quest_id } })
-        );
-      await Promise.all(calls);
-    },
-    findPlayOfGuild(gamePlays) {
-      if (gamePlays)
-        return gamePlays.find(
-          (gp: GamePlay) => gp.guild_id == this.currentGuildId
-        );
-    },
-    findGuildOfCasting(castings) {
-      if (castings)
-        return castings.find((ct: Casting) => ct.member_id == this.memberId)
-          ?.guild_id;
-    },
-    doAddCasting(quest_id) {
-      this.addCasting({
-        data: {
-          quest_id,
-          guild_id: this.currentGuildId,
-          member_id: this.memberId,
-        },
-      });
-    },
-    checkPermissions() {
-      this.isMember = this.isGuildMember(this.currentGuildId);
-      if (this.isMember) {
-        this.isAdmin = this.hasPermission(
-          permission_enum.guildAdmin,
-          this.currentGuildId
-        );
-        this.canRegisterToQuest = this.hasPermission(
-          permission_enum.joinQuest,
-          this.currentGuildId
-        );
-      }
-    },
-    show_tree(show) {
-      this.$store.commit("conversation/SHOW_TREE", show);
-    },
-    getGuildMembers() {
-      if (this.getCurrentGuild) {
-        return this.getMembersOfGuild(this.getCurrentGuild);
-      }
-      return [];
-    },
-    getPlayedQuests() {
-      const play = this.guildGamePlays;
-      return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
-    },
-    getParentsNode() {
-      const nodeId = this.getFocusNode?.parent_id;
-      if (nodeId) {
-        return this.getConversationNodeById(nodeId);
-      }
-    },
-    /* TODO
-    async setFocusNode() {
-      let payload = {
-        guild_id: this.currentGuildId,
-        quest_id: this.questId,
-      };
-      const conv = await this.setConversationQuest(payload.quest_id);
-      const gpResponse = this.getGamePlayByGuildIdAndQuestId(payload);
-      gpResponse[0].focus_node_id = conv[0].id;
-      const focus = await this.setFocusNodeId(gpResponse[0]);
-      const game_play = this.getGamePlayByGuildIdAndQuestId(payload);
-      this.gamePlay = [...game_play];
-      return "focus node set";
-    },
-    */
-    getQuestCreator() {
-      const quest = this.getCurrentQuest;
-      if (quest) {
-        return this.getMemberById(quest.creator);
-      }
-    },
   },
+})
+export default class GuildPage extends Vue {
+  // data
+  columns1 = [
+    {
+      name: "desc",
+      required: true,
+      label: "Quest",
+      align: "left",
+      field: "name",
+      sortable: true,
+    },
+    {
+      name: "status",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "status",
+      sortable: true,
+    },
+    {
+      name: "handle",
+      required: false,
+      label: "Status",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+    {
+      name: "start",
+      required: false,
+      label: "Start Date",
+      align: "left",
+      field: "start",
+      sortable: true,
+    },
+    {
+      name: "questNodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
+  ];
+  guildId: number;
+  memberPlaysQuestSomewhere?: number;
+  memberPlaysQuestInThisGuild = false;
+  casting: Casting;
+  guildGamePlays: GamePlay[] = [];
+  pastQuests: Quest[] = [];
+  activeQuests: Quest[] = [];
+  potentialQuests: Quest[] = [];
+  questGamePlay: GamePlay[] = [];
+  isMember = false;
+  isAdmin = false;
+  canRegisterToQuest = false;
+  members: Member[] = [];
+  label = "";
+  questId: number;
+  gamePlay = null;
+
+  // declare state bindings for TypeScript
+  currentGuildId!: GuildsState["currentGuild"];
+  currentQuestId!: QuestsState["currentQuest"];
+  member!: MemberState["member"];
+  memberId: number;
+  rootNode!: ConversationState["conversationRoot"];
+  currentQuestIdS!: number;
+
+  // declare the computed attributes for Typescript
+  getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  getQuests!: QuestsGetterTypes["getQuests"];
+  getQuestById!: QuestsGetterTypes["getQuestById"];
+  castingInQuest!: QuestsGetterTypes["castingInQuest"];
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  getFocusNode!: ConversationGetterTypes["getFocusNode"];
+  getGuildById!: GuildsGetterTypes["getGuildById"];
+  getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
+  getMemberById!: MembersGetterTypes["getMemberById"];
+  getMemberHandles!: MembersGetterTypes["getMemberHandles"];
+  hasPermission!: BaseGetterTypes["hasPermission"];
+  isGuildMember!: GuildsGetterTypes["isGuildMember"];
+  getParentNode!: ConversationGetterTypes["getConversationNodeById"];
+  getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
+  // getGamePlayByGuildIdAndQuestId!: ReturnType<
+  //   GuildsGetterTypes["getGamePlayByGuildIdAndQuestId"]
+  // >;
+  getGamePlayByGuildId!: (guildId: number) => GamePlay | undefined; // TODO
+
+  // declare the methods for Typescript
+  ensureGuildsPlayingQuest!: GuildsActionTypes["ensureGuildsPlayingQuest"];
+  ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
+  ensureMemberById!: MembersActionTypes["ensureMemberById"];
+  ensureConversationNeighbourhood!: ConversationActionTypes["ensureConversationNeighbourhood"];
+  ensureRootNode!: ConversationActionTypes["ensureRootNode"];
+  setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
+  setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
+  registerAllMembers!: GuildsActionTypes["registerAllMembers"];
+  resetConversation!: ConversationActionTypes["resetConversation"];
+  addGuildMembership!: GuildsActionTypes["addGuildMembership"];
+  addCasting!: QuestsActionTypes["addCasting"];
+  ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
+  ensureGuild!: GuildsActionTypes["ensureGuild"];
+  ensureQuest!: QuestsActionTypes["ensureQuest"];
+  fetchQuestById!: QuestsActionTypes["fetchQuestById"];
+  updateQuest!: QuestsActionTypes["updateQuest"];
+
+  async initialize() {
+    await this.setCurrentGuild(this.guildId);
+    this.checkPermissions();
+    // should be useful but unused for now
+    // const memb = await this.getGuildMembers();
+    const playQuestIds = this.getCurrentGuild.game_play.map(
+      (gp: GamePlay) => gp.quest_id
+    );
+    this.guildGamePlays = this.getCurrentGuild.game_play.filter(
+      (gp: GamePlay) => gp.status == registration_status_enum.confirmed
+    );
+    const confirmedPlayQuestIds = this.guildGamePlays.map(
+      (gp: GamePlay) => gp.quest_id
+    );
+    if (this.canRegisterToQuest) {
+      this.potentialQuests = this.getQuests.filter(
+        (q: Quest) =>
+          (q.status == quest_status_enum.registration ||
+            q.status == quest_status_enum.ongoing) &&
+          !confirmedPlayQuestIds.includes(q.id)
+      );
+    }
+    this.pastQuests = this.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.finished ||
+          q.status == quest_status_enum.scoring) &&
+        playQuestIds.includes(q.id)
+    );
+    this.activeQuests = this.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.ongoing ||
+          q.status == quest_status_enum.paused ||
+          q.status == quest_status_enum.registration) &&
+        confirmedPlayQuestIds.includes(q.id)
+    );
+
+    if (this.guildGamePlays.length > 0) {
+      const response = await this.initializeQuest();
+    }
+  }
+  playingAsGuildId(member_id) {
+    return this.castingInQuest(null, member_id)?.guild_id;
+  }
+  playingAsGuild(member_id) {
+    const guild_id = this.playingAsGuildId(member_id);
+    if (guild_id) return this.getGuildById(guild_id);
+  }
+  async initializeQuest() {
+    var quest_id = this.currentQuestId;
+    if (
+      quest_id &&
+      !this.guildGamePlays.find((gp: GamePlay) => gp.quest_id == quest_id)
+    ) {
+      quest_id = null;
+    }
+    if (!quest_id) {
+      const gamePlay = this.guildGamePlays[0];
+      await this.setCurrentQuest(gamePlay.quest_id);
+    }
+    // TODO: figure out why is this not triggered reliably by the watch and the change above?
+    await this.onCurrentQuestChange();
+  }
+
+  async onCurrentQuestChange() {
+    // we should not get here without a current quest
+    const quest: Quest = this.getCurrentQuest;
+    if (!quest) {
+      return;
+    }
+    await this.ensureMemberById(quest.creator);
+    await this.ensureGuildsPlayingQuest({ quest_id: quest.id });
+    const casting = quest.casting?.find(
+      (ct: Casting) => ct.member_id == this.memberId
+    );
+    if (casting) {
+      this.memberPlaysQuestSomewhere = casting.guild_id;
+      if (casting.guild_id == this.currentGuildId) {
+        this.memberPlaysQuestInThisGuild = true;
+        this.casting = casting;
+      }
+    }
+    const guild = this.currentGuildId;
+    const gamePlay = this.findPlayOfGuild(quest.game_play);
+    var node_id = gamePlay.focus_node_id;
+    if (!node_id) {
+      await this.ensureRootNode(this.currentQuestId);
+      node_id = this.rootNode?.id;
+    }
+    if (node_id) {
+      await this.ensureConversationNeighbourhood({ node_id, guild });
+    } else {
+      // ill-constructed quest
+      await this.resetConversation();
+    }
+    return "success";
+  }
+  async joinToGuild() {
+    await this.addGuildMembership({
+      data: { guild_id: this.currentGuildId, member_id: this.memberId },
+    });
+    this.isMember = true;
+    this.$q.notify({
+      type: "positive",
+      message: "You are joining guild " + this.currentGuildId,
+    });
+    return;
+  }
+  async registerAllMembersToQuest() {
+    // This was a temporary fix, let's not do this too often.
+    const guildId = this.currentGuildId;
+    const registerAllMembers = this.registerAllMembers;
+    const calls = this.getCurrentGuild.game_play
+      .filter((gp: GamePlay) => gp.status == registration_status_enum.confirmed)
+      .map((gp: GamePlay) =>
+        registerAllMembers({ params: { guildId, questId: gp.quest_id } })
+      );
+    await Promise.all(calls);
+  }
+  findPlayOfGuild(gamePlays) {
+    if (gamePlays)
+      return gamePlays.find(
+        (gp: GamePlay) => gp.guild_id == this.currentGuildId
+      );
+  }
+  findGuildOfCasting(castings) {
+    if (castings)
+      return castings.find((ct: Casting) => ct.member_id == this.memberId)
+        ?.guild_id;
+  }
+  doAddCasting(quest_id: number) {
+    this.addCasting({
+      data: {
+        quest_id,
+        guild_id: this.currentGuildId,
+        member_id: this.memberId,
+      },
+    });
+  }
+  checkPermissions() {
+    this.isMember = !!this.isGuildMember(this.currentGuildId);
+    if (this.isMember) {
+      this.isAdmin = this.hasPermission(
+        permission_enum.guildAdmin,
+        this.currentGuildId
+      );
+      this.canRegisterToQuest = this.hasPermission(
+        permission_enum.joinQuest,
+        this.currentGuildId
+      );
+    }
+  }
+  show_tree(show) {
+    this.$store.commit("conversation/SHOW_TREE", show);
+  }
+  getGuildMembers() {
+    if (this.getCurrentGuild) {
+      return this.getMembersOfGuild(this.getCurrentGuild);
+    }
+    return [];
+  }
+  getPlayedQuests() {
+    const play = this.guildGamePlays;
+    return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
+  }
+  getParentsNode() {
+    const nodeId = this.getFocusNode?.parent_id;
+    if (nodeId) {
+      return this.getConversationNodeById(nodeId);
+    }
+  }
+  /*
+  TODO
+  async setFocusNode() {
+    let payload = {
+      guild_id: this.currentGuildId,
+      quest_id: this.questId,
+    };
+    const conv = await this.setConversationQuest(payload.quest_id);
+    const gpResponse = this.getGamePlayByGuildIdAndQuestId(payload);
+    gpResponse[0].focus_node_id = conv[0].id;
+    const focus = await this.setFocusNodeId(gpResponse[0]);
+    const game_play = this.getGamePlayByGuildIdAndQuestId(payload);
+    this.gamePlay = [...game_play];
+    return "focus node set";
+  }
+  */
+  getQuestCreator() {
+    const quest = this.getCurrentQuest;
+    if (quest) {
+      return this.getMemberById(quest.creator);
+    }
+  }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
@@ -532,8 +605,8 @@ export default {
       this.ensureMembersOfGuild(this.guildId),
     ]);
     this.initialize();
-  },
-};
+  }
+}
 </script>
 
 <style>
