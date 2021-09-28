@@ -299,7 +299,7 @@ export default {
     ...mapState("conversation", {
       rootNode: (state: ConversationState) => state.conversationRoot,
     }),
-    ...mapGetters("conversation", ["getFocusNode"]),
+    ...mapGetters("conversation", ["getFocusNode", "getConversationNodeById"]),
     ...mapGetters(["hasPermission"]),
     // ...mapGetters('member', ['getUserId']),
   },
@@ -496,12 +496,10 @@ export default {
       return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
     },
     getParentsNode() {
-      const nodeId = this.gamePlay[0].focus_node_id;
+      const nodeId = this.getFocusNode?.parent_id;
       if (nodeId) {
-        const getFocusNode = this.getParentNode(nodeId);
-        return getFocusNode;
+        return this.getConversationNodeById(nodeId);
       }
-      return;
     },
     /* TODO
     async setFocusNode() {
