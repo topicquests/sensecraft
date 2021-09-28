@@ -27,6 +27,23 @@ export const conversation = new MyVapi<ConversationState>({
     queryParams: true,
     path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
     property: "node",
+    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
+      state.node = payload.data[0];
+      if (state.neighbourhoodRoot) {
+        const neighbourhoodRoot = state.neighbourhood.find(
+          (n) => n.id === state.neighbourhoodRoot
+        );
+        if (
+          neighbourhoodRoot &&
+          state.node.ancestry.startsWith(neighbourhoodRoot.ancestry)
+        ) {
+          const neighbourhood = state.neighbourhood.filter(
+            (n) => n.id !== state.node.id
+          );
+          state.neighbourhood = [...neighbourhood, state.node];
+        }
+      }
+    },
   })
   .get({
     path: ({ quest_id }: { quest_id: number }) =>
@@ -115,9 +132,11 @@ export const conversation = new MyVapi<ConversationState>({
       getConversation: (state: ConversationState): ConversationNode[] =>
         state.conversation,
       getConversationNodeById: (state: ConversationState) => (id: number) =>
-        state.conversation.find(
-          (node: ConversationNode) => node.id == id
-        ) as ConversationNode,
+        state.neighbourhood.find((node: ConversationNode) => node.id == id) ||
+        state.conversation.find((node: ConversationNode) => node.id == id) ||
+        ((state.conversationRoot?.id == id
+          ? state.conversationRoot
+          : null) as ConversationNode),
       getRootNode: (state: ConversationState) => state.conversationRoot,
       getNeighbourhood: (state: ConversationState) => state.neighbourhood,
       canEdit: (state: ConversationState) => (node_id: number) => {
