@@ -118,30 +118,33 @@ export default {
   methods: {
     ...mapActions("member", ["registerUser"]),
     async doRegister() {
-      const theEmail = this.formdata.email;
-      const theHandle = this.formdata.handle;
-      const theName = this.formdata.name;
-
-      if (!theEmail) {
-        this.$q.notify({ type: "negative", message: "Missing Email" });
-        return;
+      try {
+        const theEmail = this.formdata.email;
+        const theHandle = this.formdata.handle;
+        const theName = this.formdata.name;
+        if (!theEmail) {
+          this.$q.notify({ type: "negative", message: "Missing Email" });
+          return;
+        }
+        if (!theHandle) {
+          this.$q.notify({ type: "negative", message: "Missing Handle" });
+          return;
+        }
+        if (!theName) {
+          this.$q.notify({ type: "negative", message: "Missing name field" });
+          return;
+        }
+        if (!this.formdata.password) {
+          this.$q.notify({ type: "negative", message: "Missing Password" });
+          return;
+        }
+        this.formdata.email = theEmail.toLowerCase();
+        debugger;
+        await this.registerUser(this.formdata);
+        this.$router.push({ name: "signin" });
+      } catch (error) {
+        console.log("There was an error registering ", error);
       }
-
-      if (!theHandle) {
-        this.$q.notify({ type: "negative", message: "Missing Handle" });
-        return;
-      }
-
-      if (!theName) {
-        this.$q.notify({ type: "negative", message: "Missing name field" });
-        return;
-      }
-
-      if (!this.formdata.password) {
-        this.$q.notify({ type: "negative", message: "Missing Password" });
-        return;
-      }
-      await this.registerUser(this.formdata);
     },
 
     goHome() {

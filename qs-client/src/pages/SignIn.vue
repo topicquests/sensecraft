@@ -118,28 +118,15 @@ export default {
     ...mapGetters("member", ["getUserId", "getUserEmail"]),
     async doLogin() {
       try {
-        const loginResponse = await this.login(this.formData.signonEmail);
-        this.$q.notify({
-          type: "positive",
-          message: "You are now signed in",
-        });
-        this.goNext();
-      } catch (error) {
-        console.log("Error with sign in ", error);
-        this.$q.notify({
-          type: "negative",
-          message: "Issue with sign in. Verify your email and password",
-        });
-      }
-    },
-    async login(email) {
-      try {
-        email = email && email.toString().toLowerCase();
+        this.formData.signonEmail = this.formData.signonEmail
+          .toString()
+          .toLowerCase();
         const signInResp = await this.signin(this.formData);
         if (!signInResp) {
           throw "login failed";
         }
         await this.ensureLoginUser();
+        this.goNext();
       } catch (error) {
         console.log("Error with sign in ", error);
         this.$q.notify({

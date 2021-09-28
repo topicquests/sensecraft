@@ -13,14 +13,14 @@
         <section id="quest-card-details">
           <div v-html="currentQuestCard.description" class="q-mb-xl"></div>
         </section>
-        <section id="quest-card-data">
-          <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl">
+        <section class="quest-card-data">
+          <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data">
             Quest Creator: {{ creator.handle }}
           </p>
-          <p class="q-pt-none q-ml-md q-mb-sm">
+          <p class="q-pt-none q-ml-md q-mb-sm quest-card-data">
             Quest Handle: {{ currentQuestCard.handle }}
           </p>
-          <p class="q-pt-sm q-ml-md">
+          <p class="q-pt-sm q-ml-md quest-card-data">
             Start Date: {{ currentQuestCard.start }}
           </p>
         </section>
@@ -66,9 +66,9 @@ export default {
   border: 1px solid gray;
   background-color: lightgray;
 }
-#quest-card-data {
+.quest-card-data {
   text-align: left;
-  font-size: 1.2em;
+  font-size: 1em;
   background-color: aquamarine;
 }
 </style>
