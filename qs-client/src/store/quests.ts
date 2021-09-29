@@ -3,6 +3,7 @@ import {
   RestActionType,
   RestDataActionType,
   RestEmptyActionType,
+  RetypeActionTypes,
 } from "./base";
 import { Quest, Casting, QuestMembership, GamePlay } from "../types";
 import { quest_status_enum } from "../enums";
@@ -319,7 +320,7 @@ type QuestsRestActionTypes = {
     full,
     params,
   }: {
-    full: boolean;
+    full?: boolean;
     params: { id: number | number[] };
   }) => Promise<any>;
   fetchQuests: RestEmptyActionType;
@@ -330,5 +331,6 @@ type QuestsRestActionTypes = {
   addCasting: RestDataActionType<Partial<Casting>>;
 };
 
-export type QuestsActionTypes = typeof QuestsActions & QuestsRestActionTypes;
+export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &
+  QuestsRestActionTypes;
 export type QuestsGetterTypes = typeof QuestsGetters;

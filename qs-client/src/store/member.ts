@@ -3,6 +3,7 @@ import {
   RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
+  RetypeActionTypes,
 } from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
@@ -249,5 +250,6 @@ type MemberRestActionTypes = {
   renewToken: RestParamActionType<{ token: string }>;
 };
 
-export type MemberActionTypes = typeof MemberActions & MemberRestActionTypes;
+export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
+  MemberRestActionTypes;
 export type MemberGetterTypes = typeof MemberGetters;

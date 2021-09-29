@@ -1,4 +1,9 @@
-import { MyVapi, RestParamActionType, RestDataActionType } from "./base";
+import {
+  MyVapi,
+  RestParamActionType,
+  RestDataActionType,
+  RetypeActionTypes,
+} from "./base";
 import { ConversationNode } from "../types";
 import { ibis_node_type_enum, publication_state_enum } from "../enums";
 
@@ -234,6 +239,8 @@ type ConversationRestActionTypes = {
   updateConversationNode: RestDataActionType<Partial<ConversationNode>>;
 };
 
-export type ConversationActionTypes = typeof ConversationActions &
+export type ConversationActionTypes = RetypeActionTypes<
+  typeof ConversationActions
+> &
   ConversationRestActionTypes;
 export type ConversationGetterTypes = typeof ConversationGetters;

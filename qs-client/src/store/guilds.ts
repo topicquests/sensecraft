@@ -3,6 +3,7 @@ import {
   RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
+  RetypeActionTypes,
 } from "./base";
 import { Guild, GuildMembership, GamePlay, Quest } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
@@ -85,7 +86,7 @@ const GuildsActions = {
   },
   ensureGuildsPlayingQuest: async (
     context,
-    { quest_id, full }: { quest_id: number; full: boolean }
+    { quest_id, full }: { quest_id: number; full?: boolean }
   ) => {
     await MyVapi.store.dispatch("quests/ensureQuest", {
       quest_id,
@@ -295,7 +296,7 @@ type GuildsRestActionTypes = {
     full,
     params,
   }: {
-    full: boolean;
+    full?: boolean;
     params: { id: number | number[] };
   }) => Promise<any>;
   fetchGuilds: RestEmptyActionType;
@@ -306,5 +307,6 @@ type GuildsRestActionTypes = {
   registerAllMembers: RestParamActionType<{ questId: number; guildId: number }>;
 };
 
-export type GuildsActionTypes = typeof GuildsActions & GuildsRestActionTypes;
+export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &
+  GuildsRestActionTypes;
 export type GuildsGetterTypes = typeof GuildsGetters;

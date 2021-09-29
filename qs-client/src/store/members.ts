@@ -3,6 +3,7 @@ import {
   RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
+  RetypeActionTypes,
 } from "./base";
 import {
   Member,
@@ -168,5 +169,6 @@ type MembersRestActionTypes = {
   updateMember: RestDataActionType<Partial<Member>>;
 };
 
-export type MembersActionTypes = typeof MembersActions & MembersRestActionTypes;
+export type MembersActionTypes = RetypeActionTypes<typeof MembersActions> &
+  MembersRestActionTypes;
 export type MembersGetterTypes = typeof MembersGetters;
