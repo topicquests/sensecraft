@@ -1,20 +1,26 @@
 <template>
-  <q-page style="background-color: lightgrey">
+  <q-page style="background-color: secondary">
     <div>
       <member></member>
     </div>
-    <div class="column items-center">
-      <div class="column items-center q-mb-md">
-        <div class="col-4" id="scoreboard">
-          <scoreboard></scoreboard>
-        </div>
+    <div class="column items-center q-mb-md">
+      <div class="col-4" id="scoreboard">
+        <scoreboard></scoreboard>
       </div>
-      <questCard
-        v-if="getCurrentQuest"
-        v-bind:currentQuestCard="getCurrentQuest"
-        style="width: 100%"
-        :creator="getQuestCreator()"
-      ></questCard>
+    </div>
+    <div class="column items-center q-mb-md">
+      <div class="col-4">
+        <questCard
+          v-if="getCurrentQuest"
+          v-bind:currentQuestCard="getCurrentQuest"
+          :creator="getQuestCreator()"
+        ></questCard>
+      </div>
+    </div>
+    <div class="column items-center q-mb-md">
+      <div class="col-4">
+        <gpRootNode v-bind:nodeCard="getFocusNode"></gpRootNode>
+      </div>
     </div>
   </q-page>
 </template>
@@ -24,6 +30,7 @@ import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
+import nodeCard from "../components/node-card.vue";
 import app from "../App.vue";
 export default {
   name: "GamePlay",
@@ -34,13 +41,15 @@ export default {
     };
   },
   components: {
-    scoreboard: scoreboard,
-    member: member,
-    questCard: questCard,
+    scoreboard,
+    member,
+    questCard,
+    gpRootNode: nodeCard,
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest"]),
     ...mapGetters("members", ["getMemberById"]),
+    ...mapGetters("conversation", ["getConversationNodeById", "getFocusNode"]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
