@@ -41,11 +41,22 @@ export type RestActionType<P, D> = ({
 }) => Promise<any>;
 export type RestParamActionType<P> = ({
   params,
+  data,
 }: {
   params: P;
+  data?: {};
 }) => Promise<any>;
-export type RestDataActionType<D> = ({ data }: { data: D }) => Promise<any>;
-export type RestEmptyActionType = () => Promise<any>;
+export type RestDataActionType<D> = ({
+  params,
+  data,
+}: {
+  params?: {};
+  data: D;
+}) => Promise<any>;
+export type RestEmptyActionType = (actionParams?: {
+  params?: {};
+  data?: {};
+}) => Promise<any>;
 type ActionFn<F extends (...args: any) => any> = (
   ...args: [...Parameters<F>[1]]
 ) => ReturnType<F>;
@@ -55,6 +66,7 @@ export type RetypeActionTypes<
 export type RetypeGetterTypes<
   T extends { [key: string]: (...args: any) => any }
 > = { [K in keyof T]: ReturnType<T[K]> };
+export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
 export class MyVapi<S> extends Vapi {
   constructor(options: ResourceOptions) {
