@@ -52,31 +52,31 @@ const QuestTableProps = Vue.extend({
   name: "quest_table",
 })
 export default class QuestTable extends QuestTableProps {
-  columns1: [
+  columns1 = [
     {
-      name: "desc";
-      required: true;
-      label: "Label";
-      align: "left";
-      field: "name";
-      sortable: true;
+      name: "desc",
+      required: true,
+      label: "Label",
+      align: "left",
+      field: "name",
+      sortable: true,
     },
     {
-      name: "handle";
-      required: false;
-      label: "Handle";
-      align: "left";
-      field: "handle";
-      sortable: true;
+      name: "handle",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "handle",
+      sortable: true,
     },
     {
-      name: "questNodeId";
-      required: false;
-      label: "Action";
-      align: "left";
-      field: "id";
-      sortable: true;
-    }
+      name: "questNodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
   ];
 }
 </script>
