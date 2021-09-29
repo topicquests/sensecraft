@@ -12,8 +12,45 @@ import {
   ResourceActionOptions,
 } from "vuex-rest-api/dist/Resource";
 import axiosInstance from "../boot/axios";
+import { AxiosResponse } from "axios";
 
 declare const server_url: string;
+
+export type RestActionType<P, D, R> = ({
+  params,
+  data,
+}: {
+  params: P;
+  data: D;
+}) => Promise<AxiosResponse<R>>;
+export type RestParamActionType<P, R> = ({
+  params,
+  data,
+}: {
+  params: P;
+  data?: {};
+}) => Promise<AxiosResponse<R>>;
+export type RestDataActionType<D, R> = ({
+  params,
+  data,
+}: {
+  params?: {};
+  data: D;
+}) => Promise<AxiosResponse<R>>;
+export type RestEmptyActionType<R> = (actionParams?: {
+  params?: {};
+  data?: {};
+}) => Promise<AxiosResponse<R>>;
+type ActionFn<F extends (...args: any) => any> = (
+  ...args: [...Parameters<F>[1]]
+) => ReturnType<F>;
+export type RetypeActionTypes<
+  T extends { [key: string]: (...args: any) => any }
+> = { [K in keyof T]: ActionFn<T[K]> };
+export type RetypeGetterTypes<
+  T extends { [key: string]: (...args: any) => any }
+> = { [K in keyof T]: ReturnType<T[K]> };
+export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
 interface GetterMap {
   [action: string]: Function;
@@ -31,42 +68,6 @@ interface StoreOptions extends VapiStoreOptions {
 interface CallResourceActionOptions extends ShorthandResourceActionOptions {
   readOnly?: boolean;
 }
-
-export type RestActionType<P, D> = ({
-  params,
-  data,
-}: {
-  params: P;
-  data: D;
-}) => Promise<any>;
-export type RestParamActionType<P> = ({
-  params,
-  data,
-}: {
-  params: P;
-  data?: {};
-}) => Promise<any>;
-export type RestDataActionType<D> = ({
-  params,
-  data,
-}: {
-  params?: {};
-  data: D;
-}) => Promise<any>;
-export type RestEmptyActionType = (actionParams?: {
-  params?: {};
-  data?: {};
-}) => Promise<any>;
-type ActionFn<F extends (...args: any) => any> = (
-  ...args: [...Parameters<F>[1]]
-) => ReturnType<F>;
-export type RetypeActionTypes<
-  T extends { [key: string]: (...args: any) => any }
-> = { [K in keyof T]: ActionFn<T[K]> };
-export type RetypeGetterTypes<
-  T extends { [key: string]: (...args: any) => any }
-> = { [K in keyof T]: ReturnType<T[K]> };
-export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
 export class MyVapi<S> extends Vapi {
   constructor(options: ResourceOptions) {

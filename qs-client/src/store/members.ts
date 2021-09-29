@@ -6,6 +6,7 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
+import { AxiosResponse, AxiosInstance } from "axios";
 import {
   Member,
   GuildMembership,
@@ -111,7 +112,7 @@ export const members = new MyVapi<MembersState>({
     questFetch: null,
     guildFetch: null,
     members: {},
-  },
+  } as MembersState,
 })
   // Step 3
   .get({
@@ -125,7 +126,12 @@ export const members = new MyVapi<MembersState>({
         params.id = `eq.${params.id}`;
       }
     },
-    onSuccess: (state: MembersState, res, axios, actionParams) => {
+    onSuccess: (
+      state: MembersState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       state.members = {
         ...state.members,
         ...Object.fromEntries(
@@ -138,7 +144,12 @@ export const members = new MyVapi<MembersState>({
     path: "/members",
     property: "members",
     action: "fetchMembers",
-    onSuccess: (state: MembersState, res, axios, actionParams) => {
+    onSuccess: (
+      state: MembersState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const members = Object.fromEntries(
         res.data.map((member: Member) => [member.id, member])
       );
@@ -153,7 +164,12 @@ export const members = new MyVapi<MembersState>({
     beforeRequest: (state: MembersState, { params, data }) => {
       params.id = data.id;
     },
-    onSuccess: (state: MembersState, res, axios, { data }) => {
+    onSuccess: (
+      state: MembersState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       const member = res.data[0];
       state.members = { ...state.members, [member.id]: member };
     },
@@ -165,9 +181,9 @@ export const members = new MyVapi<MembersState>({
   });
 
 type MembersRestActionTypes = {
-  fetchMemberById: RestParamActionType<{ id: number | number[] }>;
-  fetchMembers: RestEmptyActionType;
-  updateMember: RestDataActionType<Partial<Member>>;
+  fetchMemberById: RestParamActionType<{ id: number | number[] }, Member[]>;
+  fetchMembers: RestEmptyActionType<Member[]>;
+  updateMember: RestDataActionType<Partial<Member>, Member[]>;
 };
 
 export type MembersActionTypes = RetypeActionTypes<typeof MembersActions> &

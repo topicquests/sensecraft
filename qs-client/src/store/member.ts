@@ -8,6 +8,7 @@ import {
 } from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
+import { AxiosResponse, AxiosInstance } from "axios";
 import { Member, GuildMembership, QuestMembership, Casting } from "../types";
 
 export interface MemberState {
@@ -72,7 +73,12 @@ export const member = new MyVapi<MemberState>({
     action: "updateUser",
     property: "member",
     path: ({ id }) => `/members?id=eq.${id}`,
-    onSuccess: (state: MemberState, res, axios, { params, data }) => {
+    onSuccess: (
+      state: MemberState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       state.member = Object.assign({}, state.member, res.data[0]);
     },
   })
@@ -85,7 +91,12 @@ export const member = new MyVapi<MemberState>({
       data.pass = password;
       data.mail = signonEmail;
     },
-    onError: (state: MemberState, err, axios, { params, data }) => {
+    onError: (
+      state: MemberState,
+      err,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       console.log(err);
       Notify.create({
         message: "Wrong email or password",
@@ -93,7 +104,12 @@ export const member = new MyVapi<MemberState>({
         icon: "warning",
       });
     },
-    onSuccess: (state: MemberState, res, axios, { params, data }) => {
+    onSuccess: (
+      state: MemberState,
+      res: AxiosResponse<string>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       state.token = res.data;
       state.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
       state.email = data.mail;
@@ -134,7 +150,12 @@ export const member = new MyVapi<MemberState>({
       }
       params.select = "*,quest_membership(*),guild_membership(*),casting(*)";
     },
-    onSuccess: (state: MemberState, res, axios, { params, data }) => {
+    onSuccess: (
+      state: MemberState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       state.member = res.data[0];
       state.isAuthenticated = true;
       state.token = state.token || window.localStorage.getItem("token");
@@ -145,7 +166,12 @@ export const member = new MyVapi<MemberState>({
       }
       return state.member;
     },
-    onError: (state: MemberState, error, axios, { params, data }) => {
+    onError: (
+      state: MemberState,
+      error,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       window.localStorage.removeItem("token");
       window.localStorage.removeItem("tokenExpiry");
       console.log(error);
@@ -155,7 +181,12 @@ export const member = new MyVapi<MemberState>({
     action: "registerUserCrypted",
     property: "member",
     path: "/members",
-    onError: (state: MemberState, error, axios, { params, data }) => {
+    onError: (
+      state: MemberState,
+      error,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       const errorCode = data.code;
       if (errorCode === 409) {
         Notify.create({
@@ -171,7 +202,12 @@ export const member = new MyVapi<MemberState>({
         });
       }
     },
-    onSuccess: (state: MemberState, payload, axios, { params, data }) => {
+    onSuccess: (
+      state: MemberState,
+      res: AxiosResponse<Member[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       // TODO: Send email to user with activation link
       // TODO: Add to members state?
       Notify.create({
@@ -185,7 +221,12 @@ export const member = new MyVapi<MemberState>({
     action: "renewToken",
     path: ({ token }: { token: string }) => `/rpc/renew_token?token=${token}`,
     readOnly: true,
-    onSuccess: (state: MemberState, res, axios, { params, data }) => {
+    onSuccess: (
+      state: MemberState,
+      res: AxiosResponse<string>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       state.token = res.data;
       const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
       state.tokenExpiry = tokenExpiry;
@@ -244,11 +285,11 @@ export const member = new MyVapi<MemberState>({
   });
 
 type MemberRestActionTypes = {
-  updateUser: RestDataActionType<Partial<Member>>;
-  signin: RestParamActionType<{ email: string; password: string }>;
-  fetchLoginUser: RestEmptyActionType;
-  registerUserCrypted: RestDataActionType<Partial<Member>>;
-  renewToken: RestParamActionType<{ token: string }>;
+  updateUser: RestDataActionType<Partial<Member>, Member[]>;
+  signin: RestParamActionType<{ email: string; password: string }, string>;
+  fetchLoginUser: RestEmptyActionType<Member[]>;
+  registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
+  renewToken: RestParamActionType<{ token: string }, string>;
 };
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &

@@ -8,6 +8,7 @@ import {
 } from "./base";
 import { Guild, GuildMembership, GamePlay, Quest } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
+import { AxiosResponse, AxiosInstance } from "axios";
 interface GuildMap {
   [key: number]: Guild;
 }
@@ -118,7 +119,7 @@ export const guilds = new MyVapi<GuildsState>({
     fullFetch: false,
     guilds: {},
     fullGuilds: {},
-  },
+  } as GuildsState,
 })
   // Step 3
   .get({
@@ -144,7 +145,12 @@ export const guilds = new MyVapi<GuildsState>({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state: GuildsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<Guild[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       state.guilds = {
         ...state.guilds,
         ...Object.fromEntries(
@@ -178,7 +184,12 @@ export const guilds = new MyVapi<GuildsState>({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state: GuildsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<Guild[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const fullGuilds = Object.values(state.guilds).filter(
         (guild: Guild) => state.fullGuilds[guild.id]
       );
@@ -200,7 +211,12 @@ export const guilds = new MyVapi<GuildsState>({
   .post({
     action: "createGuildBase",
     path: "/guilds",
-    onSuccess: (state: GuildsState, res, axios, { data }) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<Guild[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       const guild = res.data[0];
       state.guilds = { ...state.guilds, [guild.id]: guild };
       state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
@@ -219,7 +235,12 @@ export const guilds = new MyVapi<GuildsState>({
         updated_at: undefined,
       });
     },
-    onSuccess: (state: GuildsState, res, axios, { data }) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<Guild[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       let guild = res.data[0];
       guild = Object.assign({}, state.guilds[guild.id], guild);
       state.guilds = { ...state.guilds, [guild.id]: guild };
@@ -228,7 +249,12 @@ export const guilds = new MyVapi<GuildsState>({
   .post({
     action: "addGuildMembership",
     path: "/guild_membership",
-    onSuccess: (state: GuildsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<GuildMembership[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const membership = res.data[0];
       const guild = state.guilds[membership.guild_id];
       if (guild) {
@@ -242,7 +268,12 @@ export const guilds = new MyVapi<GuildsState>({
   .patch({
     action: "updateGuildMembership",
     path: "/guild_membership",
-    onSuccess: (state: GuildsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<GuildMembership[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const membership = res.data[0];
       const guild = state.guilds[membership.guild_id];
       if (guild) {
@@ -299,13 +330,22 @@ type GuildsRestActionTypes = {
   }: {
     full?: boolean;
     params: { id: number | number[] };
-  }) => Promise<any>;
-  fetchGuilds: RestEmptyActionType;
-  createGuildBase: RestDataActionType<Partial<Guild>>;
-  updateGuild: RestDataActionType<Partial<Guild>>;
-  addGuildMembership: RestDataActionType<Partial<GuildMembership>>;
-  updateGuildMembership: RestDataActionType<Partial<GuildMembership>>;
-  registerAllMembers: RestParamActionType<{ questId: number; guildId: number }>;
+  }) => Promise<AxiosResponse<Guild[]>>;
+  fetchGuilds: RestEmptyActionType<Guild[]>;
+  createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
+  updateGuild: RestDataActionType<Partial<Guild>, Guild[]>;
+  addGuildMembership: RestDataActionType<
+    Partial<GuildMembership>,
+    GuildMembership[]
+  >;
+  updateGuildMembership: RestDataActionType<
+    Partial<GuildMembership>,
+    GuildMembership[]
+  >;
+  registerAllMembers: RestParamActionType<
+    { questId: number; guildId: number },
+    void
+  >;
 };
 
 export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &

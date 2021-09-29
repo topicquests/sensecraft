@@ -5,6 +5,7 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
+import { AxiosResponse, AxiosInstance } from "axios";
 import { ConversationNode } from "../types";
 import { ibis_node_type_enum, publication_state_enum } from "../enums";
 
@@ -27,9 +28,7 @@ const ConversationGetters = {
   getConversationNodeById: (state: ConversationState) => (id: number) =>
     state.neighbourhood[id] ||
     state.conversation[id] ||
-    ((state.conversationRoot?.id == id
-      ? state.conversationRoot
-      : null) as ConversationNode),
+    (state.conversationRoot?.id == id ? state.conversationRoot : null),
   getRootNode: (state: ConversationState) => state.conversationRoot,
   getNeighbourhood: (state: ConversationState): ConversationNode[] =>
     Object.values(state.neighbourhood),
@@ -103,7 +102,7 @@ export const conversation = new MyVapi<ConversationState>({
     neighbourhoodRoot: null,
     neighbourhood: {},
     conversationRoot: null,
-  },
+  } as ConversationState,
 })
   // Step 3
   .get({
@@ -111,8 +110,13 @@ export const conversation = new MyVapi<ConversationState>({
     queryParams: true,
     path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
     property: "node",
-    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
-      state.node = payload.data[0];
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
+      state.node = res.data[0];
       if (state.neighbourhoodRoot) {
         const neighbourhoodRoot = state.neighbourhood[state.neighbourhoodRoot];
         if (
@@ -133,16 +137,21 @@ export const conversation = new MyVapi<ConversationState>({
     property: "conversation",
     action: "fetchConversation",
     queryParams: true,
-    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
         state.neighbourhood = {};
         state.neighbourhoodRoot = null;
       }
       state.conversation = Object.fromEntries(
-        payload.data.map((node: ConversationNode) => [node.id, node])
+        res.data.map((node: ConversationNode) => [node.id, node])
       );
-      state.conversationRoot = payload.data.find(
+      state.conversationRoot = res.data.find(
         (node: ConversationNode) => node.parent_id === null
       );
     },
@@ -153,14 +162,19 @@ export const conversation = new MyVapi<ConversationState>({
     },
     property: "conversationRoot",
     action: "fetchRootNode",
-    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
         state.conversation = {};
         state.neighbourhood = {};
         state.neighbourhoodRoot = null;
       }
-      state.conversationRoot = payload.data[0] as ConversationNode;
+      state.conversationRoot = res.data[0];
       // add to neighbourhood if appropriate?
     },
   })
@@ -169,17 +183,22 @@ export const conversation = new MyVapi<ConversationState>({
     property: "conversation",
     action: "fetchConversationNeighbourhood",
     readOnly: true,
-    onSuccess: (state: ConversationState, payload, axios, { params, data }) => {
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
       if (state.currentQuest !== params.quest_id) {
         state.currentQuest = params.quest_id;
         state.conversation = {};
         state.conversationRoot = null;
       }
       state.neighbourhood = Object.fromEntries(
-        payload.data.map((node: ConversationNode) => [node.id, node])
+        res.data.map((node: ConversationNode) => [node.id, node])
       );
       state.neighbourhoodRoot = params.node_id;
-      const root = payload.data.find(
+      const root = res.data.find(
         (node: ConversationNode) => node.parent_id == null
       );
       if (root) {
@@ -190,8 +209,13 @@ export const conversation = new MyVapi<ConversationState>({
   .post({
     action: "createConversationNode",
     path: "/conversation_node",
-    onSuccess: (state: ConversationState, res, axios, { params, data }) => {
-      state.node = res.data[0] as ConversationNode;
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
+      state.node = res.data[0];
       if (!state.node.parent_id) {
         state.conversationRoot = state.node;
       }
@@ -204,7 +228,12 @@ export const conversation = new MyVapi<ConversationState>({
       params.id = data.id;
       data.updated_at = undefined;
     },
-    onSuccess: (state: ConversationState, res, axios, { data }) => {
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       const node = res.data[0];
       state.conversation = { ...state.conversation, [node.id]: node };
       state.node = node;
@@ -229,15 +258,30 @@ export const conversation = new MyVapi<ConversationState>({
   });
 
 type ConversationRestActionTypes = {
-  fetchConversationNode: RestParamActionType<{ id: number }>;
-  fetchConversation: RestParamActionType<{ quest_id: number }>;
-  fetchRootNode: RestParamActionType<{ quest_id: number }>;
-  fetchConversationNeighbourhood: RestParamActionType<{
-    quest_id: number;
-    node_id: number;
-  }>;
-  createConversationNode: RestDataActionType<Partial<ConversationNode>>;
-  updateConversationNode: RestDataActionType<Partial<ConversationNode>>;
+  fetchConversationNode: RestParamActionType<
+    { id: number },
+    ConversationNode[]
+  >;
+  fetchConversation: RestParamActionType<
+    { quest_id: number },
+    ConversationNode[]
+  >;
+  fetchRootNode: RestParamActionType<{ quest_id: number }, ConversationNode[]>;
+  fetchConversationNeighbourhood: RestParamActionType<
+    {
+      quest_id: number;
+      node_id: number;
+    },
+    ConversationNode[]
+  >;
+  createConversationNode: RestDataActionType<
+    Partial<ConversationNode>,
+    ConversationNode[]
+  >;
+  updateConversationNode: RestDataActionType<
+    Partial<ConversationNode>,
+    ConversationNode[]
+  >;
 };
 
 export type ConversationActionTypes = RetypeActionTypes<

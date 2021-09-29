@@ -6,6 +6,7 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
+import { AxiosResponse, AxiosInstance } from "axios";
 import { Quest, Casting, QuestMembership, GamePlay } from "../types";
 import { quest_status_enum } from "../enums";
 interface QuestMap {
@@ -140,7 +141,12 @@ export const quests = new MyVapi<QuestsState>({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Quest[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       state.quests = {
         ...state.quests,
         ...Object.fromEntries(
@@ -174,7 +180,12 @@ export const quests = new MyVapi<QuestsState>({
         params.select = "*,game_play(*)";
       }
     },
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Quest[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const fullQuests = Object.values(state.quests).filter(
         (quest: Quest) => state.fullQuests[quest.id]
       );
@@ -196,7 +207,12 @@ export const quests = new MyVapi<QuestsState>({
   .post({
     action: "createQuestBase",
     path: "/quests",
-    onSuccess: (state: QuestsState, res, axios, { data }) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Quest[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       const quest = res.data[0];
       state.quests = { ...state.quests, [quest.id]: quest };
     },
@@ -213,7 +229,12 @@ export const quests = new MyVapi<QuestsState>({
         updated_at: undefined,
       });
     },
-    onSuccess: (state: QuestsState, res, axios, { data }) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Quest[]>,
+      axios: AxiosInstance,
+      { data }
+    ) => {
       let quest = res.data[0];
       quest = Object.assign({}, state.quests[quest.id], quest);
       state.quests = { ...state.quests, [quest.id]: quest };
@@ -223,7 +244,12 @@ export const quests = new MyVapi<QuestsState>({
   .post({
     action: "addQuestMembership",
     path: "/quest_membership",
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<QuestMembership[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const membership = res.data[0];
       const quest = state.quests[membership.quest_id];
       if (quest) {
@@ -237,7 +263,12 @@ export const quests = new MyVapi<QuestsState>({
   .patch({
     action: "updateQuestMembership",
     path: "/quest_membership",
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<QuestMembership[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const membership = res.data[0];
       const quest = state.quests[membership.quest_id];
       if (quest) {
@@ -254,7 +285,12 @@ export const quests = new MyVapi<QuestsState>({
   .post({
     action: "addGamePlay",
     path: "/game_play",
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<GamePlay[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const game_play = res.data[0];
       const quest = state.quests[game_play.quest_id];
       if (quest) {
@@ -268,7 +304,12 @@ export const quests = new MyVapi<QuestsState>({
   .patch({
     action: "updateGamePlay",
     path: "/game_play",
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<GamePlay[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const game_play = res.data[0];
       const quest = state.quests[game_play.quest_id];
       if (quest) {
@@ -285,7 +326,12 @@ export const quests = new MyVapi<QuestsState>({
   .post({
     action: "addCasting",
     path: "/casting",
-    onSuccess: (state: QuestsState, res, axios, actionParams) => {
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Casting[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
       const casting = res.data[0];
       console.log(res);
       const quest = state.quests[casting.quest_id];
@@ -323,13 +369,21 @@ type QuestsRestActionTypes = {
   }: {
     full?: boolean;
     params: { id: number | number[] };
-  }) => Promise<any>;
-  fetchQuests: RestEmptyActionType;
-  createQuestBase: RestDataActionType<Partial<Quest>>;
-  updateQuest: RestActionType<{ id: number }, Partial<Quest>>;
-  addQuestMembership: RestDataActionType<Partial<QuestMembership>>;
-  updateQuestMembership: RestDataActionType<Partial<QuestMembership>>;
-  addCasting: RestDataActionType<Partial<Casting>>;
+  }) => Promise<AxiosResponse<Quest[]>>;
+  fetchQuests: RestEmptyActionType<Quest[]>;
+  createQuestBase: RestDataActionType<Partial<Quest>, Quest[]>;
+  updateQuest: RestActionType<{ id: number }, Partial<Quest>, Quest[]>;
+  addQuestMembership: RestDataActionType<
+    Partial<QuestMembership>,
+    QuestMembership[]
+  >;
+  updateQuestMembership: RestDataActionType<
+    Partial<QuestMembership>,
+    QuestMembership[]
+  >;
+  addGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
+  updateGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
+  addCasting: RestDataActionType<Partial<Casting>, Casting[]>;
 };
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &
