@@ -70,6 +70,9 @@
         </q-card>
       </div>
     </div>
+    <div v-else>
+      <q-card><h1>No quest you can join</h1></q-card>
+    </div>
   </q-page>
 </template>
 
@@ -137,47 +140,47 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
 })
 export default class GuildAdminPage extends Vue {
-  columns1: [
+  columns1 = [
     {
-      name: "desc";
-      required: true;
-      label: "Quest";
-      align: "left";
-      field: "name";
-      sortable: true;
+      name: "desc",
+      required: true,
+      label: "Quest",
+      align: "left",
+      field: "name",
+      sortable: true,
     },
     {
-      name: "status";
-      required: false;
-      label: "Handle";
-      align: "left";
-      field: "status";
-      sortable: true;
+      name: "status",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "status",
+      sortable: true,
     },
     {
-      name: "handle";
-      required: false;
-      label: "Status";
-      align: "left";
-      field: "handle";
-      sortable: true;
+      name: "handle",
+      required: false,
+      label: "Status",
+      align: "left",
+      field: "handle",
+      sortable: true,
     },
     {
-      name: "start";
-      required: false;
-      label: "Start Date";
-      align: "left";
-      field: "start";
-      sortable: true;
+      name: "start",
+      required: false,
+      label: "Start Date",
+      align: "left",
+      field: "start",
+      sortable: true,
     },
     {
-      name: "questNodeId";
-      required: false;
-      label: "Action";
-      align: "left";
-      field: "id";
-      sortable: true;
-    }
+      name: "questNodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
   ];
   guildGamePlays: GamePlay[] = [];
   pastQuests: Quest[] = [];
