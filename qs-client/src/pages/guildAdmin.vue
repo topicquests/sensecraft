@@ -77,75 +77,47 @@
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
-import { GuildsState } from "../store/guilds";
-import { MemberState } from "../store/member";
+
+import {
+  ConversationState,
+  ConversationGetterTypes,
+  ConversationActionTypes,
+} from "../store/conversation";
+import {
+  QuestsState,
+  QuestsActionTypes,
+  QuestsGetterTypes,
+} from "../store/quests";
+import {
+  GuildsState,
+  GuildsGetterTypes,
+  GuildsActionTypes,
+} from "../store/guilds";
+import {
+  MemberState,
+  MemberGetterTypes,
+  MemberActionTypes,
+} from "../store/member";
 import {
   registration_status_enum,
   quest_status_enum,
   permission_enum,
+  quest_status_type,
 } from "../enums";
-import { Quest, GamePlay } from "../types";
+import {
+  Quest,
+  Guild,
+  GamePlay,
+  Casting,
+  ConversationNode,
+  Member,
+} from "../types";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+import { BaseGetterTypes } from "../store/baseStore";
 
-export default {
-  props: ["guild_id"],
-  data() {
-    return {
-      columns1: [
-        {
-          name: "desc",
-          required: true,
-          label: "Quest",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "status",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "status",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Status",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "start",
-          required: false,
-          label: "Start Date",
-          align: "left",
-          field: "start",
-          sortable: true,
-        },
-        {
-          name: "questNodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-      guildGamePlays: [],
-      pastQuests: [],
-      activeQuests: [],
-      potentialQuests: [],
-      questGamePlay: [],
-      isAdmin: false,
-      members: [],
-      label: "",
-      questId: null,
-      gamePlay: null,
-      selectedNode: null,
-      focusNode: null,
-    };
-  },
+@Component<GuildAdminPage>({
   name: "guild_admin",
   computed: {
     ...mapState("member", {
@@ -161,79 +133,153 @@ export default {
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
-    ...mapActions("guilds", [
-      "ensureGuild",
-      "getMembersByGuildId",
-      "setCurrentGuild",
-    ]),
-    async initialize() {
-      await this.setCurrentGuild(this.guildId);
-      // should be useful but unused for now
-      // const memb = await this.getGuildMembers();
-      const playQuestIds = this.getCurrentGuild.game_play.map(
-        (gp: GamePlay) => gp.quest_id
-      );
-      this.guildGamePlays = this.getCurrentGuild.game_play.filter(
-        (gp: GamePlay) => gp.status == registration_status_enum.confirmed
-      );
-      const confirmedPlayQuestIds = this.guildGamePlays.map(
-        (gp: GamePlay) => gp.quest_id
-      );
-      this.potentialQuests = this.getQuests.filter(
-        (q: Quest) =>
-          (q.status == quest_status_enum.registration ||
-            q.status == quest_status_enum.ongoing) &&
-          !confirmedPlayQuestIds.includes(q.id)
-      );
-      this.pastQuests = this.getQuests.filter(
-        (q: Quest) =>
-          (q.status == quest_status_enum.finished ||
-            q.status == quest_status_enum.scoring) &&
-          playQuestIds.includes(q.id)
-      );
-      this.activeQuests = this.getQuests.filter(
-        (q: Quest) =>
-          (q.status == quest_status_enum.ongoing ||
-            q.status == quest_status_enum.paused ||
-            q.status == quest_status_enum.registration) &&
-          confirmedPlayQuestIds.includes(q.id)
-      );
-    },
-    async doRegister(questId: number) {
-      try {
-        this.questId = questId;
-        const regQuest = await this.getQuestById(questId);
-        if (
-          [quest_status_enum.ongoing, quest_status_enum.registration].indexOf(
-            regQuest.status
-          ) < 0
-        ) {
-          throw `Can not register quest in ${regQuest.status} status`;
-        }
-        let payload = {
-          guild_id: this.currentGuildId,
-          quest_id: questId,
-        };
-        await this.addGamePlay({ data: payload });
-        this.$q.notify({
-          type: "positive",
-          message: "You have registered to Quest ",
-        });
-      } catch (err) {
-        this.$q.notify({
-          type: "negative",
-          message: `${err}`,
-        });
-        console.log("error registering to quest: ", err);
-      }
-    },
-    findPlayOfGuild(gamePlays) {
-      if (gamePlays)
-        return gamePlays.find(
-          (gp: GamePlay) => gp.guild_id == this.currentGuildId
-        );
-    },
+    ...mapActions("guilds", ["ensureGuild", "setCurrentGuild"]),
   },
+})
+export default class GuildAdminPage extends Vue {
+  columns1: [
+    {
+      name: "desc";
+      required: true;
+      label: "Quest";
+      align: "left";
+      field: "name";
+      sortable: true;
+    },
+    {
+      name: "status";
+      required: false;
+      label: "Handle";
+      align: "left";
+      field: "status";
+      sortable: true;
+    },
+    {
+      name: "handle";
+      required: false;
+      label: "Status";
+      align: "left";
+      field: "handle";
+      sortable: true;
+    },
+    {
+      name: "start";
+      required: false;
+      label: "Start Date";
+      align: "left";
+      field: "start";
+      sortable: true;
+    },
+    {
+      name: "questNodeId";
+      required: false;
+      label: "Action";
+      align: "left";
+      field: "id";
+      sortable: true;
+    }
+  ];
+  guildGamePlays: GamePlay[] = [];
+  pastQuests: Quest[] = [];
+  activeQuests: Quest[] = [];
+  potentialQuests: Quest[] = [];
+  questGamePlay: GamePlay[] = [];
+  isAdmin = false;
+  members: Member[] = [];
+  label = "";
+  questId: number = null;
+  gamePlay: GamePlay = null;
+  selectedNode: ConversationNode = null;
+  focusNode: ConversationNode = null;
+  guildId: number = null;
+
+  // declare state bindings for TypeScript
+  member!: MemberState["member"];
+  memberId!: number;
+  currentGuildId!: number;
+
+  // declare the computed attributes for Typescript
+  getQuests!: QuestsGetterTypes["getQuests"];
+  getQuestById!: QuestsGetterTypes["getQuestById"];
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  hasPermission!: BaseGetterTypes["hasPermission"];
+
+  // declare the methods for Typescript
+  ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
+  addGamePlay!: QuestsActionTypes["addGamePlay"];
+  ensureGuild!: GuildsActionTypes["ensureGuild"];
+  setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
+
+  async initialize() {
+    await this.setCurrentGuild(this.guildId);
+    // should be useful but unused for now
+    // const memb = await this.getGuildMembers();
+    const playQuestIds = this.getCurrentGuild.game_play.map(
+      (gp: GamePlay) => gp.quest_id
+    );
+    this.guildGamePlays = this.getCurrentGuild.game_play.filter(
+      (gp: GamePlay) => gp.status == registration_status_enum.confirmed
+    );
+    const confirmedPlayQuestIds = this.guildGamePlays.map(
+      (gp: GamePlay) => gp.quest_id
+    );
+    this.potentialQuests = this.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.registration ||
+          q.status == quest_status_enum.ongoing) &&
+        !confirmedPlayQuestIds.includes(q.id)
+    );
+    this.pastQuests = this.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.finished ||
+          q.status == quest_status_enum.scoring) &&
+        playQuestIds.includes(q.id)
+    );
+    this.activeQuests = this.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.ongoing ||
+          q.status == quest_status_enum.paused ||
+          q.status == quest_status_enum.registration) &&
+        confirmedPlayQuestIds.includes(q.id)
+    );
+  }
+  async doRegister(questId: number) {
+    try {
+      this.questId = questId;
+      const regQuest = this.getQuestById(questId);
+      if (
+        (
+          [
+            quest_status_enum.ongoing,
+            quest_status_enum.registration,
+          ] as quest_status_type[]
+        ).indexOf(regQuest.status) < 0
+      ) {
+        throw `Can not register quest in ${regQuest.status} status`;
+      }
+      let payload = {
+        guild_id: this.currentGuildId,
+        quest_id: questId,
+      };
+      await this.addGamePlay({ data: payload });
+      this.$q.notify({
+        type: "positive",
+        message: "You have registered to Quest ",
+      });
+    } catch (err) {
+      this.$q.notify({
+        type: "negative",
+        message: `${err}`,
+      });
+      console.log("error registering to quest: ", err);
+    }
+  }
+  findPlayOfGuild(gamePlays) {
+    if (gamePlays)
+      return gamePlays.find(
+        (gp: GamePlay) => gp.guild_id == this.currentGuildId
+      );
+  }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
@@ -250,9 +296,12 @@ export default {
       this.currentGuildId
     );
     if (!canRegisterToQuest) {
-      this.$router.push({ name: "guild", guild_id: this.guildId });
+      this.$router.push({
+        name: "guild",
+        params: { guild_id: this.guildId.toString() },
+      });
     }
     await this.initialize();
-  },
-};
+  }
+}
 </script>
