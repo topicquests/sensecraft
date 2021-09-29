@@ -4,6 +4,7 @@ import {
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 import {
   Member,
@@ -171,4 +172,4 @@ type MembersRestActionTypes = {
 
 export type MembersActionTypes = RetypeActionTypes<typeof MembersActions> &
   MembersRestActionTypes;
-export type MembersGetterTypes = typeof MembersGetters;
+export type MembersGetterTypes = RetypeGetterTypes<typeof MembersGetters>;

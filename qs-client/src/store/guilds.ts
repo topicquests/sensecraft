@@ -4,6 +4,7 @@ import {
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 import { Guild, GuildMembership, GamePlay, Quest } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
@@ -309,4 +310,4 @@ type GuildsRestActionTypes = {
 
 export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &
   GuildsRestActionTypes;
-export type GuildsGetterTypes = typeof GuildsGetters;
+export type GuildsGetterTypes = RetypeGetterTypes<typeof GuildsGetters>;

@@ -4,6 +4,7 @@ import {
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 import { Quest, Casting, QuestMembership, GamePlay } from "../types";
 import { quest_status_enum } from "../enums";
@@ -333,4 +334,4 @@ type QuestsRestActionTypes = {
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &
   QuestsRestActionTypes;
-export type QuestsGetterTypes = typeof QuestsGetters;
+export type QuestsGetterTypes = RetypeGetterTypes<typeof QuestsGetters>;

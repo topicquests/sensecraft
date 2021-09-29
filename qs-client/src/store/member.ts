@@ -4,6 +4,7 @@ import {
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
@@ -252,4 +253,4 @@ type MemberRestActionTypes = {
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
   MemberRestActionTypes;
-export type MemberGetterTypes = typeof MemberGetters;
+export type MemberGetterTypes = RetypeGetterTypes<typeof MemberGetters>;

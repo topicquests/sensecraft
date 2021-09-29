@@ -52,6 +52,9 @@ type ActionFn<F extends (...args: any) => any> = (
 export type RetypeActionTypes<
   T extends { [key: string]: (...args: any) => any }
 > = { [K in keyof T]: ActionFn<T[K]> };
+export type RetypeGetterTypes<
+  T extends { [key: string]: (...args: any) => any }
+> = { [K in keyof T]: ReturnType<T[K]> };
 
 export class MyVapi<S> extends Vapi {
   constructor(options: ResourceOptions) {

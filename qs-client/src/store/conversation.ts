@@ -3,6 +3,7 @@ import {
   RestParamActionType,
   RestDataActionType,
   RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 import { ConversationNode } from "../types";
 import { ibis_node_type_enum, publication_state_enum } from "../enums";
@@ -243,4 +244,6 @@ export type ConversationActionTypes = RetypeActionTypes<
   typeof ConversationActions
 > &
   ConversationRestActionTypes;
-export type ConversationGetterTypes = typeof ConversationGetters;
+export type ConversationGetterTypes = RetypeGetterTypes<
+  typeof ConversationGetters
+>;

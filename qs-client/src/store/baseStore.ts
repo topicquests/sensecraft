@@ -7,15 +7,15 @@ import {
   GuildMembership,
   Casting,
 } from "../types";
-import { MyVapi } from "./base";
+import { MyVapi, RetypeGetterTypes } from "./base";
 
 export const BaseGetters = {
   hasPermission:
     (state) =>
     (
       permission: permission_enum,
-      guildN: number | Guild,
-      questN: number | Quest
+      guildN?: number | Guild,
+      questN?: number | Quest
     ) => {
       const member = MyVapi.store.getters["member/getUser"];
       if (!member) return false;
@@ -69,4 +69,4 @@ export const BaseGetters = {
     },
 };
 
-export type BaseGetterTypes = typeof BaseGetters;
+export type BaseGetterTypes = RetypeGetterTypes<typeof BaseGetters>;
