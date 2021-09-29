@@ -1,4 +1,9 @@
-import MyVapi from "./base";
+import {
+  MyVapi,
+  RestParamActionType,
+  RestDataActionType,
+  RestEmptyActionType,
+} from "./base";
 const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
 import { Member, GuildMembership, QuestMembership, Casting } from "../types";
@@ -22,6 +27,39 @@ const baseState: MemberState = {
   token: null,
   tokenExpiry: null,
   isAuthenticated: false,
+};
+
+const MemberGetters = {
+  getUser: (state: MemberState) => state.member,
+  getUserEmail: (state: MemberState) => state.email,
+  getUserId: (state: MemberState) => state.member?.id,
+  getUserById: (state: MemberState) => (id: number) =>
+    state.member?.id == id ? state.member : null,
+};
+
+const MemberActions = {
+  logout: (context) => {
+    context.commit("LOGOUT");
+  },
+  registerUser: async (context, data) => {
+    const password = await hash(data.password, 10);
+    data = { ...data, password };
+    return await context.dispatch("registerUserCrypted", { data });
+  },
+  ensureLoginUser: async (context) => {
+    // TODO: the case where the member is pending
+    if (!context.state.member) {
+      const expiry =
+        context.state.tokenExpiry || window.localStorage.getItem("tokenExpiry");
+      if (expiry && Date.now() < Number.parseInt(expiry)) {
+        await context.dispatch("fetchLoginUser");
+        if (!context.state.tokenExpiry) {
+          // add a commit for expiry?
+        }
+        return context.state.member;
+      }
+    }
+  },
 };
 
 export const member = new MyVapi<MemberState>({
@@ -161,13 +199,8 @@ export const member = new MyVapi<MemberState>({
   })
   // Step 4
   .getVuexStore({
-    getters: {
-      getUser: (state: MemberState) => state.member,
-      getUserEmail: (state: MemberState) => state.email,
-      getUserId: (state: MemberState) => state.member?.id,
-      getUserById: (state: MemberState) => (id: number) =>
-        state.member?.id == id ? state.member : null,
-    },
+    getters: MemberGetters,
+    actions: MemberActions,
     mutations: {
       LOGOUT: (state: MemberState) => {
         window.localStorage.removeItem("token");
@@ -206,29 +239,15 @@ export const member = new MyVapi<MemberState>({
         }
       },
     },
-    actions: {
-      logout: (context) => {
-        context.commit("LOGOUT");
-      },
-      registerUser: async (context, data) => {
-        const password = await hash(data.password, 10);
-        data = { ...data, password };
-        return await context.dispatch("registerUserCrypted", { data });
-      },
-      ensureLoginUser: async (context) => {
-        // TODO: the case where the member is pending
-        if (!context.state.member) {
-          const expiry =
-            context.state.tokenExpiry ||
-            window.localStorage.getItem("tokenExpiry");
-          if (expiry && Date.now() < Number.parseInt(expiry)) {
-            await context.dispatch("fetchLoginUser");
-            if (!context.state.tokenExpiry) {
-              // add a commit for expiry?
-            }
-            return context.state.member;
-          }
-        }
-      },
-    },
   });
+
+type MemberRestActionTypes = {
+  updateUser: RestDataActionType<Partial<Member>>;
+  signin: RestParamActionType<{ email: string; password: string }>;
+  fetchLoginUser: RestEmptyActionType;
+  registerUserCrypted: RestDataActionType<Partial<Member>>;
+  renewToken: RestParamActionType<{ token: string }>;
+};
+
+export type MemberActionTypes = typeof MemberActions & MemberRestActionTypes;
+export type MemberGetterTypes = typeof MemberGetters;

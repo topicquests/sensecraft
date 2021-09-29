@@ -32,7 +32,18 @@ interface CallResourceActionOptions extends ShorthandResourceActionOptions {
   readOnly?: boolean;
 }
 
-export default class MyVapi<S> extends Vapi {
+export type RestActionType<P, D> = ({
+  params,
+  data,
+}: {
+  params: P;
+  data: D;
+}) => Promise<any>;
+export type RestParamActionType<P> = RestActionType<P, undefined>;
+export type RestDataActionType<D> = RestActionType<undefined, D>;
+export type RestEmptyActionType = RestActionType<undefined, undefined>;
+
+export class MyVapi<S> extends Vapi {
   constructor(options: ResourceOptions) {
     super({ baseURL: server_url, axios: axiosInstance, ...options });
   }

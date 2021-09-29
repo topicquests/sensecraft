@@ -1,4 +1,4 @@
-import MyVapi from "./base";
+import { MyVapi, RestParamActionType, RestDataActionType } from "./base";
 import { ConversationNode } from "../types";
 import { ibis_node_type_enum, publication_state_enum } from "../enums";
 
@@ -14,6 +14,80 @@ export interface ConversationState extends Object {
   neighbourhood: ConversationMap;
   conversationRoot?: ConversationNode;
 }
+
+const ConversationGetters = {
+  getConversation: (state: ConversationState): ConversationNode[] =>
+    Object.values(state.conversation),
+  getConversationNodeById: (state: ConversationState) => (id: number) =>
+    state.neighbourhood[id] ||
+    state.conversation[id] ||
+    ((state.conversationRoot?.id == id
+      ? state.conversationRoot
+      : null) as ConversationNode),
+  getRootNode: (state: ConversationState) => state.conversationRoot,
+  getNeighbourhood: (state: ConversationState): ConversationNode[] =>
+    Object.values(state.neighbourhood),
+  getFocusNode: (state: ConversationState) =>
+    state.neighbourhood[state.neighbourhoodRoot],
+  canEdit: (state: ConversationState) => (node_id: number) => {
+    const userId = MyVapi.store.getters["member/getUserId"];
+    const node = state.conversation[node_id];
+    if (node && userId) {
+      if (node.status == publication_state_enum.private_draft) {
+        return node.creator == userId;
+        // TODO: role_draft
+      } else if (node.status == publication_state_enum.guild_draft) {
+        const casting = MyVapi.store.getters["quests/castingInQuest"](
+          node.quest_id
+        );
+        return casting?.guild_id == node.guild_id;
+      } else if (node.status == publication_state_enum.proposed) {
+        return MyVapi.store.getters["hasPermission"](
+          "guild_admin",
+          node.guild_id,
+          node.quest_id
+        );
+      }
+      // TODO: Check that the node is under the focus node
+    }
+    return false;
+  },
+};
+
+const ConversationActions = {
+  resetConversation: (context) => {
+    context.commit("RESET_CONVERSATION");
+  },
+  ensureConversation: async (context, quest_id: number) => {
+    if (
+      quest_id != context.state.currentQuest ||
+      Object.keys(context.state.conversation).length == 0
+    ) {
+      await context.dispatch("fetchConversation", { params: { quest_id } });
+    }
+  },
+  ensureRootNode: async (context, quest_id: number) => {
+    if (
+      quest_id != context.state.currentQuest ||
+      !context.state.conversationRoot
+    ) {
+      await context.dispatch("fetchRootNode", { params: { quest_id } });
+    }
+  },
+  ensureConversationNeighbourhood: async (
+    context,
+    { node_id, guild }: { node_id: number; guild: number }
+  ) => {
+    if (
+      node_id != context.state.neighbourhoodRoot ||
+      Object.keys(context.state.neighbourhood).length == 0
+    ) {
+      await context.dispatch("fetchConversationNeighbourhood", {
+        params: { node_id, guild },
+      });
+    }
+  },
+};
 
 export const conversation = new MyVapi<ConversationState>({
   state: {
@@ -135,78 +209,8 @@ export const conversation = new MyVapi<ConversationState>({
   })
   // Step 4
   .getVuexStore({
-    getters: {
-      getConversation: (state: ConversationState): ConversationNode[] =>
-        Object.values(state.conversation),
-      getConversationNodeById: (state: ConversationState) => (id: number) =>
-        state.neighbourhood[id] ||
-        state.conversation[id] ||
-        ((state.conversationRoot?.id == id
-          ? state.conversationRoot
-          : null) as ConversationNode),
-      getRootNode: (state: ConversationState) => state.conversationRoot,
-      getNeighbourhood: (state: ConversationState): ConversationNode[] =>
-        Object.values(state.neighbourhood),
-      getFocusNode: (state: ConversationState) =>
-        state.neighbourhood[state.neighbourhoodRoot],
-      canEdit: (state: ConversationState) => (node_id: number) => {
-        const userId = MyVapi.store.getters["member/getUserId"];
-        const node = state.conversation[node_id];
-        if (node && userId) {
-          if (node.status == publication_state_enum.private_draft) {
-            return node.creator == userId;
-            // TODO: role_draft
-          } else if (node.status == publication_state_enum.guild_draft) {
-            const casting = MyVapi.store.getters["quests/castingInQuest"](
-              node.quest_id
-            );
-            return casting?.guild_id == node.guild_id;
-          } else if (node.status == publication_state_enum.proposed) {
-            return MyVapi.store.getters["hasPermission"](
-              "guild_admin",
-              node.guild_id,
-              node.quest_id
-            );
-          }
-          // TODO: Check that the node is under the focus node
-        }
-        return false;
-      },
-    },
-    actions: {
-      resetConversation: (context) => {
-        context.commit("RESET_CONVERSATION");
-      },
-      ensureConversation: async (context, quest_id: number) => {
-        if (
-          quest_id != context.state.currentQuest ||
-          Object.keys(context.state.conversation).length == 0
-        ) {
-          await context.dispatch("fetchConversation", { params: { quest_id } });
-        }
-      },
-      ensureRootNode: async (context, quest_id: number) => {
-        if (
-          quest_id != context.state.currentQuest ||
-          !context.state.conversationRoot
-        ) {
-          await context.dispatch("fetchRootNode", { params: { quest_id } });
-        }
-      },
-      ensureConversationNeighbourhood: async (
-        context,
-        { node_id, guild }: { node_id: number; guild: number }
-      ) => {
-        if (
-          node_id != context.state.neighbourhoodRoot ||
-          Object.keys(context.state.neighbourhood).length == 0
-        ) {
-          await context.dispatch("fetchConversationNeighbourhood", {
-            params: { node_id, guild },
-          });
-        }
-      },
-    },
+    getters: ConversationGetters,
+    actions: ConversationActions,
     mutations: {
       RESET_CONVERSATION: (state: ConversationState) => {
         state.conversation = {};
@@ -217,3 +221,19 @@ export const conversation = new MyVapi<ConversationState>({
       },
     },
   });
+
+type ConversationRestActionTypes = {
+  fetchConversationNode: RestParamActionType<{ id: number }>;
+  fetchConversation: RestParamActionType<{ quest_id: number }>;
+  fetchRootNode: RestParamActionType<{ quest_id: number }>;
+  fetchConversationNeighbourhood: RestParamActionType<{
+    quest_id: number;
+    node_id: number;
+  }>;
+  createConversationNode: RestDataActionType<Partial<ConversationNode>>;
+  updateConversationNode: RestDataActionType<Partial<ConversationNode>>;
+};
+
+export type ConversationActionTypes = typeof ConversationActions &
+  ConversationRestActionTypes;
+export type ConversationGetterTypes = typeof ConversationGetters;

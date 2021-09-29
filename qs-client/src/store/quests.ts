@@ -1,4 +1,9 @@
-import MyVapi from "./base";
+import {
+  MyVapi,
+  RestActionType,
+  RestDataActionType,
+  RestEmptyActionType,
+} from "./base";
 import { Quest, Casting, QuestMembership, GamePlay } from "../types";
 import { quest_status_enum } from "../enums";
 interface QuestMap {
@@ -11,13 +16,103 @@ export interface QuestsState {
   currentQuest?: number;
 }
 
+const QuestsGetters = {
+  getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
+    Object.values(state.quests).filter(
+      (quest: Quest) => quest.status == status
+    ),
+  getQuests: (state: QuestsState) => Object.values(state.quests),
+  getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
+  getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
+  getMyQuests: (state: QuestsState) => {
+    const member_id = MyVapi.store.getters["member/getUserId"];
+    return Object.values(state.quests).filter((quest: Quest) =>
+      quest?.quest_membership?.find(
+        (m: QuestMembership) => m.member_id == member_id && m.confirmed
+      )
+    );
+  },
+  getPlayingQuests: (state: QuestsState) => {
+    const member_id = MyVapi.store.getters["member/getUserId"];
+    return Object.values(state.quests).filter((quest: Quest) =>
+      quest.casting?.find((c: Casting) => c.member_id == member_id)
+    );
+  },
+  getPlayers: (state: QuestsState) => (quest_id: number) =>
+    state.quests[quest_id]?.casting?.map((c: Casting) =>
+      MyVapi.store.getters["members/getMemberById"](c.member_id)
+    ),
+  getPlayersInGuild:
+    (state: QuestsState) => (quest_id: number, guild_id: number) =>
+      state.quests[quest_id]?.casting
+        ?.filter((c: Casting) => c.guild_id == guild_id)
+        .map((c: Casting) =>
+          MyVapi.store.getters["members/getMemberById"](c.member_id)
+        ),
+  isQuestMember: (state: QuestsState) => (quest_id: number) => {
+    const member_id = MyVapi.store.getters["member/getUserId"];
+    return state.quests[quest_id]?.quest_membership?.find(
+      (m: QuestMembership) => m.member_id == member_id && m.confirmed
+    );
+  },
+  castingInQuest:
+    (state: QuestsState) => (quest_id?: number, member_id?: number) => {
+      member_id = member_id || MyVapi.store.getters["member/getUserId"];
+      quest_id = quest_id || state.currentQuest;
+      return state.quests[quest_id]?.casting?.find(
+        (c: Casting) => c.member_id == member_id
+      );
+    },
+};
+
+export const QuestsActions = {
+  setCurrentQuest: (context, quest_id: number) => {
+    context.commit("SET_CURRENT_QUEST", quest_id);
+  },
+  ensureQuest: async (
+    context,
+    { quest_id, full = true }: { quest_id: number; full?: boolean }
+  ) => {
+    if (
+      context.getters.getQuestById(quest_id) === undefined ||
+      (full && !context.state.fullQuests[quest_id])
+    ) {
+      await context.dispatch("fetchQuestById", {
+        full,
+        params: { id: quest_id },
+      });
+    }
+  },
+  createQuest: async (context, { data }) => {
+    const res = await context.dispatch("createQuestBase", { data });
+    // Refetch to get memberships.
+    // TODO: maybe add representation to creation instead?
+    const quest_id = res.data[0].id;
+    await context.dispatch("fetchQuestById", { params: { id: quest_id } });
+    // TODO: Get the membership from the quest
+    await MyVapi.store.dispatch("member/fetchLoginUser");
+  },
+  ensureAllQuests: async (context) => {
+    if (context.state.quests.length === 0 || !context.state.fullFetch) {
+      await context.dispatch("fetchQuests");
+    }
+  },
+  ensureCurrentQuest: async (context, { quest_id, full = true }) => {
+    await context.dispatch("ensureQuest", { quest_id, full });
+    await context.dispatch("setCurrentQuest", quest_id);
+  },
+  clearState: (context) => {
+    context.commit("CLEAR_STATE");
+  },
+};
+
 export const quests = new MyVapi<QuestsState>({
   state: {
     currentQuest: null,
     fullFetch: false,
     quests: {},
     fullQuests: {},
-  },
+  } as QuestsState,
 })
   // Step 3
   .get({
@@ -204,94 +299,8 @@ export const quests = new MyVapi<QuestsState>({
   })
   // Step 4
   .getVuexStore({
-    getters: {
-      getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
-        Object.values(state.quests).filter(
-          (quest: Quest) => quest.status == status
-        ),
-      getQuests: (state: QuestsState) => Object.values(state.quests),
-      getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
-      getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
-      getMyQuests: (state: QuestsState) => {
-        const member_id = MyVapi.store.getters["member/getUserId"];
-        return Object.values(state.quests).filter((quest: Quest) =>
-          quest?.quest_membership?.find(
-            (m: QuestMembership) => m.member_id == member_id && m.confirmed
-          )
-        );
-      },
-      getPlayingQuests: (state: QuestsState) => {
-        const member_id = MyVapi.store.getters["member/getUserId"];
-        return Object.values(state.quests).filter((quest: Quest) =>
-          quest.casting?.find((c: Casting) => c.member_id == member_id)
-        );
-      },
-      getPlayers: (state: QuestsState) => (quest_id: number) =>
-        state.quests[quest_id]?.casting?.map((c: Casting) =>
-          MyVapi.store.getters["members/getMemberById"](c.member_id)
-        ),
-      getPlayersInGuild:
-        (state: QuestsState) => (quest_id: number, guild_id: number) =>
-          state.quests[quest_id]?.casting
-            ?.filter((c: Casting) => c.guild_id == guild_id)
-            .map((c: Casting) =>
-              MyVapi.store.getters["members/getMemberById"](c.member_id)
-            ),
-      isQuestMember: (state: QuestsState) => (quest_id: number) => {
-        const member_id = MyVapi.store.getters["member/getUserId"];
-        return state.quests[quest_id]?.quest_membership?.find(
-          (m: QuestMembership) => m.member_id == member_id && m.confirmed
-        );
-      },
-      castingInQuest:
-        (state: QuestsState) => (quest_id?: number, member_id?: number) => {
-          member_id = member_id || MyVapi.store.getters["member/getUserId"];
-          quest_id = quest_id || state.currentQuest;
-          return state.quests[quest_id]?.casting?.find(
-            (c: Casting) => c.member_id == member_id
-          );
-        },
-    },
-    actions: {
-      setCurrentQuest: (context, quest_id: number) => {
-        context.commit("SET_CURRENT_QUEST", quest_id);
-      },
-      ensureQuest: async (
-        context,
-        { quest_id, full = true }: { quest_id: number; full?: boolean }
-      ) => {
-        if (
-          context.getters.getQuestById(quest_id) === undefined ||
-          (full && !context.state.fullQuests[quest_id])
-        ) {
-          await context.dispatch("fetchQuestById", {
-            full,
-            params: { id: quest_id },
-          });
-        }
-      },
-      createQuest: async (context, { data }) => {
-        const res = await context.dispatch("createQuestBase", { data });
-        // Refetch to get memberships.
-        // TODO: maybe add representation to creation instead?
-        const quest_id = res.data[0].id;
-        await context.dispatch("fetchQuestById", { params: { id: quest_id } });
-        // TODO: Get the membership from the quest
-        await MyVapi.store.dispatch("member/fetchLoginUser");
-      },
-      ensureAllQuests: async (context) => {
-        if (context.state.quests.length === 0 || !context.state.fullFetch) {
-          await context.dispatch("fetchQuests");
-        }
-      },
-      ensureCurrentQuest: async (context, { quest_id, full = true }) => {
-        await context.dispatch("ensureQuest", { quest_id, full });
-        await context.dispatch("setCurrentQuest", quest_id);
-      },
-      clearState: (context) => {
-        context.commit("CLEAR_STATE");
-      },
-    },
+    getters: QuestsGetters,
+    actions: QuestsActions,
     mutations: {
       SET_CURRENT_QUEST: (state: QuestsState, quest_id: number) => {
         state.currentQuest = quest_id;
@@ -304,3 +313,22 @@ export const quests = new MyVapi<QuestsState>({
       },
     },
   });
+
+type QuestsRestActionTypes = {
+  fetchQuestById: ({
+    full,
+    params,
+  }: {
+    full: boolean;
+    params: { id: number | number[] };
+  }) => Promise<any>;
+  fetchQuests: RestEmptyActionType;
+  createQuestBase: RestDataActionType<Partial<Quest>>;
+  updateQuest: RestActionType<{ id: number }, Partial<Quest>>;
+  addQuestMembership: RestDataActionType<Partial<QuestMembership>>;
+  updateQuestMembership: RestDataActionType<Partial<QuestMembership>>;
+  addCasting: RestDataActionType<Partial<Casting>>;
+};
+
+export type QuestsActionTypes = typeof QuestsActions & QuestsRestActionTypes;
+export type QuestsGetterTypes = typeof QuestsGetters;

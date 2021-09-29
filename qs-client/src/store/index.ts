@@ -5,7 +5,7 @@ import { members } from "./members";
 import { member } from "./member";
 import { guilds } from "./guilds";
 import { conversation } from "./conversation";
-import MyVapi from "./base";
+import { MyVapi } from "./base";
 import { registration_status_enum, permission_enum } from "../enums";
 import {
   Member,
