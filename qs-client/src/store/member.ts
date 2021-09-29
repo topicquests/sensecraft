@@ -221,6 +221,16 @@ export const member = new MyVapi<MemberState>({
     action: "renewToken",
     path: ({ token }: { token: string }) => `/rpc/renew_token?token=${token}`,
     readOnly: true,
+    onError: (
+      state: MemberState,
+      error,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
+      window.localStorage.removeItem("token");
+      window.localStorage.removeItem("tokenExpiry");
+      console.log(error);
+    },
     onSuccess: (
       state: MemberState,
       res: AxiosResponse<string>,
