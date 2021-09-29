@@ -84,15 +84,14 @@ export default {
     member: member,
   },
   methods: {
-    ...mapActions("quests", ["createQuest", "findquests", "getQuestByHandle"]),
+    ...mapActions("quests", ["createQuest", "findquests"]),
     async doSubmit() {
       const res = await this.createQuest({ data: this.quest });
-      const quest = await this.getQuestById(res.data.id);
       Notify.create({
         message: `New quest was created successfully`,
         color: "positive",
       });
-      this.$router.push({ name: "quest_edit", params: { quest_id: quest.id } });
+      this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
     },
   },
   async beforeMount() {

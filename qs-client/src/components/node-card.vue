@@ -6,12 +6,12 @@
           <img src="../statics/images/question.png" />
         </q-avatar>
         <h5 class="q-ma-md">
-          {{ nodeCard.title }}
+          {{ node.title }}
         </h5>
       </section>
       <section id="node-card-details">
         Details<br />
-        <div v-html="nodeCard.description"></div>
+        <div v-html="node.description"></div>
       </section>
     </q-card>
   </div>
@@ -19,9 +19,9 @@
 
 <script lang="ts">
 export default {
-  name: "nodeCard",
+  name: "node",
   props: {
-    nodeCard: {
+    node: {
       type: Object,
     },
   },
