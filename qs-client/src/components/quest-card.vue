@@ -30,21 +30,22 @@
 </template>
 
 <script lang="ts">
-export default {
+import Vue from "vue";
+import Component from "vue-class-component";
+import { Quest, Member } from "../types";
+
+@Component<QuestCard>({
   name: "questCard",
   props: {
-    currentQuestCard: {
-      type: Object,
-    },
-    creator: {
-      type: Object,
-    },
+    currentQuestCard: Object,
+    creator: Object,
   },
-  data() {
-    return {};
-  },
-  computed: {},
-};
+})
+export default class QuestCard extends Vue {
+  // explicitly state the props types
+  currentQuestCard!: Quest;
+  creator!: Member;
+}
 </script>
 <style>
 .quest_card {
