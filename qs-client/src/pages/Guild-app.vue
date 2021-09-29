@@ -243,6 +243,7 @@ import { BaseGetterTypes } from "../store/baseStore";
       "getQuests",
       "getCurrentQuest",
       "castingInQuest",
+      "getCurrentGamePlay",
     ]),
     ...mapState("member", {
       member: (state: MemberState) => state.member,
@@ -281,13 +282,12 @@ import { BaseGetterTypes } from "../store/baseStore";
       "ensureAllQuests",
       "setCurrentQuest",
       "addCasting",
+      "updateGamePlay",
     ]),
     ...mapActions("members", ["ensureMembersOfGuild", "ensureMemberById"]),
     ...mapActions("guilds", [
       "ensureGuild",
       "getMemberByGuildIdandUserId",
-      // "getGamePlayByGuildIdAndQuestId",
-      "getGamePlayByGuildId",
       "getMembersByGuildId",
       "registerQuest",
       "joinGuild",
@@ -381,10 +381,10 @@ export default class GuildPage extends Vue {
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
   getParentNode!: ConversationGetterTypes["getConversationNodeById"];
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
+  getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   // getGamePlayByGuildIdAndQuestId!: ReturnType<
   //   GuildsGetterTypes["getGamePlayByGuildIdAndQuestId"]
   // >;
-  getGamePlayByGuildId!: (guildId: number) => GamePlay | undefined; // TODO
 
   // declare the methods for Typescript
   ensureGuildsPlayingQuest!: GuildsActionTypes["ensureGuildsPlayingQuest"];
@@ -403,6 +403,7 @@ export default class GuildPage extends Vue {
   ensureQuest!: QuestsActionTypes["ensureQuest"];
   fetchQuestById!: QuestsActionTypes["fetchQuestById"];
   updateQuest!: QuestsActionTypes["updateQuest"];
+  updateGamePlay!: QuestsActionTypes["updateGamePlay"];
 
   async initialize() {
     await this.setCurrentGuild(this.guildId);
@@ -574,22 +575,15 @@ export default class GuildPage extends Vue {
       return this.getConversationNodeById(nodeId);
     }
   }
-  /*
-  TODO
-  async setFocusNode() {
-    let payload = {
-      guild_id: this.currentGuildId,
-      quest_id: this.questId,
-    };
-    const conv = await this.setConversationQuest(payload.quest_id);
-    const gpResponse = this.getGamePlayByGuildIdAndQuestId(payload);
-    gpResponse[0].focus_node_id = conv[0].id;
-    const focus = await this.setFocusNodeId(gpResponse[0]);
-    const game_play = this.getGamePlayByGuildIdAndQuestId(payload);
-    this.gamePlay = [...game_play];
-    return "focus node set";
+
+  async setFocusNode(node_id: number) {
+    const gamePlay = this.getCurrentGamePlay;
+    if (gamePlay) {
+      gamePlay.focus_node_id = node_id;
+      await this.updateGamePlay(gamePlay);
+    }
   }
-  */
+
   getQuestCreator() {
     const quest = this.getCurrentQuest;
     if (quest) {

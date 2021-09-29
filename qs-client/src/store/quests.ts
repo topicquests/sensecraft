@@ -66,6 +66,16 @@ const QuestsGetters = {
         (c: Casting) => c.member_id == member_id
       );
     },
+  getCurrentGamePlay: (state) => {
+    if (state.currentQuest) {
+      const quest = state.quests[state.currentQuest];
+      const currentGuildId: number =
+        MyVapi.store.getters["guilds/getCurrentGuildId"];
+      return quest.game_play?.find(
+        (gp: GamePlay) => gp.guild_id == currentGuildId
+      );
+    }
+  },
 };
 
 export const QuestsActions = {
@@ -262,7 +272,10 @@ export const quests = new MyVapi<QuestsState>({
   })
   .patch({
     action: "updateQuestMembership",
-    path: "/quest_membership",
+    path: ({ id }) => `/quest_membership?id=eq.${id}`,
+    beforeRequest: (state: QuestsState, { params, data }) => {
+      params.id = data.id;
+    },
     onSuccess: (
       state: QuestsState,
       res: AxiosResponse<QuestMembership[]>,
@@ -303,7 +316,10 @@ export const quests = new MyVapi<QuestsState>({
   })
   .patch({
     action: "updateGamePlay",
-    path: "/game_play",
+    path: ({ id }) => `/game_play?id=eq.${id}`,
+    beforeRequest: (state: QuestsState, { params, data }) => {
+      params.id = data.id;
+    },
     onSuccess: (
       state: QuestsState,
       res: AxiosResponse<GamePlay[]>,
@@ -345,6 +361,35 @@ export const quests = new MyVapi<QuestsState>({
       }
     },
   })
+  .patch({
+    action: "updateCasting",
+    path: ({ id }) => `/casting?id=eq.${id}`,
+    beforeRequest: (state: QuestsState, { params, data }) => {
+      params.id = data.id;
+    },
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Casting[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      const casting = res.data[0];
+      console.log(res);
+      const quest = state.quests[casting.quest_id];
+      if (quest) {
+        const castings =
+          quest.casting?.filter(
+            (gp: Casting) => gp.quest_id !== casting.quest_id
+          ) || [];
+        castings.push(casting);
+        quest.casting = castings;
+      }
+      const store = MyVapi.store;
+      if ((casting.member_id = store.getters["member/getUserId"])) {
+        store.commit("member/addCasting", casting);
+      }
+    },
+  })
   // Step 4
   .getVuexStore({
     getters: QuestsGetters,
@@ -372,7 +417,7 @@ type QuestsRestActionTypes = {
   }) => Promise<AxiosResponse<Quest[]>>;
   fetchQuests: RestEmptyActionType<Quest[]>;
   createQuestBase: RestDataActionType<Partial<Quest>, Quest[]>;
-  updateQuest: RestActionType<{ id: number }, Partial<Quest>, Quest[]>;
+  updateQuest: RestDataActionType<Partial<Quest>, Quest[]>;
   addQuestMembership: RestDataActionType<
     Partial<QuestMembership>,
     QuestMembership[]
@@ -384,6 +429,7 @@ type QuestsRestActionTypes = {
   addGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
   updateGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
   addCasting: RestDataActionType<Partial<Casting>, Casting[]>;
+  updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
 };
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &
