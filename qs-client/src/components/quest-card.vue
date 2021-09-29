@@ -33,19 +33,19 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Quest, Member } from "../types";
+import { Prop } from "vue/types/options";
+
+const QuestCardProps = Vue.extend({
+  props: {
+    currentQuestCard: Object as Prop<Quest>,
+    creator: Object as Prop<Member>,
+  },
+});
 
 @Component<QuestCard>({
   name: "questCard",
-  props: {
-    currentQuestCard: Object,
-    creator: Object,
-  },
 })
-export default class QuestCard extends Vue {
-  // explicitly state the props types
-  currentQuestCard!: Quest;
-  creator!: Member;
-}
+export default class QuestCard extends QuestCardProps {}
 </script>
 <style>
 .quest_card {
