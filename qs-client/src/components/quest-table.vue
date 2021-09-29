@@ -31,12 +31,14 @@
 </template>
 
 <script lang="ts">
-export default {
-  name: "quest_table",
+import Vue from "vue";
+import Component from "vue-class-component";
+import { Quest, Member } from "../types";
+import { Prop } from "vue/types/options";
+
+const QuestTableProps = Vue.extend({
   props: {
-    quests: {
-      type: Array,
-    },
+    quests: Array as Prop<Quest[]>,
     title: String,
     view: {
       type: Boolean,
@@ -44,37 +46,39 @@ export default {
       default: true,
     },
   },
-  data() {
-    return {
-      columns1: [
-        {
-          name: "desc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "questNodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-    };
-  },
-};
+});
+
+@Component<QuestTable>({
+  name: "quest_table",
+})
+export default class QuestTable extends QuestTableProps {
+  columns1: [
+    {
+      name: "desc";
+      required: true;
+      label: "Label";
+      align: "left";
+      field: "name";
+      sortable: true;
+    },
+    {
+      name: "handle";
+      required: false;
+      label: "Handle";
+      align: "left";
+      field: "handle";
+      sortable: true;
+    },
+    {
+      name: "questNodeId";
+      required: false;
+      label: "Action";
+      align: "left";
+      field: "id";
+      sortable: true;
+    }
+  ];
+}
 </script>
 
 <style>
