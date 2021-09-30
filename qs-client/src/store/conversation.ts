@@ -34,6 +34,7 @@ const ConversationGetters = {
     Object.values(state.neighbourhood),
   getFocusNode: (state: ConversationState) =>
     state.neighbourhood[state.neighbourhoodRoot],
+  getNode: (state: ConversationState) => state.node,
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
     const node = state.conversation[node_id];
@@ -96,7 +97,12 @@ const ConversationActions = {
 
 export const conversation = new MyVapi<ConversationState>({
   state: {
-    node: null,
+    node: {
+      title: "",
+      description: "",
+      status: "private_draft",
+      node_type: "question",
+    },
     currentQuest: null,
     conversation: {},
     neighbourhoodRoot: null,

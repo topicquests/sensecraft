@@ -2,27 +2,35 @@
   <div class="col-12 col-md q-pa-md">
     <q-card id="node-card">
       <section id="node-card-title">
-        <q-avatar size="56px" class="q-ma-sm">
-          <img src="../statics/images/question.png" />
-        </q-avatar>
+        <div class="row" style="text-align: left">
+          <p class="q-ma-md">Node type</p>
+          <btnQuestion></btnQuestion>
+        </div>
         <h5 class="q-ma-md">
           {{ node.title }}
         </h5>
       </section>
-      <section id="node-card-details">
-        Details<br />
-        <div v-html="node.description"></div>
+      <section>
+        <div>
+          <p id="node-card-detail-header">Details<br /></p>
+        </div>
+        <div v-html="node.description" id="node-card-details"></div>
       </section>
     </q-card>
   </div>
 </template>
 
 <script lang="ts">
+import btnQuestion from "./btn-question.vue";
 export default {
+  components: { btnQuestion },
   name: "node",
   props: {
     node: {
       type: Object,
+    },
+    nodeType: {
+      type: String,
     },
   },
   data() {
@@ -57,5 +65,11 @@ export default {
   font-size: 1.2em;
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
+}
+#node-card-detail-header {
+  text-align: center;
+  background-color: rgb(158, 181, 243);
+  color: black;
+  margin-bottom: 0%;
 }
 </style>
