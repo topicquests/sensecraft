@@ -1,6 +1,6 @@
 <template>
   <q-btn round>
-    <q-avatar size="36px">
+    <q-avatar size="46px">
       <img src="../statics/images/question.png" />
     </q-avatar>
   </q-btn>
@@ -8,9 +8,7 @@
 
 <script lang="ts">
 export default {
-  // name: 'ComponentName',
-  data() {
-    return {};
-  },
+  name: "btn-question",
+  props: {},
 };
 </script>

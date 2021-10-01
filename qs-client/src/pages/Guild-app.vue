@@ -111,7 +111,7 @@
       </div>
       <div class="col-12 col-md q-pa-md">
         <div v-if="getFocusNode" class="col-12 col-md q-pa-md">
-          <nodeCard v-bind:nodeCard="getFocusNode"></nodeCard>
+          <nodeCard v-bind:node="getFocusNode"></nodeCard>
         </div>
       </div>
       <div

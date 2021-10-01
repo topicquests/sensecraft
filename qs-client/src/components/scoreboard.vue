@@ -1,7 +1,7 @@
 <template>
   <q-card class="flat bordered q-pa-md bg-black">
     <div class="row">
-      <div class="col-12">
+      <div class="col-12 col-md">
         <p id="scoreboard-title">Scoreboard</p>
       </div>
     </div>
