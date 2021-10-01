@@ -23,7 +23,7 @@
         <div class="row justify-start q-pb-lg q-ml-lg">
           <q-select
             v-model="node.node_type"
-            :options="ibis_node_type_list"
+            :options="ibisTypes"
             label="Type"
             style="width: 25%"
           />
@@ -71,6 +71,7 @@ import btnQuestion from "./btn-question.vue";
 import { ConversationNode } from "../types";
 import {
   ibis_node_type_list,
+  ibis_node_type_type,
   publication_state_list,
   public_private_bool,
 } from "../enums";
@@ -81,6 +82,7 @@ const NodeFormProps = Vue.extend({
   props: {
     nodeInput: Object as Prop<Partial<ConversationNode>>,
     allowCreate: Boolean as Prop<boolean>,
+    ibisTypes: Array as Prop<ibis_node_type_type[]>,
   },
 });
 

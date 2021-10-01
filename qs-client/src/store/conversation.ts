@@ -7,7 +7,37 @@ import {
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { ConversationNode } from "../types";
-import { ibis_node_type_enum, publication_state_enum } from "../enums";
+import {
+  ibis_node_type_enum,
+  ibis_node_type_type,
+  publication_state_enum,
+} from "../enums";
+
+export function ibis_child_types(
+  parent_type: ibis_node_type_type
+): ibis_node_type_type[] {
+  switch (parent_type) {
+    case ibis_node_type_enum.question:
+      return [ibis_node_type_enum.answer, ibis_node_type_enum.reference];
+    case ibis_node_type_enum.answer:
+      return [
+        ibis_node_type_enum.question,
+        ibis_node_type_enum.con,
+        ibis_node_type_enum.pro,
+        ibis_node_type_enum.reference,
+      ];
+    case ibis_node_type_enum.pro:
+    case ibis_node_type_enum.con:
+      return [
+        ibis_node_type_enum.con,
+        ibis_node_type_enum.pro,
+        ibis_node_type_enum.question,
+        ibis_node_type_enum.reference,
+      ];
+    case ibis_node_type_enum.reference:
+      return [ibis_node_type_enum.question, ibis_node_type_enum.reference];
+  }
+}
 
 interface ConversationMap {
   [key: number]: ConversationNode;

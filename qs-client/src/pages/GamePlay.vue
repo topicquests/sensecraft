@@ -31,13 +31,14 @@
           v-if="canEdit(selectedNodeId)"
           v-bind:nodeInput="selectedNode()"
           v-bind:allowCreate="true"
+          v-bind:ibisTypes="selectedIbisTypes"
           v-on:action="updateNode"
           v-on:addChild="addChild"
         />
         <nodeCard v-else v-bind:node="selectedNode()" />
         <q-btn
           v-if="!canEdit(selectedNodeId)"
-          @click="addChild(selectedNode())"
+          @click="addChild()"
           label="Add Child"
         />
       </div>
@@ -45,6 +46,7 @@
         v-if="newNodeParent == selectedNodeId"
         v-bind:nodeInput="newNode"
         v-bind:allowCreate="false"
+        v-bind:ibisTypes="childIbisTypes"
         v-on:action="addNode"
       />
     </div>
@@ -59,6 +61,8 @@ import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import nodeForm from "../components/node-form.vue";
 import {
+  ibis_node_type_enum,
+  ibis_node_type_type,
   ibis_node_type_list,
   publication_state_list,
   public_private_bool,
@@ -68,6 +72,7 @@ import {
   ConversationState,
   ConversationGetterTypes,
   ConversationActionTypes,
+  ibis_child_types,
 } from "../store/conversation";
 import {
   QuestsState,
@@ -134,6 +139,9 @@ import { BaseGetterTypes } from "../store/baseStore";
       "ensureRootNode",
     ]),
   },
+  watch: {
+    selectedNodeId: "selectionChanged",
+  },
 })
 export default class GamePlayPage extends Vue {
   //data
@@ -145,6 +153,8 @@ export default class GamePlayPage extends Vue {
   newNode: Partial<ConversationNode> = {};
   selectedNodeId: number = null;
   newNodeParent: number = null;
+  selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+  childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -175,8 +185,31 @@ export default class GamePlayPage extends Vue {
   selectedNode() {
     return this.getConversationNodeById(this.selectedNodeId);
   }
+  selectionChanged() {
+    const selectedNode = this.selectedNode();
+    const parent = selectedNode
+      ? this.getConversationNodeById(selectedNode.parent_id)
+      : null;
+    if (parent) {
+      this.selectedIbisTypes = ibis_child_types(parent.node_type);
+    } else {
+      this.selectedIbisTypes = ibis_node_type_list;
+    }
+  }
   addChild() {
     this.newNodeParent = this.selectedNodeId;
+    const parent_ibis_type = this.selectedNode().node_type;
+    this.childIbisTypes = ibis_child_types(parent_ibis_type);
+    this.newNode = Object.assign(
+      {
+        status: "private_draft",
+      },
+      this.newNode,
+      {
+        node_type: this.childIbisTypes[0],
+        parent_id: this.selectedNodeId,
+      }
+    );
   }
   async addNode(node) {
     try {
