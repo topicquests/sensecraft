@@ -48,19 +48,16 @@ function makeTree(nodes: ConversationNode[]) {
     children: [],
   }));
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));
-  let root = elements[0];
+  const roots = [];
   elements.forEach((el) => {
-    if (el.data.ancestry.length < root.data.ancestry.length) {
-      root = el;
-    }
-    if (el.parent_id) {
-      const parent = byId[el.parent_id];
-      if (parent) {
-        parent.children.push(el);
-      }
+    const parent = el.parent_id ? byId[el.parent_id] : null;
+    if (parent) {
+      parent.children.push(el);
+    } else {
+      roots.push(el);
     }
   });
-  return [root];
+  return roots;
 }
 
 const ConversationGetters = {
