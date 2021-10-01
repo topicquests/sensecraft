@@ -76,9 +76,8 @@ const MembersActions = {
       force: true,
     });
     const guild = MyVapi.store.getters["guilds/getGuildById"](guildId);
-    let membersId: number[] = guild.guild_membership.map(
-      (mp: GuildMembership) => mp.member_id
-    );
+    let membersId: number[] =
+      guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) || [];
     membersId = membersId.filter((id: number) => !context.state.members[id]);
     if (membersId.length > 0) {
       await context.dispatch("fetchMemberById", {
@@ -92,9 +91,10 @@ const MembersActions = {
       full: true,
     });
     const quest = MyVapi.store.getters["quests/getQuestById"](questId);
-    let membersId: number[] = quest.casting.map((mp: Casting) => mp.member_id);
+    let membersId: number[] =
+      quest.casting?.map((mp: Casting) => mp.member_id) || [];
     membersId.concat(
-      quest.quest_membership.map((mp: QuestMembership) => mp.member_id)
+      quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) || []
     );
     membersId = [...new Set(membersId)];
     membersId = membersId.filter((id: number) => !context.state.members[id]);

@@ -14,6 +14,7 @@ interface ConversationMap {
 }
 
 export interface ConversationState extends Object {
+  full: boolean;
   node?: ConversationNode;
   currentQuest?: number;
   conversation: ConversationMap;
@@ -22,18 +23,60 @@ export interface ConversationState extends Object {
   conversationRoot?: ConversationNode;
 }
 
+function addToState(state: ConversationState, node: ConversationNode) {
+  state.conversation = { ...state.conversation, [node.id]: node };
+  if (!node.parent_id) {
+    state.conversationRoot = node;
+  }
+  if (state.neighbourhoodRoot) {
+    const root = state.neighbourhood[state.neighbourhoodRoot];
+    if (root && node.ancestry.startsWith(root.ancestry)) {
+      state.neighbourhood = { ...state.neighbourhood, [node.id]: node };
+    }
+  }
+}
+
+function makeTree(nodes: ConversationNode[]) {
+  if (nodes.length == 0) {
+    return [];
+  }
+  const elements = nodes.map((el) => ({
+    id: el.id,
+    label: el.title,
+    parent_id: el.parent_id,
+    data: el,
+    children: [],
+  }));
+  const byId = Object.fromEntries(elements.map((el) => [el.id, el]));
+  let root = elements[0];
+  elements.forEach((el) => {
+    if (el.data.ancestry.length < root.data.ancestry.length) {
+      root = el;
+    }
+    if (el.parent_id) {
+      const parent = byId[el.parent_id];
+      if (parent) {
+        parent.children.push(el);
+      }
+    }
+  });
+  return [root];
+}
+
 const ConversationGetters = {
   getConversation: (state: ConversationState): ConversationNode[] =>
     Object.values(state.conversation),
   getConversationNodeById: (state: ConversationState) => (id: number) =>
-    state.neighbourhood[id] ||
-    state.conversation[id] ||
-    (state.conversationRoot?.id == id ? state.conversationRoot : null),
+    state.conversation[id],
   getRootNode: (state: ConversationState) => state.conversationRoot,
   getNeighbourhood: (state: ConversationState): ConversationNode[] =>
     Object.values(state.neighbourhood),
   getFocusNode: (state: ConversationState) =>
     state.neighbourhood[state.neighbourhoodRoot],
+  getNeighbourhoodTree: (state: ConversationState) =>
+    makeTree(Object.values(state.neighbourhood)),
+  getConversationTree: (state: ConversationState) =>
+    makeTree(Object.values(state.conversation)),
   getNode: (state: ConversationState) => state.node,
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
@@ -65,10 +108,7 @@ const ConversationActions = {
     context.commit("RESET_CONVERSATION");
   },
   ensureConversation: async (context, quest_id: number) => {
-    if (
-      quest_id != context.state.currentQuest ||
-      Object.keys(context.state.conversation).length == 0
-    ) {
+    if (quest_id != context.state.currentQuest || !context.state.full) {
       await context.dispatch("fetchConversation", { params: { quest_id } });
     }
   },
@@ -97,6 +137,7 @@ const ConversationActions = {
 
 export const conversation = new MyVapi<ConversationState>({
   state: {
+    full: false,
     node: {
       title: "",
       description: "",
@@ -123,18 +164,7 @@ export const conversation = new MyVapi<ConversationState>({
       { params, data }
     ) => {
       state.node = res.data[0];
-      if (state.neighbourhoodRoot) {
-        const neighbourhoodRoot = state.neighbourhood[state.neighbourhoodRoot];
-        if (
-          neighbourhoodRoot &&
-          state.node.ancestry.startsWith(neighbourhoodRoot.ancestry)
-        ) {
-          state.neighbourhood = {
-            ...state.neighbourhood,
-            [state.node.id]: state.node,
-          };
-        }
-      }
+      addToState(state, state.node);
     },
   })
   .get({
@@ -157,6 +187,7 @@ export const conversation = new MyVapi<ConversationState>({
       state.conversation = Object.fromEntries(
         res.data.map((node: ConversationNode) => [node.id, node])
       );
+      state.full = true;
       state.conversationRoot = res.data.find(
         (node: ConversationNode) => node.parent_id === null
       );
@@ -180,8 +211,7 @@ export const conversation = new MyVapi<ConversationState>({
         state.neighbourhood = {};
         state.neighbourhoodRoot = null;
       }
-      state.conversationRoot = res.data[0];
-      // add to neighbourhood if appropriate?
+      addToState(state, res.data[0]);
     },
   })
   .call({
@@ -207,6 +237,10 @@ export const conversation = new MyVapi<ConversationState>({
       const root = res.data.find(
         (node: ConversationNode) => node.parent_id == null
       );
+      state.conversation = Object.assign(
+        state.conversation,
+        state.neighbourhood
+      );
       if (root) {
         state.conversationRoot = root;
       }
@@ -222,9 +256,7 @@ export const conversation = new MyVapi<ConversationState>({
       { params, data }
     ) => {
       state.node = res.data[0];
-      if (!state.node.parent_id) {
-        state.conversationRoot = state.node;
-      }
+      addToState(state, state.node);
     },
   })
   .patch({
@@ -241,11 +273,7 @@ export const conversation = new MyVapi<ConversationState>({
       { data }
     ) => {
       const node = res.data[0];
-      state.conversation = { ...state.conversation, [node.id]: node };
-      state.node = node;
-      if (!node.parent_id) {
-        state.conversationRoot = node;
-      }
+      addToState(state, node);
     },
   })
   // Step 4
@@ -254,6 +282,7 @@ export const conversation = new MyVapi<ConversationState>({
     actions: ConversationActions,
     mutations: {
       RESET_CONVERSATION: (state: ConversationState) => {
+        state.full = false;
         state.conversation = {};
         state.conversationRoot = null;
         state.neighbourhood = {};

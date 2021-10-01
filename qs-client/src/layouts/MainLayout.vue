@@ -41,7 +41,7 @@
         </div>
         <div>
           <q-btn
-            v-if="showTree"
+            v-if="showTree && getNeighbourhoodTree.length"
             flat
             dense
             round
@@ -56,7 +56,7 @@
     <div id="mySidenav" class="sidenav">
       <div class="q-pa-md q-gutter-sm">
         <q-tree
-          :nodes="getNeighbourhood"
+          :nodes="getNeighbourhoodTree"
           node-key="id"
           default-expand-all
           :selected.sync="selected"
@@ -148,11 +148,14 @@ export default {
       leftDrawer: false,
       rightDrawerOpen: false,
       selected: null,
-      showTree: false,
+      showTree: true,
     };
   },
   computed: {
-    ...mapGetters("conversation", ["getNeighbourhood", "getConversation"]),
+    ...mapGetters("conversation", [
+      "getNeighbourhoodTree",
+      "getConversationTree",
+    ]),
     ...mapGetters(["hasPermission"]),
     ...mapState("member", {
       isAuthenticated: (state: MemberState) => state.isAuthenticated,

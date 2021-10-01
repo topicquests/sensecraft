@@ -596,9 +596,9 @@ export default class GuildPage extends Vue {
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),
-      this.ensureMembersOfGuild(this.guildId),
     ]);
-    this.initialize();
+    await this.ensureMembersOfGuild(this.guildId);
+    await this.initialize();
   }
 }
 </script>
