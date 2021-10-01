@@ -18,65 +18,35 @@
       </div>
     </div>
     <div class="column items-center q-mb-md">
-      <nodeCard v-bind:node="getFocusNode" :type="view"> </nodeCard>
+      <q-tree
+        :nodes="getNeighbourhoodTree"
+        node-key="id"
+        default-expand-all
+        :selected.sync="selectedNodeId"
+      />
     </div>
-    <div class="column items-center">
-      <div class="col-12 col-md">
-        <q-card class="node-card q-pa-md" style="width: 500px">
-          <section class="node-card-title">
-            <q-input v-model="newNode.title" label="Node title" />
-          </section>
-          <section>
-            <div
-              class="row q-pb-xs q-ma-lg"
-              style="text-align: center; font-size: 15pt"
-            >
-              Description<br />
-            </div>
-          </section>
-          <section>
-            <q-editor
-              v-model="newNode.description"
-              style="width: 98%"
-              class="q-editor node-card-details"
-            />
-          </section>
-          <section>
-            <div class="row justify-start q-pb-lg q-ml-lg">
-              <q-select
-                v-model="newNode.node_type"
-                :options="ibis_node_type_list"
-                label="Type"
-                style="width: 25%"
-              />
-            </div>
-          </section>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <q-select
-              v-model="newNode.status"
-              :options="publication_state_list"
-              label="Status"
-              style="width: 75%"
-            />
-          </div>
-          <div class="row justify-center q-pb-lg">
-            <q-btn
-              v-if="newNode.id"
-              label="Update"
-              @click="updateNode"
-              color="primary"
-              class="q-mr-md q-ml-md"
-            />
-            <q-btn
-              v-if="!newNode.id"
-              label="Add"
-              @click="addNode"
-              color="primary"
-              class="q-mr-md q-ml-md"
-            />
-          </div>
-        </q-card>
+    <div class="column items-center q-mb-md">
+      <div v-if="selectedNodeId">
+        <nodeForm
+          v-if="canEdit(selectedNodeId)"
+          v-bind:nodeInput="selectedNode()"
+          v-bind:allowCreate="true"
+          v-on:action="updateNode"
+          v-on:addChild="addChild"
+        />
+        <nodeCard v-else v-bind:node="selectedNode()" />
+        <q-btn
+          v-if="!canEdit(selectedNodeId)"
+          @click="addChild(selectedNode())"
+          label="Add Child"
+        />
       </div>
+      <nodeForm
+        v-if="newNodeParent == selectedNodeId"
+        v-bind:nodeInput="newNode"
+        v-bind:allowCreate="false"
+        v-on:action="addNode"
+      />
     </div>
   </q-page>
 </template>
@@ -87,6 +57,7 @@ import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
+import nodeForm from "../components/node-form.vue";
 import {
   ibis_node_type_list,
   publication_state_list,
@@ -137,45 +108,43 @@ import { BaseGetterTypes } from "../store/baseStore";
     member: member,
     questCard: questCard,
     nodeCard: nodeCard,
+    nodeForm: nodeForm,
   },
   computed: {
-    ...mapState("conversation", {
-      newNode: (state: ConversationState) => state.node,
-    }),
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("conversation", [
       "getFocusNode",
+      "getConversationNodeById",
+      "getNeighbourhoodTree",
       "getNeighbourhood",
       "canEdit",
+      "getRootNode",
       "getNode",
     ]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
-    ...mapActions("members", ["fetchMemberById", "ensureMembersById"]),
+    ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("conversation", [
       "ensureConversationNeighbourhood",
       "createConversationNode",
       "updateConversationNode",
+      "ensureRootNode",
     ]),
   },
 })
 export default class GamePlayPage extends Vue {
-  data() {
-    return {
-      ibis_node_type_list,
-      publication_state_list,
-      public_private_bool,
-    };
-  }
   //data
+  ibis_node_type_list = ibis_node_type_list;
+  publication_state_list = publication_state_list;
+  public_private_bool = public_private_bool;
   guildId: number;
   questId: number;
-
-  // declare state bindings for TypeScript
-  newNode: ConversationState["node"];
+  newNode: Partial<ConversationNode> = {};
+  selectedNodeId: number = null;
+  newNodeParent: number = null;
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -185,26 +154,38 @@ export default class GamePlayPage extends Vue {
   getNeighbourhood: ConversationGetterTypes["getNeighbourhood"];
   canEdit: ConversationGetterTypes["canEdit"];
   getNode: ConversationGetterTypes["getNode"];
+  getNeighbourhoodTree: ConversationGetterTypes["getNeighbourhoodTree"];
+  getRootNode: ConversationGetterTypes["getRootNode"];
   // declare the action attributes for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureGuild: GuildsActionTypes["ensureGuild"];
   fetchMemberById: MembersActionTypes["fetchMemberById"];
-  ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
+  ensureConversationNeighbourhood!: ConversationActionTypes["ensureConversationNeighbourhood"];
   ensureMemberById: MembersActionTypes["ensureMemberById"];
   createConversationNode: ConversationActionTypes["createConversationNode"];
   updateConversationNode: ConversationActionTypes["updateConversationNode"];
+  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
+  ensureRootNode: ConversationActionTypes["ensureRootNode"];
+
   getQuestCreator() {
     return this.getMemberById(this.getCurrentQuest.creator);
   }
-  async addNode() {
+  selectedNode() {
+    return this.getConversationNodeById(this.selectedNodeId);
+  }
+  addChild() {
+    this.newNodeParent = this.selectedNodeId;
+  }
+  async addNode(node) {
     try {
-      this.newNode.quest_id = this.questId;
-      this.newNode.guild_id = this.guildId;
-      this.newNode.parent_id = this.getFocusNode.id;
+      node.quest_id = this.questId;
+      node.guild_id = this.guildId;
+      node.parent_id = this.selectedNodeId;
 
-      await this.createConversationNode({ data: this.newNode });
+      await this.createConversationNode({ data: node });
+      this.newNodeParent = null;
       this.$q.notify({
         message: `Added node to conversation`,
         color: "positive",
@@ -217,17 +198,17 @@ export default class GamePlayPage extends Vue {
       });
     }
   }
-  async updateNode() {
+  async updateNode(node) {
     try {
-      await this.updateConversationNode({ data: this.newNode });
+      await this.updateConversationNode({ data: node });
       this.$q.notify({
-        message: `Root node updated`,
+        message: `node updated`,
         color: "positive",
       });
     } catch (err) {
       console.log("there was an error in adding node ", err);
       this.$q.notify({
-        message: `There was an error adding root node.`,
+        message: `There was an error adding node.`,
         color: "negative",
       });
     }
@@ -239,14 +220,23 @@ export default class GamePlayPage extends Vue {
     await Promise.all([
       this.setCurrentQuest(this.questId),
       this.setCurrentGuild(this.guildId),
+    ]);
+    await Promise.all([
       this.ensureQuest({ quest_id: this.questId }),
       this.ensureGuild({ guild_id: this.guildId }),
     ]);
-    const node_id = this.getCurrentGamePlay.focus_node_id;
-    await this.ensureConversationNeighbourhood({
-      node_id,
-      quest_id: this.questId,
-    });
+    let node_id = this.getCurrentGamePlay?.focus_node_id;
+    if (!node_id) {
+      await this.ensureRootNode(this.questId);
+      node_id = this.getRootNode?.id;
+    }
+    if (node_id) {
+      await this.ensureConversationNeighbourhood({
+        node_id,
+        guild: this.guildId,
+      });
+      this.selectedNodeId = this.getFocusNode.id;
+    }
     const quest = this.getCurrentQuest;
     await this.ensureMemberById(quest.creator);
     // const creator = this.getMemberById(quest.creator);

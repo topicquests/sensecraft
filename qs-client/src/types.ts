@@ -79,7 +79,7 @@ export interface ConversationNode {
   id: number;
   quest_id: number;
   guild_id?: number;
-  creator: number;
+  creator_id: number;
   parent_id?: number;
   ancestry: string;
   node_type: ibis_node_type_type;

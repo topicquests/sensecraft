@@ -36,19 +36,32 @@ function addToState(state: ConversationState, node: ConversationNode) {
   }
 }
 
+type QTreeNode = {
+  id: number;
+  parent_id: number;
+  label: string;
+  children?: QTreeNode[];
+  data?: any;
+  color?: string;
+  icon?: string;
+};
+
 function makeTree(nodes: ConversationNode[]) {
   if (nodes.length == 0) {
     return [];
   }
-  const elements = nodes.map((el) => ({
-    id: el.id,
-    label: el.title,
-    parent_id: el.parent_id,
-    data: el,
-    children: [],
-  }));
+  const elements = nodes.map(
+    (el) =>
+      ({
+        id: el.id,
+        label: el.title,
+        parent_id: el.parent_id,
+        data: el,
+        children: [],
+      } as QTreeNode)
+  );
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));
-  const roots = [];
+  const roots: QTreeNode[] = [];
   elements.forEach((el) => {
     const parent = el.parent_id ? byId[el.parent_id] : null;
     if (parent) {
@@ -80,7 +93,7 @@ const ConversationGetters = {
     const node = state.conversation[node_id];
     if (node && userId) {
       if (node.status == publication_state_enum.private_draft) {
-        return node.creator == userId;
+        return node.creator_id == userId;
         // TODO: role_draft
       } else if (node.status == publication_state_enum.guild_draft) {
         const casting = MyVapi.store.getters["quests/castingInQuest"](

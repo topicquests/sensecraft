@@ -1,0 +1,167 @@
+<template>
+  <div class="col-12 col-md q-pa-md">
+    <q-card class="node-card q-pa-md" style="width: 500px">
+      <section class="node-card-title">
+        <q-input v-model="node.title" label="Node title" />
+      </section>
+      <section>
+        <div
+          class="row q-pb-xs q-ma-lg"
+          style="text-align: center; font-size: 15pt"
+        >
+          Description<br />
+        </div>
+      </section>
+      <section>
+        <q-editor
+          v-model="description"
+          style="width: 98%"
+          class="q-editor node-card-details"
+        />
+      </section>
+      <section>
+        <div class="row justify-start q-pb-lg q-ml-lg">
+          <q-select
+            v-model="node.node_type"
+            :options="ibis_node_type_list"
+            label="Type"
+            style="width: 25%"
+          />
+        </div>
+      </section>
+      <div class="row justify-start q-pb-lg q-ml-lg">
+        <q-select
+          v-model="node.status"
+          :options="publication_state_list"
+          label="Status"
+          style="width: 75%"
+        />
+      </div>
+      <div class="row justify-center q-pb-lg">
+        <q-btn
+          v-if="node.id"
+          label="Update"
+          @click="action"
+          color="primary"
+          class="q-mr-md q-ml-md"
+        />
+        <q-btn
+          v-else
+          label="Add"
+          @click="action"
+          color="primary"
+          class="q-mr-md q-ml-md"
+        />
+        <q-btn
+          v-if="allowCreate && node.id"
+          label="Add child"
+          @click="addChild"
+          color="primary"
+          class="q-mr-md q-ml-md"
+        />
+      </div>
+    </q-card>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+import btnQuestion from "./btn-question.vue";
+import { ConversationNode } from "../types";
+import {
+  ibis_node_type_list,
+  publication_state_list,
+  public_private_bool,
+} from "../enums";
+
+import { Prop } from "vue/types/options";
+
+const NodeFormProps = Vue.extend({
+  props: {
+    nodeInput: Object as Prop<Partial<ConversationNode>>,
+    allowCreate: Boolean as Prop<boolean>,
+  },
+});
+
+@Component<NodeForm>({
+  name: "NodeForm",
+  components: { btnQuestion },
+  computed: {
+    description: {
+      get() {
+        return this.nodeInput.description || "";
+      },
+      set(value) {
+        this.node.description = value;
+      },
+    },
+  },
+  watch: {
+    nodeInput(newNode: Partial<ConversationNode>) {
+      // TODO: watch if data is dirty
+      this.node = newNode;
+    },
+  },
+})
+export default class NodeForm extends NodeFormProps {
+  node: Partial<ConversationNode> = {};
+  ibis_node_type_list = ibis_node_type_list;
+  publication_state_list = publication_state_list;
+  description!: string;
+
+  created() {
+    this.node = { ...this.nodeInput };
+  }
+  getDescription() {
+    return this.node.description || "";
+  }
+  setDescription(description: string) {
+    this.node.description = description;
+  }
+  descriptionChange(value: string) {
+    this.node.description = value;
+  }
+  action() {
+    this.$emit("action", this.node);
+  }
+  addChild() {
+    this.$emit("addChild", this.node);
+  }
+}
+</script>
+<style>
+#node-card {
+  text-align: center;
+  border: 3px solid black;
+  font-size: 1.2em;
+  color: rgb(39, 11, 194);
+  background-color: rgb(158, 181, 243);
+}
+#node-card-details {
+  background-color: rgb(158, 181, 243);
+  color: rgb(39, 11, 194);
+  text-align: left;
+  font-size: 1.2em;
+  padding-top: 3%;
+  padding-left: 1%;
+  border: 1px solid gray;
+}
+#node-card-title {
+  border: 1px solid gray;
+  background-color: lightgray;
+  color: rgb(39, 11, 194);
+}
+#node-card-data {
+  text-align: left;
+  font-size: 1.2em;
+  background-color: rgb(158, 181, 243);
+  color: rgb(39, 11, 194);
+}
+#node-card-detail-header {
+  text-align: center;
+  background-color: rgb(158, 181, 243);
+  color: black;
+  margin-bottom: 0%;
+}
+</style>

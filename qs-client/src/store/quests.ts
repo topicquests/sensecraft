@@ -71,7 +71,7 @@ const QuestsGetters = {
       const quest = state.quests[state.currentQuest];
       const currentGuildId: number =
         MyVapi.store.getters["guilds/getCurrentGuildId"];
-      return quest.game_play?.find(
+      return quest?.game_play?.find(
         (gp: GamePlay) => gp.guild_id == currentGuildId
       );
     }

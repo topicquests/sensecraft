@@ -21,22 +21,29 @@
 </template>
 
 <script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
 import btnQuestion from "./btn-question.vue";
-export default {
-  components: { btnQuestion },
-  name: "node",
+import { ConversationNode } from "../types";
+
+import { Prop } from "vue/types/options";
+
+const NodeCardProps = Vue.extend({
   props: {
-    node: {
-      type: Object,
-    },
-    nodeType: {
-      type: String,
+    node: Object as Prop<ConversationNode>,
+  },
+});
+
+@Component<NodeCard>({
+  name: "NodeCard",
+  components: { btnQuestion },
+  computed: {
+    description() {
+      return this.node.description || "";
     },
   },
-  data() {
-    return {};
-  },
-};
+})
+export default class NodeCard extends NodeCardProps {}
 </script>
 <style>
 #node-card {
