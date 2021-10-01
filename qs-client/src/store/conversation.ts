@@ -65,6 +65,42 @@ function addToState(state: ConversationState, node: ConversationNode) {
     }
   }
 }
+export function ibis_node_icon(
+  node_type: ibis_node_type_type,
+  large_icon: boolean
+): string {
+  if (large_icon) {
+    switch (node_type) {
+      case ibis_node_type_enum.question:
+        return "../statics/images/question.png";
+      case ibis_node_type_enum.answer:
+        return "../statics/images/answer.png";
+      case ibis_node_type_enum.pro:
+        return "../statics/images/plus.png";
+      case ibis_node_type_enum.con:
+        return "../statics/images/minus.png";
+      case ibis_node_type_enum.reference:
+        return "../statics/images/reference.png";
+      case ibis_node_type_enum.quest:
+        return "../statics/images/challenge.png";
+    }
+  } else {
+    switch (node_type) {
+      case ibis_node_type_enum.question:
+        return "../statics/images/question_sm.png";
+      case ibis_node_type_enum.answer:
+        return "../statics/images/answer_sm.png";
+      case ibis_node_type_enum.pro:
+        return "../statics/images/plus_sm.png";
+      case ibis_node_type_enum.con:
+        return "../statics/images/minus_sm.png";
+      case ibis_node_type_enum.reference:
+        return "../statics/images/reference_sm.png";
+      case ibis_node_type_enum.quest:
+        return "../statics/images/challenge_sm.png";
+    }
+  }
+}
 
 type QTreeNode = {
   id: number;
@@ -88,6 +124,7 @@ function makeTree(nodes: ConversationNode[]) {
         parent_id: el.parent_id,
         data: el,
         children: [],
+        icon: ibis_node_icon(el.node_type, false),
       } as QTreeNode)
   );
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));
