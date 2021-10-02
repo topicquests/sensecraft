@@ -227,6 +227,8 @@ export const member = new MyVapi<MemberState>({
       axios: AxiosInstance,
       { params, data }
     ) => {
+      state.token = null;
+      state.tokenExpiry = null;
       window.localStorage.removeItem("token");
       window.localStorage.removeItem("tokenExpiry");
       console.log(error);
