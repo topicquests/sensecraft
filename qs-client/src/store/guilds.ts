@@ -113,13 +113,15 @@ const GuildsActions = {
   },
 };
 
+const baseState: GuildsState = {
+  currentGuild: null,
+  fullFetch: false,
+  guilds: {},
+  fullGuilds: {},
+};
+
 export const guilds = new MyVapi<GuildsState>({
-  state: {
-    currentGuild: null,
-    fullFetch: false,
-    guilds: {},
-    fullGuilds: {},
-  } as GuildsState,
+  state: baseState,
 })
   // Step 3
   .get({
@@ -302,10 +304,7 @@ export const guilds = new MyVapi<GuildsState>({
         state.currentGuild = guild_id;
       },
       CLEAR_STATE: (state: GuildsState) => {
-        state.guilds = {};
-        state.currentGuild = null;
-        state.fullFetch = false;
-        state.fullGuilds = {};
+        Object.assign(state, baseState);
       },
       ADD_GAME_PLAY: (state: GuildsState, game_play: GamePlay) => {
         const guild_id = game_play.guild_id;

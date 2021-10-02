@@ -22,6 +22,7 @@ const app = new Vue({
       if (newUser?.id !== oldUser?.id) {
         this.$store.dispatch("quests/clearState");
         this.$store.dispatch("guilds/clearState");
+        this.$store.dispatch("conversation/clearState");
       }
       if (newUser === null) {
         this.$router.push("/");

@@ -119,13 +119,15 @@ export const QuestsActions = {
   },
 };
 
+const baseState: QuestsState = {
+  currentQuest: null,
+  fullFetch: false,
+  quests: {},
+  fullQuests: {},
+};
+
 export const quests = new MyVapi<QuestsState>({
-  state: {
-    currentQuest: null,
-    fullFetch: false,
-    quests: {},
-    fullQuests: {},
-  } as QuestsState,
+  state: baseState,
 })
   // Step 3
   .get({
@@ -399,10 +401,7 @@ export const quests = new MyVapi<QuestsState>({
         state.currentQuest = quest_id;
       },
       CLEAR_STATE: (state: QuestsState) => {
-        state.quests = {};
-        state.currentQuest = null;
-        state.fullFetch = false;
-        state.fullQuests = {};
+        Object.assign(state, baseState);
       },
     },
   });

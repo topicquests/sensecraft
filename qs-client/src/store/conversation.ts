@@ -173,23 +173,23 @@ const ConversationActions = {
       });
     }
   },
+  clearState: (context) => {
+    context.commit("CLEAR_STATE");
+  },
+};
+
+const baseState: ConversationState = {
+  full: false,
+  node: null,
+  currentQuest: null,
+  conversation: {},
+  neighbourhoodRoot: null,
+  neighbourhood: {},
+  conversationRoot: null,
 };
 
 export const conversation = new MyVapi<ConversationState>({
-  state: {
-    full: false,
-    node: {
-      title: "",
-      description: "",
-      status: "private_draft",
-      node_type: "question",
-    },
-    currentQuest: null,
-    conversation: {},
-    neighbourhoodRoot: null,
-    neighbourhood: {},
-    conversationRoot: null,
-  } as ConversationState,
+  state: baseState,
 })
   // Step 3
   .get({
@@ -328,6 +328,9 @@ export const conversation = new MyVapi<ConversationState>({
         state.neighbourhood = {};
         state.neighbourhoodRoot = null;
         state.currentQuest = null;
+      },
+      CLEAR_STATE: (state: ConversationState) => {
+        Object.assign(state, baseState);
       },
     },
   });
