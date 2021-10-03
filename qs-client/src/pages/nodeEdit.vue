@@ -67,7 +67,10 @@
               <q-input v-model="currentNode.node_type" label="Type" />
             </div>
             <div class="col-4">
-              <btn-question v-on:click.native="questionType"></btn-question>
+              <ibis-button
+                v-bind:node_type="node.node_type"
+                v-on:click.native="questionType"
+              />
             </div>
           </div>
           <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
@@ -135,7 +138,7 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import btnQuestion from "../components/btn-question.vue";
+import IbisButton from "../components/ibis-btn.vue";
 import app from "../App.vue";
 import { QuestsState } from "../store/quests";
 import { ConversationState } from "../store/conversation";
@@ -172,7 +175,7 @@ export default {
   components: {
     scoreboard: scoreboard,
     member: member,
-    btnQuestion: btnQuestion,
+    IbisButton: IbisButton,
   },
   methods: {
     ...mapActions("conversation", [

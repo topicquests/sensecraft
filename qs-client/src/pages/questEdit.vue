@@ -68,7 +68,10 @@
         <q-card>
           <div class="row justify-start q-pb-lg q-ml-lg">
             <div class="col-4">
-              <btn-question v-on:click.native="questionType"></btn-question>
+              <ibis-button
+                v-bind:node_type="node.node_type"
+                v-on:click.native="questionType"
+              />
             </div>
           </div>
           <div class="row justify-start q-pb-lg q-ml-lg">
@@ -120,7 +123,7 @@
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import btnQuestion from "../components/btn-question.vue";
+import IbisButton from "../components/ibis-btn.vue";
 import app from "../App.vue";
 import {
   quest_status_list,
@@ -147,7 +150,7 @@ export default {
   components: {
     scoreboard: scoreboard,
     member: member,
-    btnQuestion: btnQuestion,
+    IbisButton: IbisButton,
   },
   computed: {
     ...mapState("member", ["member"]),

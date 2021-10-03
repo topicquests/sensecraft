@@ -67,37 +67,37 @@ function addToState(state: ConversationState, node: ConversationNode) {
 }
 export function ibis_node_icon(
   node_type: ibis_node_type_type,
-  large_icon: boolean
+  small_icon: boolean
 ): string {
-  if (large_icon) {
+  if (small_icon) {
     switch (node_type) {
       case ibis_node_type_enum.question:
-        return "../statics/images/question.png";
+        return "icons/ibis/issue_sm.png";
       case ibis_node_type_enum.answer:
-        return "../statics/images/answer.png";
+        return "icons/ibis/position_sm.png";
       case ibis_node_type_enum.pro:
-        return "../statics/images/plus.png";
+        return "icons/ibis/plus_sm.png";
       case ibis_node_type_enum.con:
-        return "../statics/images/minus.png";
+        return "icons/ibis/minus_sm.png";
       case ibis_node_type_enum.reference:
-        return "../statics/images/reference.png";
+        return "icons/ibis/reference_sm.png";
       case ibis_node_type_enum.quest:
-        return "../statics/images/challenge.png";
+        return "icons/ibis/challenge_sm.png";
     }
   } else {
     switch (node_type) {
       case ibis_node_type_enum.question:
-        return "../statics/images/question_sm.png";
+        return "icons/ibis/issue.png";
       case ibis_node_type_enum.answer:
-        return "../statics/images/answer_sm.png";
+        return "icons/ibis/position.png";
       case ibis_node_type_enum.pro:
-        return "../statics/images/plus_sm.png";
+        return "icons/ibis/plus.png";
       case ibis_node_type_enum.con:
-        return "../statics/images/minus_sm.png";
+        return "icons/ibis/minus.png";
       case ibis_node_type_enum.reference:
-        return "../statics/images/reference_sm.png";
+        return "icons/ibis/reference.png";
       case ibis_node_type_enum.quest:
-        return "../statics/images/challenge_sm.png";
+        return "icons/ibis/challenge.png";
     }
   }
 }
@@ -124,7 +124,7 @@ function makeTree(nodes: ConversationNode[]) {
         parent_id: el.parent_id,
         data: el,
         children: [],
-        icon: ibis_node_icon(el.node_type, false),
+        icon: "img:" + ibis_node_icon(el.node_type, false),
       } as QTreeNode)
   );
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));

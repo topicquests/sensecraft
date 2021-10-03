@@ -21,6 +21,11 @@
       </section>
       <section>
         <div class="row justify-start q-pb-lg q-ml-lg">
+          <ibis-button
+            v-bind:node_type="node.node_type"
+            v-bind:small="true"
+            style="valign: center; margin-top: 3ex; margin-right: 1ex"
+          />
           <q-select
             v-model="node.node_type"
             :options="ibisTypes"
@@ -67,7 +72,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import btnQuestion from "./btn-question.vue";
+import IbisButton from "./ibis-btn.vue";
 import { ConversationNode } from "../types";
 import {
   ibis_node_type_list,
@@ -88,7 +93,7 @@ const NodeFormProps = Vue.extend({
 
 @Component<NodeForm>({
   name: "NodeForm",
-  components: { btnQuestion },
+  components: { IbisButton },
   computed: {
     description: {
       get() {
