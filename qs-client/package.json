@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@quasar/extras": "~1.11",
-    "axios": "~0.21",
+    "axios": "~0.22",
     "bcryptjs": "^2.4.3",
     "core-js": "^3.18",
     "grant": "~5.4",
