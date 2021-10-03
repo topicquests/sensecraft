@@ -2,11 +2,8 @@
   <div class="col-12 col-md q-pa-md">
     <q-card id="node-card">
       <section id="node-card-title">
-        <div class="row" style="text-align: left">
-          <p class="q-ma-md">Node type</p>
-          <btnQuestion></btnQuestion>
-        </div>
         <h5 class="q-ma-md">
+          <IbisButton v-bind:node_type="node.node_type"></IbisButton>
           {{ node.title }}
         </h5>
       </section>
@@ -23,7 +20,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import btnQuestion from "./btn-question.vue";
+import IbisButton from "./ibis-btn.vue";
 import { ConversationNode } from "../types";
 
 import { Prop } from "vue/types/options";
@@ -36,7 +33,7 @@ const NodeCardProps = Vue.extend({
 
 @Component<NodeCard>({
   name: "NodeCard",
-  components: { btnQuestion },
+  components: { IbisButton },
   computed: {
     description() {
       return this.node.description || "";

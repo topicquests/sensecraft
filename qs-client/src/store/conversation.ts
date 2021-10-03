@@ -65,6 +65,42 @@ function addToState(state: ConversationState, node: ConversationNode) {
     }
   }
 }
+export function ibis_node_icon(
+  node_type: ibis_node_type_type,
+  small_icon: boolean
+): string {
+  if (small_icon) {
+    switch (node_type) {
+      case ibis_node_type_enum.question:
+        return "icons/ibis/issue_sm.png";
+      case ibis_node_type_enum.answer:
+        return "icons/ibis/position_sm.png";
+      case ibis_node_type_enum.pro:
+        return "icons/ibis/plus_sm.png";
+      case ibis_node_type_enum.con:
+        return "icons/ibis/minus_sm.png";
+      case ibis_node_type_enum.reference:
+        return "icons/ibis/reference_sm.png";
+      case ibis_node_type_enum.quest:
+        return "icons/ibis/challenge_sm.png";
+    }
+  } else {
+    switch (node_type) {
+      case ibis_node_type_enum.question:
+        return "icons/ibis/issue.png";
+      case ibis_node_type_enum.answer:
+        return "icons/ibis/position.png";
+      case ibis_node_type_enum.pro:
+        return "icons/ibis/plus.png";
+      case ibis_node_type_enum.con:
+        return "icons/ibis/minus.png";
+      case ibis_node_type_enum.reference:
+        return "icons/ibis/reference.png";
+      case ibis_node_type_enum.quest:
+        return "icons/ibis/challenge.png";
+    }
+  }
+}
 
 type QTreeNode = {
   id: number;
@@ -88,6 +124,7 @@ function makeTree(nodes: ConversationNode[]) {
         parent_id: el.parent_id,
         data: el,
         children: [],
+        icon: "img:" + ibis_node_icon(el.node_type, false),
       } as QTreeNode)
   );
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));

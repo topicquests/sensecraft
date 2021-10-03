@@ -4,7 +4,7 @@
       <q-card v-if="currentQuestCard" class="quest_card">
         <section id="quest-card-title">
           <q-avatar size="56px" class="q-ma-sm">
-            <img src="../statics/images/question.png" />
+            <img :src="ibis_node_icon('quest', true)" />
           </q-avatar>
           <h5 class="q-ma-md">
             {{ currentQuestCard.name }}
@@ -34,6 +34,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Quest, Member } from "../types";
 import { Prop } from "vue/types/options";
+import { ibis_node_icon } from "../store/conversation";
 
 const QuestCardProps = Vue.extend({
   props: {
@@ -44,6 +45,9 @@ const QuestCardProps = Vue.extend({
 
 @Component<QuestCard>({
   name: "questCard",
+  methods: {
+    ibis_node_icon,
+  },
 })
 export default class QuestCard extends QuestCardProps {}
 </script>
