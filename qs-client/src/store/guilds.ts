@@ -76,6 +76,7 @@ const GuildsActions = {
     await context.dispatch("fetchGuildById", { params: { id: guild_id } });
     // TODO: Get the membership from the guild
     await MyVapi.store.dispatch("member/fetchLoginUser");
+    return res.data[0];
   },
   ensureAllGuilds: async (context) => {
     if (context.state.guilds.length === 0 || !context.state.fullFetch) {
