@@ -36,7 +36,7 @@
           <div class="row justify-start q-pb-lg">
             <q-btn
               label="Submit"
-              @click="doSubmit"
+              @click="doSubmit(guild)"
               color="primary"
               class="q-mr-md q-ml-md"
             />
@@ -49,54 +49,58 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapActions, mapState } from "vuex";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import app from "../App.vue";
 import { public_private_bool } from "../enums";
+import { GuildsActionTypes } from "../store/guilds";
 
-export default {
+@Component<GuildFormPage>({
+  components: {
+    scoreboard: scoreboard,
+    member: member,
+  },
+  methods: {
+    ...mapActions("guilds", ["createGuild"]),
+  },
+})
+export default class GuildFormPage extends Vue {
+  public_private_bool = public_private_bool;
+  createGuild: GuildsActionTypes["createGuild"];
+  async doSubmit(guild) {
+    try {
+      const res = await this.createGuild({ data: guild });
+      this.$q.notify({
+        message: `Added new guild`,
+        color: "positive",
+      });
+      this.$router.push({ name: "guild_edit", params: { guild_id: res.id } });
+    } catch (err) {
+      console.log("there was an error in creating guild ", err);
+      this.$q.notify({
+        message: `There was an error creating new guild.`,
+        color: "negative",
+      });
+    }
+  }
+  async beforeMount() {
+    await app.userLoaded;
+  }
   data() {
     return {
-      public_private_bool,
       guild: {
         name: null,
         handle: null,
         public: false,
         description: null,
       },
-      shape: "line",
-      submitResult: [],
-      details: "",
-      handle: "",
-      type: false,
     };
-  },
-  computed: {
-    ...mapState("member", ["member"]),
-  },
-
-  components: {
-    scoreboard: scoreboard,
-    member: member,
-  },
-  methods: {
-    //...mapActions('quests', ['quest/createQuests']),
-    ...mapActions("guilds", ["createGuild", "fetchGuildById"]),
-
-    async doSubmit() {
-      console.log("wtf");
-      const res = await this.createGuild({ data: this.guild });
-      const guild = await this.fetchGuildById(res.data.id);
-      this.$router.push({ name: "guild_edit", params: { guild_id: guild.id } });
-    },
-  },
-  async beforeMount() {
-    await app.userLoaded;
-  },
-};
+  }
+}
 </script>
-
 <style>
 .details {
   max-width: 960px;
@@ -104,13 +108,11 @@ export default {
   overflow: auto;
   overflow-wrap: normal;
 }
-
 .guildText {
   color: blue;
   font-family: Arial, Helvetica, sans-serif;
   width: 25%;
 }
-
 #h4 {
   color: blue;
   font-family: Arial, Helvetica, sans-serif;
