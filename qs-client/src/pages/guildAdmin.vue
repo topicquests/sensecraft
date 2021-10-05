@@ -1,7 +1,7 @@
 <template>
-  <q-page padding>
+  <q-page padding class="bg-secondary">
     <div class="column items-center" v-if="potentialQuests.length > 0">
-      <div class="col-4" style="width: 900px">
+      <div class="col-4">
         <q-card>
           <h2>
             {{ getCurrentGuild.name }}
@@ -71,7 +71,29 @@
       </div>
     </div>
     <div v-else>
-      <q-card><h1>No quest you can join</h1></q-card>
+      <div class="column items-center">
+        <h4>No quest you can join</h4>
+      </div>
+    </div>
+    <div class="row justify-center full-height full-width text-center">
+      <h5>Registered Quests</h5>
+    </div>
+
+    <div v-if="activeQuests.length > 0" class="row">
+      <div
+        v-for="quest in activeQuests"
+        :key="quest.id"
+        class="col-4 column items-center q-ma-md"
+      >
+        <q-card class="q-pa-md" style="border: 1px solid gray">
+          <h6>{{ quest.name }}</h6>
+          <ul style="font-size: 20px; color: red; background: lightblue">
+            <li v-for="member in getGuildMembers()" :key="member.id">
+              {{ member.handle }}
+            </li>
+          </ul>
+        </q-card>
+      </div>
     </div>
   </q-page>
 </template>
@@ -80,44 +102,23 @@
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
-
-import {
-  ConversationState,
-  ConversationGetterTypes,
-  ConversationActionTypes,
-} from "../store/conversation";
-import {
-  QuestsState,
-  QuestsActionTypes,
-  QuestsGetterTypes,
-} from "../store/quests";
+import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import {
   GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import {
-  MemberState,
-  MemberGetterTypes,
-  MemberActionTypes,
-} from "../store/member";
+import { MemberState } from "../store/member";
+import { MembersGetterTypes } from "../store/members";
 import {
   registration_status_enum,
   quest_status_enum,
   permission_enum,
   quest_status_type,
 } from "../enums";
-import {
-  Quest,
-  Guild,
-  GamePlay,
-  Casting,
-  ConversationNode,
-  Member,
-} from "../types";
+import { Quest, GamePlay, ConversationNode, Member } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 
 @Component<GuildAdminPage>({
@@ -133,6 +134,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapGetters("quests", ["getQuests", "getQuestById"]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
+    ...mapGetters("members", ["getMembersOfGuild"]),
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
@@ -206,6 +208,7 @@ export default class GuildAdminPage extends Vue {
   getQuestById!: QuestsGetterTypes["getQuestById"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   hasPermission!: BaseGetterTypes["hasPermission"];
+  getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
 
   // declare the methods for Typescript
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
@@ -282,6 +285,12 @@ export default class GuildAdminPage extends Vue {
       return gamePlays.find(
         (gp: GamePlay) => gp.guild_id == this.currentGuildId
       );
+  }
+  getGuildMembers() {
+    if (this.getCurrentGuild) {
+      return this.getMembersOfGuild(this.getCurrentGuild);
+    }
+    return [];
   }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
