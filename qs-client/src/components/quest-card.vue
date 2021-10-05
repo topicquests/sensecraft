@@ -54,8 +54,8 @@ export default class QuestCard extends QuestCardProps {}
 <style>
 .quest_card {
   text-align: center;
-  border: 3px solid black;
-  font-size: 1.2em;
+  border: 2px solid black;
+  font-size: 1em;
   color: darkgreen;
   background-color: aquamarine;
 }

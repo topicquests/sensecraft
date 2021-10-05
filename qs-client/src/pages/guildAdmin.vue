@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="bg-secondary">
+  <q-page padding class="page">
     <div class="column items-center" v-if="potentialQuests.length > 0">
       <div class="col-4">
         <q-card>
@@ -72,27 +72,26 @@
     </div>
     <div v-else>
       <div class="column items-center">
-        <h4>No quest you can join</h4>
+        <h1>No quest you can join</h1>
       </div>
     </div>
     <div class="row justify-center full-height full-width text-center">
       <h5>Registered Quests</h5>
     </div>
-
-    <div v-if="activeQuests.length > 0" class="row">
-      <div
-        v-for="quest in activeQuests"
-        :key="quest.id"
-        class="col-4 column items-center q-ma-md"
-      >
-        <q-card class="q-pa-md" style="border: 1px solid gray">
-          <h6>{{ quest.name }}</h6>
-          <ul style="font-size: 20px; color: red; background: lightblue">
-            <li v-for="member in getGuildMembers()" :key="member.id">
-              {{ member.handle }}
-            </li>
-          </ul>
-        </q-card>
+    <div v-if="activeQuests.length > 0" class="row justify-center">
+      <div v-for="quest in activeQuests" :key="quest.id">
+        <div class="col-6">
+          <q-card class="q-pa-md card" style="border: 1px solid gray">
+            <h6 class="q-ma-sm">{{ quest.name }}</h6>
+            <ul>
+              <li v-for="member in getGuildMembers()" :key="member.id">
+                <div v-if="playingAsGuildId(quest.id, member.id)">
+                  {{ member.handle }}
+                </div>
+              </li>
+            </ul>
+          </q-card>
+        </div>
       </div>
     </div>
   </q-page>
@@ -131,7 +130,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapState("guilds", {
       currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
-    ...mapGetters("quests", ["getQuests", "getQuestById"]),
+    ...mapGetters("quests", ["getQuests", "getQuestById", "castingInQuest"]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", ["getMembersOfGuild"]),
@@ -209,6 +208,7 @@ export default class GuildAdminPage extends Vue {
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   hasPermission!: BaseGetterTypes["hasPermission"];
   getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
+  castingInQuest!: QuestsGetterTypes["castingInQuest"];
 
   // declare the methods for Typescript
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
@@ -292,6 +292,10 @@ export default class GuildAdminPage extends Vue {
     }
     return [];
   }
+  playingAsGuildId(quest_id, member_id) {
+    console.log("Quest id and member id ", quest_id, " ", member_id);
+    return this.castingInQuest(quest_id, member_id)?.guild_id;
+  }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
@@ -317,3 +321,21 @@ export default class GuildAdminPage extends Vue {
   }
 }
 </script>
+<style scoped>
+.card {
+  background-color: white;
+  margin: 3%;
+}
+li {
+  list-style: none;
+  background-color: white;
+}
+.page {
+  background-color: whitesmoke;
+}
+ul {
+  font-size: 17px;
+  color: red;
+  padding-left: 1%;
+}
+</style>

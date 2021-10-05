@@ -1,11 +1,21 @@
 <template>
-  <q-page class="bg-blue">
+  <q-page class="page">
     <div>
       <member></member>
     </div>
     <div class="column items-center">
       <div id="scoreboard">
         <scoreboard></scoreboard>
+      </div>
+    </div>
+    <div class="sidenav">
+      <div class="q-pa-md q-gutter-sm">
+        <q-tree
+          :nodes="getNeighbourhoodTree"
+          node-key="id"
+          default-expand-all
+          :selected.sync="selectedNodeId"
+        />
       </div>
     </div>
     <div class="column items-center">
@@ -16,14 +26,6 @@
           :creator="getQuestCreator()"
         ></questCard>
       </div>
-    </div>
-    <div class="column items-center q-mb-md">
-      <q-tree
-        :nodes="getNeighbourhoodTree"
-        node-key="id"
-        default-expand-all
-        :selected.sync="selectedNodeId"
-      />
     </div>
     <div class="column items-center q-mb-md">
       <div v-if="selectedNodeId">
@@ -277,6 +279,9 @@ export default class GamePlayPage extends Vue {
 }
 </script>
 <style scoped>
+.page {
+  background-color: whitesmoke;
+}
 .node-card {
   width: 100%;
   border: 3px solid black;
@@ -303,5 +308,19 @@ export default class GamePlayPage extends Vue {
   font-size: 1.2em;
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
+}
+.sidenav {
+  height: 100%;
+  width: 20%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  color: black;
+  background-color: rgb(230, 234, 238);
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border: 1px solid gray;
 }
 </style>
