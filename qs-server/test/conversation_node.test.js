@@ -258,6 +258,13 @@ describe('\'guilds\' service', () => {
           }, quidamToken);
         }, 'GeneralError');
       });
+      it('quidam can update draft node to proposed', async () => {
+        const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
+          description: 'details about the answer',
+          status: 'proposed',
+        }, quidamToken);
+        assert.equal(arg1Models[0].status, 'proposed');
+      });
       it('leader can submit node', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
           status: 'submitted'

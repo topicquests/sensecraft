@@ -255,8 +255,8 @@ CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SE
 
 DROP POLICY IF EXISTS conversation_node_update_policy ON public.conversation_node;
 CREATE POLICY conversation_node_update_policy ON public.conversation_node FOR UPDATE USING (
-  (status < 'proposed' AND creator_id = current_member_id()) OR
-  (status = 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
+  (status <= 'proposed' AND creator_id = current_member_id()) OR
+  (status >= 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
   (status >= 'submitted' AND (public.is_quest_id_member(quest_id) OR public.is_guild_id_leader(guild_id)))
 );
 
