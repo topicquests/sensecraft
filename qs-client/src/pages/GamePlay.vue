@@ -8,7 +8,7 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="sidenav">
+    <div class="sidenav gt-sm">
       <div class="q-pa-md q-gutter-sm">
         <q-tree
           :nodes="getNeighbourhoodTree"
@@ -25,6 +25,18 @@
           v-bind:currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
         ></questCard>
+      </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-12">
+        <div class="q-pa-md q-gutter-sm lt-md">
+          <q-tree
+            :nodes="getNeighbourhoodTree"
+            node-key="id"
+            default-expand-all
+            :selected.sync="selectedNodeId"
+          />
+        </div>
       </div>
     </div>
     <div class="column items-center q-mb-md">
