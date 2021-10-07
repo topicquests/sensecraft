@@ -18,51 +18,57 @@
         />
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-12 col-md">
-        <questCard
-          v-if="getCurrentQuest"
-          v-bind:currentQuestCard="getCurrentQuest"
-          :creator="getQuestCreator()"
-        ></questCard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-12">
-        <div class="q-pa-md q-gutter-sm lt-md">
-          <q-tree
-            :nodes="getNeighbourhoodTree"
-            node-key="id"
-            default-expand-all
-            :selected.sync="selectedNodeId"
-          />
+    <div class="row justify-center">
+      <div class="column items-center">
+        <div class="col-12 col-md">
+          <questCard
+            v-if="getCurrentQuest"
+            v-bind:currentQuestCard="getCurrentQuest"
+            :creator="getQuestCreator()"
+          ></questCard>
+          <div class="column items-center">
+            <div class="col-12">
+              <div class="q-pa-md q-gutter-sm lt-md">
+                <q-tree
+                  :nodes="getNeighbourhoodTree"
+                  node-key="id"
+                  default-expand-all
+                  :selected.sync="selectedNodeId"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div v-if="selectedNodeId">
-        <nodeForm
-          v-if="canEdit(selectedNodeId)"
-          v-bind:nodeInput="selectedNode()"
-          v-bind:allowCreate="true"
-          v-bind:ibisTypes="selectedIbisTypes"
-          v-on:action="updateNode"
-          v-on:addChild="addChild"
-        />
-        <nodeCard v-else v-bind:node="selectedNode()" />
-        <q-btn
-          v-if="!canEdit(selectedNodeId)"
-          @click="addChild()"
-          label="Add Child"
-        />
+      <div class="column items-center q-mb-md">
+        <div v-if="selectedNodeId">
+          <nodeForm
+            v-if="canEdit(selectedNodeId)"
+            v-bind:nodeInput="selectedNode()"
+            v-bind:allowCreate="true"
+            v-bind:ibisTypes="selectedIbisTypes"
+            v-on:action="updateNode"
+            v-on:addChild="addChild"
+          />
+          <nodeCard v-else v-bind:node="selectedNode()" />
+          <q-btn
+            v-if="!canEdit(selectedNodeId)"
+            @click="addChild()"
+            label="Add Child"
+          />
+        </div>
+        <div class="row q-ma-lg">
+          <div class="column items-center q-mb-md">
+            <nodeForm
+              v-if="newNodeParent == selectedNodeId"
+              v-bind:nodeInput="newNode"
+              v-bind:allowCreate="false"
+              v-bind:ibisTypes="childIbisTypes"
+              v-on:action="addNode"
+            />
+          </div>
+        </div>
       </div>
-      <nodeForm
-        v-if="newNodeParent == selectedNodeId"
-        v-bind:nodeInput="newNode"
-        v-bind:allowCreate="false"
-        v-bind:ibisTypes="childIbisTypes"
-        v-on:action="addNode"
-      />
     </div>
   </q-page>
 </template>
