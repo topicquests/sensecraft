@@ -45,8 +45,8 @@ export default class NodeCard extends NodeCardProps {}
 <style>
 #node-card {
   text-align: center;
-  border: 3px solid black;
-  font-size: 1.2em;
+  border: 2px solid black;
+  font-size: 1em;
   color: rgb(39, 11, 194);
   background-color: rgb(158, 181, 243);
 }
@@ -54,7 +54,7 @@ export default class NodeCard extends NodeCardProps {}
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
   text-align: left;
-  font-size: 1.2em;
+  font-size: 1em;
   padding-top: 3%;
   padding-left: 1%;
   border: 1px solid gray;
@@ -66,7 +66,7 @@ export default class NodeCard extends NodeCardProps {}
 }
 #node-card-data {
   text-align: left;
-  font-size: 1.2em;
+  font-size: 1em;
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
 }

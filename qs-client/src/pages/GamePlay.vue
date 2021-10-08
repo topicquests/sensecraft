@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-blue">
+  <q-page class="page">
     <div>
       <member></member>
     </div>
@@ -8,47 +8,67 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-12 col-md">
-        <questCard
-          v-if="getCurrentQuest"
-          v-bind:currentQuestCard="getCurrentQuest"
-          :creator="getQuestCreator()"
-        ></questCard>
-      </div>
-    </div>
-    <div class="column items-center q-mb-md">
-      <q-tree
-        :nodes="getNeighbourhoodTree"
-        node-key="id"
-        default-expand-all
-        :selected.sync="selectedNodeId"
-      />
-    </div>
-    <div class="column items-center q-mb-md">
-      <div v-if="selectedNodeId">
-        <nodeForm
-          v-if="canEdit(selectedNodeId)"
-          v-bind:nodeInput="selectedNode()"
-          v-bind:allowCreate="true"
-          v-bind:ibisTypes="selectedIbisTypes"
-          v-on:action="updateNode"
-          v-on:addChild="addChild"
-        />
-        <nodeCard v-else v-bind:node="selectedNode()" />
-        <q-btn
-          v-if="!canEdit(selectedNodeId)"
-          @click="addChild()"
-          label="Add Child"
+    <div class="sidenav gt-sm">
+      <div class="q-pa-md q-gutter-sm">
+        <q-tree
+          :nodes="getNeighbourhoodTree"
+          node-key="id"
+          default-expand-all
+          :selected.sync="selectedNodeId"
         />
       </div>
-      <nodeForm
-        v-if="newNodeParent == selectedNodeId"
-        v-bind:nodeInput="newNode"
-        v-bind:allowCreate="false"
-        v-bind:ibisTypes="childIbisTypes"
-        v-on:action="addNode"
-      />
+    </div>
+    <div class="row justify-center">
+      <div class="column items-center">
+        <div class="col-12 col-md">
+          <questCard
+            v-if="getCurrentQuest"
+            v-bind:currentQuestCard="getCurrentQuest"
+            :creator="getQuestCreator()"
+          ></questCard>
+          <div class="column items-center">
+            <div class="col-12">
+              <div class="q-pa-md q-gutter-sm lt-md">
+                <q-tree
+                  :nodes="getNeighbourhoodTree"
+                  node-key="id"
+                  default-expand-all
+                  :selected.sync="selectedNodeId"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="column items-center q-mb-md">
+        <div v-if="selectedNodeId">
+          <nodeForm
+            v-if="canEdit(selectedNodeId)"
+            v-bind:nodeInput="selectedNode()"
+            v-bind:allowCreate="true"
+            v-bind:ibisTypes="selectedIbisTypes"
+            v-on:action="updateNode"
+            v-on:addChild="addChild"
+          />
+          <nodeCard v-else v-bind:node="selectedNode()" />
+          <q-btn
+            v-if="!canEdit(selectedNodeId)"
+            @click="addChild()"
+            label="Add Child"
+          />
+        </div>
+        <div class="row q-ma-lg">
+          <div class="column items-center q-mb-md">
+            <nodeForm
+              v-if="newNodeParent == selectedNodeId"
+              v-bind:nodeInput="newNode"
+              v-bind:allowCreate="false"
+              v-bind:ibisTypes="childIbisTypes"
+              v-on:action="addNode"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -277,6 +297,9 @@ export default class GamePlayPage extends Vue {
 }
 </script>
 <style scoped>
+.page {
+  background-color: whitesmoke;
+}
 .node-card {
   width: 100%;
   border: 3px solid black;
@@ -303,5 +326,19 @@ export default class GamePlayPage extends Vue {
   font-size: 1.2em;
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
+}
+.sidenav {
+  height: 100%;
+  width: 20%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  color: black;
+  background-color: rgb(230, 234, 238);
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border: 1px solid gray;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="col-12 col-md q-pa-md">
-    <q-card class="node-card q-pa-md" style="width: 500px">
+  <div class="col-12 col-md">
+    <q-card class="node-card q-pa-md q-mt-lg">
       <section class="node-card-title">
         <q-input v-model="node.title" label="Node title" />
       </section>
@@ -139,11 +139,14 @@ export default class NodeForm extends NodeFormProps {
 </script>
 <style>
 #node-card {
+  padding-top: 4%;
   text-align: center;
   border: 3px solid black;
   font-size: 1.2em;
   color: rgb(39, 11, 194);
   background-color: rgb(158, 181, 243);
+  width: 80%;
+  height: 400px;
 }
 #node-card-details {
   background-color: rgb(158, 181, 243);
