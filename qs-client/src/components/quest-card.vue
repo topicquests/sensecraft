@@ -1,31 +1,29 @@
 <template>
   <div>
-    <div class="col-4 q-pa-lg">
-      <q-card v-if="currentQuestCard" class="quest_card">
-        <section id="quest-card-title">
-          <q-avatar size="56px" class="q-ma-sm">
-            <img :src="ibis_node_icon('quest', true)" />
-          </q-avatar>
-          <h5 class="q-ma-md">
-            {{ currentQuestCard.name }}
-          </h5>
-        </section>
-        <section id="quest-card-details">
-          <div v-html="currentQuestCard.description" class="q-mb-xl"></div>
-        </section>
-        <section class="quest-card-data">
-          <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data">
-            Quest Creator: {{ creator.handle }}
-          </p>
-          <p class="q-pt-none q-ml-md q-mb-sm quest-card-data">
-            Quest Handle: {{ currentQuestCard.handle }}
-          </p>
-          <p class="q-pt-sm q-ml-md quest-card-data">
-            Start Date: {{ currentQuestCard.start }}
-          </p>
-        </section>
-      </q-card>
-    </div>
+    <q-card v-if="currentQuestCard" class="quest_card">
+      <section id="quest-card-title">
+        <q-avatar size="56px" class="q-ma-sm">
+          <img :src="ibis_node_icon('quest', true)" />
+        </q-avatar>
+        <h5 class="q-ma-md">
+          {{ currentQuestCard.name }}
+        </h5>
+      </section>
+      <section id="quest-card-details">
+        <div v-html="currentQuestCard.description" class="q-mb-xl"></div>
+      </section>
+      <section class="quest-card-data">
+        <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data">
+          Quest Creator: {{ creator.handle }}
+        </p>
+        <p class="q-pt-none q-ml-md q-mb-sm quest-card-data">
+          Quest Handle: {{ currentQuestCard.handle }}
+        </p>
+        <p class="q-pt-sm q-ml-md quest-card-data">
+          Start Date: {{ currentQuestCard.start }}
+        </p>
+      </section>
+    </q-card>
   </div>
 </template>
 

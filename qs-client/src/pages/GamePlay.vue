@@ -18,57 +18,55 @@
         />
       </div>
     </div>
-    <div class="row justify-center">
-      <div class="column items-center">
-        <div class="col-12 col-md">
-          <questCard
-            v-if="getCurrentQuest"
-            v-bind:currentQuestCard="getCurrentQuest"
-            :creator="getQuestCreator()"
-          ></questCard>
-          <div class="column items-center">
-            <div class="col-12">
-              <div class="q-pa-md q-gutter-sm lt-md">
-                <q-tree
-                  :nodes="getNeighbourhoodTree"
-                  node-key="id"
-                  default-expand-all
-                  :selected.sync="selectedNodeId"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="row justify-center q-mt-lg">
+      <div class="col-3 q-mr-lg">
+        <questCard
+          v-if="getCurrentQuest"
+          :currentQuestCard="getCurrentQuest"
+          :creator="getQuestCreator()"
+        ></questCard>
       </div>
-      <div class="column items-center q-mb-md">
+      <div class="col-2 q-mb-md">
         <div v-if="selectedNodeId">
           <nodeForm
             v-if="canEdit(selectedNodeId)"
             v-bind:nodeInput="selectedNode()"
             v-bind:allowCreate="true"
+            nodeType="edit"
             v-bind:ibisTypes="selectedIbisTypes"
             v-on:action="updateNode"
             v-on:addChild="addChild"
           />
-          <nodeCard v-else v-bind:node="selectedNode()" />
+          <node-form v-else v-bind:nodeInput="selectedNode()" nodeType="view" />
           <q-btn
             v-if="!canEdit(selectedNodeId)"
             @click="addChild()"
             label="Add Child"
           />
         </div>
-        <div class="row q-ma-lg">
-          <div class="column items-center q-mb-md">
-            <nodeForm
-              v-if="newNodeParent == selectedNodeId"
-              v-bind:nodeInput="newNode"
-              v-bind:allowCreate="false"
-              v-bind:ibisTypes="childIbisTypes"
-              v-on:action="addNode"
-            />
-          </div>
+      </div>
+    </div>
+    <div class="column items-center">
+      <div class="col-6">
+        <div class="q-pa-md q-gutter-sm lt-md">
+          <q-tree
+            :nodes="getNeighbourhoodTree"
+            node-key="id"
+            default-expand-all
+            :selected.sync="selectedNodeId"
+          />
         </div>
       </div>
+    </div>
+    <div class="column items-center q-mb-md">
+      <nodeForm
+        v-if="newNodeParent == selectedNodeId"
+        nodeType="create"
+        :nodeInput="newNode"
+        :allowCreate="false"
+        :ibisTypes="childIbisTypes"
+        v-on:action="addNode"
+      />
     </div>
   </q-page>
 </template>
@@ -300,36 +298,10 @@ export default class GamePlayPage extends Vue {
 .page {
   background-color: whitesmoke;
 }
-.node-card {
-  width: 100%;
-  border: 3px solid black;
-  background-color: rgb(158, 181, 243);
-}
-.node-card-details {
-  background-color: white;
-  color: rgb(39, 11, 194);
-  text-align: left;
-  font-size: 1.2em;
-  padding-top: 3%;
-  padding-left: 1%;
-  padding-right: 1%;
-  border: 1px solid gray;
-  width: 80%;
-}
-.node-card-title {
-  border: 1px solid gray;
-  background-color: lightgray;
-  color: rgb(39, 11, 194);
-}
-.node-card-data {
-  text-align: left;
-  font-size: 1.2em;
-  background-color: rgb(158, 181, 243);
-  color: rgb(39, 11, 194);
-}
+
 .sidenav {
   height: 100%;
-  width: 20%;
+  width: 15%;
   position: fixed;
   z-index: 1;
   top: 0;

@@ -1,72 +1,75 @@
 <template>
-  <div class="col-12 col-md">
-    <q-card class="node-card q-pa-md q-mt-lg">
-      <section class="node-card-title">
-        <q-input v-model="node.title" label="Node title" />
-      </section>
-      <section>
-        <div
-          class="row q-pb-xs q-ma-lg"
-          style="text-align: center; font-size: 15pt"
-        >
-          Description<br />
-        </div>
-      </section>
-      <section>
+  <q-card class="node-card q-pa-md">
+    <section class="node-card-title">
+      <q-input v-model="node.title" label="Node title" />
+    </section>
+    <section>
+      <div
+        class="row q-pb-xs q-ma-lg"
+        style="text-align: center; font-size: 15pt"
+      >
+        Description<br />
+      </div>
+    </section>
+    <section>
+      <template v-if="nodeType == 'view'">
+        <span v-html="node.description" class="node-card-details" />
+      </template>
+      <template v-else>
         <q-editor
           v-model="description"
           style="width: 98%"
           class="q-editor node-card-details"
         />
-      </section>
-      <section>
-        <div class="row justify-start q-pb-lg q-ml-lg">
-          <ibis-button
-            v-bind:node_type="node.node_type"
-            v-bind:small="true"
-            style="valign: center; margin-top: 3ex; margin-right: 1ex"
-          />
-          <q-select
-            v-model="node.node_type"
-            :options="ibisTypes"
-            label="Type"
-            style="width: 25%"
-          />
-        </div>
-      </section>
-      <div class="row justify-start q-pb-lg q-ml-lg">
+      </template>
+    </section>
+    <section v-if="nodeType != 'view'">
+      <div class="row justify-start">
+        <ibis-button
+          :node_type="node.node_type"
+          :small="true"
+          style="valign: center; margin-top: 3ex; margin-right: 1ex"
+        />
         <q-select
-          v-model="node.status"
-          :options="publication_state_list"
-          label="Status"
-          style="width: 75%"
+          v-model="node.node_type"
+          :options="ibisTypes"
+          label="Type"
+          style="width: 25%"
         />
       </div>
-      <div class="row justify-center q-pb-lg">
-        <q-btn
-          v-if="node.id"
-          label="Update"
-          @click="action"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-        <q-btn
-          v-else
-          label="Add"
-          @click="action"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-        <q-btn
-          v-if="allowCreate && node.id"
-          label="Add child"
-          @click="addChild"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-      </div>
-    </q-card>
-  </div>
+    </section>
+    <div v-if="nodeType != 'view'" class="row justify-start q-pb-lg q-ml-lg">
+      <q-select
+        v-model="node.status"
+        :options="publication_state_list"
+        label="Status"
+        style="width: 75%"
+      />
+    </div>
+    <div class="row justify-center">
+      <q-btn
+        v-if="node.id && nodeType != 'view'"
+        label="Update"
+        @click="action"
+        color="primary"
+        class="q-mr-md q-ml-md"
+      />
+      <q-btn
+        v-else-if="nodeType != 'view'"
+        label="Add"
+        @click="action"
+        color="primary"
+        class="q-mr-md q-ml-md"
+      />
+      <q-btn
+        v-if="allowCreate && node.id"
+        label="Add child"
+        @click="addChild"
+        color="primary"
+        class="q-mr-md q-ml-md"
+      />
+    </div>
+  </q-card>
 </template>
 
 <script lang="ts">
@@ -87,6 +90,7 @@ const NodeFormProps = Vue.extend({
   props: {
     nodeInput: Object as Prop<Partial<ConversationNode>>,
     allowCreate: Boolean as Prop<boolean>,
+    nodeType: String as Prop<String>,
     ibisTypes: Array as Prop<ibis_node_type_type[]>,
   },
 });
@@ -139,14 +143,13 @@ export default class NodeForm extends NodeFormProps {
 </script>
 <style>
 #node-card {
-  padding-top: 4%;
+  max-width: 50%;
   text-align: center;
   border: 3px solid black;
   font-size: 1.2em;
   color: rgb(39, 11, 194);
   background-color: rgb(158, 181, 243);
-  width: 80%;
-  height: 400px;
+  height: 300px;
 }
 #node-card-details {
   background-color: rgb(158, 181, 243);
