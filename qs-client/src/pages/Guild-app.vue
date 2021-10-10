@@ -85,7 +85,7 @@
       </div>
     </div>
     <div class="row q-pt-sm">
-      <div class="col-12 col-md q-pa-md">
+      <div class="col-12 col-md q-mr-md">
         <q-card>
           <ul style="font-size: 20px; color: red; background: lightblue">
             <li v-for="member in getGuildMembers()" :key="member.id">
@@ -109,16 +109,12 @@
           </ul>
         </q-card>
       </div>
-      <div class="col-12 col-md q-pa-md">
-        <div v-if="getFocusNode" class="col-12 col-md q-pa-md">
-          <nodeCard v-bind:node="getFocusNode"></nodeCard>
+      <div class="col-12 col-md q-mr-md q-mt-md">
+        <div v-if="getFocusNode" class="col-12 col-md">
+          <nodeForm v-bind:nodeInput="getFocusNode" nodeType="view"> </nodeForm>
         </div>
       </div>
-      <div
-        class="col-12 col-md q-pa-md"
-        style="width: 200%"
-        v-if="getCurrentQuest"
-      >
+      <div class="col-12 col-md q-mt-md" v-if="getCurrentQuest">
         <div>
           <questCard
             v-bind:currentQuestCard="getCurrentQuest"
@@ -178,7 +174,7 @@
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
-import nodeCard from "../components/node-card.vue";
+import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
 import {
@@ -224,7 +220,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     scoreboard: scoreboard,
     member: member,
     questCard: questCard,
-    nodeCard: nodeCard,
+    nodeForm: nodeForm,
   },
   computed: {
     ...mapState("quests", {
