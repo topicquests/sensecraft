@@ -19,14 +19,14 @@
       </div>
     </div>
     <div class="row justify-center q-mt-lg">
-      <div class="col-3 q-mr-lg">
+      <div class="col-3 q-md q-mr-lg">
         <questCard
           v-if="getCurrentQuest"
           :currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
         ></questCard>
       </div>
-      <div class="col-2 q-mb-md">
+      <div class="col-3 q-md q-mb-md">
         <div v-if="selectedNodeId">
           <nodeForm
             v-if="canEdit(selectedNodeId)"

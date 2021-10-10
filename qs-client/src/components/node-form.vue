@@ -2,6 +2,10 @@
   <q-card class="node-card q-pa-md">
     <section class="node-card-title">
       <q-input v-model="node.title" label="Node title" />
+      <h5 class="q-ma-md">
+        <IbisButton v-bind:node_type="node.node_type"></IbisButton>
+        {{ node.title }}
+      </h5>
     </section>
     <section>
       <div
