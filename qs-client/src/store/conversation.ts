@@ -11,6 +11,7 @@ import {
   ibis_node_type_enum,
   ibis_node_type_type,
   publication_state_enum,
+  permission_enum,
 } from "../enums";
 
 export function ibis_child_types(
@@ -153,7 +154,11 @@ const ConversationGetters = {
   getNeighbourhoodTree: (state: ConversationState) =>
     makeTree(Object.values(state.neighbourhood)),
   getConversationTree: (state: ConversationState) =>
-    makeTree(Object.values(state.conversation)),
+    makeTree(
+      Object.values(state.conversation).filter(
+        (n) => n.status == publication_state_enum.published
+      )
+    ),
   getNode: (state: ConversationState) => state.node,
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
@@ -169,7 +174,7 @@ const ConversationGetters = {
         return casting?.guild_id == node.guild_id;
       } else if (node.status == publication_state_enum.proposed) {
         return MyVapi.store.getters["hasPermission"](
-          "guild_admin",
+          permission_enum.guildAdmin,
           node.guild_id,
           node.quest_id
         );
