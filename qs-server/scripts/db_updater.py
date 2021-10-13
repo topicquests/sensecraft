@@ -134,6 +134,19 @@ def db_state(conn_data):
     return {row[0]: (int(row[1]), row[2]) for row in results}
 
 
+def show_status(state, structures):
+    for (feature, data) in structures.items():
+        state_version = state.get(feature, (None, None))[0]
+        data_version = len(data.versions)
+        if state_version is None:
+            msg = "missing"
+        elif state_version == data_version:
+            msg = "√"
+        else:
+            msg = f"{state_version} < {data_version}"
+        print(feature, msg)
+
+
 def needs_revert(state, structures, feature):
     struct = structures[feature]
     if struct.head.idempotent:
@@ -266,6 +279,7 @@ def add_version(feature, requirements, idempotent, structures):
     new_path = pathlib.Path(f"deploy/{new_name}")
     assert not new_path.exists(), f"{new_name} already exists"
     copyfile(struct.head.path, new_path)
+    new_path.chmod(0o440)
     struct.versions.append(VersionData(
         path=new_path, idempotent=struct.head.idempotent, sha1sum=struct.head.sha1sum, reqs=struct.head.reqs))
     sha = struct.head.sha1sum
@@ -308,6 +322,7 @@ def revert(structures, state, conn_data, features=None, dry_run: bool = False, s
         if len(features) != 1:
             raise ValueError("cannot specify version with multiple features")
         feature_version = features[0]
+        raise NotImplementedError("Cannot revert to a version yet")
     if features is None:
         features = state.keys()
     orig_features = features
@@ -411,6 +426,7 @@ if __name__ == "__main__":
     listp = subp.add_parser("list", help="list the migrations")
     testp = subp.add_parser("test", help="test a migration")
     testp.add_argument("-f", "--feature", required=True)
+    statusp = subp.add_parser('status', help='list installed features')
 
     args = argp.parse_args()
     db = args.database
@@ -435,7 +451,11 @@ if __name__ == "__main__":
         add_version(
             args.feature, None if args.no_requirements else args.requirement, idempotent, structures)
     else:
-        state = db_state(conn_data)
+        try:
+            state = db_state(conn_data)
+        except AssertionError:
+            print("Please init the database")
+            exit(1)
         if args.command == "deploy":
             deploy(args.feature, state, structures, conn_data,
                    args.dry_run, args.simulation)
@@ -444,6 +464,8 @@ if __name__ == "__main__":
         elif args.command == "revert":
             revert(structures, state, conn_data, args.feature,
                    args.dry_run, args.simulation)
+        elif args.command == "status":
+            show_status(state, structures)
         else:
             print("Not implemented")
             exit(1)
