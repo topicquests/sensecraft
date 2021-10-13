@@ -32,9 +32,8 @@ CREATE TABLE IF NOT EXISTS public.guilds (
     created_at timestamp with time zone NOT NULL default now(),
     updated_at timestamp with time zone NOT NULL default now(),
     application_needs_approval boolean default false,
-    slug character varying(255) GENERATED ALWAYS AS (slugify(handle)) STORED,
     CONSTRAINT guilds_pkey PRIMARY KEY (id),
-    CONSTRAINT guilds_slug_key UNIQUE (slug),
+    CONSTRAINT guilds_handle_key UNIQUE (handle),
     CONSTRAINT guilds_creator_fkey FOREIGN KEY (creator)
       REFERENCES public.members(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
@@ -62,8 +61,7 @@ CREATE OR REPLACE VIEW public.public_guilds AS
     guilds.public,
     guilds.open_for_applications,
     guilds.created_at,
-    guilds.updated_at,
-    guilds.slug
+    guilds.updated_at
    FROM public.guilds
   WHERE guilds.public;
 

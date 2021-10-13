@@ -1,6 +1,5 @@
 -- Deploy sensecraft:members to pg
 -- requires: basics
--- requires: basic_functions
 
 BEGIN;
 
@@ -29,11 +28,10 @@ CREATE TABLE IF NOT EXISTS public.members (
     created_at timestamp with time zone NOT NULL default now(),
     updated_at timestamp with time zone NOT NULL default now(),
     name character varying(255) NOT NULL,
-    slug character varying(255) GENERATED ALWAYS AS (slugify(handle)) STORED,
     permissions public.permission[] DEFAULT ARRAY[]::public.permission[],
     CONSTRAINT members_pkey PRIMARY KEY (id),
     CONSTRAINT members_email_key UNIQUE (email),
-    CONSTRAINT members_slug_key UNIQUE (slug)
+    CONSTRAINT members_handle_key UNIQUE (handle)
 );
 
 --

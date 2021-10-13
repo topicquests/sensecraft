@@ -49,9 +49,9 @@ CREATE OR REPLACE FUNCTION public.is_quest_member(quest character varying) RETUR
     BEGIN RETURN (SELECT count(*) FROM quest_membership
       JOIN members ON members.id=member_id
       JOIN quests ON quests.id=quest_id
-      WHERE quests.handle = quest
+      WHERE quests.slug = quest
       AND confirmed
-      AND members.handle = scmember_handle()) > 0;
+      AND members.slug = scmember_handle()) > 0;
     END;
     $$;
 
@@ -67,7 +67,7 @@ CREATE OR REPLACE FUNCTION public.has_quest_permission(questid integer, perm pub
        JOIN members ON members.id=member_id
        WHERE quest_id = questid
        AND status = 'confirmed'
-       AND members.handle = scmember_handle()
+       AND members.slug = scmember_handle()
        AND (coalesce(quest_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm]
          OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
        ) > 0;
@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION public.is_quest_id_member(questid integer) RETURNS bo
       JOIN members ON members.id=member_id
       WHERE quest_id = questid
       AND confirmed
-      AND members.handle = scmember_handle()) > 0;
+      AND members.slug = scmember_handle()) > 0;
     END;
     $$;
 
@@ -147,7 +147,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
     DECLARE curuser varchar;
     DECLARE questrole varchar;
     BEGIN
-      questrole := current_database() || '__q_' || OLD.handle;
+      questrole := current_database() || '__q_' || OLD.slug;
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'DROP ROLE ' || questrole;
@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION public.before_create_quest() RETURNS trigger
     DECLARE curuser varchar;
     DECLARE questrole varchar;
     BEGIN
-      questrole := current_database() || '__q_' || NEW.handle;
+      questrole := current_database() || '__q_' || slugify(NEW.handle);
       NEW.creator := current_member_id();
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -192,7 +192,7 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      IF slugify(NEW.handle) <> OLD.slug THEN
         RETURN NULL;
       END IF;
       NEW.updated_at := now();
@@ -215,8 +215,8 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest_membership() RETURNS trigge
     DECLARE questrole varchar;
     DECLARE memberrole varchar;
     BEGIN
-      SELECT handle INTO memberrole FROM members WHERE id=OLD.member_id;
-      SELECT handle INTO questrole FROM quests WHERE id=OLD.quest_id;
+      SELECT slug INTO memberrole FROM members WHERE id=OLD.member_id;
+      SELECT slug INTO questrole FROM quests WHERE id=OLD.quest_id;
       IF questrole IS NOT NULL AND memberrole IS NOT NULL THEN
         curuser := current_user;
         EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -241,8 +241,8 @@ CREATE OR REPLACE FUNCTION public.before_createup_quest_membership() RETURNS tri
     DECLARE quest varchar;
     DECLARE member varchar;
     BEGIN
-      SELECT handle INTO STRICT quest FROM quests WHERE id=NEW.quest_id;
-      SELECT handle INTO STRICT member FROM members WHERE id=NEW.member_id;
+      SELECT slug INTO STRICT quest FROM quests WHERE id=NEW.quest_id;
+      SELECT slug INTO STRICT member FROM members WHERE id=NEW.member_id;
       IF member IS NOT NULL AND quest IS NOT NULL THEN
         PERFORM alter_quest_membership(quest, member, NEW.confirmed);
       END IF;

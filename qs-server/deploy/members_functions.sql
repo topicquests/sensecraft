@@ -62,7 +62,7 @@ CREATE OR REPLACE FUNCTION public.scmember_handle() RETURNS character varying
 CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer
     LANGUAGE plpgsql STABLE
     AS $$
-    BEGIN RETURN (SELECT id FROM members WHERE scmember_handle() = handle);
+    BEGIN RETURN (SELECT id FROM members WHERE scmember_handle() = slug);
 END;
     $$;
 
@@ -76,7 +76,7 @@ CREATE OR REPLACE FUNCTION public.has_permission(permission character varying) R
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN current_user = current_database()||'__owner' OR COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
-        FROM members where handle = scmember_handle()), FALSE);
+        FROM members where slug = scmember_handle()), FALSE);
       END;
       $$;
 
@@ -92,7 +92,7 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     DECLARE role varchar;
     DECLARE passh varchar;
     BEGIN
-      SELECT CONCAT(current_database() || '__m_', handle), password INTO STRICT role, passh FROM members WHERE email = mail;
+      SELECT CONCAT(current_database() || '__m_', slug), password INTO STRICT role, passh FROM members WHERE email = mail;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
@@ -139,7 +139,7 @@ CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
     DECLARE curuser varchar;
     DECLARE newmember varchar;
     BEGIN
-      newmember := current_database() || '__m_' || NEW.handle;
+      newmember := current_database() || '__m_' || slugify(NEW.handle);
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'CREATE ROLE ' || newmember || ' INHERIT IN GROUP ' || current_database() || '__member';
@@ -163,18 +163,20 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
+    DECLARE new_slug varchar;
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      new_slug := slugify(NEW.handle);
+      IF new_slug <> OLD.slug THEN
         RETURN NULL;
       END IF;
       curuser := current_user;
       NEW.updated_at := now();
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       IF ('superadmin' = ANY(NEW.permissions)) AND NOT ('superadmin' = ANY(OLD.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.handle;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || new_slug;
       END IF;
       IF ('superadmin' = ANY(OLD.permissions)) AND NOT ('superadmin' = ANY(NEW.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || NEW.handle;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || new_slug;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
@@ -197,7 +199,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_member() RETURNS trigger
     DECLARE owner varchar;
     BEGIN
       database := current_database();
-      oldmember := database || '__m_' || OLD.handle;
+      oldmember := database || '__m_' || OLD.slug;
       owner := database || '__owner';
       EXECUTE 'SET LOCAL ROLE ' || owner;
       EXECUTE 'DROP ROLE ' || oldmember;

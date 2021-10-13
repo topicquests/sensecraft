@@ -32,9 +32,8 @@ CREATE TABLE IF NOT EXISTS public.quests (
     "end" timestamp with time zone,
     created_at timestamp with time zone NOT NULL default now(),
     updated_at timestamp with time zone NOT NULL default now(),
-    slug character varying(255) GENERATED ALWAYS AS (slugify(handle)) STORED,
     CONSTRAINT quests_pkey PRIMARY KEY (id),
-    CONSTRAINT quests_slug_key UNIQUE (slug),
+    CONSTRAINT quests_handle_key UNIQUE (handle),
     CONSTRAINT quests_creator_fkey FOREIGN KEY (creator)
       REFERENCES public.members(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
@@ -62,8 +61,7 @@ CREATE OR REPLACE VIEW public.public_quests AS
     quests.start,
     quests."end",
     quests.created_at,
-    quests.updated_at,
-    quests.slug
+    quests.updated_at
    FROM public.quests
   WHERE quests.public;
 

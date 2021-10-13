@@ -48,9 +48,9 @@ CREATE OR REPLACE FUNCTION public.guild_permissions(guild character varying) RET
     BEGIN RETURN (SELECT count(*) FROM guild_membership
       JOIN members ON members.id=member_id
       JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.handle = guild
+      WHERE guilds.slug = guild
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND members.slug = scmember_handle()) > 0;
     END;
     $$;
 
@@ -66,7 +66,7 @@ CREATE OR REPLACE FUNCTION public.has_guild_permission(guildid integer, perm pub
        JOIN members ON members.id=member_id
        WHERE guild_id = guildid
        AND status = 'confirmed'
-       AND members.handle = scmember_handle()
+       AND members.slug = scmember_handle()
        AND (coalesce(guild_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'guildAdmin'::permission]
          OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
        ) > 0;
@@ -85,7 +85,7 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_leader(guildid integer) RETURNS bo
       JOIN members ON members.id=member_id
       WHERE guild_id = guildid
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()
+      AND members.slug = scmember_handle()
       AND coalesce(guild_membership.permissions @> ARRAY['guildAdmin'::permission], false)
       ) > 0;
     END;
@@ -103,7 +103,7 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_member(guildid integer) RETURNS bo
       JOIN members ON members.id=member_id
       WHERE guild_id = guildid
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND members.slug = scmember_handle()) > 0;
     END;
     $$;
 
@@ -118,9 +118,9 @@ CREATE OR REPLACE FUNCTION public.is_guild_member(guild character varying) RETUR
     BEGIN RETURN (SELECT count(*) FROM guild_membership
       JOIN members ON members.id=member_id
       JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.handle = guild
+      WHERE guilds.slug = guild
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND members.slug = scmember_handle()) > 0;
     END;
     $$;
 
@@ -153,8 +153,8 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild() RETURNS trigger
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.handle;
-      EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.handle;
+      EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.slug;
+      EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.slug;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
     END;
@@ -175,8 +175,8 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
     DECLARE guildrole varchar;
     DECLARE memberrole varchar;
     BEGIN
-      SELECT handle INTO memberrole FROM members WHERE id=OLD.member_id;
-      SELECT handle INTO guildrole FROM guilds WHERE id=OLD.guild_id;
+      SELECT slug INTO memberrole FROM members WHERE id=OLD.member_id;
+      SELECT slug INTO guildrole FROM guilds WHERE id=OLD.guild_id;
       IF guildrole IS NOT NULL AND memberrole IS NOT NULL THEN
         curuser := current_user;
         EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -232,9 +232,11 @@ CREATE OR REPLACE FUNCTION public.before_create_guild() RETURNS trigger
     DECLARE curuser varchar;
     DECLARE guildrole varchar;
     DECLARE guildleadrole varchar;
+    DECLARE new_slug varchar;
     BEGIN
-      guildrole := current_database() || '__g_' || NEW.handle;
-      guildleadrole := current_database() || '__l_' || NEW.handle;
+      new_slug := slugify(NEW.handle);
+      guildrole := current_database() || '__g_' || new_slug;
+      guildleadrole := current_database() || '__l_' || new_slug;
       NEW.creator := current_member_id();
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -266,8 +268,8 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
     DECLARE open_for_app boolean;
     BEGIN
         -- RAISE WARNING 'before_createup %', row_to_json(NEW);
-        SELECT handle, open_for_applications, application_needs_approval INTO STRICT guild, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
-        SELECT handle INTO STRICT _member FROM members WHERE id=NEW.member_id;
+        SELECT slug, open_for_applications, application_needs_approval INTO STRICT guild, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
+        SELECT slug INTO STRICT _member FROM members WHERE id=NEW.member_id;
         is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
         is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
         IF (NOT needs_approval) OR is_guild_id_member(NEW.guild_id) OR 1 = (SELECT COUNT(id) FROM guilds WHERE id = NEW.guild_id AND creator=NEW.member_id) THEN
@@ -316,7 +318,7 @@ CREATE OR REPLACE FUNCTION public.before_update_guild() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      IF slugify(NEW.handle) <> OLD.slug THEN
         RETURN NULL;
       END IF;
       NEW.updated_at := now();

@@ -205,7 +205,9 @@ def calc_apply_target(state, structures, target, reapply=False):
         if prev_version < len(struct.versions):
             assert sha1sum == struct.versions[prev_version].sha1sum
             for i in range(prev_version, len(struct.versions)):
-                yield (target, struct.transitions[i].path, i+1, struct.versions[i].sha1sum)
+                next_shasum = struct.versions[i+1].sha1sum if (i+1) < len(
+                    struct.versions) else struct.head.sha1sum
+                yield (target, struct.transitions[i].path, i+1, next_shasum)
         elif reapply or sha1sum != struct.head.sha1sum:
             # assuming idempotence... maybe a version revert/deploy if available?
             # OR Reverting the whole thing?
