@@ -29,7 +29,7 @@
         <div v-if="selectedNodeId">
           <nodeForm
             v-if="canEdit(selectedNodeId)"
-            v-bind:nodeInput="selectedNode()"
+            v-bind:nodeInput="selectedNode(true)"
             v-bind:allowCreate="true"
             nodeType="edit"
             v-bind:ibisTypes="selectedIbisTypes"
@@ -198,8 +198,12 @@ export default class GamePlayPage extends Vue {
   getQuestCreator() {
     return this.getMemberById(this.getCurrentQuest.creator);
   }
-  selectedNode() {
-    return this.getConversationNodeById(this.selectedNodeId);
+  selectedNode(copy?: boolean) {
+    let node = this.getConversationNodeById(this.selectedNodeId);
+    if (copy) {
+      node = { ...node };
+    }
+    return node;
   }
   selectionChanged(id) {
     this.selectedNodeId = id;
