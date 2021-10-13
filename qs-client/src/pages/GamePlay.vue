@@ -10,12 +10,11 @@
     </div>
     <div class="sidenav gt-sm">
       <div class="q-pa-md q-gutter-sm">
-        <q-tree
-          :nodes="getNeighbourhoodTree"
-          node-key="id"
-          default-expand-all
-          :selected.sync="selectedNodeId"
-        />
+        <neighbourhoodTree
+          v-bind:neighbourhoodNodes="getNeighbourhoodTree"
+          v-on:updateTree="selectionChanged"
+        >
+        </neighbourhoodTree>
       </div>
     </div>
     <div class="row justify-center q-mt-lg">
@@ -49,12 +48,11 @@
     <div class="column items-center">
       <div class="col-6">
         <div class="q-pa-md q-gutter-sm lt-md">
-          <q-tree
-            :nodes="getNeighbourhoodTree"
-            node-key="id"
-            default-expand-all
-            :selected.sync="selectedNodeId"
-          />
+          <neighbourhoodTree
+            v-bind:neighbourhoodNodes="getNeighbourhoodTree"
+            v-on:updateTree="selectionChanged"
+          >
+          </neighbourhoodTree>
         </div>
       </div>
     </div>
@@ -78,6 +76,7 @@ import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import nodeForm from "../components/node-form.vue";
+import neighbourhoodTree from "../components/neighbourhood-tree.vue";
 import {
   ibis_node_type_enum,
   ibis_node_type_type,
@@ -132,6 +131,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     questCard: questCard,
     nodeCard: nodeCard,
     nodeForm: nodeForm,
+    neighbourhoodTree: neighbourhoodTree,
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
@@ -157,9 +157,7 @@ import { BaseGetterTypes } from "../store/baseStore";
       "ensureRootNode",
     ]),
   },
-  watch: {
-    selectedNodeId: "selectionChanged",
-  },
+  watch: {},
 })
 export default class GamePlayPage extends Vue {
   //data
@@ -203,8 +201,10 @@ export default class GamePlayPage extends Vue {
   selectedNode() {
     return this.getConversationNodeById(this.selectedNodeId);
   }
-  selectionChanged() {
+  selectionChanged(id) {
+    this.selectedNodeId = id;
     const selectedNode = this.selectedNode();
+    console.log("selectedNode: ", selectedNode);
     const parent = selectedNode
       ? this.getConversationNodeById(selectedNode.parent_id)
       : null;

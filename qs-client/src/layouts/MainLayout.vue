@@ -55,13 +55,8 @@
     </q-header>
     <div id="mySidenav" class="sidenav">
       <div class="q-pa-md q-gutter-sm">
-        <q-tree
-          :nodes="getNeighbourhoodTree"
-          node-key="id"
-          default-expand-all
-          :selected.sync="selected"
-        >
-        </q-tree>
+        <neighbourhood-tree v-bind:neighbourhoodNodes="getNeighbourhoodTree">
+        </neighbourhood-tree>
       </div>
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
@@ -134,6 +129,7 @@
 import { mapState, mapGetters, mapActions } from "vuex";
 import { ConversationState } from "../store/conversation";
 import { MemberState } from "../store/member";
+import neighbourhoodTree from "../components/neighbourhood-tree.vue";
 
 export default {
   name: "MainLayout",
@@ -150,6 +146,9 @@ export default {
       selected: null,
       showTree: true,
     };
+  },
+  components: {
+    neighbourhoodTree: neighbourhoodTree,
   },
   computed: {
     ...mapGetters("conversation", [
