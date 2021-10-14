@@ -254,7 +254,6 @@ export const conversation = new MyVapi<ConversationState>({
       `/conversation_node?quest_id=eq.${quest_id}`,
     property: "conversation",
     action: "fetchConversation",
-    queryParams: true,
     onSuccess: (
       state: ConversationState,
       res: AxiosResponse<ConversationNode[]>,

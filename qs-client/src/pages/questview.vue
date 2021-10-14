@@ -5,28 +5,57 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
+    <div class="sidenav gt-sm">
+      <div class="q-pa-md q-gutter-sm">
+        <neighbourhoodTree
+          v-bind:neighbourhoodNodes="getConversationTree"
+          v-on:updateTree="selectionChanged"
+        >
+        </neighbourhoodTree>
+      </div>
+    </div>
+    <div class="row justify-center">
+      <div class="col-4 q-pa-lg">
         <questCard
           v-bind:currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
-        ></questCard>
+        >
+        </questCard>
+      </div>
+      <div class="col-4 q-pa-lg">
+        <node-form v-bind:nodeInput="selectedNode()" nodeType="view" />
       </div>
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
 import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
+import neighbourhoodTree from "../components/neighbourhood-tree.vue";
+import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { QuestsState } from "../store/quests";
 import app from "../App.vue";
-
-export default {
-  name: "quest_page",
-  data() {
-    return {};
+import { ibis_node_type_type, ibis_node_type_list } from "../enums";
+import {
+  QuestsState,
+  QuestsGetterTypes,
+  QuestsActionTypes,
+} from "../store/quests";
+import {
+  ConversationGetterTypes,
+  ConversationActionTypes,
+  ibis_child_types,
+} from "../store/conversation";
+import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+@Component<QuestViewPage>({
+  components: {
+    questCard: questCard,
+    scoreboard: scoreboard,
+    nodeForm: nodeForm,
+    neighbourhoodTree: neighbourhoodTree,
   },
   computed: {
     ...mapState("quests", {
@@ -34,30 +63,90 @@ export default {
     }),
     ...mapGetters("quests", ["getCurrentQuest"]),
     ...mapGetters("members", ["getMemberById"]),
-  },
-  components: {
-    questCard: questCard,
-    scoreboard: scoreboard,
+    ...mapGetters("conversation", [
+      "getConversationNodeById",
+      "getConversationTree",
+      "getFocusNode",
+    ]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("members", ["fetchMemberById"]),
-    getQuestCreator() {
-      return this.getMemberById(this.getCurrentQuest.creator);
-    },
+    ...mapActions("conversation", ["ensureConversation"]),
   },
-  async beforeMount() {
+})
+export default class QuestViewPage extends Vue {
+  selectedNodeId: number = null;
+  selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+  currentQuestId!: QuestsState["currentQuest"];
+
+  // declare the computed attributes for Typescript
+  getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
+  getMemberById: MembersGetterTypes["getMemberById"];
+  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
+  getConversationTree: ConversationGetterTypes["getConversationTree"];
+  getFocusNode: ConversationGetterTypes["getFocusNode"];
+
+  // declare the methods for Typescript
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  ensureQuest: QuestsActionTypes["ensureQuest"];
+  fetchMemberById: MembersActionTypes["fetchMemberById"];
+  ensureConversation: ConversationActionTypes["ensureConversation"];
+
+  getQuestCreator() {
+    return this.getMemberById(this.getCurrentQuest.creator);
+  }
+  selectedNode(copy?: boolean) {
+    let node = this.getConversationNodeById(this.selectedNodeId);
+    if (copy) {
+      node = { ...node };
+    }
+    return node;
+  }
+  selectionChanged(id) {
+    this.selectedNodeId = id;
+    const selectedNode = this.selectedNode();
+    console.log("selectedNode: ", selectedNode);
+    const parent = selectedNode
+      ? this.getConversationNodeById(selectedNode.parent_id)
+      : null;
+    if (parent) {
+      this.selectedIbisTypes = ibis_child_types(parent.node_type);
+    } else {
+      this.selectedIbisTypes = ibis_node_type_list;
+    }
+  }
+  async created() {
     try {
       const questId = Number.parseInt(this.$route.params.quest_id);
       await app.userLoaded;
       await this.setCurrentQuest(questId);
       await this.ensureQuest({ quest_id: questId });
+      await this.ensureConversation(questId);
       const quest = this.getCurrentQuest;
+      console.log(this.getConversationTree);
+      this.selectedNodeId = this.getConversationTree[0].id;
       await this.fetchMemberById({ params: { id: quest.creator } });
       const creator = this.getMemberById(quest.creator);
     } catch (error) {
       console.log("Error in questview create: ", error);
     }
-  },
-};
+  }
+}
 </script>
+<style>
+.sidenav {
+  height: 100%;
+  width: 15%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  color: black;
+  background-color: rgb(230, 234, 238);
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border: 1px solid gray;
+}
+</style>

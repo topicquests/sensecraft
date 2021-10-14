@@ -2,7 +2,7 @@
   <q-tree
     :nodes="neighbourhood"
     node-key="id"
-    default-expand-all
+    default-expand-all="true"
     :selected.sync="selectedNodeId"
   />
 </template>
