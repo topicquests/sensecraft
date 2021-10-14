@@ -5,28 +5,35 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
+    <div class="row justify-center">
+      <div class="col-4 q-pa-lg">
         <questCard
           v-bind:currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
-        ></questCard>
+        >
+        </questCard>
       </div>
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
 import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { QuestsState } from "../store/quests";
 import app from "../App.vue";
-
-export default {
-  name: "quest_page",
-  data() {
-    return {};
+import {
+  QuestsState,
+  QuestsGetterTypes,
+  QuestsActionTypes,
+} from "../store/quests";
+import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+@Component<QuestViewPage>({
+  components: {
+    questCard: questCard,
+    scoreboard: scoreboard,
   },
   computed: {
     ...mapState("quests", {
@@ -35,17 +42,26 @@ export default {
     ...mapGetters("quests", ["getCurrentQuest"]),
     ...mapGetters("members", ["getMemberById"]),
   },
-  components: {
-    questCard: questCard,
-    scoreboard: scoreboard,
-  },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("members", ["fetchMemberById"]),
-    getQuestCreator() {
-      return this.getMemberById(this.getCurrentQuest.creator);
-    },
   },
+})
+export default class QuestViewPage extends Vue {
+  currentQuestId!: QuestsState["currentQuest"];
+
+  // declare the computed attributes for Typescript
+  getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
+  getMemberById: MembersGetterTypes["getMemberById"];
+
+  // declare the methods for Typescript
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  ensureQuest: QuestsActionTypes["ensureQuest"];
+  fetchMemberById: MembersActionTypes["fetchMemberById"];
+
+  getQuestCreator() {
+    return this.getMemberById(this.getCurrentQuest.creator);
+  }
   async beforeMount() {
     try {
       const questId = Number.parseInt(this.$route.params.quest_id);
@@ -58,6 +74,6 @@ export default {
     } catch (error) {
       console.log("Error in questview create: ", error);
     }
-  },
-};
+  }
+}
 </script>
