@@ -135,16 +135,22 @@ def db_state(conn_data):
 
 
 def show_status(state, structures):
-    for (feature, data) in structures.items():
-        state_version = state.get(feature, (None, None))[0]
+    for feature in ordered_features(structures):
+        data = structures[feature]
+        state_version, state_hash = state.get(feature, (None, None))
         data_version = len(data.versions)
         if state_version is None:
             msg = "missing"
         elif state_version == data_version:
-            msg = "√"
+            if data.head.sha1sum == state_hash:
+                msg = "√"
+            elif data.head.idempotent:
+                msg = "#"
+            else:
+                msg = "hash error!"
         else:
             msg = f"{state_version} < {data_version}"
-        print(feature, msg)
+        print(msg, feature)
 
 
 def needs_revert(state, structures, feature):
@@ -179,7 +185,14 @@ def calc_deps(structures, target, forward=True):
 
 
 def calc_deps_list(structures, targets, forward=True):
+    targets = list(targets)
+    targets.sort()
     return list(dedup(chain(*[calc_deps(structures, feature, forward) for feature in targets])))
+
+
+def ordered_features(structures):
+    targets = list(structures.keys())
+    return calc_deps_list(structures, targets)
 
 
 def calc_apply_target(state, structures, target, reapply=False):
