@@ -2,6 +2,8 @@
 
 BEGIN;
 
+DROP VIEW IF EXISTS public.public_members;
+
 DROP TABLE IF EXISTS public.members;
 
 DO $$ DECLARE roles VARCHAR;

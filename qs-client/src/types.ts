@@ -34,18 +34,22 @@ export interface Casting {
   updated_at: string;
 }
 
-export interface Member {
+export interface PublicMember {
   id: number;
   email: string;
-  password: string;
   handle: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
+  slug: string;
   permissions: permission_type[];
   guild_membership?: GuildMembership[];
   quest_membership?: QuestMembership[];
   casting?: Casting[];
+}
+
+export interface Member extends PublicMember {
+  password: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
 }
 
 export interface GamePlay {

@@ -14,8 +14,12 @@ BEGIN;
 --
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.members TO :dbm;
-GRANT SELECT,INSERT ON TABLE public.members TO :dbc;
+GRANT INSERT ON TABLE public.members TO :dbc;
 
+REVOKE SELECT ON TABLE public.members FROM :dbc;
+GRANT SELECT (id, handle, slug, permissions) ON TABLE public.members TO :dbc;
+GRANT SELECT ON public.public_members TO :dbc;
+GRANT SELECT ON public.public_members TO :dbm;
 
 --
 -- Name: SEQUENCE members_id_seq; Type: ACL
@@ -26,15 +30,15 @@ GRANT USAGE ON SEQUENCE public.members_id_seq TO :dbc;
 
 
 --
--- Name: role_to_handle(character varying); Type: FUNCTION
+-- Name: role_to_id(character varying); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.role_to_handle(role character varying) RETURNS character varying
+CREATE OR REPLACE FUNCTION public.role_to_id(role character varying) RETURNS integer
     LANGUAGE plpgsql IMMUTABLE
     AS $$
     BEGIN
-      IF role ~ ('^' || current_database() || '__[mglq]_.+') THEN
-        RETURN substr(role, char_length(current_database())+5);
+      IF role ~ ('^' || current_database() || '__[mglq]_\d+') THEN
+        RETURN substr(role, char_length(current_database())+5)::integer;
       ELSE
         RETURN NULL;
       END IF;
@@ -43,28 +47,13 @@ CREATE OR REPLACE FUNCTION public.role_to_handle(role character varying) RETURNS
 
 
 --
--- Name: scmember_handle(); Type: FUNCTION
---
-
-CREATE OR REPLACE FUNCTION public.scmember_handle() RETURNS character varying
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN
-    RETURN role_to_handle(cast(current_user as varchar));
-    END;
-    $$;
-
-
---
 -- Name: current_member_id(); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer
-    LANGUAGE plpgsql STABLE
+CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer STABLE
     AS $$
-    BEGIN RETURN (SELECT id FROM members WHERE scmember_handle() = handle);
-END;
-    $$;
+      SELECT role_to_id(cast(current_user as varchar));
+    $$ LANGUAGE SQL;
 
 
 
@@ -76,7 +65,7 @@ CREATE OR REPLACE FUNCTION public.has_permission(permission character varying) R
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN current_user = current_database()||'__owner' OR COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
-        FROM members where handle = scmember_handle()), FALSE);
+        FROM members where id=current_member_id()), FALSE);
       END;
       $$;
 
@@ -91,8 +80,12 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     AS $$
     DECLARE role varchar;
     DECLARE passh varchar;
+    DECLARE curuser varchar;
     BEGIN
-      SELECT CONCAT(current_database() || '__m_', handle), password INTO STRICT role, passh FROM members WHERE email = mail;
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      SELECT CONCAT(current_database() || '__m_', id), password INTO STRICT role, passh FROM members WHERE email = mail;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
@@ -100,8 +93,8 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
       ELSE
         RETURN NULL;
       END IF;
-       END;
-       $$;
+    END;
+$$;
 
 
 --
@@ -130,16 +123,16 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
 
 
 --
--- Name: before_create_member(); Type: FUNCTION
+-- Name: after_create_member(); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
+CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
     DECLARE newmember varchar;
     BEGIN
-      newmember := current_database() || '__m_' || NEW.handle;
+      newmember := current_database() || '__m_' || NEW.id;
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'CREATE ROLE ' || newmember || ' INHERIT IN GROUP ' || current_database() || '__member';
@@ -152,8 +145,8 @@ CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
     END;
     $$;
 
-DROP TRIGGER IF EXISTS before_create_member ON public.members;
-CREATE TRIGGER before_create_member BEFORE INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_create_member();
+DROP TRIGGER IF EXISTS after_create_member ON public.members;
+CREATE TRIGGER after_create_member BEFORE INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.after_create_member();
 
 --
 -- Name: before_update_member(); Type: FUNCTION
@@ -163,18 +156,20 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
+    DECLARE new_slug varchar;
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      new_slug := slugify(NEW.handle);
+      IF new_slug <> OLD.slug THEN
         RETURN NULL;
       END IF;
       curuser := current_user;
       NEW.updated_at := now();
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       IF ('superadmin' = ANY(NEW.permissions)) AND NOT ('superadmin' = ANY(OLD.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.handle;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       IF ('superadmin' = ANY(OLD.permissions)) AND NOT ('superadmin' = ANY(NEW.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || NEW.handle;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
@@ -184,6 +179,15 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
 DROP TRIGGER IF EXISTS before_update_member ON public.members;
 CREATE TRIGGER before_update_member BEFORE UPDATE ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_update_member();
 
+
+CREATE OR REPLACE FUNCTION create_member(
+  name character varying, email character varying, password character varying, handle character varying,
+  permissions permission[] DEFAULT ARRAY[]::permission[]
+  ) RETURNS INTEGER VOLATILE AS $$
+  INSERT INTO members (name, email, password, handle, permissions) VALUES ($1, $2, crypt($3, gen_salt('bf')), $4, $5) RETURNING id;
+$$ LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION create_member(character varying, character varying, character varying, character varying, permissions permission[]) TO :dbc;
 
 --
 -- Name: after_delete_member(); Type: FUNCTION
@@ -197,7 +201,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_member() RETURNS trigger
     DECLARE owner varchar;
     BEGIN
       database := current_database();
-      oldmember := database || '__m_' || OLD.handle;
+      oldmember := database || '__m_' || OLD.id;
       owner := database || '__owner';
       EXECUTE 'SET LOCAL ROLE ' || owner;
       EXECUTE 'DROP ROLE ' || oldmember;

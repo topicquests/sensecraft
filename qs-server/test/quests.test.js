@@ -38,10 +38,8 @@ describe('\'quests\' service', () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
       }, null, true);
-      const sponsor = await axiosUtil.create('members', sponsorInfo);
-      sponsorId = sponsor.id;
-      const quidam = await axiosUtil.create('members', quidamInfo);
-      quidamId = quidam.id;
+      sponsorId = await axiosUtil.call('create_member', sponsorInfo);
+      quidamId = await axiosUtil.call('create_member', quidamInfo);
     });
 
     after(async () => {

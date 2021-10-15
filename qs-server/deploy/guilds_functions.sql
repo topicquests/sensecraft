@@ -46,11 +46,10 @@ CREATE OR REPLACE FUNCTION public.guild_permissions(guild character varying) RET
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN members ON members.id=member_id
       JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.handle = guild
+      WHERE guilds.slug = guild
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND member_id = current_member_id()) > 0;
     END;
     $$;
 
@@ -66,7 +65,7 @@ CREATE OR REPLACE FUNCTION public.has_guild_permission(guildid integer, perm pub
        JOIN members ON members.id=member_id
        WHERE guild_id = guildid
        AND status = 'confirmed'
-       AND members.handle = scmember_handle()
+       AND member_id = current_member_id()
        AND (coalesce(guild_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'guildAdmin'::permission]
          OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
        ) > 0;
@@ -82,10 +81,9 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_leader(guildid integer) RETURNS bo
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN members ON members.id=member_id
       WHERE guild_id = guildid
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()
+      AND member_id = current_member_id()
       AND coalesce(guild_membership.permissions @> ARRAY['guildAdmin'::permission], false)
       ) > 0;
     END;
@@ -100,10 +98,9 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_member(guildid integer) RETURNS bo
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN members ON members.id=member_id
       WHERE guild_id = guildid
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND member_id = current_member_id()) > 0;
     END;
     $$;
 
@@ -116,30 +113,12 @@ CREATE OR REPLACE FUNCTION public.is_guild_member(guild character varying) RETUR
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN members ON members.id=member_id
       JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.handle = guild
+      WHERE guilds.slug = guild
       AND status = 'confirmed'
-      AND members.handle = scmember_handle()) > 0;
+      AND member_id = current_member_id()) > 0;
     END;
     $$;
-
-
---
--- Name: after_create_guild(); Type: FUNCTION
---
-
-CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-      INSERT INTO guild_membership (guild_id, member_id, status, permissions) VALUES (NEW.id, NEW.creator, 'confirmed', ARRAY['guildAdmin'::public.permission]);
-      RETURN NEW;
-    END;
-    $$;
-
-DROP TRIGGER IF EXISTS after_create_guild ON public.guilds;
-CREATE TRIGGER after_create_guild AFTER INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.after_create_guild();
 
 
 --
@@ -153,8 +132,8 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild() RETURNS trigger
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.handle;
-      EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.handle;
+      EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.id;
+      EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.id;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
     END;
@@ -172,16 +151,16 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
-    DECLARE guildrole varchar;
-    DECLARE memberrole varchar;
+    DECLARE guild_id integer;
+    DECLARE member_id integer;
     BEGIN
-      SELECT handle INTO memberrole FROM members WHERE id=OLD.member_id;
-      SELECT handle INTO guildrole FROM guilds WHERE id=OLD.guild_id;
-      IF guildrole IS NOT NULL AND memberrole IS NOT NULL THEN
+      SELECT id INTO member_id FROM members WHERE id=OLD.member_id;
+      SELECT id INTO guild_id FROM guilds WHERE id=OLD.guild_id;
+      IF member_id IS NOT NULL AND guild_id IS NOT NULL THEN
         curuser := current_user;
         EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-        EXECUTE 'ALTER GROUP ' || current_database() || '__g_' || guildrole || ' DROP USER ' || current_database() || '__m_' || memberrole;
-        EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || guildrole || ' DROP USER ' || current_database() || '__m_' || memberrole;
+        EXECUTE 'ALTER GROUP ' || current_database() || '__g_' || OLD.guild_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
+        EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || OLD.guild_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'SET LOCAL ROLE ' || curuser;
       END IF;
       RETURN OLD;
@@ -197,7 +176,7 @@ CREATE TRIGGER after_delete_guild_membership AFTER DELETE ON public.guild_member
 -- Name: alter_guild_membership(character varying, character varying, boolean, boolean); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild character varying, member character varying, adding boolean, leader boolean) RETURNS void
+CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild integer, member integer, adding boolean, leader boolean) RETURNS void
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
@@ -229,13 +208,28 @@ CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild character varying
 CREATE OR REPLACE FUNCTION public.before_create_guild() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+    BEGIN
+      NEW.creator := current_member_id();
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS before_create_guild ON public.guilds;
+CREATE TRIGGER before_create_guild BEFORE INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.before_create_guild();
+
+--
+-- Name: after_create_guild(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
     DECLARE curuser varchar;
     DECLARE guildrole varchar;
     DECLARE guildleadrole varchar;
     BEGIN
-      guildrole := current_database() || '__g_' || NEW.handle;
-      guildleadrole := current_database() || '__l_' || NEW.handle;
-      NEW.creator := current_member_id();
+      guildrole := current_database() || '__g_' || NEW.id;
+      guildleadrole := current_database() || '__l_' || NEW.id;
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'CREATE ROLE ' || guildrole;
@@ -243,12 +237,13 @@ CREATE OR REPLACE FUNCTION public.before_create_guild() RETURNS trigger
       EXECUTE 'ALTER GROUP ' || guildrole || ' ADD USER ' || current_database() || '__client';
       EXECUTE 'ALTER GROUP ' || guildleadrole || ' ADD USER ' || current_database() || '__client';
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      INSERT INTO guild_membership (guild_id, member_id, status, permissions) VALUES (NEW.id, NEW.creator, 'confirmed', ARRAY['guildAdmin'::public.permission]);
       RETURN NEW;
     END;
     $$;
 
-DROP TRIGGER IF EXISTS before_create_guild ON public.guilds;
-CREATE TRIGGER before_create_guild BEFORE INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.before_create_guild();
+DROP TRIGGER IF EXISTS after_create_guild ON public.guilds;
+CREATE TRIGGER after_create_guild AFTER INSERT ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.after_create_guild();
 
 
 --
@@ -258,16 +253,16 @@ CREATE TRIGGER before_create_guild BEFORE INSERT ON public.guilds FOR EACH ROW E
 CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-    DECLARE guild varchar;
-    DECLARE _member varchar;
     DECLARE is_requested boolean;
     DECLARE is_invited boolean;
     DECLARE needs_approval boolean;
     DECLARE open_for_app boolean;
+    DECLARE guild_id integer;
+    DECLARE member_id integer;
     BEGIN
         -- RAISE WARNING 'before_createup %', row_to_json(NEW);
-        SELECT handle, open_for_applications, application_needs_approval INTO STRICT guild, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
-        SELECT handle INTO STRICT _member FROM members WHERE id=NEW.member_id;
+        SELECT id, open_for_applications, application_needs_approval INTO STRICT guild_id, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
+        SELECT id INTO member_id FROM members WHERE id=NEW.member_id;
         is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
         is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
         IF (NOT needs_approval) OR is_guild_id_member(NEW.guild_id) OR 1 = (SELECT COUNT(id) FROM guilds WHERE id = NEW.guild_id AND creator=NEW.member_id) THEN
@@ -292,8 +287,8 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
             return NULL;
           END IF;
         END IF;
-        IF (NEW.status = 'confirmed') != (OLD.status = 'confirmed') AND _member IS NOT NULL AND guild IS NOT NULL THEN
-          PERFORM alter_guild_membership(guild, _member, NEW.status = 'confirmed',
+        IF (NEW.status = 'confirmed') != (OLD.status = 'confirmed') AND member_id IS NOT NULL AND guild_id IS NOT NULL THEN
+          PERFORM alter_guild_membership(guild_id, member_id, NEW.status = 'confirmed',
             coalesce(NEW.permissions @> ARRAY['guildAdmin'::permission], false));
         END IF;
         NEW.updated_at := now();
@@ -316,7 +311,7 @@ CREATE OR REPLACE FUNCTION public.before_update_guild() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      IF slugify(NEW.handle) <> OLD.slug THEN
         RETURN NULL;
       END IF;
       NEW.updated_at := now();

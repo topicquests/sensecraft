@@ -47,11 +47,10 @@ CREATE OR REPLACE FUNCTION public.is_quest_member(quest character varying) RETUR
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM quest_membership
-      JOIN members ON members.id=member_id
       JOIN quests ON quests.id=quest_id
-      WHERE quests.handle = quest
+      WHERE quests.slug = quest
       AND confirmed
-      AND members.handle = scmember_handle()) > 0;
+      AND member_id = current_member_id()) > 0;
     END;
     $$;
 
@@ -67,7 +66,7 @@ CREATE OR REPLACE FUNCTION public.has_quest_permission(questid integer, perm pub
        JOIN members ON members.id=member_id
        WHERE quest_id = questid
        AND status = 'confirmed'
-       AND members.handle = scmember_handle()
+       AND member_id = current_member_id()
        AND (coalesce(quest_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm]
          OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
        ) > 0;
@@ -83,10 +82,9 @@ CREATE OR REPLACE FUNCTION public.is_quest_id_member(questid integer) RETURNS bo
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN RETURN (SELECT count(*) FROM quest_membership
-      JOIN members ON members.id=member_id
       WHERE quest_id = questid
       AND confirmed
-      AND members.handle = scmember_handle()) > 0;
+      AND member_id = current_member_id()) > 0;
     END;
     $$;
 
@@ -95,7 +93,7 @@ CREATE OR REPLACE FUNCTION public.is_quest_id_member(questid integer) RETURNS bo
 -- Name: alter_quest_membership(character varying, character varying, boolean); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest character varying, member character varying, adding boolean) RETURNS void
+CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest integer, member integer, adding boolean) RETURNS void
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
@@ -113,31 +111,6 @@ CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest character varying
 
 
 --
--- Name: after_create_quest(); Type: FUNCTION
---
-
-CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-    DECLARE curuser varchar;
-    DECLARE member_id integer;
-    BEGIN
-      member_id := current_member_id();
-      IF member_id IS NOT NULL THEN
-        curuser := current_user;
-        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-        INSERT INTO quest_membership (quest_id, member_id, confirmed) VALUES (NEW.id, member_id, true);
-        EXECUTE 'SET LOCAL ROLE ' || curuser;
-      END IF;
-      RETURN NEW;
-    END;
-    $$;
-
-DROP TRIGGER IF EXISTS after_create_quest ON public.quests;
-CREATE TRIGGER after_create_quest AFTER INSERT ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_create_quest();
-
-
---
 -- Name: after_delete_quest(); Type: FUNCTION
 --
 
@@ -147,7 +120,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
     DECLARE curuser varchar;
     DECLARE questrole varchar;
     BEGIN
-      questrole := current_database() || '__q_' || OLD.handle;
+      questrole := current_database() || '__q_' || OLD.id;
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'DROP ROLE ' || questrole;
@@ -160,28 +133,49 @@ DROP TRIGGER IF EXISTS after_delete_quest ON public.quests;
 CREATE TRIGGER after_delete_quest AFTER DELETE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_delete_quest();
 
 --
--- Name: before_create_quest(); Type: FUNCTION
+-- Name: after_create_quest(); Type: FUNCTION
 --
 
 CREATE OR REPLACE FUNCTION public.before_create_quest() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-    DECLARE curuser varchar;
-    DECLARE questrole varchar;
     BEGIN
-      questrole := current_database() || '__q_' || NEW.handle;
       NEW.creator := current_member_id();
-      curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      EXECUTE 'CREATE ROLE ' || questrole;
-      EXECUTE 'ALTER GROUP ' || questrole || ' ADD USER ' || current_database() || '__client';
-      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
     END;
     $$;
 
 DROP TRIGGER IF EXISTS before_create_quest ON public.quests;
 CREATE TRIGGER before_create_quest BEFORE INSERT ON public.quests FOR EACH ROW EXECUTE FUNCTION public.before_create_quest();
+
+
+--
+-- Name: after_create_quest(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE curuser varchar;
+    DECLARE questrole varchar;
+    DECLARE member_id integer;
+    BEGIN
+      member_id := current_member_id();
+      questrole := current_database() || '__q_' || NEW.id;
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'CREATE ROLE ' || questrole;
+      EXECUTE 'ALTER GROUP ' || questrole || ' ADD USER ' || current_database() || '__client';
+      IF member_id IS NOT NULL THEN
+        INSERT INTO quest_membership (quest_id, member_id, confirmed) VALUES (NEW.id, member_id, true);
+      END IF;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS after_create_quest ON public.quests;
+CREATE TRIGGER after_create_quest AFTER INSERT ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_create_quest();
 
 
 --
@@ -192,7 +186,7 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.handle <> OLD.handle THEN
+      IF slugify(NEW.handle) <> OLD.slug THEN
         RETURN NULL;
       END IF;
       NEW.updated_at := now();
@@ -215,12 +209,12 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest_membership() RETURNS trigge
     DECLARE questrole varchar;
     DECLARE memberrole varchar;
     BEGIN
-      SELECT handle INTO memberrole FROM members WHERE id=OLD.member_id;
-      SELECT handle INTO questrole FROM quests WHERE id=OLD.quest_id;
+      SELECT slug INTO memberrole FROM members WHERE id=OLD.member_id;
+      SELECT slug INTO questrole FROM quests WHERE id=OLD.quest_id;
       IF questrole IS NOT NULL AND memberrole IS NOT NULL THEN
         curuser := current_user;
         EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-        EXECUTE 'ALTER GROUP ' || current_database() || '__q_' || questrole || ' DROP USER ' || current_database() || '__m_' || memberrole;
+        EXECUTE 'ALTER GROUP ' || current_database() || '__q_' || OLD.quest_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'SET LOCAL ROLE ' || curuser;
       END IF;
       RETURN OLD;
@@ -238,13 +232,13 @@ CREATE TRIGGER after_delete_quest_membership AFTER DELETE ON public.quest_member
 CREATE OR REPLACE FUNCTION public.before_createup_quest_membership() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-    DECLARE quest varchar;
-    DECLARE member varchar;
+    DECLARE quest_id INTEGER;
+    DECLARE member_id INTEGER;
     BEGIN
-      SELECT handle INTO STRICT quest FROM quests WHERE id=NEW.quest_id;
-      SELECT handle INTO STRICT member FROM members WHERE id=NEW.member_id;
-      IF member IS NOT NULL AND quest IS NOT NULL THEN
-        PERFORM alter_quest_membership(quest, member, NEW.confirmed);
+      SELECT id INTO quest_id FROM quests WHERE id=NEW.quest_id;
+      SELECT id INTO member_id FROM members WHERE id=NEW.member_id;
+      IF quest_id IS NOT NULL AND member_id IS NOT NULL THEN
+        PERFORM alter_quest_membership(quest_id, member_id, NEW.confirmed);
       END IF;
       NEW.updated_at := now();
       RETURN NEW;

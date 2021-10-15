@@ -24,7 +24,7 @@ exports.mochaGlobalSetup = async function () {
   postgrest.stderr.on('data', wakeup);
   postgrest.stdout.on('data', wakeup);
   await p;
-  await axiosUtil.create('members', admin);
+  await axiosUtil.call('create_member', admin);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
 };
 
