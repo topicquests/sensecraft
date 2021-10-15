@@ -71,7 +71,7 @@ BEGIN
       RAISE EXCEPTION 'Question node can only have answer, question, or reference as a child';
     END IF;
   WHEN parent_type = 'answer' THEN
-    PASS;
+    NULL;
   WHEN parent_type IN ('pro', 'con') THEN
     IF child_type == 'answer' THEN
       RAISE EXCEPTION 'Argument node cannot have an answer node as a child';
