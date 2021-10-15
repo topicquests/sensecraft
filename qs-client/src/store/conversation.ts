@@ -18,11 +18,17 @@ export function ibis_child_types(
   parent_type: ibis_node_type_type
 ): ibis_node_type_type[] {
   switch (parent_type) {
+    case ibis_node_type_enum.quest:
     case ibis_node_type_enum.question:
-      return [ibis_node_type_enum.answer, ibis_node_type_enum.reference];
+      return [
+        ibis_node_type_enum.answer,
+        ibis_node_type_enum.question,
+        ibis_node_type_enum.reference,
+      ];
     case ibis_node_type_enum.answer:
       return [
         ibis_node_type_enum.question,
+        ibis_node_type_enum.answer,
         ibis_node_type_enum.con,
         ibis_node_type_enum.pro,
         ibis_node_type_enum.reference,
@@ -36,7 +42,11 @@ export function ibis_child_types(
         ibis_node_type_enum.reference,
       ];
     case ibis_node_type_enum.reference:
-      return [ibis_node_type_enum.question, ibis_node_type_enum.reference];
+      return [
+        ibis_node_type_enum.question,
+        ibis_node_type_enum.con,
+        ibis_node_type_enum.pro,
+      ];
   }
 }
 

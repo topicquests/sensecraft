@@ -67,19 +67,19 @@ CREATE OR REPLACE FUNCTION public.check_node_type_rules(child_type public.ibis_n
   AS $$
 BEGIN
   CASE WHEN parent_type = 'question' THEN
-    IF child_type NOT IN ('answer', 'reference') THEN
-      RAISE EXCEPTION 'Question node cannot have only have answer or reference as a child';
+    IF child_type NOT IN ('answer', 'reference', 'question') THEN
+      RAISE EXCEPTION 'Question node can only have answer, question, or reference as a child';
     END IF;
   WHEN parent_type = 'answer' THEN
-    IF child_type = 'answer' THEN
-      RAISE EXCEPTION 'Answer node cannot have an answer as a child';
-    END IF;
+    PASS;
   WHEN parent_type IN ('pro', 'con') THEN
     IF child_type == 'answer' THEN
       RAISE EXCEPTION 'Argument node cannot have an answer node as a child';
     END IF;
   WHEN parent_type = 'reference' THEN
-    RAISE EXCEPTION 'Reference node cannot have a child';
+    IF child_type IN ('answer', 'reference') THEN
+      RAISE EXCEPTION 'Reference node cannot have answer or reference as a child';
+    END IF;
   WHEN parent_type IS NULL THEN
     IF child_type NOT IN ('question', 'reference') THEN
       RAISE EXCEPTION 'Root node type must be question or reference';
