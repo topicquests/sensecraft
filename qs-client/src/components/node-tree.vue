@@ -11,22 +11,22 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
-const NeighbourhoodTreeProps = Vue.extend({
+const NodeTreeProps = Vue.extend({
   props: {
-    neighbourhoodNodes: Object as Prop<Object>,
+    nodes: Object as Prop<Object>,
   },
 });
-@Component<NeighbourhoodTree>({
-  name: "NeighbourhoodTree",
+@Component<NodeTree>({
+  name: "NodeTree",
   computed: {},
   watch: {
     selectedNodeId: "selectionChanged",
-    neighbourhoodNodes(newNeighborhood: Object) {
+    nodes(newNeighborhood: Object) {
       this.neighbourhood = newNeighborhood;
     },
   },
 })
-export default class NeighbourhoodTree extends NeighbourhoodTreeProps {
+export default class NodeTree extends NodeTreeProps {
   neighbourhood: Object = {};
   selectedNodeId: number = null;
   selected: string;

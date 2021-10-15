@@ -7,11 +7,10 @@
     </div>
     <div class="sidenav gt-sm">
       <div class="q-pa-md q-gutter-sm">
-        <neighbourhoodTree
-          v-bind:neighbourhoodNodes="getConversationTree"
+        <node-tree
+          v-bind:nodes="getConversationTree"
           v-on:updateTree="selectionChanged"
-        >
-        </neighbourhoodTree>
+        />
       </div>
     </div>
     <div class="row justify-center">
@@ -34,7 +33,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
-import neighbourhoodTree from "../components/neighbourhood-tree.vue";
+import nodeTree from "../components/node-tree.vue";
 import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
@@ -55,7 +54,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
     questCard: questCard,
     scoreboard: scoreboard,
     nodeForm: nodeForm,
-    neighbourhoodTree: neighbourhoodTree,
+    nodeTree: nodeTree,
   },
   computed: {
     ...mapState("quests", {

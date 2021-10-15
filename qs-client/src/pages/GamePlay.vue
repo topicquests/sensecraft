@@ -10,11 +10,11 @@
     </div>
     <div class="sidenav gt-sm">
       <div class="q-pa-md q-gutter-sm">
-        <neighbourhoodTree
-          v-bind:neighbourhoodNodes="getNeighbourhoodTree"
+        <node-tree
+          v-bind:nodes="getNeighbourhoodTree"
           v-on:updateTree="selectionChanged"
         >
-        </neighbourhoodTree>
+        </node-tree>
       </div>
     </div>
     <div class="row justify-center q-mt-lg">
@@ -48,11 +48,10 @@
     <div class="column items-center">
       <div class="col-6">
         <div class="q-pa-md q-gutter-sm lt-md">
-          <neighbourhoodTree
-            v-bind:neighbourhoodNodes="getNeighbourhoodTree"
+          <node-tree
+            v-bind:nodes="getNeighbourhoodTree"
             v-on:updateTree="selectionChanged"
-          >
-          </neighbourhoodTree>
+          />
         </div>
       </div>
     </div>
@@ -76,7 +75,7 @@ import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import nodeForm from "../components/node-form.vue";
-import neighbourhoodTree from "../components/neighbourhood-tree.vue";
+import nodeTree from "../components/node-tree.vue";
 import {
   ibis_node_type_enum,
   ibis_node_type_type,
@@ -131,7 +130,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     questCard: questCard,
     nodeCard: nodeCard,
     nodeForm: nodeForm,
-    neighbourhoodTree: neighbourhoodTree,
+    nodeTree: nodeTree,
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
