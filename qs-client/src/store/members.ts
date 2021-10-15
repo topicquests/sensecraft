@@ -28,7 +28,9 @@ export interface MembersState {
 
 const MembersGetters = {
   getMembers: (state: MembersState) =>
-    Object.values(state.members).sort((a, b) => a.name.localeCompare(b.handle)),
+    Object.values(state.members).sort((a, b) =>
+      a.handle.localeCompare(b.handle)
+    ),
   getMemberById: (state: MembersState) => (id: number) => state.members[id],
   getMemberByHandle: (state: MembersState) => (handle: string) =>
     Object.values(state.members).find(
