@@ -14,7 +14,7 @@
             :checked="true"
             :label="guild.name"
             :name="guild.handle"
-            v-on:click.native="toggleCheckbox(guild.id)"
+            v-on:click="toggleCheckbox(guild.id)"
           />
         </div>
       </div>

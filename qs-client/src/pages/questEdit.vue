@@ -165,7 +165,7 @@
             <div class="col-4">
               <ibis-button
                 v-bind:node_type="node().node_type"
-                v-on:click.native="questionType"
+                v-on:click="questionType"
               />
             </div>
           </div>

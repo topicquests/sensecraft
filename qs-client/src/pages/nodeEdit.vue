@@ -69,7 +69,7 @@
             <div class="col-4">
               <ibis-button
                 v-bind:node_type="node.node_type"
-                v-on:click.native="questionType"
+                v-on:click="questionType"
               />
             </div>
           </div>
@@ -107,7 +107,7 @@
               <q-input v-model="node.node_type" label="Type" />
             </div>
             <div class="col-4">
-              <btn-question v-on:click.native="questionType"></btn-question>
+              <btn-question v-on:click="questionType"></btn-question>
             </div>
           </div>
           <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>

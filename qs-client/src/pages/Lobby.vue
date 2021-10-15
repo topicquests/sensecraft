@@ -36,7 +36,7 @@
             :columns="columns2"
             row-key="desc"
           >
-            <template slot="body" slot-scope="props">
+            <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td key="guildDesc" :props="props">
                   {{ props.row.name }}</q-td

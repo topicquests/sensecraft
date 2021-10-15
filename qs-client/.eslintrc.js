@@ -21,7 +21,7 @@ module.exports = {
     // See https://eslint.vuejs.org/rules/#available-rules
     // 'plugin:vue/strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
     // 'plugin:vue/recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
-    "plugin:vue/essential",
+    "plugin:vue/vue3-essential",
 
     // Base ESLint recommended rules
     //"eslint:recommended",

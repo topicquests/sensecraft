@@ -8,8 +8,6 @@ import { conversation } from "./conversation";
 import { MyVapi } from "./base";
 import { BaseGetters } from "./baseStore";
 
-Vue.use(Vuex);
-
 const store = new Vuex.Store({
   modules: {
     member,

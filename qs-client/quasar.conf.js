@@ -8,6 +8,7 @@
 /* eslint-env node */
 const ESLintPlugin = require("eslint-webpack-plugin");
 //const { default: axios } = require('src/boot/axios')
+const nodePolyfillWebpackPlugin = require("node-polyfill-webpack-plugin");
 const server_url = process.env.SERVER_URL || "http://localhost:3000";
 
 module.exports = function (/* ctx */) {
@@ -67,6 +68,7 @@ module.exports = function (/* ctx */) {
       // https://v1.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
       chainWebpack(chain) {
+        chain.plugin("node-polyfill").use(nodePolyfillWebpackPlugin);
         chain
           .plugin("eslint-webpack-plugin")
           .use(ESLintPlugin, [{ extensions: ["js", "vue", "ts"] }]);
@@ -83,7 +85,7 @@ module.exports = function (/* ctx */) {
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: "material-icons", // Quasar icon set
-      lang: "en-us", // Quasar language pack
+      lang: "en-US", // Quasar language pack
       config: {},
 
       // Possible values for "importStrategy":

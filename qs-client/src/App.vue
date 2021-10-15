@@ -4,15 +4,17 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from "vue";
+import { MemberState } from "./store/member";
+import { createApp } from "vue";
 import store from "./store";
 import router from "./router";
-import { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
+import { Vuelidate } from "vuelidate";
+import Vuex from "vuex";
 
 var userLoadedResolve = null;
 
-const app = new Vue({
+const app = createApp({
   name: "App",
   store: store,
   router: router(),
@@ -62,6 +64,11 @@ const app = new Vue({
     }),
   },
 });
+
+// app.use(router)
+// app.use(store)
+app.use(Vuelidate);
+app.use(Vuex);
 
 export default app;
 </script>
