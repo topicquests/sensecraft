@@ -156,12 +156,7 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
-    DECLARE new_slug varchar;
     BEGIN
-      new_slug := slugify(NEW.handle);
-      IF new_slug <> OLD.slug THEN
-        RETURN NULL;
-      END IF;
       curuser := current_user;
       NEW.updated_at := now();
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';

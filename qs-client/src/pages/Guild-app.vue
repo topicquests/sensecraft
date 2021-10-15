@@ -248,11 +248,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapState("guilds", {
       currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
-    ...mapGetters("members", [
-      "getMemberById",
-      "getMembersOfGuild",
-      "getMemberHandles",
-    ]),
+    ...mapGetters("members", ["getMemberById", "getMembersOfGuild"]),
     ...mapGetters("guilds", [
       "isGuildMember",
       "getGuildById",
@@ -372,7 +368,6 @@ export default class GuildPage extends Vue {
   getGuildById!: GuildsGetterTypes["getGuildById"];
   getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
   getMemberById!: MembersGetterTypes["getMemberById"];
-  getMemberHandles!: MembersGetterTypes["getMemberHandles"];
   hasPermission!: BaseGetterTypes["hasPermission"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
   getParentNode!: ConversationGetterTypes["getConversationNodeById"];

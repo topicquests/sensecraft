@@ -311,9 +311,6 @@ CREATE OR REPLACE FUNCTION public.before_update_guild() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF slugify(NEW.handle) <> OLD.slug THEN
-        RETURN NULL;
-      END IF;
       NEW.updated_at := now();
       RETURN NEW;
     END;

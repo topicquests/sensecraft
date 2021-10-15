@@ -88,12 +88,7 @@ export default {
   computed: {
     ...mapGetters(["hasPermission"]),
     ...mapGetters("member", ["getUserId"]),
-    ...mapGetters("members", [
-      "getMembers",
-      "getMemberByHandle",
-      "getMemberById",
-      "getMemberHandles",
-    ]),
+    ...mapGetters("members", ["getMembers", "getMemberById"]),
     member: function () {
       return this.getMemberById(this.member_id);
     },

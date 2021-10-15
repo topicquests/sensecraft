@@ -138,6 +138,7 @@ export default {
           this.$q.notify({ type: "negative", message: "Missing Password" });
           return;
         }
+        // TODO: the domain can be normalized to LC, but case can be significant in the handle
         this.formdata.email = theEmail.toLowerCase();
         await this.registerUser(this.formdata);
         this.$router.push({ name: "signin" });

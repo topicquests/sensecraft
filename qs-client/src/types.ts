@@ -65,6 +65,7 @@ export interface GamePlay {
 export interface Quest {
   id: number;
   handle: string;
+  slug: string;
   name: string;
   description?: string;
   creator: number;
@@ -97,6 +98,7 @@ export interface ConversationNode {
 export interface Guild {
   id: number;
   handle: string;
+  slug: string;
   name: string;
   description?: string;
   creator: number;
