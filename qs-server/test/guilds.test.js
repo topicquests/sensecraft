@@ -50,12 +50,9 @@ describe('\'guilds\' service', () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
       }, null, true);
-      const quidam = await axiosUtil.create('members', quidamInfo);
-      quidamId = quidam.id;
-      const quidam2 = await axiosUtil.create('members', quidam2Info);
-      quidam2Id = quidam2.id;
-      const sponsor = await axiosUtil.create('members', leaderInfo);
-      sponsorId = sponsor.id;
+      quidamId = await axiosUtil.call('create_member', quidamInfo);
+      quidam2Id = await axiosUtil.call('create_member', quidam2Info);
+      sponsorId = await axiosUtil.call('create_member', leaderInfo);
     });
 
     after(async () => {

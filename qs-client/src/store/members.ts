@@ -8,7 +8,7 @@ import {
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
-  Member,
+  PublicMember,
   GuildMembership,
   QuestMembership,
   Quest,
@@ -17,7 +17,7 @@ import {
 } from "../types";
 
 interface MemberMap {
-  [key: number]: Member;
+  [key: number]: PublicMember;
 }
 export interface MembersState {
   members: MemberMap;
@@ -32,31 +32,31 @@ const MembersGetters = {
   getMemberById: (state: MembersState) => (id: number) => state.members[id],
   getMemberByHandle: (state: MembersState) => (handle: string) =>
     Object.values(state.members).find(
-      (member: Member) => member.handle == handle
+      (member: PublicMember) => member.handle == handle
     ),
   getMembersByHandle: (state: MembersState) =>
     Object.fromEntries(
-      Object.values(state.members).map((member: Member) => [
+      Object.values(state.members).map((member: PublicMember) => [
         member.handle,
         member,
       ])
     ),
   getMemberHandles: (state: MembersState) =>
     Object.values(state.members)
-      .map((member: Member) => member.handle)
+      .map((member: PublicMember) => member.handle)
       .sort(),
   getMembersOfGuild: (state: MembersState) => (guild: Guild) =>
     guild.guild_membership
       .map((gm: GuildMembership) => state.members[gm.member_id])
-      .filter((member: Member) => member),
+      .filter((member: PublicMember) => member),
   getMembersOfQuest: (state: MembersState) => (quest: Quest) =>
     quest.quest_membership
       .map((qm: QuestMembership) => state.members[qm.member_id])
-      .filter((member: Member) => member),
+      .filter((member: PublicMember) => member),
   getPlayersOfQuest: (state: MembersState) => (quest: Quest) =>
     quest.casting
       .map((c: Casting) => state.members[c.member_id])
-      .filter((member: Member) => member),
+      .filter((member: PublicMember) => member),
 };
 
 const MembersActions = {
@@ -117,7 +117,7 @@ export const members = new MyVapi<MembersState>({
   // Step 3
   .get({
     action: "fetchMemberById",
-    path: "/members",
+    path: "/public_members",
     queryParams: true,
     beforeRequest: (state: MembersState, { params }) => {
       if (Array.isArray(params.id)) {
@@ -128,30 +128,30 @@ export const members = new MyVapi<MembersState>({
     },
     onSuccess: (
       state: MembersState,
-      res: AxiosResponse<Member[]>,
+      res: AxiosResponse<PublicMember[]>,
       axios: AxiosInstance,
       actionParams
     ) => {
       state.members = {
         ...state.members,
         ...Object.fromEntries(
-          res.data.map((member: Member) => [member.id, member])
+          res.data.map((member: PublicMember) => [member.id, member])
         ),
       };
     },
   })
   .get({
-    path: "/members",
+    path: "/public_members",
     property: "members",
     action: "fetchMembers",
     onSuccess: (
       state: MembersState,
-      res: AxiosResponse<Member[]>,
+      res: AxiosResponse<PublicMember[]>,
       axios: AxiosInstance,
       actionParams
     ) => {
       const members = Object.fromEntries(
-        res.data.map((member: Member) => [member.id, member])
+        res.data.map((member: PublicMember) => [member.id, member])
       );
       state.members = members;
       state.fullFetch = true;
@@ -159,14 +159,14 @@ export const members = new MyVapi<MembersState>({
   })
   .patch({
     action: "updateMember",
-    path: ({ id }) => `/members?id=eq.${id}`,
+    path: ({ id }) => `/public_members?id=eq.${id}`,
     property: "members",
     beforeRequest: (state: MembersState, { params, data }) => {
       params.id = data.id;
     },
     onSuccess: (
       state: MembersState,
-      res: AxiosResponse<Member[]>,
+      res: AxiosResponse<PublicMember[]>,
       axios: AxiosInstance,
       { data }
     ) => {
@@ -181,9 +181,12 @@ export const members = new MyVapi<MembersState>({
   });
 
 type MembersRestActionTypes = {
-  fetchMemberById: RestParamActionType<{ id: number | number[] }, Member[]>;
-  fetchMembers: RestEmptyActionType<Member[]>;
-  updateMember: RestDataActionType<Partial<Member>, Member[]>;
+  fetchMemberById: RestParamActionType<
+    { id: number | number[] },
+    PublicMember[]
+  >;
+  fetchMembers: RestEmptyActionType<PublicMember[]>;
+  updateMember: RestDataActionType<Partial<PublicMember>, PublicMember[]>;
 };
 
 export type MembersActionTypes = RetypeActionTypes<typeof MembersActions> &

@@ -3,8 +3,9 @@
 
 BEGIN;
 
-ALTER TABLE members DROP CONSTRAINT IF EXISTS members_slug_key;
-ALTER TABLE members DROP COLUMN "slug";
-ALTER TABLE members ADD CONSTRAINT members_handle_key UNIQUE (handle);
+DROP VIEW IF EXISTS public.public_members;
+ALTER TABLE public.members DROP CONSTRAINT IF EXISTS members_slug_key;
+ALTER TABLE public.members DROP COLUMN "slug";
+ALTER TABLE public.members ADD CONSTRAINT members_handle_key UNIQUE (handle);
 
 COMMIT;

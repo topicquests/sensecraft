@@ -243,6 +243,7 @@ CREATE POLICY conversation_node_insert_policy ON public.conversation_node FOR IN
   public.is_quest_id_member(quest_id) OR (
     SELECT COUNT(*) FROM public.casting
     WHERE public.casting.quest_id = public.conversation_node.quest_id
+    AND public.casting.guild_id = public.conversation_node.guild_id
     AND public.casting.member_id = public.conversation_node.creator_id) = 1);
 
 DROP POLICY IF EXISTS conversation_node_select_policy ON public.conversation_node;

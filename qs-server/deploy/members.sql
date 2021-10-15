@@ -43,4 +43,12 @@ CREATE TABLE IF NOT EXISTS public.members (
 ALTER SEQUENCE public.members_id_seq OWNED BY public.members.id;
 
 
+CREATE OR REPLACE VIEW public.public_members (id, handle, slug, permissions) AS
+SELECT
+    id,
+    handle,
+    slug,
+    permissions FROM public.members;
+
+
 COMMIT;

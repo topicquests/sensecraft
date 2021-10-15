@@ -3,9 +3,19 @@
 
 BEGIN;
 
+\set dbc :dbn '__client';
+
 ALTER TABLE members ADD COLUMN "slug" character varying(255) GENERATED ALWAYS AS (slugify(handle)) STORED;
 ALTER TABLE members DROP CONSTRAINT IF EXISTS members_handle_key;
 ALTER TABLE members ADD CONSTRAINT members_slug_key UNIQUE (slug);
+CREATE OR REPLACE VIEW public.public_members (id, handle, slug, permissions) AS
+SELECT
+    id,
+    handle,
+    slug,
+    permissions FROM public.members;
+
+REVOKE SELECT ON TABLE public.members FROM :dbc;
 
 -- this is actually a function migration, but we don't migrate functions since they're idempotent
 

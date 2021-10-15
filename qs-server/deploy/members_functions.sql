@@ -14,8 +14,12 @@ BEGIN;
 --
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.members TO :dbm;
-GRANT SELECT,INSERT ON TABLE public.members TO :dbc;
+GRANT INSERT ON TABLE public.members TO :dbc;
 
+REVOKE SELECT ON TABLE public.members FROM :dbc;
+GRANT SELECT (id, handle, slug, permissions) ON TABLE public.members TO :dbc;
+GRANT SELECT ON public.public_members TO :dbc;
+GRANT SELECT ON public.public_members TO :dbm;
 
 --
 -- Name: SEQUENCE members_id_seq; Type: ACL
@@ -76,8 +80,12 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     AS $$
     DECLARE role varchar;
     DECLARE passh varchar;
+    DECLARE curuser varchar;
     BEGIN
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       SELECT CONCAT(current_database() || '__m_', id), password INTO STRICT role, passh FROM members WHERE email = mail;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
@@ -85,8 +93,8 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
       ELSE
         RETURN NULL;
       END IF;
-       END;
-       $$;
+    END;
+$$;
 
 
 --
@@ -171,6 +179,15 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
 DROP TRIGGER IF EXISTS before_update_member ON public.members;
 CREATE TRIGGER before_update_member BEFORE UPDATE ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_update_member();
 
+
+CREATE OR REPLACE FUNCTION create_member(
+  name character varying, email character varying, password character varying, handle character varying,
+  permissions permission[] DEFAULT ARRAY[]::permission[]
+  ) RETURNS INTEGER VOLATILE AS $$
+  INSERT INTO members (name, email, password, handle, permissions) VALUES ($1, $2, crypt($3, gen_salt('bf')), $4, $5) RETURNING id;
+$$ LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION create_member(character varying, character varying, character varying, character varying, permissions permission[]) TO :dbc;
 
 --
 -- Name: after_delete_member(); Type: FUNCTION

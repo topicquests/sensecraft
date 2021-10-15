@@ -6,7 +6,6 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
-const { hash } = require("bcryptjs");
 import { Notify } from "quasar";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { Member, GuildMembership, QuestMembership, Casting } from "../types";
@@ -45,8 +44,8 @@ const MemberActions = {
     context.commit("LOGOUT");
   },
   registerUser: async (context, data) => {
-    const password = await hash(data.password, 10);
-    data = { ...data, password };
+    // const password = await hash(data.password, 10);
+    // data = { ...data, password };
     return await context.dispatch("registerUserCrypted", { data });
   },
   ensureLoginUser: async (context) => {
@@ -177,10 +176,10 @@ export const member = new MyVapi<MemberState>({
       console.log(error);
     },
   })
-  .post({
+  .call({
     action: "registerUserCrypted",
     property: "member",
-    path: "/members",
+    path: "create_member",
     onError: (
       state: MemberState,
       error,
@@ -204,7 +203,7 @@ export const member = new MyVapi<MemberState>({
     },
     onSuccess: (
       state: MemberState,
-      res: AxiosResponse<Member[]>,
+      res: AxiosResponse<number>,
       axios: AxiosInstance,
       { params, data }
     ) => {

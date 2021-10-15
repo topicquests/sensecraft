@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { hash } = require('bcryptjs');
 
 class AxiosUtil {
   constructor(baseURL) {
@@ -42,9 +41,6 @@ class AxiosUtil {
 
   async create(path, data, token) {
     try {
-      if (path === 'members') {
-        data = { ...data, password: await hash(data.password, 10) };
-      }
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
       const response = await this.axios.post(path, data, { params, ...headers });
@@ -55,7 +51,8 @@ class AxiosUtil {
       }));
       return location;
     } catch (error) {
-      console.error(error.response.status, error.response.data.message);
+      const response = error.response || {data:{}};
+      console.error(response.status, response.data.message);
       throw error;
     }
   }
