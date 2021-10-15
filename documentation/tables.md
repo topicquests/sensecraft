@@ -28,14 +28,6 @@
 Under consideration:
 
 * extraCreditForMove could have issues with favoritism
-
-## roles
-
-Should we have an enum or a table?
-The latter would make it easier to extend.
-Assuming an enum for now, otherwise use fk(Role) below.
-TBD.
-
 ## scoring_criterion
 
 Represents a criterion which will be used to score a game move (mostly introducing conversation nodes). A given game mode can be scored along multiple axes (or criteria.)
@@ -133,6 +125,19 @@ later maybe
 
 public_quests: view on quests, with public=true
 
+
+## roles
+
+* name varchar
+* guild_id fk(guilds) : Null means system role, editable only by sysadmin
+* permissions Permission[]
+* node_type_constraints ibis_node_type[]
+* node_state_constraints publication_state[]
+* must_quote boolean  : needs to create nodes of quote subtype
+* add_to_focus boolean  : can add nodes to focus
+* add_meta_to_focus boolean  : can add nodes to focus
+* add_meta_to_conversation boolean  : can add nodes to conversation
+* next_role_constraint integer[] fk(roles) : when adding a role_draft, who can you address it to?
 
 ## quest_membership
 
