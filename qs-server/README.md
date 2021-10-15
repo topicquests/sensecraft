@@ -25,7 +25,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 ### Installation procedure
 
-in another directory: `git clone https://github.com/maparent/pgjwt.git ; cd pgjwt ; git branch combined ; make install`
+in another directory: `git clone https://github.com/michelp/pgjwt.git ; cd pgjwt ; make install`
 You will need `sudo make install` instead of `make install` on many platforms.
 
 In `qs-server`:
