@@ -70,24 +70,16 @@ CREATE TYPE public.ibis_node_type AS ENUM (
   'answer',
   'pro',
   'con',
-  'reference',
-  'channel'
+  'reference'
 );
 
 CREATE TYPE public.publication_state AS ENUM (
     'obsolete',
     'private_draft',
-    'role_draft',
     'guild_draft',
     'proposed',
     'submitted',
     'published'
-);
-
-CREATE TYPE public.meta_state AS ENUM (
-  'conversation',
-  'meta',
-  'channel'
 );
 
 COMMIT;

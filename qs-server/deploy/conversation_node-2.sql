@@ -15,7 +15,7 @@ CREATE SEQUENCE IF NOT EXISTS public.conversation_node_id_seq
 
 CREATE TABLE IF NOT EXISTS public.conversation_node (
     id INTEGER NOT NULL DEFAULT nextval('public.conversation_node_id_seq'::regclass),
-    quest_id INTEGER,
+    quest_id INTEGER NOT NULL,
     guild_id INTEGER,
     creator_id INTEGER NOT NULL,
     parent_id INTEGER,
@@ -26,8 +26,6 @@ CREATE TABLE IF NOT EXISTS public.conversation_node (
     published_at timestamp with time zone,
     title varchar(255) NOT NULL,
     description text,
-    meta meta_state DEFAULT 'conversation'::meta_state NOT NULL,
-    url varchar(255),
     CONSTRAINT conversation_node_pkey PRIMARY KEY (id),
     CONSTRAINT conversation_node_creator_id_fkey FOREIGN KEY (creator_id)
       REFERENCES public.members(id) ON UPDATE CASCADE ON DELETE CASCADE,

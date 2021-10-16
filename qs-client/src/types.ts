@@ -4,6 +4,7 @@ import {
   quest_status_type,
   ibis_node_type_type,
   publication_state_type,
+  meta_state_type,
 } from "./enums";
 
 export interface GuildMembership {
@@ -91,6 +92,8 @@ export interface ConversationNode {
   published_at: string;
   title: string;
   description: string;
+  url: string;
+  meta: meta_state_type;
 }
 
 export interface Guild {
