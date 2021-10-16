@@ -25,6 +25,15 @@
 * revokeQuestMembership
 * rejectGameMove
 
+Todo: 
+
+* must_quote boolean  : needs to create nodes of quote subtype
+* add_to_focus boolean  : can add nodes to focus
+* add_meta_to_focus boolean  : can add nodes to focus
+* add_meta_to_conversation boolean  : can add nodes to conversation
+
+
+
 Under consideration:
 
 * extraCreditForMove could have issues with favoritism
@@ -133,10 +142,6 @@ public_quests: view on quests, with public=true
 * permissions Permission[]
 * node_type_constraints ibis_node_type[]
 * node_state_constraints publication_state[]
-* must_quote boolean  : needs to create nodes of quote subtype
-* add_to_focus boolean  : can add nodes to focus
-* add_meta_to_focus boolean  : can add nodes to focus
-* add_meta_to_conversation boolean  : can add nodes to conversation
 * next_role_constraint integer[] fk(roles) : when adding a role_draft, who can you address it to?
 
 ## quest_membership
