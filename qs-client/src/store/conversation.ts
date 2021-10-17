@@ -19,6 +19,8 @@ export function ibis_child_types(
   parent_type: ibis_node_type_type
 ): ibis_node_type_type[] {
   switch (parent_type) {
+    case ibis_node_type_enum.channel:
+      return [ibis_node_type_enum.question, ibis_node_type_enum.reference];
     case ibis_node_type_enum.quest:
     case ibis_node_type_enum.question:
       return [
@@ -63,12 +65,17 @@ export interface ConversationState extends Object {
   neighbourhoodRoot?: number;
   neighbourhood: ConversationMap;
   conversationRoot?: ConversationNode;
+  playChannels: ConversationMap;
 }
 
 function addToState(state: ConversationState, node: ConversationNode) {
   state.conversation = { ...state.conversation, [node.id]: node };
   if (!node.parent_id) {
-    state.conversationRoot = node;
+    if (node.meta == meta_state_enum.channel) {
+      state.playChannels = { ...state.playChannels, [node.id]: node };
+    } else {
+      state.conversationRoot = node;
+    }
   }
   if (state.neighbourhoodRoot) {
     const root = state.neighbourhood[state.neighbourhoodRoot];
@@ -241,6 +248,7 @@ const baseState: ConversationState = {
   neighbourhoodRoot: null,
   neighbourhood: {},
   conversationRoot: null,
+  playChannels: {},
 };
 
 export const conversation = new MyVapi<ConversationState>({
@@ -293,6 +301,27 @@ export const conversation = new MyVapi<ConversationState>({
     },
     property: "conversationRoot",
     action: "fetchRootNode",
+    onSuccess: (
+      state: ConversationState,
+      res: AxiosResponse<ConversationNode[]>,
+      axios: AxiosInstance,
+      { params, data }
+    ) => {
+      if (state.currentQuest !== params.quest_id) {
+        state.currentQuest = params.quest_id;
+        state.conversation = {};
+        state.neighbourhood = {};
+        state.neighbourhoodRoot = null;
+      }
+      addToState(state, res.data[0]);
+    },
+  })
+  .get({
+    path: ({ quest_id }: { quest_id: number }) => {
+      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.channel`;
+    },
+    property: "playChannels",
+    action: "fetchPlayChannels",
     onSuccess: (
       state: ConversationState,
       res: AxiosResponse<ConversationNode[]>,
