@@ -12,6 +12,7 @@ import {
   ibis_node_type_type,
   publication_state_enum,
   permission_enum,
+  meta_state_enum,
 } from "../enums";
 
 export function ibis_child_types(
@@ -166,7 +167,9 @@ const ConversationGetters = {
   getConversationTree: (state: ConversationState) =>
     makeTree(
       Object.values(state.conversation).filter(
-        (n) => n.status == publication_state_enum.published
+        (n) =>
+          n.status == publication_state_enum.published &&
+          n.meta == meta_state_enum.conversation
       )
     ),
   getNode: (state: ConversationState) => state.node,
@@ -261,7 +264,7 @@ export const conversation = new MyVapi<ConversationState>({
   })
   .get({
     path: ({ quest_id }: { quest_id: number }) =>
-      `/conversation_node?quest_id=eq.${quest_id}`,
+      `/conversation_node?quest_id=eq.${quest_id}&meta=ne.channel`,
     property: "conversation",
     action: "fetchConversation",
     onSuccess: (
@@ -286,7 +289,7 @@ export const conversation = new MyVapi<ConversationState>({
   })
   .get({
     path: ({ quest_id }: { quest_id: number }) => {
-      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null`;
+      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`;
     },
     property: "conversationRoot",
     action: "fetchRootNode",
