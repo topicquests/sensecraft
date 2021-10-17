@@ -53,6 +53,8 @@ BEGIN
     IF NOT is_quest_id_member(quest_id) THEN
       RAISE EXCEPTION 'Only quest members can publish nodes';
     END IF;
+  WHEN status = 'role_draft' THEN
+    RAISE EXCEPTION 'Not implemented';
   ELSE
   END CASE;
   -- status cannot be higher than parent_status
@@ -66,6 +68,9 @@ CREATE OR REPLACE FUNCTION public.check_node_type_rules(child_type public.ibis_n
   LANGUAGE plpgsql IMMUTABLE
   AS $$
 BEGIN
+  IF child_type = 'channel' AND parent_type IS NOT NULL THEN
+    RAISE EXCEPTION 'Channels must be at root';
+  END IF;
   CASE WHEN parent_type = 'question' THEN
     IF child_type NOT IN ('answer', 'reference', 'question') THEN
       RAISE EXCEPTION 'Question node can only have answer, question, or reference as a child';
@@ -81,8 +86,12 @@ BEGIN
       RAISE EXCEPTION 'Reference node cannot have answer or reference as a child';
     END IF;
   WHEN parent_type IS NULL THEN
+    IF child_type NOT IN ('question', 'channel') THEN
+      RAISE EXCEPTION 'Root node type must be question or channel';
+    END IF;
+  WHEN parent_type = 'channel' THEN
     IF child_type NOT IN ('question', 'reference') THEN
-      RAISE EXCEPTION 'Root node type must be question or reference';
+      RAISE EXCEPTION 'Children of channel must be question or reference';
     END IF;
   ELSE
     RAISE EXCEPTION 'Invalid parent node type';
@@ -96,19 +105,31 @@ CREATE OR REPLACE FUNCTION public.before_create_node() RETURNS trigger
 DECLARE parent_node_type public.ibis_node_type := NULL;
 DECLARE parent_status public.publication_state := NULL;
 DECLARE parent_quest INTEGER;
+DECLARE parent_meta meta_state;
 DECLARE parent_ancestry ltree;
 BEGIN
   NEW.creator_id := current_member_id();
   IF NEW.parent_id IS NOT NULL THEN
-    SELECT ancestry, node_type, status, quest_id INTO STRICT parent_ancestry, parent_node_type, parent_status, parent_quest FROM conversation_node WHERE id = NEW.parent_id;
+    SELECT ancestry, node_type, status, quest_id, meta INTO STRICT parent_ancestry, parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;
     IF parent_quest != NEW.quest_id THEN
       RAISE EXCEPTION 'Parent node does not belong to the same quest';
     END IF;
     NEW.ancestry = parent_ancestry || NEW.id::varchar::ltree;
+    IF parent_meta != 'conversation'::meta_state THEN
+      NEW.meta = parent_meta;
+    END IF;
   ELSE
     NEW.ancestry = NEW.id::varchar::ltree;
     IF (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL) != 0 THEN
       RAISE EXCEPTION 'Each quest must have a single root';
+    END IF;
+    IF NEW.node_type = 'channel' THEN
+      NEW.meta = 'channel'::meta_state;
+    ELSE
+      NEW.meta = 'conversation'::meta_state;
+      IF NEW.quest_id IS NULL THEN
+        RAISE EXCEPTION 'Quest Id must be defined';
+      END IF;
     END IF;
   END IF;
   PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
@@ -158,6 +179,7 @@ CREATE OR REPLACE FUNCTION public.before_update_node() RETURNS trigger
 DECLARE parent_node_type public.ibis_node_type := NULL;
 DECLARE parent_status public.publication_state := NULL;
 DECLARE parent_quest INTEGER;
+DECLARE parent_meta meta_state;
 DECLARE children_status public.publication_state := NULL;
 DECLARE row record;
 BEGIN
@@ -175,15 +197,31 @@ BEGIN
     RAISE EXCEPTION 'Cannot lower status of submitted node';
   END IF;
   IF NEW.parent_id IS NOT NULL THEN
-    SELECT node_type, status, quest_id INTO STRICT parent_node_type, parent_status, parent_quest FROM conversation_node WHERE id = NEW.parent_id;
+    SELECT node_type, status, quest_id, meta INTO STRICT parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;
     IF parent_quest != NEW.quest_id THEN
       RAISE EXCEPTION 'Parent node does not belong to the same quest';
+    END IF;
+    IF NEW.meta = 'conversation'::meta_state THEN
+      IF parent_meta != 'conversation'::meta_state THEN
+        NEW.meta = parent_meta;
+      END IF;
+    ELSE
+      NEW.meta = parent_meta;
+    END IF;
+  ELSE
+    IF NEW.node_type = 'channel' THEN
+      NEW.meta = 'channel'::meta_state;
+    ELSE
+      NEW.meta = 'conversation'::meta_state;
     END IF;
   END IF;
   IF COALESCE(NEW.parent_id, -1) != COALESCE(OLD.parent_id, -1) OR NEW.node_type != OLD.node_type THEN
     PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
   END IF;
   IF COALESCE(NEW.parent_id, -1) != COALESCE(OLD.parent_id, -1) OR NEW.status != OLD.status THEN
+    IF NEW.status = 'role_draft' THEN
+      RAISE EXCEPTION 'not implemented';
+    END IF;
     SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
     IF NEW.status != OLD.status THEN
       SELECT MIN(status) INTO children_status FROM conversation_node WHERE parent_id = NEW.id;
@@ -191,7 +229,10 @@ BEGIN
         RAISE EXCEPTION 'Cannot lower the status below that of children';
       END IF;
     END IF;
-    IF NEW.parent_id IS NULL AND (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL AND id != NEW.id) != 0 THEN
+    IF NEW.parent_id IS NULL AND NEW.meta = 'conversation'::meta_state AND (
+        SELECT count(id) FROM conversation_node
+        WHERE quest_id = NEW.quest_id AND parent_id IS NULL
+          AND id != NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
       RAISE EXCEPTION 'Each quest must have a single root';
     END IF;
     IF NEW.status = 'published' AND OLD.status < 'published' THEN
