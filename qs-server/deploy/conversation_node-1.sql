@@ -5,6 +5,24 @@
 
 BEGIN;
 
+CREATE TYPE public.ibis_node_type AS ENUM (
+  'question',
+  'answer',
+  'pro',
+  'con',
+  'reference'
+);
+
+CREATE TYPE public.publication_state AS ENUM (
+    'obsolete',
+    'private_draft',
+    'guild_draft',
+    'proposed',
+    'submitted',
+    'published'
+);
+
+
 CREATE SEQUENCE IF NOT EXISTS public.conversation_node_id_seq
     AS INTEGER
     START WITH 1

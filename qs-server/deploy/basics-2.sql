@@ -59,27 +59,10 @@ CREATE TYPE public.registration_status AS ENUM (
 CREATE TYPE public.quest_status AS ENUM (
     'draft',
     'registration',
-    'ongoing',
+    'ongoing', 
     'paused',
     'scoring',
     'finished'
-);
-
-CREATE TYPE public.ibis_node_type AS ENUM (
-  'question',
-  'answer',
-  'pro',
-  'con',
-  'reference'
-);
-
-CREATE TYPE public.publication_state AS ENUM (
-    'obsolete',
-    'private_draft',
-    'guild_draft',
-    'proposed',
-    'submitted',
-    'published'
 );
 
 COMMIT;

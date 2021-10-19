@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS public.guild_membership (
     guild_id integer NOT NULL,
     member_id integer NOT NULL,
     permissions public.permission[] DEFAULT ARRAY[]::permission[],
+    available_roles public.player_role[],
     status public.registration_status DEFAULT 'confirmed'::public.registration_status,
     created_at timestamp with time zone NOT NULL default now(),
     updated_at timestamp with time zone NOT NULL default now(),

@@ -1,0 +1,6 @@
+-- Deploy basics
+
+
+BEGIN;
+
+COMMIT;
