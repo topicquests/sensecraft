@@ -1,8 +1,8 @@
 <template>
   <q-tree
-    :nodes="neighbourhood"
+    :nodes="nodes"
     node-key="id"
-    default-expand-all="true"
+    :default-expand-all="true"
     :selected.sync="selectedNodeId"
   >
     <template v-slot:default-header="prop">
@@ -20,9 +20,10 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
+import type { QTreeNode } from "../store/conversation";
 const NodeTreeProps = Vue.extend({
   props: {
-    nodes: Object as Prop<Object>,
+    nodes: Object as Prop<QTreeNode[]>,
   },
 });
 @Component<NodeTree>({
@@ -30,13 +31,9 @@ const NodeTreeProps = Vue.extend({
   computed: {},
   watch: {
     selectedNodeId: "selectionChanged",
-    nodes(newNeighborhood: Object) {
-      this.neighbourhood = newNeighborhood;
-    },
   },
 })
 export default class NodeTree extends NodeTreeProps {
-  neighbourhood: Object = {};
   selectedNodeId: number = null;
   selected: string;
   selectionChanged() {

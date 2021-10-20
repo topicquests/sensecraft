@@ -113,7 +113,7 @@ export function ibis_node_icon(
   }
 }
 
-type QTreeNode = {
+export type QTreeNode = {
   id: number;
   parent_id: number;
   label: string;

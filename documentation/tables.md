@@ -27,6 +27,8 @@
 
 Todo: 
 
+* createConversationNode
+* editConversationNode : (someone else's)
 * must_quote boolean  : needs to create nodes of quote subtype
 * add_to_focus boolean  : can add nodes to focus
 * add_meta_to_focus boolean  : can add nodes to focus

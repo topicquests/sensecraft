@@ -55,7 +55,10 @@
     </q-header>
     <div id="mySidenav" class="sidenav">
       <div class="q-pa-md q-gutter-sm">
-        <node-tree v-bind:nodes="getNeighbourhoodTree" />
+        <node-tree
+          v-if="getNeighbourhoodTree.length"
+          v-bind:nodes="getNeighbourhoodTree"
+        />
       </div>
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
