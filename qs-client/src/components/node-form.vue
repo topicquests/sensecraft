@@ -16,7 +16,7 @@
       </div>
     </section>
     <section>
-      <template v-if="nodeType == 'view'">
+      <template v-if="editing">
         <span v-html="node.description" class="node-card-details" />
       </template>
       <template v-else>
@@ -27,7 +27,7 @@
         />
       </template>
     </section>
-    <section v-if="nodeType != 'view'">
+    <section v-if="editing">
       <div class="row justify-start">
         <ibis-button
           :node_type="node.node_type"
@@ -42,7 +42,7 @@
         />
       </div>
     </section>
-    <div v-if="nodeType != 'view'" class="row justify-start q-pb-lg q-ml-lg">
+    <div v-if="editing" class="row justify-start q-pb-lg q-ml-lg">
       <q-select
         v-model="node.status"
         :options="publication_state_list"
@@ -50,23 +50,23 @@
         style="width: 75%"
       />
     </div>
-    <div class="row justify-center">
+    <div class="row justify-center" v-if="editing">
       <q-btn
-        v-if="node.id && nodeType != 'view'"
+        v-if="node.id"
         label="Update"
         @click="action"
         color="primary"
         class="q-mr-md q-ml-md"
       />
       <q-btn
-        v-else-if="nodeType != 'view'"
+        v-else
         label="Add"
         @click="action"
         color="primary"
         class="q-mr-md q-ml-md"
       />
       <q-btn
-        v-if="allowCreate && node.id"
+        v-if="allowAddChild && node.id"
         label="Add child"
         @click="addChild"
         color="primary"
@@ -93,8 +93,8 @@ import { Prop } from "vue/types/options";
 const NodeFormProps = Vue.extend({
   props: {
     nodeInput: Object as Prop<Partial<ConversationNode>>,
-    allowCreate: Boolean as Prop<boolean>,
-    nodeType: String as Prop<String>,
+    allowAddChild: Boolean,
+    editing: Boolean,
     ibisTypes: Array as Prop<ibis_node_type_type[]>,
   },
 });

@@ -22,7 +22,7 @@
         </questCard>
       </div>
       <div class="col-4 q-pa-lg">
-        <node-form v-bind:nodeInput="selectedNode()" nodeType="view" />
+        <node-form v-bind:nodeInput="selectedNode()" />
       </div>
     </div>
   </q-page>
@@ -64,6 +64,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
+      "getConversation",
       "getConversationTree",
       "getFocusNode",
     ]),
@@ -84,6 +85,7 @@ export default class QuestViewPage extends Vue {
   getMemberById: MembersGetterTypes["getMemberById"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
   getConversationTree: ConversationGetterTypes["getConversationTree"];
+  getConversation: ConversationGetterTypes["getConversation"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
 
   // declare the methods for Typescript
@@ -93,7 +95,9 @@ export default class QuestViewPage extends Vue {
   ensureConversation: ConversationActionTypes["ensureConversation"];
 
   getQuestCreator() {
-    return this.getMemberById(this.getCurrentQuest.creator);
+    return this.getCurrentQuest
+      ? this.getMemberById(this.getCurrentQuest.creator)
+      : null;
   }
   selectedNode(copy?: boolean) {
     let node = this.getConversationNodeById(this.selectedNodeId);
@@ -124,7 +128,9 @@ export default class QuestViewPage extends Vue {
       await this.ensureConversation(questId);
       const quest = this.getCurrentQuest;
       console.log(this.getConversationTree);
-      this.selectedNodeId = this.getConversationTree[0].id;
+      this.selectedNodeId = this.getConversation.length
+        ? this.getConversation[0].id
+        : null;
       await this.fetchMemberById({ params: { id: quest.creator } });
       const creator = this.getMemberById(quest.creator);
     } catch (error) {

@@ -13,7 +13,10 @@
         <div v-html="currentQuestCard.description" class="q-mb-xl"></div>
       </section>
       <section class="quest-card-data">
-        <p class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data">
+        <p
+          class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data"
+          v-if="creator"
+        >
           Quest Creator: {{ creator.handle }}
         </p>
         <p class="q-pt-none q-ml-md q-mb-sm quest-card-data">

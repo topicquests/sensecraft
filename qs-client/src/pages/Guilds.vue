@@ -30,7 +30,10 @@
                   }}</q-td>
                   <q-td key="nodeId" auto-width :props="props">
                     <router-link
-                      :to="{ name: 'guild', params: { id: props.row.id } }"
+                      :to="{
+                        name: 'guild',
+                        params: { guild_id: props.row.id },
+                      }"
                       >View</router-link
                     >
                   </q-td>

@@ -57,7 +57,7 @@
                 color="green"
                 text-color="black"
                 label="registration"
-                :value="registration"
+                value="registration"
                 @click="updateStatus('registration')"
               />
               <q-btn
@@ -160,57 +160,12 @@
       <h4 v-if="node.id">Update Conversation Node</h4>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pb-lg q-mt-md" style="width: 35%">
-        <q-card>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <div class="col-4">
-              <ibis-button
-                v-bind:node_type="node.node_type"
-                v-on:click.native="questionType"
-              />
-            </div>
-          </div>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <div class="col-4">
-              <q-input
-                v-model="node.title"
-                label="Node title"
-                style="width: 350px"
-              />
-            </div>
-          </div>
-          <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <q-editor v-model="node.description" class="q-editor" />
-          </div>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <q-select
-              v-model="node.status"
-              :options="publication_state_list"
-              label="Status"
-              style="width: 25%"
-            />
-          </div>
-          <div class="row justify-center q-pb-lg">
-            <q-btn
-              v-if="node.id"
-              v-bind:disabled="!isAdmin"
-              label="Update"
-              @click="updateNode"
-              color="primary"
-              class="q-mr-md q-ml-md"
-            />
-            <q-btn
-              v-if="!node.id"
-              v-bind:disabled="!isAdmin"
-              label="Add"
-              @click="addNode"
-              color="primary"
-              class="q-mr-md q-ml-md"
-            />
-          </div>
-        </q-card>
-      </div>
+      <node-form
+        :nodeInput="node"
+        :editing="true"
+        :ibisTypes="base_ibis_types"
+        v-on:action="editNode"
+      />
     </div>
   </q-page>
 </template>
@@ -219,6 +174,7 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
+import nodeForm from "../components/node-form.vue";
 import IbisButton from "../components/ibis-btn.vue";
 import Component from "vue-class-component";
 import app from "../App.vue";
@@ -228,6 +184,7 @@ import {
   quest_status_list,
   publication_state_list,
   public_private_bool,
+  ibis_node_type_enum,
 } from "../enums";
 import { Quest, ConversationNode } from "../types";
 import { MemberState, MemberActionTypes } from "../store/member";
@@ -242,6 +199,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   components: {
     scoreboard: scoreboard,
     member: member,
+    nodeForm: nodeForm,
   },
   computed: {
     ...mapState("member", ["member"]),
@@ -278,14 +236,14 @@ export default class QuestEditPage extends Vue {
   isQuestMember: QuestsGetterTypes["isQuestMember"];
   getRootNode: ConversationGetterTypes["getRootNode"];
   hasPermission: BaseGetterTypes["hasPermission"];
-  updateQuest: QuestsActionTypes["updateQuest"];
-  ensureQuest: QuestsActionTypes["ensureQuest"];
-  ensureLoginUser: MemberActionTypes["ensureLoginUser"];
-  createConversationNode: ConversationActionTypes["createConversationNode"];
-  updateConversationNode: ConversationActionTypes["updateConversationNode"];
-  fetchConversationNeighbourhood: ConversationActionTypes["fetchConversationNeighbourhood"];
-  fetchRootNode: ConversationActionTypes["fetchRootNode"];
-  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  updateQuest!: QuestsActionTypes["updateQuest"];
+  ensureQuest!: QuestsActionTypes["ensureQuest"];
+  ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
+  createConversationNode!: ConversationActionTypes["createConversationNode"];
+  updateConversationNode!: ConversationActionTypes["updateConversationNode"];
+  fetchConversationNeighbourhood!: ConversationActionTypes["fetchConversationNeighbourhood"];
+  fetchRootNode!: ConversationActionTypes["fetchRootNode"];
+  setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
   node!: Partial<ConversationNode>;
   quest!: Quest;
 
@@ -296,12 +254,20 @@ export default class QuestEditPage extends Vue {
     status: "private_draft",
     node_type: "question",
   };
+  base_ibis_types = [ibis_node_type_enum.question];
 
-  async addNode() {
+  async editNode(node) {
+    if (this.node.id) {
+      await this.updateNode(node);
+    } else {
+      await this.addNode(node);
+    }
+  }
+  async addNode(node) {
     try {
-      const node = this.node;
-      node.quest_id = this.quest_id;
-      await this.createConversationNode({ data: node });
+      const data = { ...this.node, ...node };
+      data.quest_id = this.quest_id;
+      await this.createConversationNode({ data });
       this.$q.notify({
         message: `Added node to conversation`,
         color: "positive",
@@ -316,10 +282,10 @@ export default class QuestEditPage extends Vue {
     }
   }
 
-  async updateNode() {
+  async updateNode(node) {
     try {
-      const node = this.node;
-      await this.updateConversationNode({ data: node });
+      const data = { ...this.node, ...node };
+      await this.updateConversationNode({ data });
       this.$q.notify({
         message: `Root node updated`,
         color: "positive",
@@ -373,7 +339,7 @@ export default class QuestEditPage extends Vue {
   async beforeMount() {
     this.quest_id = Number.parseInt(this.$route.params.quest_id);
     await app.userLoaded;
-    await this.setCurrentQuest({ quest_id: this.quest_id });
+    await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
     const questMembership = this.isQuestMember(this.quest_id);
     console.log(questMembership);

@@ -27,16 +27,16 @@
       </div>
       <div class="col-3 q-md q-mb-md">
         <div v-if="selectedNodeId">
-          <nodeForm
+          <node-form
             v-if="canEdit(selectedNodeId)"
             v-bind:nodeInput="selectedNode(true)"
-            v-bind:allowCreate="true"
-            nodeType="edit"
+            v-bind:allowAddChild="true"
+            :editing="true"
             v-bind:ibisTypes="selectedIbisTypes"
             v-on:action="updateNode"
             v-on:addChild="addChild"
           />
-          <node-form v-else v-bind:nodeInput="selectedNode()" nodeType="view" />
+          <node-form v-else v-bind:nodeInput="selectedNode()" />
           <q-btn
             v-if="!canEdit(selectedNodeId)"
             @click="addChild()"
@@ -56,11 +56,11 @@
       </div>
     </div>
     <div class="column items-center q-mb-md">
-      <nodeForm
+      <node-form
         v-if="newNodeParent == selectedNodeId"
-        nodeType="create"
+        :editing="true"
         :nodeInput="newNode"
-        :allowCreate="false"
+        :allowAddChild="false"
         :ibisTypes="childIbisTypes"
         v-on:action="addNode"
       />

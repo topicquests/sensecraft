@@ -111,7 +111,7 @@
       </div>
       <div class="col-12 col-md q-mr-md q-mt-md">
         <div v-if="getFocusNode" class="col-12 col-md">
-          <nodeForm v-bind:nodeInput="getFocusNode" nodeType="view"> </nodeForm>
+          <node-form v-bind:nodeInput="getFocusNode" />
         </div>
       </div>
       <div class="col-12 col-md q-mt-md" v-if="getCurrentQuest">
