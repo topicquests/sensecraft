@@ -231,6 +231,7 @@ export const guilds = new MyVapi<GuildsState>({
     path: ({ id }) => `/guilds?id=eq.${id}`,
     beforeRequest: (state: GuildsState, { params, data }) => {
       params.id = data.id;
+      data.slug = undefined;
       Object.assign(data, {
         casting: undefined,
         guild_membership: undefined,

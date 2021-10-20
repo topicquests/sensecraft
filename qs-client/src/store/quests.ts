@@ -234,6 +234,7 @@ export const quests = new MyVapi<QuestsState>({
     path: ({ id }) => `/quests?id=eq.${id}`,
     beforeRequest: (state: QuestsState, { params, data }) => {
       params.id = data.id;
+      data.slug = undefined;
       Object.assign(data, {
         casting: undefined,
         quest_membership: undefined,
