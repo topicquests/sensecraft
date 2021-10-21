@@ -10,7 +10,6 @@ export interface GuildMembership {
   guild_id: number;
   member_id: number;
   permissions: permission_type[];
-  available_roles?: string[];
   status: registration_status_type;
   created_at: string;
   updated_at: string;
@@ -28,7 +27,6 @@ export interface Casting {
   quest_id: number;
   member_id: number;
   permissions: permission_type[];
-  roles?: string[];
   status: registration_status_type;
   created_at: string;
   updated_at: string;
@@ -109,4 +107,25 @@ export interface Guild {
   application_needs_approval: boolean;
   guild_membership?: GuildMembership[];
   game_play?: GamePlay[];
+}
+
+export interface Role {
+  id: number;
+  guild_id: number;
+  permissions: permission_type[];
+  node_type_constraints: ibis_node_type_type[];
+  node_state_constraints: publication_state_type[];
+}
+
+export interface GuildMemberAvailableRole {
+  guild_id: number;
+  member_id: number;
+  role_id: number;
+}
+
+export interface CastingRole {
+  guild_id: number;
+  member_id: number;
+  role_id: number;
+  quest_id: number;
 }

@@ -51,7 +51,9 @@ CREATE TABLE IF NOT EXISTS public.casting_role (
     CONSTRAINT casting_role_casting_fkey FOREIGN KEY (quest_id, member_id)
       REFERENCES public.casting(quest_id, member_id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT casting_role_role_id_fkey FOREIGN KEY (role_id)
-      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE CASCADE
+      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT casting_role_available_role_fkey FOREIGN KEY (guild_id, member_id, role_id)
+      REFERENCES public.guild_member_available_role(guild_id, member_id, role_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 --
