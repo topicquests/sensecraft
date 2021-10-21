@@ -165,6 +165,7 @@ export const members = new MyVapi<MembersState>({
     property: "members",
     beforeRequest: (state: MembersState, { params, data }) => {
       params.id = data.id;
+      data.slug = undefined;
     },
     onSuccess: (
       state: MembersState,
