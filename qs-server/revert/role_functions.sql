@@ -14,5 +14,15 @@ DROP POLICY IF EXISTS role_delete_policy ON public.role;
 DROP POLICY IF EXISTS role_update_policy ON public.role;
 DROP POLICY IF EXISTS role_select_policy ON public.role;
 ALTER TABLE public.role DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS casting_role_insert_policy ON public.casting_role;
+DROP POLICY IF EXISTS casting_role_delete_policy ON public.casting_role;
+DROP POLICY IF EXISTS casting_role_update_policy ON public.casting_role;
+DROP POLICY IF EXISTS casting_role_select_policy ON public.casting_role;
+ALTER TABLE public.casting_role DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS guild_member_available_role_insert_policy on public.guild_member_available_role_update_policy;
+DROP POLICY IF EXISTS guild_member_available_role_delete_policy on public.guild_member_available_role_update_policy;
+DROP POLICY IF EXISTS guild_member_available_role_update_policy on public.guild_member_available_role_update_policy;
+DROP POLICY IF EXISTS guild_member_available_role_select_policy on public.guild_member_available_role_update_policy;
+ALTER TABLE public.guild_member_available_role DISABLE ROW LEVEL SECURITY;
 
 COMMIT;

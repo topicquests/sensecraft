@@ -39,7 +39,7 @@ CREATE POLICY role_insert_policy ON public.role FOR INSERT WITH CHECK (
     (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin')));
 
 --
--- Name: role guild_delete_policy; Type: POLICY
+-- Name: role role_delete_policy; Type: POLICY
 --
 
 DROP POLICY IF EXISTS role_delete_policy ON public.role;
@@ -48,7 +48,7 @@ CREATE POLICY role_delete_policy ON public.role FOR DELETE USING (
     (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin')));
 
     --
--- Name: role guild_update_policy; Type: POLICY
+-- Name: role role_update_policy; Type: POLICY
 --
 
 DROP POLICY IF EXISTS role_update_policy ON public.role;
@@ -62,5 +62,87 @@ CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (
 
 DROP POLICY IF EXISTS role_select_policy ON public.role;
 CREATE POLICY role_select_policy ON public.role FOR SELECT USING (true);
+
+--
+-- Name: guild_member_available_role; Type: ROW SECURITY
+--
+
+ALTER TABLE public.guild_member_available_role ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: guild_member_available_role guild_member_available_role_insert_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS guild_member_available_role_insert_policy ON public.guild_member_available_role;
+CREATE POLICY guild_member_available_role_insert_policy ON public.guild_member_available_role FOR INSERT WITH CHECK (
+(public.has_permission('superadmin')) OR
+(public.has_guild_permission(guild_id, 'guildAdmin')));
+
+--
+-- Name: guild_member_available_role guild_member_available_role_delete_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS guild_member_available_role_delete_policy ON public.guild_member_available_role;
+CREATE POLICY guild_member_available_role_delete_policy ON public.guild_member_available_role FOR DELETE USING (
+(public.has_permission('superadmin')) OR
+(public.has_guild_permission(guild_id, 'guildAdmin')));
+
+--
+-- Name: guild_member_available_role guild_member_available_role_select_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS guild_member_available_role_select_policy ON public.guild_member_available_role;
+CREATE POLICY guild_member_available_role_select_policy ON public.guild_member_available_role FOR SELECT USING (
+(public.has_permission('superadmin')) OR
+(public.has_guild_permission(guild_id, 'guildAdmin')));
+
+--
+-- Name: guild_member_available_role guild_member_available_role_update_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS guild_member_available_role_update_policy ON public.guild_member_available_role;
+CREATE POLICY guild_member_available_role_update_policy ON public.guild_member_available_role FOR UPDATE USING (
+(public.has_permission('superadmin')) OR
+(public.has_guild_permission(guild_id, 'guildAdmin')));
+
+--
+-- Name: casting_role; Type: ROW SECURITY
+--
+
+ALTER TABLE public.casting_role ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: casting_role casting_role_insert_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS casting_role_insert_policy ON public.casting_role;
+CREATE POLICY casting_role_insert_policy ON public.casting_role FOR INSERT WITH CHECK (
+    (public.has_permission('superadmin')) OR
+    (public.is_guild_id_member(guild_id)));
+
+--
+-- Name: casting_role casting_role_delete_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS casting_role_delete_policy ON public.casting_role;
+CREATE POLICY casting_role_delete_policy ON public.casting_role FOR DELETE USING(
+    (public.has_permission('superadmin')) OR
+    (public.is_guild_id_member(guild_id)));
+
+--
+-- Name: casting_role casting_role_select_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS casting_role_select_policy ON public.casting_role;
+CREATE POLICY casting_role_select_policy ON public.casting_role FOR SELECT USING (true);
+
+--
+-- Name: casting_role casting_role_update_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS casting_role_update_policy ON public.casting_role;
+CREATE POLICY casting_role_update_policy ON public.casting_role FOR UPDATE USING (
+    (public.has_permission('superadmin')) OR
+(   public.is_guild_id_member(guild_id)));
 
 COMMIT;
