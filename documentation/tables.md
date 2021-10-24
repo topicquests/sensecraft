@@ -25,7 +25,7 @@
 * revokeQuestMembership
 * rejectGameMove
 
-Todo: 
+Todo:
 
 * createConversationNode
 * editConversationNode : (someone else's)
@@ -93,7 +93,6 @@ Eventually refactorings, etc.
 
 # Tables
 
-
 ## members
 
 * handle varchar (unique)
@@ -130,12 +129,12 @@ public_guilds: view on guilds, with public=true
 * updated_at timestamp
 
 later maybe
+
 * scoring ScoringStrategy
 * turns TurnStrategy
 * admin User
 
 public_quests: view on quests, with public=true
-
 
 ## roles
 
@@ -145,6 +144,37 @@ public_quests: view on quests, with public=true
 * node_type_constraints ibis_node_type[]
 * node_state_constraints publication_state[]
 * next_role_constraint integer[] fk(roles) : when adding a role_draft, who can you address it to?
+
+## casting_role
+
+Table that links what role a member is to play in a particular quest
+
+* member_id integer NOT NULL
+* quest_id integer NOT NULL
+* guild_id integer NOT NULL
+* role_id integer NOT NULL
+
+Policies
+
+* Insert - member_in_guild, superadmin
+* Update - member_in_guild, superadmin
+* Delete - member_in_guild, superadmin
+* Select - Anyone
+
+## guild_member_available_role
+
+Table that links the roles that the guild admin gives to a member
+
+* guild_id integer NOT NULL
+* member_id integer NOT NULL
+* role_id integer NOT NULL
+
+Policies
+
+* Insert - guildAdmin, superadmin
+* Update - guildAdmin, superadmin
+* Delete - guildAdmin, superadmin
+* Select - guild_members
 
 ## quest_membership
 
@@ -204,7 +234,7 @@ eventually maybe:
 for per-quest avatar alias (which would be used instead of handle. Controversial.)
 ## conversation_node
 
-A conversation node. 
+A conversation node.
 
 * quest_id fk(quests)
 * guild_id fk(guilds)
@@ -227,7 +257,7 @@ Near future:
 * meta_conversation boolean
 * next_actor_role Role
 * next_actor Member
-  
+
 Medium future:
 
 * contributors Member[]
