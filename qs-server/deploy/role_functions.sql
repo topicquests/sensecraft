@@ -18,10 +18,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.casting_role TO :dbm;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.guild_member_available_role TO :dbm;
 
 --
--- Name: SEQUENCE members_id_seq; Type: ACL
+-- Name: SEQUENCE role_id_seq; Type: ACL
 --
 
-GRANT USAGE ON SEQUENCE public.members_id_seq TO :dbc;
+GRANT USAGE ON SEQUENCE public.role_id_seq TO :dbc;
 
 --
 -- Name: role; Type: ROW SECURITY
