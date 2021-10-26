@@ -75,7 +75,7 @@ ALTER TABLE public.guild_member_available_role ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS guild_member_available_role_insert_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_insert_policy ON public.guild_member_available_role FOR INSERT WITH CHECK (
-(public.has_guild_permission(guild_id, 'guildAdmin')));
+    public.has_guild_permission(guild_id, 'guildAdmin'));
 
 --
 -- Name: guild_member_available_role guild_member_available_role_delete_policy; Type: POLICY
@@ -83,7 +83,7 @@ CREATE POLICY guild_member_available_role_insert_policy ON public.guild_member_a
 
 DROP POLICY IF EXISTS guild_member_available_role_delete_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_delete_policy ON public.guild_member_available_role FOR DELETE USING (
-(public.has_guild_permission(guild_id, 'guildAdmin')));
+    public.has_guild_permission(guild_id, 'guildAdmin'));
 
 --
 -- Name: guild_member_available_role guild_member_available_role_select_policy; Type: POLICY
@@ -91,7 +91,7 @@ CREATE POLICY guild_member_available_role_delete_policy ON public.guild_member_a
 
 DROP POLICY IF EXISTS guild_member_available_role_select_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_select_policy ON public.guild_member_available_role FOR SELECT USING (
-(public.is_guild_id_member(guild_id)));
+    public.is_guild_id_member(guild_id));
 
 --
 -- Name: guild_member_available_role guild_member_available_role_update_policy; Type: POLICY
@@ -99,7 +99,7 @@ CREATE POLICY guild_member_available_role_select_policy ON public.guild_member_a
 
 DROP POLICY IF EXISTS guild_member_available_role_update_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_update_policy ON public.guild_member_available_role FOR UPDATE USING (
-(public.has_guild_permission(guild_id, 'guildAdmin')));
+    public.has_guild_permission(guild_id, 'guildAdmin'));
 
 --
 -- Name: casting_role; Type: ROW SECURITY
@@ -113,7 +113,7 @@ ALTER TABLE public.casting_role ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS casting_role_insert_policy ON public.casting_role;
 CREATE POLICY casting_role_insert_policy ON public.casting_role FOR INSERT WITH CHECK (
-   ((public.current_member_id() = member_id) AND (public.is_guild_id_member(guild_id))));
+   public.current_member_id() = member_id);
 
 --
 -- Name: casting_role casting_role_delete_policy; Type: POLICY
@@ -121,7 +121,7 @@ CREATE POLICY casting_role_insert_policy ON public.casting_role FOR INSERT WITH 
 
 DROP POLICY IF EXISTS casting_role_delete_policy ON public.casting_role;
 CREATE POLICY casting_role_delete_policy ON public.casting_role FOR DELETE USING(
-    ((public.current_member_id() = member_id) AND (public.is_guild_id_member(guild_id))));
+    public.current_member_id() = member_id);
 
 --
 -- Name: casting_role casting_role_select_policy; Type: POLICY
@@ -136,6 +136,6 @@ CREATE POLICY casting_role_select_policy ON public.casting_role FOR SELECT USING
 
 DROP POLICY IF EXISTS casting_role_update_policy ON public.casting_role;
 CREATE POLICY casting_role_update_policy ON public.casting_role FOR UPDATE USING (
-((public.current_member_id() = member_id) AND (public.is_guild_id_member(guild_id))));
+    public.current_member_id() = member_id);
 
 COMMIT;
