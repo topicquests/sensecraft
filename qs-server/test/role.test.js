@@ -12,12 +12,16 @@ describe('\'role\' service', () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
+      superadminId = await axiosUtil.call('create_member', superadmin);
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       playerId = await axiosUtil.call('create_member', guildPlayerInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
         mail: quidamInfo.email, pass: quidamInfo.password
+      }, null, false);
+      superadminToken = await axiosUtil.call('get_token', {
+        mail: 'superadmin@example.com', pass: 'supersecret'
       }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
         mail: leaderInfo.email, pass: leaderInfo.password
@@ -39,6 +43,8 @@ describe('\'role\' service', () => {
         await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
       if (quidamId)
         await axiosUtil.delete('members', {id: quidamId}, adminToken);
+      if (superadminId)
+        await axiosUtil.delete('members', {id: superadminId}, adminToken);
       if (leaderId)
         await axiosUtil.delete('members', {id: leaderId}, adminToken);
       if (playerId)
@@ -102,6 +108,7 @@ describe('\'role\' service', () => {
         const registers = await axiosUtil.get('casting', game_play_id, leaderToken);
         assert.equal(registers.length, 3);
         const quidam_r = registers.find(r => r.member_id == quidamId);
+        console.log(registers);
         assert.ok(quidam_r);
       });
       //Role tests
