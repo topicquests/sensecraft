@@ -14,13 +14,13 @@ BEGIN;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.casting TO :dbm;
 GRANT SELECT ON TABLE public.casting TO :dbc;
 
-CREATE OR REPLACE FUNCTION public.register_all_members(questid INTEGER, guildid INTEGER) RETURNS void 
+CREATE OR REPLACE FUNCTION public.register_all_members(questid INTEGER, guildid INTEGER) RETURNS void
 LANGUAGE plpgsql AS
 $$
 BEGIN
-  IF (SELECT COUNT(*) FROM public.game_play WHERE quest_id = questid AND guild_id = guildid AND status='confirmed') > 0 THEN 
-    INSERT INTO public.casting (member_id, quest_id, guild_id, permissions, roles) (
-      SELECT member_id, questid, guildid, ARRAY[]::permission[], available_roles FROM public.guild_membership
+  IF (SELECT COUNT(*) FROM public.game_play WHERE quest_id = questid AND guild_id = guildid AND status='confirmed') > 0 THEN
+    INSERT INTO public.casting (member_id, quest_id, guild_id, permissions) (
+      SELECT member_id, questid, guildid, ARRAY[]::permission[] FROM public.guild_membership
       WHERE guild_id = guildid AND status='confirmed') ON CONFLICT DO NOTHING;
   END IF;
 END$$;

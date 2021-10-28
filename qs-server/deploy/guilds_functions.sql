@@ -28,7 +28,6 @@ CREATE OR REPLACE VIEW public.my_guild_memberships AS
  SELECT guild_membership.guild_id,
     guild_membership.status,
     guild_membership.permissions,
-    guild_membership.available_roles,
     guild_membership.created_at,
     guild_membership.updated_at
    FROM public.guild_membership
