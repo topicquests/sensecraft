@@ -156,9 +156,9 @@ Table that links what role a member is to play in a particular quest
 
 Policies
 
-* Insert - member_in_guild, superadmin
-* Update - member_in_guild, superadmin
-* Delete - member_in_guild, superadmin
+* Insert - member_id is current member
+* Update - member_id is current member
+* Delete - member_id is current member
 * Select - Anyone
 
 ## guild_member_available_role
@@ -171,9 +171,9 @@ Table that links the roles that the guild admin gives to a member
 
 Policies
 
-* Insert - guildAdmin, superadmin
-* Update - guildAdmin, superadmin
-* Delete - guildAdmin, superadmin
+* Insert - guildAdmin
+* Update - guildAdmin
+* Delete - guildAdmin
 * Select - guild_members
 
 ## quest_membership
