@@ -1,53 +1,10 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
+const { quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info } = require('./fixtures.cjs');
 
 describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
-    const quidamInfo = {
-      email: 'quidam@example.com',
-      handle: 'quidam',
-      name: 'Quidam',
-      password: 'supersecret'
-    };
-    const leaderInfo = {
-      email: 'guild_leader@example.com',
-      handle: 'guild_leader',
-      name: 'Guild Leader',
-      password: 'supersecret',
-      permissions: ['createGuild']
-    };
-    const publicGuildInfo = {
-      name: 'My great guild',
-      handle: 'pubguild',
-      public: true,
-      open_for_applications: true,
-      application_needs_approval: false,
-    };
-    const sponsorInfo = {
-      email: 'sponsor@example.com',
-      handle: 'sponsor',
-      name: 'Quest Sponsor',
-      password: 'supersecret',
-      permissions: ['createQuest']
-    };
-    const publicQuestInfo = {
-      name: 'My great quest',
-      handle: 'pubquest',
-      status: 'registration',
-      public: true,
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
-    const publicQuest2Info = {
-      name: 'My lesser quest',
-      handle: 'pubquest2',
-      status: 'registration',
-      public: true,
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
-
     var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id;
 

@@ -1,76 +1,23 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
+const { quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayer } = require('./fixtures.cjs');
 
 describe('\'role\' service', () => {
-
   describe('guild creation', () => {
-    const quidamInfo = {
-      email: 'quidam@example.com',
-      handle: 'quidam',
-      name: 'Quidam',
-      password: 'supersecret'
-    };
-    const superadmin = {
-      email: 'superadmin@example.com',
-      handle: 'superadmin',
-      name: 'Super Admin',
-      password: 'supersecret',
-      permissions: ['superadmin']
-    };
-    const leaderInfo = {
-      email: 'guild_leader@example.com',
-      handle: 'guild_leader',
-      name: 'Guild Leader',
-      password: 'supersecret',
-      permissions: ['createGuild']
-    };
-    const guildPlayer = {
-      email: 'guild_player@example.com',
-      handle: 'guild_player',
-      name: 'Guild Player',
-      password: 'supersecret',
-    };
-    const publicGuildInfo = {
-      name: 'My great guild',
-      handle: 'pubguild',
-      public: true,
-      open_for_applications: true,
-      application_needs_approval: false,
-    };
-    const sponsorInfo = {
-      email: 'sponsor@example.com',
-      handle: 'sponsor',
-      name: 'Quest Sponsor',
-      password: 'supersecret',
-      permissions: ['createQuest']
-    };
-    const publicQuestInfo = {
-      name: 'My great quest',
-      handle: 'pubquest',
-      status: 'registration',
-      public: true,
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
-
-    var adminToken, quidamId, superadminId, leaderId, playerId, sponsorId,
-      publicGuildId, publicQuestId, sponsorToken, superadminToken, leaderToken,
+    var adminToken, quidamId, leaderId, playerId, sponsorId,
+      publicGuildId, publicQuestId, sponsorToken, leaderToken,
       quidamToken, playerToken, sysRoleId, guildRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: 'admin@example.com', pass: 'admin'
       });
-      superadminId = await axiosUtil.call('create_member', superadmin);
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       playerId = await axiosUtil.call('create_member', guildPlayer);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
         mail: 'quidam@example.com', pass: 'supersecret'
-      }, null, false);
-      superadminToken = await axiosUtil.call('get_token', {
-        mail: 'superadmin@example.com', pass: 'supersecret'
       }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
         mail: 'guild_leader@example.com', pass: 'supersecret'
@@ -92,8 +39,6 @@ describe('\'role\' service', () => {
         await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
       if (quidamId)
         await axiosUtil.delete('members', {id: quidamId}, adminToken);
-      if (superadminId)
-        await axiosUtil.delete('members', {id: superadminId}, adminToken);
       if (leaderId)
         await axiosUtil.delete('members', {id: leaderId}, adminToken);
       if (playerId)
@@ -176,7 +121,7 @@ describe('\'role\' service', () => {
       //Superadmin create new role
       it('superadmin create new role', async () => {
         const sysRole = await axiosUtil.create('role', {
-          name: 'super_role'}, superadminToken);
+          name: 'super_role'}, adminToken);
         sysRoleId = sysRole.id;
         console.log(sysRole);
       });

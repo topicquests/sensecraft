@@ -1,37 +1,9 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
+const { quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo } = require('./fixtures.cjs');
 
 describe('\'quests\' service', () => {
   describe('quest creation', () => {
-    const quidamInfo = {
-      email: 'quidam3@example.com',
-      handle: 'quidam3',
-      name: 'Quidam',
-      password: 'supersecret'
-    };
-    const sponsorInfo = {
-      email: 'sponsor@example.com',
-      handle: 'sponsor',
-      name: 'Quest Sponsor',
-      password: 'supersecret',
-      permissions: ['createQuest']
-    };
-    const publicQuestInfo = {
-      name: 'My great quest',
-      handle: 'pubquest',
-      status: 'draft',
-      public: true,
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
-    const privateQuestInfo = {
-      name: 'My private quest',
-      handle: 'privquest1',
-      public: false,
-      status: 'draft',
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
     var adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, accessToken;
 
     before(async () => {

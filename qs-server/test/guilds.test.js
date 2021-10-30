@@ -1,34 +1,16 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
+const { quidamInfo, leaderInfo, publicGuildInfo } = require('./fixtures.cjs');
 
 describe('\'guilds\' service', () => {
 
   describe('guild creation', () => {
-    const quidamInfo = {
-      email: 'quidam@example.com',
-      handle: 'quidam',
-      name: 'Quidam',
-      password: 'supersecret'
-    };
+
     const quidam2Info = {
       email: 'quidam2@example.com',
       handle: 'quidam2',
       name: 'Quidam2',
       password: 'supersecret'
-    };
-    const leaderInfo = {
-      email: 'guild_leader@example.com',
-      handle: 'guild_leader',
-      name: 'Guild Leader',
-      password: 'supersecret',
-      permissions: ['createGuild']
-    };
-    const publicGuildInfo = {
-      name: 'My great guild',
-      handle: 'pubguild',
-      public: true,
-      open_for_applications: true,
-      application_needs_approval: false,
     };
     const quasiPublicGuildInfo = {
       name: 'My other great guild',

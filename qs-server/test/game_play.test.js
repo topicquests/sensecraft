@@ -1,45 +1,10 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
+const { quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, draftPublicQuestInfo } = require('./fixtures.cjs');
 
 describe('\'game_play\' service', () => {
 
   describe('guild creation', () => {
-    const quidamInfo = {
-      email: 'quidam@example.com',
-      handle: 'quidam',
-      name: 'Quidam',
-      password: 'supersecret'
-    };
-    const leaderInfo = {
-      email: 'guild_leader@example.com',
-      handle: 'guild_leader',
-      name: 'Guild Leader',
-      password: 'supersecret',
-      permissions: ['createGuild']
-    };
-    const publicGuildInfo = {
-      name: 'My great guild',
-      handle: 'pubguild',
-      public: true,
-      open_for_applications: true,
-      application_needs_approval: false,
-    };
-    const sponsorInfo = {
-      email: 'sponsor@example.com',
-      handle: 'sponsor',
-      name: 'Quest Sponsor',
-      password: 'supersecret',
-      permissions: ['createQuest']
-    };
-    const publicQuestInfo = {
-      name: 'My great quest',
-      handle: 'pubquest',
-      status: 'draft',
-      public: true,
-      start: new Date(),
-      end: new Date(Date.now() + 100000000000),
-    };
-
     var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken;
 
     before(async () => {
@@ -78,7 +43,7 @@ describe('\'game_play\' service', () => {
     describe('guild creation by authorized user', () => {
       const game_play_id = {};
       it('creates public quest', async () => {
-        const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
+        const publicQuestModel = await axiosUtil.create('quests', draftPublicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
         game_play_id.quest_id = publicQuestId;
         const quests = await axiosUtil.get('quests', {}, leaderToken);
