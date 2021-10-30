@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
 
-describe('\'guilds\' service', () => {
+describe('\'casting\' service', () => {
 
   describe('guild creation', () => {
     const quidamInfo = {
