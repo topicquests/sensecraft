@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
-const { quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayer } = require('./fixtures.cjs');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } = require('./fixtures');
 
 describe('\'role\' service', () => {
   describe('guild creation', () => {
@@ -10,23 +10,23 @@ describe('\'role\' service', () => {
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
-        mail: 'admin@example.com', pass: 'admin'
+        mail: adminInfo.email, pass: adminInfo.password
       });
       leaderId = await axiosUtil.call('create_member', leaderInfo);
-      playerId = await axiosUtil.call('create_member', guildPlayer);
+      playerId = await axiosUtil.call('create_member', guildPlayerInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
-        mail: 'quidam@example.com', pass: 'supersecret'
+        mail: quidamInfo.email, pass: quidamInfo.password
       }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
-        mail: 'guild_leader@example.com', pass: 'supersecret'
+        mail: leaderInfo.email, pass: leaderInfo.password
       }, null, false);
       playerToken = await axiosUtil.call('get_token', {
-        mail: 'guild_player@example.com', pass: 'supersecret'
+        mail: guildPlayerInfo.email, pass: guildPlayerInfo.password
       }, null, false);
       sponsorToken = await axiosUtil.call('get_token', {
-        mail: 'sponsor@example.com', pass: 'supersecret'
+        mail: sponsorInfo.email, pass: sponsorInfo.password
       }, null, false);
     });
 
@@ -82,7 +82,6 @@ describe('\'role\' service', () => {
           member_id: quidamId,
           guild_id: publicGuildId,
         }, quidamToken);
-        console.log(register);
         assert.ok(register);
       });
       it('player can register to guild', async () => {
@@ -90,7 +89,6 @@ describe('\'role\' service', () => {
           member_id: playerId,
           guild_id: publicGuildId,
         }, playerToken);
-        console.log(register);
         assert.ok(register);
       });
       it('guild leader can call global registration', async () => {
@@ -104,7 +102,6 @@ describe('\'role\' service', () => {
         const registers = await axiosUtil.get('casting', game_play_id, leaderToken);
         assert.equal(registers.length, 3);
         const quidam_r = registers.find(r => r.member_id == quidamId);
-        console.log(registers);
         assert.ok(quidam_r);
       });
       //Role tests
@@ -116,14 +113,12 @@ describe('\'role\' service', () => {
         };
         const guildRole = await axiosUtil.create('role', newRole, leaderToken);
         guildRoleId = guildRole.id;
-        console.log(guildRole);
       });
       //Superadmin create new role
       it('superadmin create new role', async () => {
         const sysRole = await axiosUtil.create('role', {
           name: 'super_role'}, adminToken);
         sysRoleId = sysRole.id;
-        console.log(sysRole);
       });
       //player cannot create new role
       it('player cannot create new role', async () => {
@@ -156,7 +151,6 @@ describe('\'role\' service', () => {
           role_id: sysRoleId,
           guild_id: publicGuildId},
         leaderToken);
-        console.log(sysRole);
         assert.ok(sysRole);
       });
       //GuildAdmin select roles for player
@@ -166,7 +160,7 @@ describe('\'role\' service', () => {
           guild_id: publicGuildId,
           role_id: guildRoleId},
         leaderToken);
-        console.log(guildRole);
+        assert.ok(guildRole);
       });
       //Player selects casting role after guild admin creates
       it('Player select casting role', async() => {

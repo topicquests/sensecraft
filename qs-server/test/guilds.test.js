@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
-const { quidamInfo, leaderInfo, publicGuildInfo } = require('./fixtures.cjs');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } = require('./fixtures');
 
 describe('\'guilds\' service', () => {
 
@@ -30,7 +30,7 @@ describe('\'guilds\' service', () => {
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
-        mail: 'admin@example.com', pass: 'admin'
+        mail: adminInfo.email, pass: adminInfo.password
       }, null, true);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidam2Id = await axiosUtil.call('create_member', quidam2Info);

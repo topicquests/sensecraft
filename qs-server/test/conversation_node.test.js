@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
-const { quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info } = require('./fixtures.cjs');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info } = require('./fixtures');
 
 describe('\'conversation_node\' service', () => {
 
@@ -10,19 +10,19 @@ describe('\'conversation_node\' service', () => {
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
-        mail: 'admin@example.com', pass: 'admin'
+        mail: adminInfo.email, pass: adminInfo.password
       });
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
-        mail: 'quidam@example.com', pass: 'supersecret'
+        mail: quidamInfo.email, pass: quidamInfo.password
       }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
-        mail: 'guild_leader@example.com', pass: 'supersecret'
+        mail: leaderInfo.email, pass: leaderInfo.password
       }, null, false);
       sponsorToken = await axiosUtil.call('get_token', {
-        mail: 'sponsor@example.com', pass: 'supersecret'
+        mail: sponsorInfo.email, pass: sponsorInfo.password
       }, null, false);
     });
 
