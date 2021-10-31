@@ -120,7 +120,7 @@ async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
     const {id, member, parent, ...rest} = nodeData;
     const parent_id = (parent)?node_ids[parent]:undefined;
     if (parent && !parent_id) {
-      throw Error("missing parent");
+      throw Error('missing parent');
     }
     const node = {
       parent_id,

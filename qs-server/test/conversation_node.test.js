@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { axiosUtil, add_members, delete_members, add_nodes, delete_nodes } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info } = require('./fixtures');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
 
 
 describe('\'conversation_node\' service', () => {
@@ -51,14 +51,8 @@ describe('\'conversation_node\' service', () => {
         assert.equal(quests.length, 2);
       });
       it('sponsor can ask first question', async () => {
-        Object.assign(nodeIds, await my_add_node({
-          id: 'q1',
-          node_type: 'question',
-          status: 'published',
-          title: 'first question',
-          member: sponsorInfo.handle,
-        }));
-        q1Id = nodeIds['q1'];
+        Object.assign(nodeIds, await my_add_node(question1Info));
+        q1Id = nodeIds[question1Info.id];
       });
       it('sponsor cannot create a second root', async () => {
         await assert.rejects(async () => {
@@ -99,14 +93,8 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
       });
       it('quidam can create private draft node', async () => {
-        Object.assign(nodeIds, await my_add_node({
-          id: 'a1',
-          node_type: 'answer',
-          parent: 'q1',
-          title: 'first answer',
-          member: quidamInfo.handle,
-        }));
-        a1Id = nodeIds['a1'];
+        Object.assign(nodeIds, await my_add_node(answer1Info));
+        a1Id = nodeIds[answer1Info.id];
       });
       it('leader cannot submit node before quest is ongoing', async () => {
         await assert.rejects(async () => {
@@ -160,13 +148,7 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
       });
       it('quidam can pile on draft nodes', async () => {
-        Object.assign(nodeIds, await my_add_node({
-          id: 'arg1',
-          member: quidamInfo.handle,
-          node_type: 'pro',
-          parent: 'a1',
-          title: 'first pro argument'
-        }));
+        Object.assign(nodeIds, await my_add_node(argument1Info));
         arg1Id = nodeIds['arg1'];
       });
       it('find subtree', async () => {
