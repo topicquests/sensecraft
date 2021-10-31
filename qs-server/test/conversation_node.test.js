@@ -209,6 +209,18 @@ describe('\'conversation_node\' service', () => {
         assert.ok(arg1Models[0].published_at);
       });
       // TODO: test I cannot create a node with a parent from a different quest
+      // Test I can add a meta-node to the focus node
+      // Test I can add a meta-node to a descendant of the focus node
+      // Test I can add a meta-node to an existing meta-node
+      // Test I cannot add a meta-node outside of the focus node descendants
+      // Question: can I add a meta-node to a meta-node outside of the focus descendants?
+      // Test I can add a channel in the game_play
+      // Test I can add a channel outside the quest
+      // Test I cannot add a non-root channel
+      // Test I can add a meta-node to either channel
+      // Test I cannot add a quest-less non-meta node
+      // Test I cannot add a node in channel state outside of a channel
+      // Test I cannot add a non-channel node in a channel
     });
   });
 });
