@@ -54,7 +54,6 @@ export enum ibis_node_type_enum {
   con = "con",
   reference = "reference",
   quest = "quest",
-  channel = "channel",
 }
 
 export type ibis_node_type_type = keyof typeof ibis_node_type_enum;
@@ -65,7 +64,6 @@ export const ibis_node_type_list: ibis_node_type_type[] = Object.keys(
 export enum publication_state_enum {
   obsolete = "obsolete",
   private_draft = "private_draft",
-  role_draft = "role_draft",
   guild_draft = "guild_draft",
   proposed = "proposed",
   submitted = "submitted",
@@ -76,21 +74,6 @@ export type publication_state_type = keyof typeof publication_state_enum;
 export const publication_state_list: publication_state_type[] = Object.keys(
   publication_state_enum
 ) as publication_state_type[];
-
-export enum meta_type_enum {
-  obsolete = "obsolete",
-  private_draft = "private_draft",
-  role_draft = "role_draft",
-  guild_draft = "guild_draft",
-  proposed = "proposed",
-  submitted = "submitted",
-  published = "published",
-}
-
-export type meta_type_type = keyof typeof meta_type_enum;
-export const meta_type_list: meta_type_type[] = Object.keys(
-  meta_type_enum
-) as meta_type_type[];
 
 export const public_private_bool = [
   {
