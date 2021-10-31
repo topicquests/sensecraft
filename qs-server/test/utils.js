@@ -90,6 +90,64 @@ class AxiosUtil {
   }
 }
 
+const axiosUtil = new AxiosUtil('http://localhost:3001');
+
+async function add_members(members) {
+  const memberIds = {};
+  const memberTokens = {};
+  for (const member of members) {
+    try {
+      memberIds[member.handle] = await axiosUtil.call('create_member', member);
+      memberTokens[member.handle] = await axiosUtil.call('get_token', {
+        mail: member.email, pass: member.password
+      }, null, false);
+    } catch (err) {
+      break;
+    }
+  }
+  return {memberIds, memberTokens};
+}
+
+async function delete_members(memberIds, adminToken) {
+  for (const memberId of Object.values(memberIds || {})) {
+    await axiosUtil.delete('members', {id: memberId}, adminToken);
+  }
+}
+
+async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
+  node_ids = node_ids || {};
+  for (const nodeData of nodes) {
+    const {id, member, parent, ...rest} = nodeData;
+    const parent_id = (parent)?node_ids[parent]:undefined;
+    if (parent && !parent_id) {
+      throw Error("missing parent");
+    }
+    const node = {
+      parent_id,
+      quest_id,
+      ...rest
+    };
+    const member_token = member_tokens[member];
+    console.log(node);
+    const id_data = await axiosUtil.create('conversation_node', node, member_token);
+    node_ids[id] = id_data.id;
+  }
+  return node_ids;
+}
+
+async function delete_nodes(nodes, node_ids, adminToken) {
+  for (const local_id of nodes) {
+    const id = node_ids[local_id];
+    await axiosUtil.delete('conversation_node', {id}, adminToken);
+    delete node_ids[local_id];
+  }
+}
+
+
 module.exports = {
-  axiosUtil: new AxiosUtil('http://localhost:3001')
+  add_members,
+  delete_members,
+  add_nodes,
+  delete_nodes,
+  axiosUtil,
 };

@@ -1,46 +1,39 @@
 const assert = require('assert');
-const { axiosUtil } = require('./utils');
+const { axiosUtil, add_members, delete_members, add_nodes, delete_nodes } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info } = require('./fixtures');
+
 
 describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
-    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
-      q1Id, a1Id, arg1Id;
-
+    var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
+      q1Id, a1Id, arg1Id, memberIds, memberTokens, nodeIds = {};
+    async function my_add_node(node) {
+      return await add_nodes([node], publicQuestId, memberTokens, nodeIds);
+    }
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
-      leaderId = await axiosUtil.call('create_member', leaderInfo);
-      sponsorId = await axiosUtil.call('create_member', sponsorInfo);
-      quidamId = await axiosUtil.call('create_member', quidamInfo);
-      quidamToken = await axiosUtil.call('get_token', {
-        mail: quidamInfo.email, pass: quidamInfo.password
-      }, null, false);
-      leaderToken = await axiosUtil.call('get_token', {
-        mail: leaderInfo.email, pass: leaderInfo.password
-      }, null, false);
-      sponsorToken = await axiosUtil.call('get_token', {
-        mail: sponsorInfo.email, pass: sponsorInfo.password
-      }, null, false);
+      ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo]));
+      if (Object.keys(memberIds).length != 3)
+        throw Error();
+      quidamToken = memberTokens[quidamInfo.handle];
+      leaderToken = memberTokens[leaderInfo.handle];
+      sponsorToken = memberTokens[sponsorInfo.handle];
     });
 
     after(async () => {
       if (process.env.NOREVERT)
         return;
+      await delete_nodes(['arg1', 'a1', 'q1'], nodeIds, adminToken);
       if (publicGuildId)
         await axiosUtil.delete('guilds', {id: publicGuildId}, adminToken);
       if (publicQuestId)
         await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
       if (publicQuest2Id)
         await axiosUtil.delete('quests', {id: publicQuest2Id}, adminToken);
-      if (quidamId)
-        await axiosUtil.delete('members', {id: quidamId}, adminToken);
-      if (leaderId)
-        await axiosUtil.delete('members', {id: leaderId}, adminToken);
-      if (sponsorId)
-        await axiosUtil.delete('members', {id: sponsorId}, adminToken);
+      delete_members(memberIds, adminToken);
     });
 
     describe('conversation_node tests', () => {
@@ -58,22 +51,24 @@ describe('\'conversation_node\' service', () => {
         assert.equal(quests.length, 2);
       });
       it('sponsor can ask first question', async () => {
-        const q1Model = await axiosUtil.create('conversation_node', {
-          quest_id: publicQuestId,
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q1',
           node_type: 'question',
+          status: 'published',
           title: 'first question',
-          status: 'published'
-        }, sponsorToken);
-        q1Id = q1Model.id;
+          member: sponsorInfo.handle,
+        }));
+        q1Id = nodeIds['q1'];
       });
       it('sponsor cannot create a second root', async () => {
         await assert.rejects(async () => {
-          await axiosUtil.create('conversation_node', {
-            quest_id: publicQuestId,
+          await my_add_node({
+            id: 'q2',
             node_type: 'question',
             status: 'published',
-            title: 'second question'
-          }, sponsorToken);
+            title: 'second question',
+            member: sponsorInfo.handle,
+          });
         }, 'GeneralError');
       });
       it('creates public guild', async () => {
@@ -85,7 +80,7 @@ describe('\'conversation_node\' service', () => {
       });
       it('quidam can register to guild', async () => {
         const register = await axiosUtil.create('guild_membership', {
-          member_id: quidamId,
+          member_id: memberIds[quidamInfo.handle],
           guild_id: publicGuildId,
         }, quidamToken);
         assert.ok(register);
@@ -104,37 +99,39 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
       });
       it('quidam can create private draft node', async () => {
-        const a1Model = await axiosUtil.create('conversation_node', {
-          quest_id: publicQuestId,
+        Object.assign(nodeIds, await my_add_node({
+          id: 'a1',
           node_type: 'answer',
-          parent_id: q1Id,
-          title: 'first answer'
-        }, quidamToken);
-        a1Id = a1Model.id;
+          parent: 'q1',
+          title: 'first answer',
+          member: quidamInfo.handle,
+        }));
+        a1Id = nodeIds['a1'];
       });
       it('leader cannot submit node before quest is ongoing', async () => {
         await assert.rejects(async () => {
-          await axiosUtil.create('conversation_node', {
-            quest_id: publicQuestId,
+          await my_add_node({
+            id: 'a2',
             node_type: 'answer',
-            parent_id: q1Id,
+            parent: 'q1',
             status: 'submitted',
             title: 'first question'
-          }, leaderToken);
-        }, 'GeneralError');
+          });
+        });
       });
       it('sponsor can start quest', async () => {
         await axiosUtil.update('quests', { id: publicQuestId }, { status: 'ongoing' }, sponsorToken);
       });
       it('quidam cannot pile an argument on a question', async () => {
         await assert.rejects(async () => {
-          await axiosUtil.create('conversation_node', {
-            quest_id: publicQuestId,
+          await my_add_node({
+            id: 'arg0',
+            member: quidamInfo.handle,
             node_type: 'pro',
-            parent_id: q1Id,
+            parent: 'q1',
             title: 'pro argument'
-          }, quidamToken);
-        }, 'GeneralError');
+          });
+        });
       });
       it('leader and sponsor cannot see private draft', async () => {
         var node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
@@ -163,13 +160,14 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
       });
       it('quidam can pile on draft nodes', async () => {
-        const arg1Model = await axiosUtil.create('conversation_node', {
-          quest_id: publicQuestId,
+        Object.assign(nodeIds, await my_add_node({
+          id: 'arg1',
+          member: quidamInfo.handle,
           node_type: 'pro',
-          parent_id: a1Id,
+          parent: 'a1',
           title: 'first pro argument'
-        }, quidamToken);
-        arg1Id = arg1Model.id;
+        }));
+        arg1Id = nodeIds['arg1'];
       });
       it('find subtree', async () => {
         const descModels = await axiosUtil.call('node_subtree', { node_id: a1Id }, quidamToken);
