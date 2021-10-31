@@ -102,6 +102,7 @@ import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
+import { RoleActionTypes } from "../store/role";
 import {
   GuildsState,
   GuildsGetterTypes,
@@ -115,7 +116,7 @@ import {
   permission_enum,
   quest_status_type,
 } from "../enums";
-import { Quest, GamePlay, ConversationNode, Member } from "../types";
+import { Quest, GamePlay, ConversationNode, Member, Role } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { BaseGetterTypes } from "../store/baseStore";
@@ -138,6 +139,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
     ...mapActions("guilds", ["ensureGuild", "setCurrentGuild"]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
 })
 export default class GuildAdminPage extends Vue {
@@ -212,6 +214,7 @@ export default class GuildAdminPage extends Vue {
 
   // declare the methods for Typescript
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
+  ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
   addGamePlay!: QuestsActionTypes["addGamePlay"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
@@ -302,6 +305,7 @@ export default class GuildAdminPage extends Vue {
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),
+      this.ensureAllRoles(),
     ]);
     this.isAdmin = this.hasPermission(
       permission_enum.guildAdmin,
