@@ -57,9 +57,9 @@ class TagData:
 
 
 def random_assign(l, e, pos):
-    while pos > len(l):
+    while pos >= len(l):
         l.append(None)
-    l.append(e)
+    l[pos] = e
 
 
 def sha1sum(path):
