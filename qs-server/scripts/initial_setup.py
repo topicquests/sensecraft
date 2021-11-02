@@ -30,7 +30,7 @@ def test_user_exists(role, **kwargs):
         **kwargs).strip() == role
 
 
-def get_conn_params(host="127.0.0.1", user=None, password=None, sudo=None, **kwargs):
+def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwargs):
     if sys.platform == 'darwin':
         user = user or getuser()
         sudo = False if sudo is None else sudo
@@ -115,13 +115,20 @@ def create_database(data, conn_data, dropdb=False):
     psql_command(f"ALTER SCHEMA public OWNER TO {owner}", **conn_data)
     return data
 
+postgrest_config = '''db-uri = "{url}"
+db-schema = "public"
+db-anon-role = "{client}"
+jwt-secret = "{jwt}"
+server-port = {port}
+server-host = "*"\n'''
+
 
 if __name__ == "__main__":
     ini_file = ConfigParser()
     if exists(CONFIG_FILE):
         with open(CONFIG_FILE) as f:
             ini_file.read_file(f)
-    conn_data = dict(host="127.0.0.1")
+    conn_data = dict(host="localhost")
     if ini_file.has_section("postgres"):
         conn_data.update(dict(ini_file.items("postgres")))
         conn_data["sudo"] = ini_file.getboolean(
@@ -189,11 +196,8 @@ if __name__ == "__main__":
                 ini_file.set(db, k, v)
             url = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}/{dbname}"
             with open(f"postgrest_{db}.conf", "w") as f:
-                f.write(f'db-uri = "{url}"\n')
-                f.write('db-schema = "public"\n')
-                f.write(f'db-anon-role = "{data["client"]}"\n')
-                f.write(f'jwt-secret = "{data["auth_secret"]}"\n')
-                f.write(f'server-port = {POSTGREST_PORT+index}\n')
+                f.write(postgrest_config.format(
+                    url=url, port=POSTGREST_PORT+index, client=data['client'], jwt=data['auth_secret']))
 
     with open(CONFIG_FILE, 'w') as f:
         ini_file.write(f)
