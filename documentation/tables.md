@@ -30,9 +30,10 @@ Todo:
 * createConversationNode
 * editConversationNode : (someone else's)
 * must_quote boolean  : needs to create nodes of quote subtype
-* add_to_focus boolean  : can add nodes to focus
-* add_meta_to_focus boolean  : can add nodes to focus
-* add_meta_to_conversation boolean  : can add nodes to conversation
+* add_to_focus boolean  : can add non-meta nodes to focus
+* add_meta_to_focus boolean  : can add meta nodes to focus
+* add_meta_to_meta boolean  : can add meta nodes to focus
+* add_meta_to_conversation boolean  : can add meta nodes elsewhere in conversation
 
 
 
