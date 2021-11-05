@@ -8,7 +8,14 @@ import {
 } from "./base";
 import { Notify } from "quasar";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { Member, GuildMembership, QuestMembership, Casting } from "../types";
+import {
+  Member,
+  GuildMembership,
+  QuestMembership,
+  Casting,
+  CastingRole,
+  GuildMemberAvailableRole,
+} from "../types";
 
 export interface MemberState {
   member: Member;
@@ -270,6 +277,30 @@ export const member = new MyVapi<MemberState>({
             ) || [];
           castings.push(casting);
           state.member.casting = castings;
+        }
+      },
+      ADD_CASTING_ROLE: (state: MemberState, casting_role) => {
+        if (state.member) {
+          const castingRoles =
+            state.member.casting_role.filter(
+              (cr: CastingRole) => cr.role_id != castingRoles.role_id
+            ) || [];
+          castingRoles.push(casting_role);
+          state.member.casting_role = castingRoles;
+        }
+      },
+      ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
+        state: MemberState,
+        guild_Member_Available_Role
+      ) => {
+        if (state.member) {
+          const guildMemberAvailableRoles =
+            state.member.Guild_Member_Available_Role.filter(
+              (a: GuildMemberAvailableRole) =>
+                a.role_id != guildMemberAvailableRoles.role_id
+            ) || [];
+          guildMemberAvailableRoles.push(guild_Member_Available_Role);
+          state.member.Guild_Member_Available_Role = guildMemberAvailableRoles;
         }
       },
       ADD_GUILD_MEMBERSHIP: (state: MemberState, membership) => {

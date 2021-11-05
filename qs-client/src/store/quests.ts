@@ -104,6 +104,7 @@ export const QuestsActions = {
     await context.dispatch("fetchQuestById", { params: { id: quest_id } });
     // TODO: Get the membership from the quest
     await MyVapi.store.dispatch("member/fetchLoginUser");
+    return res.data[0];
   },
   ensureAllQuests: async (context) => {
     if (context.state.quests.length === 0 || !context.state.fullFetch) {

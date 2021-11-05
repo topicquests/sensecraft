@@ -81,7 +81,10 @@
     <div v-if="activeQuests.length > 0" class="row justify-center">
       <div v-for="quest in activeQuests" :key="quest.id">
         <div class="col-6">
-          <q-card class="q-pa-md card" style="border: 1px solid gray">
+          <q-card
+            class="q-pa-md card"
+            style="border: 1px solid gray; min-width: 400px"
+          >
             <h6 class="q-ma-sm">{{ quest.name }}</h6>
             <ul>
               <li v-for="member in getGuildMembers()" :key="member.id">
@@ -94,6 +97,19 @@
         </div>
       </div>
     </div>
+    <div class="row" v-for="member in getGuildMembers()" :key="member.id">
+      <span>{{ member.handle }} </span>
+      <q-select
+        :options="getRoles"
+        option-label="name"
+        option-value="id"
+        label="Role"
+        emit-value
+        map-options
+        id="qselect"
+      >
+      </q-select>
+    </div>
   </q-page>
 </template>
 
@@ -102,7 +118,7 @@ import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
-import { RoleActionTypes } from "../store/role";
+import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import {
   GuildsState,
   GuildsGetterTypes,
@@ -135,6 +151,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", ["getMembersOfGuild"]),
+    ...mapGetters("role", ["getRoles"]),
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
@@ -198,6 +215,7 @@ export default class GuildAdminPage extends Vue {
   selectedNode: ConversationNode = null;
   focusNode: ConversationNode = null;
   guildId: number = null;
+  role_id: number = null;
 
   // declare state bindings for TypeScript
   member!: MemberState["member"];
@@ -211,6 +229,7 @@ export default class GuildAdminPage extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
   getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
+  getRoles!: RoleGetterTypes["getRoles"];
 
   // declare the methods for Typescript
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
