@@ -8,9 +8,11 @@ describe('\'conversation_node\' service', () => {
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id, memberIds, memberTokens, nodeIds = {};
-    async function my_add_node(node) {
-      return await add_nodes([node], publicQuestId, memberTokens, nodeIds);
+      
+    async function my_add_node(node, qId=publicQuestId, nIds=nodeIds) {
+      return await add_nodes([node], qId, memberTokens, nIds);
     }
+
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
