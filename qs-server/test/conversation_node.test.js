@@ -208,7 +208,21 @@ describe('\'conversation_node\' service', () => {
         assert.equal(arg1Models[0].status, 'published');
         assert.ok(arg1Models[0].published_at);
       });
-      // TODO: test I cannot create a node with a parent from a different quest
+      it('cannot create a node with parent from a different quest', async() => {
+        // cloned from above
+        // TODO figure out how to add a foreign parent
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q2',
+            node_type: 'question',
+            status: 'published',
+            title: 'second question',
+            member: sponsorInfo.handle,
+          });
+        }, 'GeneralError');
+
+      });
+      ////// TODO: test I cannot create a node with a parent from a different quest
       // Test I can add a meta-node to the focus node
       // Test I can add a meta-node to a descendant of the focus node
       // Test I can add a meta-node to an existing meta-node
