@@ -1,12 +1,12 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } = require('./fixtures');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo, superadmin } = require('./fixtures');
 
 describe('\'role\' service', () => {
   describe('guild creation', () => {
     var adminToken, quidamId, leaderId, playerId, sponsorId,
       publicGuildId, publicQuestId, sponsorToken, leaderToken,
-      quidamToken, playerToken, sysRoleId, guildRoleId;
+      quidamToken, playerToken, sysRoleId, guildRoleId, superadminId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
@@ -19,9 +19,6 @@ describe('\'role\' service', () => {
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
         mail: quidamInfo.email, pass: quidamInfo.password
-      }, null, false);
-      superadminToken = await axiosUtil.call('get_token', {
-        mail: 'superadmin@example.com', pass: 'supersecret'
       }, null, false);
       leaderToken = await axiosUtil.call('get_token', {
         mail: leaderInfo.email, pass: leaderInfo.password
