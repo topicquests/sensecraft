@@ -8,7 +8,7 @@ describe('\'conversation_node\' service', () => {
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id, memberIds, memberTokens, nodeIds = {};
-      
+
     async function my_add_node(node, qId=publicQuestId, nIds=nodeIds) {
       return await add_nodes([node], qId, memberTokens, nIds);
     }
@@ -213,12 +213,24 @@ describe('\'conversation_node\' service', () => {
       it('cannot create a node with parent from a different quest', async() => {
         // cloned from above
         // TODO figure out how to add a foreign parent
+        // create a node in quest2
+        const nids =  await my_add_node({
+          id: 'q2',
+          node_type: 'question',
+          status: 'published',
+          title: 'second question',
+          member: sponsorInfo.handle,
+        }, publicQuest2Info);
+        const keys = nids.keys();
+        const new_node_id = keys.next().value();
+        // now add a node in quest1 with the q2 node as parent
         await assert.rejects(async () => {
           await my_add_node({
-            id: 'q2',
+            id: 'q30',
+            parent: new_node_id,
             node_type: 'question',
             status: 'published',
-            title: 'second question',
+            title: 'another question',
             member: sponsorInfo.handle,
           });
         }, 'GeneralError');
