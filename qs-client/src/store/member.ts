@@ -155,7 +155,7 @@ export const member = new MyVapi<MemberState>({
         params.email = `eq.${state.email}`;
       }
       params.select =
-        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*)";
+        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*)";
     },
     onSuccess: (
       state: MemberState,
