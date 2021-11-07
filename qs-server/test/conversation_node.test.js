@@ -211,8 +211,6 @@ describe('\'conversation_node\' service', () => {
         assert.ok(arg1Models[0].published_at);
       });
       it('cannot create a node with parent from a different quest', async() => {
-        // cloned from above
-        // TODO figure out how to add a foreign parent
         // create a node in quest2
         Object.assign(nodeIds, await my_add_node({
           id: 'q2',
@@ -236,8 +234,50 @@ describe('\'conversation_node\' service', () => {
 
       });
       ////// TODO: test I cannot create a node with a parent from a different quest
-      // Test I can add a meta-node to the focus node
-      // Test I can add a meta-node to a descendant of the focus node
+      it('can add a meta-node to the focus node', async() => {
+        // create a node in quest1
+        console.log('TestPointA');
+        // TODO fails in here
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q29',
+          node_type: 'question',
+          status: 'published',
+          title: 'third question',
+          member: sponsorInfo.handle,
+        }));
+        const new_node_id = nodeIds['q29'];
+        // set that to focus node
+        // TODO - never get here
+        console.log('TestPointB', new_node_id);
+        await axiosUtil.update('game_play', { id: new_node_id }, { focus_node_id: new_node_id }, sponsorToken);
+        console.log('TestPointC');
+
+        // add a node
+        assert(async () => {
+          await my_add_node({
+            id: 'q3111',
+            parent: new_node_id,
+            node_type: 'question',
+            status: 'published',
+            title: 'yet another question',
+            member: sponsorInfo.handle,
+          });
+        }, 'GeneralError');
+      });
+      ////// Test I can add a meta-node to the focus node
+      it('can add a meta-node to a descendant of the focus node', async() => {
+        await assert(async () => {
+          await my_add_node({
+            id: 'q3111',
+            parent: 'q3111',
+            node_type: 'question',
+            status: 'published',
+            title: 'yet still another question',
+            member: sponsorInfo.handle,
+          });
+        }, 'GeneralError');
+      });
+      ////// Test I can add a meta-node to a descendant of the focus node
       // Test I can add a meta-node to an existing meta-node
       // Test I cannot add a meta-node outside of the focus node descendants
       // Question: can I add a meta-node to a meta-node outside of the focus descendants?
