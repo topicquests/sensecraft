@@ -48,7 +48,6 @@ describe('\'conversation_node\' service', () => {
         assert.equal(quests.length, 1);
         publicQuestModel = await axiosUtil.create('quests', publicQuest2Info, sponsorToken);
         publicQuest2Id = publicQuestModel.id;
-        game_play_id.quest_id = publicQuestId;
         quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 2);
       });
@@ -219,61 +218,44 @@ describe('\'conversation_node\' service', () => {
           title: 'second question',
           member: sponsorInfo.handle,
         }, publicQuest2Id));
-        const new_node_id = nodeIds['q2'];
         // now add a node in quest1 with the q2 node as parent
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q30',
-            parent: new_node_id,
+            parent: 'q2',
             node_type: 'question',
             status: 'published',
             title: 'another question',
-            member: sponsorInfo.handle,
+            member: quidamInfo.handle,
           });
         }, 'GeneralError');
 
       });
-      ////// TODO: test I cannot create a node with a parent from a different quest
-      it('can add a meta-node to the focus node', async() => {
-        // create a node in quest1
-        console.log('TestPointA');
-        // TODO fails in here
+      it('can add a meta-node to the focus node', async () => {
+        // set the focus node to first answer
+        await axiosUtil.update('game_play', game_play_id, { focus_node_id: a1Id }, leaderToken);
+        // create a meta node
         Object.assign(nodeIds, await my_add_node({
           id: 'q29',
+          parent: answer1Info.id,
           node_type: 'question',
-          status: 'published',
+          meta: 'meta',
+          status: 'guild_draft',
           title: 'third question',
-          member: sponsorInfo.handle,
+          member: quidamInfo.handle,
         }));
-        const new_node_id = nodeIds['q29'];
-        // set that to focus node
-        // TODO - never get here
-        console.log('TestPointB', new_node_id);
-        await axiosUtil.update('game_play', { id: new_node_id }, { focus_node_id: new_node_id }, sponsorToken);
-        console.log('TestPointC');
-
-        // add a node
-        assert(async () => {
-          await my_add_node({
-            id: 'q3111',
-            parent: new_node_id,
-            node_type: 'question',
-            status: 'published',
-            title: 'yet another question',
-            member: sponsorInfo.handle,
-          });
-        }, 'GeneralError');
       });
       ////// Test I can add a meta-node to the focus node
       it('can add a meta-node to a descendant of the focus node', async() => {
         await assert(async () => {
           await my_add_node({
             id: 'q3111',
-            parent: 'q3111',
+            parent: argument1Info.id,
             node_type: 'question',
-            status: 'published',
+            meta: 'meta',
+            status: 'guild_draft',
             title: 'yet still another question',
-            member: sponsorInfo.handle,
+            member: quidamInfo.handle,
           });
         }, 'GeneralError');
       });
