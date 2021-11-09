@@ -248,9 +248,23 @@ describe('\'conversation_node\' service', () => {
       ////// Test I can add a meta-node to the focus node
       it('can add a meta-node to a descendant of the focus node', async() => {
         await assert(async () => {
-          await my_add_node({
+          Object.assign(nodeIds, await my_add_node({
             id: 'q3111',
             parent: argument1Info.id,
+            node_type: 'question',
+            meta: 'meta',
+            status: 'guild_draft',
+            title: 'yet still another question',
+            member: quidamInfo.handle,
+          }));
+        }, 'GeneralError');
+      });
+      ////// Test I can add a meta-node to a descendant of the focus node
+      it('can add a meta-node to an existing meta-node', async() => {
+        await assert(async () => {
+          await my_add_node({
+            id: 'q3112',
+            parent: nodeIds['q3111'],
             node_type: 'question',
             meta: 'meta',
             status: 'guild_draft',
@@ -259,8 +273,7 @@ describe('\'conversation_node\' service', () => {
           });
         }, 'GeneralError');
       });
-      ////// Test I can add a meta-node to a descendant of the focus node
-      // Test I can add a meta-node to an existing meta-node
+      ///// Test I can add a meta-node to an existing meta-node
       // Test I cannot add a meta-node outside of the focus node descendants
       // Question: can I add a meta-node to a meta-node outside of the focus descendants?
       // Test I can add a channel in the game_play
