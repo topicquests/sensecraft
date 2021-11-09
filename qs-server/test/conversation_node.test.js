@@ -274,7 +274,20 @@ describe('\'conversation_node\' service', () => {
         }, 'GeneralError');
       });
       ///// Test I can add a meta-node to an existing meta-node
-      // Test I cannot add a meta-node outside of the focus node descendants
+      it('cannot add a meta-node outside of the focus node descendants', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q2921',
+            parent: nodeIds['q2'],
+            node_type: 'question',
+            meta: 'meta',
+            status: 'guild_draft',
+            title: 'yet still another question',
+            member: quidamInfo.handle,
+          });
+        }, 'GeneralError');
+      });      
+      ///// Test I cannot add a meta-node outside of the focus node descendants
       // Question: can I add a meta-node to a meta-node outside of the focus descendants?
       // Test I can add a channel in the game_play
       // Test I can add a channel outside the quest
