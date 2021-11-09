@@ -98,8 +98,11 @@
       </div>
     </div>
     <div class="row" v-for="member in getGuildMembers()" :key="member.id">
-      <span>{{ member.handle }} </span>
+      <span class="col-1"> {{ member.handle }} </span>
       <q-select
+        class="col-1"
+        v-model="role_id"
+        @input-value="selectRole"
         :options="getRoles"
         option-label="name"
         option-value="id"
@@ -215,7 +218,7 @@ export default class GuildAdminPage extends Vue {
   selectedNode: ConversationNode = null;
   focusNode: ConversationNode = null;
   guildId: number = null;
-  role_id: number = null;
+  role: null;
 
   // declare state bindings for TypeScript
   member!: MemberState["member"];
@@ -237,6 +240,10 @@ export default class GuildAdminPage extends Vue {
   addGamePlay!: QuestsActionTypes["addGamePlay"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
+
+  selectRole() {
+    console.log(arguments);
+  }
 
   async initialize() {
     await this.setCurrentGuild(this.guildId);
