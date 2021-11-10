@@ -292,7 +292,7 @@ export default class GamePlayPage extends Vue {
       this.selectedNodeId = this.getFocusNode.id;
     }
     const quest = this.getCurrentQuest;
-    await this.ensureMemberById(quest.creator);
+    await this.ensureMemberById({ id: quest.creator });
     // const creator = this.getMemberById(quest.creator);
   }
 }

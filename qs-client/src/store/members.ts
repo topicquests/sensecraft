@@ -24,6 +24,7 @@ export interface MembersState {
   fullFetch: boolean;
   questFetch?: number;
   guildFetch?: number;
+  fullMembers: { [key: number]: boolean };
 }
 
 const MembersGetters = {
@@ -67,12 +68,18 @@ const MembersActions = {
       await context.dispatch("fetchMembers");
     }
   },
-  ensureMemberById: async (context, id: number) => {
+  ensureMemberById: async (
+    context,
+    { id, full = true }: { id: number; full?: boolean }
+  ) => {
     if (!context.state.members[id]) {
-      await context.dispatch("fetchMemberById", { params: { id } });
+      await context.dispatch("fetchMemberById", { full, params: { id } });
     }
   },
-  ensureMembersOfGuild: async (context, guildId: number) => {
+  ensureMembersOfGuild: async (
+    context,
+    { guildId, full = true }: { guildId: number; full?: boolean }
+  ) => {
     await MyVapi.store.dispatch("guilds/ensureGuild", {
       guild_id: guildId,
       force: true,
@@ -83,11 +90,15 @@ const MembersActions = {
     membersId = membersId.filter((id: number) => !context.state.members[id]);
     if (membersId.length > 0) {
       await context.dispatch("fetchMemberById", {
+        full,
         params: { id: membersId },
       });
     }
   },
-  ensurePlayersOfQuest: async (context, questId: number) => {
+  ensurePlayersOfQuest: async (
+    context,
+    { questId, full = true }: { questId: number; full?: boolean }
+  ) => {
     await MyVapi.store.dispatch("quests/ensureQuest", {
       questId,
       full: true,
@@ -102,6 +113,7 @@ const MembersActions = {
     membersId = membersId.filter((id: number) => !context.state.members[id]);
     if (membersId.length > 0) {
       await context.dispatch("fetchMemberById", {
+        full,
         params: { id: membersId },
       });
     }
@@ -114,6 +126,7 @@ export const members = new MyVapi<MembersState>({
     questFetch: null,
     guildFetch: null,
     members: {},
+    fullMembers: {},
   } as MembersState,
 })
   // Step 3
@@ -121,11 +134,17 @@ export const members = new MyVapi<MembersState>({
     action: "fetchMemberById",
     path: "/public_members",
     queryParams: true,
-    beforeRequest: (state: MembersState, { params }) => {
+    beforeRequest: (state: MembersState, { full, params }) => {
       if (Array.isArray(params.id)) {
         params.id = `in.(${params.id.join(",")})`;
       } else {
         params.id = `eq.${params.id}`;
+      }
+      if (full) {
+        Object.assign(params, {
+          select:
+            "*,guild_member_available_role!member_id(*),casting_role!member_id(*)",
+        });
       }
     },
     onSuccess: (
@@ -140,6 +159,14 @@ export const members = new MyVapi<MembersState>({
           res.data.map((member: PublicMember) => [member.id, member])
         ),
       };
+      if (actionParams.full) {
+        state.fullMembers = {
+          ...state.fullMembers,
+          ...Object.fromEntries(
+            res.data.map((member: PublicMember) => [member.id, true])
+          ),
+        };
+      }
     },
   })
   .get({
@@ -152,9 +179,20 @@ export const members = new MyVapi<MembersState>({
       axios: AxiosInstance,
       actionParams
     ) => {
+      const fullMembers = Object.values(state.members).filter(
+        (member: PublicMember) => state.fullMembers[member.id]
+      );
       const members = Object.fromEntries(
         res.data.map((member: PublicMember) => [member.id, member])
       );
+      for (const member of fullMembers) {
+        if (members[member.id]) {
+          Object.assign(members[member.id], {
+            guild_member_available_role: member.guild_member_available_role,
+            casting_role: member.casting_role,
+          });
+        }
+      }
       state.members = members;
       state.fullFetch = true;
     },
@@ -184,10 +222,13 @@ export const members = new MyVapi<MembersState>({
   });
 
 type MembersRestActionTypes = {
-  fetchMemberById: RestParamActionType<
-    { id: number | number[] },
-    PublicMember[]
-  >;
+  fetchMemberById: ({
+    full,
+    params,
+  }: {
+    full?: boolean;
+    params: { id: number | number[] };
+  }) => Promise<AxiosResponse<PublicMember[]>>;
   fetchMembers: RestEmptyActionType<PublicMember[]>;
   updateMember: RestDataActionType<Partial<PublicMember>, PublicMember[]>;
 };

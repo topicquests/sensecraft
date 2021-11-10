@@ -465,7 +465,7 @@ export default class GuildPage extends Vue {
     if (!quest) {
       return;
     }
-    await this.ensureMemberById(quest.creator);
+    await this.ensureMemberById({ id: quest.creator });
     await this.ensureGuildsPlayingQuest({ quest_id: quest.id });
     const casting = quest.casting?.find(
       (ct: Casting) => ct.member_id == this.memberId
@@ -588,7 +588,7 @@ export default class GuildPage extends Vue {
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),
     ]);
-    await this.ensureMembersOfGuild(this.guildId);
+    await this.ensureMembersOfGuild({ guildId: this.guildId });
     await this.initialize();
   }
 }
