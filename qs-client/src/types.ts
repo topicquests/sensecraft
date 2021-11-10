@@ -43,7 +43,7 @@ export interface PublicMember {
   quest_membership?: QuestMembership[];
   casting?: Casting[];
   casting_role?: CastingRole[];
-  Guild_Member_Available_Role?: GuildMemberAvailableRole[];
+  guild_member_available_role?: GuildMemberAvailableRole[];
 }
 
 export interface Member extends PublicMember {

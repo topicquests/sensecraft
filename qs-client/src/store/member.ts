@@ -155,7 +155,7 @@ export const member = new MyVapi<MemberState>({
         params.email = `eq.${state.email}`;
       }
       params.select =
-        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*)";
+        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
     },
     onSuccess: (
       state: MemberState,
@@ -295,12 +295,12 @@ export const member = new MyVapi<MemberState>({
       ) => {
         if (state.member) {
           const guildMemberAvailableRoles =
-            state.member.Guild_Member_Available_Role.filter(
+            state.member.guild_member_available_role.filter(
               (a: GuildMemberAvailableRole) =>
                 a.role_id != guildMemberAvailableRoles.role_id
             ) || [];
           guildMemberAvailableRoles.push(guild_Member_Available_Role);
-          state.member.Guild_Member_Available_Role = guildMemberAvailableRoles;
+          state.member.guild_member_available_role = guildMemberAvailableRoles;
         }
       },
       ADD_GUILD_MEMBERSHIP: (state: MemberState, membership) => {

@@ -101,8 +101,18 @@
       <span class="col-1"> {{ member.handle }} </span>
       <q-select
         class="col-1"
-        v-model="role_id"
-        @input-value="selectRole"
+        :multiple="true"
+        v-model="rolesByMember[member.id]"
+        @add="
+          (details) => {
+            roleAdded(member.id, details.value);
+          }
+        "
+        @remove="
+          (details) => {
+            roleRemoved(member.id, details.value);
+          }
+        "
         :options="getRoles"
         option-label="name"
         option-value="id"
@@ -135,7 +145,14 @@ import {
   permission_enum,
   quest_status_type,
 } from "../enums";
-import { Quest, GamePlay, ConversationNode, Member, Role } from "../types";
+import {
+  Quest,
+  GamePlay,
+  ConversationNode,
+  Member,
+  Role,
+  GuildMemberAvailableRole,
+} from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { BaseGetterTypes } from "../store/baseStore";
@@ -219,6 +236,7 @@ export default class GuildAdminPage extends Vue {
   focusNode: ConversationNode = null;
   guildId: number = null;
   role: null;
+  rolesByMember: { [key: number]: number[] } = {};
 
   // declare state bindings for TypeScript
   member!: MemberState["member"];
@@ -240,10 +258,6 @@ export default class GuildAdminPage extends Vue {
   addGamePlay!: QuestsActionTypes["addGamePlay"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
-
-  selectRole() {
-    console.log(arguments);
-  }
 
   async initialize() {
     await this.setCurrentGuild(this.guildId);
@@ -325,6 +339,14 @@ export default class GuildAdminPage extends Vue {
     console.log("Quest id and member id ", quest_id, " ", member_id);
     return this.castingInQuest(quest_id, member_id)?.guild_id;
   }
+  roleAdded(member_id, role_id) {
+    console.log("added", member_id, role_id);
+  }
+
+  roleRemoved(member_id, role_id) {
+    console.log("removed", member_id, role_id);
+  }
+
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
@@ -333,6 +355,15 @@ export default class GuildAdminPage extends Vue {
       this.ensureAllQuests(),
       this.ensureAllRoles(),
     ]);
+    this.rolesByMember = Object.fromEntries(
+      this.members.map((m: Member) => [
+        m.id,
+        m.guild_member_available_role.map(
+          (r: GuildMemberAvailableRole) => r.role_id
+        ),
+      ])
+    );
+
     this.isAdmin = this.hasPermission(
       permission_enum.guildAdmin,
       this.currentGuildId
