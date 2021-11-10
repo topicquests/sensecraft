@@ -247,38 +247,34 @@ describe('\'conversation_node\' service', () => {
       });
       ////// Test I can add a meta-node to the focus node
       it('can add a meta-node to a descendant of the focus node', async() => {
-        await assert(async () => {
-          Object.assign(nodeIds, await my_add_node({
-            id: 'q3111',
-            parent: argument1Info.id,
-            node_type: 'question',
-            meta: 'meta',
-            status: 'guild_draft',
-            title: 'yet still another question',
-            member: quidamInfo.handle,
-          }));
-        }, 'GeneralError');
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3111',
+          parent: argument1Info.id,
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
       });
       ////// Test I can add a meta-node to a descendant of the focus node
       it('can add a meta-node to an existing meta-node', async() => {
-        await assert(async () => {
-          await my_add_node({
-            id: 'q3112',
-            parent: nodeIds['q3111'],
-            node_type: 'question',
-            meta: 'meta',
-            status: 'guild_draft',
-            title: 'yet still another question',
-            member: quidamInfo.handle,
-          });
-        }, 'GeneralError');
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3112',
+          parent: 'q3111',
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
       });
       ///// Test I can add a meta-node to an existing meta-node
       it('cannot add a meta-node outside of the focus node descendants', async() => {
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q2921',
-            parent: nodeIds['q2'],
+            parent: 'q2',
             node_type: 'question',
             meta: 'meta',
             status: 'guild_draft',

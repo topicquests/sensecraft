@@ -78,7 +78,7 @@ BEGIN
   WHEN parent_type = 'answer' THEN
     NULL;
   WHEN parent_type IN ('pro', 'con') THEN
-    IF child_type == 'answer' THEN
+    IF child_type = 'answer' THEN
       RAISE EXCEPTION 'Argument node cannot have an answer node as a child';
     END IF;
   WHEN parent_type = 'reference' THEN
@@ -120,7 +120,7 @@ BEGIN
     END IF;
   ELSE
     NEW.ancestry = NEW.id::varchar::ltree;
-    IF (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL) != 0 THEN
+    IF NEW.meta = 'conversation'::meta_state AND (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL AND meta = 'conversation'::meta_state) != 0 THEN
       RAISE EXCEPTION 'Each quest must have a single root';
     END IF;
     IF NEW.node_type = 'channel' THEN
