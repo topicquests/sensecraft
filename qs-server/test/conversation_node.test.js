@@ -1,6 +1,7 @@
 const assert = require('assert');
 const { axiosUtil, add_members, delete_members, add_nodes, delete_nodes } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
+//const { devNull } = require('os');
 
 
 describe('\'conversation_node\' service', () => {
@@ -298,6 +299,16 @@ describe('\'conversation_node\' service', () => {
       ///// Test I can add a channel in the game_play
       // root channel node_type = channel, meta = channel
       //   after that, ibis types
+      it('can add a channel outside the game_play', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q899',
+          node_type: 'channel',
+          status: 'published',
+          meta: 'channel',
+          title: 'My Channel',
+          member: sponsorInfo.handle,
+        }, undefined));
+      });
       // Test I can add a channel outside the quest
       // Test I cannot add a non-root channel
       // Test I can add a meta-node to either channel
