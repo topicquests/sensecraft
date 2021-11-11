@@ -284,8 +284,20 @@ describe('\'conversation_node\' service', () => {
         }, 'GeneralError');
       });      
       ///// Test I cannot add a meta-node outside of the focus node descendants
-      // Question: can I add a meta-node to a meta-node outside of the focus descendants?
-      // Test I can add a channel in the game_play
+      // TODO Question: can I add a meta-node to a meta-node outside of the focus descendants?
+      it('can add a channel in the game_play', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q898',
+          node_type: 'channel',
+          status: 'published',
+          meta: 'channel',
+          title: 'My Channel',
+          member: sponsorInfo.handle,
+        }));
+      });
+      ///// Test I can add a channel in the game_play
+      // root channel node_type = channel, meta = channel
+      //   after that, ibis types
       // Test I can add a channel outside the quest
       // Test I cannot add a non-root channel
       // Test I can add a meta-node to either channel
