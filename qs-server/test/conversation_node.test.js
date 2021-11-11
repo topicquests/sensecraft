@@ -336,7 +336,30 @@ describe('\'conversation_node\' service', () => {
         }));
       });
       ///// Test I can add a meta-node to either channel
-      // Test I cannot add a quest-less non-meta node
+      it('cannot add a quest-less non-meta node', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q343434',
+            node_type: 'question',
+            status: 'published',
+            title: 'great question',
+            member: sponsorInfo.handle,
+          }, undefined);
+        }, 'GeneralError');
+      });
+      ///// Test I cannot add a quest-less non-meta node
+      it('cannot add a node in channel state outside of a channel', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q3434348',
+            node_type: 'question',
+            status: 'published',
+            meta: 'channel',
+            title: 'great question',
+            member: sponsorInfo.handle,
+          });
+        }, 'GeneralError');
+      });
       // Test I cannot add a node in channel state outside of a channel
       // Test I cannot add a non-channel node in a channel
     });
