@@ -309,7 +309,20 @@ describe('\'conversation_node\' service', () => {
           member: sponsorInfo.handle,
         }, undefined));
       });
-      // Test I can add a channel outside the quest
+      ///// Test I can add a channel outside the quest
+      it('cannot add a non-root channel', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q8991',
+            node_type: 'channel',
+            status: 'published',
+            parent: 'q899',
+            meta: 'channel',
+            title: 'My Channel',
+            member: sponsorInfo.handle,
+          });
+        }, 'GeneralError');
+      });
       // Test I cannot add a non-root channel
       // Test I can add a meta-node to either channel
       // Test I cannot add a quest-less non-meta node
