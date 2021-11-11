@@ -323,8 +323,19 @@ describe('\'conversation_node\' service', () => {
           });
         }, 'GeneralError');
       });
-      // Test I cannot add a non-root channel
-      // Test I can add a meta-node to either channel
+      //// Test I cannot add a non-root channel
+      it('can add a meta-node to either channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q31123',
+          parent: 'q899',
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
+      });
+      ///// Test I can add a meta-node to either channel
       // Test I cannot add a quest-less non-meta node
       // Test I cannot add a node in channel state outside of a channel
       // Test I cannot add a non-channel node in a channel
