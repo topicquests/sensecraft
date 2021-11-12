@@ -246,7 +246,6 @@ describe('\'conversation_node\' service', () => {
           member: quidamInfo.handle,
         }));
       });
-      ////// Test I can add a meta-node to the focus node
       it('can add a meta-node to a descendant of the focus node', async() => {
         Object.assign(nodeIds, await my_add_node({
           id: 'q3111',
@@ -258,7 +257,6 @@ describe('\'conversation_node\' service', () => {
           member: quidamInfo.handle,
         }));
       });
-      ////// Test I can add a meta-node to a descendant of the focus node
       it('can add a meta-node to an existing meta-node', async() => {
         Object.assign(nodeIds, await my_add_node({
           id: 'q3112',
@@ -270,7 +268,6 @@ describe('\'conversation_node\' service', () => {
           member: quidamInfo.handle,
         }));
       });
-      ///// Test I can add a meta-node to an existing meta-node
       it.skip('cannot add a meta-node outside of the focus node descendants', async() => {
         await assert.rejects(async () => {
           await my_add_node({
@@ -285,7 +282,6 @@ describe('\'conversation_node\' service', () => {
         }, /Parent node out of focus/);
         // not implemented yet
       });      
-      ///// Test I cannot add a meta-node outside of the focus node descendants
       // TODO Question: can I add a meta-node to a meta-node outside of the focus descendants?
       it('can add a channel in the game_play', async() => {
         Object.assign(nodeIds, await my_add_node({
@@ -311,7 +307,6 @@ describe('\'conversation_node\' service', () => {
           member: leaderInfo.handle,
         }, null));
       });
-      ///// Test I can add a channel outside the quest
       it('cannot add a non-root channel', async() => {
         await assert.rejects(async () => {
           await my_add_node({
@@ -325,7 +320,6 @@ describe('\'conversation_node\' service', () => {
           });
         }, /Channels must be at root/);
       });
-      //// Test I cannot add a non-root channel
       it('can add a meta-node to either channel', async() => {
         Object.assign(nodeIds, await my_add_node({
           id: 'q31123',
@@ -337,7 +331,6 @@ describe('\'conversation_node\' service', () => {
           member: quidamInfo.handle,
         }));
       });
-      ///// Test I can add a meta-node to either channel
       it('cannot add a quest-less non-meta node', async() => {
         await assert.rejects(async () => {
           await my_add_node({
@@ -345,26 +338,36 @@ describe('\'conversation_node\' service', () => {
             node_type: 'question',
             status: 'guild_draft',
             title: 'great question',
-            member: sponsorInfo.handle,
+            member: leaderInfo.handle,
           }, null);
         }, /Quest Id must be defined/);
       });
-      ///// Test I cannot add a quest-less non-meta node
-      it.skip('cannot add a node in channel state outside of a channel', async() => {
-        // actually maybe this won't be rejected but the metatype will be corrected to conversation
-        await assert.rejects(async () => {
-          await my_add_node({
-            id: 'q3434348',
-            node_type: 'question',
-            status: 'guild_draft',
-            meta: 'channel',
-            title: 'great question',
-            member: sponsorInfo.handle,
-          });
-        }, /Parent node does not belong to the same quest/);
+      it('cannot add a node in channel state outside of a channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3434348',
+          node_type: 'question',
+          status: 'guild_draft',
+          meta: 'channel',
+          title: 'great question',
+          member: leaderInfo.handle,
+        }));
+        const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434348}, leaderToken);
+        assert(node.length === 1);
+        assert(node[0].meta === 'conversation');
       });
-      // Test I cannot add a node in channel state outside of a channel
-      // Test I cannot add a non-channel node in a channel
+      it('cannot add a node in non-channel state inside a channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3434349',
+          parent: 'q898',
+          node_type: 'question',
+          status: 'guild_draft',
+          title: 'great question',
+          member: leaderInfo.handle,
+        }));
+        const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434349}, leaderToken);
+        assert(node.length === 1);
+        assert(node[0].meta === 'channel');
+      });
     });
   });
 });
