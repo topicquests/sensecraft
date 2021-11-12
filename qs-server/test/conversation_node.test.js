@@ -1,6 +1,7 @@
 const assert = require('assert');
 const { axiosUtil, add_members, delete_members, add_nodes, delete_nodes } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
+//const { devNull } = require('os');
 
 
 describe('\'conversation_node\' service', () => {
@@ -8,9 +9,11 @@ describe('\'conversation_node\' service', () => {
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id, memberIds, memberTokens, nodeIds = {};
-    async function my_add_node(node) {
-      return await add_nodes([node], publicQuestId, memberTokens, nodeIds);
+
+    async function my_add_node(node, qId=publicQuestId) {
+      return await add_nodes([node], qId, memberTokens, nodeIds);
     }
+
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
@@ -46,7 +49,6 @@ describe('\'conversation_node\' service', () => {
         assert.equal(quests.length, 1);
         publicQuestModel = await axiosUtil.create('quests', publicQuest2Info, sponsorToken);
         publicQuest2Id = publicQuestModel.id;
-        game_play_id.quest_id = publicQuestId;
         quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 2);
       });
@@ -63,7 +65,7 @@ describe('\'conversation_node\' service', () => {
             title: 'second question',
             member: sponsorInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Each quest must have a single root/);
       });
       it('creates public guild', async () => {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, leaderToken);
@@ -176,7 +178,7 @@ describe('\'conversation_node\' service', () => {
           await axiosUtil.update('conversation_node', { id: a1Id }, {
             parent_id: null,
           }, quidamToken);
-        }, 'GeneralError');
+        }, /Root node type must be /);
       });
       it('quidam cannot propose child if parent is not proposed', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: arg1Id }, {
@@ -190,7 +192,7 @@ describe('\'conversation_node\' service', () => {
           await axiosUtil.update('conversation_node', { id: a1Id }, {
             status: 'submitted'
           }, quidamToken);
-        }, 'GeneralError');
+        }, /Only guild leaders can submit nodes/);
       });
       it('quidam can update draft node to proposed', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
@@ -208,7 +210,164 @@ describe('\'conversation_node\' service', () => {
         assert.equal(arg1Models[0].status, 'published');
         assert.ok(arg1Models[0].published_at);
       });
-      // TODO: test I cannot create a node with a parent from a different quest
+      it('cannot create a node with parent from a different quest', async() => {
+        // create a node in quest2
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q2',
+          node_type: 'question',
+          status: 'published',
+          title: 'second question',
+          member: sponsorInfo.handle,
+        }, publicQuest2Id));
+        // now add a node in quest1 with the q2 node as parent
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q30',
+            parent: 'q2',
+            node_type: 'question',
+            status: 'published',
+            title: 'another question',
+            member: quidamInfo.handle,
+          });
+        }, /Parent node does not belong to the same quest/);
+
+      });
+      it('can add a meta-node to the focus node', async () => {
+        // set the focus node to first answer
+        await axiosUtil.update('game_play', game_play_id, { focus_node_id: a1Id }, leaderToken);
+        // create a meta node
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q29',
+          parent: answer1Info.id,
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'third question',
+          member: quidamInfo.handle,
+        }));
+      });
+      it('can add a meta-node to a descendant of the focus node', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3111',
+          parent: argument1Info.id,
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
+      });
+      it('can add a meta-node to an existing meta-node', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3112',
+          parent: 'q3111',
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
+      });
+      it.skip('cannot add a meta-node outside of the focus node descendants', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q2921',
+            parent: 'q2',
+            node_type: 'question',
+            meta: 'meta',
+            status: 'guild_draft',
+            title: 'yet still another question',
+            member: quidamInfo.handle,
+          });
+        }, /Parent node out of focus/);
+        // not implemented yet
+      });      
+      // TODO Question: can I add a meta-node to a meta-node outside of the focus descendants?
+      it('can add a channel in the game_play', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q898',
+          node_type: 'channel',
+          status: 'guild_draft',
+          meta: 'channel',
+          title: 'My Channel',
+          member: leaderInfo.handle,
+        }));
+      });
+      ///// Test I can add a channel in the game_play
+      // root channel node_type = channel, meta = channel
+      //   after that, ibis types
+      it('can add a channel outside the game_play', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q899',
+          node_type: 'channel',
+          status: 'guild_draft',
+          // meta: 'channel', can remain implicit because implied by node_type
+          title: 'My Channel',
+          guild_id: publicGuildId,  // explicit, not given by game_play
+          member: leaderInfo.handle,
+        }, null));
+      });
+      it('cannot add a non-root channel', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q8991',
+            node_type: 'channel',
+            status: 'guild_draft',
+            parent: 'q899',
+            meta: 'channel',
+            title: 'My Channel',
+            member: leaderInfo.handle,
+          });
+        }, /Channels must be at root/);
+      });
+      it('can add a meta-node to either channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q31123',
+          parent: 'q899',
+          node_type: 'question',
+          meta: 'meta',
+          status: 'guild_draft',
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
+      });
+      it('cannot add a quest-less non-meta node', async() => {
+        await assert.rejects(async () => {
+          await my_add_node({
+            id: 'q343434',
+            node_type: 'question',
+            status: 'guild_draft',
+            title: 'great question',
+            member: leaderInfo.handle,
+          }, null);
+        }, /Quest Id must be defined/);
+      });
+      it('cannot add a node in channel state outside of a channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3434348',
+          node_type: 'question',
+          status: 'guild_draft',
+          meta: 'channel',
+          title: 'great question',
+          member: leaderInfo.handle,
+        }));
+        const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434348}, leaderToken);
+        assert(node.length === 1);
+        assert(node[0].meta === 'conversation');
+      });
+      it('cannot add a node in non-channel state inside a channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q3434349',
+          parent: 'q898',
+          node_type: 'question',
+          status: 'guild_draft',
+          title: 'great question',
+          member: leaderInfo.handle,
+        }));
+        const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434349}, leaderToken);
+        assert(node.length === 1);
+        assert(node[0].meta === 'channel');
+      });
     });
   });
 });

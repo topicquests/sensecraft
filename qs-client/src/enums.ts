@@ -33,6 +33,17 @@ export const registration_status_list: registration_status_type[] = Object.keys(
   registration_status_enum
 ) as registration_status_type[];
 
+export enum meta_state_enum {
+  conversation = "conversation",
+  meta = "meta",
+  channel = "channel",
+}
+
+export type meta_state_type = keyof typeof meta_state_enum;
+export const meta_state_list: meta_state_type[] = Object.keys(
+  meta_state_enum
+) as meta_state_type[];
+
 export enum quest_status_enum {
   registration = "registration",
   draft = "draft",

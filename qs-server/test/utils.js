@@ -1,5 +1,13 @@
 const axios = require('axios');
 
+function enhanceError(err) {
+  const response = err.response || { data: {} };
+  if (response)
+    err.message = `${err.message}: ${response.data.message}`;
+  console.log(response.status, response.data.message);
+}
+
+
 class AxiosUtil {
   constructor(baseURL) {
     this.axios = axios.create({ baseURL });
@@ -22,7 +30,7 @@ class AxiosUtil {
       const response = await this.axios.get(path, { params, ... this.headers(token) });
       return response.data;
     } catch (error) {
-      console.error(error.response.status, error.response.data.message);
+      enhanceError(error);
       throw error;
     }
   }
@@ -34,7 +42,7 @@ class AxiosUtil {
       const response = await this.axios.delete(path, { params, ...headers });
       return response.data;
     } catch (error) {
-      console.error(error.response.status, error.response.data.message);
+      enhanceError(error);
       throw error;
     }
   }
@@ -51,8 +59,7 @@ class AxiosUtil {
       }));
       return location;
     } catch (error) {
-      const response = error.response || {data:{}};
-      console.error(response.status, response.data.message);
+      enhanceError(error);
       throw error;
     }
   }
@@ -69,7 +76,7 @@ class AxiosUtil {
       });
       return response.data;
     } catch (error) {
-      console.error(error.response.status, error.response.data.message);
+      enhanceError(error);
       throw error;
     }
   }
@@ -84,7 +91,7 @@ class AxiosUtil {
         return response.data;
       }
     } catch (error) {
-      console.error(error.response.status, error.response.data.message);
+      enhanceError(error);
       throw error;
     }
   }
