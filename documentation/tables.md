@@ -34,6 +34,8 @@ Todo:
 * add_meta_to_focus boolean  : can add meta nodes to focus
 * add_meta_to_meta boolean  : can add meta nodes to focus
 * add_meta_to_conversation boolean  : can add meta nodes elsewhere in conversation
+* add_play_channel : can create a channel in the context of a game
+* add_guild_channel : can create a guild-wide channel
 
 
 
