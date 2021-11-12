@@ -35,7 +35,7 @@
     "ignore": []
   },
   "devDependencies": {
-    "axios": "~0.23",
+    "axios": "~0.24",
     "dotenv": "~10.0",
     "eslint": "~8",
     "mocha": "~9.1"
