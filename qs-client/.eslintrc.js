@@ -58,7 +58,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     "prefer-promise-reject-errors": "warn",
-
+    "vue/multi-word-component-names": "warn",
     // allow debugger during development only
     "no-debugger": "error",
   },
