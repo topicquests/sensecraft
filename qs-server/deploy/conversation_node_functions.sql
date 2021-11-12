@@ -279,9 +279,13 @@ ALTER TABLE public.conversation_node ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS conversation_node_delete_policy ON public.conversation_node;
 CREATE POLICY conversation_node_delete_policy ON public.conversation_node FOR DELETE USING (false);
 
+
 DROP POLICY IF EXISTS conversation_node_insert_policy ON public.conversation_node;
 CREATE POLICY conversation_node_insert_policy ON public.conversation_node FOR INSERT WITH CHECK (
   public.is_quest_id_member(quest_id) OR (
+    quest_id IS NULL AND (
+      parent_id IS NOT NULL OR public.has_guild_permission(guild_id, 'guildAdmin'::public.permission))  -- we should have a "create channel" permission
+  ) OR (
     SELECT COUNT(*) FROM public.casting
     WHERE public.casting.quest_id = public.conversation_node.quest_id
     AND public.casting.guild_id = public.conversation_node.guild_id

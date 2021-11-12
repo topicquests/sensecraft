@@ -65,7 +65,7 @@ describe('\'conversation_node\' service', () => {
             title: 'second question',
             member: sponsorInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Each quest must have a single root/);
       });
       it('creates public guild', async () => {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, leaderToken);
@@ -178,7 +178,7 @@ describe('\'conversation_node\' service', () => {
           await axiosUtil.update('conversation_node', { id: a1Id }, {
             parent_id: null,
           }, quidamToken);
-        }, 'GeneralError');
+        }, /Root node type must be /);
       });
       it('quidam cannot propose child if parent is not proposed', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: arg1Id }, {
@@ -192,7 +192,7 @@ describe('\'conversation_node\' service', () => {
           await axiosUtil.update('conversation_node', { id: a1Id }, {
             status: 'submitted'
           }, quidamToken);
-        }, 'GeneralError');
+        }, /Only guild leaders can submit nodes/);
       });
       it('quidam can update draft node to proposed', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
@@ -229,7 +229,7 @@ describe('\'conversation_node\' service', () => {
             title: 'another question',
             member: quidamInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Parent node does not belong to the same quest/);
 
       });
       it('can add a meta-node to the focus node', async () => {
@@ -271,7 +271,7 @@ describe('\'conversation_node\' service', () => {
         }));
       });
       ///// Test I can add a meta-node to an existing meta-node
-      it('cannot add a meta-node outside of the focus node descendants', async() => {
+      it.skip('cannot add a meta-node outside of the focus node descendants', async() => {
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q2921',
@@ -282,7 +282,8 @@ describe('\'conversation_node\' service', () => {
             title: 'yet still another question',
             member: quidamInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Parent node out of focus/);
+        // not implemented yet
       });      
       ///// Test I cannot add a meta-node outside of the focus node descendants
       // TODO Question: can I add a meta-node to a meta-node outside of the focus descendants?
@@ -290,10 +291,10 @@ describe('\'conversation_node\' service', () => {
         Object.assign(nodeIds, await my_add_node({
           id: 'q898',
           node_type: 'channel',
-          status: 'published',
+          status: 'guild_draft',
           meta: 'channel',
           title: 'My Channel',
-          member: sponsorInfo.handle,
+          member: leaderInfo.handle,
         }));
       });
       ///// Test I can add a channel in the game_play
@@ -303,11 +304,12 @@ describe('\'conversation_node\' service', () => {
         Object.assign(nodeIds, await my_add_node({
           id: 'q899',
           node_type: 'channel',
-          status: 'published',
-          meta: 'channel',
+          status: 'guild_draft',
+          // meta: 'channel', can remain implicit because implied by node_type
           title: 'My Channel',
-          member: sponsorInfo.handle,
-        }, undefined));
+          guild_id: publicGuildId,  // explicit, not given by game_play
+          member: leaderInfo.handle,
+        }, null));
       });
       ///// Test I can add a channel outside the quest
       it('cannot add a non-root channel', async() => {
@@ -315,13 +317,13 @@ describe('\'conversation_node\' service', () => {
           await my_add_node({
             id: 'q8991',
             node_type: 'channel',
-            status: 'published',
+            status: 'guild_draft',
             parent: 'q899',
             meta: 'channel',
             title: 'My Channel',
-            member: sponsorInfo.handle,
+            member: leaderInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Channels must be at root/);
       });
       //// Test I cannot add a non-root channel
       it('can add a meta-node to either channel', async() => {
@@ -341,24 +343,25 @@ describe('\'conversation_node\' service', () => {
           await my_add_node({
             id: 'q343434',
             node_type: 'question',
-            status: 'published',
+            status: 'guild_draft',
             title: 'great question',
             member: sponsorInfo.handle,
-          }, undefined);
-        }, 'GeneralError');
+          }, null);
+        }, /Quest Id must be defined/);
       });
       ///// Test I cannot add a quest-less non-meta node
-      it('cannot add a node in channel state outside of a channel', async() => {
+      it.skip('cannot add a node in channel state outside of a channel', async() => {
+        // actually maybe this won't be rejected but the metatype will be corrected to conversation
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q3434348',
             node_type: 'question',
-            status: 'published',
+            status: 'guild_draft',
             meta: 'channel',
             title: 'great question',
             member: sponsorInfo.handle,
           });
-        }, 'GeneralError');
+        }, /Parent node does not belong to the same quest/);
       });
       // Test I cannot add a node in channel state outside of a channel
       // Test I cannot add a non-channel node in a channel
