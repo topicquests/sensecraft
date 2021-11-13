@@ -205,4 +205,10 @@ CREATE OR REPLACE FUNCTION public.has_game_permission(quest_id integer, perm pub
       END;
       $$;
 
+DROP INDEX IF EXISTS public.guild_member_available_role_member_id_idx;
+CREATE INDEX guild_member_available_role_member_id_idx ON guild_member_available_role (member_id);
+
+DROP INDEX IF EXISTS public.casting_role_member_id_idx;
+CREATE INDEX casting_role_member_id_idx ON casting_role (member_id);
+
 COMMIT;

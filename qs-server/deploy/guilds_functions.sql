@@ -393,4 +393,10 @@ CREATE POLICY guild_membership_select_policy ON public.guild_membership FOR SELE
 DROP POLICY IF EXISTS guild_membership_update_policy ON public.guild_membership;
 CREATE POLICY guild_membership_update_policy ON public.guild_membership FOR UPDATE USING ((member_id = public.current_member_id()) OR public.is_guild_id_member(guild_id));
 
+DROP INDEX IF EXISTS public.guild_membership_member_id_idx;
+CREATE INDEX guild_membership_member_id_idx ON guild_membership (member_id);
+
+DROP INDEX IF EXISTS public.guild_membership_guild_id_idx;
+CREATE INDEX guild_membership_guild_id_idx ON guild_membership (guild_id);
+
 COMMIT;

@@ -6,6 +6,9 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+DROP INDEX IF EXISTS public.guild_member_available_role_member_id_idx;
+DROP INDEX IF EXISTS public.casting_role_member_id_idx;
+
 REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLE public.role FROM :dbm;
 REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLE public.casting_role FROM :dbm;
 REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLE public.guild_member_available_role FROM :dbm;

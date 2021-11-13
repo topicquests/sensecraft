@@ -6,6 +6,10 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+DROP INDEX IF EXISTS public.casting_member_id_idx;
+DROP INDEX IF EXISTS public.casting_guild_id_idx;
+DROP INDEX IF EXISTS public.casting_quest_id_idx;
+
 REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.casting FROM :dbm;
 REVOKE SELECT ON TABLE public.casting FROM :dbc;
 

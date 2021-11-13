@@ -5,6 +5,9 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+DROP INDEX IF EXISTS public.quest_membership_member_id_idx;
+DROP INDEX IF EXISTS public.quest_membership_quest_id_idx;
+
 REVOKE SELECT,INSERT,UPDATE, DELETE ON TABLE public.quests FROM :dbm;
 REVOKE SELECT ON TABLE public.quests FROM :dbc;
 REVOKE USAGE ON SEQUENCE public.quests_id_seq FROM :dbm;

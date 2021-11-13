@@ -5,6 +5,9 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+DROP INDEX IF EXISTS public.game_play_guild_id_idx;
+DROP INDEX IF EXISTS public.game_play_quest_id_idx;
+
 REVOKE SELECT,INSERT,DELETE,UPDATE ON TABLE public.game_play FROM :dbm;
 REVOKE SELECT ON TABLE public.game_play FROM :dbc;
 

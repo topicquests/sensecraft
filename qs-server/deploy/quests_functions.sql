@@ -289,4 +289,10 @@ CREATE POLICY quest_membership_delete_policy ON public.quest_membership FOR DELE
 DROP POLICY IF EXISTS quest_membership_insert_policy ON public.quest_membership;
 CREATE POLICY quest_membership_insert_policy ON public.quest_membership FOR INSERT WITH CHECK (((public.current_member_id() = member_id) OR public.has_quest_permission(quest_id, 'proposeQuestMembership'::public.permission)));
 
+DROP INDEX IF EXISTS public.quest_membership_member_id_idx;
+CREATE INDEX quest_membership_member_id_idx ON quest_membership (member_id);
+
+DROP INDEX IF EXISTS public.quest_membership_quest_id_idx;
+CREATE INDEX quest_membership_quest_id_idx ON quest_membership (quest_id);
+
 COMMIT;
