@@ -137,7 +137,8 @@ export const guilds = new MyVapi<GuildsState>({
       }
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
-        params.select = "*,guild_membership(*),casting(*),game_play(*)";
+        params.select =
+          "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)";
         if (!full) {
           Object.assign(params, {
             "guild_membership.member_id": `eq.${userId}`,
@@ -145,7 +146,7 @@ export const guilds = new MyVapi<GuildsState>({
           });
         }
       } else {
-        params.select = "*,game_play(*)";
+        params.select = "*,game_play!guild_id(*)";
       }
     },
     onSuccess: (
@@ -179,12 +180,13 @@ export const guilds = new MyVapi<GuildsState>({
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
         Object.assign(params, {
-          select: "*,guild_membership(*),casting(*),game_play(*)",
+          select:
+            "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)",
           "guild_membership.member_id": `eq.${userId}`,
           "casting.member_id": `eq.${userId}`,
         });
       } else {
-        params.select = "*,game_play(*)";
+        params.select = "*,game_play!guild_id(*)";
       }
     },
     onSuccess: (

@@ -142,7 +142,8 @@ export const quests = new MyVapi<QuestsState>({
       }
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
-        params.select = "*,quest_membership(*),casting(*),game_play(*)";
+        params.select =
+          "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";
         if (!full) {
           Object.assign(params, {
             "quest_membership.member_id": `eq.${userId}`,
@@ -150,7 +151,7 @@ export const quests = new MyVapi<QuestsState>({
           });
         }
       } else {
-        params.select = "*,game_play(*)";
+        params.select = "*,game_play!quest_id(*)";
       }
     },
     onSuccess: (
@@ -184,12 +185,13 @@ export const quests = new MyVapi<QuestsState>({
       const userId = MyVapi.store.getters["member/getUserId"];
       if (userId) {
         Object.assign(params, {
-          select: "*,quest_membership(*),casting(*),game_play(*)",
+          select:
+            "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)",
           "quest_membership.member_id": `eq.${userId}`,
           "casting.member_id": `eq.${userId}`,
         });
       } else {
-        params.select = "*,game_play(*)";
+        params.select = "*,game_play!quest_id(*)";
       }
     },
     onSuccess: (
