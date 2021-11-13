@@ -34,26 +34,25 @@ GRANT USAGE ON SEQUENCE public.members_id_seq TO :dbc;
 --
 
 CREATE OR REPLACE FUNCTION public.role_to_id(role character varying) RETURNS integer
-    LANGUAGE plpgsql IMMUTABLE
-    AS $$
-    BEGIN
-      IF role ~ ('^' || current_database() || '__[mglq]_\d+') THEN
-        RETURN substr(role, char_length(current_database())+5)::integer;
-      ELSE
-        RETURN NULL;
-      END IF;
+AS $$
+  SELECT CASE
+    role ~ ('^' || current_database() || '__[mglq]_\d+')
+    WHEN true THEN
+      substr(role, char_length(current_database())+5)::integer
+    ELSE
+      NULL
     END;
-    $$;
+$$ LANGUAGE SQL IMMUTABLE;
 
 
 --
 -- Name: current_member_id(); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer STABLE
-    AS $$
-      SELECT role_to_id(cast(current_user as varchar));
-    $$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer
+AS $$
+  SELECT role_to_id(cast(current_user as varchar));
+$$ LANGUAGE SQL STABLE;
 
 
 
@@ -62,13 +61,11 @@ CREATE OR REPLACE FUNCTION public.current_member_id() RETURNS integer STABLE
 --
 
 CREATE OR REPLACE FUNCTION public.has_permission(permission character varying) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN current_user = current_database()||'__owner' OR COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
-        FROM members where id=current_member_id()), FALSE);
-      END;
-      $$;
-
+AS $$
+  SELECT current_user = current_database()||'__owner' OR 
+    COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
+      FROM members where id=current_member_id()), FALSE);
+$$ LANGUAGE SQL STABLE;
 
 
 --
