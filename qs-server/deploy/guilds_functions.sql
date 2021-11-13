@@ -42,15 +42,13 @@ GRANT SELECT ON TABLE public.my_guild_memberships TO :dbc;
 --
 
 CREATE OR REPLACE FUNCTION public.guild_permissions(guild character varying) RETURNS public.permission[]
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.slug = guild
-      AND status = 'confirmed'
-      AND member_id = current_member_id()) > 0;
-    END;
-    $$;
+AS $$
+  SELECT permissions FROM guild_membership
+    JOIN guilds ON guilds.id=guild_id
+    WHERE guilds.slug = guild
+    AND status = 'confirmed'
+    AND member_id = current_member_id();
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -58,18 +56,16 @@ CREATE OR REPLACE FUNCTION public.guild_permissions(guild character varying) RET
 --
 
 CREATE OR REPLACE FUNCTION public.has_guild_permission(guildid integer, perm public.permission) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM guild_membership
-       JOIN members ON members.id=member_id
-       WHERE guild_id = guildid
-       AND status = 'confirmed'
-       AND member_id = current_member_id()
-       AND (coalesce(guild_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'guildAdmin'::permission]
-         OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
-       ) > 0;
-      END;
-      $$;
+AS $$
+  SELECT (SELECT count(*) FROM guild_membership
+    JOIN members ON members.id=member_id
+    WHERE guild_id = guildid
+    AND status = 'confirmed'
+    AND member_id = current_member_id()
+    AND (coalesce(guild_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'guildAdmin'::permission]
+      OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
+    ) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -77,16 +73,14 @@ CREATE OR REPLACE FUNCTION public.has_guild_permission(guildid integer, perm pub
 --
 
 CREATE OR REPLACE FUNCTION public.is_guild_id_leader(guildid integer) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM guild_membership
-      WHERE guild_id = guildid
-      AND status = 'confirmed'
-      AND member_id = current_member_id()
-      AND coalesce(guild_membership.permissions @> ARRAY['guildAdmin'::permission], false)
-      ) > 0;
-    END;
-    $$;
+AS $$
+  SELECT (SELECT count(*) FROM guild_membership
+    WHERE guild_id = guildid
+    AND status = 'confirmed'
+    AND member_id = current_member_id()
+    AND coalesce(guild_membership.permissions @> ARRAY['guildAdmin'::permission], false)
+    ) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -94,14 +88,12 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_leader(guildid integer) RETURNS bo
 --
 
 CREATE OR REPLACE FUNCTION public.is_guild_id_member(guildid integer) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM guild_membership
-      WHERE guild_id = guildid
-      AND status = 'confirmed'
-      AND member_id = current_member_id()) > 0;
-    END;
-    $$;
+AS $$
+  SELECT (SELECT count(*) FROM guild_membership
+    WHERE guild_id = guildid
+    AND status = 'confirmed'
+    AND member_id = current_member_id()) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -109,15 +101,13 @@ CREATE OR REPLACE FUNCTION public.is_guild_id_member(guildid integer) RETURNS bo
 --
 
 CREATE OR REPLACE FUNCTION public.is_guild_member(guild character varying) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM guild_membership
-      JOIN guilds ON guilds.id=guild_id
-      WHERE guilds.slug = guild
-      AND status = 'confirmed'
-      AND member_id = current_member_id()) > 0;
-    END;
-    $$;
+AS $$
+  SELECT (SELECT count(*) FROM guild_membership
+    JOIN guilds ON guilds.id=guild_id
+    WHERE guilds.slug = guild
+    AND status = 'confirmed'
+    AND member_id = current_member_id()) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --

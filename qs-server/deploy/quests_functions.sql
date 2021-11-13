@@ -44,15 +44,13 @@ GRANT SELECT ON TABLE public.my_quest_memberships TO :dbc;
 --
 
 CREATE OR REPLACE FUNCTION public.is_quest_member(quest character varying) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM quest_membership
-      JOIN quests ON quests.id=quest_id
-      WHERE quests.slug = quest
-      AND confirmed
-      AND member_id = current_member_id()) > 0;
-    END;
-    $$;
+AS $$
+  SELECT (SELECT count(*) FROM quest_membership
+    JOIN quests ON quests.id=quest_id
+    WHERE quests.slug = quest
+    AND confirmed
+    AND member_id = current_member_id()) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -60,18 +58,16 @@ CREATE OR REPLACE FUNCTION public.is_quest_member(quest character varying) RETUR
 --
 
 CREATE OR REPLACE FUNCTION public.has_quest_permission(questid integer, perm public.permission) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM quest_membership
-       JOIN members ON members.id=member_id
-       WHERE quest_id = questid
-       AND status = 'confirmed'
-       AND member_id = current_member_id()
-       AND (coalesce(quest_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm]
-         OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
-       ) > 0;
-      END;
-      $$;
+AS $$
+  SELECT (SELECT count(*) FROM quest_membership
+      JOIN members ON members.id=member_id
+      WHERE quest_id = questid
+      AND confirmed
+      AND member_id = current_member_id()
+      AND (coalesce(quest_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm]
+        OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
+      ) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
@@ -79,14 +75,12 @@ CREATE OR REPLACE FUNCTION public.has_quest_permission(questid integer, perm pub
 --
 
 CREATE OR REPLACE FUNCTION public.is_quest_id_member(questid integer) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    BEGIN RETURN (SELECT count(*) FROM quest_membership
-      WHERE quest_id = questid
-      AND confirmed
-      AND member_id = current_member_id()) > 0;
-    END;
-    $$;
+AS $$
+  SELECT (SELECT count(*) FROM quest_membership
+    WHERE quest_id = questid
+    AND confirmed
+    AND member_id = current_member_id()) > 0;
+$$ LANGUAGE SQL STABLE;
 
 
 --
