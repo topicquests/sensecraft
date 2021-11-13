@@ -65,6 +65,7 @@ export enum ibis_node_type_enum {
   con = "con",
   reference = "reference",
   quest = "quest",
+  channel = "channel",
 }
 
 export type ibis_node_type_type = keyof typeof ibis_node_type_enum;
