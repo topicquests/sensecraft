@@ -159,6 +159,9 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     BEGIN
       curuser := current_user;
       NEW.updated_at := now();
+      IF NEW.permissions != OLD.permissions AND NOT public.has_permission('superuser') THEN
+        RAISE EXCEPTION 'Only superadmin can change user permissions';
+      END IF;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       IF ('superadmin' = ANY(NEW.permissions)) AND NOT ('superadmin' = ANY(OLD.permissions)) THEN
         EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.id;

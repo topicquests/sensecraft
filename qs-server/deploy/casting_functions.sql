@@ -25,6 +25,28 @@ BEGIN
   END IF;
 END$$;
 
+--
+-- Name: before_update_casting(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.before_update_casting() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      -- cannot change primary key
+      NEW.guild_id = OLD.guild_id;
+      NEW.quest_id = OLD.quest_id;
+      NEW.member_id = OLD.member_id;
+      IF NEW.permissions != OLD.permissions AND NOT public.has_guild_permission(NEW.guild_id, 'guildAdmin') THEN
+        RAISE EXCEPTION 'Only guildAdmin can change casting permissions';
+      END IF;
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS before_update_casting ON public.casting;
+CREATE TRIGGER before_update_casting BEFORE UPDATE ON public.casting FOR EACH ROW EXECUTE FUNCTION public.before_update_casting();
+
 ALTER TABLE public.casting ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS casting_delete_policy ON public.casting;

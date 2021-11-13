@@ -26,6 +26,36 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.guild_member_available_role
 GRANT USAGE ON SEQUENCE public.role_id_seq TO :dbm;
 
 --
+-- Name: before_update_role(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      IF NEW.guild_id IS NULL AND OLD.guild_id IS NOT NULL AND NOT public.has_permission('superadmin') THEN
+        RAISE EXCEPTION 'Only superadmin can make a guild role into a system role';
+      END IF;
+      IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
+        RAISE EXCEPTION 'Cannot change a system role into a guild role';
+      END IF;
+      IF NEW.permissions != OLD.permissions THEN
+        IF NEW.guild_id IS NULL AND NOT public.has_permission('superadmin') THEN
+          RAISE EXCEPTION 'Only superadmin can change system role permissions';
+        END IF;
+        IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'guildAdmin') THEN
+          RAISE EXCEPTION 'Only guildAdmin can change guild role permissions';
+        END IF;
+      END IF;
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS before_update_role ON public.role;
+CREATE TRIGGER before_update_role BEFORE UPDATE ON public.role FOR EACH ROW EXECUTE FUNCTION public.before_update_role();
+
+
+--
 -- Name: role; Type: ROW SECURITY
 --
 

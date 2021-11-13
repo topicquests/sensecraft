@@ -26,6 +26,9 @@ DROP POLICY IF EXISTS guild_member_available_role_update_policy on public.guild_
 DROP POLICY IF EXISTS guild_member_available_role_select_policy on public.guild_member_available_role;
 ALTER TABLE public.guild_member_available_role DISABLE ROW LEVEL SECURITY;
 
+DROP TRIGGER IF EXISTS before_update_role ON public.role;
+DROP FUNCTION IF EXISTS before_update_role();
+
 DROP FUNCTION IF EXISTS public.has_game_permission(quest_id integer, perm public.permission);
 
 COMMIT;
