@@ -150,6 +150,10 @@ CREATE OR REPLACE FUNCTION public.has_game_permission(quest_id integer, perm pub
     DECLARE guild_id integer;
     DECLARE casting_permissions public.permission[];
     BEGIN
+      -- do we care about quest permissions?
+      IF public.has_quest_permission(quest_id, perm) THEN
+        RETURN TRUE;
+      END IF;
       SELECT guild_id, permissions INTO STRICT guild_id, casting_permissions FROM public.casting WHERE quest_id = quest_id AND member_id == current_member_id();
       IF guild_id IS NULL THEN
         RETURN FALSE;
@@ -160,17 +164,14 @@ CREATE OR REPLACE FUNCTION public.has_game_permission(quest_id integer, perm pub
       IF public.has_guild_permission(guild_id, perm) THEN
         RETURN TRUE;
       END IF;
-      -- do we care about quest permissions?
-      IF public.has_quest_permission(quest_id, perm) THEN
-        RETURN TRUE;
-      END IF;
-      RETURN (SELECT count(*) FROM public.role
-        JOIN public.role_casting ON (
-          role_casting.role_id = role.id AND
+      RETURN (SELECT count(*) FROM public.role_casting
+        JOIN public.role ON 
+          role_casting.role_id = role.id
+        WHERE
           role_casting.member_id = current_member_id() AND
           role_casting.quest_id = quest_id AND
-          role_casting.guild_id = guild_id)
-        WHERE role.permissions && perm) > 0;
+          role_casting.guild_id = guild_id AND
+          role.permissions && perm) > 0;
       END;
       $$;
 
