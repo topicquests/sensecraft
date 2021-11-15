@@ -6,7 +6,13 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
-import { Guild, GuildMembership, GamePlay, Quest } from "../types";
+import {
+  Guild,
+  GuildMembership,
+  GamePlay,
+  Quest,
+  GuildMemberAvailableRole,
+} from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
 interface GuildMap {
@@ -293,6 +299,32 @@ export const guilds = new MyVapi<GuildsState>({
       MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
     },
   })
+  .post({
+    action: "addGuildMemberAvailableRole",
+    path: "/guild_member_available_role",
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<GuildMemberAvailableRole[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      const availableRole = res.data[0];
+      MyVapi.store.commit(
+        "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+        availableRole
+      );
+    },
+  })
+  .patch({
+    action: "updateGuildMemberAvailable",
+    path: "/guild_member_available_role",
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<GuildMembership[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {},
+  })
   .call({
     action: "registerAllMembers",
     path: "register_all_members",
@@ -344,6 +376,14 @@ type GuildsRestActionTypes = {
   updateGuildMembership: RestDataActionType<
     Partial<GuildMembership>,
     GuildMembership[]
+  >;
+  addGuildMemberAvailableRole: RestDataActionType<
+    Partial<GuildMemberAvailableRole>,
+    GuildMemberAvailableRole[]
+  >;
+  updateGuildMemberAvailableRole: RestDataActionType<
+    Partial<GuildMemberAvailableRole>,
+    GuildMemberAvailableRole[]
   >;
   registerAllMembers: RestParamActionType<
     { questId: number; guildId: number },

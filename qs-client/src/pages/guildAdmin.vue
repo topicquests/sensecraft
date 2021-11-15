@@ -122,6 +122,13 @@
         id="qselect"
       >
       </q-select>
+      <q-btn
+        class="col-1 q-ma-md"
+        color="blue"
+        label="Add"
+        @click="updateAvailablePermissions(member.id)"
+      >
+      </q-btn>
     </div>
   </q-page>
 </template>
@@ -175,7 +182,11 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "addGamePlay"]),
-    ...mapActions("guilds", ["ensureGuild", "setCurrentGuild"]),
+    ...mapActions("guilds", [
+      "ensureGuild",
+      "setCurrentGuild",
+      "addGuildMemberAvailableRole",
+    ]),
     ...mapActions("role", ["ensureAllRoles"]),
   },
 })
@@ -222,6 +233,32 @@ export default class GuildAdminPage extends Vue {
       sortable: true,
     },
   ];
+  columns2 = [
+    {
+      name: "member",
+      required: true,
+      label: "Member",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+    {
+      name: "permissions",
+      required: true,
+      label: "Permissions",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+    {
+      name: "update",
+      required: true,
+      label: "Update",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+  ];
   guildGamePlays: GamePlay[] = [];
   pastQuests: Quest[] = [];
   activeQuests: Quest[] = [];
@@ -235,8 +272,8 @@ export default class GuildAdminPage extends Vue {
   selectedNode: ConversationNode = null;
   focusNode: ConversationNode = null;
   guildId: number = null;
-  role: null;
   rolesByMember: { [key: number]: number[] } = {};
+  availableRoles: GuildMemberAvailableRole[] = [];
 
   // declare state bindings for TypeScript
   member!: MemberState["member"];
@@ -258,6 +295,7 @@ export default class GuildAdminPage extends Vue {
   addGamePlay!: QuestsActionTypes["addGamePlay"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
+  addGuildMemberAvailableRole!: GuildsActionTypes["addGuildMemberAvailableRole"];
 
   async initialize() {
     await this.setCurrentGuild(this.guildId);
@@ -336,15 +374,34 @@ export default class GuildAdminPage extends Vue {
     return [];
   }
   playingAsGuildId(quest_id, member_id) {
-    console.log("Quest id and member id ", quest_id, " ", member_id);
     return this.castingInQuest(quest_id, member_id)?.guild_id;
   }
   roleAdded(member_id, role_id) {
-    console.log("added", member_id, role_id);
+    this.availableRoles = [];
+
+    console.log("member id ", member_id);
+    const role = {
+      member_id: member_id,
+      guild_id: this.guildId,
+      role_id: role_id,
+    };
+    this.availableRoles.push(role);
   }
 
   roleRemoved(member_id, role_id) {
     console.log("removed", member_id, role_id);
+  }
+
+  async updateAvailablePermissions(id) {
+    console.log("length ", this.availableRoles.length);
+    await this.addGuildMemberAvailableRole({
+      data: {
+        member_id: this.availableRoles[0].member_id,
+        guild_id: this.availableRoles[0].guild_id,
+        role_id: this.availableRoles[0].role_id,
+      },
+    });
+    console.log("added", this.availableRoles);
   }
 
   async beforeMount() {
