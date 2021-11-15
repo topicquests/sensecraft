@@ -66,12 +66,12 @@ CREATE POLICY casting_update_policy ON public.casting FOR UPDATE USING (
   (member_id = current_member_id() AND public.is_guild_id_member(guild_id)) OR public.is_guild_id_leader(guild_id));
 
 DROP INDEX IF EXISTS public.casting_member_id_idx;
-CREATE INDEX casting_member_id_idx ON casting (member_id);
+CREATE INDEX casting_member_id_idx ON casting USING HASH (member_id);
 
 DROP INDEX IF EXISTS public.casting_guild_id_idx;
-CREATE INDEX casting_guild_id_idx ON casting (guild_id);
+CREATE INDEX casting_guild_id_idx ON casting USING HASH (guild_id);
 
 DROP INDEX IF EXISTS public.casting_quest_id_idx;
-CREATE INDEX casting_quest_id_idx ON casting (quest_id);
+CREATE INDEX casting_quest_id_idx ON casting USING HASH (quest_id);
 
 COMMIT;

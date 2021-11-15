@@ -93,9 +93,9 @@ DROP POLICY IF EXISTS game_play_update_policy ON public.game_play;
 CREATE POLICY game_play_update_policy ON public.game_play FOR UPDATE USING ((public.is_quest_id_member(quest_id) OR public.has_guild_permission(guild_id, 'joinQuest'::public.permission)));
 
 DROP INDEX IF EXISTS public.game_play_guild_id_idx;
-CREATE INDEX game_play_guild_id_idx ON game_play (guild_id);
+CREATE INDEX game_play_guild_id_idx ON game_play USING HASH (guild_id);
 
 DROP INDEX IF EXISTS public.game_play_quest_id_idx;
-CREATE INDEX game_play_quest_id_idx ON game_play (quest_id);
+CREATE INDEX game_play_quest_id_idx ON game_play USING HASH (quest_id);
 
 COMMIT;
