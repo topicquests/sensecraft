@@ -391,7 +391,7 @@ export default class GuildAdminPage extends Vue {
   async roleRemoved(member_id, role_id) {
     const guild_id = this.guildId;
     await this.deleteGuildMemberAvailableRole({
-      data: { member_id, guild_id, role_id },
+      params: { member_id, guild_id, role_id },
     });
   }
 

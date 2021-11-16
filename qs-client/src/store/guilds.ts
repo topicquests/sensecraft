@@ -327,8 +327,8 @@ export const guilds = new MyVapi<GuildsState>({
   })
   .delete({
     action: "deleteGuildMemberAvailableRole",
-    path: "/guild_member_available_role?member_id=eq.{member_id}&guild_id=eq.{guild_id}&role_id=eq.{role_id}",
-    queryParams: true,
+    path: ({ member_id, guild_id, role_id }) =>
+      `/guild_member_available_role?member_id=eq.${member_id}&guild_id=eq.${guild_id}&role_id=eq.${role_id}`,
     onSuccess: (
       state: GuildsState,
       res: AxiosResponse<GuildMemberAvailableRole[]>,
@@ -402,7 +402,7 @@ type GuildsRestActionTypes = {
     Partial<GuildMemberAvailableRole>,
     GuildMemberAvailableRole[]
   >;
-  deleteGuildMemberAvailableRole: RestDataActionType<
+  deleteGuildMemberAvailableRole: RestParamActionType<
     Partial<GuildMemberAvailableRole>,
     GuildMemberAvailableRole[]
   >;
