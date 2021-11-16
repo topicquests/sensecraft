@@ -97,38 +97,41 @@
         </div>
       </div>
     </div>
-    <div class="row" v-for="member in getGuildMembers()" :key="member.id">
-      <span class="col-1"> {{ member.handle }} </span>
-      <q-select
-        class="col-1"
-        :multiple="true"
-        v-model="rolesByMember[member.id]"
-        @add="
-          (details) => {
-            roleAdded(member.id, details.value);
-          }
-        "
-        @remove="
-          (details) => {
-            roleRemoved(member.id, details.value);
-          }
-        "
-        :options="getRoles"
-        option-label="name"
-        option-value="id"
-        label="Role"
-        emit-value
-        map-options
-        id="qselect"
-      >
-      </q-select>
-      <q-btn
-        class="col-1 q-ma-md"
-        color="blue"
-        label="Add"
-        @click="updateAvailablePermissions(member.id)"
-      >
-      </q-btn>
+    <div class="row justify-center">
+      <q-card style="width: 25%">
+        <div class="row justify-center">
+          <H5>Members Available Roles </H5>
+        </div>
+        <div style="width: 100%">
+          <div v-for="member in getGuildMembers()" :key="member.id">
+            <div class="row">
+              <h7 class="q-pl-md" style="width: 25%">{{ member.handle }}</h7>
+              <q-select
+                :multiple="true"
+                v-model="rolesByMember[member.id]"
+                @add="
+                  (details) => {
+                    roleAdded(member.id, details.value);
+                  }
+                "
+                @remove="
+                  (details) => {
+                    roleRemoved(member.id, details.value);
+                  }
+                "
+                :options="getRoles"
+                option-label="name"
+                option-value="id"
+                label="Role"
+                emit-value
+                map-options
+                id="qselect"
+              >
+              </q-select>
+            </div>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -145,7 +148,7 @@ import {
   GuildsActionTypes,
 } from "../store/guilds";
 import { MemberState } from "../store/member";
-import { MembersGetterTypes } from "../store/members";
+import { MembersActionTypes, MembersGetterTypes } from "../store/members";
 import {
   registration_status_enum,
   quest_status_enum,
@@ -186,8 +189,10 @@ import { BaseGetterTypes } from "../store/baseStore";
       "ensureGuild",
       "setCurrentGuild",
       "addGuildMemberAvailableRole",
+      "deleteGuildMemberAvailableRole",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("members", ["ensureMembersOfGuild"]),
   },
 })
 export default class GuildAdminPage extends Vue {
@@ -265,7 +270,6 @@ export default class GuildAdminPage extends Vue {
   potentialQuests: Quest[] = [];
   questGamePlay: GamePlay[] = [];
   isAdmin = false;
-  members: Member[] = [];
   label = "";
   questId: number = null;
   gamePlay: GamePlay = null;
@@ -296,9 +300,10 @@ export default class GuildAdminPage extends Vue {
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
   addGuildMemberAvailableRole!: GuildsActionTypes["addGuildMemberAvailableRole"];
+  ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
+  deleteGuildMemberAvailableRole!: GuildsActionTypes["deleteGuildMemberAvailableRole"];
 
   async initialize() {
-    await this.setCurrentGuild(this.guildId);
     // should be useful but unused for now
     // const memb = await this.getGuildMembers();
     const playQuestIds = this.getCurrentGuild.game_play.map(
@@ -376,44 +381,32 @@ export default class GuildAdminPage extends Vue {
   playingAsGuildId(quest_id, member_id) {
     return this.castingInQuest(quest_id, member_id)?.guild_id;
   }
-  roleAdded(member_id, role_id) {
-    this.availableRoles = [];
-
-    console.log("member id ", member_id);
-    const role = {
-      member_id: member_id,
-      guild_id: this.guildId,
-      role_id: role_id,
-    };
-    this.availableRoles.push(role);
-  }
-
-  roleRemoved(member_id, role_id) {
-    console.log("removed", member_id, role_id);
-  }
-
-  async updateAvailablePermissions(id) {
-    console.log("length ", this.availableRoles.length);
+  async roleAdded(member_id, role_id) {
+    const guild_id = this.guildId;
     await this.addGuildMemberAvailableRole({
-      data: {
-        member_id: this.availableRoles[0].member_id,
-        guild_id: this.availableRoles[0].guild_id,
-        role_id: this.availableRoles[0].role_id,
-      },
+      data: { member_id, guild_id, role_id },
     });
-    console.log("added", this.availableRoles);
+  }
+
+  async roleRemoved(member_id, role_id) {
+    const guild_id = this.guildId;
+    await this.deleteGuildMemberAvailableRole({
+      data: { member_id, guild_id, role_id },
+    });
   }
 
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
+    await this.setCurrentGuild(this.guildId);
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),
       this.ensureAllRoles(),
+      this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
     this.rolesByMember = Object.fromEntries(
-      this.members.map((m: Member) => [
+      this.getGuildMembers().map((m: Member) => [
         m.id,
         m.guild_member_available_role.map(
           (r: GuildMemberAvailableRole) => r.role_id

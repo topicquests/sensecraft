@@ -325,6 +325,23 @@ export const guilds = new MyVapi<GuildsState>({
       actionParams
     ) => {},
   })
+  .delete({
+    action: "deleteGuildMemberAvailableRole",
+    path: "/guild_member_available_role?member_id=eq.{member_id}&guild_id=eq.{guild_id}&role_id=eq.{role_id}",
+    queryParams: true,
+    onSuccess: (
+      state: GuildsState,
+      res: AxiosResponse<GuildMemberAvailableRole[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      const availableRole = res.data[0];
+      MyVapi.store.commit(
+        "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+        availableRole
+      );
+    },
+  })
   .call({
     action: "registerAllMembers",
     path: "register_all_members",
@@ -382,6 +399,10 @@ type GuildsRestActionTypes = {
     GuildMemberAvailableRole[]
   >;
   updateGuildMemberAvailableRole: RestDataActionType<
+    Partial<GuildMemberAvailableRole>,
+    GuildMemberAvailableRole[]
+  >;
+  deleteGuildMemberAvailableRole: RestDataActionType<
     Partial<GuildMemberAvailableRole>,
     GuildMemberAvailableRole[]
   >;
