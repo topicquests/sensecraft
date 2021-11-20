@@ -21,7 +21,7 @@
                 :label="quest.name"
               >
                 <q-btn
-                  v-if="isMember && !findGuildOfCasting(quest.casting)"
+                  v-if="isMember && !guildPerQuest[quest.id]"
                   label="Play"
                   @click="prompt = true"
                   style="margin-right: 1em"
@@ -29,12 +29,12 @@
                 />
                 <router-link
                   v-if="
-                    findGuildOfCasting(quest.casting) &&
-                    findGuildOfCasting(quest.casting) != currentGuildId
+                    guildPerQuest[quest.id] &&
+                    guildPerQuest[quest.id] != currentGuildId
                   "
                   :to="{
                     name: 'guild',
-                    params: { guild_id: findGuildOfCasting(quest.casting) },
+                    params: { guild_id: guildPerQuest[quest.id] },
                   }"
                   >Playing in guild</router-link
                 >
@@ -93,8 +93,8 @@
               <span v-if="playingAsGuildId(member.id)" style="color: black">
                 <span v-if="playingAsGuildId(member.id) == currentGuildId">
                   {{
-                    getCastingRolesForQuest(member.id, currentQuestId)
-                      .map((role) => role.name)
+                    (castingRolesPerQuest[currentQuestId] || [])
+                      .map((cr) => allRoles[cr.role_id].name)
                       .join(",")
                   }}
                 </span>
@@ -254,24 +254,21 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
       currentQuestId: (state: QuestsState) => state.currentQuest,
     }),
     ...mapState("role", {
-      castingRole: (state: RoleState) => state.role,
+      allRoles: (state: RoleState) => state.role,
     }),
     currentQuestIdS: {
       get: function () {
         return this.currentQuestId;
       },
       set: function (value) {
-        console.log("Casting role ", this.castingRole, value);
         this.setCurrentQuest(value);
       },
     },
     castingRoleIds: {
       get: function () {
-        console.log("Casting role ", this.castingRole);
-        return this.castingRole.role_id;
+        return this.allRoles.role_id;
       },
       set: function (value) {
-        console.log("Casting role ", this.castingRole, value);
         this.setCastingRole(value);
       },
     },
@@ -298,7 +295,11 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
       "getCurrentGuild",
     ]),
     ...mapGetters("role", ["getRoleById"]),
-    ...mapGetters("member", ["getMembersAvailableRoles"]),
+    ...mapGetters("member", [
+      "getMembersAvailableRoles",
+      "guildPerQuest",
+      "castingRolesPerQuest",
+    ]),
     ...mapState("conversation", {
       rootNode: (state: ConversationState) => state.conversationRoot,
     }),
@@ -408,7 +409,7 @@ export default class GuildPage extends Vue {
   memberId: number;
   rootNode!: ConversationState["conversationRoot"];
   currentQuestIdS!: number;
-  availableRoles!: RoleState;
+  allRoles!: RoleState["role"];
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -429,6 +430,8 @@ export default class GuildPage extends Vue {
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMembersAvailableRoles!: MemberGetterTypes["getMembersAvailableRoles"];
+  guildPerQuest!: MemberGetterTypes["guildPerQuest"];
+  castingRolesPerQuest!: MemberGetterTypes["castingRolesPerQuest"];
   // getGamePlayByGuildIdAndQuestId!: ReturnType<
   //   GuildsGetterTypes["getGamePlayByGuildIdAndQuestId"]
   // >;
@@ -578,11 +581,6 @@ export default class GuildPage extends Vue {
       return gamePlays.find(
         (gp: GamePlay) => gp.guild_id == this.currentGuildId
       );
-  }
-  findGuildOfCasting(castings) {
-    if (castings)
-      return castings.find((ct: Casting) => ct.member_id == this.memberId)
-        ?.guild_id;
   }
   async doAddCasting(quest_id: number) {
     await this.addCasting({
