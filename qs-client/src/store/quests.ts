@@ -13,6 +13,7 @@ import {
   QuestMembership,
   GamePlay,
   CastingRole,
+  Role,
 } from "../types";
 import { quest_status_enum } from "../enums";
 import { RoleState } from "./role";
@@ -83,23 +84,29 @@ const QuestsGetters = {
       );
     }
   },
-  getCastingRole: (state) => {
-    const castingRole = MyVapi.store.getters["member/getCastingRole"];
-    const role = MyVapi.store.getters["role/getRoleById"](
-      castingRole[0].role_id
-    );
-    return role;
-  },
-  getCastingRoles: (state) => (param) => {
-    const castingRole = MyVapi.store.getters["members/getPlayersRoles"](param);
-    const playerRole = castingRole.filter(
-      (role) => role.quest_id == param.quest_id
-    );
-    const role = playerRole.map((pr) =>
-      MyVapi.store.getters["role/getRoleById"](pr.role_id)
-    );
-    return role;
-  },
+  getCastingRoles:
+    (state) =>
+    (member_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const roles = castingRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
+  getCastingRolesForQuest:
+    (state) =>
+    (member_id: number, quest_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const playerRoles = castingRoles.filter(
+        (role) => role.quest_id == quest_id
+      );
+      const roles = playerRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
 };
 
 export const QuestsActions = {
@@ -383,11 +390,13 @@ export const quests = new MyVapi<QuestsState>({
     ) => {
       const casting = res.data[0];
       console.log(res);
-      const quest = state.quests[casting.quest_id];
+      let quest = state.quests[casting.quest_id];
       if (quest) {
         if (quest.casting === undefined) quest.casting = [];
         quest.casting.push(casting);
       }
+      quest = { ...quest };
+      state.quests = { [quest.id]: quest, ...state.quests };
       const store = MyVapi.store;
       if ((casting.member_id = store.getters["member/getUserId"])) {
         store.commit("member/ADD_CASTING", casting);

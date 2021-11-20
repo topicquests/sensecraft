@@ -6,7 +6,7 @@
           <h2>
             {{ getCurrentGuild.name }}
             <router-link
-              :to="{ name: 'guild', params: { guild_id: currentGuildId } }"
+              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.idd } }"
               style="font-size: smaller"
               >Guild</router-link
             >
@@ -52,7 +52,7 @@
                 <span
                   v-if="
                     !props.row.game_play.find(function (gp) {
-                      return gp.guild_id == currentGuildId;
+                      return gp.guild_id == this.currentGuildId;
                     })
                   "
                 >
@@ -402,8 +402,6 @@ export default class GuildAdminPage extends Vue {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
     await this.setCurrentGuild(this.guildId);
-    // eslint-disable-next-line no-debugger
-    debugger;
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),

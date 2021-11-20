@@ -314,6 +314,10 @@ export const guilds = new MyVapi<GuildsState>({
         "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
         availableRole
       );
+      MyVapi.store.commit(
+        "members/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+        availableRole
+      );
     },
   })
   .patch({

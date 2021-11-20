@@ -14,6 +14,7 @@ import {
   Quest,
   Casting,
   Guild,
+  GuildMemberAvailableRole,
 } from "../types";
 import { MemberState } from "./member";
 
@@ -61,8 +62,8 @@ const MembersGetters = {
     quest.casting
       .map((c: Casting) => state.members[c.member_id])
       .filter((member: PublicMember) => member),
-  getPlayersRoles: (state: MembersState) => (param) => {
-    return state.members[param.memberId].casting_role;
+  getPlayersRoles: (state: MembersState) => (member_id: number) => {
+    return state.members[member_id]?.casting_role;
   },
 };
 
@@ -223,6 +224,26 @@ export const members = new MyVapi<MembersState>({
   .getVuexStore({
     getters: MembersGetters,
     actions: MembersActions,
+    mutations: {
+      ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
+        state: MembersState,
+        guild_Member_Available_Role: GuildMemberAvailableRole
+      ) => {
+        const member_id = guild_Member_Available_Role.member_id;
+        let member = state.members[member_id];
+        if (member) {
+          const guildMemberAvailableRoles =
+            member.guild_member_available_role.filter(
+              (a: GuildMemberAvailableRole) =>
+                a.role_id != guild_Member_Available_Role.role_id
+            ) || [];
+          guildMemberAvailableRoles.push(guild_Member_Available_Role);
+          member.guild_member_available_role = guildMemberAvailableRoles;
+          member = { ...member };
+          state.members = { [member_id]: member, ...state.members };
+        }
+      },
+    },
   });
 
 type MembersRestActionTypes = {

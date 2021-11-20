@@ -116,6 +116,7 @@ export interface Guild {
 
 export interface Role {
   id: number;
+  name: string;
   guild_id: number;
   permissions: permission_type[];
   node_type_constraints: ibis_node_type_type[];

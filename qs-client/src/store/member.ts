@@ -46,7 +46,7 @@ const MemberGetters = {
     state.member.guild_member_available_role,
   getUserById: (state: MemberState) => (id: number) =>
     state.member?.id == id ? state.member : null,
-  getCastingRole: (state: MemberState) => state.member.casting_role,
+  getCastingRoles: (state: MemberState) => state.member.casting_role,
 };
 
 const MemberActions = {
@@ -295,13 +295,13 @@ export const member = new MyVapi<MemberState>({
       },
       ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
         state: MemberState,
-        guild_Member_Available_Role
+        guild_Member_Available_Role: GuildMemberAvailableRole
       ) => {
         if (state.member) {
           const guildMemberAvailableRoles =
             state.member.guild_member_available_role.filter(
               (a: GuildMemberAvailableRole) =>
-                a.role_id != guildMemberAvailableRoles.role_id
+                a.role_id != guild_Member_Available_Role.role_id
             ) || [];
           guildMemberAvailableRoles.push(guild_Member_Available_Role);
           state.member.guild_member_available_role = guildMemberAvailableRoles;
