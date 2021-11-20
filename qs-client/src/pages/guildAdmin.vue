@@ -2,7 +2,7 @@
   <q-page padding class="page">
     <div class="column items-center" v-if="potentialQuests.length > 0">
       <div class="col-4">
-        <q-card>
+        <q-card q-ma-md>
           <h2>
             {{ getCurrentGuild.name }}
             <router-link
@@ -82,7 +82,7 @@
       <div v-for="quest in activeQuests" :key="quest.id">
         <div class="col-6">
           <q-card
-            class="q-pa-md card"
+            class="q-pa-md q-ma-md card"
             style="border: 1px solid gray; min-width: 400px"
           >
             <h6 class="q-ma-sm">{{ quest.name }}</h6>
@@ -105,8 +105,11 @@
         <div style="width: 100%">
           <div v-for="member in getGuildMembers()" :key="member.id">
             <div class="row">
-              <h7 class="q-pl-md" style="width: 25%">{{ member.handle }}</h7>
+              <h7 class="q-pl-md q-pt-md" style="width: 25%">{{
+                member.handle
+              }}</h7>
               <q-select
+                class="q-pl-md"
                 :multiple="true"
                 v-model="rolesByMember[member.id]"
                 @add="
@@ -122,7 +125,6 @@
                 :options="getRoles"
                 option-label="name"
                 option-value="id"
-                label="Role"
                 emit-value
                 map-options
                 id="qselect"
@@ -392,6 +394,7 @@ export default class GuildAdminPage extends Vue {
     const guild_id = this.guildId;
     await this.deleteGuildMemberAvailableRole({
       params: { member_id, guild_id, role_id },
+      data: {},
     });
   }
 
@@ -399,6 +402,8 @@ export default class GuildAdminPage extends Vue {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await app.userLoaded;
     await this.setCurrentGuild(this.guildId);
+    // eslint-disable-next-line no-debugger
+    debugger;
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),

@@ -15,6 +15,7 @@ import {
   Casting,
   Guild,
 } from "../types";
+import { MemberState } from "./member";
 
 interface MemberMap {
   [key: number]: PublicMember;
@@ -60,6 +61,9 @@ const MembersGetters = {
     quest.casting
       .map((c: Casting) => state.members[c.member_id])
       .filter((member: PublicMember) => member),
+  getPlayersRoles: (state: MembersState) => (param) => {
+    return state.members[param.memberId].casting_role;
+  },
 };
 
 const MembersActions = {

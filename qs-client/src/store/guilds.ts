@@ -15,6 +15,7 @@ import {
 } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
+import { MemberState } from "./member";
 interface GuildMap {
   [key: number]: Guild;
 }
