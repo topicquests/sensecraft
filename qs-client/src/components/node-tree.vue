@@ -23,7 +23,7 @@ import { Prop } from "vue/types/options";
 import type { QTreeNode } from "../store/conversation";
 const NodeTreeProps = Vue.extend({
   props: {
-    nodes: Object as Prop<QTreeNode[]>,
+    nodes: Array as Prop<QTreeNode[]>,
   },
 });
 @Component<NodeTree>({

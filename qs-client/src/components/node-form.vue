@@ -17,14 +17,14 @@
     </section>
     <section>
       <template v-if="editing">
-        <span v-html="node.description" class="node-card-details" />
-      </template>
-      <template v-else>
         <q-editor
           v-model="description"
           style="width: 98%"
           class="q-editor node-card-details"
         />
+      </template>
+      <template v-else>
+        <span v-html="node.description" class="node-card-details" />
       </template>
     </section>
     <section v-if="editing">

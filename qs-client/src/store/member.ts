@@ -8,7 +8,14 @@ import {
 } from "./base";
 import { Notify } from "quasar";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { Member, GuildMembership, QuestMembership, Casting } from "../types";
+import {
+  Member,
+  GuildMembership,
+  QuestMembership,
+  Casting,
+  CastingRole,
+  GuildMemberAvailableRole,
+} from "../types";
 
 export interface MemberState {
   member: Member;
@@ -35,8 +42,11 @@ const MemberGetters = {
   getUser: (state: MemberState) => state.member,
   getUserEmail: (state: MemberState) => state.email,
   getUserId: (state: MemberState) => state.member?.id,
+  getMembersAvailableRoles: (state: MemberState) =>
+    state.member.guild_member_available_role,
   getUserById: (state: MemberState) => (id: number) =>
     state.member?.id == id ? state.member : null,
+  getCastingRoles: (state: MemberState) => state.member.casting_role,
 };
 
 const MemberActions = {
@@ -148,7 +158,7 @@ export const member = new MyVapi<MemberState>({
         params.email = `eq.${state.email}`;
       }
       params.select =
-        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*)";
+        "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
     },
     onSuccess: (
       state: MemberState,
@@ -270,6 +280,31 @@ export const member = new MyVapi<MemberState>({
             ) || [];
           castings.push(casting);
           state.member.casting = castings;
+        }
+      },
+      ADD_CASTING_ROLE: (state: MemberState, casting_role) => {
+        const member_id = MyVapi.store.getters["member/getUserId"];
+        if (state.member) {
+          const castingRoles =
+            state.member.casting_role.filter(
+              (cr: CastingRole) => cr.role_id != casting_role.role_id
+            ) || [];
+          castingRoles.push(casting_role);
+          state.member.casting_role = castingRoles;
+        }
+      },
+      ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
+        state: MemberState,
+        guild_Member_Available_Role: GuildMemberAvailableRole
+      ) => {
+        if (state.member) {
+          const guildMemberAvailableRoles =
+            state.member.guild_member_available_role.filter(
+              (a: GuildMemberAvailableRole) =>
+                a.role_id != guild_Member_Available_Role.role_id
+            ) || [];
+          guildMemberAvailableRoles.push(guild_Member_Available_Role);
+          state.member.guild_member_available_role = guildMemberAvailableRoles;
         }
       },
       ADD_GUILD_MEMBERSHIP: (state: MemberState, membership) => {

@@ -7,8 +7,16 @@ import {
   RetypeGetterTypes,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { Quest, Casting, QuestMembership, GamePlay } from "../types";
+import {
+  Quest,
+  Casting,
+  QuestMembership,
+  GamePlay,
+  CastingRole,
+  Role,
+} from "../types";
 import { quest_status_enum } from "../enums";
+import { RoleState } from "./role";
 interface QuestMap {
   [key: number]: Quest;
 }
@@ -76,11 +84,37 @@ const QuestsGetters = {
       );
     }
   },
+  getCastingRoles:
+    (state) =>
+    (member_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const roles = castingRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
+  getCastingRolesForQuest:
+    (state) =>
+    (member_id: number, quest_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const playerRoles = castingRoles.filter(
+        (role) => role.quest_id == quest_id
+      );
+      const roles = playerRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
 };
 
 export const QuestsActions = {
   setCurrentQuest: (context, quest_id: number) => {
     context.commit("SET_CURRENT_QUEST", quest_id);
+  },
+  setCastingRole: (context, role_id: number) => {
+    context.commit("SET_CASTING_ROLE", role_id);
   },
   ensureQuest: async (
     context,
@@ -104,6 +138,7 @@ export const QuestsActions = {
     await context.dispatch("fetchQuestById", { params: { id: quest_id } });
     // TODO: Get the membership from the quest
     await MyVapi.store.dispatch("member/fetchLoginUser");
+    return res.data[0];
   },
   ensureAllQuests: async (context) => {
     if (context.state.quests.length === 0 || !context.state.fullFetch) {
@@ -355,14 +390,16 @@ export const quests = new MyVapi<QuestsState>({
     ) => {
       const casting = res.data[0];
       console.log(res);
-      const quest = state.quests[casting.quest_id];
+      let quest = state.quests[casting.quest_id];
       if (quest) {
         if (quest.casting === undefined) quest.casting = [];
         quest.casting.push(casting);
       }
+      quest = { ...quest };
+      state.quests = { [quest.id]: quest, ...state.quests };
       const store = MyVapi.store;
       if ((casting.member_id = store.getters["member/getUserId"])) {
-        store.commit("member/addCasting", casting);
+        store.commit("member/ADD_CASTING", casting);
       }
     },
   })
@@ -391,7 +428,52 @@ export const quests = new MyVapi<QuestsState>({
       }
       const store = MyVapi.store;
       if ((casting.member_id = store.getters["member/getUserId"])) {
-        store.commit("member/addCasting", casting);
+        store.commit("member/ADD_CASTING", casting);
+      }
+    },
+  })
+  .post({
+    action: "addCastingRole",
+    path: "/casting_role",
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<CastingRole[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      const castingRole = res.data[0];
+      const store = MyVapi.store;
+      if ((castingRole.member_id = store.getters["member/getUserId"])) {
+        store.commit("member/ADD_CASTING_ROLE", castingRole);
+      }
+    },
+  })
+  .patch({
+    action: "updateCasting",
+    path: ({ id }) => `/casting?id=eq.${id}`,
+    beforeRequest: (state: QuestsState, { params, data }) => {
+      params.id = data.id;
+    },
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<Casting[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      const casting = res.data[0];
+      console.log(res);
+      const quest = state.quests[casting.quest_id];
+      if (quest) {
+        const castings =
+          quest.casting?.filter(
+            (gp: Casting) => gp.quest_id !== casting.quest_id
+          ) || [];
+        castings.push(casting);
+        quest.casting = castings;
+      }
+      const store = MyVapi.store;
+      if ((casting.member_id = store.getters["member/getUserId"])) {
+        store.commit("member/ADD_CASTING", casting);
       }
     },
   })
@@ -403,6 +485,7 @@ export const quests = new MyVapi<QuestsState>({
       SET_CURRENT_QUEST: (state: QuestsState, quest_id: number) => {
         state.currentQuest = quest_id;
       },
+      SET_CASTING_ROLE: (state: RoleState, role_id: number) => {},
       CLEAR_STATE: (state: QuestsState) => {
         Object.assign(state, baseState);
       },
@@ -432,6 +515,8 @@ type QuestsRestActionTypes = {
   updateGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
   addCasting: RestDataActionType<Partial<Casting>, Casting[]>;
   updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
+  addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
+  updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
 };
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &

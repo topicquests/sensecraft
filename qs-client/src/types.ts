@@ -42,6 +42,8 @@ export interface PublicMember {
   guild_membership?: GuildMembership[];
   quest_membership?: QuestMembership[];
   casting?: Casting[];
+  casting_role?: CastingRole[];
+  guild_member_available_role?: GuildMemberAvailableRole[];
 }
 
 export interface Member extends PublicMember {
@@ -114,6 +116,7 @@ export interface Guild {
 
 export interface Role {
   id: number;
+  name: string;
   guild_id: number;
   permissions: permission_type[];
   node_type_constraints: ibis_node_type_type[];

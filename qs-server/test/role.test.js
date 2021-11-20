@@ -1,17 +1,18 @@
 const assert = require('assert');
 const { axiosUtil } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } = require('./fixtures');
+const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo, superadmin } = require('./fixtures');
 
 describe('\'role\' service', () => {
   describe('guild creation', () => {
     var adminToken, quidamId, leaderId, playerId, sponsorId,
       publicGuildId, publicQuestId, sponsorToken, leaderToken,
-      quidamToken, playerToken, sysRoleId, guildRoleId;
+      quidamToken, playerToken, sysRoleId, guildRoleId, superadminId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
+      superadminId = await axiosUtil.call('create_member', superadmin);
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       playerId = await axiosUtil.call('create_member', guildPlayerInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
@@ -39,6 +40,8 @@ describe('\'role\' service', () => {
         await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
       if (quidamId)
         await axiosUtil.delete('members', {id: quidamId}, adminToken);
+      if (superadminId)
+        await axiosUtil.delete('members', {id: superadminId}, adminToken);
       if (leaderId)
         await axiosUtil.delete('members', {id: leaderId}, adminToken);
       if (playerId)
@@ -102,6 +105,7 @@ describe('\'role\' service', () => {
         const registers = await axiosUtil.get('casting', game_play_id, leaderToken);
         assert.equal(registers.length, 3);
         const quidam_r = registers.find(r => r.member_id == quidamId);
+        console.log(registers);
         assert.ok(quidam_r);
       });
       //Role tests

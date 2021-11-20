@@ -108,7 +108,6 @@ ALTER TABLE public.guild_member_available_role ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS guild_member_available_role_insert_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_insert_policy ON public.guild_member_available_role FOR INSERT WITH CHECK (
     public.has_guild_permission(guild_id, 'guildAdmin'));
-
 --
 -- Name: guild_member_available_role guild_member_available_role_delete_policy; Type: POLICY
 --

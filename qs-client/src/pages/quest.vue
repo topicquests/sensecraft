@@ -52,60 +52,7 @@ import app from "../App.vue";
 
 export default {
   props: ["member"],
-  data() {
-    return {
-      columns: [
-        {
-          name: "desc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "public",
-          required: false,
-          label: "Public",
-          align: "left",
-          field: "public",
-          sortable: true,
-        },
-        {
-          name: "status",
-          required: false,
-          label: "Status",
-          align: "left",
-          field: "status",
-          sortable: true,
-        },
-        {
-          name: "date",
-          required: true,
-          label: "Date",
-          align: "left",
-          field: "created_at",
-          sortable: true,
-        },
-        {
-          name: "nodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-    };
-  },
+
   components: {
     scoreboard: scoreboard,
     QuestTable,
