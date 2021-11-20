@@ -669,9 +669,7 @@ export default class GuildPage extends Vue {
     await this.ensureMembersOfGuild({ guildId: this.guildId });
     await this.initialize();
     this.getAvailableRoles();
-    console.log("Current roles ", this.roles);
     const roleName = this.getCastingRole;
-    console.log("This casting role", roleName.name);
   }
 }
 </script>

@@ -98,7 +98,7 @@ const QuestsGetters = {
     const role = playerRole.map((pr) =>
       MyVapi.store.getters["role/getRoleById"](pr.role_id)
     );
-    return role[0];
+    return role;
   },
 };
 
