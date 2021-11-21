@@ -19,7 +19,7 @@
 </template>
 <script lang="ts">
 export default {
-  name: "scoreboard",
+  name: "scoreBoard",
   data() {
     return {};
   },

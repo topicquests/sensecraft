@@ -10,7 +10,7 @@
 import { mapState } from "vuex";
 export default {
   // props: ['member'],
-  name: "Member",
+  name: "memberHandle",
   data() {
     return {};
   },

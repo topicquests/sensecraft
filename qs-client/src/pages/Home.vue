@@ -56,6 +56,7 @@ import { mapActions } from "vuex";
 import app from "../App.vue";
 
 export default {
+  name: "HomePage",
   data() {
     return {
       payload: 100,

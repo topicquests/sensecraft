@@ -17,7 +17,7 @@ const routes = [
       {
         path: "/landing",
         name: "landingPage",
-        component: () => import("pages/Landing-page.vue"),
+        component: () => import("src/pages/LandingPage.vue"),
       },
       {
         path: "/lobby",
@@ -26,63 +26,57 @@ const routes = [
       },
       //Quest pages
       {
-        // What is the intent of this page?
-        path: "/quest/app",
-        name: "quests",
-        component: () => import("pages/Quest-app.vue"),
-      },
-      {
         path: "/quest",
         name: "quest_list",
-        component: () => import("pages/quest.vue"),
+        component: () => import("pages/QuestList.vue"),
       },
       {
         // suggestion: fuse quest_list and quest-landing pages
         path: "/quest/landing",
-        name: "quest-landing",
-        component: () => import("pages/Quest-landing.vue"),
+        name: "quest_landing",
+        component: () => import("pages/QuestLanding.vue"),
       },
       {
         path: "/quest/create",
         name: "create_quest",
-        component: () => import("pages/questForm.vue"),
+        component: () => import("pages/CreateQuest.vue"),
       },
       {
         path: "/quest/:quest_id/edit",
         name: "quest_edit",
-        component: () => import("pages/questEdit.vue"),
+        component: () => import("pages/QuestEdit.vue"),
       },
       {
         // what is the intent of this page?
         path: "/quest/:quest_id/request",
-        name: "questRequest",
-        component: () => import("pages/questRequest.vue"),
+        name: "quest_request",
+        component: () => import("pages/QuestRequest.vue"),
       },
       {
         path: "/quest/:quest_id",
         name: "quest_page",
-        component: () => import("pages/questview.vue"),
+        component: () => import("pages/QuestPage.vue"),
       },
       {
         path: "/guild",
         name: "guild_list",
-        component: () => import("pages/Guilds.vue"),
+        component: () => import("pages/GuildList.vue"),
       },
       {
         // suggestion: fuse guild_list and guild-landing pages
         path: "/guild/landing",
-        name: "guild-landing",
-        component: () => import("pages/Guild-landing.vue"),
+        name: "guild_landing",
+        component: () => import("pages/GuildLanding.vue"),
       },
       {
         path: "guild/create",
         name: "create_guild",
-        component: () => import("pages/guildForm.vue"),
+        component: () => import("pages/CreateGuild.vue"),
       },
       {
         path: "/guild/:guild_id",
         name: "guild",
-        component: () => import("pages/Guild-app.vue"),
+        component: () => import("pages/Guild.vue"),
       },
       {
         path: "/guild/:guild_id/play/:quest_id",
@@ -92,12 +86,12 @@ const routes = [
       {
         path: "/guild/:guild_id/edit",
         name: "guild_edit",
-        component: () => import("pages/guildEdit.vue"),
+        component: () => import("pages/GuildEdit.vue"),
       },
       {
         path: "/guild/:guild_id/admin",
         name: "guild_admin",
-        component: () => import("pages/guildAdmin.vue"),
+        component: () => import("pages/GuildAdmin.vue"),
       },
       {
         path: "/register",
@@ -113,27 +107,27 @@ const routes = [
       {
         path: "/role/:id",
         name: "role",
-        component: () => import("pages/Role-room.vue"),
+        component: () => import("pages/Role.vue"),
       },
       // {
       //   path: "/node/:quest_id",
-      //   name: "node",
-      //   component: () => import("pages/mmowgli-node.vue"),
+      //   name: "conversation_column",
+      //   component: () => import("pages/ConversationColumn.vue"),
       // },
       {
         path: "/nodeEdit/:quest_id",
-        name: "nodeEditor",
+        name: "node_edit",
         component: () => import("pages/nodeEdit.vue"),
       },
       // {
       //   path: "/mnodeedit",
-      //   name: "mmowglieditor",
-      //   component: () => import("pages/mmowgli-node-form.vue"),
+      //   name: "conversation_column_edit",
+      //   component: () => import("pages/ConversationColumnEdit.vue"),
       // },
       {
         path: "/admin",
         name: "admin",
-        component: () => import("pages/Admin-app.vue"),
+        component: () => import("pages/Admin.vue"),
       },
     ],
   },

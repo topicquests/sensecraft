@@ -7,6 +7,7 @@
 <script lang="ts">
 export default {
   props: ["id"],
+  name: "RolePage",
   data() {
     return {
       label: "",

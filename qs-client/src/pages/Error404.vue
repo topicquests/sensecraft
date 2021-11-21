@@ -22,6 +22,6 @@
 
 <script lang="ts">
 export default {
-  name: "Error404",
+  name: "ErrorNotFound",
 };
 </script>

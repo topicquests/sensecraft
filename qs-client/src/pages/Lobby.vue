@@ -72,6 +72,7 @@ import { mapActions, mapState, mapGetters } from "vuex";
 import app from "../App.vue";
 
 export default {
+  name: "LobbyPage",
   props: ["guild"],
   data() {
     return {

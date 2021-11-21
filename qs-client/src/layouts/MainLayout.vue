@@ -82,7 +82,7 @@
             </div>
             <div v-if="hasPermission('createQuest')">
               <q-item>
-                <router-link :to="{ name: 'quest-landing' }">
+                <router-link :to="{ name: 'quest_landing' }">
                   Quest create
                 </router-link>
               </q-item>
@@ -96,7 +96,7 @@
             </div>
             <div v-if="hasPermission('createGuild')">
               <q-item>
-                <router-link :to="{ name: 'guild-landing' }">
+                <router-link :to="{ name: 'guild_landing' }">
                   Guild create
                 </router-link>
               </q-item>
