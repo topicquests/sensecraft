@@ -1,7 +1,6 @@
 -- Deploy sensecraft:casting to pg
 -- requires: quests
 -- requires: guilds
--- requires: game_play
 
 BEGIN;
 
@@ -20,9 +19,7 @@ CREATE TABLE IF NOT EXISTS public.casting (
     CONSTRAINT casting_quest_id_fkey FOREIGN KEY (quest_id)
       REFERENCES public.quests(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT casting_guild_id_fkey FOREIGN KEY (guild_id)
-      REFERENCES public.guilds(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT casting_game_play_fkey FOREIGN KEY (quest_id, guild_id)
-      REFERENCES public.game_play(quest_id, guild_id) ON UPDATE CASCADE ON DELETE CASCADE
+      REFERENCES public.guilds(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
