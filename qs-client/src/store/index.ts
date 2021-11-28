@@ -5,6 +5,7 @@ import { members } from "./members";
 import { member } from "./member";
 import { guilds } from "./guilds";
 import { conversation } from "./conversation";
+import { channel } from "./channel";
 import { role } from "./role";
 import { MyVapi } from "./base";
 import { BaseGetters } from "./baseStore";
@@ -19,6 +20,7 @@ const store = new Vuex.Store({
     quests,
     guilds,
     role,
+    channel,
   },
   getters: BaseGetters,
 });

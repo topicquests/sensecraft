@@ -53,7 +53,7 @@ export function ibis_child_types(
   }
 }
 
-interface ConversationMap {
+export interface ConversationMap {
   [key: number]: ConversationNode;
 }
 
@@ -65,14 +65,13 @@ export interface ConversationState extends Object {
   neighbourhoodRoot?: number;
   neighbourhood: ConversationMap;
   conversationRoot?: ConversationNode;
-  playChannels: ConversationMap;
 }
 
 function addToState(state: ConversationState, node: ConversationNode) {
   state.conversation = { ...state.conversation, [node.id]: node };
   if (!node.parent_id) {
     if (node.meta == meta_state_enum.channel) {
-      state.playChannels = { ...state.playChannels, [node.id]: node };
+      throw new Error("channels should not be called in conversation");
     } else {
       state.conversationRoot = node;
     }
@@ -131,7 +130,7 @@ export type QTreeNode = {
   icon?: string;
 };
 
-function makeTree(nodes: ConversationNode[]) {
+export function makeTree(nodes: ConversationNode[]) {
   if (nodes.length == 0) {
     return [];
   }
@@ -248,7 +247,6 @@ const baseState: ConversationState = {
   neighbourhoodRoot: null,
   neighbourhood: {},
   conversationRoot: null,
-  playChannels: {},
 };
 
 export const conversation = new MyVapi<ConversationState>({
@@ -316,27 +314,6 @@ export const conversation = new MyVapi<ConversationState>({
       addToState(state, res.data[0]);
     },
   })
-  .get({
-    path: ({ quest_id }: { quest_id: number }) => {
-      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.channel`;
-    },
-    property: "playChannels",
-    action: "fetchPlayChannels",
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      if (state.currentQuest !== params.quest_id) {
-        state.currentQuest = params.quest_id;
-        state.conversation = {};
-        state.neighbourhood = {};
-        state.neighbourhoodRoot = null;
-      }
-      addToState(state, res.data[0]);
-    },
-  })
   .call({
     path: "node_neighbourhood",
     property: "conversation",
@@ -348,8 +325,9 @@ export const conversation = new MyVapi<ConversationState>({
       axios: AxiosInstance,
       { params, data }
     ) => {
-      if (state.currentQuest !== params.quest_id) {
-        state.currentQuest = params.quest_id;
+      const firstNode = res.data[0];
+      if (state.currentQuest !== firstNode.quest_id) {
+        state.currentQuest = firstNode.quest_id;
         state.conversation = {};
         state.conversationRoot = null;
       }
@@ -430,7 +408,7 @@ type ConversationRestActionTypes = {
   fetchRootNode: RestParamActionType<{ quest_id: number }, ConversationNode[]>;
   fetchConversationNeighbourhood: RestParamActionType<
     {
-      quest_id: number;
+      guild: number;
       node_id: number;
     },
     ConversationNode[]

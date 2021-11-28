@@ -141,18 +141,18 @@ Global score for the quest
 * List of quests that the guild could play (in registration phase)
 
 v2: how is a guild aware of open quests on other servers? (gossip?)
-Link to meta-quest chat room
+Link to meta-quest chat channel
 
 ### game_conversation `/guild/:guild_id/quest/:quest_id/`
 
 If we're not part of this quest:
   registration button. (leads to prepare roster form, or same page?)
-  link to meta-quest chat room
+  link to meta-quest chat channel
 If we're registered, but quest has not started: Start date
 If the quest is active:
   Structured conversation: Start from the node-at-play in the current turn, show all children (whether part of the quest or our current proposals)
     Each node is clickable and will lead to node_view; another button will lead to node_create
-  Link to quest chat room
+  Link to quest chat channel
   Link to quest_conversation
 If the quest is finished: scores
 
@@ -166,30 +166,39 @@ Note: May be on game_conversation page.
 
 Show one specific node of the quest tree. Mostly used for nodes considered for play in this turn.
 Show the node description, show author, link to parent and children nodes, link to game_conversation
-Link to (or embed?) node chat room.
+Link to (or embed?) node chat channel.
 
 ### node_edit `/guild/:guild_id/quest/:quest_id/node/:node_id/edit`
 
 Edit an unpublished node
 Q: do we allow editing someone else's node? Should edits take the form of proposals (and how do we integrate them?)
 Meta-conversation flux TBD
-Link to (or embed?) node chat room.
+Link to (or embed?) node chat channel.
 
 ### node_create `/guild/:guild_id/quest/:quest_id/node/:node_id/create_child`
 
 This is where you edit a new node (was called mmowglieditor.) The node will be a child of the node_id given.
 You can get there from either a node-centric view, or a tree view with one node selected.
 
-### conversation_list `/guild/:guild_id/room`
+### guild_channel_list `/guild/:guild_id/channel`
 
-Each guild has multiple chat rooms (ideally structured conversation, we may reuse a chat system to gain time.)
-The list of chat rooms (or structured conversations if we get there that I can participate in), links to below.
-
-### guild_conversation `/guild/:guild_id/room/:room_id`
-
-Among those chat rooms:
+Each guild has multiple permanent chat channels (ideally structured conversation, we may reuse a chat system to gain time.)
+The list of chat channels (or structured conversations if we get there that I can participate in), links to below.
+Among those chat channels:
 leadership (leaders only)
-:rolename-based (per-role chat room)
+:rolename-based (per-role chat channel)
 meta (conversation about which quest to do next etc.)
-:quest-based (conversation around a quest, has a separate route above)
+
+Question1: channels are known as channels in the code. We should probably reflect that in URLs?
+Question2: Do we want to have a page with all permanent and all gameplay specific channels, or keep them separate?
+
+### game_channel_list `/guild/:guild_id/quest/:quest_id/channel/`
+
+A list of game-play specific conversation channels
+:rolename-based (per-role chat channel)
 :node-based (conversation around a node, has a separate route above)
+
+### guild_channel_conversation `/guild/:guild_id/channel/:channel_id`
+### game_channel_conversation `/guild/:guild_id/quest/:quest_id/channel/:channel_id`
+
+The conversation of a guild channel (permanent or game-specific)
