@@ -1,5 +1,5 @@
 -- Deploy role_functions
--- requires: role
+-- requires: casting_role
 -- requires: guilds_functions
 -- requires: quests_functions
 -- requires: casting

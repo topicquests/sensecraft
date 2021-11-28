@@ -27,8 +27,10 @@ DROP POLICY IF EXISTS guild_membership_delete_policy ON public.guild_membership;
 ALTER TABLE public.guild_membership DISABLE ROW LEVEL SECURITY;
 
 DROP TRIGGER IF EXISTS before_update_guild_membership ON public.guild_membership;
+DROP TRIGGER IF EXISTS after_update_guild_membership ON public.guild_membership;
 DROP TRIGGER IF EXISTS before_update_guild ON public.guilds;
 DROP TRIGGER IF EXISTS before_create_guild_membership ON public.guild_membership;
+DROP TRIGGER IF EXISTS after_create_guild_membership ON public.guild_membership;
 DROP TRIGGER IF EXISTS before_create_guild ON public.guilds;
 DROP TRIGGER IF EXISTS after_delete_guild_membership ON public.guild_membership;
 DROP TRIGGER IF EXISTS after_delete_guild ON public.guilds;
@@ -41,6 +43,7 @@ DROP FUNCTION IF EXISTS  public.has_guild_permission(guildid integer, perm publi
 DROP FUNCTION IF EXISTS  public.guild_permissions(guild character varying);
 DROP FUNCTION IF EXISTS  public.before_update_guild();
 DROP FUNCTION IF EXISTS  public.before_createup_guild_membership();
+DROP FUNCTION IF EXISTS  public.after_createup_guild_membership();
 DROP FUNCTION IF EXISTS  public.before_create_guild();
 DROP FUNCTION IF EXISTS  public.alter_guild_membership(guild character varying, member character varying, adding boolean, leader boolean);
 DROP FUNCTION IF EXISTS  public.after_delete_guild_membership();

@@ -1,6 +1,7 @@
 -- Deploy sensecraft:guilds_functions to pg
 -- requires: members_functions
 -- requires: guilds
+-- requires: casting_role
 -- idempotent
 
 BEGIN;
@@ -169,6 +170,7 @@ CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild integer, member i
     LANGUAGE plpgsql
     AS $$
     DECLARE curuser varchar;
+    DECLARE default_role integer;
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -179,6 +181,12 @@ CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild integer, member i
           EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || guild || ' ADD USER ' || current_database() || '__m_' || member;
         ELSE
           EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || guild || ' DROP USER ' || current_database() || '__m_' || member;
+        END IF;
+        IF NOT leader AND 0 = (SELECT count(*) from guild_member_available_role WHERE guild_id=guild AND member_id=member) THEN
+          SELECT default_role_id INTO STRICT default_role FROM guilds WHERE id = guild;
+          IF default_role IS NOT NULL THEN
+            INSERT INTO guild_member_available_role (guild_id, member_id, role_id) VALUES (guild, member, default_role);
+          END IF;
         END IF;
       ELSE
         EXECUTE 'ALTER GROUP ' || current_database() || '__g_' || guild || ' DROP USER ' || current_database() || '__m_' || member;
@@ -279,10 +287,6 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
         IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions AND NOT public.has_permission('guildAdmin') THEN
           RAISE EXCEPTION 'Only guildAdmin can change guild permissions';
         END IF;
-        IF (NEW.status = 'confirmed') != (OLD IS NOT NULL AND OLD.status = 'confirmed') AND member_id IS NOT NULL AND guild_id IS NOT NULL THEN
-          PERFORM alter_guild_membership(guild_id, member_id, NEW.status = 'confirmed',
-            coalesce(NEW.permissions @> ARRAY['guildAdmin'::permission], false));
-        END IF;
         NEW.updated_at := now();
         RETURN NEW;
     END;
@@ -293,6 +297,30 @@ CREATE TRIGGER before_update_guild_membership BEFORE UPDATE ON public.guild_memb
 
 DROP TRIGGER IF EXISTS before_create_guild_membership ON public.guild_membership;
 CREATE TRIGGER before_create_guild_membership BEFORE INSERT ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.before_createup_guild_membership();
+
+
+
+--
+-- Name: after_createup_guild_membership(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.after_createup_guild_membership() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+        IF (NEW.status = 'confirmed') != (OLD IS NOT NULL AND OLD.status = 'confirmed') AND NEW.member_id IS NOT NULL AND NEW.guild_id IS NOT NULL THEN
+          PERFORM alter_guild_membership(NEW.guild_id, NEW.member_id, NEW.status = 'confirmed',
+            coalesce(NEW.permissions @> ARRAY['guildAdmin'::permission], false));
+        END IF;
+        RETURN NEW;
+    END;
+$$;
+
+DROP TRIGGER IF EXISTS after_update_guild_membership ON public.guild_membership;
+CREATE TRIGGER after_update_guild_membership AFTER UPDATE ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.after_createup_guild_membership();
+
+DROP TRIGGER IF EXISTS after_create_guild_membership ON public.guild_membership;
+CREATE TRIGGER after_create_guild_membership AFTER INSERT ON public.guild_membership FOR EACH ROW EXECUTE FUNCTION public.after_createup_guild_membership();
 
 
 --

@@ -81,6 +81,11 @@ const MembersActions = {
       await context.dispatch("fetchMemberById", { full, params: { id } });
     }
   },
+  reloadIfFull: async (context, id: number) => {
+    if (context.state.fullMembers[id]) {
+      await context.dispatch("fetchMemberById", { full: true, params: { id } });
+    }
+  },
   ensureMembersOfGuild: async (
     context,
     { guildId, full = true }: { guildId: number; full?: boolean }

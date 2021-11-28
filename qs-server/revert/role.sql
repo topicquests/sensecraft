@@ -2,7 +2,9 @@
 
 
 BEGIN;
-DROP TABLE IF EXISTS public.casting_role;
-DROP TABLE IF EXISTS public.guild_member_available_role;
+
+ALTER TABLE guilds DROP CONSTRAINT guilds_default_role_id_fkey;
 DROP TABLE IF EXISTS public.role;
+DROP SEQUENCE IF EXISTS public.role_id_seq;
+
 COMMIT;

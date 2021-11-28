@@ -15,7 +15,7 @@ import {
 } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { MemberState } from "./member";
+
 interface GuildMap {
   [key: number]: Guild;
 }
@@ -114,6 +114,37 @@ const GuildsActions = {
         full,
         params: { id: guildId },
       });
+    }
+  },
+  addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
+    await context.dispatch("doAddGuildMembership", { data: membership });
+    const gMembership: GuildMembership = context.state.guilds[
+      membership.guild_id
+    ].guild_membership.find(
+      (c: GuildMembership) => c.member_id == membership.member_id
+    );
+    if (gMembership.status == "confirmed") {
+      await MyVapi.store.dispatch("members/reloadIfFull", membership.member_id);
+      if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
+        await MyVapi.store.dispatch("member/fetchLoginUser");
+      }
+    }
+  },
+  updateGuildMembership: async (
+    context,
+    membership: Partial<GuildMembership>
+  ) => {
+    await context.dispatch("doUpdateGuildMembership", { data: membership });
+    const gMembership: GuildMembership = context.state.guilds[
+      membership.guild_id
+    ].guild_membership.find(
+      (c: GuildMembership) => c.member_id == membership.member_id
+    );
+    if (gMembership.status == "confirmed") {
+      await MyVapi.store.dispatch("members/reloadIfFull", membership.member_id);
+      if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
+        await MyVapi.store.dispatch("member/fetchLoginUser");
+      }
     }
   },
   clearState: (context) => {
@@ -260,7 +291,7 @@ export const guilds = new MyVapi<GuildsState>({
     },
   })
   .post({
-    action: "addGuildMembership",
+    action: "doAddGuildMembership",
     path: "/guild_membership",
     onSuccess: (
       state: GuildsState,
@@ -279,7 +310,7 @@ export const guilds = new MyVapi<GuildsState>({
     },
   })
   .patch({
-    action: "updateGuildMembership",
+    action: "doUpdateGuildMembership",
     path: "/guild_membership",
     onSuccess: (
       state: GuildsState,
@@ -391,11 +422,11 @@ type GuildsRestActionTypes = {
   fetchGuilds: RestEmptyActionType<Guild[]>;
   createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
   updateGuild: RestDataActionType<Partial<Guild>, Guild[]>;
-  addGuildMembership: RestDataActionType<
+  doAddGuildMembership: RestDataActionType<
     Partial<GuildMembership>,
     GuildMembership[]
   >;
-  updateGuildMembership: RestDataActionType<
+  doUpdateGuildMembership: RestDataActionType<
     Partial<GuildMembership>,
     GuildMembership[]
   >;

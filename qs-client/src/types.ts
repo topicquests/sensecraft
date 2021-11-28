@@ -110,6 +110,7 @@ export interface Guild {
   created_at: string;
   updated_at: string;
   application_needs_approval: boolean;
+  default_role_id: number;
   guild_membership?: GuildMembership[];
   game_play?: GamePlay[];
 }

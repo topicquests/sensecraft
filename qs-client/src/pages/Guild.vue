@@ -556,7 +556,8 @@ export default class GuildPage extends Vue {
   }
   async joinToGuild() {
     await this.addGuildMembership({
-      data: { guild_id: this.currentGuildId, member_id: this.memberId },
+      guild_id: this.currentGuildId,
+      member_id: this.memberId,
     });
     this.isMember = true;
     this.$q.notify({
