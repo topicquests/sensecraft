@@ -249,7 +249,7 @@ def deploy(features, state, structures, conn_data, dry_run=False, simulation=Fal
             struct = structures[feature]
             print(struct.revert)
             if not dry_run:
-                psql_command(None, feature.revert, **conn_data)
+                psql_command(None, struct.revert, **conn_data)
             del state[feature]
             features.append(feature)
         features = calc_deps_list(structures, features)
