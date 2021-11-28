@@ -279,7 +279,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
         IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions AND NOT public.has_permission('guildAdmin') THEN
           RAISE EXCEPTION 'Only guildAdmin can change guild permissions';
         END IF;
-        IF (NEW.status = 'confirmed') != (OLD.status = 'confirmed') AND member_id IS NOT NULL AND guild_id IS NOT NULL THEN
+        IF (NEW.status = 'confirmed') != (OLD IS NOT NULL AND OLD.status = 'confirmed') AND member_id IS NOT NULL AND guild_id IS NOT NULL THEN
           PERFORM alter_guild_membership(guild_id, member_id, NEW.status = 'confirmed',
             coalesce(NEW.permissions @> ARRAY['guildAdmin'::permission], false));
         END IF;
