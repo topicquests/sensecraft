@@ -30,7 +30,7 @@ const app = new Vue({
         this.$store.dispatch("conversation/resetConversation");
       }
       if (newUser === null) {
-        this.$router.push("/");
+        //this.$router.push("/");
       } else {
         if (this.$route.path === "/login") {
           this.$router.push("/account");
