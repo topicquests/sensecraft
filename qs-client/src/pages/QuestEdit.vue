@@ -309,11 +309,9 @@ export default class QuestEditPage extends Vue {
     }
     if (value == "ongoing") {
       this.quest.start = dt.toString();
-      console.log(this.quest.start);
     }
     if (value == "finished") {
       this.quest.end = dt.toString();
-      console.log(this.quest.end);
     }
     this.quest.status = value;
   }
@@ -342,8 +340,6 @@ export default class QuestEditPage extends Vue {
     await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
     const questMembership = this.isQuestMember(this.quest_id);
-    console.log(questMembership);
-    //this.isAdmin = this.isQuestMember(this.quest_id);
     await this.fetchRootNode({ params: { quest_id: this.quest_id } });
   }
 }

@@ -120,7 +120,6 @@ export default class QuestViewPage extends Vue {
       await this.ensureQuest({ quest_id: questId });
       await this.ensureConversation(questId);
       const quest = this.getCurrentQuest;
-      console.log(this.getConversationTree);
       this.selectedNodeId = this.getConversation.length
         ? this.getConversation[0].id
         : null;

@@ -92,11 +92,7 @@
               {{ member.handle }}
               <span v-if="playingAsGuildId(member.id)" style="color: black">
                 <span v-if="playingAsGuildId(member.id) == currentGuildId">
-                  {{
-                    (castingRolesPerQuest[currentQuestId] || [])
-                      .map((cr) => allRoles[cr.role_id].name)
-                      .join(",")
-                  }}
+                  {{ getCastingRole(member.id, member) }}
                 </span>
                 <span v-if="playingAsGuildId(member.id) != currentGuildId"
                   >Playing in
@@ -264,14 +260,6 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
         this.setCurrentQuest(value);
       },
     },
-    castingRoleIds: {
-      get: function () {
-        return this.allRoles.role_id;
-      },
-      set: function (value) {
-        this.setCastingRole(value);
-      },
-    },
     ...mapGetters("quests", [
       "getQuestById",
       "getQuests",
@@ -288,18 +276,18 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
     ...mapState("guilds", {
       currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
-    ...mapGetters("members", ["getMemberById", "getMembersOfGuild"]),
+    ...mapGetters("members", [
+      "getMemberById",
+      "getMembersOfGuild",
+      "castingRolesPerQuest",
+    ]),
     ...mapGetters("guilds", [
       "isGuildMember",
       "getGuildById",
       "getCurrentGuild",
     ]),
     ...mapGetters("role", ["getRoleById"]),
-    ...mapGetters("member", [
-      "getMembersAvailableRoles",
-      "guildPerQuest",
-      "castingRolesPerQuest",
-    ]),
+    ...mapGetters("member", ["getMembersAvailableRoles", "guildPerQuest"]),
     ...mapState("conversation", {
       rootNode: (state: ConversationState) => state.conversationRoot,
     }),
@@ -431,7 +419,7 @@ export default class GuildPage extends Vue {
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMembersAvailableRoles!: MemberGetterTypes["getMembersAvailableRoles"];
   guildPerQuest!: MemberGetterTypes["guildPerQuest"];
-  castingRolesPerQuest!: MemberGetterTypes["castingRolesPerQuest"];
+  castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
   // getGamePlayByGuildIdAndQuestId!: ReturnType<
   //   GuildsGetterTypes["getGamePlayByGuildIdAndQuestId"]
   // >;
@@ -519,6 +507,15 @@ export default class GuildPage extends Vue {
     }
     // TODO: figure out why is this not triggered reliably by the watch and the change above?
     await this.onCurrentQuestChange();
+  }
+
+  getCastingRole(memberId, member) {
+    const roles = this.castingRolesPerQuest(memberId, this.currentQuestId);
+    const rolesName = roles
+      .map((cr) => this.allRoles[cr.role_id].name)
+      .join(",");
+    console.log("Roles are : ", rolesName);
+    return rolesName;
   }
 
   async onCurrentQuestChange() {
