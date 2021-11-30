@@ -28,14 +28,16 @@
 Todo:
 
 * createConversationNode
-* editConversationNode : (someone else's)
-* must_quote boolean  : needs to create nodes of quote subtype
-* add_to_focus boolean  : can add non-meta nodes to focus
-* add_meta_to_focus boolean  : can add meta nodes to focus
-* add_meta_to_meta boolean  : can add meta nodes to focus
-* add_meta_to_conversation boolean  : can add meta nodes elsewhere in conversation
-* add_play_channel : can create a channel in the context of a game
-* add_guild_channel : can create a guild-wide channel
+* editConversationNode: (someone else's)
+* mustQuote: needs to create nodes of quote subtype
+* addToFocus: can add non-meta nodes to focus
+* addMetaToFocus: can add meta nodes to focus
+* addMetaToMeta: can add meta nodes to focus
+* addMetaToConversation: can add meta nodes elsewhere in conversation
+* addPlayChannel: can create a channel in the context of a game
+* addGuildChannel: can create a guild-wide channel
+* setPlayerRole: can change the casting role of another player
+* addAvailableRole: can give an available role to a player
 
 
 
