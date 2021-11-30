@@ -211,13 +211,15 @@ export default {
     async onLogout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
+      // @Byron: Really unsure if this should have been moved up and why?
+      this.goTo("home");
       this.$el.querySelector("#mySidenav").style.width = "0";
       await this.logout();
       this.$q.notify({
         type: "positive",
         message: "You are now logged out",
       });
-      this.goTo("home");
+      // this.goTo("home");
     },
   },
 };
