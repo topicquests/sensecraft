@@ -15,6 +15,7 @@ import {
   Casting,
   Guild,
   GuildMemberAvailableRole,
+  CastingRole,
 } from "../types";
 import { MemberState } from "./member";
 
@@ -65,6 +66,25 @@ const MembersGetters = {
   getPlayersRoles: (state: MembersState) => (member_id: number) => {
     return state.members[member_id]?.casting_role;
   },
+  getAvailableRolesMembersById:
+    (state: MembersState) => (member_id: number) => {
+      return state.members[member_id]?.guild_member_available_role;
+    },
+
+  castingRolesPerQuest:
+    (state: MembersState) => (member_id: number, quest_id: number) => {
+      const castingRole = [];
+      const rolesPerQuest = state.members[member_id].casting_role;
+      if (rolesPerQuest.length > 0) {
+        rolesPerQuest.forEach((cr) => {
+          if (cr.quest_id == quest_id) {
+            castingRole.push(cr);
+          }
+        });
+        return castingRole;
+      }
+      return [];
+    },
 };
 
 const MembersActions = {
@@ -232,20 +252,73 @@ export const members = new MyVapi<MembersState>({
     mutations: {
       ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
         state: MembersState,
-        guild_Member_Available_Role: GuildMemberAvailableRole
+        guildMemberAvailableRole: GuildMemberAvailableRole
       ) => {
-        const member_id = guild_Member_Available_Role.member_id;
+        const member_id = guildMemberAvailableRole.member_id;
         let member = state.members[member_id];
         if (member) {
-          const guildMemberAvailableRoles =
-            member.guild_member_available_role.filter(
+          const guild_member_available_role =
+            member.guild_member_available_role?.filter(
               (a: GuildMemberAvailableRole) =>
-                a.role_id != guild_Member_Available_Role.role_id
+                a.role_id != guildMemberAvailableRole.role_id
             ) || [];
-          guildMemberAvailableRoles.push(guild_Member_Available_Role);
-          member.guild_member_available_role = guildMemberAvailableRoles;
-          member = { ...member };
-          state.members = { [member_id]: member, ...state.members };
+          guild_member_available_role.push(guildMemberAvailableRole);
+          member = { ...member, guild_member_available_role };
+          state.members = { ...state.members, [member_id]: member };
+        }
+      },
+      REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
+        state: MembersState,
+        guildMemberAvailableRole: GuildMemberAvailableRole
+      ) => {
+        console.log("member :", guildMemberAvailableRole);
+        const member_id = guildMemberAvailableRole.member_id;
+        let member = state.members[member_id];
+        if (member) {
+          const guild_member_available_role =
+            member.guild_member_available_role;
+          const pos = guild_member_available_role.findIndex(
+            (a: GuildMemberAvailableRole) =>
+              a.role_id == guildMemberAvailableRole.role_id &&
+              a.member_id == guildMemberAvailableRole.member_id &&
+              a.guild_id == guildMemberAvailableRole.guild_id
+          );
+          if (pos >= 0) {
+            guild_member_available_role.splice(pos, 1);
+            member = { ...member, guild_member_available_role };
+            state.members = { ...state.members, [member_id]: member };
+          }
+        }
+      },
+      ADD_CASTING_ROLE: (state: MembersState, castingRole) => {
+        const member_id = castingRole.member_id;
+        let member = state.members[member_id];
+        if (member) {
+          const casting_role =
+            member.casting_role.filter(
+              (cr: CastingRole) => cr.role_id != castingRole.role_id
+            ) || [];
+          casting_role.push(castingRole);
+          member = { ...member, casting_role };
+          state.members = { ...state.members, [member_id]: member };
+        }
+      },
+      REMOVE_CASTING_ROLE: (state: MembersState, castingRole) => {
+        const member_id = castingRole.params.member_id;
+        let member = state.members[member_id];
+        if (member.casting_role.length > 0) {
+          const casting_role = member.casting_role;
+          const pos = casting_role.findIndex(
+            (a: CastingRole) =>
+              a.role_id == castingRole.params.role_id &&
+              a.member_id == castingRole.params.member_id &&
+              a.guild_id == castingRole.params.guild_id
+          );
+          if (pos >= 0) {
+            casting_role.splice(pos, 1);
+            member = { ...member, casting_role };
+            state.members = { ...state.members, [member_id]: member };
+          }
         }
       },
     },

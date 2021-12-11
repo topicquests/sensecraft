@@ -309,6 +309,19 @@ export const member = new MyVapi<MemberState>({
           state.member.casting_role = castingRoles;
         }
       },
+      REMOVE_CASTING_ROLE: (state: MemberState, castingRole) => {
+        if (state.member) {
+          const casting_role = state.member.casting_role;
+          const pos = casting_role.findIndex(
+            (a: CastingRole) =>
+              a.role_id == castingRole.role_id &&
+              a.member_id == castingRole.member_id &&
+              a.guild_id == castingRole.guild_id
+          );
+          casting_role.splice(pos, 1);
+          state.member = { ...state.member, casting_role };
+        }
+      },
       ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
         state: MemberState,
         guild_Member_Available_Role: GuildMemberAvailableRole
@@ -321,6 +334,23 @@ export const member = new MyVapi<MemberState>({
             ) || [];
           guildMemberAvailableRoles.push(guild_Member_Available_Role);
           state.member.guild_member_available_role = guildMemberAvailableRoles;
+        }
+      },
+      REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
+        state: MemberState,
+        guild_Member_Available_Role: GuildMemberAvailableRole
+      ) => {
+        if (state.member) {
+          const guild_member_available_role =
+            state.member.guild_member_available_role;
+          const pos = guild_member_available_role.findIndex(
+            (a: GuildMemberAvailableRole) =>
+              a.role_id == guild_Member_Available_Role.role_id &&
+              a.member_id == guild_Member_Available_Role.member_id &&
+              a.guild_id == guild_Member_Available_Role.guild_id
+          );
+          guild_member_available_role.splice(pos, 1);
+          state.member = { ...state.member, guild_member_available_role };
         }
       },
       ADD_GUILD_MEMBERSHIP: (state: MemberState, membership) => {

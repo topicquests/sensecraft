@@ -16,7 +16,7 @@ import {
   Role,
 } from "../types";
 import { quest_status_enum } from "../enums";
-import { RoleState } from "./role";
+import { RoleActions, RoleState } from "./role";
 interface QuestMap {
   [key: number]: Quest;
 }
@@ -106,6 +106,16 @@ const QuestsGetters = {
         MyVapi.store.getters["role/getRoleById"](pr.role_id)
       );
       return roles;
+    },
+  getCastingRolesById:
+    (state) =>
+    (member_id: number, role_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const playerRoles = castingRoles.filter(
+        (role) => role.quest_id == role_id
+      );
+      return playerRoles;
     },
 };
 
@@ -389,14 +399,13 @@ export const quests = new MyVapi<QuestsState>({
       actionParams
     ) => {
       const casting = res.data[0];
-      console.log(res);
       let quest = state.quests[casting.quest_id];
       if (quest) {
-        if (quest.casting === undefined) quest.casting = [];
-        quest.casting.push(casting);
+        const castings = quest.casting || [];
+        castings.push(casting);
+        quest = { ...quest, casting: castings };
+        state.quests = { ...state.quests, [quest.id]: quest };
       }
-      quest = { ...quest };
-      state.quests = { [quest.id]: quest, ...state.quests };
       const store = MyVapi.store;
       if ((casting.member_id = store.getters["member/getUserId"])) {
         store.commit("member/ADD_CASTING", casting);
@@ -446,6 +455,7 @@ export const quests = new MyVapi<QuestsState>({
       if ((castingRole.member_id = store.getters["member/getUserId"])) {
         store.commit("member/ADD_CASTING_ROLE", castingRole);
       }
+      store.commit("members/ADD_CASTING_ROLE", castingRole);
     },
   })
   .patch({
@@ -475,6 +485,25 @@ export const quests = new MyVapi<QuestsState>({
       if ((casting.member_id = store.getters["member/getUserId"])) {
         store.commit("member/ADD_CASTING", casting);
       }
+    },
+  })
+  .delete({
+    action: "deleteCastingRole",
+    path: ({ member_id, guild_id, role_id, quest_id }) =>
+      `/casting_role?member_id=eq.${member_id}&guild_id=eq.${guild_id}&role_id=eq.${role_id}&quest_id=eq.${quest_id}`,
+    onSuccess: (
+      state: QuestsState,
+      res: AxiosResponse<CastingRole[]>,
+      axios: AxiosInstance,
+      actionParams
+    ) => {
+      if (
+        MyVapi.store.getters["member/getUserId"] ==
+        actionParams.params.member_id
+      ) {
+        MyVapi.store.commit("member/REMOVE_CASTING_ROLE", actionParams);
+      }
+      MyVapi.store.commit("members/REMOVE_CASTING_ROLE", actionParams);
     },
   })
   // Step 4
@@ -517,6 +546,7 @@ type QuestsRestActionTypes = {
   updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
   addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
   updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
+  deleteCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
 };
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &

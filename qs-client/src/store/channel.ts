@@ -30,7 +30,7 @@ function addToState(state: ChannelState, node: ConversationNode) {
   const channel_id = Number.parseInt(node.ancestry.split(".")[0]);
   if (node.parent_id && state.channelData[channel_id] == undefined)
     throw new Error("Missing channel");
-  const channelData = { [node.id]: node, ...state.channelData[channel_id] };
+  const channelData = { ...state.channelData[channel_id], [node.id]: node };
   state.channelData = {
     [channel_id]: channelData,
     ...state.channelData,
@@ -164,7 +164,7 @@ export const channel = new MyVapi<ChannelState>({
       const channel = nodes[channel_id];
       if (channel.meta != "channel" || channel.parent_id != null)
         throw Error("not a channel");
-      state.channelData = { [channel_id]: nodes, ...state.channelData };
+      state.channelData = { ...state.channelData, [channel_id]: nodes };
     },
   })
   .post({

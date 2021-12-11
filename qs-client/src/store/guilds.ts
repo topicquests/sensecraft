@@ -341,10 +341,12 @@ export const guilds = new MyVapi<GuildsState>({
       actionParams
     ) => {
       const availableRole = res.data[0];
-      MyVapi.store.commit(
-        "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
-        availableRole
-      );
+      if (MyVapi.store.getters["member/getUserId"] == availableRole.member_id) {
+        MyVapi.store.commit(
+          "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+          availableRole
+        );
+      }
       MyVapi.store.commit(
         "members/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
         availableRole
@@ -372,8 +374,15 @@ export const guilds = new MyVapi<GuildsState>({
       actionParams
     ) => {
       const availableRole = res.data[0];
+      console.log("Available ", availableRole);
+      if (MyVapi.store.getters["member/getUserId"] == availableRole.member_id) {
+        MyVapi.store.commit(
+          "member/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
+          availableRole
+        );
+      }
       MyVapi.store.commit(
-        "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+        "members/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
         availableRole
       );
     },
