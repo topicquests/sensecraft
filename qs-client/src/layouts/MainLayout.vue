@@ -31,7 +31,7 @@
         </div>
         <div v-if="isAuthenticated">
           <q-btn
-            @click="logout()"
+            @click="onLogout()"
             outline
             roundeded
             label="log off"
@@ -174,6 +174,7 @@ export default {
       "getConversationNodeById",
       "setConversationNode",
     ]),
+    ...mapActions("member", ["logout"]),
     toggleNav() {
       if (this.rightDrawerOpen) {
         this.closeNav();
@@ -191,17 +192,17 @@ export default {
       this.leftDrawer = false;
       this.$router.push({ name: route });
     },
-    logout() {
+    async onLogout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
-      document.getElementById("mySidenav").style.width = "0";
-      this.$store.dispatch("member/logout").then((response) => {
-        this.$q.notify({
-          type: "positive",
-          message: "You are now logged out",
-        });
-        this.goTo("home");
+      const sidenav = document.getElementById("mySidenav");
+      if (sidenav) sidenav.style.width = "0";
+      await this.logout();
+      this.$q.notify({
+        type: "positive",
+        message: "You are now logged out",
       });
+      this.goTo("home");
     },
   },
 };

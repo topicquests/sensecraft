@@ -16,6 +16,7 @@ import {
 } from "quasar"; // <= cherry pick only the components you actually use
 import { createLocalVue } from "@vue/test-utils";
 import VueRouter from "vue-router";
+// import router from "../../router";
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -53,6 +54,7 @@ describe("MainLayout.vue", () => {
       mount: {
         mocks,
         localVue,
+        router: new VueRouter(),
       },
       quasar: {
         components: {
@@ -80,12 +82,15 @@ describe("MainLayout.vue", () => {
   it("renders logout button", () => {
     expect(wrapper.find("#logoff").exists()).toBe(true);
   });
-  it("logs out", () => {
-    wrapper.find("#logoff").trigger("click");
-    // these two should work
-    expect(store.dispatch).toHaveBeenCalledOnce();
+  it("logs out", async () => {
+    const button = wrapper.find("#logoff");
+    // mock the notify function
+    button.vm.$q.notify = jest.fn();
+    // wrapper.find("#logoff").trigger("click");
+    await button.vm.$emit("click");
     expect(store.dispatch).toHaveBeenCalledWith("member/logout");
-    // this one should not because mock store
+
+    // this one should fail because mock store is not updated
     // expect(store.state.member.isAuthenticated).toBe(false)
   });
 });
