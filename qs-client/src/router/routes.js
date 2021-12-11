@@ -117,7 +117,7 @@ const routes = [
       {
         path: "/nodeEdit/:quest_id",
         name: "node_edit",
-        component: () => import("pages/nodeEdit.vue"),
+        component: () => import("pages/NodeEdit.vue"),
       },
       // {
       //   path: "/mnodeedit",

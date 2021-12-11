@@ -4,6 +4,8 @@
     "strict": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "types": ["jest", "quasar"]
   }
 }
