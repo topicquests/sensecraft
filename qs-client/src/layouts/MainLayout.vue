@@ -180,12 +180,12 @@ export default {
         this.closeNav();
       } else {
         this.rightDrawerOpen = true;
-        document.getElementById("mySidenav").style.width = "450px";
+        this.$el.querySelector("#mySidenav").style.width = "450px";
       }
     },
     closeNav() {
       this.rightDrawerOpen = false;
-      document.getElementById("mySidenav").style.width = "0";
+      this.$el.querySelector("#mySidenav").style.width = "0";
     },
     goTo(route) {
       this.rightDrawer = false;
@@ -195,8 +195,7 @@ export default {
     async onLogout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
-      const sidenav = document.getElementById("mySidenav");
-      if (sidenav) sidenav.style.width = "0";
+      this.$el.querySelector("#mySidenav").style.width = "0";
       await this.logout();
       this.$q.notify({
         type: "positive",
