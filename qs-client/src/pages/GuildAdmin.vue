@@ -76,7 +76,7 @@
       </div>
     </div>
     <div class="row justify-center full-height full-width text-center">
-      <h5>Registered Quests</h5>
+      <h4>Registered Quests</h4>
     </div>
     <div v-if="activeQuests.length > 0" class="row justify-center">
       <div v-for="quest in activeQuests" :key="quest.id">
@@ -85,7 +85,7 @@
             class="q-pa-md q-ma-md card"
             style="border: 1px solid gray; min-width: 400px"
           >
-            <h6 class="q-ma-sm">{{ quest.name }}</h6>
+            <h5 class="q-ma-sm">{{ quest.name }}</h5>
             <ul>
               <li v-for="member in getGuildMembers()" :key="member.id">
                 <div v-if="playingAsGuildId(quest.id, member.id)">
@@ -105,9 +105,9 @@
         <div style="width: 100%">
           <div v-for="member in getGuildMembers()" :key="member.id">
             <div class="row">
-              <h7 class="q-pl-md q-pt-md" style="width: 25%">{{
-                member.handle
-              }}</h7>
+              <h6 class="q-pl-md q-pt-md" style="width: 25%">
+                {{ member.handle }}
+              </h6>
               <q-select
                 class="q-pl-md"
                 :multiple="true"
