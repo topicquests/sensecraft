@@ -35,6 +35,7 @@
             outline
             roundeded
             label="log off"
+            id="logoff"
             name="logoff"
           >
           </q-btn>
@@ -129,7 +130,6 @@
 </template>
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
-import { ConversationState } from "../store/conversation";
 import { MemberState } from "../store/member";
 import nodeTree from "../components/node-tree.vue";
 
