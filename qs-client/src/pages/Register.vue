@@ -98,6 +98,7 @@
 
 <script lang="ts">
 import { mapActions } from "vuex";
+import { Notify } from "quasar";
 
 export default {
   name: "RegisterPage",
@@ -142,8 +143,26 @@ export default {
         // TODO: the domain can be normalized to LC, but case can be significant in the handle
         this.formdata.email = theEmail.toLowerCase();
         await this.registerUser(this.formdata);
+        Notify.create({
+          message:
+            "Account created successfully. Please check your email for a confirmation link.",
+          color: "positive",
+        });
         this.$router.push({ name: "signin" });
       } catch (error) {
+        if (error.message === "EXISTS") {
+          Notify.create({
+            message:
+              "This account already exists. Try resetting your password or contact support.",
+            color: "negative",
+          });
+        } else {
+          Notify.create({
+            message:
+              "There was an error creating your account. If this issue persists, contact support.",
+            color: "negative",
+          });
+        }
         console.log("There was an error registering ", error);
       }
     },

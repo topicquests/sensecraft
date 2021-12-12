@@ -6,7 +6,6 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
-import { Notify } from "quasar";
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
   Member,
@@ -116,19 +115,6 @@ export const member = new MyVapi<MemberState>({
       data.pass = password;
       data.mail = signonEmail;
     },
-    onError: (
-      state: MemberState,
-      err,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      console.log(err);
-      Notify.create({
-        message: "Wrong email or password",
-        color: "negative",
-        icon: "warning",
-      });
-    },
     onSuccess: (
       state: MemberState,
       res: AxiosResponse<string>,
@@ -213,20 +199,8 @@ export const member = new MyVapi<MemberState>({
       axios: AxiosInstance,
       { params, data }
     ) => {
-      const errorCode = data.code;
-      if (errorCode === 409) {
-        Notify.create({
-          message:
-            "This account already exists. Try resetting your password or contact support.",
-          color: "negative",
-        });
-      } else {
-        Notify.create({
-          message:
-            "There was an error creating your account. If this issue persists, contact support.",
-          color: "negative",
-        });
-      }
+      if (data.code == 409) throw new Error("EXISTS");
+      else throw error;
     },
     onSuccess: (
       state: MemberState,
@@ -236,11 +210,6 @@ export const member = new MyVapi<MemberState>({
     ) => {
       // TODO: Send email to user with activation link
       // TODO: Add to members state?
-      Notify.create({
-        message:
-          "Account created successfully. Please check your email for a confirmation link.",
-        color: "positive",
-      });
     },
   })
   .call({
