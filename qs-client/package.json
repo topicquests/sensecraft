@@ -19,12 +19,12 @@
   },
   "dependencies": {
     "@quasar/extras": "~1.12",
-    "axios": "~0.21",
+    "axios": "~0.24",
     "core-js": "^3.19",
     "grant": "~5.4",
     "luxon": "^2.1",
     "pg-hstore": "~2.3",
-    "quasar": "~1.15",
+    "quasar": "~1.16",
     "socket.io-client": "~4.4",
     "uuid": "~8.3",
     "vue": "~2.6",
@@ -78,5 +78,8 @@
       "prettier --write --ignore-unknown"
     ]
   },
-  "productName": "Quasar App"
+  "productName": "SenseCraft",
+  "resolutions": {
+    "axios": "~0.24"
+  }
 }
