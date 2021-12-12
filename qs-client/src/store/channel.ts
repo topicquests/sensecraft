@@ -5,7 +5,7 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
-import { AxiosResponse, AxiosInstance } from "axios";
+import type { AxiosResponse, AxiosInstance } from "axios";
 import { ConversationNode } from "../types";
 import {
   ibis_node_type_enum,
@@ -117,96 +117,98 @@ const baseState: ChannelState = {
   channelData: {},
 };
 
-export const channel = new MyVapi<ChannelState>({
-  state: baseState,
-})
-  // Step 3
-  .get({
-    path: ({ guild_id }: { guild_id: number }) =>
-      `/conversation_node?guild_id=eq.${guild_id}&meta=eq.channel&parent_id=is.null`,
-    property: "channels",
-    action: "fetchChannels",
-    onSuccess: (
-      state: ChannelState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      if (state.currentGuild !== params.guild_id) {
-        state.currentGuild = params.guild_id;
-        state.channelData = {};
-      }
-      state.channels = Object.fromEntries(
-        res.data.map((node: ConversationNode) => [node.id, node])
-      );
-    },
+export const channel = (axios: AxiosInstance) =>
+  new MyVapi<ChannelState>({
+    axios,
+    state: baseState,
   })
-  .call({
-    path: "node_neighbourhood",
-    property: "conversation",
-    action: "fetchChannelConversation",
-    readOnly: true,
-    onSuccess: (
-      state: ChannelState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      const channel_id = params.channel_id;
-      const firstNode = res.data[0];
-      if (state.currentGuild !== firstNode.guild_id) {
-        state.currentGuild = firstNode.guild_id;
-        state.channels = {};
-      }
-      const nodes: ConversationMap = Object.fromEntries(
-        res.data.map((node: ConversationNode) => [node.id, node])
-      );
-      const channel = nodes[channel_id];
-      if (channel.meta != "channel" || channel.parent_id != null)
-        throw Error("not a channel");
-      state.channelData = { ...state.channelData, [channel_id]: nodes };
-    },
-  })
-  .post({
-    action: "createChannelNode",
-    path: "/conversation_node",
-    onSuccess: (
-      state: ChannelState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      const node = res.data[0];
-      addToState(state, node);
-    },
-  })
-  .patch({
-    action: "updateChannelNode",
-    path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-    beforeRequest: (state, { params, data }) => {
-      params.id = data.id;
-      data.updated_at = undefined;
-    },
-    onSuccess: (
-      state: ChannelState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      const node = res.data[0];
-      addToState(state, node);
-    },
-  })
-  // Step 4
-  .getVuexStore({
-    getters: ChannelGetters,
-    actions: ChannelActions,
-    mutations: {
-      CLEAR_STATE: (state: ChannelState) => {
-        Object.assign(state, baseState);
+    // Step 3
+    .get({
+      path: ({ guild_id }: { guild_id: number }) =>
+        `/conversation_node?guild_id=eq.${guild_id}&meta=eq.channel&parent_id=is.null`,
+      property: "channels",
+      action: "fetchChannels",
+      onSuccess: (
+        state: ChannelState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        if (state.currentGuild !== params.guild_id) {
+          state.currentGuild = params.guild_id;
+          state.channelData = {};
+        }
+        state.channels = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
       },
-    },
-  });
+    })
+    .call({
+      path: "node_neighbourhood",
+      property: "conversation",
+      action: "fetchChannelConversation",
+      readOnly: true,
+      onSuccess: (
+        state: ChannelState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        const channel_id = params.channel_id;
+        const firstNode = res.data[0];
+        if (state.currentGuild !== firstNode.guild_id) {
+          state.currentGuild = firstNode.guild_id;
+          state.channels = {};
+        }
+        const nodes: ConversationMap = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
+        const channel = nodes[channel_id];
+        if (channel.meta != "channel" || channel.parent_id != null)
+          throw Error("not a channel");
+        state.channelData = { ...state.channelData, [channel_id]: nodes };
+      },
+    })
+    .post({
+      action: "createChannelNode",
+      path: "/conversation_node",
+      onSuccess: (
+        state: ChannelState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        const node = res.data[0];
+        addToState(state, node);
+      },
+    })
+    .patch({
+      action: "updateChannelNode",
+      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
+      beforeRequest: (state, { params, data }) => {
+        params.id = data.id;
+        data.updated_at = undefined;
+      },
+      onSuccess: (
+        state: ChannelState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const node = res.data[0];
+        addToState(state, node);
+      },
+    })
+    // Step 4
+    .getVuexStore({
+      getters: ChannelGetters,
+      actions: ChannelActions,
+      mutations: {
+        CLEAR_STATE: (state: ChannelState) => {
+          Object.assign(state, baseState);
+        },
+      },
+    });
 
 type ChannelRestActionTypes = {
   fetchChannels: RestParamActionType<{ guild_id: number }, ConversationNode[]>;

@@ -249,152 +249,154 @@ const baseState: ConversationState = {
   conversationRoot: null,
 };
 
-export const conversation = new MyVapi<ConversationState>({
-  state: baseState,
-})
-  // Step 3
-  .get({
-    action: "fetchConversationNode",
-    queryParams: true,
-    path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-    property: "node",
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      state.node = res.data[0];
-      addToState(state, state.node);
-    },
+export const conversation = (axios: AxiosInstance) =>
+  new MyVapi<ConversationState>({
+    axios,
+    state: baseState,
   })
-  .get({
-    path: ({ quest_id }: { quest_id: number }) =>
-      `/conversation_node?quest_id=eq.${quest_id}&meta=ne.channel`,
-    property: "conversation",
-    action: "fetchConversation",
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      if (state.currentQuest !== params.quest_id) {
-        state.currentQuest = params.quest_id;
-        state.neighbourhood = {};
-        state.neighbourhoodRoot = null;
-      }
-      state.conversation = Object.fromEntries(
-        res.data.map((node: ConversationNode) => [node.id, node])
-      );
-      state.full = true;
-      state.conversationRoot = res.data.find(
-        (node: ConversationNode) => node.parent_id === null
-      );
-    },
-  })
-  .get({
-    path: ({ quest_id }: { quest_id: number }) => {
-      return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`;
-    },
-    property: "conversationRoot",
-    action: "fetchRootNode",
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      if (state.currentQuest !== params.quest_id) {
-        state.currentQuest = params.quest_id;
-        state.conversation = {};
-        state.neighbourhood = {};
-        state.neighbourhoodRoot = null;
-      }
-      addToState(state, res.data[0]);
-    },
-  })
-  .call({
-    path: "node_neighbourhood",
-    property: "conversation",
-    action: "fetchConversationNeighbourhood",
-    readOnly: true,
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      const firstNode = res.data[0];
-      if (state.currentQuest !== firstNode.quest_id) {
-        state.currentQuest = firstNode.quest_id;
-        state.conversation = {};
-        state.conversationRoot = null;
-      }
-      state.neighbourhood = Object.fromEntries(
-        res.data.map((node: ConversationNode) => [node.id, node])
-      );
-      state.neighbourhoodRoot = params.node_id;
-      const root = res.data.find(
-        (node: ConversationNode) => node.parent_id == null
-      );
-      state.conversation = Object.assign(
-        state.conversation,
-        state.neighbourhood
-      );
-      if (root) {
-        state.conversationRoot = root;
-      }
-    },
-  })
-  .post({
-    action: "createConversationNode",
-    path: "/conversation_node",
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { params, data }
-    ) => {
-      state.node = res.data[0];
-      addToState(state, state.node);
-    },
-  })
-  .patch({
-    action: "updateConversationNode",
-    path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-    beforeRequest: (state, { params, data }) => {
-      params.id = data.id;
-      data.updated_at = undefined;
-    },
-    onSuccess: (
-      state: ConversationState,
-      res: AxiosResponse<ConversationNode[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      const node = res.data[0];
-      addToState(state, node);
-    },
-  })
-  // Step 4
-  .getVuexStore({
-    getters: ConversationGetters,
-    actions: ConversationActions,
-    mutations: {
-      RESET_CONVERSATION: (state: ConversationState) => {
-        state.full = false;
-        state.conversation = {};
-        state.conversationRoot = null;
-        state.neighbourhood = {};
-        state.neighbourhoodRoot = null;
-        state.currentQuest = null;
+    // Step 3
+    .get({
+      action: "fetchConversationNode",
+      queryParams: true,
+      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
+      property: "node",
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        state.node = res.data[0];
+        addToState(state, state.node);
       },
-      CLEAR_STATE: (state: ConversationState) => {
-        Object.assign(state, baseState);
+    })
+    .get({
+      path: ({ quest_id }: { quest_id: number }) =>
+        `/conversation_node?quest_id=eq.${quest_id}&meta=ne.channel`,
+      property: "conversation",
+      action: "fetchConversation",
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        if (state.currentQuest !== params.quest_id) {
+          state.currentQuest = params.quest_id;
+          state.neighbourhood = {};
+          state.neighbourhoodRoot = null;
+        }
+        state.conversation = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
+        state.full = true;
+        state.conversationRoot = res.data.find(
+          (node: ConversationNode) => node.parent_id === null
+        );
       },
-    },
-  });
+    })
+    .get({
+      path: ({ quest_id }: { quest_id: number }) => {
+        return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`;
+      },
+      property: "conversationRoot",
+      action: "fetchRootNode",
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        if (state.currentQuest !== params.quest_id) {
+          state.currentQuest = params.quest_id;
+          state.conversation = {};
+          state.neighbourhood = {};
+          state.neighbourhoodRoot = null;
+        }
+        addToState(state, res.data[0]);
+      },
+    })
+    .call({
+      path: "node_neighbourhood",
+      property: "conversation",
+      action: "fetchConversationNeighbourhood",
+      readOnly: true,
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        const firstNode = res.data[0];
+        if (state.currentQuest !== firstNode.quest_id) {
+          state.currentQuest = firstNode.quest_id;
+          state.conversation = {};
+          state.conversationRoot = null;
+        }
+        state.neighbourhood = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
+        state.neighbourhoodRoot = params.node_id;
+        const root = res.data.find(
+          (node: ConversationNode) => node.parent_id == null
+        );
+        state.conversation = Object.assign(
+          state.conversation,
+          state.neighbourhood
+        );
+        if (root) {
+          state.conversationRoot = root;
+        }
+      },
+    })
+    .post({
+      action: "createConversationNode",
+      path: "/conversation_node",
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        state.node = res.data[0];
+        addToState(state, state.node);
+      },
+    })
+    .patch({
+      action: "updateConversationNode",
+      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
+      beforeRequest: (state, { params, data }) => {
+        params.id = data.id;
+        data.updated_at = undefined;
+      },
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const node = res.data[0];
+        addToState(state, node);
+      },
+    })
+    // Step 4
+    .getVuexStore({
+      getters: ConversationGetters,
+      actions: ConversationActions,
+      mutations: {
+        RESET_CONVERSATION: (state: ConversationState) => {
+          state.full = false;
+          state.conversation = {};
+          state.conversationRoot = null;
+          state.neighbourhood = {};
+          state.neighbourhoodRoot = null;
+          state.currentQuest = null;
+        },
+        CLEAR_STATE: (state: ConversationState) => {
+          Object.assign(state, baseState);
+        },
+      },
+    });
 
 type ConversationRestActionTypes = {
   fetchConversationNode: RestParamActionType<

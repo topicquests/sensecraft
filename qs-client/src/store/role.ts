@@ -44,66 +44,68 @@ export const RoleActions = {
   },
 };
 
-export const role = new MyVapi<RoleState>({
-  state: baseState,
-})
-  .get({
-    action: "fetchRoles",
-    property: "role",
-    path: "/role",
-    onSuccess: (state: RoleState, res: AxiosResponse<Role[]>) => {
-      const roles = Object.fromEntries(
-        res.data.map((role: Role) => [role.id, role])
-      );
-      console.log("Roles: ", roles);
-      state.role = roles;
-      state.fullFetch = true;
-    },
+export const role = (axios: AxiosInstance) =>
+  new MyVapi<RoleState>({
+    axios,
+    state: baseState,
   })
-  .get({
-    action: "createRole",
-    property: "role",
-    path: "/role",
-    onSuccess: (
-      state: RoleState,
-      res: AxiosResponse<Role[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      const role = res.data[0];
-      state.role = { ...state.role, [role.id]: role };
-    },
-  })
-  .patch({
-    action: "updateRole",
-    path: ({ id }) => `/role?id=eq.${id}`,
-    beforeRequest: (state: RoleState, { params, data }) => {
-      params.id = data.id;
-      data.slug = undefined;
-      Object.assign(data, {
-        updated_at: undefined,
-      });
-    },
-    onSuccess: (
-      state: RoleState,
-      res: AxiosResponse<Role[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      let role = res.data[0];
-      role = Object.assign({}, state.role[role.id], role);
-      state.role = { ...state.role, [role.id]: role };
-    },
-  })
-  .getVuexStore({
-    getters: RoleGetters,
-    actions: RoleActions,
-    mutations: {
-      CLEAR_STATE: (state: RoleState) => {
-        Object.assign(state, baseState);
+    .get({
+      action: "fetchRoles",
+      property: "role",
+      path: "/role",
+      onSuccess: (state: RoleState, res: AxiosResponse<Role[]>) => {
+        const roles = Object.fromEntries(
+          res.data.map((role: Role) => [role.id, role])
+        );
+        console.log("Roles: ", roles);
+        state.role = roles;
+        state.fullFetch = true;
       },
-    },
-  });
+    })
+    .get({
+      action: "createRole",
+      property: "role",
+      path: "/role",
+      onSuccess: (
+        state: RoleState,
+        res: AxiosResponse<Role[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const role = res.data[0];
+        state.role = { ...state.role, [role.id]: role };
+      },
+    })
+    .patch({
+      action: "updateRole",
+      path: ({ id }) => `/role?id=eq.${id}`,
+      beforeRequest: (state: RoleState, { params, data }) => {
+        params.id = data.id;
+        data.slug = undefined;
+        Object.assign(data, {
+          updated_at: undefined,
+        });
+      },
+      onSuccess: (
+        state: RoleState,
+        res: AxiosResponse<Role[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        let role = res.data[0];
+        role = Object.assign({}, state.role[role.id], role);
+        state.role = { ...state.role, [role.id]: role };
+      },
+    })
+    .getVuexStore({
+      getters: RoleGetters,
+      actions: RoleActions,
+      mutations: {
+        CLEAR_STATE: (state: RoleState) => {
+          Object.assign(state, baseState);
+        },
+      },
+    });
 
 type RoleRestActionTypes = {
   fetchRoles: RestEmptyActionType<Role[]>;

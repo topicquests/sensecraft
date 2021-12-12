@@ -17,7 +17,6 @@ import {
   GuildMemberAvailableRole,
   CastingRole,
 } from "../types";
-import { MemberState } from "./member";
 
 interface MemberMap {
   [key: number]: PublicMember;
@@ -150,179 +149,181 @@ const MembersActions = {
   },
 };
 
-export const members = new MyVapi<MembersState>({
-  state: {
-    fullFetch: false,
-    questFetch: null,
-    guildFetch: null,
-    members: {},
-    fullMembers: {},
-  } as MembersState,
-})
-  // Step 3
-  .get({
-    action: "fetchMemberById",
-    path: "/public_members",
-    queryParams: true,
-    beforeRequest: (state: MembersState, { full, params }) => {
-      if (Array.isArray(params.id)) {
-        params.id = `in.(${params.id.join(",")})`;
-      } else {
-        params.id = `eq.${params.id}`;
-      }
-      if (full) {
-        Object.assign(params, {
-          select:
-            "*,guild_member_available_role!member_id(*),casting_role!member_id(*)",
-        });
-      }
-    },
-    onSuccess: (
-      state: MembersState,
-      res: AxiosResponse<PublicMember[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      state.members = {
-        ...state.members,
-        ...Object.fromEntries(
-          res.data.map((member: PublicMember) => [member.id, member])
-        ),
-      };
-      if (actionParams.full) {
-        state.fullMembers = {
-          ...state.fullMembers,
-          ...Object.fromEntries(
-            res.data.map((member: PublicMember) => [member.id, true])
-          ),
-        };
-      }
-    },
+export const members = (axios: AxiosInstance) =>
+  new MyVapi<MembersState>({
+    axios,
+    state: {
+      fullFetch: false,
+      questFetch: null,
+      guildFetch: null,
+      members: {},
+      fullMembers: {},
+    } as MembersState,
   })
-  .get({
-    path: "/public_members",
-    property: "members",
-    action: "fetchMembers",
-    onSuccess: (
-      state: MembersState,
-      res: AxiosResponse<PublicMember[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const fullMembers = Object.values(state.members).filter(
-        (member: PublicMember) => state.fullMembers[member.id]
-      );
-      const members = Object.fromEntries(
-        res.data.map((member: PublicMember) => [member.id, member])
-      );
-      for (const member of fullMembers) {
-        if (members[member.id]) {
-          Object.assign(members[member.id], {
-            guild_member_available_role: member.guild_member_available_role,
-            casting_role: member.casting_role,
+    // Step 3
+    .get({
+      action: "fetchMemberById",
+      path: "/public_members",
+      queryParams: true,
+      beforeRequest: (state: MembersState, { full, params }) => {
+        if (Array.isArray(params.id)) {
+          params.id = `in.(${params.id.join(",")})`;
+        } else {
+          params.id = `eq.${params.id}`;
+        }
+        if (full) {
+          Object.assign(params, {
+            select:
+              "*,guild_member_available_role!member_id(*),casting_role!member_id(*)",
           });
         }
-      }
-      state.members = members;
-      state.fullFetch = true;
-    },
-  })
-  .patch({
-    action: "updateMember",
-    path: ({ id }) => `/public_members?id=eq.${id}`,
-    property: "members",
-    beforeRequest: (state: MembersState, { params, data }) => {
-      params.id = data.id;
-      data.slug = undefined;
-    },
-    onSuccess: (
-      state: MembersState,
-      res: AxiosResponse<PublicMember[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      const member = res.data[0];
-      state.members = { ...state.members, [member.id]: member };
-    },
-  })
-  // Step 4
-  .getVuexStore({
-    getters: MembersGetters,
-    actions: MembersActions,
-    mutations: {
-      ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
+      },
+      onSuccess: (
         state: MembersState,
-        guildMemberAvailableRole: GuildMemberAvailableRole
+        res: AxiosResponse<PublicMember[]>,
+        axios: AxiosInstance,
+        actionParams
       ) => {
-        const member_id = guildMemberAvailableRole.member_id;
-        let member = state.members[member_id];
-        if (member) {
-          const guild_member_available_role =
-            member.guild_member_available_role?.filter(
-              (a: GuildMemberAvailableRole) =>
-                a.role_id != guildMemberAvailableRole.role_id
-            ) || [];
-          guild_member_available_role.push(guildMemberAvailableRole);
-          member = { ...member, guild_member_available_role };
-          state.members = { ...state.members, [member_id]: member };
+        state.members = {
+          ...state.members,
+          ...Object.fromEntries(
+            res.data.map((member: PublicMember) => [member.id, member])
+          ),
+        };
+        if (actionParams.full) {
+          state.fullMembers = {
+            ...state.fullMembers,
+            ...Object.fromEntries(
+              res.data.map((member: PublicMember) => [member.id, true])
+            ),
+          };
         }
       },
-      REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
+    })
+    .get({
+      path: "/public_members",
+      property: "members",
+      action: "fetchMembers",
+      onSuccess: (
         state: MembersState,
-        guildMemberAvailableRole: GuildMemberAvailableRole
+        res: AxiosResponse<PublicMember[]>,
+        axios: AxiosInstance,
+        actionParams
       ) => {
-        console.log("member :", guildMemberAvailableRole);
-        const member_id = guildMemberAvailableRole.member_id;
-        let member = state.members[member_id];
-        if (member) {
-          const guild_member_available_role =
-            member.guild_member_available_role;
-          const pos = guild_member_available_role.findIndex(
-            (a: GuildMemberAvailableRole) =>
-              a.role_id == guildMemberAvailableRole.role_id &&
-              a.member_id == guildMemberAvailableRole.member_id &&
-              a.guild_id == guildMemberAvailableRole.guild_id
-          );
-          if (pos >= 0) {
-            guild_member_available_role.splice(pos, 1);
+        const fullMembers = Object.values(state.members).filter(
+          (member: PublicMember) => state.fullMembers[member.id]
+        );
+        const members = Object.fromEntries(
+          res.data.map((member: PublicMember) => [member.id, member])
+        );
+        for (const member of fullMembers) {
+          if (members[member.id]) {
+            Object.assign(members[member.id], {
+              guild_member_available_role: member.guild_member_available_role,
+              casting_role: member.casting_role,
+            });
+          }
+        }
+        state.members = members;
+        state.fullFetch = true;
+      },
+    })
+    .patch({
+      action: "updateMember",
+      path: ({ id }) => `/public_members?id=eq.${id}`,
+      property: "members",
+      beforeRequest: (state: MembersState, { params, data }) => {
+        params.id = data.id;
+        data.slug = undefined;
+      },
+      onSuccess: (
+        state: MembersState,
+        res: AxiosResponse<PublicMember[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const member = res.data[0];
+        state.members = { ...state.members, [member.id]: member };
+      },
+    })
+    // Step 4
+    .getVuexStore({
+      getters: MembersGetters,
+      actions: MembersActions,
+      mutations: {
+        ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
+          state: MembersState,
+          guildMemberAvailableRole: GuildMemberAvailableRole
+        ) => {
+          const member_id = guildMemberAvailableRole.member_id;
+          let member = state.members[member_id];
+          if (member) {
+            const guild_member_available_role =
+              member.guild_member_available_role?.filter(
+                (a: GuildMemberAvailableRole) =>
+                  a.role_id != guildMemberAvailableRole.role_id
+              ) || [];
+            guild_member_available_role.push(guildMemberAvailableRole);
             member = { ...member, guild_member_available_role };
             state.members = { ...state.members, [member_id]: member };
           }
-        }
-      },
-      ADD_CASTING_ROLE: (state: MembersState, castingRole) => {
-        const member_id = castingRole.member_id;
-        let member = state.members[member_id];
-        if (member) {
-          const casting_role =
-            member.casting_role.filter(
-              (cr: CastingRole) => cr.role_id != castingRole.role_id
-            ) || [];
-          casting_role.push(castingRole);
-          member = { ...member, casting_role };
-          state.members = { ...state.members, [member_id]: member };
-        }
-      },
-      REMOVE_CASTING_ROLE: (state: MembersState, castingRole) => {
-        const member_id = castingRole.params.member_id;
-        let member = state.members[member_id];
-        if (member.casting_role.length > 0) {
-          const casting_role = member.casting_role;
-          const pos = casting_role.findIndex(
-            (a: CastingRole) =>
-              a.role_id == castingRole.params.role_id &&
-              a.member_id == castingRole.params.member_id &&
-              a.guild_id == castingRole.params.guild_id
-          );
-          if (pos >= 0) {
-            casting_role.splice(pos, 1);
+        },
+        REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
+          state: MembersState,
+          guildMemberAvailableRole: GuildMemberAvailableRole
+        ) => {
+          console.log("member :", guildMemberAvailableRole);
+          const member_id = guildMemberAvailableRole.member_id;
+          let member = state.members[member_id];
+          if (member) {
+            const guild_member_available_role =
+              member.guild_member_available_role;
+            const pos = guild_member_available_role.findIndex(
+              (a: GuildMemberAvailableRole) =>
+                a.role_id == guildMemberAvailableRole.role_id &&
+                a.member_id == guildMemberAvailableRole.member_id &&
+                a.guild_id == guildMemberAvailableRole.guild_id
+            );
+            if (pos >= 0) {
+              guild_member_available_role.splice(pos, 1);
+              member = { ...member, guild_member_available_role };
+              state.members = { ...state.members, [member_id]: member };
+            }
+          }
+        },
+        ADD_CASTING_ROLE: (state: MembersState, castingRole) => {
+          const member_id = castingRole.member_id;
+          let member = state.members[member_id];
+          if (member) {
+            const casting_role =
+              member.casting_role.filter(
+                (cr: CastingRole) => cr.role_id != castingRole.role_id
+              ) || [];
+            casting_role.push(castingRole);
             member = { ...member, casting_role };
             state.members = { ...state.members, [member_id]: member };
           }
-        }
+        },
+        REMOVE_CASTING_ROLE: (state: MembersState, castingRole) => {
+          const member_id = castingRole.params.member_id;
+          let member = state.members[member_id];
+          if (member.casting_role.length > 0) {
+            const casting_role = member.casting_role;
+            const pos = casting_role.findIndex(
+              (a: CastingRole) =>
+                a.role_id == castingRole.params.role_id &&
+                a.member_id == castingRole.params.member_id &&
+                a.guild_id == castingRole.params.guild_id
+            );
+            if (pos >= 0) {
+              casting_role.splice(pos, 1);
+              member = { ...member, casting_role };
+              state.members = { ...state.members, [member_id]: member };
+            }
+          }
+        },
       },
-    },
-  });
+    });
 
 type MembersRestActionTypes = {
   fetchMemberById: ({

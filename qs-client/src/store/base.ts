@@ -11,10 +11,7 @@ import {
   ShorthandResourceActionOptions,
   ResourceActionOptions,
 } from "vuex-rest-api/dist/Resource";
-import axiosInstance from "../boot/axios";
 import { AxiosResponse } from "axios";
-
-declare const server_url: string;
 
 export type RestActionType<P, D, R> = ({
   params,
@@ -70,9 +67,6 @@ interface CallResourceActionOptions extends ShorthandResourceActionOptions {
 }
 
 export class MyVapi<S> extends Vapi {
-  constructor(options: ResourceOptions) {
-    super({ baseURL: server_url, axios: axiosInstance, ...options });
-  }
   static store: VuexStore<any>;
   getStore(options: StoreOptions): MyVapiStore {
     const { getters, mutations, actions, ...ooptions } = options || {};

@@ -159,266 +159,272 @@ const baseState: GuildsState = {
   fullGuilds: {},
 };
 
-export const guilds = new MyVapi<GuildsState>({
-  state: baseState,
-})
-  // Step 3
-  .get({
-    action: "fetchGuildById",
-    path: "/guilds",
-    queryParams: true,
-    beforeRequest: (state: GuildsState, { full, params }) => {
-      if (Array.isArray(params.id)) {
-        params.id = `in.(${params.id.join(",")})`;
-      } else {
-        params.id = `eq.${params.id}`;
-      }
-      const userId = MyVapi.store.getters["member/getUserId"];
-      if (userId) {
-        params.select =
-          "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)";
-        if (!full) {
+export const guilds = (axios: AxiosInstance) =>
+  new MyVapi<GuildsState>({
+    axios,
+    state: baseState,
+  })
+    // Step 3
+    .get({
+      action: "fetchGuildById",
+      path: "/guilds",
+      queryParams: true,
+      beforeRequest: (state: GuildsState, { full, params }) => {
+        if (Array.isArray(params.id)) {
+          params.id = `in.(${params.id.join(",")})`;
+        } else {
+          params.id = `eq.${params.id}`;
+        }
+        const userId = MyVapi.store.getters["member/getUserId"];
+        if (userId) {
+          params.select =
+            "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)";
+          if (!full) {
+            Object.assign(params, {
+              "guild_membership.member_id": `eq.${userId}`,
+              "casting.member_id": `eq.${userId}`,
+            });
+          }
+        } else {
+          params.select = "*,game_play!guild_id(*)";
+        }
+      },
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<Guild[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        state.guilds = {
+          ...state.guilds,
+          ...Object.fromEntries(
+            res.data.map((guild: Guild) => [guild.id, guild])
+          ),
+        };
+        if (actionParams.full) {
+          state.fullGuilds = {
+            ...state.fullGuilds,
+            ...Object.fromEntries(
+              res.data.map((guild: Guild) => [guild.id, true])
+            ),
+          };
+        }
+      },
+    })
+    .get({
+      action: "fetchGuilds",
+      property: "guilds",
+      path: "/guilds",
+      queryParams: true,
+      beforeRequest: (state: GuildsState, { params }) => {
+        const userId = MyVapi.store.getters["member/getUserId"];
+        if (userId) {
           Object.assign(params, {
+            select:
+              "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)",
             "guild_membership.member_id": `eq.${userId}`,
             "casting.member_id": `eq.${userId}`,
           });
+        } else {
+          params.select = "*,game_play!guild_id(*)";
         }
-      } else {
-        params.select = "*,game_play!guild_id(*)";
-      }
-    },
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<Guild[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      state.guilds = {
-        ...state.guilds,
-        ...Object.fromEntries(
+      },
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<Guild[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const fullGuilds = Object.values(state.guilds).filter(
+          (guild: Guild) => state.fullGuilds[guild.id]
+        );
+        const guilds = Object.fromEntries(
           res.data.map((guild: Guild) => [guild.id, guild])
-        ),
-      };
-      if (actionParams.full) {
-        state.fullGuilds = {
-          ...state.fullGuilds,
-          ...Object.fromEntries(
-            res.data.map((guild: Guild) => [guild.id, true])
-          ),
-        };
-      }
-    },
-  })
-  .get({
-    action: "fetchGuilds",
-    property: "guilds",
-    path: "/guilds",
-    queryParams: true,
-    beforeRequest: (state: GuildsState, { params }) => {
-      const userId = MyVapi.store.getters["member/getUserId"];
-      if (userId) {
-        Object.assign(params, {
-          select:
-            "*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)",
-          "guild_membership.member_id": `eq.${userId}`,
-          "casting.member_id": `eq.${userId}`,
+        );
+        for (const guild of fullGuilds) {
+          if (guilds[guild.id]) {
+            guilds[guild.id] = Object.assign(guilds[guild.id], {
+              casting: guild.casting,
+              guild_membership: guild.guild_membership,
+            });
+          }
+        }
+        state.guilds = guilds;
+        state.fullFetch = true;
+      },
+    })
+    .post({
+      action: "createGuildBase",
+      path: "/guilds",
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<Guild[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const guild = res.data[0];
+        state.guilds = { ...state.guilds, [guild.id]: guild };
+        state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
+        // TODO: update memberships in member.
+      },
+    })
+    .patch({
+      action: "updateGuild",
+      path: ({ id }) => `/guilds?id=eq.${id}`,
+      beforeRequest: (state: GuildsState, { params, data }) => {
+        params.id = data.id;
+        data.slug = undefined;
+        Object.assign(data, {
+          casting: undefined,
+          guild_membership: undefined,
+          game_play: undefined,
+          updated_at: undefined,
         });
-      } else {
-        params.select = "*,game_play!guild_id(*)";
-      }
-    },
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<Guild[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const fullGuilds = Object.values(state.guilds).filter(
-        (guild: Guild) => state.fullGuilds[guild.id]
-      );
-      const guilds = Object.fromEntries(
-        res.data.map((guild: Guild) => [guild.id, guild])
-      );
-      for (const guild of fullGuilds) {
-        if (guilds[guild.id]) {
-          guilds[guild.id] = Object.assign(guilds[guild.id], {
-            casting: guild.casting,
-            guild_membership: guild.guild_membership,
-          });
-        }
-      }
-      state.guilds = guilds;
-      state.fullFetch = true;
-    },
-  })
-  .post({
-    action: "createGuildBase",
-    path: "/guilds",
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<Guild[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      const guild = res.data[0];
-      state.guilds = { ...state.guilds, [guild.id]: guild };
-      state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
-      // TODO: update memberships in member.
-    },
-  })
-  .patch({
-    action: "updateGuild",
-    path: ({ id }) => `/guilds?id=eq.${id}`,
-    beforeRequest: (state: GuildsState, { params, data }) => {
-      params.id = data.id;
-      data.slug = undefined;
-      Object.assign(data, {
-        casting: undefined,
-        guild_membership: undefined,
-        game_play: undefined,
-        updated_at: undefined,
-      });
-    },
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<Guild[]>,
-      axios: AxiosInstance,
-      { data }
-    ) => {
-      let guild = res.data[0];
-      guild = Object.assign({}, state.guilds[guild.id], guild);
-      state.guilds = { ...state.guilds, [guild.id]: guild };
-    },
-  })
-  .post({
-    action: "doAddGuildMembership",
-    path: "/guild_membership",
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<GuildMembership[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const membership = res.data[0];
-      const guild = state.guilds[membership.guild_id];
-      if (guild) {
-        const memberships = guild.guild_membership || [];
-        memberships.push(membership);
-        guild.guild_membership = memberships;
-      }
-      MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
-    },
-  })
-  .patch({
-    action: "doUpdateGuildMembership",
-    path: "/guild_membership",
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<GuildMembership[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const membership = res.data[0];
-      const guild = state.guilds[membership.guild_id];
-      if (guild) {
-        const memberships =
-          guild.guild_membership?.filter(
-            (gp: GuildMembership) => gp.guild_id !== membership.guild_id
-          ) || [];
-        memberships.push(membership);
-        guild.guild_membership = memberships;
-      }
-      MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
-    },
-  })
-  .post({
-    action: "addGuildMemberAvailableRole",
-    path: "/guild_member_available_role",
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<GuildMemberAvailableRole[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const availableRole = res.data[0];
-      if (MyVapi.store.getters["member/getUserId"] == availableRole.member_id) {
-        MyVapi.store.commit(
-          "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
-          availableRole
-        );
-      }
-      MyVapi.store.commit(
-        "members/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
-        availableRole
-      );
-    },
-  })
-  .patch({
-    action: "updateGuildMemberAvailable",
-    path: "/guild_member_available_role",
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<GuildMembership[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {},
-  })
-  .delete({
-    action: "deleteGuildMemberAvailableRole",
-    path: ({ member_id, guild_id, role_id }) =>
-      `/guild_member_available_role?member_id=eq.${member_id}&guild_id=eq.${guild_id}&role_id=eq.${role_id}`,
-    onSuccess: (
-      state: GuildsState,
-      res: AxiosResponse<GuildMemberAvailableRole[]>,
-      axios: AxiosInstance,
-      actionParams
-    ) => {
-      const availableRole = res.data[0];
-      console.log("Available ", availableRole);
-      if (MyVapi.store.getters["member/getUserId"] == availableRole.member_id) {
-        MyVapi.store.commit(
-          "member/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
-          availableRole
-        );
-      }
-      MyVapi.store.commit(
-        "members/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
-        availableRole
-      );
-    },
-  })
-  .call({
-    action: "registerAllMembers",
-    path: "register_all_members",
-    queryParams: true,
-    // TODO: modify quests's castings appropriately. May need an appropriate mutation.
-  })
-  // Step 4
-  .getVuexStore({
-    getters: GuildsGetters,
-    actions: GuildsActions,
-    mutations: {
-      SET_CURRENT_GUILD: (state: GuildsState, guild_id: number) => {
-        state.currentGuild = guild_id;
       },
-      CLEAR_STATE: (state: GuildsState) => {
-        Object.assign(state, baseState);
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<Guild[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        let guild = res.data[0];
+        guild = Object.assign({}, state.guilds[guild.id], guild);
+        state.guilds = { ...state.guilds, [guild.id]: guild };
       },
-      ADD_GAME_PLAY: (state: GuildsState, game_play: GamePlay) => {
-        const guild_id = game_play.guild_id;
-        const guild = state.guilds[guild_id];
-        // Assuming it is definitely not there
+    })
+    .post({
+      action: "doAddGuildMembership",
+      path: "/guild_membership",
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<GuildMembership[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const membership = res.data[0];
+        const guild = state.guilds[membership.guild_id];
         if (guild) {
-          const game_plays =
-            guild.game_play?.filter(
-              (gp: GamePlay) => gp.quest_id !== game_play.quest_id
-            ) || [];
-          game_plays.push(game_play);
-          guild.game_play = game_plays;
+          const memberships = guild.guild_membership || [];
+          memberships.push(membership);
+          guild.guild_membership = memberships;
         }
+        MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
       },
-    },
-  });
+    })
+    .patch({
+      action: "doUpdateGuildMembership",
+      path: "/guild_membership",
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<GuildMembership[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const membership = res.data[0];
+        const guild = state.guilds[membership.guild_id];
+        if (guild) {
+          const memberships =
+            guild.guild_membership?.filter(
+              (gp: GuildMembership) => gp.guild_id !== membership.guild_id
+            ) || [];
+          memberships.push(membership);
+          guild.guild_membership = memberships;
+        }
+        MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
+      },
+    })
+    .post({
+      action: "addGuildMemberAvailableRole",
+      path: "/guild_member_available_role",
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<GuildMemberAvailableRole[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const availableRole = res.data[0];
+        if (
+          MyVapi.store.getters["member/getUserId"] == availableRole.member_id
+        ) {
+          MyVapi.store.commit(
+            "member/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+            availableRole
+          );
+        }
+        MyVapi.store.commit(
+          "members/ADD_GUILD_MEMBER_AVAILABLE_ROLE",
+          availableRole
+        );
+      },
+    })
+    .patch({
+      action: "updateGuildMemberAvailable",
+      path: "/guild_member_available_role",
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<GuildMembership[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {},
+    })
+    .delete({
+      action: "deleteGuildMemberAvailableRole",
+      path: ({ member_id, guild_id, role_id }) =>
+        `/guild_member_available_role?member_id=eq.${member_id}&guild_id=eq.${guild_id}&role_id=eq.${role_id}`,
+      onSuccess: (
+        state: GuildsState,
+        res: AxiosResponse<GuildMemberAvailableRole[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const availableRole = res.data[0];
+        console.log("Available ", availableRole);
+        if (
+          MyVapi.store.getters["member/getUserId"] == availableRole.member_id
+        ) {
+          MyVapi.store.commit(
+            "member/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
+            availableRole
+          );
+        }
+        MyVapi.store.commit(
+          "members/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
+          availableRole
+        );
+      },
+    })
+    .call({
+      action: "registerAllMembers",
+      path: "register_all_members",
+      queryParams: true,
+      // TODO: modify quests's castings appropriately. May need an appropriate mutation.
+    })
+    // Step 4
+    .getVuexStore({
+      getters: GuildsGetters,
+      actions: GuildsActions,
+      mutations: {
+        SET_CURRENT_GUILD: (state: GuildsState, guild_id: number) => {
+          state.currentGuild = guild_id;
+        },
+        CLEAR_STATE: (state: GuildsState) => {
+          Object.assign(state, baseState);
+        },
+        ADD_GAME_PLAY: (state: GuildsState, game_play: GamePlay) => {
+          const guild_id = game_play.guild_id;
+          const guild = state.guilds[guild_id];
+          // Assuming it is definitely not there
+          if (guild) {
+            const game_plays =
+              guild.game_play?.filter(
+                (gp: GamePlay) => gp.quest_id !== game_play.quest_id
+              ) || [];
+            game_plays.push(game_play);
+            guild.game_play = game_plays;
+          }
+        },
+      },
+    });
 
 type GuildsRestActionTypes = {
   fetchGuildById: ({

@@ -5,12 +5,15 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import store from "./store";
+import getStore from "./store";
 import router from "./router";
-import { MemberState } from "./store/member";
+import type { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
+import axiosInstance from "./boot/axios";
 
 var userLoadedResolve = null;
+
+const store = getStore(axiosInstance);
 
 const app = new Vue({
   name: "App",

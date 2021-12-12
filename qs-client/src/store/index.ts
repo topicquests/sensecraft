@@ -9,23 +9,30 @@ import { channel } from "./channel";
 import { role } from "./role";
 import { MyVapi } from "./base";
 import { BaseGetters } from "./baseStore";
+import type { AxiosInstance } from "axios";
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
-  modules: {
-    member,
-    members,
-    conversation,
-    quests,
-    guilds,
-    role,
-    channel,
-  },
-  getters: BaseGetters,
-});
+// singleton
+let STORE = null;
 
-// make the store available to all components
-MyVapi.store = store;
+export default function getStore(axios: AxiosInstance) {
+  if (STORE === null) {
+    STORE = new Vuex.Store({
+      modules: {
+        member: member(axios),
+        members: members(axios),
+        conversation: conversation(axios),
+        quests: quests(axios),
+        guilds: guilds(axios),
+        role: role(axios),
+        channel: channel(axios),
+      },
+      getters: BaseGetters,
+    });
 
-export default store;
+    // make the store available to all components
+    MyVapi.store = STORE;
+  }
+  return STORE;
+}
