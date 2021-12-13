@@ -67,6 +67,7 @@ module.exports = function (/* ctx */) {
       // https://v1.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
       chainWebpack(chain) {
+        //console.log(chain.module); // .store.get("typescript")
         chain
           .plugin("eslint-webpack-plugin")
           .use(ESLintPlugin, [{ extensions: ["js", "vue", "ts"] }]);
@@ -125,9 +126,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Quasar App`,
-        short_name: `Quasar App`,
-        description: `A Quasar Framework app`,
+        name: "Sensecraft",
+        short_name: "Sensecraft",
+        description: "A Sensemaking Quest Platform",
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",

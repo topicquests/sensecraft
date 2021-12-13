@@ -1,5 +1,5 @@
 import mockAxios from "jest-mock-axios";
-import getStore from "../index";
+import getStore from "..";
 import { TOKEN_EXPIRATION } from "../member";
 
 const store = getStore(mockAxios as any);

@@ -9,7 +9,10 @@ module.exports = {
       pug: { doctype: "html" },
     },
   },
-  setupFilesAfterEnv: ["<rootDir>/test/jest/jest.setup.ts"],
+  setupFilesAfterEnv: [
+    "<rootDir>/test/jest/jest.setup.ts",
+    "<rootDir>/global.d.ts",
+  ],
   // noStackTrace: true,
   // bail: true,
   // cache: false,
