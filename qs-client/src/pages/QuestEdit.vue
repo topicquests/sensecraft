@@ -177,7 +177,7 @@ import member from "../components/member.vue";
 import nodeForm from "../components/node-form.vue";
 import IbisButton from "../components/ibis-btn.vue";
 import Component from "vue-class-component";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import Vue from "vue";
 import { DateTime } from "luxon";
 import {
@@ -338,7 +338,7 @@ export default class QuestEditPage extends Vue {
 
   async beforeMount() {
     this.quest_id = Number.parseInt(this.$route.params.quest_id);
-    await app.userLoaded;
+    await userLoaded;
     await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
     const questMembership = this.isQuestMember(this.quest_id);

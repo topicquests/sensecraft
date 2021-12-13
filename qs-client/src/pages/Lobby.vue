@@ -69,7 +69,7 @@ import scoreboard from "../components/scoreboard.vue";
 import questTable from "../components/quest-table.vue";
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   name: "LobbyPage",
@@ -154,7 +154,7 @@ export default {
     },
   },
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
   },
 };

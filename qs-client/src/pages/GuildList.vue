@@ -50,7 +50,7 @@
 <script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import { mapGetters, mapActions } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   props: ["member"],
@@ -114,7 +114,7 @@ export default {
   },
 
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
     await this.ensureAllGuilds();
   },
 };

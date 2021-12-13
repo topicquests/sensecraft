@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { mapActions, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   data() {
@@ -98,7 +98,7 @@ export default {
 
   async beforeMount() {
     this.quest_id = Number.parseInt(this.$route.params.quest_id);
-    await app.userLoaded;
+    await userLoaded;
     await Promise.all([
       this.ensureQuest({ quest_id: this.quest_id }),
       this.ensureAllGuilds(),

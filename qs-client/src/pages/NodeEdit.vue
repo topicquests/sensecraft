@@ -139,7 +139,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import IbisButton from "../components/ibis-btn.vue";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { QuestsState } from "../store/quests";
 import { ConversationState } from "../store/conversation";
 import { GuildsState } from "../store/guilds";
@@ -243,7 +243,7 @@ export default {
   },
   async beforeMount() {
     // how do I know which node?
-    await app.userLoaded;
+    await userLoaded;
     // TODO: Ensure quest, node, guild
     // this.quest.id = this.$route.params.quest_id;
     await this.initialize();

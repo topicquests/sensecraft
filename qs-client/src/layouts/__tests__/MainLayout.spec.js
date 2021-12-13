@@ -16,7 +16,7 @@ import {
 } from "quasar"; // <= cherry pick only the components you actually use
 import { createLocalVue } from "@vue/test-utils";
 import VueRouter from "vue-router";
-// import router from "../../router";
+import router from "../../router";
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -54,7 +54,7 @@ describe("MainLayout.vue", () => {
       mount: {
         mocks,
         localVue,
-        router: new VueRouter(),
+        router: router(),
       },
       quasar: {
         components: {

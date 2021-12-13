@@ -54,7 +54,7 @@ import Component from "vue-class-component";
 import { mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import { GuildsActionTypes } from "../store/guilds";
 
@@ -87,7 +87,7 @@ export default class GuildFormPage extends Vue {
     }
   }
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
   }
   data() {
     return {

@@ -36,7 +36,7 @@ import scoreboard from "../components/scoreboard.vue";
 import nodeTree from "../components/node-tree.vue";
 import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { ibis_node_type_type, ibis_node_type_list } from "../enums";
 import {
   QuestsState,
@@ -122,7 +122,7 @@ export default class QuestViewPage extends Vue {
   async created() {
     try {
       const questId = Number.parseInt(this.$route.params.quest_id);
-      await app.userLoaded;
+      await userLoaded;
       await this.setCurrentQuest(questId);
       await this.ensureQuest({ quest_id: questId });
       await this.ensureConversation(questId);

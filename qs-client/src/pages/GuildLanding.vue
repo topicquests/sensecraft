@@ -54,7 +54,7 @@
 import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   props: ["member"],
@@ -111,7 +111,7 @@ export default {
     ...mapActions("guilds", ["ensureAllGuilds"]),
   },
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
     await this.ensureAllGuilds();
   },
 };
