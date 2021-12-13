@@ -147,18 +147,23 @@ const MembersActions = {
       });
     }
   },
+  resetMembers: (context) => {
+    context.commit("CLEAR_STATE");
+  },
+};
+
+const baseState: MembersState = {
+  fullFetch: false,
+  questFetch: null,
+  guildFetch: null,
+  members: {},
+  fullMembers: {},
 };
 
 export const members = (axios: AxiosInstance) =>
   new MyVapi<MembersState>({
     axios,
-    state: {
-      fullFetch: false,
-      questFetch: null,
-      guildFetch: null,
-      members: {},
-      fullMembers: {},
-    } as MembersState,
+    state: baseState as MembersState,
   })
     // Step 3
     .get({
@@ -321,6 +326,9 @@ export const members = (axios: AxiosInstance) =>
               state.members = { ...state.members, [member_id]: member };
             }
           }
+        },
+        CLEAR_STATE: (state: MembersState) => {
+          Object.assign(state, baseState);
         },
       },
     });

@@ -7,7 +7,7 @@ import {
   GuildMembership,
   Casting,
 } from "../types";
-import { MyVapi, RetypeGetterTypes } from "./base";
+import { MyVapi, RetypeGetterTypes, RetypeActionTypes } from "./base";
 
 export const BaseGetters = {
   hasPermission:
@@ -69,4 +69,18 @@ export const BaseGetters = {
     },
 };
 
+export const BaseActions = {
+  reset: (context) => {
+    return Promise.all([
+      context.dispatch("member/resetMember"),
+      context.dispatch("members/resetMembers"),
+      context.dispatch("quests/resetQuests"),
+      context.dispatch("guilds/resetGuilds"),
+      context.dispatch("role/resetRole"),
+      context.dispatch("channel/resetChannel"),
+    ]);
+  },
+};
+
 export type BaseGetterTypes = RetypeGetterTypes<typeof BaseGetters>;
+export type MemberActionTypes = RetypeActionTypes<typeof BaseActions>;

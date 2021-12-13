@@ -205,9 +205,6 @@ const ConversationGetters = {
 };
 
 const ConversationActions = {
-  resetConversation: (context) => {
-    context.commit("RESET_CONVERSATION");
-  },
   ensureConversation: async (context, quest_id: number) => {
     if (quest_id != context.state.currentQuest || !context.state.full) {
       await context.dispatch("fetchConversation", { params: { quest_id } });
@@ -234,7 +231,7 @@ const ConversationActions = {
       });
     }
   },
-  clearState: (context) => {
+  resetConversation: (context) => {
     context.commit("CLEAR_STATE");
   },
 };
@@ -384,14 +381,6 @@ export const conversation = (axios: AxiosInstance) =>
       getters: ConversationGetters,
       actions: ConversationActions,
       mutations: {
-        RESET_CONVERSATION: (state: ConversationState) => {
-          state.full = false;
-          state.conversation = {};
-          state.conversationRoot = null;
-          state.neighbourhood = {};
-          state.neighbourhoodRoot = null;
-          state.currentQuest = null;
-        },
         CLEAR_STATE: (state: ConversationState) => {
           Object.assign(state, baseState);
         },

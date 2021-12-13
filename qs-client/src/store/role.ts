@@ -39,7 +39,7 @@ export const RoleActions = {
   createRole: async (context, { data }) => {
     const res = await context.dispatch("createRole", { data });
   },
-  clearState: (context) => {
+  resetRole: (context) => {
     context.commit("CLEAR_STATE");
   },
 };

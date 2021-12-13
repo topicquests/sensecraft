@@ -85,7 +85,7 @@ const ChannelGetters = {
 };
 
 const ChannelActions = {
-  resetChannel: (context) => {
+  reset: (context) => {
     context.commit("CLEAR_STATE");
   },
   ensureChannels: async (context, guild_id: number) => {
@@ -106,7 +106,7 @@ const ChannelActions = {
       });
     }
   },
-  clearState: (context) => {
+  resetChannel: (context) => {
     context.commit("CLEAR_STATE");
   },
 };

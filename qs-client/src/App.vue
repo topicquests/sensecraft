@@ -23,9 +23,9 @@ const app = new Vue({
     currentUser(newUser, oldUser) {
       // reload quests an guilds
       if (newUser?.id !== oldUser?.id) {
-        this.$store.dispatch("quests/clearState");
-        this.$store.dispatch("guilds/clearState");
-        this.$store.dispatch("conversation/clearState");
+        this.$store.dispatch("quests/resetQuests");
+        this.$store.dispatch("guilds/resetGuilds");
+        this.$store.dispatch("conversation/resetConversation");
       }
       if (newUser === null) {
         this.$router.push("/");

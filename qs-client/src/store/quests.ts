@@ -160,7 +160,7 @@ export const QuestsActions = {
     await context.dispatch("ensureQuest", { quest_id, full });
     await context.dispatch("setCurrentQuest", quest_id);
   },
-  clearState: (context) => {
+  resetQuests: (context) => {
     context.commit("CLEAR_STATE");
   },
 };

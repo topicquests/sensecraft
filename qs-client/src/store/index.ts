@@ -8,7 +8,7 @@ import { conversation } from "./conversation";
 import { channel } from "./channel";
 import { role } from "./role";
 import { MyVapi } from "./base";
-import { BaseGetters } from "./baseStore";
+import { BaseGetters, BaseActions } from "./baseStore";
 import type { AxiosInstance } from "axios";
 
 Vue.use(Vuex);
@@ -29,6 +29,7 @@ export default function getStore(axios: AxiosInstance) {
         channel: channel(axios),
       },
       getters: BaseGetters,
+      actions: BaseActions,
     });
 
     // make the store available to all components

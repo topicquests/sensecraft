@@ -87,6 +87,9 @@ const MemberActions = {
       }
     }
   },
+  resetMember: (context) => {
+    context.commit("CLEAR_STATE");
+  },
 };
 
 export const member = (axios: AxiosInstance) =>
@@ -344,6 +347,9 @@ export const member = (axios: AxiosInstance) =>
             memberships.push(membership);
             state.member.quest_membership = memberships;
           }
+        },
+        CLEAR_STATE: (state: MemberState) => {
+          Object.assign(state, baseState);
         },
       },
     });

@@ -147,7 +147,7 @@ const GuildsActions = {
       }
     }
   },
-  clearState: (context) => {
+  resetGuilds: (context) => {
     context.commit("CLEAR_STATE");
   },
 };

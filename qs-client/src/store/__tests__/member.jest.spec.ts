@@ -87,4 +87,8 @@ describe("Member store", () => {
     );
     expect(store.state.member.member).toBeDefined();
   });
+  it("resets correctly", async () => {
+    await store.dispatch("reset");
+    expect(store.state.member.token).toBeNull();
+  });
 });
