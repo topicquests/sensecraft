@@ -200,7 +200,7 @@ import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import {
   ConversationState,
   ConversationGetterTypes,
@@ -658,7 +658,7 @@ export default class GuildPage extends Vue {
   }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
-    await app.userLoaded;
+    await userLoaded;
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),

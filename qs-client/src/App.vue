@@ -10,8 +10,7 @@ import router from "./router";
 import type { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
 import axiosInstance from "./boot/axios";
-
-var userLoadedResolve = null;
+import { userLoadedResolve } from "./boot/userLoaded";
 
 const store = getStore(axiosInstance);
 
@@ -36,11 +35,6 @@ const app = new Vue({
       }
     },
   },
-  data: () => ({
-    userLoaded: new Promise((resolve) => {
-      userLoadedResolve = resolve;
-    }),
-  }),
   methods: {
     ...mapActions("member", ["ensureLoginUser", "renewToken"]),
   },

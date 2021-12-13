@@ -56,7 +56,7 @@
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 
 export default {
@@ -115,7 +115,7 @@ export default {
 
   async beforeMount() {
     this.guild_id = Number.parseInt(this.$route.params.guild_id);
-    await app.userLoaded;
+    await userLoaded;
     await this.ensureGuild({ guild_id: this.guild_id });
     this.isAdmin = this.hasPermission("guild_admin", this.guild_id);
   },

@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { mapActions } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   name: "HomePage",
@@ -68,7 +68,7 @@ export default {
   },
 
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
     // is this needed here?
     // await Promise.all([
     //   this.ensureAllQuests(),

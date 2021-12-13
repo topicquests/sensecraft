@@ -216,7 +216,7 @@
 </template>
 <script lang="ts">
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   data() {
@@ -269,7 +269,7 @@ export default {
   async beforeMount() {
     const id = Number.parseInt(this.$route.params.id);
     this.$data.rightDrawerOpen = false; //turn off conversation tree
-    await app.userLoaded;
+    await userLoaded;
     //this.$store.commit("questView", false);
 
     await this.initialize();

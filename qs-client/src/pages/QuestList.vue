@@ -48,7 +48,7 @@
 import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import QuestTable from "../components/quest-table.vue";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 
 export default {
   props: ["member"],
@@ -79,7 +79,7 @@ export default {
     ...mapActions("quests", ["ensureAllQuests"]),
   },
   async beforeMount() {
-    await app.userLoaded;
+    await userLoaded;
     await this.ensureAllQuests();
   },
 };

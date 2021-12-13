@@ -141,7 +141,7 @@
 <script lang="ts">
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import {
@@ -400,7 +400,7 @@ export default class GuildAdminPage extends Vue {
 
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
-    await app.userLoaded;
+    await userLoaded;
     await this.setCurrentGuild(this.guildId);
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),

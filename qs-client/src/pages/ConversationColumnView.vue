@@ -155,7 +155,7 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import { QuestsState } from "../store/quests";
 
 export default {
@@ -207,7 +207,7 @@ export default {
   },
   async beforeMount() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
-    await app.memberLoaded;
+    await userLoaded;
     await Promise.all([
       this.setCurrentQuest(this.questId),
       this.ensurQuest(this.questId),

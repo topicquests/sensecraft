@@ -31,10 +31,11 @@
         </div>
         <div v-if="isAuthenticated">
           <q-btn
-            @click="logout()"
+            @click="onLogout()"
             outline
             roundeded
             label="log off"
+            id="logoff"
             name="logoff"
           >
           </q-btn>
@@ -129,7 +130,6 @@
 </template>
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
-import { ConversationState } from "../store/conversation";
 import { MemberState } from "../store/member";
 import nodeTree from "../components/node-tree.vue";
 
@@ -174,34 +174,34 @@ export default {
       "getConversationNodeById",
       "setConversationNode",
     ]),
+    ...mapActions("member", ["logout"]),
     toggleNav() {
       if (this.rightDrawerOpen) {
         this.closeNav();
       } else {
         this.rightDrawerOpen = true;
-        document.getElementById("mySidenav").style.width = "450px";
+        this.$el.querySelector("#mySidenav").style.width = "450px";
       }
     },
     closeNav() {
       this.rightDrawerOpen = false;
-      document.getElementById("mySidenav").style.width = "0";
+      this.$el.querySelector("#mySidenav").style.width = "0";
     },
     goTo(route) {
       this.rightDrawer = false;
       this.leftDrawer = false;
       this.$router.push({ name: route });
     },
-    logout() {
+    async onLogout() {
       this.rightDrawer = false;
       this.leftDrawer = false;
-      document.getElementById("mySidenav").style.width = "0";
-      this.$store.dispatch("member/logout").then((response) => {
-        this.$q.notify({
-          type: "positive",
-          message: "You are now logged out",
-        });
-        this.goTo("home");
+      this.$el.querySelector("#mySidenav").style.width = "0";
+      await this.logout();
+      this.$q.notify({
+        type: "positive",
+        message: "You are now logged out",
       });
+      this.goTo("home");
     },
   },
 };

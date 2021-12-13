@@ -83,7 +83,7 @@ import {
   publication_state_list,
   public_private_bool,
 } from "../enums";
-import app from "../App.vue";
+import { userLoaded } from "../boot/userLoaded";
 import {
   ConversationState,
   ConversationGetterTypes,
@@ -270,7 +270,7 @@ export default class GamePlayPage extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
-    await app.userLoaded;
+    await userLoaded;
     await Promise.all([
       this.setCurrentQuest(this.questId),
       this.setCurrentGuild(this.guildId),
