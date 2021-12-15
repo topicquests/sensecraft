@@ -3,6 +3,7 @@ import { mountQuasar } from "@quasar/quasar-app-extension-testing-unit-jest";
 import {
   QBtn,
   QHeader,
+  QIcon,
   QLayout,
   QToolbar,
   QToolbarTitle,
@@ -70,27 +71,85 @@ describe("MainLayout.vue", () => {
           QItem,
           QPageContainer,
           QFooter,
+          QIcon,
         },
       },
       propsData: {},
     });
-
     expect(wrapper).toBeTruthy();
   });
+
   afterEach(() => store.reset());
 
+  //Home image button
+  it("renders home image button", () => {
+    expect(wrapper.find("#home_image").exists()).toBe(true);
+  });
+
+  //Left drawer
+  it("renders leftdrawer button", () => {
+    expect(wrapper.find("#leftDrawer").exists()).toBe(true);
+  });
+
+  //Signup Button
+  it("renders signup button", () => {
+    expect(wrapper.find("#register").exists()).toBe(true);
+  });
+
+  it("logout button is hid if no user authenticated", () => {});
+  it("logout button is shown if user authenticated", () => {});
+
+  //Logoff Button
   it("renders logout button", () => {
     expect(wrapper.find("#logoff").exists()).toBe(true);
   });
   it("logs out", async () => {
     const button = wrapper.find("#logoff");
-    // mock the notify function
     button.vm.$q.notify = jest.fn();
-    // wrapper.find("#logoff").trigger("click");
     await button.vm.$emit("click");
     expect(store.dispatch).toHaveBeenCalledWith("member/logout");
+  });
 
-    // this one should fail because mock store is not updated
-    // expect(store.state.member.isAuthenticated).toBe(false)
+  it("logout button is hid if no user authenticated", () => {});
+  it("logout button is shown if user authenticated", () => {});
+
+  //Conversation node tree Button
+  it("renders conversation node tree button", () => {
+    expect(wrapper.find("#conversation_tree").exists()).toBe(true);
+  });
+
+  //Menu item lobby
+  it("renders menu item lobby", () => {
+    expect(wrapper.find("#lobby").exists()).toBe(true);
+  });
+
+  //Menu item quest view
+  it("renders menu item quest view", () => {
+    expect(wrapper.find("#questView").exists()).toBe(true);
+  });
+
+  //Menu item create quest
+  it("renders menu item create quest", () => {
+    expect(wrapper.find("#createQuest").exists()).toBe(true);
+  });
+
+  //Menu item guild list
+  it("renders menu item guild list", () => {
+    expect(wrapper.find("#guildView").exists()).toBe(true);
+  });
+
+  //Menu item create guild
+  it("renders menu item create guild", () => {
+    expect(wrapper.find("#createGuild").exists()).toBe(true);
+  });
+
+  //Menu item home
+  it("renders menu item home", () => {
+    expect(wrapper.find("#home").exists()).toBe(true);
+  });
+
+  //Menu item admin
+  it("renders menu item admin", () => {
+    expect(wrapper.find("#admin").exists()).toBe(true);
   });
 });

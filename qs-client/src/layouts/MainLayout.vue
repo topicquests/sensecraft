@@ -2,35 +2,46 @@
   <q-layout view="hHh LpR fFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="leftDrawer = !leftDrawer" />
+        <q-btn
+          id="leftDrawer"
+          dense
+          flat
+          round
+          icon="menu"
+          @click="leftDrawer = !leftDrawer"
+        />
         <q-toolbar-title>
           <q-btn flat @click="goTo('home')">
             <q-img
               src="../statics/guild_quest.png"
               style="width: 150px"
+              id="home_image"
             ></q-img>
           </q-btn>
         </q-toolbar-title>
-        <div v-if="!isAuthenticated">
+        <div>
           <q-btn
+            v-show="!isAuthenticated"
             @click="goTo('signin')"
             outline
             roundeded
             label="sign in"
-            name="signin"
+            id="signin"
             class="q-mr-sm"
           >
           </q-btn>
           <q-btn
+            v-show="!isAuthenticated"
             @click="goTo('register')"
             outline
             roundeded
             label="sign up"
-            name="register"
+            id="register"
           ></q-btn>
         </div>
-        <div v-if="isAuthenticated">
+        <div>
           <q-btn
+            v-show="isAuthenticated"
             @click="onLogout()"
             outline
             roundeded
@@ -42,12 +53,13 @@
         </div>
         <div>
           <q-btn
-            v-if="showTree && getNeighbourhoodTree.length"
+            v-show="showTree && getNeighbourhoodTree.length"
             flat
             dense
             round
             aria-label="Tree View"
             @click="toggleNav"
+            id="conversation_tree"
           >
             <q-icon name="menu" />
           </q-btn>
@@ -69,46 +81,46 @@
             <div>
               <q-item> About </q-item>
             </div>
-            <div v-if="isAuthenticated">
-              <q-item>
+            <div>
+              <q-item v-show="isAuthenticated" id="lobby">
                 <router-link :to="{ name: 'lobby' }"> Lobby </router-link>
               </q-item>
             </div>
             <div>
-              <q-item>
+              <q-item id="questView">
                 <router-link :to="{ name: 'quest_list' }">
                   Quest list
                 </router-link>
               </q-item>
             </div>
-            <div v-if="hasPermission('createQuest')">
-              <q-item>
+            <div>
+              <q-item v-show="hasPermission('createQuest')" id="createQuest">
                 <router-link :to="{ name: 'quest_landing' }">
-                  Quest create
+                  Quest create\edit
                 </router-link>
               </q-item>
             </div>
             <div>
-              <q-item>
+              <q-item id="guildView">
                 <router-link :to="{ name: 'guild_list' }">
                   Guild list
                 </router-link>
               </q-item>
             </div>
-            <div v-if="hasPermission('createGuild')">
-              <q-item>
+            <div>
+              <q-item v-show="hasPermission('createGuild')" id="createGuild">
                 <router-link :to="{ name: 'guild_landing' }">
-                  Guild create
+                  Guild create\edit
                 </router-link>
               </q-item>
             </div>
             <div>
-              <q-item>
+              <q-item id="home">
                 <router-link :to="{ name: 'root' }"> Home </router-link>
               </q-item>
             </div>
             <div v-if="hasPermission('superadmin')">
-              <q-item>
+              <q-item id="admin">
                 <router-link
                   :to="{ name: 'admin', params: { member_id: memberId } }"
                 >
@@ -128,6 +140,7 @@
     </q-footer>
   </q-layout>
 </template>
+
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
 import { MemberState } from "../store/member";
