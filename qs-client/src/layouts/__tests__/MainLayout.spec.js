@@ -28,7 +28,7 @@ import MainLayout from "../MainLayout";
 const store = new Store({
   state: {
     member: {
-      isAuthenticated: true,
+      isAuthenticated: false,
       member: {
         id: 1,
       },
@@ -94,15 +94,31 @@ describe("MainLayout.vue", () => {
   //Signup Button
   it("renders signup button", () => {
     expect(wrapper.find("#register").exists()).toBe(true);
+
+    //Member not logged in
+    expect(wrapper.find("#register").isVisible()).toBe(true);
   });
 
-  it("logout button is hid if no user authenticated", () => {});
+  //Signin Button
+  it("renders signin button", () => {
+    expect(wrapper.find("#signin").exists()).toBe(true);
+  });
+
+  it("Signin button is visible if no user authenticated", () => {
+    expect(wrapper.find("#signin").isVisible()).toBe(true);
+  });
+
   it("logout button is shown if user authenticated", () => {});
 
   //Logoff Button
   it("renders logout button", () => {
     expect(wrapper.find("#logoff").exists()).toBe(true);
   });
+
+  it("Logoff buttun is not visible if no user logged on", () => {
+    expect(wrapper.find("#logoff").isVisible()).toBe(false);
+  });
+
   it("logs out", async () => {
     const button = wrapper.find("#logoff");
     button.vm.$q.notify = jest.fn();
