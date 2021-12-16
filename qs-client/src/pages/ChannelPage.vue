@@ -24,9 +24,9 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapState } from "vuex";
-import scoreboard from "../components/scoreboard.vue";
+// import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import questCard from "../components/quest-card.vue";
+//import questCard from "../components/quest-card.vue";
 import nodeCard from "../components/node-card.vue";
 import nodeForm from "../components/node-form.vue";
 import nodeTree from "../components/node-tree.vue";
@@ -39,22 +39,24 @@ import {
 } from "../enums";
 import app from "../App.vue";
 import {
-  ConversationState,
-  ConversationGetterTypes,
-  ConversationActionTypes,
-  ibis_child_types,
+  ChannelState,
+  ChannelGetters,
+  ChannelActions,
+} from "../store/channel"
+import {
+  ibis_child_types
 } from "../store/conversation";
 import {
   QuestsState,
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
-import {
+import { //TODO don't need
   GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import {
+import { //TODO don't need
   MemberState,
   MemberGetterTypes,
   MemberActionTypes,
@@ -80,7 +82,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   components: {
 //    scoreboard: scoreboard,
     member: member,
-    questCard: questCard,
+//    questCard: questCard,
     nodeCard: nodeCard,
     nodeForm: nodeForm,
     nodeTree: nodeTree,
