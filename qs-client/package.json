@@ -20,7 +20,7 @@
   "dependencies": {
     "@quasar/extras": "~1.12",
     "axios": "~0.24",
-    "core-js": "^3.19",
+    "core-js": "^3.20",
     "grant": "~5.4",
     "luxon": "^2.1",
     "pg-hstore": "~2.3",
