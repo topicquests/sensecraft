@@ -119,8 +119,8 @@
                 <router-link :to="{ name: 'root' }"> Home </router-link>
               </q-item>
             </div>
-            <div v-if="hasPermission('superadmin')">
-              <q-item id="admin">
+            <div>
+              <q-item v-show="hasPermission('superadmin')" id="admin">
                 <router-link
                   :to="{ name: 'admin', params: { member_id: memberId } }"
                 >
