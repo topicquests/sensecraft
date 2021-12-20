@@ -54,6 +54,25 @@ CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
 DROP TRIGGER IF EXISTS before_update_role ON public.role;
 CREATE TRIGGER before_update_role BEFORE UPDATE ON public.role FOR EACH ROW EXECUTE FUNCTION public.before_update_role();
 
+--
+-- Name: is_guild_role(integer, integer); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.is_guild_role(guild_id integer, role_id integer) RETURNS boolean AS $$
+    SELECT COALESCE(r.guild_id, guild_id) = guild_id FROM public.role r
+        WHERE r.id = role_id;
+$$ LANGUAGE sql STABLE;
+
+--
+-- Name: is_visible_role(integer); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.is_visible_role(guild_id integer) RETURNS boolean AS $$
+    SELECT guild_id IS NULL OR 
+           public.has_permission('superadmin') OR
+           public.is_guild_id_member(guild_id);
+$$ LANGUAGE sql STABLE;
+
 
 --
 -- Name: role; Type: ROW SECURITY
@@ -93,7 +112,7 @@ CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (
 --
 
 DROP POLICY IF EXISTS role_select_policy ON public.role;
-CREATE POLICY role_select_policy ON public.role FOR SELECT USING (true);
+CREATE POLICY role_select_policy ON public.role FOR SELECT USING (is_visible_role(guild_id));
 
 --
 -- Name: guild_member_available_role; Type: ROW SECURITY
