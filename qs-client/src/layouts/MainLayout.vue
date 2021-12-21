@@ -120,7 +120,7 @@
               </q-item>
             </div>
             <div>
-              <q-item v-show="hasPermission('superadmin')" id="admin">
+              <q-item v-if="hasPermission('superadmin')" id="admin">
                 <router-link
                   :to="{ name: 'admin', params: { member_id: memberId } }"
                 >
