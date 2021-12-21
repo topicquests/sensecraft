@@ -5,6 +5,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import VueRouter from "vue-router";
 import getStore from "./store";
 import router from "./router";
 import type { MemberState } from "./store/member";
@@ -13,6 +14,8 @@ import axiosInstance from "./boot/axios";
 import { userLoadedResolve } from "./boot/userLoaded";
 
 const store = getStore(axiosInstance);
+
+Vue.use(VueRouter);
 
 const app = new Vue({
   name: "App",

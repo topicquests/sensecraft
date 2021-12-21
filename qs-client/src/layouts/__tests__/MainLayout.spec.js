@@ -17,10 +17,11 @@ import {
 } from "quasar"; // <= cherry pick only the components you actually use
 import { createLocalVue } from "@vue/test-utils";
 import VueRouter from "vue-router";
+import routes from "../../router/routes";
 import router from "../../router";
 
 const localVue = createLocalVue();
-localVue.use(VueRouter);
+// localVue.use(VueRouter);
 var store;
 var storeOptions;
 var wrapper;
@@ -30,15 +31,18 @@ import MainLayout from "../MainLayout";
 // reset spies, initial state and getters
 afterEach(() => store.reset());
 
+const mockRouter = {
+  // route: routes,
+  push: jest.fn(),
+  goto: jest.fn(),
+};
+
 describe("MainLayout.vue not logged in", () => {
   beforeEach(() => {
     storeOptions = {
       state: {
         member: {
           isAuthenticated: false,
-          member: {
-            id: 1,
-          },
         },
         conversation: {},
       },
@@ -52,6 +56,8 @@ describe("MainLayout.vue not logged in", () => {
     // add other mocks here so they are accessible in every component
     const mocks = {
       $store: store,
+      $route: routes,
+      $router: mockRouter,
     };
 
     wrapper = mountQuasar(MainLayout, {
@@ -59,6 +65,7 @@ describe("MainLayout.vue not logged in", () => {
         mocks,
         localVue,
         router: router(),
+        stubs: ["router-link", "router-view"],
       },
       quasar: {
         components: {
@@ -109,6 +116,7 @@ describe("MainLayout.vue not logged in", () => {
   it("Signin button is visible if no user authenticated", () => {
     expect(wrapper.find("#signin").isVisible()).toBe(true);
   });
+  // TODO: test signin
 
   //Logoff Button
   it("renders logout button", () => {
@@ -118,6 +126,7 @@ describe("MainLayout.vue not logged in", () => {
     expect(wrapper.find("#logoff").isVisible()).toBe(false);
   });
   it("logs out", async () => {
+    // TODO: This should actually fail. Why logout when you're not logged in?
     const button = wrapper.find("#logoff");
     button.vm.$q.notify = jest.fn();
     await button.vm.$emit("click");
@@ -179,10 +188,7 @@ describe("MainLayout.vue not logged in", () => {
 
   //Menu item admin
   it("renders menu item admin", () => {
-    expect(wrapper.find("#admin").exists()).toBe(true);
-  });
-  it("admin link is not visible no permission", () => {
-    expect(wrapper.find("#admin").isVisible()).toBe(false);
+    expect(wrapper.find("#admin").exists()).toBe(false);
   });
 });
 
@@ -208,13 +214,16 @@ describe("MainLayout.logged in", () => {
     // add other mocks here so they are accessible in every component
     const mocks = {
       $store: store,
+      $route: routes,
+      $router: mockRouter,
     };
 
     wrapper = mountQuasar(MainLayout, {
       mount: {
         mocks,
         localVue,
-        router: router(),
+        $route: routes,
+        stubs: ["router-link", "router-view"],
       },
       quasar: {
         components: {
@@ -253,6 +262,13 @@ describe("MainLayout.logged in", () => {
   //Logoff Button
   it("Logoff buttun is visible if user authenticated", () => {
     expect(wrapper.find("#logoff").isVisible()).toBe(true);
+  });
+  it("logs out", async () => {
+    const button = wrapper.find("#logoff");
+    button.vm.$q.notify = jest.fn();
+    await button.vm.$emit("click");
+    expect(store.dispatch).toHaveBeenCalledWith("member/logout");
+    expect(mockRouter.push).toHaveBeenCalledWith({ name: "home" });
   });
 
   //Conversation node tree Button
