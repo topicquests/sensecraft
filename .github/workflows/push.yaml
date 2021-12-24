@@ -22,8 +22,8 @@ jobs:
           postgres_image_name: conversence/postgres
       - name: Install psql
         run: |
-          apt update
-          apt install -y postgresql-client wget
+          sudo apt update
+          sudo apt install -y postgresql-client wget
       - name: Initialize test DB
         working-directory: ./qs-server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
@@ -32,7 +32,7 @@ jobs:
           wget https://github.com/PostgREST/postgrest/releases/download/v9.0.0/postgrest-v9.0.0-linux-static-x64.tar.xz
           tar -Jxf postgrest-v9.0.0-linux-static-x64.tar.xz
           rm postgrest-v9.0.0-linux-static-x64.tar.xz
-          mv postgrest /usr/bin/
+          sudo mv postgrest /usr/bin/
       - name: Install server dependencies
         working-directory: ./qs-server
         run: npm ci
