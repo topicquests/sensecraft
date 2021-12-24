@@ -1,12 +1,24 @@
 from subprocess import run
 
-def psql_command(command, cmdfile=None, user=None, db="postgres", sudo=False,
-                 password=None, host="127.0.0.1", debug=False, variables=None, **kwargs):
+
+def psql_command(
+    command,
+    cmdfile=None,
+    user=None,
+    db="postgres",
+    sudo=False,
+    port=5432,
+    password=None,
+    host="127.0.0.1",
+    debug=False,
+    variables=None,
+    **kwargs,
+):
     if debug:
         print(command)
     assert not (sudo and password)
     if password:
-        conn = ["psql", f"postgresql://{user}:{password}@{host}/{db}"]
+        conn = ["psql", f"postgresql://{user}:{password}@{host}:{port}/{db}"]
     else:
         if sudo:
             conn = ["sudo", "-u", user, "psql"]

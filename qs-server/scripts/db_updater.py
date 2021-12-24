@@ -77,7 +77,9 @@ def read_file_structure(path):
             match = IDEMPOTENT_PATTERN.match(line)
             if match:
                 idempotent = True
-    return VersionData(path=path, sha1sum=sha1sum(path), idempotent=idempotent, reqs=reqs)
+    return VersionData(
+        path=path, sha1sum=sha1sum(path), idempotent=idempotent, reqs=reqs
+    )
 
 
 def read_structure(deploy=True):
@@ -93,11 +95,9 @@ def read_structure(deploy=True):
             structures[feature] = TagData()
         struct = structures[feature]
         if is_migration:
-            random_assign(struct.transitions,
-                          read_file_structure(path), version-1)
+            random_assign(struct.transitions, read_file_structure(path), version - 1)
         elif version:
-            random_assign(struct.versions,
-                          read_file_structure(path), version-1)
+            random_assign(struct.versions, read_file_structure(path), version - 1)
         else:
             struct.head = read_file_structure(path)
     for path in pathlib.Path("revert").glob("*.sql"):
@@ -112,15 +112,16 @@ def read_structure(deploy=True):
             continue
         struct = structures[feature]
         if is_migration:
-            random_assign(struct.revert_transitions, path, version-1)
+            random_assign(struct.revert_transitions, path, version - 1)
         elif version:
-            random_assign(struct.revert_versions, path, version-1)
+            random_assign(struct.revert_versions, path, version - 1)
         else:
             struct.revert = path
     for feature, struct in structures.items():
         versions = struct.versions
-        assert len(versions) == len(list(filter(None, versions))),\
-            f"non-consecutive versions for feature {feature}"
+        assert len(versions) == len(
+            list(filter(None, versions))
+        ), f"non-consecutive versions for feature {feature}"
         for req in struct.head.reqs:
             structures[req].req_by.add(feature)
         for s in chain(versions, (struct.head,)):
@@ -130,7 +131,7 @@ def read_structure(deploy=True):
 
 def db_state(conn_data):
     results = psql_command("select * from deploy_state", **conn_data)
-    results = [x.split(',') for x in results.split('\n') if x]
+    results = [x.split(",") for x in results.split("\n") if x]
     return {row[0]: (int(row[1]), row[2]) for row in results}
 
 
@@ -163,8 +164,12 @@ def needs_revert(state, structures, feature):
     if sha1sum == struct.head.sha1sum:
         return False
     if sha1sum in struct.by_sha:
-        return not all((struct.transitions[i]
-                        for i in range(prev_version, len(struct.versions)-1)))
+        return not all(
+            (
+                struct.transitions[i]
+                for i in range(prev_version, len(struct.versions) - 1)
+            )
+        )
     return True
 
 
@@ -187,7 +192,9 @@ def calc_deps(structures, target, forward=True):
 def calc_deps_list(structures, targets, forward=True):
     targets = list(targets)
     targets.sort()
-    return list(dedup(chain(*[calc_deps(structures, feature, forward) for feature in targets])))
+    return list(
+        dedup(chain(*[calc_deps(structures, feature, forward) for feature in targets]))
+    )
 
 
 def ordered_features(structures):
@@ -205,9 +212,12 @@ def calc_apply_target(state, structures, target, reapply=False):
         if prev_version < len(struct.versions):
             assert sha1sum == struct.versions[prev_version].sha1sum
             for i in range(prev_version, len(struct.versions)):
-                next_shasum = struct.versions[i+1].sha1sum if (i+1) < len(
-                    struct.versions) else struct.head.sha1sum
-                yield (target, struct.transitions[i].path, i+1, next_shasum)
+                next_shasum = (
+                    struct.versions[i + 1].sha1sum
+                    if (i + 1) < len(struct.versions)
+                    else struct.head.sha1sum
+                )
+                yield (target, struct.transitions[i].path, i + 1, next_shasum)
         elif reapply or sha1sum != struct.head.sha1sum:
             # assuming idempotence... maybe a version revert/deploy if available?
             # OR Reverting the whole thing?
@@ -220,29 +230,41 @@ def calc_all_features(structures):
 
 def init_db(conn_data):
     psql_command(
-        """CREATE TABLE IF NOT EXISTS deploy_state(feature varchar primary key, prev_version smallint, sha1sum varchar(40))""", **conn_data)
+        """CREATE TABLE IF NOT EXISTS deploy_state(feature varchar primary key, prev_version smallint, sha1sum varchar(40))""",
+        **conn_data,
+    )
 
 
 def declare_deploy(state, feature, prev_version, sha1sum, **conn_data):
     psql_command(
         f"""INSERT INTO deploy_state (feature, prev_version, sha1sum) VALUES ('{feature}', {prev_version}, '{sha1sum}') ON CONFLICT (feature) DO UPDATE SET prev_version=EXCLUDED.prev_version, sha1sum=EXCLUDED.sha1sum""",
-        **conn_data)
+        **conn_data,
+    )
     state[feature] = (prev_version, sha1sum)
 
 
 def declare_revert(state, feature, **conn_data):
-    psql_command(
-        f"DELETE FROM deploy_state WHERE feature='{feature}'", **conn_data)
+    psql_command(f"DELETE FROM deploy_state WHERE feature='{feature}'", **conn_data)
     state.pop(feature, None)
 
 
-def deploy(features, state, structures, conn_data, dry_run=False, simulation=False, reapply=False, except_target=False):
+def deploy(
+    features,
+    state,
+    structures,
+    conn_data,
+    dry_run=False,
+    simulation=False,
+    reapply=False,
+    except_target=False,
+):
     if not features:
         features = structures.keys()
     base_features = features
     features = calc_deps_list(structures, features)
-    reversions = [feature for feature in features if needs_revert(
-        state, structures, feature)]
+    reversions = [
+        feature for feature in features if needs_revert(state, structures, feature)
+    ]
     if reversions and (dry_run or not simulation):
         reversions = calc_deps_list(structures, reversions, False)
         for feature in reversions:
@@ -256,15 +278,17 @@ def deploy(features, state, structures, conn_data, dry_run=False, simulation=Fal
     for feature in features:
         if except_target and feature in base_features:
             continue
-        reapply_ = reapply and feature in base_features and structures[feature].head.idempotent
+        reapply_ = (
+            reapply and feature in base_features and structures[feature].head.idempotent
+        )
         for feature_, path, prev_version, sha1sum in calc_apply_target(
-                state, structures, feature, reapply_):
+            state, structures, feature, reapply_
+        ):
             print(path)
             if not dry_run:
                 if not simulation:
                     psql_command(None, path, **conn_data)
-                declare_deploy(state, feature, prev_version,
-                               sha1sum, **conn_data)
+                declare_deploy(state, feature, prev_version, sha1sum, **conn_data)
 
 
 def add_feature(feature, requirement, idempotent):
@@ -275,15 +299,15 @@ def add_feature(feature, requirement, idempotent):
         return
     for rfeature in requirement:
         assert pathlib.Path(
-            f"deploy/{rfeature}.sql").exists(), f"unknown requirement: {rfeature}"
-    with open(deploy_path, 'w') as f:
-        requirements = "\n".join(
-            [f"-- requires: {feature}" for feature in requirement])
+            f"deploy/{rfeature}.sql"
+        ).exists(), f"unknown requirement: {rfeature}"
+    with open(deploy_path, "w") as f:
+        requirements = "\n".join([f"-- requires: {feature}" for feature in requirement])
         if idempotent:
             requirements += "\n-- idempotent"
         f.write(BASE_FILE.format(feature=feature, requirements=requirements))
-    revert_path = pathlib .Path(f"revert/{feature}.sql")
-    with open(revert_path, 'w') as f:
+    revert_path = pathlib.Path(f"revert/{feature}.sql")
+    with open(revert_path, "w") as f:
         f.write(BASE_FILE.format(feature=feature, requirements=""))
 
 
@@ -295,8 +319,14 @@ def add_version(feature, requirements, idempotent, structures):
     assert not new_path.exists(), f"{new_name} already exists"
     copyfile(struct.head.path, new_path)
     new_path.chmod(0o440)
-    struct.versions.append(VersionData(
-        path=new_path, idempotent=struct.head.idempotent, sha1sum=struct.head.sha1sum, reqs=struct.head.reqs))
+    struct.versions.append(
+        VersionData(
+            path=new_path,
+            idempotent=struct.head.idempotent,
+            sha1sum=struct.head.sha1sum,
+            reqs=struct.head.reqs,
+        )
+    )
     sha = struct.head.sha1sum
     if requirements is not None or idempotent is not None:
         with open(struct.path) as f:
@@ -310,7 +340,7 @@ def add_version(feature, requirements, idempotent, structures):
                     after.append(line)
                 else:
                     before.append(line)
-        with open(struct.path, 'w') as f:
+        with open(struct.path, "w") as f:
             f.write("".join(before))
             if requirements is None:
                 requirements = struct.head.reqs
@@ -324,14 +354,24 @@ def add_version(feature, requirements, idempotent, structures):
         sha = sha1sum(struct.path)
     new_name = f"{feature}-{new_version}M.sql"
     new_path = pathlib.Path(f"deploy/{new_name}")
-    with open(new_path, 'w') as f:
+    with open(new_path, "w") as f:
         f.write(BASE_FILE.format(feature=feature, requirements=""))
     struct.head = VersionData(
-        path=struct.head.path, idempotent=idempotent, sha1sum=sha, reqs=requirements)
+        path=struct.head.path, idempotent=idempotent, sha1sum=sha, reqs=requirements
+    )
     # TODO: Assuming no version-specific revert for now, review if needed
 
 
-def revert(structures, state, conn_data, features=None, dry_run: bool = False, simulation: bool = False, version: int = None, force: bool = False):
+def revert(
+    structures,
+    state,
+    conn_data,
+    features=None,
+    dry_run: bool = False,
+    simulation: bool = False,
+    version: int = None,
+    force: bool = False,
+):
     feature_version = None
     if version is not None:
         if len(features) != 1:
@@ -355,8 +395,9 @@ def revert(structures, state, conn_data, features=None, dry_run: bool = False, s
             declare_revert(state, feature, **conn_data)
 
 
-def dump_schema(db="postgres", sudo=False, superuser=None,
-                host="127.0.0.1", **kwargs):
+def dump_schema(
+    db="postgres", sudo=False, superuser=None, port=5432, host="127.0.0.1", **kwargs
+):
     assert sudo or superuser
     if sudo:
         conn = ["sudo", "-u", user, "pg_dump"]
@@ -365,6 +406,8 @@ def dump_schema(db="postgres", sudo=False, superuser=None,
     conn.append(db)
     if host not in ("localhost", "127.0.0.1", "::1"):
         conn.extend(["-h", host])
+    if port != 5432:
+        conn.extend(["-p", str(port)])
     conn.extend(["-s", "-c"])
     r = run(conn, capture_output=True, encoding="utf-8")
     assert not r.returncode
@@ -390,8 +433,16 @@ def test_feature(feature: str, structures, state, conn_data):
     schema2 = dump_schema(**conn_data)
     if schema != schema2:
         print("schema mismatch")
-        print("\n".join(difflib.unified_diff(schema.split("\n"),
-              schema2.split("\n"), fromfile="before", tofile="after")))
+        print(
+            "\n".join(
+                difflib.unified_diff(
+                    schema.split("\n"),
+                    schema2.split("\n"),
+                    fromfile="before",
+                    tofile="after",
+                )
+            )
+        )
         return False
 
 
@@ -403,54 +454,87 @@ if __name__ == "__main__":
     else:
         print("setup the ini file first")
     argp = argparse.ArgumentParser("update the database")
-    argp.add_argument("-d", "--database", default="development",
-                      help="the database to use")
+    argp.add_argument(
+        "-d", "--database", default="development", help="the database to use"
+    )
     subp = argp.add_subparsers(dest="command", required=True)
     initp = subp.add_parser("init", help="initialize the database table")
     deployp = subp.add_parser("deploy", help="deploy some or all features")
-    deployp.add_argument("-f", "--feature", action="append",
-                         help="deploy only this feature (and dependencies)")
-    deployp.add_argument("-s", "--simulation", action="store_true",
-                         help="don't actually run the sql but store the results in the migration table")
+    deployp.add_argument(
+        "-f",
+        "--feature",
+        action="append",
+        help="deploy only this feature (and dependencies)",
+    )
+    deployp.add_argument(
+        "-s",
+        "--simulation",
+        action="store_true",
+        help="don't actually run the sql but store the results in the migration table",
+    )
     deployp.add_argument("-d", "--dry_run", action="store_true")
     revertp = subp.add_parser("revert", help="revert a feature")
-    revertp.add_argument("-f", "--feature", action="append",
-                         help="deploy only this feature (and dependencies)")
+    revertp.add_argument(
+        "-f",
+        "--feature",
+        action="append",
+        help="deploy only this feature (and dependencies)",
+    )
     revertp.add_argument("-d", "--dry_run", action="store_true")
-    revertp.add_argument("-s", "--simulation", action="store_true",
-                         help="don't actually run the sql but store the results in the migration table")
+    revertp.add_argument(
+        "-s",
+        "--simulation",
+        action="store_true",
+        help="don't actually run the sql but store the results in the migration table",
+    )
     # TODO: add revert to a specific version
     rerunp = subp.add_parser("rerun", help="rerun a feature")
-    rerunp.add_argument("-f", "--feature", action="append",
-                        help="deploy only this feature (and dependencies)")
+    rerunp.add_argument(
+        "-f",
+        "--feature",
+        action="append",
+        help="deploy only this feature (and dependencies)",
+    )
     add_featurep = subp.add_parser("add_feature", help="create a new feature")
     add_featurep.add_argument("-f", "--feature", required=True)
     add_featurep.add_argument("-r", "--requirement", action="append")
     add_featurep.add_argument("-i", "--idempotent", action="store_true")
     add_featurep = subp.add_parser(
-        "add_version", help="create a new version of a feature")
+        "add_version", help="create a new version of a feature"
+    )
     add_featurep.add_argument("-f", "--feature", required=True)
-    add_featurep.add_argument("-0", "--no_requirements", action="store_true",
-                              help="don't add old requirements to the new version")
-    add_featurep.add_argument("-r", "--requirement", action="append",
-                              help="add a new set of requirements to the new version")
-    add_featurep.add_argument("-i", "--idempotent",
-                              action="store_true", help="make it idempotent")
-    add_featurep.add_argument("-I", "--not-idempotent", action="store_true",
-                              help="make it not idempotent")
+    add_featurep.add_argument(
+        "-0",
+        "--no_requirements",
+        action="store_true",
+        help="don't add old requirements to the new version",
+    )
+    add_featurep.add_argument(
+        "-r",
+        "--requirement",
+        action="append",
+        help="add a new set of requirements to the new version",
+    )
+    add_featurep.add_argument(
+        "-i", "--idempotent", action="store_true", help="make it idempotent"
+    )
+    add_featurep.add_argument(
+        "-I", "--not-idempotent", action="store_true", help="make it not idempotent"
+    )
     listp = subp.add_parser("list", help="list the migrations")
     testp = subp.add_parser("test", help="test a migration")
     testp.add_argument("-f", "--feature", required=True)
-    statusp = subp.add_parser('status', help='list installed features')
+    statusp = subp.add_parser("status", help="list installed features")
 
     args = argp.parse_args()
     db = args.database
     conn_data = dict(
-        user=ini_file[db]['owner'],
-        superuser=ini_file['postgres']['user'],
-        password=ini_file[db]['owner_password'],
-        db=ini_file[db]['database'],
-        variables=dict(dbn=ini_file[db]['database']))
+        user=ini_file[db]["owner"],
+        superuser=ini_file["postgres"]["user"],
+        password=ini_file[db]["owner_password"],
+        db=ini_file[db]["database"],
+        variables=dict(dbn=ini_file[db]["database"]),
+    )
     structures = read_structure()
     if args.command == "list":
         print("\n".join(calc_all_features(structures)))
@@ -460,11 +544,17 @@ if __name__ == "__main__":
         add_feature(args.feature, args.requirement, args.idempotent)
     elif args.command == "add_version":
         assert not (
-            args.idempotent and args.not_idempotent), "idempotent and not-idempotent are mutually exclusive"
-        idempotent = True if args.idempotent else (
-            False if args.not_idempotent else None)
+            args.idempotent and args.not_idempotent
+        ), "idempotent and not-idempotent are mutually exclusive"
+        idempotent = (
+            True if args.idempotent else (False if args.not_idempotent else None)
+        )
         add_version(
-            args.feature, None if args.no_requirements else args.requirement, idempotent, structures)
+            args.feature,
+            None if args.no_requirements else args.requirement,
+            idempotent,
+            structures,
+        )
     else:
         try:
             state = db_state(conn_data)
@@ -472,13 +562,25 @@ if __name__ == "__main__":
             print("Please init the database")
             exit(1)
         if args.command == "deploy":
-            deploy(args.feature, state, structures, conn_data,
-                   args.dry_run, args.simulation)
+            deploy(
+                args.feature,
+                state,
+                structures,
+                conn_data,
+                args.dry_run,
+                args.simulation,
+            )
         elif args.command == "test":
             test_feature(args.feature, structures, state, conn_data)
         elif args.command == "revert":
-            revert(structures, state, conn_data, args.feature,
-                   args.dry_run, args.simulation)
+            revert(
+                structures,
+                state,
+                conn_data,
+                args.feature,
+                args.dry_run,
+                args.simulation,
+            )
         elif args.command == "status":
             show_status(state, structures)
         else:
