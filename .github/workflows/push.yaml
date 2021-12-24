@@ -1,0 +1,52 @@
+name: Sensecraft CI
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: use postgres
+        uses: maparent/postgresql-action@postgres_image_name
+        with:
+          postgres_image_tag: 14.1-alpine-jwt
+          postgres_image_name: conversence/postgres
+      - name: Install psql
+        run: |
+          apt update
+          apt install -y postgresql-client wget
+      - name: Initialize test DB
+        working-directory: ./qs-server
+        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
+      - name: install postgrest
+        run: |
+          wget https://github.com/PostgREST/postgrest/releases/download/v9.0.0/postgrest-v9.0.0-linux-static-x64.tar.xz
+          tar -Jxf postgrest-v9.0.0-linux-static-x64.tar.xz
+          rm postgrest-v9.0.0-linux-static-x64.tar.xz
+          mv postgrest /usr/bin/
+      - name: Install server dependencies
+        working-directory: ./qs-server
+        run: npm ci
+      - name: Run server tests
+        working-directory: ./qs-server
+        run: npm run test
+      - name: cleanup postgres container
+        run: |
+          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.1-alpine-jwt`
+          docker container stop $PGCONT
+          docker container rm $PGCONT
+      - name: Install client dependencies
+        working-directory: ./qs-client
+        run: npm ci
+      - name: Run client tests
+        working-directory: ./qs-client
+        run: npm run test:unit
