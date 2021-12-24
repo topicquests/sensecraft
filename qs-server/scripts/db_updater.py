@@ -404,7 +404,7 @@ def dump_schema(
     elif superuser:
         conn = ["pg_dump", "-U", superuser]
     conn.append(db)
-    if host not in ("localhost", "127.0.0.1", "::1"):
+    if host != "localhost":
         conn.extend(["-h", host])
     if port != 5432:
         conn.extend(["-p", str(port)])

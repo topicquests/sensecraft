@@ -25,7 +25,7 @@ def psql_command(
         else:
             conn = ["psql", "-U", user]
         conn.append(db)
-        if host not in ("localhost", "127.0.0.1", "::1"):
+        if host != "localhost":
             conn.extend(["-h", host])
     conn.extend(["-q", "--csv", "-t", "-n"])
     if variables:
