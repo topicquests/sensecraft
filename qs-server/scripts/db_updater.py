@@ -534,6 +534,7 @@ if __name__ == "__main__":
         password=ini_file[db]["owner_password"],
         db=ini_file[db]["database"],
         variables=dict(dbn=ini_file[db]["database"]),
+        port=ini_file["postgres"].get("port", 5432),
     )
     structures = read_structure()
     if args.command == "list":
