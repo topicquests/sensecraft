@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 16.x
       - name: use postgres
-        uses: maparent/postgresql-action@postgres_image_name
+        uses: maparent/postgresql-action@stop_postgres
         with:
           postgres_image_tag: 14.1-alpine-jwt
           postgres_image_name: conversence/postgres
@@ -40,11 +40,6 @@ jobs:
       - name: Run server tests
         working-directory: ./qs-server
         run: npm run test
-      - name: cleanup postgres container
-        run: |
-          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.1-alpine-jwt`
-          docker container stop $PGCONT
-          docker container rm $PGCONT
       - name: Install client dependencies
         working-directory: ./qs-client
         run: npm ci
