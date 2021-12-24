@@ -46,7 +46,9 @@ def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwa
         sudo = True if sudo is None else sudo
     try:
         # try without passwordord
-        test_db_exists("postgres", user=user, host=host, password=password, sudo=sudo)
+        test_db_exists(
+            "postgres", user=user, host=host, password=password, sudo=sudo, **kwargs
+        )
     except AssertionError:
         while True:
             user = (
@@ -57,11 +59,13 @@ def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwa
             )
             password = getpass(f"Password for role {user}: ")
             try:
-                test_db_exists("postgres", user=user, password=password, host=host)
+                test_db_exists(
+                    "postgres", user=user, password=password, host=host, **kwargs
+                )
                 break
             except AssertionError:
                 pass
-    return dict(user=user, host=host, password=password, sudo=sudo)
+    return dict(user=user, host=host, password=password, sudo=sudo, **kwargs)
 
 
 def create_database(data, conn_data, dropdb=False):
@@ -245,7 +249,7 @@ if __name__ == "__main__":
     conn_data = get_conn_params(**conn_data)
     conn_data["debug"] = args.debug
     ini_file.set("postgres", "host", conn_data["host"])
-    ini_file.set("postgres", "port", conn_data["port"])
+    ini_file.set("postgres", "port", str(conn_data["port"]))
     ini_file.set("postgres", "user", conn_data["user"])
     ini_file.set("postgres", "sudo", str(conn_data["sudo"]).lower())
     # Do not store the master password
