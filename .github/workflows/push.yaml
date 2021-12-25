@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 16.x
       - name: use postgres
-        uses: maparent/postgresql-action@postgres_image_name
+        uses: Daniel-Marynicz/postgresql-action@postgres_image_name
         with:
           postgres_image_tag: 14.1-alpine-jwt
           postgres_image_name: conversence/postgres
