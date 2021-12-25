@@ -18,7 +18,7 @@
 <!-- Guild permissions -->
 * acceptGuildMembership
 * revokeGuildMembership
-* publishGameMove
+* publishGameMove  <!-- replace with another mechanism -->
 * retractGameMove <!-- within term time -->
 <!-- Quest permissions -->
 * acceptQuestMembership
@@ -27,23 +27,28 @@
 
 Todo:
 
-* createConversationNode
+* addConvInFocus: create or move a conversation node within the focus neighbourhood
+* addConvAnywhere: create or move a conversation node anywhere
 * editConversationNode: (someone else's)
 * mustQuote: needs to create nodes of quote subtype
-* addToFocus: can add non-meta nodes to focus
-* addMetaToFocus: can add meta nodes to focus
-* addMetaToMeta: can add meta nodes to focus
-* addMetaToConversation: can add meta nodes elsewhere in conversation
-* addPlayChannel: can create a channel in the context of a game
-* addGuildChannel: can create a guild-wide channel
+* addMetaInFocus: can add meta nodes to focus
+* addMetaAnywhere: can add meta nodes elsewhere in conversation
+* createPlayChannel: can create a channel in the context of a game
+* createGuildChannel: can create a guild-wide channel
 * setPlayerRole: can change the casting role of another player
 * addAvailableRole: can give an available role to a player
+* changeFocus: change the focus of the gameplay
+* moveDraftConv: Move someone else's draft conversation node
+* intercalateConv: Move someone else's draft conversation node under my draft sibling
+* createGuildRole
+* createSystemRole
 
+Under consideration or v2
 
+* awardCreditForMove could have issues with favoritism
+* mutateMetaToConv
+* moveChannelBranchToConv
 
-Under consideration:
-
-* extraCreditForMove could have issues with favoritism
 ## scoring_criterion
 
 Represents a criterion which will be used to score a game move (mostly introducing conversation nodes). A given game mode can be scored along multiple axes (or criteria.)
@@ -56,9 +61,9 @@ TBD
 Conversation node publication states
 
 1. obsolete
-  * Previous version of a node. Will be elaborated as we record change history. Not normally visible.
+   * Previous version of a node. Will be elaborated as we record change history. Not normally visible.
 2. private_draft
-  * Visible only to you
+   * Visible only to you
 3. guild_draft
    * Visible to your whole guild. Still WIP, open to collective editing.
 4. proposed
@@ -67,7 +72,6 @@ Conversation node publication states
    * The guild leader is sending it to the quest.
 6. published
    * The quest has accepted the node and it's visible to all
-
 
 ## confirmation_status
 
@@ -117,7 +121,6 @@ Eventually refactorings, etc.
 * created_at timestamp
 * updated_at timestamp
 
-
 public_guilds: view on guilds, with public=true
 
 ## quests
@@ -141,7 +144,7 @@ later maybe
 
 public_quests: view on quests, with public=true
 
-## roles
+## role
 
 * name varchar
 * guild_id fk(guilds) : Null means system role, editable only by sysadmin
@@ -149,6 +152,14 @@ public_quests: view on quests, with public=true
 * node_type_constraints ibis_node_type[]
 * node_state_constraints publication_state[]
 * next_role_constraint integer[] fk(roles) : when adding a role_draft, who can you address it to?
+* max_pub_state publication_state (TODO)
+
+## role_node_constraint (TODO)
+
+* role_id (pkey)
+* node_type (pkey)
+* max_pub_state publication_state
+* target_role_draft
 
 ## casting_role
 
@@ -208,7 +219,6 @@ the guild-quest join table. All guild members.
 
 my_guild_memberships: view on guild_membership, with member_id=current_user()
 
-
 ## game_play
 
 Join table for guilds that register to play a given quest.
@@ -233,10 +243,10 @@ The member as playing in a given quest (through a guild.). 3-way join table.
 * created_at timestamp
 * updated_at timestamp
 
-
 eventually maybe:
-* alias varchar
-for per-quest avatar alias (which would be used instead of handle. Controversial.)
+
+* alias varchar: for per-quest avatar alias (which would be used instead of handle. Controversial.)
+
 ## conversation_node
 
 A conversation node.
@@ -281,13 +291,12 @@ Score given to a game_move
 * moves ConversationNode[]
 * metric Metric
 * badge BadgeType
-* - strategy ScoringStrategy
-* - quest_signature crypto
+  * strategy ScoringStrategy
+  * quest_signature crypto
 
 Future: have the badge as a separate object, with cryptography
 
 Q: Are badges usually given for a specific move, or for behaviour as a role?
-
 
 ## score_assignment
 
@@ -295,9 +304,10 @@ Q: Are badges usually given for a specific move, or for behaviour as a role?
 * casting_id fk(casting)
 * value float
 * badge BadgeType
-* - guild_signature crypto
+  * guild_signature crypto
 
 # Future
+
 ## quest_badge
 
 Badge given to a player
@@ -331,7 +341,6 @@ visible and submitted are the same for v1
 * accepted timestamp
 
 Comments made for participating_guilds about the server_api+handle apply here. May correspond to quest_list, quest_page.
-
 
 ## quest_scores
 
