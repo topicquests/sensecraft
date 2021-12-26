@@ -39,9 +39,8 @@
             id="register"
           ></q-btn>
         </div>
-        <div>
+        <div v-if="isAuthenticated">
           <q-btn
-            v-show="isAuthenticated"
             @click="onLogout()"
             outline
             roundeded
@@ -51,9 +50,8 @@
           >
           </q-btn>
         </div>
-        <div>
+        <div v-if="isAuthenticated && showTree && getNeighbourhoodTree.length">
           <q-btn
-            v-show="showTree && getNeighbourhoodTree.length"
             flat
             dense
             round
@@ -88,7 +86,7 @@
             </div>
             <div>
               <q-item id="questView">
-                <router-link :to="{ name: 'quest_list' }">
+                <router-link id="lobby_link" :to="{ name: 'quest_list' }">
                   Quest list
                 </router-link>
               </q-item>
@@ -116,7 +114,9 @@
             </div>
             <div>
               <q-item id="home">
-                <router-link :to="{ name: 'root' }"> Home </router-link>
+                <router-link id="home_link" :to="{ name: 'root' }">
+                  Home
+                </router-link>
               </q-item>
             </div>
             <div>

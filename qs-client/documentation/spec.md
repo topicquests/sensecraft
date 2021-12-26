@@ -31,9 +31,8 @@ If user clicks on conversation-tree button toggleNav function called
 
 ## Home image button
 
-Home image button displayed\
 Display home page image\
-if not already there routes to home page when clicked
+Routerlink has the correct route to go to
 
 ## Menu item lobby
 
