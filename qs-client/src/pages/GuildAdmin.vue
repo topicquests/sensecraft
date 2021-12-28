@@ -535,19 +535,10 @@ export default class GuildAdminPage extends Vue {
 
   async roleRemoved(member_id: number, role_id: number) {
     const guild_id: number = this.guildId;
-    const roles = this.getCastingRolesById(member_id, role_id);
     await this.deleteGuildMemberAvailableRole({
       params: { member_id, guild_id, role_id },
       data: {},
     });
-    if (roles) {
-      const quest_id: number = this.currentQuestId;
-      await this.deleteCastingRole({
-        params: { member_id, role_id, guild_id, quest_id },
-        data: {},
-      });
-      console.log("Role ", roles);
-    }
   }
   async castingRoleAdded(member_id, role_id) {
     const guild_id = this.guildId;
