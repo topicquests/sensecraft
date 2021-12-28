@@ -15,6 +15,7 @@ import {
 } from "../types";
 import { registration_status_enum, permission_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
+import { member } from "./member";
 
 interface GuildMap {
   [key: number]: Guild;
@@ -391,6 +392,15 @@ export const guilds = (axios: AxiosInstance) =>
           "members/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
           availableRole
         );
+        const castingRoles = MyVapi.store.getters("quest/getCastingRoleById",
+          {
+            member_id: availableRole.member_id,
+            role_id: availableRole.role_id
+          })
+        if (castingRoles.length) {
+          castingRoles.array.forEach(element => { MyVapi.store.dispatch("quest/deleteCastingRole", element)
+        });
+      }
       },
     })
     .call({
