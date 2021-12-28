@@ -54,9 +54,13 @@ const ChannelGetters = {
       Object.values(state.channels).filter(
         (c: ConversationNode) => c.quest_id !== quest_id
       ),
-  getChanneById: (state: ChannelState) => (id: number) => state.channels[id],
+  getChannelById: (state: ChannelState) => (id: number) => state.channels[id],
   getChannelConversation: (state: ChannelState) => (channel_id: number) =>
     state.channelData[channel_id],
+  getChannelConversationTree: (state: ChannelState) => (channel_id: number) => {
+    const channel = state.channelData[channel_id];
+    if (channel) return makeTree(Object.values(channel));
+  },
   getChannelNode:
     (state: ChannelState) => (channel_id: number, node_id: number) =>
       state.channelData[channel_id]?.[node_id],
@@ -101,8 +105,8 @@ const ChannelActions = {
       guild != context.state.currentGuild ||
       context.state.channelData[channel_id] === undefined
     ) {
-      await context.dispatch("fetchConversationNeighbourhood", {
-        params: { channel_id, guild },
+      await context.dispatch("fetchChannelConversation", {
+        params: { node_id: channel_id, guild },
       });
     }
   },
@@ -154,7 +158,7 @@ export const channel = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        const channel_id = params.channel_id;
+        const channel_id = params.node_id;
         const firstNode = res.data[0];
         if (state.currentGuild !== firstNode.guild_id) {
           state.currentGuild = firstNode.guild_id;
@@ -213,7 +217,10 @@ export const channel = (axios: AxiosInstance) =>
 type ChannelRestActionTypes = {
   fetchChannels: RestParamActionType<{ guild_id: number }, ConversationNode[]>;
   fetchChannelConversation: RestParamActionType<
-    { channel_id: number },
+    {
+      guild: number;
+      node_id: number;
+    },
     ConversationNode[]
   >;
   createChannelNode: RestDataActionType<
