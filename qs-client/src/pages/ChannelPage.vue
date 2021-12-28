@@ -80,15 +80,14 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 @Component<RolePlayPage>({
   components: {
-//    scoreboard: scoreboard,
     member: member,
-//    questCard: questCard,
     nodeCard: nodeCard,
     nodeForm: nodeForm,
     nodeTree: nodeTree,
   },
   computed: {
 //    ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
+    ...mapGetters("channels", ["getGuildChannels", "getChannelConversation"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("conversation", [
       "getFocusNode",
