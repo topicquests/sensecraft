@@ -109,10 +109,12 @@ export default {
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
   async beforeMount() {
     await userLoaded;
     await this.ensureAllGuilds();
+    await this.ensureAllRoles();
   },
 };
 </script>
