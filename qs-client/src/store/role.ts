@@ -26,6 +26,14 @@ const baseState: RoleState = {
 
 const RoleGetters = {
   getRoleById: (state: RoleState) => (id: number) => state.role[id],
+
+  getDefaultRoleId: (state: RoleState) => {
+    const roleId = Object.values(state.role).find((val) => {
+      return val.name == "researcher";
+    });
+    return roleId;
+  },
+
   getRoleByName: (state: RoleState) => (name: string) => state.role[name],
   getRoles: (state: RoleState) =>
     Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),

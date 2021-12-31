@@ -149,28 +149,9 @@
               <span class="q-pl-md q-pt-md" style="width: 25%">
                 {{ member.handle }}
               </span>
-              <q-select
-                class="q-pl-md"
-                :multiple="true"
-                v-model="castingRolesByMember[member.id]"
-                @add="
-                  (details) => {
-                    castingRoleAdded(member.id, details.value);
-                  }
-                "
-                @remove="
-                  (details) => {
-                    castingRoleRemoved(member.id, details.value);
-                  }
-                "
-                :options="getAvailableRolesById(member.id)"
-                option-label="name"
-                option-value="id"
-                emit-value
-                map-options
-                id="qselect"
-              >
-              </q-select>
+              <CastingRoleEdit
+                v-bind:availableRoles="getAvailableRolesById(member.id)"
+              ></CastingRoleEdit>
             </div>
           </div>
         </div>
@@ -214,9 +195,13 @@ import {
 import Vue from "vue";
 import Component from "vue-class-component";
 import { BaseGetterTypes } from "../store/baseStore";
+import CastingRoleEdit from "../components/casting_role_edit.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
+  components: {
+    CastingRoleEdit,
+  },
   computed: {
     ...mapState("member", {
       member: (state: MemberState) => state.member,

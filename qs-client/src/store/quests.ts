@@ -160,7 +160,7 @@ const QuestsGetters = {
     (member_id: number, role_id: number): Role[] => {
       const castingRoles =
         MyVapi.store.getters["members/getPlayersRoles"](member_id);
-      const playerRoles = castingRoles.filter(
+      const playerRoles = castingRoles?.filter(
         (role) => role.quest_id == role_id
       );
       return playerRoles;

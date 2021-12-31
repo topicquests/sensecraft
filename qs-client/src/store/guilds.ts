@@ -77,6 +77,9 @@ const GuildsActions = {
     }
   },
   createGuild: async (context, { data }) => {
+    const defaultRoleId = await MyVapi.store.getters["role/getDefaultRoleId"];
+    data.default_role_id = defaultRoleId.id;
+    console.log("defaultRoleId", data);
     const res = await context.dispatch("createGuildBase", { data });
     // Refetch to get memberships.
     // TODO: maybe add representation to creation instead?
@@ -119,6 +122,14 @@ const GuildsActions = {
   },
   addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
     await context.dispatch("doAddGuildMembership", { data: membership });
+    const defaultRoleId = await MyVapi.store.getters["role/getDefaultRoleId"];
+    await context.dispatch("addGuildMemberAvailableRole", {
+      data: {
+        member_id: membership.member_id,
+        guild_id: membership.guild_id,
+        role_id: defaultRoleId.id,
+      },
+    });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
     ].guild_membership.find(
@@ -392,15 +403,14 @@ export const guilds = (axios: AxiosInstance) =>
           "members/REMOVE_GUILD_MEMBER_AVAILABLE_ROLE",
           availableRole
         );
-        const castingRoles = MyVapi.store.getters("quest/getCastingRoleById",
-          {
-            member_id: availableRole.member_id,
-            role_id: availableRole.role_id
-          })
-        if (castingRoles.length) {
-          castingRoles.array.forEach(element => { MyVapi.store.dispatch("quest/deleteCastingRole", element)
-        });
-      }
+        const castingRoles = MyVapi.store.getters["quests/getCastingRolesById"](
+          { member_id: availableRole.member_id, role_id: availableRole.role_id }
+        );
+        if (castingRoles?.length) {
+          castingRoles.array.forEach((element) => {
+            MyVapi.store.dispatch("quests/deleteCastingRole", element);
+          });
+        }
       },
     })
     .call({
