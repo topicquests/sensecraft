@@ -1,6 +1,6 @@
 # Casting Role Edit Component
 
-CastingRoleEdit component allows member, with permission, to change casting role of selected member. The selection of roles is members available roles. Members current casting role is displayed. Member has the ability to add or change role
+CastingRoleEdit component allows member, with permission, to change casting role of selected member. The selection of roles is members available roles. Members current casting role is displayed. Member has the ability to add or reove role
 
 ## QSelect
 

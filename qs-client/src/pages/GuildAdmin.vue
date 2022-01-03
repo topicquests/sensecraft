@@ -138,30 +138,10 @@
         </div>
       </q-card>
     </div>
-    <div class="row justify-center">
-      <q-card style="width: 25%">
-        <div class="row justify-center">
-          <H5>Change casting role </H5>
-        </div>
-        <div style="width: 100%">
-          <div v-for="member in getGuildMembers" :key="member.id">
-            <div class="row">
-              <span class="q-pl-md q-pt-md" style="width: 25%">
-                {{ member.handle }}
-              </span>
-              <CastingRoleEdit
-                v-bind:availableRoles="getAvailableRolesById(member.id)"
-              ></CastingRoleEdit>
-            </div>
-          </div>
-        </div>
-      </q-card>
-    </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import {
@@ -175,7 +155,7 @@ import {
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import { MemberGetterTypes, MemberState } from "../store/member";
+import { MemberState } from "../store/member";
 import { MembersActionTypes, MembersGetterTypes } from "../store/members";
 import {
   registration_status_enum,
@@ -191,6 +171,7 @@ import {
   Role,
   GuildMemberAvailableRole,
   PublicMember,
+  CastingRole,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -457,16 +438,14 @@ export default class GuildAdminPage extends Vue {
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
 
   getCastingRole(memberId: number, questId: number) {
-    const roles = this.castingRolesPerQuest(memberId, questId);
-    const rolesName = roles
-      .map((cr) => this.allRoles[cr.role_id].name)
-      .join(",");
+    const roles: CastingRole[] = this.castingRolesPerQuest(memberId, questId);
+    const rolesName = roles.map((cr) => this.allRoles[cr.role_id].name);
     return rolesName;
   }
+
   getAvailableRolesById(memberId: number) {
     const roles = this.getAvailableRolesMembersById(memberId);
     const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
-    console.log("Available roles :", roleName);
     return roleName;
   }
   async doRegister(questId: number) {
@@ -511,6 +490,7 @@ export default class GuildAdminPage extends Vue {
   playingAsGuildId(member_id) {
     return this.castingInQuest(null, member_id)?.guild_id;
   }
+
   async roleAdded(member_id, role_id) {
     const guild_id = this.guildId;
     await this.addGuildMemberAvailableRole({
@@ -525,7 +505,7 @@ export default class GuildAdminPage extends Vue {
       data: {},
     });
   }
-  async castingRoleAdded(member_id, role_id) {
+  async castingRoleAdded(member_id: number, role_id: number) {
     const guild_id = this.guildId;
     const quest_id: number = this.currentQuestId;
     console.log("Quest_id ;", quest_id);

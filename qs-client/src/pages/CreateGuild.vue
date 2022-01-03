@@ -92,10 +92,10 @@ export default class GuildFormPage extends Vue {
   data() {
     return {
       guild: {
-        name: null,
-        handle: null,
+        name: "",
+        handle: "",
         public: false,
-        description: null,
+        description: "",
       },
     };
   }

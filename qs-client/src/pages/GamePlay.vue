@@ -85,6 +85,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
+import CastingRoleEdit from "../components/casting_role_edit.vue";
 
 @Component<GamePlayPage>({
   components: {
@@ -92,10 +93,26 @@ import { BaseGetterTypes } from "../store/baseStore";
     member: member,
     questCard: questCard,
     nodeTree: nodeTree,
+    CastingRoleEdit,
   },
   computed: {
-    ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
-    ...mapGetters("members", ["getMemberById"]),
+    ...mapState("member", {
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
+    }),
+    ...mapState("role", {
+      allRoles: (state: RoleState) => state.role,
+    }),
+    ...mapGetters("quests", [
+      "getCurrentQuest",
+      "getCurrentGamePlay",
+      "getCastingRolesById",
+    ]),
+    ...mapGetters("members", [
+      "getMemberById",
+      "getAvailableRolesMembersById",
+      "castingRolesPerQuest",
+    ]),
     ...mapGetters("conversation", [
       "getFocusNode",
       "getConversationNodeById",
@@ -107,7 +124,12 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapGetters("role", ["getRoles"]),
   },
   methods: {
-    ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
+    ...mapActions("quests", [
+      "setCurrentQuest",
+      "ensureQuest",
+      "addCastingRole",
+      "deleteCastingRole",
+    ]),
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("conversation", [
@@ -131,17 +153,25 @@ export default class GamePlayPage extends Vue {
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 
+  allRoles!: RoleState["role"];
+
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
+  getCastingRolesById!: QuestsGetterTypes["getCastingRolesById"];
   getMemberById: MembersGetterTypes["getMemberById"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
   getNeighbourhood: ConversationGetterTypes["getNeighbourhood"];
   getNode: ConversationGetterTypes["getNode"];
   getNeighbourhoodTree: ConversationGetterTypes["getNeighbourhoodTree"];
+  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
   getRootNode: ConversationGetterTypes["getRootNode"];
+  castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
+  getRoleById!: RoleGetterTypes["getRoleById"];
   // declare the action attributes for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  addCastingRole!: QuestsActionTypes["addCastingRole"];
+  deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureGuild: GuildsActionTypes["ensureGuild"];
