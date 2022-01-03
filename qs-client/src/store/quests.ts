@@ -157,11 +157,11 @@ const QuestsGetters = {
     },
   getCastingRolesById:
     (state) =>
-    (member_id: number, role_id: number): Role[] => {
+    (member_id: number, quest_id: number): Role[] => {
       const castingRoles =
         MyVapi.store.getters["members/getPlayersRoles"](member_id);
       const playerRoles = castingRoles?.filter(
-        (role) => role.quest_id == role_id
+        (role) => role.quest_id == quest_id
       );
       return playerRoles;
     },

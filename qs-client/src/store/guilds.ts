@@ -122,14 +122,6 @@ const GuildsActions = {
   },
   addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
     await context.dispatch("doAddGuildMembership", { data: membership });
-    const defaultRoleId = await MyVapi.store.getters["role/getDefaultRoleId"];
-    await context.dispatch("addGuildMemberAvailableRole", {
-      data: {
-        member_id: membership.member_id,
-        guild_id: membership.guild_id,
-        role_id: defaultRoleId.id,
-      },
-    });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
     ].guild_membership.find(
