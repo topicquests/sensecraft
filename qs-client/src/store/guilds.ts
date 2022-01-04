@@ -77,9 +77,6 @@ const GuildsActions = {
     }
   },
   createGuild: async (context, { data }) => {
-    const defaultRoleId = await MyVapi.store.getters["role/getDefaultRoleId"];
-    data.default_role_id = defaultRoleId.id;
-    console.log("defaultRoleId", data);
     const res = await context.dispatch("createGuildBase", { data });
     // Refetch to get memberships.
     // TODO: maybe add representation to creation instead?

@@ -514,7 +514,6 @@ export default class GuildPage extends Vue {
     const rolesName = roles
       .map((cr) => this.allRoles[cr.role_id].name)
       .join(",");
-    console.log("Roles are : ", rolesName);
     return rolesName;
   }
 

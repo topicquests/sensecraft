@@ -24,7 +24,7 @@
             </q-option-group>
           </div>
           <div class="q-pa-md q-gutter-sm">
-            <q-btn-grp>
+            <q-btn-group>
               <q-btn
                 v-model="quest.status"
                 v-if="quest.status != 'draft'"
@@ -121,7 +121,7 @@
                 text-color="black"
                 label="finished"
               />
-            </q-btn-grp>
+            </q-btn-group>
           </div>
           <div class="row justify-start q-pb-lg q-ml-lg">
             <p style="color: black; background-color: white">
@@ -204,7 +204,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   computed: {
     ...mapState("member", ["member"]),
     ...mapGetters("quests", ["isQuestMember", "getCurrentQuest"]),
-    ...mapGetters("conversation", ["getRootNode"]),
+    ...mapGetters("conversation", ["getRootNode", "getConversation"]),
     ...mapGetters(["hasPermission"]),
     node: function (): Partial<ConversationNode> {
       return this.getRootNode || this.defaultNode;
@@ -216,6 +216,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "updateQuest", "ensureQuest"]),
     ...mapActions("conversation", [
+      "ensureConversation",
       "createConversationNode",
       "updateConversationNode",
       "fetchConversationNeighbourhood",
@@ -230,14 +231,17 @@ export default class QuestEditPage extends Vue {
 
   isAdmin: true;
   quest_id: number;
+
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   member: MemberState["member"];
   isQuestMember: QuestsGetterTypes["isQuestMember"];
   getRootNode: ConversationGetterTypes["getRootNode"];
+  getConversation: ConversationGetterTypes["getConversation"];
   hasPermission: BaseGetterTypes["hasPermission"];
   updateQuest!: QuestsActionTypes["updateQuest"];
   ensureQuest!: QuestsActionTypes["ensureQuest"];
+  ensureConversation!: ConversationActionTypes["ensureConversation"];
   ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
   createConversationNode!: ConversationActionTypes["createConversationNode"];
   updateConversationNode!: ConversationActionTypes["updateConversationNode"];
@@ -339,8 +343,12 @@ export default class QuestEditPage extends Vue {
     await userLoaded;
     await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
+    await this.ensureConversation(this.quest_id);
     const questMembership = this.isQuestMember(this.quest_id);
-    await this.fetchRootNode({ params: { quest_id: this.quest_id } });
+    if (this.getConversation.length > 0) {
+      await this.fetchRootNode({ params: { quest_id: this.quest_id } });
+    }
+    console.log("stop");
   }
 }
 </script>
