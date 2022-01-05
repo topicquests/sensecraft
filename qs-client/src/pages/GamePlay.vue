@@ -28,43 +28,46 @@
         />
       </div>
     </div>
-<<<<<<< HEAD
-=======
-    <div class="column items-center q-mb-md">
-      <node-form
-        v-if="newNodeParent == selectedNodeId"
-        :editing="true"
-        :nodeInput="newNode"
-        :allowAddChild="false"
-        :ibisTypes="childIbisTypes"
-        v-on:action="addNode"
-      />
+    =======
+    <div class="col-3 column items-center q-mb-md">
+      <div v-if="selectedNodeId">
+        <node-form
+          v-if="canEdit(selectedNodeId)"
+          v-bind:nodeInput="selectedNode(true)"
+          v-bind:allowAddChild="true"
+          :editing="true"
+          v-bind:ibisTypes="selectedIbisTypes"
+          v-on:action="updateNode"
+          v-on:addChild="addChild"
+        />
+        <node-form v-else v-bind:nodeInput="selectedNode()" />
+        <q-btn
+          v-if="!canEdit(selectedNodeId)"
+          @click="addChild()"
+          label="Add Child"
+        />
+        <node-form
+          class="q-mt-md"
+          v-if="newNodeParent == selectedNodeId"
+          :editing="true"
+          :nodeInput="newNode"
+          :allowAddChild="false"
+          :ibisTypes="childIbisTypes"
+          v-on:action="addNode"
+        />
+      </div>
     </div>
-    <div v-if="!getCurrentQuest.start" class="row justify-center">
-      <q-card style="width: 25%">
-        <div class="row justify-center">
-          <H5>Change casting role </H5>
+    <div class="column items-center">
+      <div class="col-3">
+        <div class="q-pa-md q-gutter-sm lt-md">
+          <node-tree
+            v-bind:nodes="getNeighbourhoodTree"
+            v-on:updateTree="selectionChanged"
+          />
         </div>
-        <div style="width: 100%">
-          <div class="row">
-            <span class="q-pl-md q-pt-md" style="width: 25%">
-              {{ member.handle }}
-            </span>
-            <CastingRoleEdit
-              v-if="getAvailableRolesById(memberId).length"
-              v-bind:availableRoles="getAvailableRolesById(memberId)"
-              v-bind:castingRole="getCastingRole(memberId, questId)"
-              v-bind:guildId="guildId"
-              v-bind:questId="questId"
-              v-bind:memberId="memberId"
-              v-on:castingRoleAdd="castingRoleAdded"
-              v-on:castingRoleRemove="castingRoleRemoved"
-            ></CastingRoleEdit>
-          </div>
-        </div>
-      </q-card>
+      </div>
     </div>
->>>>>>> 52d1884 (WIP role functionalit)
+    >>>>>>> 046e4f5 (WIP refactoring and improvements in roles)
   </q-page>
 </template>
 
