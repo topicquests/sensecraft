@@ -27,6 +27,21 @@
                   style="margin-right: 1em"
                   class="bg-dark-blue"
                 />
+                <q-btn
+                  v-else-if="
+                    guildPerQuest[quest.id] &&
+                    guildPerQuest[quest.id] == currentGuildId
+                  "
+                  class="q-ml-md bg-dark-blue"
+                  label="Go To Quest"
+                  style="margin-right: 1em"
+                  @click="
+                    $router.push({
+                      name: 'game_play',
+                      params: { quest_id: quest.id },
+                    })
+                  "
+                />
                 <router-link
                   v-if="
                     guildPerQuest[quest.id] &&
@@ -123,17 +138,6 @@
             v-if="getCurrentQuest"
           ></questCard>
         </div>
-      </div>
-    </div>
-    <div v-if="getCurrentQuest" class="col-12 col-md q-pa-md">
-      <div v-if="this.getCurrentQuest" align="center">
-        <router-link
-          :to="{
-            name: 'game_play',
-            params: { quest_id: this.getCurrentQuest.id },
-          }"
-          >Go To Quest</router-link
-        >
       </div>
     </div>
     <div class="column items-center" v-if="pastQuests.length > 0">
