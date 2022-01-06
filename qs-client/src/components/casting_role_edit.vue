@@ -44,7 +44,6 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
 import { Role, Member } from "../types";
-import { MemberGetterTypes } from "../store/member";
 import { mapGetters } from "vuex";
 
 const CastingRoleEditProps = Vue.extend({
@@ -68,7 +67,7 @@ export default class CastingRoleEdit extends CastingRoleEditProps {
   role = [];
   cr = null;
 
-  beforeMount() {
+  create() {
     this.role = { ...this.availableRoles };
     this.cr = this.castingRole;
   }

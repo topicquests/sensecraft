@@ -1,35 +1,52 @@
 import { mountQuasar } from "@quasar/quasar-app-extension-testing-unit-jest";
 import CastingRoleEdit from "../casting_role_edit";
-import { QSelect, QCard, QItemLabel } from "quasar";
+import { QSelect, QCard } from "quasar";
+import { createLocalVue } from "@vue/test-utils";
+import Vuex from "vuex";
+import { Store } from "vuex-mock-store";
+import merge from "lodash.merge";
+import { Member } from "../../types";
 
-describe("casting_role_edit", () => {
-  const wrapper = mountQuasar(CastingRoleEdit, {
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
+const mockRouter = {
+  push: jest.fn(),
+  goto: jest.fn(),
+};
+
+function createWrapper(storeConfig) {
+  const defaultMountOptions = {
+    mount: {
+      mocks: {},
+      localVue,
+      store: new Store(storeConfig),
+    },
     quasar: {
       components: {
         QSelect,
         QCard,
       },
     },
-    propsData: {
-      cr: "test",
-      availableRoles: [
-        {
-          id: 1,
-          name: "researcher",
-          guild_id: null,
-          permissions: [],
-          node_type_constraints: [],
-          node_state_constraints: [],
-        },
-      ],
+    propsData: {},
+  };
+  return mountQuasar(CastingRoleEdit, merge(defaultMountOptions));
+}
+
+describe("CastingRoleEdit", () => {
+  const storeConfig = {
+    state: {
+      member: {
+        member: null,
+      },
     },
-  });
+    getters: {
+      "member/getUser": () => {},
+    },
+  };
+  const wrapper = createWrapper(storeConfig);
+
   it("QSelect exist in castingRoleEdit component", () => {
     expect(wrapper.findComponent(QSelect).exists()).toBe(true);
-  });
-
-  it("Qselect options contains an array of roles", () => {
-    const qselect = wrapper.findComponent(QSelect);
-    console.log(qselect.props().availableRoles);
   });
 });
