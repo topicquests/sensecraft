@@ -33,12 +33,13 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Member } from "../types";
+import { ConversationNode } from "../types";
+// TODO ConversationNode as channel
 import { Prop } from "vue/types/options";
 
 const ChannelListProps = Vue.extend({
   props: {
-    channels: Array as Prop<Quest[]>,
+    channels: Array as Prop<ConversationNode[]>,
     title: String,
     view: {
       type: Boolean,
@@ -52,6 +53,8 @@ const ChannelListProps = Vue.extend({
   name: "channel_list",
 })
 export default class ChannelList extends ChannelListProps {
+  //TODO sort out these columns and the appropriate
+  // template html
   columns1 = [
     {
       name: "desc",
@@ -61,6 +64,7 @@ export default class ChannelList extends ChannelListProps {
       field: "name",
       sortable: true,
     },
+
     {
       name: "handle",
       required: false,
