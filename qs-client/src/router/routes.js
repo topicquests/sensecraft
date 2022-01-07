@@ -129,6 +129,36 @@ const routes = [
         name: "admin",
         component: () => import("pages/Admin.vue"),
       },
+      {
+        path: "/guild/:guild_id/channel",
+        name: "guild_channel_list",
+        component: () => import("pages/GuildChannelList.vue"),
+      },
+      {
+        path: "/guild/:guild_id/channel/:channel_id",
+        name: "guild_channel_conversation",
+        component: () => import("pages/ChannelPage.vue"),
+      },
+      {
+        path: "/guild/:guild_id/quest/:quest_id/channel",
+        name: "game_channel_list",
+        component: () => import("pages/GameChannelList.vue"),
+      },
+      {
+        path: "/guild/:guild_id/quest/:quest_id/channel/:channel_id",
+        name: "game_channel_conversation",
+        component: () => import("pages/ChannelPage.vue"),
+      },
+      // {
+      //   path: "/guild/:guild_id/channel",
+      //   name: "guild_channel_list",
+      //   component: () => import("pages/ChannelList.vue"),
+      // },
+      // {
+      //   path: "/guild/:guild_id/quest/:quest_id/channel",
+      //   name: "game_channel_list",
+      //   component: () => import("pages/ChannelList.vue"),
+      // },
     ],
   },
 

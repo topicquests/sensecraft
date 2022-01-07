@@ -28,16 +28,18 @@ export const BaseGetters = {
           typeof guildN == "number"
             ? MyVapi.store.getters["guilds/getGuildById"](guildN)
             : guildN;
-        const membership = (guild.guild_membership || []).find(
-          (m: GuildMembership) =>
-            m.member_id == member.id &&
-            m.status == registration_status_enum.confirmed
-        );
-        if (membership) {
-          if (membership.permissions.indexOf(permission) >= 0) return true;
-          // TODO: check that permission is a guild permission
-          if (membership.permissions.indexOf(permission_enum.guildAdmin) >= 0)
-            return true;
+        if (guild) {
+          const membership = (guild.guild_membership || []).find(
+            (m: GuildMembership) =>
+              m.member_id == member.id &&
+              m.status == registration_status_enum.confirmed
+          );
+          if (membership) {
+            if (membership.permissions.indexOf(permission) >= 0) return true;
+            // TODO: check that permission is a guild permission
+            if (membership.permissions.indexOf(permission_enum.guildAdmin) >= 0)
+              return true;
+          }
         }
       }
       if (questN) {
@@ -45,13 +47,15 @@ export const BaseGetters = {
           typeof questN == "number"
             ? MyVapi.store.getters["quests/getQuestById"](questN)
             : questN;
-        const membership = (quest.quest_membership || []).find(
-          (m: QuestMembership) => m.member_id == member.id && m.confirmed
-        );
-        if (membership) {
-          if (membership.permissions.indexOf(permission) >= 0) return true;
-          // TODO: check that permission is a quest permission
-          // if (membership.permissions.indexOf(permission_enum.questAdmin) >= 0) return true;
+        if (quest) {
+          const membership = (quest.quest_membership || []).find(
+            (m: QuestMembership) => m.member_id == member.id && m.confirmed
+          );
+          if (membership) {
+            if (membership.permissions.indexOf(permission) >= 0) return true;
+            // TODO: check that permission is a quest permission
+            // if (membership.permissions.indexOf(permission_enum.questAdmin) >= 0) return true;
+          }
         }
       }
       if (guild && quest) {
