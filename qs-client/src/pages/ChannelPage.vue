@@ -98,12 +98,9 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
-    ...mapGetters("channels", ["getGuildChannels", "getChannelConversation"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("channel", [
       "getChannels",
-      "getGuildChannels",
-      "getGameChannels",
       "getChannelById",
       "getChannelConversation",
       "getChannelConversationTree",
@@ -147,8 +144,6 @@ export default class RolePlayPage extends Vue {
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMemberById: MembersGetterTypes["getMemberById"];
   getChannels: ChannelGetterTypes["getChannels"];
-  getGuildChannels: ChannelGetterTypes["getGuildChannels"];
-  getGameChannels: ChannelGetterTypes["getGameChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
   getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];

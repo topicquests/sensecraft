@@ -42,11 +42,11 @@ const ChannelGetters = {
     Object.values(state.channels),
   getGuildChannels: (state: ChannelState): ConversationNode[] =>
     Object.values(state.channels).filter(
-      (c: ConversationNode) => c.quest_id === undefined
+      (c: ConversationNode) => c.quest_id == undefined
     ),
   getGameChannels: (state: ChannelState): ConversationNode[] =>
     Object.values(state.channels).filter(
-      (c: ConversationNode) => c.quest_id !== undefined
+      (c: ConversationNode) => c.quest_id != undefined
     ),
   getGameChannel:
     (state: ChannelState) =>
@@ -60,6 +60,7 @@ const ChannelGetters = {
   getChannelConversationTree: (state: ChannelState) => (channel_id: number) => {
     const channel = state.channelData[channel_id];
     if (channel) return makeTree(Object.values(channel));
+    return [];
   },
   getChannelNode:
     (state: ChannelState) => (channel_id: number, node_id: number) =>
