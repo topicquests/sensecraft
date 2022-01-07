@@ -2,6 +2,29 @@
   <q-page class="page">
     <div class="col-3 q-md q-mb-md">
       <channel-list v-bind:channels="getGuildChannels" title="Guild Channels" />
+      <q-btn
+        v-if="canAddChannel() && !creating"
+        @click="createGuildChannel()"
+        label="Create Guild Channel"
+      />
+      <!-- todo: create_guild_channel permission -->
+      <q-input
+        v-if="creating"
+        v-model="newChannelName"
+        label="Channel name"
+        id="channel_name"
+      />
+      <q-btn
+        v-if="creating"
+        @click="cancelCreateGuildChannel()"
+        label="Cancel"
+      />
+      <q-btn
+        v-if="creating"
+        @click="confirmCreateGuildChannel()"
+        label="Confirm"
+      />
+      <!-- todo: only active if non-empty name -->
     </div>
   </q-page>
 </template>
@@ -14,21 +37,12 @@ import ChannelList from "../components/ChannelListComponent.vue";
 import nodeForm from "../components/node-form.vue";
 import nodeTree from "../components/node-tree.vue";
 import { userLoaded } from "../boot/userLoaded";
-import {
-  ibis_node_type_enum,
-  ibis_node_type_type,
-  ibis_node_type_list,
-  publication_state_list,
-  public_private_bool,
-} from "../enums";
 import app from "../App.vue";
 import {
   ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
-  // createChannelNode,
 } from "../store/channel";
-import { ConversationMap, ibis_child_types } from "../store/conversation";
 import {
   //TODO don't need
   GuildsState,
@@ -36,13 +50,12 @@ import {
   GuildsActionTypes,
 } from "../store/guilds";
 import {
-  //TODO don't need
-  MemberState,
-  MemberGetterTypes,
-  MemberActionTypes,
-} from "../store/member";
-import { registration_status_enum, permission_enum } from "../enums";
-import { Guild, GamePlay, Casting, ConversationNode, Member } from "../types";
+  ibis_node_type_enum,
+  meta_state_enum,
+  permission_enum,
+  publication_state_enum,
+} from "../enums";
+import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
@@ -55,11 +68,12 @@ import { BaseGetterTypes } from "../store/baseStore";
   computed: {
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("channel", ["getGuildChannels"]),
+    ...mapGetters(["hasPermission"]),
   },
   methods: {
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["ensureChannels"]),
+    ...mapActions("channel", ["ensureChannels", "createChannelNode"]),
   },
   watch: {},
 })
@@ -67,6 +81,8 @@ export default class GuildChannelList extends Vue {
   //data
   guildId: number;
   channels: ConversationNode[];
+  creating: boolean = false;
+  newChannelName: string = "";
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
@@ -82,7 +98,28 @@ export default class GuildChannelList extends Vue {
   ensureGuild: GuildsActionTypes["ensureGuild"];
   fetchMemberById: MembersActionTypes["fetchMemberById"];
   ensureChannels: ChannelActionTypes["ensureChannels"];
-  async beforeMount() {
+  createChannelNode: ChannelActionTypes["createChannelNode"];
+  hasPermission: BaseGetterTypes["hasPermission"];
+  canAddChannel() {
+    return this.hasPermission(permission_enum.guildAdmin, this.guildId);
+  }
+  createGuildChannel() {
+    this.creating = true;
+  }
+  cancelCreateGuildChannel() {
+    this.creating = false;
+  }
+  confirmCreateGuildChannel() {
+    let channel: Partial<ConversationNode> = {
+      title: this.newChannelName,
+      node_type: ibis_node_type_enum.channel,
+      meta: meta_state_enum.channel,
+      status: publication_state_enum.guild_draft,
+      guild_id: this.guildId,
+    };
+    this.createChannelNode({ data: channel });
+  }
+  async beforeCreate() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await this.setCurrentGuild(this.guildId),
