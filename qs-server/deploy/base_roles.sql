@@ -12,7 +12,7 @@ CREATE OR REPLACE PROCEDURE public.create_or_update_base_role(
 DECLARE
   role_id integer;
 BEGIN
-  SELECT id INTO role_id STRICT FROM public.role WHERE name = name_ AND guild_id IS NULL;
+  SELECT id INTO role_id FROM public.role WHERE name = name_ AND guild_id IS NULL;
   IF role_id IS NULL THEN
     INSERT INTO public.role (name, permissions, node_type_constraints) VALUES (name_, permissions_, node_type_constraints_);
   ELSE
