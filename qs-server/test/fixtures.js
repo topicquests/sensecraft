@@ -26,13 +26,14 @@ const guildPlayerInfo = {
   name: 'Guild Player',
   password: 'supersecret',
 };
-const publicGuildInfo = {
+const publicGuildInfo = (role_id) => ({
   name: 'My great guild',
   handle: 'pubguild',
   public: true,
+  default_role_id: role_id,
   open_for_applications: true,
   application_needs_approval: false,
-};
+});
 const publicQuestInfo = {
   name: 'My great quest',
   handle: 'pubquest',

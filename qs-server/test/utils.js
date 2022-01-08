@@ -115,6 +115,14 @@ async function add_members(members) {
   return {memberIds, memberTokens};
 }
 
+async function get_base_roles(adminToken) {
+  return await axiosUtil.get('role', {}, adminToken);
+}
+
+function get_system_role_by_name(roles, name) {
+  return roles.find((role) => role.name === name && role.guild_id === null);
+}
+
 async function delete_members(memberIds, adminToken) {
   for (const memberId of Object.values(memberIds || {})) {
     await axiosUtil.delete('members', {id: memberId}, adminToken);
@@ -156,5 +164,7 @@ module.exports = {
   delete_members,
   add_nodes,
   delete_nodes,
+  get_base_roles,
+  get_system_role_by_name,
   axiosUtil,
 };

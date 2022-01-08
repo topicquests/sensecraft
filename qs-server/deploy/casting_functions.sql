@@ -50,7 +50,10 @@ CREATE TRIGGER before_update_casting BEFORE UPDATE ON public.casting FOR EACH RO
 ALTER TABLE public.casting ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS casting_delete_policy ON public.casting;
-CREATE POLICY casting_delete_policy ON public.casting FOR DELETE USING ((public.is_quest_id_member(quest_id) OR public.has_guild_permission(guild_id, 'joinQuest'::public.permission)));
+CREATE POLICY casting_delete_policy ON public.casting FOR DELETE USING ((
+  member_id = public.current_member_id() OR
+  public.is_quest_id_member(quest_id) OR
+  public.has_guild_permission(guild_id, 'guildAdmin'::public.permission)));
 DROP POLICY IF EXISTS casting_insert_policy ON public.casting;
 CREATE POLICY casting_insert_policy ON public.casting FOR INSERT WITH CHECK (
   ((member_id = current_member_id() AND public.is_guild_id_member(guild_id)) OR public.is_guild_id_leader(guild_id))
