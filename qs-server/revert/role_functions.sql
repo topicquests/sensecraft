@@ -33,5 +33,7 @@ DROP TRIGGER IF EXISTS before_update_role ON public.role;
 DROP FUNCTION IF EXISTS before_update_role();
 
 DROP FUNCTION IF EXISTS public.has_game_permission(quest_id integer, perm public.permission);
+DROP FUNCTION IF EXISTS public.is_visible_role(guild_id integer);
+DROP FUNCTION IF EXISTS public.is_guild_role(guild_id integer, role_id integer);
 
 COMMIT;

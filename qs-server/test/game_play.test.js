@@ -1,11 +1,11 @@
 const assert = require('assert');
-const { axiosUtil } = require('./utils');
+const { axiosUtil, get_base_roles, get_system_role_by_name } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, draftPublicQuestInfo } = require('./fixtures');
 
 describe('\'game_play\' service', () => {
 
   describe('guild creation', () => {
-    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken;
+    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
@@ -23,6 +23,8 @@ describe('\'game_play\' service', () => {
       sponsorToken = await axiosUtil.call('get_token', {
         mail: sponsorInfo.email, pass: sponsorInfo.password
       }, null, true);
+      roles = await get_base_roles(adminToken);
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
     });
 
     after(async () => {
@@ -50,7 +52,7 @@ describe('\'game_play\' service', () => {
         assert.equal(quests.length, 1);
       });
       it('creates public guild', async () => {
-        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, leaderToken);
+        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
         game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);

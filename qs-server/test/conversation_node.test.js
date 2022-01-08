@@ -1,5 +1,7 @@
 const assert = require('assert');
-const { axiosUtil, add_members, delete_members, add_nodes, delete_nodes } = require('./utils');
+const {
+  axiosUtil, get_base_roles, get_system_role_by_name, add_members,
+  delete_members, add_nodes, delete_nodes } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
 //const { devNull } = require('os');
 
@@ -8,7 +10,7 @@ describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
-      q1Id, a1Id, arg1Id, memberIds, memberTokens, nodeIds = {};
+      q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId, nodeIds = {};
 
     async function my_add_node(node, qId=publicQuestId) {
       return await add_nodes([node], qId, memberTokens, nodeIds);
@@ -24,6 +26,9 @@ describe('\'conversation_node\' service', () => {
       quidamToken = memberTokens[quidamInfo.handle];
       leaderToken = memberTokens[leaderInfo.handle];
       sponsorToken = memberTokens[sponsorInfo.handle];
+      roles = await get_base_roles(adminToken);
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
+      philosopherRoleId = get_system_role_by_name(roles, 'Philosopher').id;
     });
 
     after(async () => {
@@ -68,7 +73,7 @@ describe('\'conversation_node\' service', () => {
         }, /Each quest must have a single root/);
       });
       it('creates public guild', async () => {
-        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, leaderToken);
+        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
         game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
@@ -88,11 +93,30 @@ describe('\'conversation_node\' service', () => {
         assert.equal(game_play.length, 1);
         assert.equal(game_play[0].status, 'confirmed');
       });
-      it('guild leader can call global registration', async () => {
-        await axiosUtil.call('register_all_members', {
-          guildid: publicGuildId,
-          questid: publicQuestId,
+      it('leader can self-register', async () => {
+        const r = await axiosUtil.create('casting', {
+          member_id: memberIds[leaderInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
         }, leaderToken);
+        assert.ok(r);
+      });
+      it('quidam can self-register', async () => {
+        const r = await axiosUtil.create('casting', {
+          member_id: memberIds[quidamInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
+        }, quidamToken);
+        assert.ok(r);
+      });
+      it('quidam can self-cast', async () => {
+        const r = await axiosUtil.create('casting_role', {
+          member_id: memberIds[quidamInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
+          role_id: researcherRoleId
+        }, quidamToken);
+        assert.ok(r);
       });
       it('quidam can create private draft node', async () => {
         Object.assign(nodeIds, await my_add_node(answer1Info));
@@ -129,7 +153,43 @@ describe('\'conversation_node\' service', () => {
         node_model = await axiosUtil.get('conversation_node', { id: a1Id }, sponsorToken);
         assert.equal(node_model.length, 0);
       });
-      it('quidam can update draft node', async () => {
+      it('quidam can update draft node to role_draft', async () => {
+        await axiosUtil.update('conversation_node', { id: a1Id }, {
+          description: 'details about the answer',
+          status: 'role_draft',
+          draft_for_role_id: philosopherRoleId
+        }, quidamToken);
+      });
+      it('sponsor cannot see role draft', async () => {
+        const node_model = await axiosUtil.get('conversation_node', { id: a1Id }, sponsorToken);
+        assert.equal(node_model.length, 0);
+      });
+      it('leader cannot see role draft', async () => {
+        const node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
+        assert.equal(node_model.length, 0);
+      });
+      it('leader can make role available for self', async () => {
+        const r = await axiosUtil.create('guild_member_available_role', {
+          member_id: memberIds[leaderInfo.handle],
+          guild_id: publicGuildId,
+          role_id: philosopherRoleId
+        }, leaderToken);
+        assert.ok(r);
+      });
+      it('leader can self-assign game role', async () => {
+        const r = await axiosUtil.create('casting_role', {
+          member_id: memberIds[leaderInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
+          role_id: philosopherRoleId
+        }, leaderToken);
+        assert.ok(r);
+      });
+      it('leader can see role draft with appropriate role', async () => {
+        const node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
+        assert.equal(node_model.length, 1);
+      });
+      it('quidam can update role_draft node to guild_draft', async () => {
         await axiosUtil.update('conversation_node', { id: a1Id }, {
           description: 'details about the answer',
           status: 'guild_draft',
@@ -367,6 +427,22 @@ describe('\'conversation_node\' service', () => {
         const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434349}, leaderToken);
         assert(node.length === 1);
         assert(node[0].meta === 'channel');
+      });
+      it('can add a guild draft meta-node to a guild channel', async() => {
+        Object.assign(nodeIds, await my_add_node({
+          id: 'q8992',
+          parent: 'q899',
+          node_type: 'question',
+          meta: 'meta',
+          status: 'role_draft',
+          draft_for_role_id: philosopherRoleId,
+          title: 'yet still another question',
+          member: quidamInfo.handle,
+        }));
+      });
+      it('role member can see that meta-node', async() => {
+        const node_model = await axiosUtil.get('conversation_node', { id: nodeIds.q8992 }, leaderToken);
+        assert.equal(node_model.length, 1);
       });
     });
   });

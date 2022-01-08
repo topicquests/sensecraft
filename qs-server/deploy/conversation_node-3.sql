@@ -1,7 +1,7 @@
 -- Deploy sensecraft:conversation_node to pg
 -- requires: quests
 -- requires: guilds
--- requires: role
+
 
 BEGIN;
 
@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS public.conversation_node (
     description text,
     meta meta_state DEFAULT 'conversation'::meta_state NOT NULL,
     url varchar(255),
-    draft_for_role_id INTEGER,
     CONSTRAINT conversation_node_pkey PRIMARY KEY (id),
     CONSTRAINT conversation_node_creator_id_fkey FOREIGN KEY (creator_id)
       REFERENCES public.members(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -36,8 +35,6 @@ CREATE TABLE IF NOT EXISTS public.conversation_node (
       REFERENCES public.conversation_node(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT conversation_node_quest_id_fkey FOREIGN KEY (quest_id)
       REFERENCES public.quests(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT conversation_node_draft_for_role_id_fkey FOREIGN KEY (draft_for_role_id)
-      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT conversation_node_guild_id_fkey FOREIGN KEY (guild_id)
       REFERENCES public.guilds(id) ON UPDATE CASCADE ON DELETE CASCADE
 );

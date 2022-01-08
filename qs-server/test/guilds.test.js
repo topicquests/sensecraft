@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { axiosUtil } = require('./utils');
+const { axiosUtil, get_base_roles, get_system_role_by_name } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } = require('./fixtures');
 
 describe('\'guilds\' service', () => {
@@ -26,7 +26,7 @@ describe('\'guilds\' service', () => {
       open_for_applications: true,
       application_needs_approval: true,
     };
-    var adminToken, quidamId, quidam2Id, sponsorId, publicGuildId, quasiPublicGuildId, quasiPublicGuildModel, privateGuildId, accessToken, publicGuildModel;
+    var adminToken, quidamId, quidam2Id, sponsorId, publicGuildId, quasiPublicGuildId, quasiPublicGuildModel, privateGuildId, accessToken, publicGuildModel, roles, researcherRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
@@ -35,6 +35,8 @@ describe('\'guilds\' service', () => {
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidam2Id = await axiosUtil.call('create_member', quidam2Info);
       sponsorId = await axiosUtil.call('create_member', leaderInfo);
+      roles = await get_base_roles(adminToken);
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
     });
 
     after(async () => {
@@ -83,7 +85,7 @@ describe('\'guilds\' service', () => {
         assert.ok(accessToken, 'Created access token for user');
       });
       it('creates public guild', async () => {
-        publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, accessToken);
+        publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), accessToken);
         publicGuildId = publicGuildModel.id;
         const guilds = await axiosUtil.get('guilds', {}, accessToken);
         assert.equal(guilds.length, 1);

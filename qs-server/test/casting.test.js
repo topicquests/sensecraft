@@ -1,11 +1,11 @@
 const assert = require('assert');
-const { axiosUtil } = require('./utils');
+const { axiosUtil, get_base_roles, get_system_role_by_name } = require('./utils');
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo } = require('./fixtures');
 
 describe('\'casting\' service', () => {
 
   describe('guild creation', () => {
-    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken;
+    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
@@ -23,6 +23,8 @@ describe('\'casting\' service', () => {
       sponsorToken = await axiosUtil.call('get_token', {
         mail: sponsorInfo.email, pass: sponsorInfo.password
       }, null, false);
+      roles = await get_base_roles(adminToken);
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
     });
 
     after(async () => {
@@ -50,7 +52,7 @@ describe('\'casting\' service', () => {
         assert.equal(quests.length, 1);
       });
       it('creates public guild', async () => {
-        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo, leaderToken);
+        const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
         game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
@@ -100,10 +102,26 @@ describe('\'casting\' service', () => {
         assert.ok(quidam_r);
       });
       it('quidam can deregister', async () => {
-        await axiosUtil.delete('casting', {
+        const quidam_casting = { member_id: quidamId, ...game_play_id };
+        let r = await axiosUtil.delete('casting', quidam_casting, quidamToken);
+        assert.ok(r);
+        r = await axiosUtil.get('casting', quidam_casting, quidamToken);
+        assert.deepEqual(r, []);
+      });
+      it('quidam can self-register', async () => {
+        const r = await axiosUtil.create('casting', {
           member_id: quidamId,
           ...game_play_id
         }, quidamToken);
+        assert.ok(r);
+      });
+      it('quidam has the guild default role', async () => {
+        const r = await axiosUtil.get('guild_member_available_role', {
+          member_id: quidamId,
+          guild_id: publicGuildId
+        }, quidamToken);
+        assert.equal(r.length, 1);
+        assert.equal(r[0].role_id, researcherRoleId);
       });
     });
   });

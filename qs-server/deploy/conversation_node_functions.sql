@@ -3,6 +3,7 @@
 -- requires: casting
 -- requires: guilds_functions
 -- requires: quests_functions
+-- requires: casting_role_functions
 -- idempotent
 
 BEGIN;
@@ -53,8 +54,6 @@ BEGIN
     IF NOT is_quest_id_member(quest_id) THEN
       RAISE EXCEPTION 'Only quest members can publish nodes';
     END IF;
-  WHEN status = 'role_draft' THEN
-    RAISE EXCEPTION 'Not implemented';
   ELSE
   END CASE;
   -- status cannot be higher than parent_status
@@ -137,6 +136,13 @@ BEGIN
     SELECT guild_id INTO NEW.guild_id FROM casting WHERE casting.quest_id = NEW.quest_id AND casting.member_id = NEW.creator_id;
   END IF;
   SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
+  IF NEW.status != 'role_draft' THEN
+    NEW.draft_for_role_id = NULL;
+  ELSE
+    IF NOT public.is_guild_role(NEW.guild_id, NEW.draft_for_role_id) THEN
+      RAISE EXCEPTION 'Role must be a guild role';
+    END IF;
+  END IF;
   IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' THEN
     RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
   END IF;
@@ -219,14 +225,18 @@ BEGIN
     PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
   END IF;
   IF COALESCE(NEW.parent_id, -1) != COALESCE(OLD.parent_id, -1) OR NEW.status != OLD.status THEN
-    IF NEW.status = 'role_draft' THEN
-      RAISE EXCEPTION 'not implemented';
-    END IF;
     SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
     IF NEW.status != OLD.status THEN
       SELECT MIN(status) INTO children_status FROM conversation_node WHERE parent_id = NEW.id;
       IF children_status > NEW.status THEN
         RAISE EXCEPTION 'Cannot lower the status below that of children';
+      END IF;
+    END IF;
+    IF NEW.status != 'role_draft' THEN
+      NEW.draft_for_role_id = NULL;
+    ELSE
+      IF NOT public.is_guild_role(NEW.guild_id, NEW.draft_for_role_id) THEN
+        RAISE EXCEPTION 'Role must be a guild role';
       END IF;
     END IF;
     IF NEW.parent_id IS NULL AND NEW.meta = 'conversation'::meta_state AND (
@@ -296,13 +306,17 @@ CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SE
   status = 'published' OR
   creator_id = current_member_id() OR
   (status = 'submitted' AND public.is_quest_id_member(quest_id)) OR
-  (status > 'private_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
-  (status > 'private_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND public.is_guild_id_member(guild_id))
+  (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NOT NULL AND has_game_role(quest_id, guild_id, draft_for_role_id)) OR
+  (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND can_play_role(guild_id, draft_for_role_id)) OR
+  (status > 'role_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
+  (status > 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND public.is_guild_id_member(guild_id))
 );
 
 DROP POLICY IF EXISTS conversation_node_update_policy ON public.conversation_node;
 CREATE POLICY conversation_node_update_policy ON public.conversation_node FOR UPDATE USING (
   (status <= 'proposed' AND creator_id = current_member_id()) OR
+  (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NOT NULL AND has_game_role(quest_id, guild_id, draft_for_role_id)) OR
+  (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND can_play_role(guild_id, draft_for_role_id)) OR
   (status >= 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
   (status >= 'guild_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND public.is_guild_id_member(guild_id)) OR
   (status >= 'submitted' AND (public.is_quest_id_member(quest_id) OR public.is_guild_id_leader(guild_id)))
