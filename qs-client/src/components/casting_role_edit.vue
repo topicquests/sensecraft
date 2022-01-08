@@ -10,7 +10,7 @@
         </div>
         <div class="row">
           <span class="q-pl-md q-pt-md">
-            {{ getUser.handle }}
+            {{ member.handle }}
           </span>
           <q-select
             class="q-ml-md"
@@ -43,8 +43,9 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
-import { Role, Member } from "../types";
-import { mapGetters } from "vuex";
+import { Role } from "../types";
+import { mapState } from "vuex";
+import { MemberState } from "../store/member";
 
 const CastingRoleEditProps = Vue.extend({
   props: {
@@ -52,20 +53,24 @@ const CastingRoleEditProps = Vue.extend({
     castingRole: String,
     questId: Number,
     guildId: Number,
-    memberId: Number,
   },
 });
 
 @Component<CastingRoleEdit>({
   name: "CastingRoleEdit",
   computed: {
-    ...mapGetters("member", ["getUser"]),
+    ...mapState("member", {
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
+    }),
   },
   watch: {},
 })
 export default class CastingRoleEdit extends CastingRoleEditProps {
   role = [];
   cr = null;
+  member: MemberState["member"];
+  memberId: number;
 
   create() {
     this.role = { ...this.availableRoles };

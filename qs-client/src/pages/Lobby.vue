@@ -45,6 +45,9 @@
                 <q-td key="guildHandle" :props="props">{{
                   props.row.handle
                 }}</q-td>
+                <q-td key="guildMember" :props="props">
+                  {{ guildBelongsTo(props.row.id) }}
+                </q-td>
                 <q-td key="guildNodeId" auto-width :props="props">
                   <router-link
                     :to="{
@@ -121,6 +124,13 @@ export default {
           sortable: true,
         },
         {
+          name: "guildMember",
+          required: true,
+          label: "Member",
+          align: "left",
+          filed: "guildBelongsTo",
+        },
+        {
           name: "guildNodeId",
           required: false,
           label: "Action",
@@ -147,9 +157,9 @@ export default {
     guildBelongsTo(id) {
       const guildId = this.getMyGuilds.find((el) => el.id == id);
       if (guildId) {
-        return true;
+        return "Yes";
       } else {
-        return false;
+        return "No";
       }
     },
   },

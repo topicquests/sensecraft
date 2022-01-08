@@ -5,15 +5,9 @@ import { createLocalVue } from "@vue/test-utils";
 import Vuex from "vuex";
 import { Store } from "vuex-mock-store";
 import merge from "lodash.merge";
-import { Member } from "../../types";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
-
-const mockRouter = {
-  push: jest.fn(),
-  goto: jest.fn(),
-};
 
 function createWrapper(storeConfig) {
   const defaultMountOptions = {
@@ -28,7 +22,15 @@ function createWrapper(storeConfig) {
         QCard,
       },
     },
-    propsData: {},
+    propsData: {
+      availableRoles: [
+        {
+          name: "JohnDoe",
+          id: 1,
+        },
+      ],
+      castingRole: "lead",
+    },
   };
   return mountQuasar(CastingRoleEdit, merge(defaultMountOptions));
 }
@@ -37,7 +39,10 @@ describe("CastingRoleEdit", () => {
   const storeConfig = {
     state: {
       member: {
-        member: null,
+        member: {
+          id: null,
+          handle: null,
+        },
       },
     },
     getters: {
@@ -47,6 +52,21 @@ describe("CastingRoleEdit", () => {
   const wrapper = createWrapper(storeConfig);
 
   it("QSelect exist in castingRoleEdit component", () => {
-    expect(wrapper.findComponent(QSelect).exists()).toBe(true);
+    const qselect = wrapper.findComponent(QSelect);
+    expect(qselect.exists()).toBe(true);
+  });
+
+  it("QSelect recieves proer data", () => {
+    const qselect = wrapper.findComponent(QSelect);
+    expect(wrapper.props().availableRoles[0]).toHaveProperty(
+      qselect.props().optionValue
+    );
+    expect(wrapper.props().availableRoles[0]).toHaveProperty(
+      qselect.props().optionLabel
+    );
+  });
+
+  it("Check prop casting role", () => {
+    expect(wrapper.props().castingRole).toBe("lead");
   });
 });
