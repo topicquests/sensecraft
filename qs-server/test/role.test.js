@@ -182,6 +182,22 @@ describe('\'role\' service', () => {
           guild_id: publicGuildId,
           role_id: guildRoleId}, playerToken);
       });
+      it('Leader cannot delete an available role in use', async () => {
+        await assert.rejects(async () => {
+          await axiosUtil.delete('guild_member_available_role', {
+            member_id: playerId,
+            guild_id: publicGuildId,
+            role_id: guildRoleId
+          }, leaderToken);
+        }, /casting_role_available_role_fkey/);
+      });
+      it('Leader cannot delete a role in use', async () => {
+        await assert.rejects(async () => {
+          await axiosUtil.delete('role', {
+            id: guildRoleId
+          }, leaderToken);
+        }, /casting_role_role_id_fkey/);
+      });
     });
   });
 });
