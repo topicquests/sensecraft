@@ -96,6 +96,7 @@ export interface ConversationNode {
   description: string;
   url: string;
   meta: meta_state_type;
+  draft_for_role_id: number;
 }
 
 export interface Guild {
