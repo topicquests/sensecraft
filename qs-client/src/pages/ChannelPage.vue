@@ -1,32 +1,15 @@
 <template>
   <q-page class="page">
-    <div class="sidenav gt-sm">
-      <div class="q-pa-md q-gutter-sm">
+    <div class="row justify-center q-mt-lg">
+      <div class="col-6 q-md q-mr-lg">
         <node-tree
           v-bind:nodes="channelTree"
           v-on:updateTree="selectionChanged"
+          :channelId="channelId"
+          :roles="getRoles"
+          :editable="true"
         >
         </node-tree>
-      </div>
-    </div>
-    <div class="col-3 q-md q-mb-md">
-      <div v-if="selectedNodeId">
-        <!-- cloned from GamePlay-->
-        <node-form
-          v-if="canEdit(channelId, selectedNodeId)"
-          v-bind:nodeInput="selectedNode(true)"
-          v-bind:allowAddChild="true"
-          :editing="true"
-          v-bind:ibisTypes="selectedIbisTypes"
-          v-on:action="updateNode"
-          v-on:addChild="addChild"
-        />
-        <node-form v-else v-bind:nodeInput="selectedNode()" />
-        <q-btn
-          v-if="!canEdit(channelId, selectedNodeId)"
-          @click="addChild()"
-          label="Add Child"
-        />
       </div>
     </div>
   </q-page>
@@ -49,6 +32,7 @@ import {
   public_private_bool,
 } from "../enums";
 import app from "../App.vue";
+import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   ChannelState,
   ChannelGetterTypes,
@@ -84,6 +68,7 @@ import {
   Casting,
   ConversationNode,
   Member,
+  Role,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -107,6 +92,7 @@ import { BaseGetterTypes } from "../store/baseStore";
       "getChannelNode",
       "canEdit",
     ]),
+    ...mapGetters("role", ["getRoles"]),
     channelTree: function () {
       return this.getChannelConversationTree(this.channelId);
     },
@@ -115,12 +101,8 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", [
-      "ensureChannelConversation",
-      "ensureChannels",
-      "createChannelNode",
-      "updateChannelNode",
-    ]),
+    ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
   watch: {},
 })
@@ -158,81 +140,13 @@ export default class RolePlayPage extends Vue {
   ensureMemberById: MembersActionTypes["ensureMemberById"];
   ensureChannels: ChannelActionTypes["ensureChannels"];
   ensureChannelConversation: ChannelActionTypes["ensureChannelConversation"];
-  createChannelNode: ChannelActionTypes["createChannelNode"];
-  updateChannelNode: ChannelActionTypes["updateChannelNode"];
-  getQuestCreator() {
-    return this.getMemberById(this.getCurrentQuest.creator);
-  }
-  selectedNode(copy?: boolean) {
-    let node = this.getChannelNode(this.channelId, this.selectedNodeId);
-    if (copy) {
-      node = { ...node };
-    }
-    return node;
-  }
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  getRoles: RoleGetterTypes["getRoles"];
+
   selectionChanged(id) {
     this.selectedNodeId = id;
-    const selectedNode = this.selectedNode();
-    console.log("selectedNode: ", selectedNode);
-    const parent = selectedNode
-      ? this.getChannelNode(this.channelId, selectedNode.parent_id)
-      : null;
-    if (parent) {
-      this.selectedIbisTypes = ibis_child_types(parent.node_type);
-    } else {
-      this.selectedIbisTypes = ibis_node_type_list;
-    }
   }
-  addChild() {
-    this.newNodeParent = this.selectedNodeId;
-    const parent_ibis_type = this.selectedNode().node_type;
-    this.childIbisTypes = ibis_child_types(parent_ibis_type);
-    this.newNode = Object.assign(
-      {
-        status: "private_draft",
-      },
-      this.newNode,
-      {
-        node_type: this.childIbisTypes[0],
-        parent_id: this.selectedNodeId,
-      }
-    );
-  }
-  async addNode(node) {
-    try {
-      node.quest_id = this.questId;
-      node.guild_id = this.guildId;
-      node.parent_id = this.selectedNodeId;
 
-      await this.createChannelNode({ data: node });
-      this.newNodeParent = null;
-      this.$q.notify({
-        message: `Added node to conversation`,
-        color: "positive",
-      });
-    } catch (err) {
-      console.log("there was an error in adding node ", err);
-      this.$q.notify({
-        message: `There was an error adding new node.`,
-        color: "negative",
-      });
-    }
-  }
-  async updateNode(node) {
-    try {
-      await this.updateChannelNode({ data: node });
-      this.$q.notify({
-        message: `node updated`,
-        color: "positive",
-      });
-    } catch (err) {
-      console.log("there was an error in adding node ", err);
-      this.$q.notify({
-        message: `There was an error adding node.`,
-        color: "negative",
-      });
-    }
-  }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
@@ -249,6 +163,7 @@ export default class RolePlayPage extends Vue {
       await this.setCurrentGuild(this.guildId);
     }
     promises.push(this.ensureGuild({ guild_id: this.guildId }));
+    promises.push(this.ensureAllRoles());
     promises.push(
       this.ensureChannelConversation({
         channel_id: this.channelId,

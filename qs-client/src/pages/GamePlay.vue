@@ -8,62 +8,25 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="sidenav gt-sm">
-      <div class="q-pa-md q-gutter-sm">
-        <node-tree
-          v-bind:nodes="getNeighbourhoodTree"
-          v-on:updateTree="selectionChanged"
-        >
-        </node-tree>
-      </div>
-    </div>
     <div class="row justify-center q-mt-lg">
-      <div class="col-3 q-md q-mr-lg">
+      <div class="col-4 q-md q-mr-lg">
         <questCard
           v-if="getCurrentQuest"
           :currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
         ></questCard>
       </div>
-      <div class="col-3 q-md q-mb-md">
-        <div v-if="selectedNodeId">
-          <node-form
-            v-if="canEdit(selectedNodeId)"
-            v-bind:nodeInput="selectedNode(true)"
-            v-bind:allowAddChild="true"
-            :editing="true"
-            v-bind:ibisTypes="selectedIbisTypes"
-            v-on:action="updateNode"
-            v-on:addChild="addChild"
-          />
-          <node-form v-else v-bind:nodeInput="selectedNode()" />
-          <q-btn
-            v-if="!canEdit(selectedNodeId)"
-            @click="addChild()"
-            label="Add Child"
-          />
-        </div>
-      </div>
     </div>
-    <div class="column items-center">
-      <div class="col-6">
-        <div class="q-pa-md q-gutter-sm lt-md">
-          <node-tree
-            v-bind:nodes="getNeighbourhoodTree"
-            v-on:updateTree="selectionChanged"
-          />
-        </div>
+    <div class="row justify-center q-mt-lg">
+      <div class="col-6 q-md q-mr-lg">
+        <node-tree
+          v-bind:nodes="getNeighbourhoodTree"
+          v-on:updateTree="selectionChanged"
+          :channelId="null"
+          :editable="true"
+          :roles="getRoles"
+        />
       </div>
-    </div>
-    <div class="column items-center q-mb-md">
-      <node-form
-        v-if="newNodeParent == selectedNodeId"
-        :editing="true"
-        :nodeInput="newNode"
-        :allowAddChild="false"
-        :ibisTypes="childIbisTypes"
-        v-on:action="addNode"
-      />
     </div>
   </q-page>
 </template>
@@ -73,8 +36,6 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
-import nodeCard from "../components/node-card.vue";
-import nodeForm from "../components/node-form.vue";
 import nodeTree from "../components/node-tree.vue";
 import {
   ibis_node_type_enum,
@@ -105,6 +66,7 @@ import {
   MemberGetterTypes,
   MemberActionTypes,
 } from "../store/member";
+import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   registration_status_enum,
   quest_status_enum,
@@ -117,6 +79,7 @@ import {
   Casting,
   ConversationNode,
   Member,
+  Role,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -128,8 +91,6 @@ import { BaseGetterTypes } from "../store/baseStore";
     scoreboard: scoreboard,
     member: member,
     questCard: questCard,
-    nodeCard: nodeCard,
-    nodeForm: nodeForm,
     nodeTree: nodeTree,
   },
   computed: {
@@ -140,10 +101,10 @@ import { BaseGetterTypes } from "../store/baseStore";
       "getConversationNodeById",
       "getNeighbourhoodTree",
       "getNeighbourhood",
-      "canEdit",
       "getRootNode",
       "getNode",
     ]),
+    ...mapGetters("role", ["getRoles"]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
@@ -151,10 +112,9 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("conversation", [
       "ensureConversationNeighbourhood",
-      "createConversationNode",
-      "updateConversationNode",
       "ensureRootNode",
     ]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
   watch: {},
 })
@@ -177,7 +137,6 @@ export default class GamePlayPage extends Vue {
   getMemberById: MembersGetterTypes["getMemberById"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
   getNeighbourhood: ConversationGetterTypes["getNeighbourhood"];
-  canEdit: ConversationGetterTypes["canEdit"];
   getNode: ConversationGetterTypes["getNode"];
   getNeighbourhoodTree: ConversationGetterTypes["getNeighbourhoodTree"];
   getRootNode: ConversationGetterTypes["getRootNode"];
@@ -189,84 +148,19 @@ export default class GamePlayPage extends Vue {
   fetchMemberById: MembersActionTypes["fetchMemberById"];
   ensureConversationNeighbourhood!: ConversationActionTypes["ensureConversationNeighbourhood"];
   ensureMemberById: MembersActionTypes["ensureMemberById"];
-  createConversationNode: ConversationActionTypes["createConversationNode"];
-  updateConversationNode: ConversationActionTypes["updateConversationNode"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
   ensureRootNode: ConversationActionTypes["ensureRootNode"];
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  getRoles: RoleGetterTypes["getRoles"];
 
   getQuestCreator() {
     return this.getMemberById(this.getCurrentQuest.creator);
   }
-  selectedNode(copy?: boolean) {
-    let node = this.getConversationNodeById(this.selectedNodeId);
-    if (copy) {
-      node = { ...node };
-    }
-    return node;
-  }
+
   selectionChanged(id) {
     this.selectedNodeId = id;
-    const selectedNode = this.selectedNode();
-    console.log("selectedNode: ", selectedNode);
-    const parent = selectedNode
-      ? this.getConversationNodeById(selectedNode.parent_id)
-      : null;
-    if (parent) {
-      this.selectedIbisTypes = ibis_child_types(parent.node_type);
-    } else {
-      this.selectedIbisTypes = ibis_node_type_list;
-    }
   }
-  addChild() {
-    this.newNodeParent = this.selectedNodeId;
-    const parent_ibis_type = this.selectedNode().node_type;
-    this.childIbisTypes = ibis_child_types(parent_ibis_type);
-    this.newNode = Object.assign(
-      {
-        status: "private_draft",
-      },
-      this.newNode,
-      {
-        node_type: this.childIbisTypes[0],
-        parent_id: this.selectedNodeId,
-      }
-    );
-  }
-  async addNode(node) {
-    try {
-      node.quest_id = this.questId;
-      node.guild_id = this.guildId;
-      node.parent_id = this.selectedNodeId;
 
-      await this.createConversationNode({ data: node });
-      this.newNodeParent = null;
-      this.$q.notify({
-        message: `Added node to conversation`,
-        color: "positive",
-      });
-    } catch (err) {
-      console.log("there was an error in adding node ", err);
-      this.$q.notify({
-        message: `There was an error adding new node.`,
-        color: "negative",
-      });
-    }
-  }
-  async updateNode(node) {
-    try {
-      await this.updateConversationNode({ data: node });
-      this.$q.notify({
-        message: `node updated`,
-        color: "positive",
-      });
-    } catch (err) {
-      console.log("there was an error in adding node ", err);
-      this.$q.notify({
-        message: `There was an error adding node.`,
-        color: "negative",
-      });
-    }
-  }
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
@@ -278,6 +172,7 @@ export default class GamePlayPage extends Vue {
     await Promise.all([
       this.ensureQuest({ quest_id: this.questId }),
       this.ensureGuild({ guild_id: this.guildId }),
+      this.ensureAllRoles(),
     ]);
     let node_id = this.getCurrentGamePlay?.focus_node_id;
     if (!node_id) {

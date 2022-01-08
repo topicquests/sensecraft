@@ -34,10 +34,7 @@ import { mapGetters, mapActions, mapState } from "vuex";
 // import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import ChannelList from "../components/ChannelListComponent.vue";
-import nodeForm from "../components/node-form.vue";
-import nodeTree from "../components/node-tree.vue";
 import { userLoaded } from "../boot/userLoaded";
-import app from "../App.vue";
 import {
   ChannelState,
   ChannelGetterTypes,

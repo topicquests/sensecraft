@@ -9,6 +9,9 @@
       <div class="q-pa-md q-gutter-sm">
         <node-tree
           v-bind:nodes="getConversationTree"
+          :channelId="null"
+          :editable="true"
+          :roles="[]"
           v-on:updateTree="selectionChanged"
         />
       </div>

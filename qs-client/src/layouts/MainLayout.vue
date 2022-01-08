@@ -69,6 +69,9 @@
         <node-tree
           v-if="getNeighbourhoodTree.length"
           v-bind:nodes="getNeighbourhoodTree"
+          :channelId="null"
+          :editable="false"
+          :hideDescription="true"
         />
       </div>
     </div>

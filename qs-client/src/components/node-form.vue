@@ -47,10 +47,39 @@
         v-model="node.status"
         :options="publication_state_list"
         label="Status"
-        style="width: 75%"
+        style="width: 25%"
+      />
+      <q-select
+        v-if="node.status == 'role_draft'"
+        v-model="node.draft_for_role_id"
+        :options="roles"
+        option-label="name"
+        option-value="id"
+        :emit-value="true"
+        :map-options="true"
+        label="Draft for role"
+        style="width: 60%"
       />
     </div>
+    <div class="row justify-start q-pb-lg q-ml-lg">
+      <q-checkbox
+        v-if="allowChangeMeta"
+        v-model="meta"
+        label="Comment Node"
+        @click="toggleMeta"
+      />
+      <p v-if="!allowChangeMeta && node.meta != 'channel'">
+        <span v-if="meta">Comment node</span>
+        <span v-else>Content node</span>
+      </p>
+    </div>
     <div class="row justify-center" v-if="editing">
+      <q-btn
+        label="Cancel"
+        @click="cancel"
+        color="grey"
+        class="q-mr-md q-ml-md"
+      />
       <q-btn
         v-if="node.id"
         label="Update"
@@ -65,13 +94,6 @@
         color="primary"
         class="q-mr-md q-ml-md"
       />
-      <q-btn
-        v-if="allowAddChild && node.id"
-        label="Add child"
-        @click="addChild"
-        color="primary"
-        class="q-mr-md q-ml-md"
-      />
     </div>
   </q-card>
 </template>
@@ -80,7 +102,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import IbisButton from "./ibis-btn.vue";
-import { ConversationNode } from "../types";
+import { ConversationNode, Role } from "../types";
 import {
   ibis_node_type_list,
   ibis_node_type_type,
@@ -93,9 +115,10 @@ import { Prop } from "vue/types/options";
 const NodeFormProps = Vue.extend({
   props: {
     nodeInput: Object as Prop<Partial<ConversationNode>>,
-    allowAddChild: Boolean,
     editing: Boolean,
     ibisTypes: Array as Prop<ibis_node_type_type[]>,
+    allowChangeMeta: Boolean,
+    roles: Array as Prop<Role[]>,
   },
 });
 
@@ -124,9 +147,11 @@ export default class NodeForm extends NodeFormProps {
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;
   description!: string;
+  meta: boolean = false;
 
   created() {
     this.node = { ...this.nodeInput };
+    this.meta = this.node.meta == "meta";
   }
   getDescription() {
     return this.node.description || "";
@@ -140,8 +165,12 @@ export default class NodeForm extends NodeFormProps {
   action() {
     this.$emit("action", this.node);
   }
-  addChild() {
-    this.$emit("addChild", this.node);
+  cancel() {
+    this.$emit("cancel");
+  }
+  toggleMeta() {
+    this.meta = !this.meta;
+    this.node.meta = this.meta ? "meta" : "conversation";
   }
 }
 </script>

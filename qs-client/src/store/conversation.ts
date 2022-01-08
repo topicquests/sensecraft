@@ -186,6 +186,13 @@ const ConversationGetters = {
       if (node.status == publication_state_enum.private_draft) {
         return node.creator_id == userId;
         // TODO: role_draft
+      } else if (node.status == publication_state_enum.role_draft) {
+        if (node.creator_id == userId) return true;
+        const roles = MyVapi.store.getters["quest/getCastingRolesForQuest"](
+          userId,
+          node.quest_id
+        );
+        return roles.some((r) => r.id == node.draft_for_role_id);
       } else if (node.status == publication_state_enum.guild_draft) {
         const casting = MyVapi.store.getters["quests/castingInQuest"](
           node.quest_id
@@ -201,6 +208,17 @@ const ConversationGetters = {
       // TODO: Check that the node is under the focus node
     }
     return false;
+  },
+  canMakeMeta: (state: ConversationState) => (node_id: number) => {
+    // you can make a conversation node meta if it has no conversation child
+    const node = state.conversation[node_id];
+    if (node.meta == "channel") return false;
+    if (node.meta == "meta") return true;
+    return (
+      Object.values(state.conversation).filter(
+        (n) => n.parent_id == node_id && n.meta == "conversation"
+      ).length == 0
+    );
   },
 };
 
