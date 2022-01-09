@@ -212,7 +212,14 @@ BEGIN
         NEW.meta = parent_meta;
       END IF;
     ELSE
-      NEW.meta = parent_meta;
+      IF NEW.meta = 'meta'::meta_state AND OLD.meta = 'conversation'::meta_state THEN
+        -- allowed if no conversation child
+        IF (SELECT count(id) FROM conversation_node WHERE parent_id = NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
+          RAISE EXCEPTION 'Cannot change conversation to meta if conversation child exists';
+        END IF;
+      ELSE
+        NEW.meta = parent_meta;
+      END IF;
     END IF;
   ELSE
     IF NEW.node_type = 'channel' THEN

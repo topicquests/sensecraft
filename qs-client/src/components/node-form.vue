@@ -63,10 +63,12 @@
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-checkbox
+        name="meta"
         v-if="allowChangeMeta"
-        v-model="meta"
+        v-model="node.meta"
+        true-value="meta"
+        false-value="conversation"
         label="Comment Node"
-        @click="toggleMeta"
       />
       <p v-if="!allowChangeMeta && node.meta != 'channel'">
         <span v-if="meta">Comment node</span>
@@ -147,11 +149,9 @@ export default class NodeForm extends NodeFormProps {
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;
   description!: string;
-  meta: boolean = false;
 
   created() {
     this.node = { ...this.nodeInput };
-    this.meta = this.node.meta == "meta";
   }
   getDescription() {
     return this.node.description || "";
@@ -167,10 +167,6 @@ export default class NodeForm extends NodeFormProps {
   }
   cancel() {
     this.$emit("cancel");
-  }
-  toggleMeta() {
-    this.meta = !this.meta;
-    this.node.meta = this.meta ? "meta" : "conversation";
   }
 }
 </script>
