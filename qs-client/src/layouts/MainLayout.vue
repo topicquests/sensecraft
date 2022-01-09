@@ -139,7 +139,7 @@
       <router-view />
     </q-page-container>
     <q-footer style="background-color: aquamarine" class="footer">
-      <p id="Pfooter">Sensecraft 2021</p>
+      <p id="Pfooter">Sensecraft 2022</p>
     </q-footer>
   </q-layout>
 </template>
