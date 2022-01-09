@@ -166,7 +166,6 @@ export default class NodeTree extends NodeTreeProps {
     this.newNode = {
       ...selectedNode,
     };
-    this.editingNodeId = nodeId;
     this.addingChildToNodeId = null;
     if (selectedNode.parent_id) {
       const parent = this.getNode(selectedNode.parent_id);
@@ -177,10 +176,10 @@ export default class NodeTree extends NodeTreeProps {
       this.selectedIbisTypes = ibis_node_type_list;
       this.allowChangeMeta = false;
     }
+    this.editingNodeId = nodeId;
   }
   addChildToNode(nodeId: number) {
     this.editingNodeId = null;
-    this.addingChildToNodeId = nodeId;
     const parent = this.getNode(nodeId);
     const parent_ibis_type = parent.node_type;
     this.childIbisTypes = ibis_child_types(parent_ibis_type);
@@ -198,6 +197,7 @@ export default class NodeTree extends NodeTreeProps {
         meta: parent.meta,
       }
     );
+    this.addingChildToNodeId = nodeId;
   }
   cancel() {
     this.editingNodeId = null;
