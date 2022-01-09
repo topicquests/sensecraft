@@ -52,6 +52,9 @@ const MemberGetters = {
     Object.fromEntries(
       state.member.casting.map((c) => [c.quest_id, c.guild_id])
     ),
+  castingRolesForQuest: (state: MemberState) => (questId: number) => {
+    return state.member.casting_role.filter((role) => role.quest_id == questId);
+  },
   castingRolesPerQuest: (state: MemberState) => {
     const castingRolesPerQuest: { [id: number]: CastingRole[] } = {};
     state.member.casting_role?.forEach((cr) => {

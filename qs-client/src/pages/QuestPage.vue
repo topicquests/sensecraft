@@ -12,6 +12,7 @@
           :channelId="null"
           :editable="true"
           :roles="[]"
+          :asQuest="true"
           v-on:updateTree="selectionChanged"
         />
       </div>
@@ -80,7 +81,6 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 })
 export default class QuestViewPage extends Vue {
   selectedNodeId: number = null;
-  selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   currentQuestId!: QuestsState["currentQuest"];
 
   // declare the computed attributes for Typescript
@@ -111,16 +111,6 @@ export default class QuestViewPage extends Vue {
   }
   selectionChanged(id) {
     this.selectedNodeId = id;
-    const selectedNode = this.selectedNode();
-    console.log("selectedNode: ", selectedNode);
-    const parent = selectedNode
-      ? this.getConversationNodeById(selectedNode.parent_id)
-      : null;
-    if (parent) {
-      this.selectedIbisTypes = ibis_child_types(parent.node_type);
-    } else {
-      this.selectedIbisTypes = ibis_node_type_list;
-    }
   }
   async created() {
     try {

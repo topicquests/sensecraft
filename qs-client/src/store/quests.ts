@@ -15,7 +15,13 @@ import {
   CastingRole,
   Role,
 } from "../types";
-import { quest_status_enum } from "../enums";
+import {
+  quest_status_enum,
+  ibis_node_type_type,
+  publication_state_enum,
+  publication_state_type,
+  publication_state_list,
+} from "../enums";
 import type { RoleState } from "./role";
 
 interface QuestMap {
@@ -116,6 +122,38 @@ const QuestsGetters = {
         MyVapi.store.getters["role/getRoleById"](pr.role_id)
       );
       return roles;
+    },
+  getMaxPubStateForNodeType:
+    (state) =>
+    (
+      quest_id: number,
+      node_type: ibis_node_type_type
+    ): publication_state_type => {
+      const roleCastings: CastingRole[] =
+        MyVapi.store.getters["member/castingRolesForQuest"](quest_id);
+      const roles: Role[] = roleCastings.map((rc) =>
+        MyVapi.store.getters["role/getRoleById"](rc.role_id)
+      );
+      let maxPubStates = roles.map((role) => role.max_pub_state);
+      maxPubStates = maxPubStates.concat(
+        roles.map(
+          (role) =>
+            role.role_node_constraint.find((x) => x.node_type == node_type)
+              ?.max_pub_state
+        )
+      );
+      maxPubStates = maxPubStates.filter((x) => x != undefined);
+      if (maxPubStates.length > 0) {
+        // maximum for all roles
+        maxPubStates.sort(
+          (a, b) =>
+            publication_state_list.indexOf(b) -
+            publication_state_list.indexOf(a)
+        );
+        return maxPubStates[0];
+      }
+      // no constraint
+      return publication_state_enum.submitted;
     },
   getCastingRolesById:
     (state) =>

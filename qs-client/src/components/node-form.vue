@@ -37,6 +37,7 @@
         <q-select
           v-model="node.node_type"
           :options="ibisTypes"
+          @input="statusChanged"
           label="Type"
           style="width: 25%"
         />
@@ -45,7 +46,7 @@
     <div v-if="editing" class="row justify-start q-pb-lg q-ml-lg">
       <q-select
         v-model="node.status"
-        :options="publication_state_list"
+        :options="pub_state_list"
         label="Status"
         style="width: 25%"
       />
@@ -64,6 +65,7 @@
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-checkbox
         name="meta"
+        @input="statusChanged"
         v-if="allowChangeMeta"
         v-model="node.meta"
         true-value="meta"
@@ -108,7 +110,9 @@ import { ConversationNode, Role } from "../types";
 import {
   ibis_node_type_list,
   ibis_node_type_type,
+  publication_state_enum,
   publication_state_list,
+  publication_state_type,
   public_private_bool,
 } from "../enums";
 
@@ -121,6 +125,9 @@ const NodeFormProps = Vue.extend({
     ibisTypes: Array as Prop<ibis_node_type_type[]>,
     allowChangeMeta: Boolean,
     roles: Array as Prop<Role[]>,
+    pubFn: Function as Prop<
+      (node: Partial<ConversationNode>) => publication_state_type[]
+    >,
   },
 });
 
@@ -140,18 +147,20 @@ const NodeFormProps = Vue.extend({
   watch: {
     nodeInput(newNode: Partial<ConversationNode>) {
       // TODO: watch if data is dirty
-      this.node = newNode;
+      this.node = { ...this.nodeInput };
     },
   },
 })
 export default class NodeForm extends NodeFormProps {
   node: Partial<ConversationNode> = {};
   ibis_node_type_list = ibis_node_type_list;
-  publication_state_list = publication_state_list;
+  pub_state_list: publication_state_type[] = publication_state_list;
   description!: string;
 
   created() {
     this.node = { ...this.nodeInput };
+    if (this.pubFn) this.pub_state_list = this.pubFn(this.node);
+    else this.pub_state_list = publication_state_list;
   }
   getDescription() {
     return this.node.description || "";
@@ -167,6 +176,9 @@ export default class NodeForm extends NodeFormProps {
   }
   cancel() {
     this.$emit("cancel");
+  }
+  statusChanged(event) {
+    if (this.pubFn) this.pub_state_list = this.pubFn(this.node);
   }
 }
 </script>

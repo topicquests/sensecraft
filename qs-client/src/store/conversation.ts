@@ -179,6 +179,11 @@ const ConversationGetters = {
       )
     ),
   getNode: (state: ConversationState) => state.node,
+  getChildrenOf: (state: ConversationState) => (node_id: number) => {
+    return Object.values(state.conversation).filter(
+      (n) => n.parent_id == node_id
+    );
+  },
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
     const node = state.conversation[node_id];

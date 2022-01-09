@@ -54,6 +54,7 @@
         :editing="true"
         :roles="roles"
         :allowChangeMeta="allowChangeMeta"
+        :pubFn="calcSpecificPubConstraints"
         v-on:action="confirmEdit"
         v-on:cancel="cancel"
       />
@@ -65,6 +66,7 @@
         :editing="true"
         :roles="roles"
         :allowChangeMeta="allowChangeMeta"
+        :pubFn="calcSpecificPubConstraints"
         v-on:action="confirmAddChild"
         v-on:cancel="cancel"
       />
@@ -86,7 +88,18 @@ import {
   ConversationActionTypes,
   ibis_child_types,
 } from "../store/conversation";
-import { ibis_node_type_type, ibis_node_type_list } from "../enums";
+import {
+  QuestsState,
+  QuestsGetterTypes,
+  QuestsActionTypes,
+} from "../store/quests";
+import {
+  ibis_node_type_type,
+  ibis_node_type_list,
+  publication_state_enum,
+  publication_state_type,
+  publication_state_list,
+} from "../enums";
 import {
   ChannelState,
   ChannelGetterTypes,
@@ -101,6 +114,7 @@ const NodeTreeProps = Vue.extend({
     channelId: Number || null,
     editable: Boolean,
     hideDescription: Boolean,
+    asQuest: Boolean,
     roles: Array as Prop<Role[]>,
   },
 });
@@ -120,8 +134,13 @@ const NodeTreeProps = Vue.extend({
       canEditConversation: "conversation/canEdit",
       canEditChannel: "channel/canEdit",
     }),
-    ...mapGetters("conversation", ["getConversationNodeById", "canMakeMeta"]),
+    ...mapGetters("conversation", [
+      "getConversationNodeById",
+      "canMakeMeta",
+      "getChildrenOf",
+    ]),
     ...mapGetters("channel", ["getChannelNode"]),
+    ...mapGetters("quests", ["getMaxPubStateForNodeType"]),
   },
   watch: {
     selectedNodeId: "selectionChanged",
@@ -135,6 +154,7 @@ export default class NodeTree extends NodeTreeProps {
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   newNode: Partial<ConversationNode> = {};
   allowChangeMeta: boolean = false;
+  baseNodePubStateConstraints: publication_state_type[];
 
   canEditConversation: ConversationGetterTypes["canEdit"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
@@ -145,6 +165,74 @@ export default class NodeTree extends NodeTreeProps {
   getChannelNode: ChannelGetterTypes["getChannelNode"];
   createChannelNode: ChannelActionTypes["createChannelNode"];
   updateChannelNode: ChannelActionTypes["updateChannelNode"];
+  getChildrenOf: ConversationGetterTypes["getChildrenOf"];
+  getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
+
+  calcPublicationConstraints(node: Partial<ConversationNode>) {
+    if (this.asQuest) {
+      this.baseNodePubStateConstraints = [
+        publication_state_enum.private_draft,
+        publication_state_enum.published,
+      ];
+      return;
+    }
+    // a node publication state must be <= its parent's and >= all its children
+    const pub_states = [...publication_state_list];
+    if (!node) return [];
+    if (node.parent_id) {
+      const parent = this.getNode(node.parent_id);
+      if (parent) {
+        const pos = pub_states.indexOf(parent.status);
+        if (pos >= 0) {
+          pub_states.splice(pos + 1);
+        }
+      }
+    }
+    if (node.id) {
+      const children_status = this.getChildrenOf(node.id).map((n) => n.status);
+      if (children_status.length > 0) {
+        children_status.sort(
+          (a, b) =>
+            publication_state_list.indexOf(a) -
+            publication_state_list.indexOf(b)
+        );
+        const pos = pub_states.indexOf(children_status[0]);
+        if (pos > 0) pub_states.splice(0, pos);
+      }
+    }
+    if (node.meta == "channel") {
+      // clamp to guild
+      const pos = pub_states.indexOf("proposed");
+      if (pos >= 0) pub_states.splice(pos);
+    }
+    this.baseNodePubStateConstraints = pub_states;
+  }
+
+  calcSpecificPubConstraints(node: Partial<ConversationNode>) {
+    if (node.meta == "channel" || this.asQuest)
+      return this.baseNodePubStateConstraints;
+    const pub_states = [...this.baseNodePubStateConstraints];
+    if (node.meta == "meta") {
+      // clamp to guild
+      const pos = pub_states.indexOf("proposed");
+      if (pos >= 0) pub_states.splice(pos);
+    }
+    const node_type = node.node_type;
+    if (node_type && node.quest_id) {
+      const max_state = this.getMaxPubStateForNodeType(
+        node.quest_id,
+        node_type
+      );
+      const pos = pub_states.indexOf(max_state);
+      if (pos >= 0) pub_states.splice(pos + 1);
+    }
+    const posCurrent = pub_states.indexOf(node.status);
+    if (posCurrent < 0) {
+      console.error("current node status not in pub_states");
+      pub_states.push(node.status);
+    }
+    return pub_states;
+  }
 
   canEdit(nodeId: number): boolean {
     if (this.channelId) {
@@ -176,6 +264,7 @@ export default class NodeTree extends NodeTreeProps {
       this.selectedIbisTypes = ibis_node_type_list;
       this.allowChangeMeta = false;
     }
+    this.calcPublicationConstraints(selectedNode);
     this.editingNodeId = nodeId;
   }
   addChildToNode(nodeId: number) {
@@ -197,6 +286,7 @@ export default class NodeTree extends NodeTreeProps {
         meta: parent.meta,
       }
     );
+    this.calcPublicationConstraints(this.newNode);
     this.addingChildToNodeId = nodeId;
   }
   cancel() {
