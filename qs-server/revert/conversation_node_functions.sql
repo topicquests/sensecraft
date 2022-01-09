@@ -33,5 +33,8 @@ ALTER TABLE public.conversation_node DISABLE ROW LEVEL SECURITY;
 DROP FUNCTION IF EXISTS public.playing_in_guild(quest_id integer);
 
 DROP INDEX IF EXISTS conversation_node_ancestry_gist_idx;
+DROP INDEX IF EXISTS conversation_node_parent_id_idx;
+DROP INDEX IF EXISTS conversation_node_quest_id_idx;
+DROP INDEX IF EXISTS conversation_node_guild_id_idx;
 
 COMMIT;

@@ -15,6 +15,13 @@ BEGIN;
 DROP INDEX IF EXISTS conversation_node_ancestry_gist_idx;
 CREATE INDEX conversation_node_ancestry_gist_idx ON conversation_node USING GIST (ancestry);
 
+DROP INDEX IF EXISTS conversation_node_parent_id_idx;
+CREATE INDEX conversation_node_parent_id_idx ON conversation_node USING HASH (parent_id);
+DROP INDEX IF EXISTS conversation_node_quest_id_idx;
+CREATE INDEX conversation_node_quest_id_idx ON conversation_node USING HASH (quest_id);
+DROP INDEX IF EXISTS conversation_node_guild_id_idx;
+CREATE INDEX conversation_node_guild_id_idx ON conversation_node USING HASH (guild_id);
+
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.conversation_node TO :dbm;
 GRANT USAGE ON SEQUENCE public.conversation_node_id_seq TO :dbm;
 GRANT SELECT ON TABLE public.conversation_node TO :dbc;
