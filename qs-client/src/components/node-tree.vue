@@ -44,9 +44,7 @@
         v-if="prop.node.id != editingNodeId && !hideDescription"
         class="row items-center"
       >
-        <div>
-          {{ prop.node.data.description }}
-        </div>
+        <div class="node-description" v-html="prop.node.data.description"></div>
       </div>
       <node-form
         v-if="editable && prop.node.id == editingNodeId"
