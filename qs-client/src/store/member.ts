@@ -15,6 +15,7 @@ import {
   CastingRole,
   GuildMemberAvailableRole,
 } from "../types";
+import { MembersActionTypes } from "../store/members";
 
 export interface MemberState {
   member: Member;
@@ -218,6 +219,10 @@ export const member = (axios: AxiosInstance) =>
       ) => {
         // TODO: Send email to user with activation link
         // TODO: Add to members state?
+        MyVapi.store.dispatch("members/ensureMemberById", {
+          id: res.data,
+          full: false,
+        });
       },
     })
     .call({
