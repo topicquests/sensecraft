@@ -116,13 +116,21 @@ export interface Guild {
   game_play?: GamePlay[];
 }
 
+export interface RoleNodeConstraint {
+  role_id: number;
+  node_type: ibis_node_type_type;
+  max_pub_state?: publication_state_type;
+  role_draft_target_role_id?: number;
+}
+
 export interface Role {
   id: number;
   name: string;
   guild_id: number;
-  permissions: permission_type[];
-  node_type_constraints: ibis_node_type_type[];
-  node_state_constraints: publication_state_type[];
+  permissions?: permission_type[];
+  max_pub_state?: publication_state_type;
+  role_draft_target_role_id?: number;
+  role_node_constraint?: RoleNodeConstraint[];
 }
 
 export interface GuildMemberAvailableRole {

@@ -24,11 +24,13 @@ CREATE TABLE IF NOT EXISTS public.role (
     name character varying(255) NOT NULL,
     guild_id integer,
     permissions permission[],
-    node_type_constraints ibis_node_type[],
-    node_state_constraints publication_state[],
+    max_pub_state public.publication_state,
+    role_draft_target_role_id integer,
     CONSTRAINT role_pkey PRIMARY KEY (id),
     CONSTRAINT role_guild_id_fkey FOREIGN KEY (guild_id)
-      REFERENCES public.guilds(id) ON UPDATE CASCADE ON DELETE CASCADE
+      REFERENCES public.guilds(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT role_role_draft_target_role_id_fkey FOREIGN KEY (role_draft_target_role_id)
+      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 --
@@ -40,5 +42,17 @@ ALTER SEQUENCE public.role_id_seq OWNED BY public.role.id;
 ALTER TABLE guilds ADD CONSTRAINT guilds_default_role_id_fkey FOREIGN KEY (default_role_id)
   REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
+
+CREATE TABLE IF NOT EXISTS public.role_node_constraint (
+    role_id integer NOT NULL,
+    node_type public.ibis_node_type NOT NULL,
+    max_pub_state public.publication_state,
+    role_draft_target_role_id integer,
+    CONSTRAINT role_node_constraint_pkey PRIMARY KEY (role_id, node_type),
+    CONSTRAINT role_node_constraint_role_id_fkey FOREIGN KEY (role_id)
+      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT role_node_constraint_role_draft_target_role_id_fkey FOREIGN KEY (role_draft_target_role_id)
+      REFERENCES public.role(id) ON UPDATE CASCADE ON DELETE SET NULL
+);
 
 COMMIT;

@@ -15,7 +15,10 @@ BEGIN;
 -- Name: TABLE role; Type: ACL
 --
 
+GRANT SELECT ON TABLE public.role TO :dbc;
+GRANT SELECT ON TABLE public.role_node_constraint TO :dbc;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.role TO :dbm;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.role_node_constraint TO :dbm;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.casting_role TO :dbm;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.guild_member_available_role TO :dbm;
 
@@ -73,6 +76,15 @@ CREATE OR REPLACE FUNCTION public.is_visible_role(guild_id integer) RETURNS bool
            public.is_guild_id_member(guild_id);
 $$ LANGUAGE sql STABLE;
 
+--
+-- Name: is_editable_role(integer); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.is_editable_role(guild_id integer) RETURNS boolean AS $$
+    SELECT (guild_id is NULL AND public.has_permission('superadmin')) OR
+    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin'));
+$$ LANGUAGE sql STABLE;
+
 
 --
 -- Name: role; Type: ROW SECURITY
@@ -85,27 +97,21 @@ ALTER TABLE public.role ENABLE ROW LEVEL SECURITY;
 --
 
 DROP POLICY IF EXISTS role_insert_policy ON public.role;
-CREATE POLICY role_insert_policy ON public.role FOR INSERT WITH CHECK (
-    (guild_id is NULL AND public.has_permission('superadmin')) OR
-    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin')));
+CREATE POLICY role_insert_policy ON public.role FOR INSERT WITH CHECK (is_editable_role(guild_id));
 
 --
 -- Name: role role_delete_policy; Type: POLICY
 --
 
 DROP POLICY IF EXISTS role_delete_policy ON public.role;
-CREATE POLICY role_delete_policy ON public.role FOR DELETE USING (
-    (guild_id is NULL AND public.has_permission('superadmin')) OR
-    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin')));
+CREATE POLICY role_delete_policy ON public.role FOR DELETE USING (is_editable_role(guild_id));
 
     --
 -- Name: role role_update_policy; Type: POLICY
 --
 
 DROP POLICY IF EXISTS role_update_policy ON public.role;
-CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (
-    (guild_id is NULL AND public.has_permission('superadmin')) OR
-    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin')));
+CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (is_editable_role(guild_id));
 
 --
 -- Name: role role_select_policy; Type: POLICY
@@ -113,6 +119,46 @@ CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (
 
 DROP POLICY IF EXISTS role_select_policy ON public.role;
 CREATE POLICY role_select_policy ON public.role FOR SELECT USING (is_visible_role(guild_id));
+
+
+--
+-- Name: role; Type: ROW SECURITY
+--
+
+ALTER TABLE public.role_node_constraint ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: role role_insert_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS role_node_constraint_insert_policy ON public.role_node_constraint;
+CREATE POLICY role_node_constraint_insert_policy ON public.role_node_constraint FOR INSERT WITH CHECK (
+   is_editable_role((SELECT guild_id FROM public.role WHERE id=role_id LIMIT 1)));
+
+--
+-- Name: role role_delete_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS role_node_constraint_delete_policy ON public.role_node_constraint;
+CREATE POLICY role_node_constraint_delete_policy ON public.role_node_constraint FOR DELETE USING (
+   is_editable_role((SELECT guild_id FROM public.role WHERE id=role_id LIMIT 1)));
+
+    --
+-- Name: role role_update_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS role_node_constraint_update_policy ON public.role_node_constraint;
+CREATE POLICY role_node_constraint_update_policy ON public.role_node_constraint FOR UPDATE USING (
+   is_editable_role((SELECT guild_id FROM public.role WHERE id=role_id LIMIT 1)));
+
+--
+-- Name: role role_select_policy; Type: POLICY
+--
+
+DROP POLICY IF EXISTS role_node_constraint_select_policy ON public.role_node_constraint;
+CREATE POLICY role_node_constraint_select_policy ON public.role_node_constraint FOR SELECT USING (
+   is_visible_role((SELECT guild_id FROM public.role WHERE id=role_id LIMIT 1)));
+
 
 --
 -- Name: guild_member_available_role; Type: ROW SECURITY

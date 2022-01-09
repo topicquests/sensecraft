@@ -53,6 +53,10 @@ export const role = (axios: AxiosInstance) =>
       action: "fetchRoles",
       property: "role",
       path: "/role",
+      queryParams: true,
+      beforeRequest: (state: RoleState, { params }) => {
+        params.select = "*,role_node_constraint!role_id(*)";
+      },
       onSuccess: (state: RoleState, res: AxiosResponse<Role[]>) => {
         const roles = Object.fromEntries(
           res.data.map((role: Role) => [role.id, role])
