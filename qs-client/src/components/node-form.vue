@@ -71,7 +71,7 @@
         label="Comment Node"
       />
       <p v-if="!allowChangeMeta && node.meta != 'channel'">
-        <span v-if="meta">Comment node</span>
+        <span v-if="node.meta">Comment node</span>
         <span v-else>Content node</span>
       </p>
     </div>
