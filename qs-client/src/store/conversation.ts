@@ -287,7 +287,7 @@ export const conversation = (axios: AxiosInstance) =>
     })
     .get({
       path: ({ quest_id }: { quest_id: number }) =>
-        `/conversation_node?quest_id=eq.${quest_id}&meta=ne.channel`,
+        `/conversation_node?quest_id=eq.${quest_id}&meta=not.eq.channel`,
       property: "conversation",
       action: "fetchConversation",
       onSuccess: (
