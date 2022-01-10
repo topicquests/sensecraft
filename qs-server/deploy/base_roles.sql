@@ -28,7 +28,7 @@ BEGIN
       VALUES (name_, permissions_, max_pub_state_, role_draft_target_role_id_) RETURNING id INTO role_id_;
   ELSE
     UPDATE public.role SET permissions = permissions_, max_pub_state=max_pub_state_, role_draft_target_role_id=role_draft_target_role_id_ WHERE id = role_id_;
-    DELETE FROM public.role_node_constraint WHERE role_id_ = role_id_;
+    DELETE FROM public.role_node_constraint WHERE role_id = role_id_;
   END IF;
   IF node_constraints_ IS NOT NULL THEN
     FOR node_type, constraints IN SELECT * FROM json_each(node_constraints_) LOOP
