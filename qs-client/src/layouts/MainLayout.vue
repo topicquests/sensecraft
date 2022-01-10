@@ -13,7 +13,7 @@
         <q-toolbar-title>
           <q-btn flat @click="goTo('home')">
             <q-img
-              src="../statics/guild_quest.png"
+              src="../statics/sensecraft.png"
               style="width: 150px"
               id="home_image"
             ></q-img>
