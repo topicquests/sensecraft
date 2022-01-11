@@ -1,39 +1,36 @@
 <template>
   <div>
-    <q-card>
+    <q-card class="card">
       <div class="row justify-center">
         <H5 class="q-ml-lg q-mr-lg">Change casting role </H5>
       </div>
-      <div style="width: 100%">
-        <div class="row">
-          <span class="q-ml-md">Curennt Roles: {{ castingRole }}</span>
-        </div>
-        <div class="row">
-          <span class="q-pl-md q-pt-md">
-            {{ member.handle }}
-          </span>
-          <q-select
-            class="q-ml-md"
-            style="width: 40%"
-            :multiple="true"
-            v-model="role.name"
-            @add="
-              (details) => {
-                castingRoleAdd(details.value);
-              }
-            "
-            @remove="
-              (details) => {
-                castingRoleRemove(details.value);
-              }
-            "
-            :options="availableRoles"
-            option-label="name"
-            option-value="id"
-            emit-value
-            map-options
-          ></q-select>
-        </div>
+      <p>Can only be changed prior to start of quest</p>
+
+      <div class="row">
+        <span class="handle q-pl-md q-mt-md">
+          {{ member.handle }}
+        </span>
+        <q-select
+          class="q-ml-md q-mt-xs"
+          style="width: 50%"
+          :multiple="true"
+          v-model="role.name"
+          @add="
+            (details) => {
+              castingRoleAdd(details.value);
+            }
+          "
+          @remove="
+            (details) => {
+              castingRoleRemove(details.value);
+            }
+          "
+          :options="availableRoles"
+          option-label="name"
+          option-value="id"
+          emit-value
+          map-options
+        ></q-select>
       </div>
     </q-card>
   </div>
@@ -86,3 +83,23 @@ export default class CastingRoleEdit extends CastingRoleEditProps {
   }
 }
 </script>
+<style>
+H5 {
+  color: red;
+  margin-top: 3%;
+  margin-bottom: 3%;
+}
+.handle {
+  font-size: 20px;
+  color: royalblue;
+}
+.card {
+  background: lightblue;
+}
+p {
+  font-size: 15px;
+  background: lightblue;
+  text-align: center;
+  color: black;
+}
+</style>

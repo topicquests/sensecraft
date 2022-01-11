@@ -84,7 +84,7 @@
                 v-else-if="quest.status == 'registration'"
                 color="green"
                 text-color="black"
-                label="ongoing"
+                label="Start"
                 @click="updateStatus('ongoing')"
               />
               <q-btn
@@ -92,7 +92,7 @@
                 v-else
                 color="red"
                 text-color="black"
-                label="ongoing"
+                label="Start"
               />
               <q-btn
                 v-model="quest.status"
