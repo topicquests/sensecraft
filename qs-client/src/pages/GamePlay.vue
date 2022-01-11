@@ -28,7 +28,6 @@
         />
       </div>
     </div>
-    =======
     <div class="col-3 column items-center q-mb-md">
       <div v-if="selectedNodeId">
         <node-form
@@ -67,7 +66,6 @@
         </div>
       </div>
     </div>
-    >>>>>>> 046e4f5 (WIP refactoring and improvements in roles)
   </q-page>
 </template>
 
