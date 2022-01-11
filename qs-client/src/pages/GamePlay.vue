@@ -28,44 +28,6 @@
         />
       </div>
     </div>
-    <div class="col-3 column items-center q-mb-md">
-      <div v-if="selectedNodeId">
-        <node-form
-          v-if="canEdit(selectedNodeId)"
-          v-bind:nodeInput="selectedNode(true)"
-          v-bind:allowAddChild="true"
-          :editing="true"
-          v-bind:ibisTypes="selectedIbisTypes"
-          v-on:action="updateNode"
-          v-on:addChild="addChild"
-        />
-        <node-form v-else v-bind:nodeInput="selectedNode()" />
-        <q-btn
-          v-if="!canEdit(selectedNodeId)"
-          @click="addChild()"
-          label="Add Child"
-        />
-        <node-form
-          class="q-mt-md"
-          v-if="newNodeParent == selectedNodeId"
-          :editing="true"
-          :nodeInput="newNode"
-          :allowAddChild="false"
-          :ibisTypes="childIbisTypes"
-          v-on:action="addNode"
-        />
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-3">
-        <div class="q-pa-md q-gutter-sm lt-md">
-          <node-tree
-            v-bind:nodes="getNeighbourhoodTree"
-            v-on:updateTree="selectionChanged"
-          />
-        </div>
-      </div>
-    </div>
   </q-page>
 </template>
 
