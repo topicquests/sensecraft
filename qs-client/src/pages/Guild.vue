@@ -66,15 +66,19 @@
     <div class="row">
       <div class="col-3">
         <div
-          v-if="getCurrentQuest && !getCurrentQuest.start && getCurrentGamePlay"
+          v-if="
+            getCurrentQuest &&
+            !getCurrentQuest.start &&
+            isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
+          "
         >
           <castingRoleEdit
             class="q-ml-md"
             v-if="getAvailableRolesById(memberId).length"
             v-bind:availableRoles="getAvailableRolesById(memberId)"
-            v-bind:castingRole="getCastingRole(memberId, questId)"
+            v-bind:castingRoles="getRolesForQuest"
             v-bind:guildId="guildId"
-            v-bind:questId="questId"
+            v-bind:questId="currentQuestId"
             v-bind:memberId="memberId"
             v-on:castingRoleAdd="castingRoleAdded"
             v-on:castingRoleRemove="castingRoleRemoved"
@@ -129,7 +133,7 @@
               {{ member.handle }}
               <span v-if="playingAsGuildId(member.id)" style="color: black">
                 <span v-if="playingAsGuildId(member.id) == currentGuildId">
-                  {{ getCastingRole(member.id, member) }}
+                  {{ getAllCastingRoleNames(member.id) }}
                 </span>
                 <span v-if="playingAsGuildId(member.id) != currentGuildId"
                   >Playing in
@@ -325,6 +329,20 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
     ...mapGetters(["hasPermission"]),
 
     // ...mapGetters('member', ['getUserId']),
+    getRolesForQuest() {
+      const castingRoles = this.castingRolesPerQuest(
+        this.memberId,
+        this.currentQuestId
+      );
+      const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
+      return roles;
+    },
+
+    getCastingRoleNames() {
+      const roles = this.getRolesForQuest;
+      const rolesName = roles.map((cr) => cr.name).join(",");
+      return rolesName;
+    },
   },
   watch: {
     currentQuestId: "onCurrentQuestChange",
@@ -549,14 +567,6 @@ export default class GuildPage extends Vue {
     await this.onCurrentQuestChange();
   }
 
-  getCastingRole(memberId, member) {
-    const roles = this.castingRolesPerQuest(memberId, this.currentQuestId);
-    const rolesName = roles
-      .map((cr) => this.allRoles[cr.role_id].name)
-      .join(",");
-    return rolesName;
-  }
-
   async onCurrentQuestChange() {
     // we should not get here without a current quest
     const quest: Quest = this.getCurrentQuest;
@@ -589,6 +599,21 @@ export default class GuildPage extends Vue {
       await this.resetConversation();
     }
     return "success";
+  }
+
+  getCastingRoleNamesForQuest(memberId: number) {
+    const castingRoles = this.castingRolesPerQuest(
+      memberId,
+      this.currentQuestId
+    );
+    const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
+    return roles;
+  }
+
+  getAllCastingRoleNames(memberId: number) {
+    const roles = this.getCastingRoleNamesForQuest(memberId);
+    const rolesName = roles.map((cr) => cr.name).join(",");
+    return rolesName;
   }
   async joinToGuild() {
     await this.addGuildMembership({
@@ -692,20 +717,25 @@ export default class GuildPage extends Vue {
     });
     console.log("Value ", this.roleId);
   }
-  async castingRoleAdded(member_id: number, role_id: number) {
+  async castingRoleAdded(role_id: number) {
     const guild_id = this.guildId;
     const quest_id: number = this.currentQuestId;
     console.log("Quest_id ;", quest_id);
     await this.addCastingRole({
-      data: { member_id, guild_id, role_id, quest_id },
+      data: { member_id: this.memberId, role_id, guild_id, quest_id },
     });
   }
 
-  async castingRoleRemoved(member_id: number, role_id: number) {
+  async castingRoleRemoved(role_id: number) {
     const guild_id: number = this.guildId;
     const quest_id: number = this.currentQuestId;
     await this.deleteCastingRole({
-      params: { member_id, role_id, guild_id, quest_id },
+      params: {
+        member_id: this.memberId,
+        role_id,
+        guild_id,
+        quest_id,
+      },
       data: {},
     });
   }
