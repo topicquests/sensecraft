@@ -14,7 +14,7 @@
           class="q-ml-md q-mt-xs"
           style="width: 50%"
           :multiple="true"
-          v-model="role.name"
+          v-model="cr"
           @add="
             (details) => {
               castingRoleAdd(details.value);
@@ -47,7 +47,7 @@ import { MemberState } from "../store/member";
 const CastingRoleEditProps = Vue.extend({
   props: {
     availableRoles: Array as Prop<Role[]>,
-    castingRole: String,
+    castingRoles: Array as Prop<Role[]>,
     questId: Number,
     guildId: Number,
   },
@@ -64,22 +64,20 @@ const CastingRoleEditProps = Vue.extend({
   watch: {},
 })
 export default class CastingRoleEdit extends CastingRoleEditProps {
-  role = [];
-  cr = null;
+  cr: Role[];
   member: MemberState["member"];
   memberId: number;
 
-  create() {
-    this.role = { ...this.availableRoles };
-    this.cr = this.castingRole;
+  created() {
+    this.cr = [...this.castingRoles];
   }
 
   castingRoleAdd(role_id: number) {
-    this.$emit("castingRoleAdd", this.memberId, role_id);
+    this.$emit("castingRoleAdd", role_id);
   }
 
-  castingRoleRemove(role_id: number) {
-    this.$emit("castingRoleRemove", this.memberId, role_id);
+  castingRoleRemove(role: Role) {
+    this.$emit("castingRoleRemove", role.id);
   }
 }
 </script>
