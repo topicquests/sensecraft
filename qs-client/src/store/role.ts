@@ -74,7 +74,7 @@ export const role = (axios: AxiosInstance) =>
         state.fullFetch = true;
       },
     })
-    .get({
+    .post({
       action: "createRole",
       property: "role",
       path: "/role",
