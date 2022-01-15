@@ -17,7 +17,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 ### Dependencies on Ubuntu
 
 1. NodeJS: `sudo apt install nodejs`
-2. PostgreSQL: `sudo apt install postgresql ; sudo systemctl enable postgres`.
+2. PostgreSQL: `sudo apt install postgresql ; sudo systemctl enable postgresql`.
    * You may also want to install a newer version of postgres as described here [here](https://www.postgresql.org/download/linux/ubuntu/)
 3. Postgrest: Download and install a binary from here [this](https://github.com/PostgREST/postgrest/releases/tag/v9.0.0), decompress it and put it in your path (e.g. `/usr/local/bin`)
 
