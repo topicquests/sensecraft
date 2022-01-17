@@ -10,3 +10,7 @@
 *.yaml
 .*ignore
 *.png
+*.xml
+*.ico
+*.webmanifest
+*.svg

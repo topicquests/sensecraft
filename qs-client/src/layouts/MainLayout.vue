@@ -13,8 +13,13 @@
         <q-toolbar-title>
           <q-btn flat @click="goTo('home')">
             <q-img
+              src="../statics/sensecraft_icon.png"
+              style="width: 30px"
+              id="home_image"
+            ></q-img>
+            <q-img
               src="../statics/sensecraft.png"
-              style="width: 150px"
+              style="width: 100px"
               id="home_image"
             ></q-img>
           </q-btn>
