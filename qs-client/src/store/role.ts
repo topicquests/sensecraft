@@ -44,6 +44,20 @@ export const RoleActions = {
       await context.dispatch("fetchRoles");
     }
   },
+  ensureRole: async (
+    context,
+    { role_id, full = true }: { role_id: number; full?: boolean }
+  ) => {
+    if (
+      context.getters.getRoleById(role_id) === undefined ||
+      (full && !context.state.fullRole[role_id])
+    ) {
+      await context.dispatch("fetchRoleById", {
+        full,
+        params: { id: role_id },
+      });
+    }
+  },
   createRole: async (context, { data }) => {
     const res = await context.dispatch("createRole", { data });
   },
@@ -72,6 +86,38 @@ export const role = (axios: AxiosInstance) =>
         console.log("Roles: ", roles);
         state.role = roles;
         state.fullFetch = true;
+      },
+    })
+    .get({
+      action: "fetchRoleById",
+      path: "/role",
+      queryParams: true,
+      beforeRequest: (state: RoleState, { full, params }) => {
+        if (Array.isArray(params.id)) {
+          params.id = `in.(${params.id.join(",")})`;
+        } else {
+          params.id = `eq.${params.id}`;
+        }
+        const userId = MyVapi.store.getters["member/getUserId"];
+      },
+      onSuccess: (
+        state: RoleState,
+        res: AxiosResponse<Role[]>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        state.role = {
+          ...state.role,
+          ...Object.fromEntries(res.data.map((role: Role) => [role.id, role])),
+        };
+        if (actionParams.full) {
+          state.fullRole = {
+            ...state.fullRole,
+            ...Object.fromEntries(
+              res.data.map((role: Role) => [role.id, true])
+            ),
+          };
+        }
       },
     })
     .post({

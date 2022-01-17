@@ -109,6 +109,16 @@ const routes = [
         name: "role",
         component: () => import("pages/Role.vue"),
       },
+      {
+        path: "/role/:role_id/edit",
+        name: "role_edit",
+        component: () => import("pages/RoleEdit.vue"),
+      },
+      {
+        path: "role/create",
+        name: "create_role",
+        component: () => import("pages/CreateRole.vue"),
+      },
       // {
       //   path: "/node/:quest_id",
       //   name: "conversation_column",
