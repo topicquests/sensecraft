@@ -1,25 +1,15 @@
 <template>
   <q-page
     class="window-height window-width row justify-center items-center"
-    style="background: linear-gradient(#8274c5, #5a4a9f)"
   >
-    <div class="column q-pa-lg">
-      <div class="row"></div>
-    </div>
-    <div class="column q-pa-lg">
+    <div class="column">
       <div class="row">
-        <q-card square class="shadow-24" style="width: 300px; height: 485px">
+        <q-card square class="shadow-24" style="width: 400px; height: 500px">
           <q-card-section class="bg-deep-purple-7">
-            <h4 class="text-h5 text-white q-my-md">Registration</h4>
-            <div
-              class="absolute-bottom-right q-pr-md"
-              style="transform: translateY(50%)"
-            >
-              <q-btn fab icon="close" color="purple-4" />
-            </div>
+            <h4  style="text-align: center" class="text-h5 text-white q-my-md">Sign Up</h4>
           </q-card-section>
           <q-card-section>
-            <q-form class="q-px-sm q-pt-xl q-pb-lg">
+            <q-form class="">
               <q-input
                 square
                 clearable
@@ -47,7 +37,7 @@
                 square
                 clearable
                 v-model="formdata.handle"
-                label="handle"
+                label="Handle"
                 tabindex="3"
               >
                 <template v-slot:prepend>
@@ -77,18 +67,21 @@
               </q-input>
             </q-form>
           </q-card-section>
-          <q-card-actions class="q-px-xl q-pt-lg">
-            <q-btn
-              unelevated
-              size="lg"
-              color="purple-4"
-              class="full-width text-white"
-              label="Get Started"
-              @click="doRegister"
-            />
-          </q-card-actions>
+          <q-card-section>
+            <q-card-actions>
+              <q-btn
+                unelevated
+                size="lg"
+                color="purple-4"
+                class="text-white"
+                label="Get Started"
+                style="width: 100%"
+                @click="doRegister"
+              />
+            </q-card-actions>
+          </q-card-section>
           <q-card-section class="text-center q-pa-sm">
-            <p class="text-grey-6">Return to login</p>
+            <router-link to="/signin" class="text-grey-6">Existing user?</router-link>
           </q-card-section>
         </q-card>
       </div>
@@ -102,6 +95,10 @@ import { Notify } from "quasar";
 
 export default {
   name: "RegisterPage",
+  meta: {
+    // sets document title
+    title: 'Register',
+  },
   data() {
     return {
       formdata: {

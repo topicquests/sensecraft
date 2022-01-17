@@ -14,12 +14,12 @@
           <q-btn flat @click="goTo('home')">
             <q-img
               src="../statics/sensecraft_icon.png"
-              style="width: 30px"
+              style="width: 60px"
               id="home_image"
             ></q-img>
             <q-img
               src="../statics/sensecraft.png"
-              style="width: 100px"
+              style="width: 160px"
               id="home_image"
             ></q-img>
           </q-btn>
@@ -28,19 +28,18 @@
           <q-btn
             v-show="!isAuthenticated"
             @click="goTo('signin')"
-            outline
             roundeded
             label="sign in"
             id="signin"
-            class="q-mr-sm"
+            class="q-mr-sm bg-deep-purple-7"
           >
           </q-btn>
           <q-btn
             v-show="!isAuthenticated"
             @click="goTo('register')"
-            outline
+            class="bg-deep-purple-7"
             roundeded
-            label="sign up"
+            label="Register"
             id="register"
           ></q-btn>
         </div>
@@ -82,68 +81,66 @@
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
       <q-scroll-area class="fit">
-        <div>
           <q-list>
-            <div>
-              <q-item> About </q-item>
-            </div>
-            <div>
-              <q-item v-show="isAuthenticated" id="lobby">
-                <router-link :to="{ name: 'lobby' }"> Lobby </router-link>
+              <q-item clickable v-ripple :to="{ name: 'root' }">
+                <q-item-section>
+                  <q-btn to="/" >Home</q-btn>
+                </q-item-section>
+              </q-item> 
+              <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
+                <q-item-section>
+                  <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
+                </q-item-section>
               </q-item>
-            </div>
-            <div>
-              <q-item id="questView">
-                <router-link id="lobby_link" :to="{ name: 'quest_list' }">
-                  Quest list
-                </router-link>
+              <q-item clickable v-ripple  :to="{ name: 'quest_list' }">
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn :to="{ name: 'quest_list' }">All Quests
+                    </q-btn>
+                  </q-item-label>
+                </q-item-section>
               </q-item>
-            </div>
-            <div>
-              <q-item v-show="hasPermission('createQuest')" id="createQuest">
-                <router-link :to="{ name: 'quest_landing' }">
+              <q-item clickable v-ripple v-show="hasPermission('createQuest')" id="createQuest">
+               <q-item-section>
+                  <q-item-label>
+               <q-btn :to="{ name: 'quest_landing' }">
                   Quest create\edit
-                </router-link>
+                </q-btn>
+
+                  </q-item-label>
+                </q-item-section>
               </q-item>
-            </div>
-            <div>
-              <q-item id="guildView">
-                <router-link :to="{ name: 'guild_list' }">
-                  Guild list
-                </router-link>
+        
+              <q-item clickable v-ripple id="guildView">
+                <q-item-section>
+                <q-btn :to="{ name: 'guild_list' }">
+                  Guilds
+                </q-btn>
+                </q-item-section>
               </q-item>
-            </div>
-            <div>
-              <q-item v-show="hasPermission('createGuild')" id="createGuild">
-                <router-link :to="{ name: 'guild_landing' }">
+       
+              <q-item clickable v-ripple v-show="hasPermission('createGuild')" id="createGuild">
+                <q-item-section>
+                <q-btn :to="{ name: 'guild_landing' }">
                   Guild create\edit
-                </router-link>
+                </q-btn>
+                </q-item-section>
               </q-item>
-            </div>
-            <div>
-              <q-item id="home">
-                <router-link id="home_link" :to="{ name: 'root' }">
-                  Home
-                </router-link>
-              </q-item>
-            </div>
-            <div>
-              <q-item v-if="hasPermission('superadmin')" id="admin">
-                <router-link
-                  :to="{ name: 'admin', params: { member_id: memberId } }"
+              <q-item clickable v-ripple v-if="hasPermission('superadmin')" id="admin">
+                <q-btn :to="{ name: 'admin', params: { member_id: memberId } }"
                 >
                   Administration
-                </router-link>
+                </q-btn>
               </q-item>
-            </div>
           </q-list>
-        </div>
       </q-scroll-area>
     </q-drawer>
-    <q-page-container>
+    <q-page-container  class="q-pa-md">
+      <particles-bg color="#FFF" num=5  type="square" :bg="true" />
+
       <router-view />
     </q-page-container>
-    <q-footer style="background-color: aquamarine" class="footer">
+    <q-footer style="background-color: #FFF" class="footer">
       <p id="Pfooter">Sensecraft 2022</p>
     </q-footer>
   </q-layout>
@@ -151,6 +148,8 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
+import { ParticlesBg } from "particles-bg-vue";
+
 import { MemberState } from "../store/member";
 import nodeTree from "../components/node-tree.vue";
 
@@ -172,6 +171,13 @@ export default {
   },
   components: {
     nodeTree: nodeTree,
+    ParticlesBg
+  },
+  meta: {
+    // sets document title
+    title: 'Homepage',
+    // optional; sets final title as "Index Page - My Website", useful for multiple level meta
+    titleTemplate: title => `${title} - SenseCraft`,
   },
   computed: {
     ...mapGetters("conversation", [
@@ -233,8 +239,8 @@ export default {
 #Pfooter {
   text-align: center;
   font-size: 15pt;
-  color: dodgerblue;
-  background-color: aquamarine;
+  color: #333;
+  background-color: #FFF;
 }
 
 .sidenav {
@@ -250,4 +256,15 @@ export default {
   transition: 0.5s;
   padding-top: 60px;
 }
+
+
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+body{
+    font-family: 'Exo', sans-serif;
+}
+
 </style>

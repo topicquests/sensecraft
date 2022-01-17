@@ -1,9 +1,11 @@
 <template>
-  <q-page class="bg-blue">
-    <div class="row justify-center text-center bg-primary">
-      <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg">
+  <q-page>
+   
+    <div class="row justify-center text-center ">
+       <h1 class="text-h1 q-pt-lg">SenseCraft</h1>
+      <h3 class="text-h3 q-pt-lg q-pb-lg">
         Where teams co-construct structured conversation
-      </div>
+      </h3>
     </div>
     <div class="row justify-center">
       <img

@@ -1,22 +1,16 @@
 <template>
   <q-page
-    class="window-height window-width row justify-center items-center"
-    style="background: linear-gradient(#8274c5, #5a4a9f)"
+    class="window-height window-width row justify-center items-center animated-bg"
+    
   >
     <div class="column q-pa-lg">
       <div class="row">
-        <q-card square class="shadow-24" style="width: 300px; height: 485px">
+        <q-card square class="shadow-24" style="width: 400px; height: 380px">
           <q-card-section class="bg-deep-purple-7">
-            <h4 class="text-h5 text-white q-my-md">Guild's Quest</h4>
-            <div
-              class="absolute-bottom-right q-pr-md"
-              style="transform: translateY(50%)"
-            >
-              <q-btn fab icon="add" color="purple-4" />
-            </div>
+            <h3 style="text-align: center" class="text-h5 text-white q-my-md">Welcome back!</h3>
           </q-card-section>
           <q-card-section>
-            <q-form class="q-px-sm q-pt-xl">
+            <q-form class="q-px-sm">
               <div>
                 <q-input
                   square
@@ -54,44 +48,23 @@
               </q-input>
             </q-form>
           </q-card-section>
-          <q-card-section>
-            <div class="text-center q-pa-md q-gutter-md">
-              <q-btn round color="indigo-7">
-                <q-icon name="fab fa-facebook-f" size="1.2rem" />
-              </q-btn>
-              <q-btn round color="red-8">
-                <q-icon name="fab fa-google-plus-g" size="1.2rem" />
-              </q-btn>
-              <q-btn round color="light-blue-5">
-                <q-icon name="fab fa-twitter" size="1.2rem" />
-              </q-btn>
-            </div>
-          </q-card-section>
-          <div class="text-center q-pa-md q-gutter-md">
+          <div class="text-center q-gutter-md">
             <q-card-section>
-              <q-card-actions class="q-px-lg">
-                <q-btn
-                  unelevated
-                  size="md"
-                  color="purple-4"
-                  class="text-white"
-                  label="Sign on"
-                  @click="doLogin"
-                />
-                <q-btn
-                  unelevated
-                  size="md"
-                  color="purple-4"
-                  class="text-white"
-                  label="Cancel"
-                  @click="$router.push({ name: 'home' })"
-                />
-              </q-card-actions>
+                <q-card-actions>
+                  <q-btn
+                    size="lg"
+                    color="purple-4"
+                    class="text-white"
+                    label="Log in"
+                    style="width: 100%"
+                    @click="doLogin"
+                  />
+                </q-card-actions>
+                <q-card-section class="text-center q-pa-sm">
+                  <router-link to="/register" class="text-grey-6">New user?</router-link>
+                </q-card-section>
             </q-card-section>
           </div>
-          <q-card-section class="text-center q-pa-xs">
-            <p class="text-grey-6">Forgot your password?</p>
-          </q-card-section>
         </q-card>
       </div>
     </div>
@@ -102,6 +75,10 @@
 import { mapActions, mapGetters } from "vuex";
 
 export default {
+  meta: {
+    // sets document title
+    title: 'Sign In',
+  },
   data() {
     return {
       isPwd: true,
