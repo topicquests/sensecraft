@@ -15,7 +15,7 @@ interface RoleMap {
 export interface RoleState {
   role: RoleMap;
   fullFetch: boolean;
-  fullRole: {};
+  fullRole: { [key: number]: boolean };
 }
 
 const baseState: RoleState = {
@@ -26,7 +26,6 @@ const baseState: RoleState = {
 
 const RoleGetters = {
   getRoleById: (state: RoleState) => (id: number) => state.role[id],
-
   getDefaultRoleId: (state: RoleState) => {
     const roleId = Object.values(state.role).find((val) => {
       return val.name == "researcher";
@@ -98,7 +97,6 @@ export const role = (axios: AxiosInstance) =>
         } else {
           params.id = `eq.${params.id}`;
         }
-        const userId = MyVapi.store.getters["member/getUserId"];
       },
       onSuccess: (
         state: RoleState,
@@ -167,9 +165,17 @@ export const role = (axios: AxiosInstance) =>
 
 type RoleRestActionTypes = {
   fetchRoles: RestEmptyActionType<Role[]>;
+  fetchRoleById: ({
+    full,
+    params,
+  }: {
+    full?: boolean;
+    params: { id: number };
+  }) => Promise<AxiosResponse<Role>>;
   createRole: RestDataActionType<Partial<Role>, Role[]>;
   updateRole: RestDataActionType<Partial<Role>, Role[]>;
 };
+
 export type RoleActionTypes = RetypeActionTypes<typeof RoleActions> &
   RoleRestActionTypes;
 export type RoleGetterTypes = RetypeGetterTypes<typeof RoleGetters>;

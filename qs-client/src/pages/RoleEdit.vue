@@ -14,7 +14,7 @@
       </div>
       <div class="col">
         <div class="row justify-center">
-          <role-card></role-card>
+          <role-card v-bind:role="getRoleById(role_id)"></role-card>
         </div>
       </div>
     </div>
@@ -27,8 +27,8 @@ import Component from "vue-class-component";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import roleCard from "../components/role-card.vue";
-import { mapActions } from "vuex";
-import { RoleActionTypes } from "../store/role";
+import { mapActions, mapGetters } from "vuex";
+import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import { BaseGetterTypes } from "../store/baseStore";
 
 @Component<RoleEditPage>({
@@ -38,6 +38,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     roleCard: roleCard,
   },
   computed: {
+    ...mapGetters("role", ["getRoleById"]),
     ...mapActions("role", ["ensureRole"]),
   },
 })
@@ -49,11 +50,13 @@ export default class RoleEditPage extends Vue {
 
   // Declare computed attributes for typescript
   hasPermission!: BaseGetterTypes["hasPermission"];
+  getRoleById!: RoleGetterTypes["getRoleById"];
   ensureRole!: RoleActionTypes["ensureRole"];
 
   async beforeMount() {
     this.role_id = Number.parseInt(this.$route.params.role_id);
     await this.ensureRole({ role_id: this.role_id });
+    console.log("Role", this.getRoleById(this.role_id));
   }
 }
 </script>

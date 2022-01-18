@@ -1,6 +1,6 @@
 import RoleCard from "../role-card";
 import { mountQuasar } from "@quasar/quasar-app-extension-testing-unit-jest";
-import { QCard, QInput } from "quasar";
+import { QCard, QInput, QSelect, QBtn } from "quasar";
 import { createLocalVue, createWrapper } from "@vue/test-utils";
 import { Store } from "vuex-mock-store";
 import Vuex from "vuex";
@@ -27,9 +27,15 @@ function createWrapper(storeConfig) {
       components: {
         QCard,
         QInput,
+        QSelect,
+        QBtn,
       },
     },
-    propsData: {},
+    propsData: {
+      role: {
+        name: "",
+      },
+    },
   };
   return mountQuasar(RoleCard, merge(defaultMountOptions));
 }
