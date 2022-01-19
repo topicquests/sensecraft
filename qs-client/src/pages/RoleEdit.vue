@@ -14,7 +14,11 @@
       </div>
       <div class="col">
         <div class="row justify-center">
-          <role-card v-bind:role="getRoleById(role_id)"></role-card>
+          <role-card
+            v-bind:role="getRoleById(role_id)"
+            v-bind:edit="true"
+            v-on:updateCurrentRole="updateCurrentRole"
+          ></role-card>
         </div>
       </div>
     </div>
@@ -39,7 +43,9 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   computed: {
     ...mapGetters("role", ["getRoleById"]),
-    ...mapActions("role", ["ensureRole"]),
+  },
+  methods: {
+    ...mapActions("role", ["ensureRole", "updateRole"]),
   },
 })
 export default class RoleEditPage extends Vue {
@@ -52,6 +58,9 @@ export default class RoleEditPage extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   ensureRole!: RoleActionTypes["ensureRole"];
+  updateRole!: RoleActionTypes["updateRole"];
+
+  async updateCurrentRole() {}
 
   async beforeMount() {
     this.role_id = Number.parseInt(this.$route.params.role_id);

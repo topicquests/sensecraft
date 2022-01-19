@@ -58,7 +58,7 @@ export const RoleActions = {
     }
   },
   createRole: async (context, { data }) => {
-    const res = await context.dispatch("createRole", { data });
+    const res = await context.dispatch("createRoleBase", { data });
   },
   resetRole: (context) => {
     context.commit("CLEAR_STATE");
@@ -119,7 +119,7 @@ export const role = (axios: AxiosInstance) =>
       },
     })
     .post({
-      action: "createRole",
+      action: "createRoleBase",
       property: "role",
       path: "/role",
       onSuccess: (
@@ -172,7 +172,7 @@ type RoleRestActionTypes = {
     full?: boolean;
     params: { id: number };
   }) => Promise<AxiosResponse<Role>>;
-  createRole: RestDataActionType<Partial<Role>, Role[]>;
+  createRoleBase: RestDataActionType<Partial<Role>, Role[]>;
   updateRole: RestDataActionType<Partial<Role>, Role[]>;
 };
 

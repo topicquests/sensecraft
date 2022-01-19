@@ -12,6 +12,16 @@
       <div class="row justify-center">
         <h3>Create Role</h3>
       </div>
+      <div class="col">
+        <div class="row justify-center">
+          <role-card
+            v-bind:role="newRole"
+            :bind:edit="false"
+            v-on:createNewRole="createNewRole"
+          >
+          </role-card>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -21,14 +31,58 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
+import roleCard from "../components/role-card.vue";
+import { mapActions, mapGetters } from "vuex";
+import { RoleActionTypes, RoleGetterTypes } from "../store/role";
+import { BaseGetterTypes } from "../store/baseStore";
+import { Role } from "../types";
 
-@Component<CreateRolePage>({
+@Component<RoleEditPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
+    roleCard: roleCard,
+  },
+  computed: {
+    ...mapGetters("role", ["getRoleById"]),
+  },
+  methods: {
+    ...mapActions("role", ["ensureRole", "createRole"]),
   },
 })
-export default class CreateRolePage extends Vue {
-  name: "Create";
+export default class RoleEditPage extends Vue {
+  name: "RoleEdit";
+
+  role_id: number;
+  isAdmin: Boolean = false;
+  newRole: Partial<Role> = {
+    name: "",
+    permissions: [],
+    max_pub_state: null,
+  };
+
+  // Declare computed attributes for typescript
+  hasPermission!: BaseGetterTypes["hasPermission"];
+  getRoleById!: RoleGetterTypes["getRoleById"];
+  ensureRole: RoleActionTypes["ensureRole"];
+  createRole: RoleActionTypes["createRole"];
+
+  async createNewRole(newRole) {
+    try {
+      const res = await this.createRole({ data: newRole });
+      this.$q.notify({
+        message: `Added new role`,
+        color: "positive",
+      });
+    } catch (err) {
+      console.log("there was an error in creating role ", err);
+      this.$q.notify({
+        message: `There was an error creating new role.`,
+        color: "negative",
+      });
+    }
+  }
+
+  async beforeMount() {}
 }
 </script>
