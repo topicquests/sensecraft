@@ -11,7 +11,7 @@
         style="width: 80%"
         class="q-pt-md"
         v-model="currentRole.permissions"
-        :multiple="false"
+        :multiple="true"
         label="Permission"
         :options="permission_list"
       ></q-select>
@@ -67,7 +67,7 @@ const RoleCardProps = Vue.extend({
 })
 export default class RoleCard extends RoleCardProps {
   currentRole: Role;
-
+  permissions: [];
   permission_list = permission_list;
   publication_state = Object.keys(publication_state_enum);
 
