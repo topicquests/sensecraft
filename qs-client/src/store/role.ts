@@ -8,6 +8,7 @@ import {
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { Role } from "../types";
+import { store } from "quasar/wrappers";
 
 interface RoleMap {
   [key: number]: Role;
@@ -153,6 +154,18 @@ export const role = (axios: AxiosInstance) =>
         state.role = { ...state.role, [role.id]: role };
       },
     })
+    .delete({
+      action: "deleteRole",
+      path: ({ id }) => `/role?id=eq.${id}`,
+      onSuccess: (
+        state: RoleState,
+        res: AxiosResponse<Role[]>,
+        axios: AxiosInstance,
+        actionParams,
+        context
+      ) => {},
+    })
+
     .getVuexStore({
       getters: RoleGetters,
       actions: RoleActions,
@@ -174,6 +187,7 @@ type RoleRestActionTypes = {
   }) => Promise<AxiosResponse<Role>>;
   createRoleBase: RestDataActionType<Partial<Role>, Role[]>;
   updateRole: RestDataActionType<Partial<Role>, Role[]>;
+  deleteRole: RestDataActionType<Partial<Role>, Role[]>;
 };
 
 export type RoleActionTypes = RetypeActionTypes<typeof RoleActions> &

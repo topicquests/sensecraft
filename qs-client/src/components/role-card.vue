@@ -43,6 +43,13 @@
           color="primary"
           class="q-mr-md q-ml-md"
         />
+        <q-btn
+          v-if="edit"
+          label="Delete"
+          @click="deleteRoleById()"
+          color="primary"
+          class="q-mr-md q-ml-md"
+        />
         <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
       </div>
     </q-card>
@@ -79,6 +86,9 @@ export default class RoleCard extends RoleCardProps {
   }
   updateCurrentRole() {
     this.$emit("updateCurrentRole", this.currentRole);
+  }
+  deleteRoleById() {
+    this.$emit("deleteRoleById", this.currentRole);
   }
 }
 </script>

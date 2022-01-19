@@ -18,6 +18,7 @@
             v-bind:role="getRoleById(role_id)"
             v-bind:edit="true"
             v-on:updateCurrentRole="updateCurrentRole"
+            v-on:deleteRoleById="deleteRoleById"
           ></role-card>
         </div>
       </div>
@@ -34,6 +35,7 @@ import roleCard from "../components/role-card.vue";
 import { mapActions, mapGetters } from "vuex";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import { BaseGetterTypes } from "../store/baseStore";
+import { Role } from "src/types";
 
 @Component<RoleEditPage>({
   components: {
@@ -45,7 +47,13 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapGetters("role", ["getRoleById"]),
   },
   methods: {
-    ...mapActions("role", ["ensureRole", "updateRole"]),
+    ...mapActions("role", [
+      "ensureRole",
+      "updateRole",
+      "deleteRole",
+      "ensureAllRoles",
+      "fetchRoles",
+    ]),
   },
 })
 export default class RoleEditPage extends Vue {
@@ -58,9 +66,44 @@ export default class RoleEditPage extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   ensureRole!: RoleActionTypes["ensureRole"];
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  fetchRoles: RoleActionTypes["fetchRoles"];
   updateRole!: RoleActionTypes["updateRole"];
+  deleteRole: RoleActionTypes["deleteRole"];
 
-  async updateCurrentRole() {}
+  async updateCurrentRole(role) {
+    try {
+      const res = await this.updateRole({ data: role });
+      await this.fetchRoles();
+      this.$q.notify({
+        message: `role updated`,
+        color: "positive",
+      });
+    } catch (err) {
+      console.log("there was an error in updating role ", err);
+      this.$q.notify({
+        message: `There was an error updating role.`,
+        color: "negative",
+      });
+    }
+  }
+
+  async deleteRoleById(role: Role) {
+    try {
+      const res = await this.deleteRole({ params: { id: role.id }, data: {} });
+      await this.fetchRoles();
+      this.$q.notify({
+        message: `role deleted`,
+        color: "positive",
+      });
+    } catch (err) {
+      console.log("there was an error in deleting role ", err);
+      this.$q.notify({
+        message: `There was an error deleting role.`,
+        color: "negative",
+      });
+    }
+  }
 
   async beforeMount() {
     this.role_id = Number.parseInt(this.$route.params.role_id);
