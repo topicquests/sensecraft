@@ -16,7 +16,9 @@
         :options="permission_list"
       ></q-select>
       <q-select
-        style="width: 40%"
+        style="width: 70%"
+        clearable
+        filled
         class="q-pt-md"
         v-model="currentRole.max_pub_state"
         label="Max Publish State"

@@ -7,7 +7,7 @@ import {
   RetypeGetterTypes,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { Role } from "../types";
+import { Role, RoleNodeConstraint } from "../types";
 import { store } from "quasar/wrappers";
 
 interface RoleMap {
@@ -18,6 +18,12 @@ export interface RoleState {
   fullFetch: boolean;
   fullRole: { [key: number]: boolean };
 }
+interface RoleNodeConstraintMap {
+  [key: number]: RoleNodeConstraint;
+}
+export interface RoleNodeConstraintState {
+  roleNodeConstraint: RoleNodeConstraintMap;
+}
 
 const baseState: RoleState = {
   role: [],
@@ -27,16 +33,11 @@ const baseState: RoleState = {
 
 const RoleGetters = {
   getRoleById: (state: RoleState) => (id: number) => state.role[id],
-  getDefaultRoleId: (state: RoleState) => {
-    const roleId = Object.values(state.role).find((val) => {
-      return val.name == "researcher";
-    });
-    return roleId;
-  },
-
   getRoleByName: (state: RoleState) => (name: string) => state.role[name],
   getRoles: (state: RoleState) =>
     Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
+  getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
+    state.role[id].role_node_constraint,
 };
 export const RoleActions = {
   ensureAllRoles: async (context) => {
@@ -60,9 +61,17 @@ export const RoleActions = {
   },
   createRole: async (context, { data }) => {
     const res = await context.dispatch("createRoleBase", { data });
+    await context.dispatch("fetchRoles");
+    return res.data[0];
   },
   resetRole: (context) => {
     context.commit("CLEAR_STATE");
+  },
+  createRoleNodeConstraint: async (context, { data }) => {
+    const res = await context.dispatch("createRoleNodeConstraintBase", {
+      data,
+    });
+    await context.dispatch("fetchRoles");
   },
 };
 
@@ -92,12 +101,9 @@ export const role = (axios: AxiosInstance) =>
       action: "fetchRoleById",
       path: "/role",
       queryParams: true,
-      beforeRequest: (state: RoleState, { full, params }) => {
-        if (Array.isArray(params.id)) {
-          params.id = `in.(${params.id.join(",")})`;
-        } else {
-          params.id = `eq.${params.id}`;
-        }
+      beforeRequest: (state: RoleState, { params }) => {
+        params.id = `eq.${params.id}`;
+        params.select = "*,role_node_constraint!role_id(*)";
       },
       onSuccess: (
         state: RoleState,
@@ -141,6 +147,7 @@ export const role = (axios: AxiosInstance) =>
         data.slug = undefined;
         Object.assign(data, {
           updated_at: undefined,
+          role_node_constraint: undefined,
         });
       },
       onSuccess: (
@@ -166,6 +173,19 @@ export const role = (axios: AxiosInstance) =>
       ) => {},
     })
 
+    .post({
+      action: "createRoleNodeConstraintBase",
+      path: "/role_node_constraint",
+      onSuccess: (
+        state: RoleNodeConstraintState,
+        res: AxiosResponse<RoleNodeConstraint[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        const role = res.data[0];
+      },
+    })
+
     .getVuexStore({
       getters: RoleGetters,
       actions: RoleActions,
@@ -188,6 +208,10 @@ type RoleRestActionTypes = {
   createRoleBase: RestDataActionType<Partial<Role>, Role[]>;
   updateRole: RestDataActionType<Partial<Role>, Role[]>;
   deleteRole: RestDataActionType<Partial<Role>, Role[]>;
+  createRoleNodeConstraintBase: RestDataActionType<
+    Partial<RoleNodeConstraint>,
+    RoleNodeConstraint[]
+  >;
 };
 
 export type RoleActionTypes = RetypeActionTypes<typeof RoleActions> &

@@ -70,10 +70,12 @@ export default class RoleEditPage extends Vue {
   async createNewRole(newRole) {
     try {
       const res = await this.createRole({ data: newRole });
+      console.log(res);
       this.$q.notify({
         message: `Added new role`,
         color: "positive",
       });
+      this.$router.push({ name: "role_edit", params: { role_id: res.id } });
     } catch (err) {
       console.log("there was an error in creating role ", err);
       this.$q.notify({

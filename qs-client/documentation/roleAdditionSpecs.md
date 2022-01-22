@@ -1,13 +1,27 @@
-# Create new role
+# Roles and Role Node Constraints
 
-Two types of new roles, system roles and guild roles
-System roles are to be used system wide whereas guild roles are specific to an individual guild
+Two types of roles, system roles and guild roles
+
+System roles are to be used system wide, whereas guild roles are specific to an individual guild.
+
+System roles contain name, permissions and a max puplish state. Permissions and publish states are enums.
+
+Guild roles contain same columns as system roles, but also use the guild id column.
+
+Roles also use table RoleNodeConstraint table. This table contains node types that the role can use along with the max puplish state for that node type.
 
 ## Pages
 
 - Admin
 - CreateRole
 - RoleEdit
+
+### Components
+
+- Role table
+- Role Card
+- role-node-constraint-card
+- role-node-constraint-table
 
 ## Tables
 
@@ -37,27 +51,43 @@ System roles are to be used system wide whereas guild roles are specific to an i
 
 post
 
+- creatRoleBase
+- createRoleNodeConstraintBase
+
 patch
 
+- updateRole
+
 get
+
+- fetchRoles
+- fetchRoleById
+
+delete
+
+- deleteRole
 
 ### **_Role_node_constraint_**
 
 post
 
-Create new role
+- createNodeConstraint
 
 patch
 
+- updateNodeConstraint
+
 get
+
+- fetchNodeConstraintById
 
 ## getters
 
-getRoleById
-
-getDefaultRoleId
-
-getRoleByName
+- getRoleById
+- getDefaultRoleId
+- getRoleByName
+- getRoleNodeConstraintsByRoleId
+- getRoleNodeConstraintByType
 
 ## Actions
 
@@ -70,3 +100,7 @@ Table list existing roles. Contains role name, permissions and max puplish state
 ### QButton
 
 Button link for new role
+
+### Edit Role Node COnstraint from table
+
+Role node constraint table consist of the row containing the data for a particular constraint belonging to a role

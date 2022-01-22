@@ -20,6 +20,33 @@
             v-on:updateCurrentRole="updateCurrentRole"
             v-on:deleteRoleById="deleteRoleById"
           ></role-card>
+          <div class="col-4 q-ml-md">
+            <q-btn
+              label="add role node constraint"
+              @click="newRoleNodeConstraint = true"
+            >
+            </q-btn>
+            <div v-if="newRoleNodeConstraint">
+              <role-node-constraint-card
+                v-bind:roleNodeConstraint="newRoleNodeConstraintCard"
+                v-on:addRoleNodeConstraint="addRoleNodeConstraint"
+              ></role-node-constraint-card>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-center">
+          <span class="q-pt-lg" style="font-size: 2em"
+            >Role Node Constraints</span
+          >
+        </div>
+        <div class="row justify-center q-mt-xs q-pt-none">
+          <div class="column items-center">
+            <div class="col-8 q-pa-none">
+              <role-node-constraint-table
+                v-bind:roleNodeConstraint="getRoleById(role_id)"
+              ></role-node-constraint-table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -35,16 +62,20 @@ import roleCard from "../components/role-card.vue";
 import { mapActions, mapGetters } from "vuex";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import { BaseGetterTypes } from "../store/baseStore";
-import { Role } from "src/types";
+import { Role, RoleNodeConstraint } from "src/types";
+import RoleNodeConstraintTable from "src/components/role-node-constraint-table.vue";
+import RoleNodeConstraintCard from "src/components/role-node-constraint-card.vue";
 
 @Component<RoleEditPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
     roleCard: roleCard,
+    roleNodeConstraintTable: RoleNodeConstraintTable,
+    roleNodeConstraintCard: RoleNodeConstraintCard,
   },
   computed: {
-    ...mapGetters("role", ["getRoleById"]),
+    ...mapGetters("role", ["getRoleById", "getRoleNodeConstraintsByRoleId"]),
   },
   methods: {
     ...mapActions("role", [
@@ -53,23 +84,27 @@ import { Role } from "src/types";
       "deleteRole",
       "ensureAllRoles",
       "fetchRoles",
+      "createRoleNodeConstraint",
     ]),
   },
 })
 export default class RoleEditPage extends Vue {
   name: "RoleEdit";
-
+  newRoleNodeConstraint: Boolean = false;
   role_id: number;
   isAdmin: Boolean = false;
+  newRoleNodeConstraintCard: Partial<RoleNodeConstraint> = {};
 
   // Declare computed attributes for typescript
   hasPermission!: BaseGetterTypes["hasPermission"];
   getRoleById!: RoleGetterTypes["getRoleById"];
+  getRoleNodeConstraintsByRoleId!: RoleGetterTypes["getRoleNodeConstraintsByRoleId"];
   ensureRole!: RoleActionTypes["ensureRole"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   fetchRoles: RoleActionTypes["fetchRoles"];
   updateRole!: RoleActionTypes["updateRole"];
   deleteRole: RoleActionTypes["deleteRole"];
+  createRoleNodeConstraint: RoleActionTypes["createRoleNodeConstraint"];
 
   async updateCurrentRole(role) {
     try {
@@ -105,9 +140,17 @@ export default class RoleEditPage extends Vue {
     }
   }
 
+  async addRoleNodeConstraint(roleNodeConstraint: RoleNodeConstraint) {
+    roleNodeConstraint.role_id = this.role_id;
+    await this.createRoleNodeConstraint({ data: roleNodeConstraint });
+    const rnc = await this.getRoleNodeConstraintsByRoleId(this.role_id);
+    console.log("role node consriant", rnc);
+  }
+
   async beforeMount() {
     this.role_id = Number.parseInt(this.$route.params.role_id);
     await this.ensureRole({ role_id: this.role_id });
+    await this.ensureAllRoles;
     console.log("Role", this.getRoleById(this.role_id));
   }
 }
