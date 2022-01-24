@@ -20,11 +20,23 @@
         label="Max Publish State"
         :options="publication_state"
       ></q-select>
-      <q-btn
-        class="q-mt-xl q-ma-md"
-        label="Add"
-        @click="addRoleNodeConstraint(nodeRoleNodeConstraint)"
-      ></q-btn>
+      <div class="row justify-item-center">
+        <q-btn
+          class="q-mt-xl q-ma-md"
+          label="Add"
+          @click="addRoleNodeConstraint_(nodeRoleNodeConstraint)"
+        ></q-btn>
+        <q-btn
+          class="q-mt-xl q-ma-md"
+          label="Update"
+          @click="updateRoleNodeConstraint_(nodeRoleNodeConstraint)"
+        ></q-btn>
+        <q-btn
+          class="q-mt-xl q-ma-md"
+          label="Delete"
+          @click="deleteRoleNodeConstraint_(nodeRoleNodeConstraint)"
+        ></q-btn>
+      </div>
     </q-card>
   </div>
 </template>
@@ -53,8 +65,14 @@ export default class RoleNodeConstraintCard extends RoleNodeConstraintCardProps 
   publication_state = Object.keys(publication_state_enum);
   ibis_node_type = Object.keys(ibis_node_type_enum);
 
-  addRoleNodeConstraint(nodeRoleNodeConstraint) {
-    this.$emit("addRoleNodeConstraint", nodeRoleNodeConstraint);
+  addRoleNodeConstraint_(nodeRoleNodeConstraint) {
+    this.$emit("addRoleNodeConstraint_", nodeRoleNodeConstraint);
+  }
+  updateRoleNodeConstraint_(nodeRoleNodeConstraint) {
+    this.$emit("updateRoleNodeConstraint_", nodeRoleNodeConstraint);
+  }
+  deleteRoleNodeConstraint_(nodeRoleNodeConstraint) {
+    this.$emit("deleteRoleNodeConstraint_", nodeRoleNodeConstraint);
   }
 }
 </script>

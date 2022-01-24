@@ -22,7 +22,9 @@
         <div>
           <role-node-constraint-card
             v-bind:roleNodeConstraint="newRoleNodeConstraintCard"
-            v-on:addRoleNodeConstraint="addRoleNodeConstraint"
+            v-on:addRoleNodeConstraint_="addRoleNodeConstraint_"
+            v-on:updateRoleNodeConstraint_="updateRoleNodeConstraint_"
+            v-on:deleteRoleNodeConstraint_="deleteRoleNodeConstraint_"
           ></role-node-constraint-card>
         </div>
       </div>
@@ -77,6 +79,8 @@ import RoleNodeConstraintCard from "src/components/role-node-constraint-card.vue
       "ensureAllRoles",
       "fetchRoles",
       "createRoleNodeConstraint",
+      "updateRoleNodeConstraint",
+      "deleteRoleNodeConstraint",
     ]),
   },
 })
@@ -101,6 +105,8 @@ export default class RoleEditPage extends Vue {
   updateRole!: RoleActionTypes["updateRole"];
   deleteRole: RoleActionTypes["deleteRole"];
   createRoleNodeConstraint: RoleActionTypes["createRoleNodeConstraint"];
+  updateRoleNodeConstraint: RoleActionTypes["updateRoleNodeConstraint"];
+  deleteRoleNodeConstraint: RoleActionTypes["deleteRoleNodeConstraint"];
 
   async updateCurrentRole(role) {
     try {
@@ -136,13 +142,36 @@ export default class RoleEditPage extends Vue {
     }
   }
 
-  async addRoleNodeConstraint(roleNodeConstraint: RoleNodeConstraint) {
+  async addRoleNodeConstraint_(roleNodeConstraint: RoleNodeConstraint) {
     roleNodeConstraint.role_id = this.role_id;
     await this.createRoleNodeConstraint({ data: roleNodeConstraint });
     this.newRoleNodeConstraintCard = await this.getRoleNodeConstraintsByRoleId(
       this.role_id
     )[0];
     console.log("newRoleConstraint", this.newRoleNodeConstraintCard);
+  }
+  async updateRoleNodeConstraint_(roleNodeConstraint: RoleNodeConstraint) {
+    roleNodeConstraint.role_id = this.role_id;
+    await this.updateRoleNodeConstraint({
+      params: {
+        role_id: this.role_id,
+        node_type: roleNodeConstraint.node_type,
+      },
+      data: { role_id: this.role_id, node_type: roleNodeConstraint.node_type },
+    });
+    this.newRoleNodeConstraintCard = await this.getRoleNodeConstraintsByRoleId(
+      this.role_id
+    )[0];
+  }
+  async deleteRoleNodeConstraint_(roleNodeConstraint: RoleNodeConstraint) {
+    roleNodeConstraint.role_id = this.role_id;
+    await this.deleteRoleNodeConstraint({
+      params: {
+        role_id: this.role_id,
+        node_type: roleNodeConstraint.node_type,
+      },
+      data: { role_id: this.role_id, node_type: roleNodeConstraint.node_type },
+    });
   }
 
   async editRoleNodeConstraint(roleNodeConstraint: {}) {

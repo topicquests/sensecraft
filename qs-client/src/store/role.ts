@@ -80,6 +80,18 @@ export const RoleActions = {
     });
     await context.dispatch("fetchRoles");
   },
+  updateRoleNodeConstraint: async (context, { data }) => {
+    const res = await context.dispatch("updateRoleNodeConstraintBase", {
+      data,
+    });
+    await context.dispatch("fetchRoles");
+  },
+  deleteRoleNodeConstraint: async (context, { data }) => {
+    const res = await context.dispatch("deleteRoleNodeConstraintBase", {
+      data,
+    });
+    await context.dispatch("fetchRoles");
+  },
 };
 
 export const role = (axios: AxiosInstance) =>
@@ -192,6 +204,47 @@ export const role = (axios: AxiosInstance) =>
         const role = res.data[0];
       },
     })
+    .patch({
+      action: "updateRoleNodeConstraintBase",
+      path: ({ role_id, node_type }) =>
+        `/role_node_constraint?role_id=eq.${role_id}&node_type=eq.${node_type}`,
+      beforeRequest: (state: RoleNodeConstraintState, { params, data }) => {
+        params.role_id = data.role_id;
+        params.node_type = data.node_type;
+        data.slug = undefined;
+        Object.assign(data, {
+          updated_at: undefined,
+          role_node_constraint: undefined,
+        });
+      },
+      onSuccess: (
+        state: RoleNodeConstraintState,
+        res: AxiosResponse<RoleNodeConstraint[]>,
+        axios: AxiosInstance,
+        { data }
+      ) => {},
+    })
+    .delete({
+      action: "deleteRoleNodeConstraintBase",
+      path: ({ role_id, node_type }) =>
+        `/role_node_constraint?role_id=eq.${role_id}&node_type=eq.${node_type}`,
+      beforeRequest: (state: RoleNodeConstraintState, { params, data }) => {
+        params.role_id = data.role_id;
+        params.node_type = data.node_type;
+        data.slug = undefined;
+        Object.assign(data, {
+          updated_at: undefined,
+          role_node_constraint: undefined,
+        });
+      },
+      onSuccess: (
+        state: RoleNodeConstraintState,
+        res: AxiosResponse<RoleNodeConstraint[]>,
+        axios: AxiosInstance,
+        actionParams,
+        context
+      ) => {},
+    })
 
     .getVuexStore({
       getters: RoleGetters,
@@ -216,6 +269,14 @@ type RoleRestActionTypes = {
   updateRole: RestDataActionType<Partial<Role>, Role[]>;
   deleteRole: RestDataActionType<Partial<Role>, Role[]>;
   createRoleNodeConstraintBase: RestDataActionType<
+    Partial<RoleNodeConstraint>,
+    RoleNodeConstraint[]
+  >;
+  updateRoleNodeConstraintBase: RestDataActionType<
+    Partial<RoleNodeConstraint>,
+    RoleNodeConstraint[]
+  >;
+  deleteRoleNodeConstraintBase: RestDataActionType<
     Partial<RoleNodeConstraint>,
     RoleNodeConstraint[]
   >;
