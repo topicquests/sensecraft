@@ -59,6 +59,7 @@ export default class RoleEditPage extends Vue {
     name: "",
     permissions: [],
     max_pub_state: null,
+    guild_id: null,
   };
 
   // Declare computed attributes for typescript
@@ -85,6 +86,8 @@ export default class RoleEditPage extends Vue {
     }
   }
 
-  async beforeMount() {}
+  async beforeMount() {
+    this.newRole.guild_id = Number.parseInt(this.$route.params.guild_id);
+  }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="page">
+  <q-page style="background-color: lightgrey" padding class="page">
     <div class="column items-center" v-if="potentialQuests.length > 0">
       <div class="col-4">
         <q-card q-ma-md>
@@ -101,17 +101,18 @@
       </div>
     </div>
     <div class="row justify-center">
-      <q-card style="width: 25%">
+      <q-card style="width: 40%">
         <div class="row justify-center">
           <H5>Members Available Roles </H5>
         </div>
-        <div style="width: 100%">
+        <div style="width: 90%">
           <div v-for="member in getGuildMembers" :key="member.id">
             <div class="row">
               <span class="q-pl-md q-pt-md" style="width: 25%">
                 {{ member.handle }}
               </span>
               <q-select
+                style="width: 70%"
                 class="q-pl-md"
                 :multiple="true"
                 v-model="rolesByMember[member.id]"
@@ -137,6 +138,21 @@
           </div>
         </div>
       </q-card>
+    </div>
+    <div class="column items-center">
+      <div class="col-6 q-pt-lg q-pb-sm" style="width: 55%">
+        <q-btn
+          v-if="$store.state.member.member"
+          id="newRoleBtn"
+          label="New Role"
+          @click="
+            $router.push({ name: 'create_guild_role', params: { guildId } })
+          "
+        />
+      </div>
+      <div id="roles" style="width: 55%">
+        <role-table v-bind:roles="getRoles"></role-table>
+      </div>
     </div>
   </q-page>
 </template>
@@ -177,11 +193,13 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
+import roleTable from "../components/role-table.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
   components: {
     CastingRoleEdit,
+    roleTable: roleTable,
   },
   computed: {
     ...mapState("member", {

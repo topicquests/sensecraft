@@ -38,6 +38,13 @@ const RoleGetters = {
     Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
   getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
     state.role[id].role_node_constraint,
+  getRoleNodeConstraintByType:
+    (state: RoleState) => (id: number, node_type: string) => {
+      const roleNodeConstraint: {} = state.role[id].role_node_constraint.filter(
+        (node: RoleNodeConstraint) => node.node_type == node_type
+      );
+      return roleNodeConstraint;
+    },
 };
 export const RoleActions = {
   ensureAllRoles: async (context) => {

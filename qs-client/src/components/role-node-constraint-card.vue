@@ -1,12 +1,13 @@
 <template>
   <div>
     <q-card class="q-mt-md q-pa-md">
+      <h5 class="justify-item-center">Role Node Constraint</h5>
       <q-select
         style="width: 60%"
         clearable
         filled
         class="q-pt-md"
-        v-model="newRoleNodeConstraint.node_type"
+        v-model="nodeRoleNodeConstraint.node_type"
         label="Node Type"
         :options="ibis_node_type"
       ></q-select>
@@ -15,14 +16,14 @@
         clearable
         filled
         class="q-pt-md"
-        v-model="newRoleNodeConstraint.max_pub_state"
+        v-model="nodeRoleNodeConstraint.max_pub_state"
         label="Max Publish State"
         :options="publication_state"
       ></q-select>
       <q-btn
         class="q-mt-xl q-ma-md"
         label="Add"
-        @click="addRoleNodeConstraint(newRoleNodeConstraint)"
+        @click="addRoleNodeConstraint(nodeRoleNodeConstraint)"
       ></q-btn>
     </q-card>
   </div>
@@ -42,22 +43,18 @@ const RoleNodeConstraintCardProps = Vue.extend({
 });
 
 @Component<RoleNodeConstraintCard>({
-  data() {
-    return { newRoleNodeConstraint: {} };
-  },
-  computed: {},
-  methods: {},
-
-  beforeMount() {
-    this.newRoleNodeConstraint = this.roleNodeConstraint;
+  computed: {
+    nodeRoleNodeConstraint: function () {
+      return this.roleNodeConstraint;
+    },
   },
 })
 export default class RoleNodeConstraintCard extends RoleNodeConstraintCardProps {
   publication_state = Object.keys(publication_state_enum);
   ibis_node_type = Object.keys(ibis_node_type_enum);
 
-  addRoleNodeConstraint(newRoleNodeConstraint) {
-    this.$emit("addRoleNodeConstraint", newRoleNodeConstraint);
+  addRoleNodeConstraint(nodeRoleNodeConstraint) {
+    this.$emit("addRoleNodeConstraint", nodeRoleNodeConstraint);
   }
 }
 </script>

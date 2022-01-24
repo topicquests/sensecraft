@@ -8,46 +8,34 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="col">
-      <div class="row justify-center">
-        <h3>Edit Role</h3>
+    <div class="row justify-center">
+      <h3>Edit Role</h3>
+    </div>
+    <div class="row justify-center">
+      <role-card
+        v-bind:role="getRoleById(role_id)"
+        v-bind:edit="true"
+        v-on:updateCurrentRole="updateCurrentRole"
+        v-on:deleteRoleById="deleteRoleById"
+      ></role-card>
+      <div class="col-4 q-ml-md">
+        <div>
+          <role-node-constraint-card
+            v-bind:roleNodeConstraint="newRoleNodeConstraintCard"
+            v-on:addRoleNodeConstraint="addRoleNodeConstraint"
+          ></role-node-constraint-card>
+        </div>
       </div>
-      <div class="col">
-        <div class="row justify-center">
-          <role-card
-            v-bind:role="getRoleById(role_id)"
-            v-bind:edit="true"
-            v-on:updateCurrentRole="updateCurrentRole"
-            v-on:deleteRoleById="deleteRoleById"
-          ></role-card>
-          <div class="col-4 q-ml-md">
-            <q-btn
-              label="add role node constraint"
-              @click="newRoleNodeConstraint = true"
-            >
-            </q-btn>
-            <div v-if="newRoleNodeConstraint">
-              <role-node-constraint-card
-                v-bind:roleNodeConstraint="newRoleNodeConstraintCard"
-                v-on:addRoleNodeConstraint="addRoleNodeConstraint"
-              ></role-node-constraint-card>
-            </div>
-          </div>
-        </div>
-        <div class="row justify-center">
-          <span class="q-pt-lg" style="font-size: 2em"
-            >Role Node Constraints</span
-          >
-        </div>
-        <div class="row justify-center q-mt-xs q-pt-none">
-          <div class="column items-center">
-            <div class="col-8 q-pa-none">
-              <role-node-constraint-table
-                v-bind:roleNodeConstraint="getRoleById(role_id)"
-              ></role-node-constraint-table>
-            </div>
-          </div>
-        </div>
+    </div>
+    <div class="row justify-center">
+      <span class="q-pt-lg" style="font-size: 2em">Role Node Constraints</span>
+    </div>
+    <div class="row justify-center q-mt-xs q-pt-none">
+      <div class="col-6 q-pa-none">
+        <role-node-constraint-table
+          v-bind:role="getRoleById(role_id)"
+          v-on:editRoleNodeConstraint="editRoleNodeConstraint"
+        ></role-node-constraint-table>
       </div>
     </div>
   </q-page>
@@ -75,7 +63,11 @@ import RoleNodeConstraintCard from "src/components/role-node-constraint-card.vue
     roleNodeConstraintCard: RoleNodeConstraintCard,
   },
   computed: {
-    ...mapGetters("role", ["getRoleById", "getRoleNodeConstraintsByRoleId"]),
+    ...mapGetters("role", [
+      "getRoleById",
+      "getRoleNodeConstraintsByRoleId",
+      "getRoleNodeConstraintByType",
+    ]),
   },
   methods: {
     ...mapActions("role", [
@@ -93,12 +85,16 @@ export default class RoleEditPage extends Vue {
   newRoleNodeConstraint: Boolean = false;
   role_id: number;
   isAdmin: Boolean = false;
-  newRoleNodeConstraintCard: Partial<RoleNodeConstraint> = {};
+  newRoleNodeConstraintCard: Partial<RoleNodeConstraint> = {
+    node_type: "question",
+    max_pub_state: "published",
+  };
 
   // Declare computed attributes for typescript
   hasPermission!: BaseGetterTypes["hasPermission"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   getRoleNodeConstraintsByRoleId!: RoleGetterTypes["getRoleNodeConstraintsByRoleId"];
+  getRoleNodeConstraintByType!: RoleGetterTypes["getRoleNodeConstraintByType"];
   ensureRole!: RoleActionTypes["ensureRole"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   fetchRoles: RoleActionTypes["fetchRoles"];
@@ -143,8 +139,16 @@ export default class RoleEditPage extends Vue {
   async addRoleNodeConstraint(roleNodeConstraint: RoleNodeConstraint) {
     roleNodeConstraint.role_id = this.role_id;
     await this.createRoleNodeConstraint({ data: roleNodeConstraint });
-    const rnc = await this.getRoleNodeConstraintsByRoleId(this.role_id);
-    console.log("role node consriant", rnc);
+    this.newRoleNodeConstraintCard = await this.getRoleNodeConstraintsByRoleId(
+      this.role_id
+    )[0];
+    console.log("newRoleConstraint", this.newRoleNodeConstraintCard);
+  }
+
+  async editRoleNodeConstraint(roleNodeConstraint: {}) {
+    this.newRoleNodeConstraintCard = roleNodeConstraint[0];
+    console.log("Edit Role Constraint", roleNodeConstraint[0]);
+    this.newRoleNodeConstraint = true;
   }
 
   async beforeMount() {

@@ -1,13 +1,8 @@
 <template>
-  <div
-    v-if="
-      roleNodeConstraint &&
-      getRoleNodeConstraintsByRoleId(roleNodeConstraint.id).length
-    "
-  >
+  <div v-if="role">
     <q-table
       :title="title"
-      :data="roleNodeConstraint.role_node_constraint"
+      :data="role.role_node_constraint"
       :columns="columns"
     >
       <template slot="body" slot-scope="props">
@@ -17,7 +12,12 @@
             props.row.max_pub_state
           }}</q-td>
           <q-td key="roleId" auto-width :props="props">
-            <q-btn label="edit" @click="editRoleNodeConstraint"></q-btn>
+            <q-btn
+              label="edit"
+              @click="
+                editRoleNodeConstraint(props.row.role_id, props.row.node_type)
+              "
+            ></q-btn>
           </q-td>
         </q-tr>
       </template>
@@ -35,17 +35,21 @@ import { Prop } from "vue/types/options";
 import { Role } from "../types";
 import { mapGetters } from "vuex";
 import { RoleNodeConstraint } from "../types";
+import { RoleGetterTypes } from "src/store/role";
 
 const RoleNodeConstraintTableProps = Vue.extend({
   props: {
-    roleNodeConstraint: Object as Prop<Role>,
+    role: Object as Prop<Role>,
     title: String,
   },
 });
 @Component<RoleNodeConstraintTable>({
   name: "RoleNodeConstraintTable",
   computed: {
-    ...mapGetters("role", ["getRoleNodeConstraintsByRoleId"]),
+    ...mapGetters("role", [
+      "getRoleNodeConstraintsByRoleId",
+      "getRoleNodeConstraintByType",
+    ]),
   },
 })
 export default class RoleNodeConstraintTable extends RoleNodeConstraintTableProps {
@@ -76,8 +80,15 @@ export default class RoleNodeConstraintTable extends RoleNodeConstraintTableProp
     },
   ];
 
-  created() {}
+  getRoleNodeConstraintByType!: RoleGetterTypes["getRoleNodeConstraintByType"];
 
-  editRoleNodeConstraint() {}
+  async editRoleNodeConstraint(roleId: number, node_type: string) {
+    const roleConstraint = await this.getRoleNodeConstraintByType(
+      roleId,
+      node_type
+    );
+    console.log("Table node constraint", roleConstraint[0]);
+    this.$emit("editRoleNodeConstraint", roleConstraint);
+  }
 }
 </script>

@@ -66,7 +66,7 @@ import { Prop } from "vue/types/options";
 import { publication_state_enum, permission_list } from "../enums";
 
 const RoleCardProps = Vue.extend({
-  props: { role: {} as Prop<Role>, edit: Boolean },
+  props: { role: {} as Prop<Role>, edit: Boolean, guild_id: Number },
 });
 
 @Component<RoleCard>({
