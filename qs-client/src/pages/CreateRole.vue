@@ -71,7 +71,6 @@ export default class RoleEditPage extends Vue {
   async createNewRole(newRole) {
     try {
       const res = await this.createRole({ data: newRole });
-      console.log(res);
       this.$q.notify({
         message: `Added new role`,
         color: "positive",

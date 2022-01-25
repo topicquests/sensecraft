@@ -87,7 +87,6 @@ export default class RoleNodeConstraintTable extends RoleNodeConstraintTableProp
       roleId,
       node_type
     );
-    console.log("Table node constraint", roleConstraint[0]);
     this.$emit("editRoleNodeConstraint", roleConstraint);
   }
 }

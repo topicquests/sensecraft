@@ -111,7 +111,6 @@ export const role = (axios: AxiosInstance) =>
         const roles = Object.fromEntries(
           res.data.map((role: Role) => [role.id, role])
         );
-        console.log("Roles: ", roles);
         state.role = roles;
         state.fullFetch = true;
       },

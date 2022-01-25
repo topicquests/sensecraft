@@ -379,7 +379,6 @@ export const guilds = (axios: AxiosInstance) =>
         actionParams
       ) => {
         const availableRole = res.data[0];
-        console.log("Available ", availableRole);
         if (
           MyVapi.store.getters["member/getUserId"] == availableRole.member_id
         ) {

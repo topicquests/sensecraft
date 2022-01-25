@@ -148,7 +148,6 @@ export default class RoleEditPage extends Vue {
     this.newRoleNodeConstraintCard = await this.getRoleNodeConstraintsByRoleId(
       this.role_id
     )[0];
-    console.log("newRoleConstraint", this.newRoleNodeConstraintCard);
   }
   async updateRoleNodeConstraint_(roleNodeConstraint: RoleNodeConstraint) {
     roleNodeConstraint.role_id = this.role_id;
@@ -184,7 +183,6 @@ export default class RoleEditPage extends Vue {
     this.role_id = Number.parseInt(this.$route.params.role_id);
     await this.ensureRole({ role_id: this.role_id });
     await this.ensureAllRoles;
-    console.log("Role", this.getRoleById(this.role_id));
   }
 }
 </script>

@@ -526,7 +526,6 @@ export default class GuildAdminPage extends Vue {
   async castingRoleAdded(member_id: number, role_id: number) {
     const guild_id = this.guildId;
     const quest_id: number = this.currentQuestId;
-    console.log("Quest_id ;", quest_id);
     await this.addCastingRole({
       data: { member_id, guild_id, role_id, quest_id },
     });

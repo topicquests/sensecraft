@@ -374,6 +374,12 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       "ensureGuildsPlayingQuest",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
+    getGuildMembers() {
+      if (this.getCurrentGuild) {
+        return this.getMembersOfGuild(this.getCurrentGuild);
+      }
+      return [];
+    },
   },
 })
 export default class GuildPage extends Vue {
@@ -539,8 +545,8 @@ export default class GuildPage extends Vue {
       const response = await this.initializeQuest();
     }
   }
-  async getAvailableRolesById(memberId: number) {
-    const roles = await this.getAvailableRolesMembersById(memberId);
+  getAvailableRolesById(memberId: number) {
+    const roles = this.getAvailableRolesMembersById(memberId);
     const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
     return roleName;
   }
@@ -669,12 +675,7 @@ export default class GuildPage extends Vue {
   show_tree(show) {
     this.$store.commit("conversation/SHOW_TREE", show);
   }
-  getGuildMembers() {
-    if (this.getCurrentGuild) {
-      return this.getMembersOfGuild(this.getCurrentGuild);
-    }
-    return [];
-  }
+
   getPlayedQuests() {
     const play = this.guildGamePlays;
     return play.map((gp: GamePlay) => this.getQuestById(gp.quest_id));
@@ -715,12 +716,10 @@ export default class GuildPage extends Vue {
     await this.addCastingRole({
       data: { member_id, guild_id, role_id, quest_id },
     });
-    console.log("Value ", this.roleId);
   }
   async castingRoleAdded(role_id: number) {
     const guild_id = this.guildId;
     const quest_id: number = this.currentQuestId;
-    console.log("Quest_id ;", quest_id);
     await this.addCastingRole({
       data: { member_id: this.memberId, role_id, guild_id, quest_id },
     });

@@ -475,7 +475,6 @@ export const quests = (axios: AxiosInstance) =>
         actionParams
       ) => {
         const casting = res.data[0];
-        console.log(res);
         const quest = state.quests[casting.quest_id];
         if (quest) {
           const castings =
@@ -521,7 +520,6 @@ export const quests = (axios: AxiosInstance) =>
         actionParams
       ) => {
         const casting = res.data[0];
-        console.log(res);
         const quest = state.quests[casting.quest_id];
         if (quest) {
           const castings =
