@@ -81,66 +81,72 @@
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
       <q-scroll-area class="fit">
-          <q-list>
-              <q-item clickable v-ripple :to="{ name: 'root' }">
-                <q-item-section>
-                  <q-btn to="/" >Home</q-btn>
-                </q-item-section>
-              </q-item> 
-              <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
-                <q-item-section>
-                  <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-ripple  :to="{ name: 'quest_list' }">
-                <q-item-section>
-                  <q-item-label>
-                    <q-btn :to="{ name: 'quest_list' }">All Quests
-                    </q-btn>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-ripple v-show="hasPermission('createQuest')" id="createQuest">
-               <q-item-section>
-                  <q-item-label>
-               <q-btn :to="{ name: 'quest_landing' }">
+        <q-list>
+          <q-item clickable v-ripple :to="{ name: 'root' }">
+            <q-item-section>
+              <q-btn to="/">Home</q-btn>
+            </q-item-section>
+          </q-item>
+          <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
+            <q-item-section>
+              <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
+            </q-item-section>
+          </q-item>
+          <q-item clickable v-ripple :to="{ name: 'quest_list' }">
+            <q-item-section>
+              <q-item-label>
+                <q-btn :to="{ name: 'quest_list' }">All Quests </q-btn>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item
+            clickable
+            v-ripple
+            v-show="hasPermission('createQuest')"
+            id="createQuest"
+          >
+            <q-item-section>
+              <q-item-label>
+                <q-btn :to="{ name: 'quest_landing' }">
                   Quest create\edit
                 </q-btn>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
 
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-        
-              <q-item clickable v-ripple id="guildView">
-                <q-item-section>
-                <q-btn :to="{ name: 'guild_list' }">
-                  Guilds
-                </q-btn>
-                </q-item-section>
-              </q-item>
-       
-              <q-item clickable v-ripple v-show="hasPermission('createGuild')" id="createGuild">
-                <q-item-section>
-                <q-btn :to="{ name: 'guild_landing' }">
-                  Guild create\edit
-                </q-btn>
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-ripple v-if="hasPermission('superadmin')" id="admin">
-                <q-btn :to="{ name: 'admin', params: { member_id: memberId } }"
-                >
-                  Administration
-                </q-btn>
-              </q-item>
-          </q-list>
+          <q-item clickable v-ripple id="guildView">
+            <q-item-section>
+              <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            v-show="hasPermission('createGuild')"
+            id="createGuild"
+          >
+            <q-item-section>
+              <q-btn :to="{ name: 'guild_landing' }"> Guild create\edit </q-btn>
+            </q-item-section>
+          </q-item>
+          <q-item
+            clickable
+            v-ripple
+            v-if="hasPermission('superadmin')"
+            id="admin"
+          >
+            <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
+              Administration
+            </q-btn>
+          </q-item>
+        </q-list>
       </q-scroll-area>
     </q-drawer>
-    <q-page-container  class="q-pa-md">
-      <particles-bg color="#FFF" num=5  type="square" :bg="true" />
-
+    <q-page-container class="q-pa-md">
       <router-view />
     </q-page-container>
-    <q-footer style="background-color: #FFF" class="footer">
+    <q-footer style="background-color: #fff" class="footer">
       <p id="Pfooter">Sensecraft 2022</p>
     </q-footer>
   </q-layout>
@@ -148,7 +154,6 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
-import { ParticlesBg } from "particles-bg-vue";
 
 import { MemberState } from "../store/member";
 import nodeTree from "../components/node-tree.vue";
@@ -171,13 +176,12 @@ export default {
   },
   components: {
     nodeTree: nodeTree,
-    ParticlesBg
   },
   meta: {
     // sets document title
-    title: 'Homepage',
+    title: "Homepage",
     // optional; sets final title as "Index Page - My Website", useful for multiple level meta
-    titleTemplate: title => `${title} - SenseCraft`,
+    titleTemplate: (title) => `${title} - SenseCraft`,
   },
   computed: {
     ...mapGetters("conversation", [
@@ -240,7 +244,7 @@ export default {
   text-align: center;
   font-size: 15pt;
   color: #333;
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .sidenav {
@@ -257,14 +261,12 @@ export default {
   padding-top: 60px;
 }
 
-
-*{
-    margin: 0px;
-    padding: 0px;
+* {
+  margin: 0px;
+  padding: 0px;
 }
 
-body{
-    font-family: 'Exo', sans-serif;
+body {
+  font-family: "Exo", sans-serif;
 }
-
 </style>
