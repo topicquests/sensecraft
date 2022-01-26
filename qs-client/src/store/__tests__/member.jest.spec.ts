@@ -74,7 +74,6 @@ describe("Member store", () => {
   });
   it("fetches the login user", async () => {
     const promise = store.dispatch("member/ensureLoginUser");
-    //console.log(mockAxios.lastReqGet());
     expect(mockAxios.request).toHaveBeenCalledWith(
       makeReq({
         url: "/members",

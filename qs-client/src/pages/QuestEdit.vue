@@ -348,7 +348,6 @@ export default class QuestEditPage extends Vue {
     if (this.getConversation.length > 0) {
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     }
-    console.log("stop");
   }
 }
 </script>

@@ -277,7 +277,6 @@ export const members = (axios: AxiosInstance) =>
           state: MembersState,
           guildMemberAvailableRole: GuildMemberAvailableRole
         ) => {
-          console.log("member :", guildMemberAvailableRole);
           const member_id = guildMemberAvailableRole.member_id;
           let member = state.members[member_id];
           if (member) {
