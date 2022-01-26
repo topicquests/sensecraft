@@ -223,6 +223,87 @@ BEGIN
 END$$;
 
 
+CREATE OR REPLACE FUNCTION scoring(node_id integer, for_guild_id integer DEFAULT -1, include_level public.publication_state DEFAULT 'published') RETURNS JSONB LANGUAGE plpgsql STABLE AS $$
+DECLARE
+  local_scores JSONB;
+  child_scores JSONB;
+  all_scores JSONB;
+  scoring_factor REAL = 1;
+  threats SMALLINT = 0;
+  supports SMALLINT = 0;
+  threatened BOOLEAN;
+  threatening BOOLEAN;
+  node public.conversation_node;
+  child_id INTEGER;
+  guild_id INTEGER;
+  calc REAL;
+  guilds integer[];
+  children integer[];
+BEGIN
+  SELECT * INTO STRICT node FROM conversation_node WHERE id = node_id;
+  IF node.quest_id IS NULL THEN
+    RAISE EXCEPTION 'Node % does not belong to a quest', node_id;
+  END IF;
+  IF node.meta != 'conversation' THEN
+    RAISE EXCEPTION 'Node % is not part of the conversation', node_id;
+  END IF;
+  IF node.status < include_level THEN
+    RETURN 'null'::jsonb;
+  END IF;
+  SELECT COALESCE(array_agg(game_play.guild_id), '{}'::integer[]) FROM game_play WHERE quest_id = node.quest_id AND status = 'confirmed' INTO STRICT guilds;
+  IF guilds IS NULL THEN
+    RETURN 'null'::jsonb;
+  END IF;
+  SELECT jsonb_object_agg(y.guild, y.gvalue) STRICT INTO local_scores FROM (SELECT guild, CASE WHEN guild=node.guild_id THEN 0.0 ELSE 1.0 END gvalue FROM (SELECT unnest(guilds) guild) x) y;
+  all_scores := '{}'::jsonb;
+  SELECT COALESCE(array_agg(id), '{}'::integer[]) FROM conversation_node n
+      WHERE parent_id = node.id
+      AND meta = 'conversation'
+      AND status >= include_level
+      AND (status = 'published' OR n.guild_id=for_guild_id) INTO STRICT children;
+  FOREACH child_id IN ARRAY children LOOP
+    child_scores := scoring(child_id, for_guild_id, include_level);
+    IF child_scores IS NULL THEN
+      CONTINUE;
+    END IF;
+    all_scores := all_scores || child_scores;
+    child_scores := child_scores -> child_id::varchar;
+    IF NOT (child_scores->'threatened')::boolean THEN
+      IF (child_scores->'threatening')::boolean THEN
+        threats := threats + 1;
+      ELSE
+        supports := supports + 1;
+      END IF;
+    END IF;
+    FOREACH guild_id IN ARRAY guilds LOOP
+      calc = (local_scores->guild_id::varchar)::real + (child_scores->'value_for'->guild_id::varchar)::real / 2;
+      local_scores = jsonb_set(local_scores, ARRAY[guild_id::varchar], calc::varchar::jsonb);
+    END LOOP;
+  END LOOP;
+  threatened = (threats > 0) AND NOT (node.node_type = 'question' AND supports > 0);
+  threatening = not threatened AND (node.node_type = 'con' OR node.node_type = 'con_answer' OR (node.node_type = 'question' AND threats > 0 AND supports = 0));
+  IF threatened THEN
+    scoring_factor := 1.0 / power(2, threats);
+    threatening = false;
+  END IF;
+  IF threatening THEN
+    scoring_factor := scoring_factor * 2.0;
+  END IF;
+  -- also add scoring_factor from "good question?"
+  FOREACH guild_id IN ARRAY guilds LOOP
+    calc = (local_scores->guild_id::varchar)::real * scoring_factor;
+    local_scores = jsonb_set(local_scores, ARRAY[guild_id::varchar], calc::varchar::jsonb);
+  END LOOP;
+  all_scores := jsonb_set(all_scores, ARRAY[node.id::varchar], jsonb_build_object(
+    'value_for', local_scores,
+    'threatened', threatened,
+    'threatening', threatening,
+    'score', coalesce((local_scores->node.guild_id::varchar)::real, 0.0)
+  ));
+  RETURN all_scores;
+END$$;
+
+
 CREATE OR REPLACE FUNCTION public.check_node_status_rules(status public.publication_state, parent_status public.publication_state, guild_id integer, quest_id integer) RETURNS public.publication_state
   LANGUAGE plpgsql STABLE
   AS $$

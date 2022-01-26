@@ -30,6 +30,7 @@ DROP FUNCTION IF EXISTS public.node_neighbourhood(node_id integer, guild integer
 DROP FUNCTION IF EXISTS public.nodes2json(node_id integer, include_level public.publication_state, include_meta BOOLEAN);
 DROP FUNCTION IF EXISTS public.populate_nodes(data JSONB, parent_id integer);
 DROP FUNCTION IF EXISTS public.has_node_permission(quest_id INTEGER, node_type public.ibis_node_type, perm public.permission);
+DROP FUNCTION IF EXISTS public.scoring(node_id integer, for_guild_id integer DEFAULT -1, include_level public.publication_state DEFAULT 'published');
 
 
 DROP POLICY IF EXISTS conversation_node_delete_policy ON public.conversation_node;
