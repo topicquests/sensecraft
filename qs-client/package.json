@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@quasar/extras": "~1.12",
-    "axios": "~0.24",
+    "axios": "~0.25",
     "core-js": "^3.20",
     "grant": "~5.4",
     "luxon": "~2.3",
@@ -37,21 +37,21 @@
     "@quasar/app": "~2.2.11",
     "@quasar/quasar-app-extension-testing": "~1.0.5",
     "@quasar/quasar-app-extension-testing-unit-jest": "~2.2.3",
-    "@typescript-eslint/eslint-plugin": "~5.9",
-    "@typescript-eslint/parser": "~5.9",
+    "@typescript-eslint/eslint-plugin": "~5.10",
+    "@typescript-eslint/parser": "~5.10",
     "@vue/eslint-config-typescript": "~9.1",
     "@vue/test-utils": "^1.3.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "~8.6",
+    "eslint": "~8.7",
     "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-jest": "~25.3",
+    "eslint-plugin-jest": "~26",
     "eslint-plugin-markdown": "~2.2",
     "eslint-plugin-vue": "~8",
     "eslint-webpack-plugin": "~2.6",
     "husky": "~7.0",
     "jest-matcher-vue-test-utils": "^2.0.1",
     "jest-mock-axios": "^4.5.0",
-    "lint-staged": "~12.1",
+    "lint-staged": "~12.3",
     "prettier": "~2.5",
     "typescript": "~4.5",
     "vue-cli-plugin-store": "~0.0.7",
@@ -81,6 +81,6 @@
   },
   "productName": "SenseCraft",
   "resolutions": {
-    "axios": "~0.24"
+    "axios": "~0.25"
   }
 }
