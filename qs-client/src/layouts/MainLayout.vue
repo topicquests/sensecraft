@@ -11,7 +11,7 @@
           @click="leftDrawer = !leftDrawer"
         />
         <q-toolbar-title>
-          <q-btn flat @click="goTo('home')">
+          <q-btn flat @click="goTo('home')" id="home">
             <q-img
               src="../statics/sensecraft_icon.png"
               style="width: 60px"
@@ -92,7 +92,12 @@
               <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple :to="{ name: 'quest_list' }">
+          <q-item
+            clickable
+            v-ripple
+            :to="{ name: 'quest_list' }"
+            id="questView"
+          >
             <q-item-section>
               <q-item-label>
                 <q-btn :to="{ name: 'quest_list' }">All Quests </q-btn>

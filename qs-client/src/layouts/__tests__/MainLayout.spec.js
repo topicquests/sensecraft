@@ -13,6 +13,8 @@ import {
   QScrollArea,
   QList,
   QItem,
+  QItemLabel,
+  QItemSection,
   QPageContainer,
   QFooter,
 } from "quasar"; // <= cherry pick only the components you actually use
@@ -41,7 +43,7 @@ function createWrapper(storeConfig) {
       },
       localVue,
       store: new Store(storeConfig),
-      stubs: ["router-link", "router-view"],
+      stubs: ["router-link", "router-view", "ripple"],
       RouterLink: RouterLinkStub,
     },
     quasar: {
@@ -56,6 +58,8 @@ function createWrapper(storeConfig) {
         QScrollArea,
         QList,
         QItem,
+        QItemLabel,
+        QItemSection,
         QPageContainer,
         QFooter,
         QIcon,
