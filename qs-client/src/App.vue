@@ -10,7 +10,7 @@ import getStore from "./store";
 import router from "./router";
 import type { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
-import axiosInstance from "./boot/axios";
+import { axiosInstance } from "./boot/axios";
 import { userLoadedResolve } from "./boot/userLoaded";
 
 const store = getStore(axiosInstance);

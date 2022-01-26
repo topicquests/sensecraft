@@ -8,7 +8,7 @@ LoadingBar.setDefaults({
   position: "top",
 });
 
-const axiosInstance = axios.create({ baseURL: server_url });
+export const axiosInstance = axios.create({ baseURL: server_url });
 
 //axiosInstance.defaults.withCredentials = true;
 axiosInstance.interceptors.request.use(
@@ -35,5 +35,3 @@ axiosInstance.interceptors.response.use(
 );
 
 // Vue.prototype.$axiosInstance = axiosInstance;
-
-export default axiosInstance;
