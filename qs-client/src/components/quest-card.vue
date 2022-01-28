@@ -25,6 +25,12 @@
         <p class="q-pt-sm q-ml-md quest-card-data">
           Start Date: {{ currentQuestCard.start }}
         </p>
+        <p class="q-pt-sm q-ml-md quest-card-data">
+          Players: {{ currentQuestCard.casting.length }}
+        </p>
+        <p class="q-pt-sm q-ml-md quest-card-data">
+          Guilds: {{ currentQuestCard.game_play.length }}
+        </p>
       </section>
     </q-card>
   </div>
