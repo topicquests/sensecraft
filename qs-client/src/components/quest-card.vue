@@ -1,36 +1,62 @@
 <template>
   <div>
-    <q-card v-if="currentQuestCard" class="quest_card">
-      <section id="quest-card-title">
+    <q-card v-if="currentQuestCard" id="quest_card" style="width: 80%">
+      <section class="quest-card-title">
         <q-avatar size="56px" class="q-ma-sm">
           <img :src="ibis_node_icon('quest', true)" />
         </q-avatar>
+        <q-tooltip
+          self="bottom middle"
+          max-width="25rem"
+          style="background-color: white"
+        >
+          <div
+            class="col-4 q-mb-xl"
+            v-html="currentQuestCard.description"
+          ></div>
+        </q-tooltip>
         <h5 class="q-ma-md">
           {{ currentQuestCard.name }}
         </h5>
       </section>
-      <section id="quest-card-details">
-        <div v-html="currentQuestCard.description" class="q-mb-xl"></div>
-      </section>
-      <section class="quest-card-data">
-        <p
-          class="q-ml-md q-pb-none q-mb-sm q-pt-xl quest-card-data"
-          v-if="creator"
-        >
-          Quest Creator: {{ creator.handle }}
-        </p>
-        <p class="q-pt-none q-ml-md q-mb-sm quest-card-data">
-          Quest Handle: {{ currentQuestCard.handle }}
-        </p>
-        <p class="q-pt-sm q-ml-md quest-card-data">
-          Start Date: {{ currentQuestCard.start }}
-        </p>
-        <p class="q-pt-sm q-ml-md quest-card-data">
-          Players: {{ currentQuestCard.casting.length }}
-        </p>
-        <p class="q-pt-sm q-ml-md quest-card-data">
-          Guilds: {{ currentQuestCard.game_play.length }}
-        </p>
+      <section>
+        <div class="row">
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Players: {{ currentQuestCard.casting.length }}
+            </p>
+          </div>
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Start Date: {{ getStartDate }}
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Guilds: {{ currentQuestCard.game_play.length }}
+            </p>
+          </div>
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              End Date: {{ getEndDate }}
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Moves: {{ currentQuestCard.casting.length }}
+            </p>
+          </div>
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Last Activity: {{ getStartDate }}
+            </p>
+          </div>
+        </div>
+        <section class="quest-card-data"></section>
       </section>
     </q-card>
   </div>
@@ -52,6 +78,22 @@ const QuestCardProps = Vue.extend({
 
 @Component<QuestCard>({
   name: "questCard",
+  computed: {
+    getStartDate() {
+      if (this.currentQuestCard.start) {
+        let date = new Date(this.currentQuestCard.start);
+        let startDate = new Intl.DateTimeFormat("en-US").format(date);
+        return startDate;
+      }
+    },
+    getEndDate() {
+      if (this.currentQuestCard.end) {
+        let date = new Date(this.currentQuestCard.end);
+        let endDate = new Intl.DateTimeFormat("en-US").format(date);
+        return endDate;
+      }
+    },
+  },
   methods: {
     ibis_node_icon,
   },
@@ -59,28 +101,23 @@ const QuestCardProps = Vue.extend({
 export default class QuestCard extends QuestCardProps {}
 </script>
 <style>
-.quest_card {
+#quest_card {
   text-align: center;
-  border: 2px solid black;
   font-size: 1em;
-  color: darkgreen;
-  background-color: aquamarine;
+}
+#quest-card-title {
+  border: black;
 }
 #quest-card-details {
-  background-color: aquamarine;
   text-align: left;
   font-size: 1.2em;
   padding-top: 3%;
   padding-left: 1%;
-  border: 1px solid gray;
 }
-#quest-card-title {
-  border: 1px solid gray;
-  background-color: lightgray;
-}
+
 .quest-card-data {
   text-align: left;
   font-size: 1em;
-  background-color: aquamarine;
+  background-color: white;
 }
 </style>
