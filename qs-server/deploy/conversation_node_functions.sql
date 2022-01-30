@@ -272,6 +272,7 @@ BEGIN
       PERFORM check_node_type_rules(row.node_type, NEW.node_type);
     END LOOP;
   END IF;
+  NEW.updated_at := now();
   RETURN NEW;
 END$$;
 

@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS public.conversation_node (
     node_type public.ibis_node_type NOT NULL,
     status public.publication_state DEFAULT 'private_draft'::public.publication_state NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     published_at timestamp with time zone,
     title varchar(255) NOT NULL,
     description text,
