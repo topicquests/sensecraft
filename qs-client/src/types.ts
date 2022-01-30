@@ -92,6 +92,7 @@ export interface ConversationNode {
   status: publication_state_type;
   created_at: string;
   published_at: string;
+  updated_at: string;
   title: string;
   description: string;
   url: string;
