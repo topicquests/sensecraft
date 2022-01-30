@@ -25,13 +25,16 @@ export function ibis_child_types(
     case ibis_node_type_enum.question:
       return [
         ibis_node_type_enum.answer,
+        ibis_node_type_enum.con_answer,
         ibis_node_type_enum.question,
         ibis_node_type_enum.reference,
       ];
     case ibis_node_type_enum.answer:
+    case ibis_node_type_enum.con_answer:
       return [
         ibis_node_type_enum.question,
         ibis_node_type_enum.answer,
+        ibis_node_type_enum.con_answer,
         ibis_node_type_enum.con,
         ibis_node_type_enum.pro,
         ibis_node_type_enum.reference,
@@ -93,6 +96,8 @@ export function ibis_node_icon(
         return "icons/ibis/issue_sm.png";
       case ibis_node_type_enum.answer:
         return "icons/ibis/position_sm.png";
+      case ibis_node_type_enum.con_answer:
+        return "icons/ibis/con_position_sm.png";
       case ibis_node_type_enum.pro:
         return "icons/ibis/plus_sm.png";
       case ibis_node_type_enum.con:
@@ -108,6 +113,8 @@ export function ibis_node_icon(
         return "icons/ibis/issue.png";
       case ibis_node_type_enum.answer:
         return "icons/ibis/position.png";
+      case ibis_node_type_enum.con_answer:
+        return "icons/ibis/con_position.png";
       case ibis_node_type_enum.pro:
         return "icons/ibis/plus.png";
       case ibis_node_type_enum.con:

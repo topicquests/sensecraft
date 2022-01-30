@@ -61,6 +61,7 @@ export const quest_status_list: quest_status_type[] = Object.keys(
 export enum ibis_node_type_enum {
   question = "question",
   answer = "answer",
+  con_answer = "con_answer",
   pro = "pro",
   con = "con",
   reference = "reference",
