@@ -38,6 +38,7 @@ module.exports = {
   plugins: [
     "vue",
     "jest",
+    "cucumber",
     // https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-file
     // 'plugin:vue/essential',
     // '@vue/typescript',
