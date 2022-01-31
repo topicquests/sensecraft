@@ -1,25 +1,23 @@
 <template>
   <div>
-    <q-card v-if="currentQuestCard" id="quest_card" style="width: 80%">
-      <section class="quest-card-title">
-        <q-avatar size="56px" class="q-ma-sm">
-          <img :src="ibis_node_icon('quest', true)" />
+    <q-card v-if="currentQuestCard" class="quest_card" style="width: 80%">
+      <q-card-section class="q-pb-none">
+        <q-avatar size="45px" class="q-ma-sm">
+          <img :src="ibis_node_icon('quest')" />
         </q-avatar>
-        <q-tooltip
-          self="bottom middle"
-          max-width="25rem"
-          style="background-color: white"
-        >
-          <div
-            class="col-4 q-mb-xl"
-            v-html="currentQuestCard.description"
-          ></div>
-        </q-tooltip>
-        <h5 class="q-ma-md">
-          {{ currentQuestCard.name }}
-        </h5>
-      </section>
-      <section>
+        <div class="row justify-center">
+          <h5 class="q-mt-md">
+            {{ currentQuestCard.name }}
+          </h5>
+          <q-btn class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" />
+
+          <q-tooltip self="bottom middle" max-width="25rem">
+            <div v-html="currentQuestCard.description"></div>
+          </q-tooltip>
+        </div>
+      </q-card-section>
+      <q-separator color="black"></q-separator>
+      <q-card-section>
         <div class="row">
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
@@ -47,17 +45,17 @@
         <div class="row">
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Moves: {{ currentQuestCard.casting.length }}
+              Moves: {{ getNeighbourhood.length - 1 }}
             </p>
           </div>
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Last Activity: {{ getStartDate }}
+              Last Activity:
             </p>
           </div>
         </div>
         <section class="quest-card-data"></section>
-      </section>
+      </q-card-section>
     </q-card>
   </div>
 </template>
@@ -66,6 +64,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Quest, Member } from "../types";
+import { mapGetters } from "vuex";
 import { Prop } from "vue/types/options";
 import { ibis_node_icon } from "../store/conversation";
 
@@ -79,6 +78,7 @@ const QuestCardProps = Vue.extend({
 @Component<QuestCard>({
   name: "questCard",
   computed: {
+    ...mapGetters("conversation", ["getNeighbourhood"]),
     getStartDate() {
       if (this.currentQuestCard.start) {
         let date = new Date(this.currentQuestCard.start);
@@ -101,9 +101,10 @@ const QuestCardProps = Vue.extend({
 export default class QuestCard extends QuestCardProps {}
 </script>
 <style>
-#quest_card {
+.quest_card {
   text-align: center;
   font-size: 1em;
+  background-color: ivory;
 }
 #quest-card-title {
   border: black;
@@ -118,6 +119,6 @@ export default class QuestCard extends QuestCardProps {}
 .quest-card-data {
   text-align: left;
   font-size: 1em;
-  background-color: white;
+  background-color: ivory;
 }
 </style>

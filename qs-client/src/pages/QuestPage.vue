@@ -18,14 +18,14 @@
       </div>
     </div>
     <div class="row justify-center">
-      <div class="col-4 q-pa-lg">
+      <div class="col-5 q-pa-lg">
         <questCard
           v-bind:currentQuestCard="getCurrentQuest"
           :creator="getQuestCreator()"
         >
         </questCard>
       </div>
-      <div class="col-4 q-pa-lg">
+      <div class="col-5 q-pa-lg">
         <node-form v-bind:nodeInput="selectedNode()" />
       </div>
     </div>
