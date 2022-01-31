@@ -5,12 +5,20 @@ const {
 const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
 //const { devNull } = require('os');
 
+function num_nodes_in_json(json) {
+  let i = 1;
+  for (const j of (json.children || [])) { 
+    i += num_nodes_in_json(j);
+  }
+  return i;
+}
+
 
 describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
-      q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId, nodeIds = {};
+      q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId, tree_info, nodeIds = {};
 
     async function my_add_node(node, qId=publicQuestId) {
       return await add_nodes([node], qId, memberTokens, nodeIds);
@@ -443,6 +451,22 @@ describe('\'conversation_node\' service', () => {
       it('role member can see that meta-node', async() => {
         const node_model = await axiosUtil.get('conversation_node', { id: nodeIds.q8992 }, leaderToken);
         assert.equal(node_model.length, 1);
+      });
+      it('can retrieve conversation tree', async () => {
+        const result = await axiosUtil.call('nodes2json', { node_id: nodeIds.q1 }, adminToken, true);
+        // console.log(result);
+        assert.equal(num_nodes_in_json(result), 2);
+        tree_info = await axiosUtil.call('nodes2json', { node_id: nodeIds.q1, include_level: 'private_draft', include_meta: true }, adminToken, true);
+        console.log(JSON.stringify(tree_info));
+        assert.notEqual(num_nodes_in_json(tree_info), num_nodes_in_json(result));
+      });
+      it('can reconstruct the conversation tree', async () => {
+        await axiosUtil.delete('conversation_node', { quest_id: publicQuestId }, adminToken);
+        await axiosUtil.call('populate_nodes', { data: tree_info }, adminToken);
+        const root = await axiosUtil.get('conversation_node', { parent_id: 'is.null', quest_id: publicQuestId }, adminToken);
+        const result = await axiosUtil.call('nodes2json', { node_id: root[0].id, include_level: 'private_draft', include_meta: true }, adminToken, true);
+        assert.equal(num_nodes_in_json(tree_info), num_nodes_in_json(result));
+        assert.deepEqual(tree_info, result);
       });
     });
   });

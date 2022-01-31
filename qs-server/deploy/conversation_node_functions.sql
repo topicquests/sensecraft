@@ -47,18 +47,156 @@ CREATE OR REPLACE FUNCTION playing_in_guild(quest_id integer) RETURNS integer ST
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION nodes2json(node_id integer, include_level public.publication_state DEFAULT 'published', include_meta BOOLEAN DEFAULT false) RETURNS JSONB LANGUAGE plpgsql STABLE AS $$
+DECLARE
+  node conversation_node;
+  quest_handle varchar;
+  guild_handle varchar;
+  creator_handle varchar;
+  role_name varchar;
+  result JSONB;
+  children_json JSONB[];
+BEGIN
+  SELECT * INTO STRICT node
+    FROM conversation_node
+    WHERE conversation_node.id = node_id;
+  IF node.meta != 'conversation' AND NOT include_meta THEN
+    RETURN 'null'::jsonb;
+  END IF;
+  IF node.status < include_level THEN
+    RETURN 'null'::jsonb;
+  END IF;
+  SELECT quests.handle, guilds.handle, members.handle INTO quest_handle, guild_handle, creator_handle
+    FROM conversation_node
+    LEFT OUTER JOIN quests ON quests.id = conversation_node.quest_id
+    LEFT OUTER JOIN guilds ON guilds.id = conversation_node.guild_id
+    LEFT OUTER JOIN members ON members.id = conversation_node.creator_id
+    WHERE conversation_node.id = node_id;
+  SELECT array_agg(nodes2json(n.id, include_level, include_meta)) INTO children_json
+    FROM conversation_node n
+    WHERE n.parent_id = node_id AND n.status >= include_level AND (n.meta = 'conversation' OR include_meta)
+    GROUP BY n.id ORDER BY n.id;
+
+  result := jsonb_build_object(
+    'node_type', node.node_type::varchar,
+    'meta', node.meta::varchar,
+    'status', node.status::varchar,
+    'title', node.title
+  );
+  IF array_length(children_json, 1) > 0 THEN
+    result := jsonb_set(result, ARRAY['children'], to_jsonb(children_json));
+  END IF;
+  IF quest_handle IS NOT NULL THEN
+    result := jsonb_set(result, ARRAY['quest'], to_jsonb(quest_handle));
+  END IF;
+  IF guild_handle IS NOT NULL THEN
+    result := jsonb_set(result, ARRAY['guild'], to_jsonb(guild_handle));
+  END IF;
+  IF creator_handle IS NOT NULL THEN
+    result := jsonb_set(result, ARRAY['creator'], to_jsonb(creator_handle));
+  END IF;
+  IF node.description IS NOT NULL THEN
+    result := jsonb_set(result, ARRAY['description'], to_jsonb(node.description));
+  END IF;
+  IF node.url IS NOT NULL THEN
+    result := jsonb_set(result, ARRAY['url'], to_jsonb(node.url));
+  END IF;
+  IF node.draft_for_role_id IS NOT NULL THEN
+    SELECT r.name, g.handle INTO STRICT role_name, guild_handle
+    FROM public.role r LEFT OUTER JOIN public.guilds g ON g.id = r.guild_id
+     WHERE r.id = node.draft_for_role_id;
+    IF guild_handle IS NULL THEN
+      result := jsonb_set(result, ARRAY['draft_for_role'], to_jsonb(role_name));
+    ELSE
+      result := jsonb_set(result, ARRAY['draft_for_role'], jsonb_build_object('name', role_name, 'guild', guild_handle));
+    END IF;
+  END IF;
+  RETURN result;
+END$$;
+
+CREATE OR REPLACE FUNCTION populate_nodes(data JSONB, parent_id integer DEFAULT NULL) RETURNS JSONB LANGUAGE plpgsql AS $$
+DECLARE
+  quest_id INTEGER = NULL;
+  guild_id INTEGER = NULL;
+  description text = NULL;
+  url varchar[255] = NULL;
+  creator_id INTEGER;
+  node_id INTEGER;
+  draft_for_role_id INTEGER = NULL;
+  curuser varchar;
+  id_map JSONB = '{}'::jsonb;
+  child JSONB;
+BEGIN
+  curuser := current_user;
+  IF data->>'creator' IS NULL THEN
+    RAISE EXCEPTION 'creator is required';
+  END IF;
+  SELECT id INTO creator_id STRICT
+    FROM members
+    WHERE members.handle = (data->>'creator')::varchar;
+  IF creator_id != current_member_id() THEN
+    IF NOT has_permission('superadmin') THEN
+      RAISE EXCEPTION 'only superadmin can create nodes on behalf of someone else';
+    END IF;
+    EXECUTE 'SET ROLE ' || current_database() || '__m_' || creator_id::text;
+  END IF;
+  IF data->>'quest' IS NOT NULL THEN
+    SELECT id INTO quest_id STRICT
+      FROM quests
+      WHERE quests.handle = (data->>'quest')::varchar;
+  END IF;
+  IF data->>'guild' IS NOT NULL THEN
+    SELECT id INTO guild_id STRICT
+      FROM guilds
+      WHERE guilds.handle = (data->>'guild')::varchar;
+  END IF;
+  IF data->'description' IS NOT NULL THEN
+    description := (data->>'description')::text;
+  END IF;
+  IF data->'url' IS NOT NULL THEN
+    url := (data->>'url')::VARCHAR;
+  END IF;
+  IF data->'draft_for_role' IS NOT NULL THEN
+    IF data->'draft_for_role'->'name' IS NOT NULL THEN
+      SELECT r.id INTO draft_for_role_id STRICT FROM public.role r JOIN public.guilds g ON g.id = r.guild_id WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND g.handle = (data->>'draft_for_role'->'guild')::varchar;
+    ELSE
+      SELECT r.id INTO draft_for_role_id STRICT FROM public.role r WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND r.guild_id IS NULL;
+    END IF;
+  END IF;
+  INSERT INTO conversation_node ("quest_id", "guild_id", "node_type", "meta", "status", "title", "description", "url", "parent_id", "draft_for_role_id")
+    VALUES (quest_id, guild_id,
+      (data->>'node_type')::public.ibis_node_type,
+      (data->>'meta')::public.meta_state,
+      'private_draft'::public.publication_state,
+      (data->>'title')::varchar, description, url, parent_id, draft_for_role_id)
+    RETURNING id INTO node_id;
+  IF data->'lid' IS NOT NULL THEN
+    id_map = jsonb_set(id_map, data->>'lid', to_jsonb(node_id));
+  END IF;
+  EXECUTE 'SET ROLE ' || curuser;
+  UPDATE conversation_node SET "status" = (data->>'status')::public.publication_state WHERE id = node_id;
+  IF data->'children' IS NOT NULL THEN
+    FOR child IN SELECT value FROM jsonb_array_elements(data->'children') LOOP
+      SELECT populate_nodes(child, node_id) INTO child;
+      id_map := id_map || child;
+    END LOOP;
+  END IF;
+  RETURN id_map;
+END$$;
+
+
 CREATE OR REPLACE FUNCTION public.check_node_status_rules(status public.publication_state, parent_status public.publication_state, guild_id integer, quest_id integer) RETURNS public.publication_state
   LANGUAGE plpgsql STABLE
   AS $$
 BEGIN
   CASE WHEN status = 'submitted' THEN
-    IF NOT is_guild_id_leader(guild_id) THEN
+    IF NOT (is_guild_id_leader(guild_id) OR has_permission('superadmin'))  THEN
       RAISE EXCEPTION 'Only guild leaders can submit nodes';
     END IF;
     -- TODO: The following should not happen if the quest is turn-based
     status := 'published';
   WHEN status = 'published' THEN
-    IF NOT is_quest_id_member(quest_id) THEN
+    IF NOT (is_quest_id_member(quest_id) OR has_permission('superadmin')) THEN
       RAISE EXCEPTION 'Only quest members can publish nodes';
     END IF;
   ELSE
@@ -150,7 +288,7 @@ BEGIN
       RAISE EXCEPTION 'Role must be a guild role';
     END IF;
   END IF;
-  IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' THEN
+  IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' AND NOT has_permission('superadmin') THEN
     RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
   END IF;
   IF NEW.status = 'published' THEN
@@ -219,10 +357,12 @@ BEGIN
         NEW.meta = parent_meta;
       END IF;
     ELSE
-      IF NEW.meta = 'meta'::meta_state AND OLD.meta = 'conversation'::meta_state THEN
-        -- allowed if no conversation child
-        IF (SELECT count(id) FROM conversation_node WHERE parent_id = NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
-          RAISE EXCEPTION 'Cannot change conversation to meta if conversation child exists';
+      IF NEW.meta = 'meta'::meta_state THEN
+        IF OLD.meta = 'conversation'::meta_state THEN
+          -- allowed if no conversation child
+          IF (SELECT count(id) FROM conversation_node WHERE parent_id = NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
+            RAISE EXCEPTION 'Cannot change conversation to meta if conversation child exists';
+          END IF;
         END IF;
       ELSE
         NEW.meta = parent_meta;

@@ -22,6 +22,8 @@ DROP FUNCTION IF EXISTS public.check_node_status_rules(status public.publication
 DROP FUNCTION IF EXISTS public.update_node_ancestry(node_id integer, _ancestry ltree);
 DROP FUNCTION IF EXISTS public.node_subtree(node_id integer);
 DROP FUNCTION IF EXISTS public.node_neighbourhood(node_id integer, guild integer);
+DROP FUNCTION IF EXISTS public.nodes2json(node_id integer, include_level public.publication_state, include_meta BOOLEAN);
+DROP FUNCTION IF EXISTS public.populate_nodes(data JSONB, parent_id integer);
 
 
 DROP POLICY IF EXISTS conversation_node_delete_policy ON public.conversation_node;

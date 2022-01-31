@@ -8,6 +8,8 @@ function enhanceError(err) {
 }
 
 
+const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
+
 class AxiosUtil {
   constructor(baseURL) {
     this.axios = axios.create({ baseURL });
@@ -21,7 +23,7 @@ class AxiosUtil {
 
   as_params(id) {
     return Object.fromEntries(
-      Object.entries(id).map(([key, value]) => [key, `eq.${value}`]));
+      Object.entries(id).map(([key, value]) => [key, (postgrest_operators[String(value).split('.')[0]])?value:`eq.${value}`]));
   }
 
   async get(path, id, token) {
