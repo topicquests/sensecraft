@@ -71,8 +71,7 @@ CREATE TYPE public.ibis_node_type AS ENUM (
   'pro',
   'con',
   'reference',
-  'channel',
-  'con_answer'
+  'channel'
 );
 
 CREATE TYPE public.publication_state AS ENUM (
