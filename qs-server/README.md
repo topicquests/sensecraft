@@ -44,6 +44,11 @@ As above, needed to run once only.
 `./scripts/db_updater.py deploy`
 
 This creates, then migrates the database.
+
+Those three steps will also be run using
+
+`npm run init`
+
 It should be done whenever a file is added or updated in the `qs-server/deploy` folder.
 (Do both of those with `-d production` before the verb to init/deploy the production database.)
 
@@ -57,6 +62,9 @@ In `qs-server`:
 ```
 postgrest postgrest_development.conf
 ```
+
+or equivalently
+`npm run dev`
 
 In `qs-client` (in another terminal):
 ```

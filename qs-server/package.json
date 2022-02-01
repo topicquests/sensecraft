@@ -24,6 +24,8 @@
     "npm": "~7"
   },
   "scripts": {
+    "init": "./scripts/initial_setup.py && ./scripts/db_updater.py init && ./scripts/db_updater.py deploy",
+    "dev": "postgrest postgrest_development.conf",
     "test": "npm run lint && npm run mocha -- -r test/global.cjs",
     "lint": "eslint test/. --config .eslintrc.json --fix",
     "mocha": "mocha test/ --recursive --exit"
