@@ -23,6 +23,9 @@ export enum ThreatStatus {
   "neutral" = "neutral",
   "threat" = "threat",
   "threatened" = "threatened",
+  "support" = "support",
+  "unsupported" = "unsupported",
+  "unanswered" = "unanswered",
 }
 
 export type ThreatMap = { [key: node_local_id]: ThreatStatus };
@@ -36,6 +39,15 @@ export function ensure_id(node: Node, counter: number = 0): number {
   return counter;
 }
 
+// logic: references support arguments (unless actively threatened.)
+// arguments are either supported or not. supported, non-threatened arguments are either
+//   threatening or supporting.
+// A solution is similarly threatened, threatening, unsupported... or supporting? (neutral? nah.)
+// A question is usually neutral, unless all (supported) solutions are actively threatening.
+//   then it's threatening as well. We could speak of unanswered questions...
+//   But it's functionally equivalent to unsupported. Still worth a name.
+// So neutral really only applies to answered questions.
+
 export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
   let status = ThreatStatus.neutral;
   let threats = 0;
@@ -46,24 +58,40 @@ export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
       case ThreatStatus.threat:
         threats++;
         break;
-      case ThreatStatus.neutral:
+      case ThreatStatus.support:
         supports++;
         break;
       case ThreatStatus.threatened:
+      case ThreatStatus.unsupported:
     }
   }
-  if (threats > 0 && !(node.type == ibis_node_type_enum.question)) {
-    status = ThreatStatus.threatened;
-  } else {
-    switch (node.type) {
-      case ibis_node_type_enum.con:
-      case ibis_node_type_enum.con_answer:
+  if (node.type == ibis_node_type_enum.question) {
+    if (supports == 0) {
+      if (threats > 0) {
         status = ThreatStatus.threat;
-        break;
-      case ibis_node_type_enum.question:
-        if (threats > 0 && supports == 0) {
+      } else {
+        status = ThreatStatus.unanswered;
+      }
+    } else {
+      status = ThreatStatus.neutral;
+    }
+  } else {
+    if (threats > 0) {
+      status = ThreatStatus.threatened;
+    } else if (supports == 0 && node.type != ibis_node_type_enum.reference) {
+      status = ThreatStatus.unsupported;
+    } else {
+      switch (node.type) {
+        case ibis_node_type_enum.con:
+        case ibis_node_type_enum.con_answer:
           status = ThreatStatus.threat;
-        }
+          break;
+        case ibis_node_type_enum.reference:
+        case ibis_node_type_enum.answer:
+        case ibis_node_type_enum.pro:
+          status = ThreatStatus.support;
+          break;
+      }
     }
   }
   map[node.id] = status;
