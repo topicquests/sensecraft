@@ -38,6 +38,44 @@ Feature: Threat model
     And  The threat status of con1 should be threat
     And  The threat status of ref1 should be support
 
+  Scenario: You can support an answer directly
+    Given A conversation with an answer supported by a reference
+      """
+      type: question
+      id: q1
+      children:
+        - type: answer
+          id: a1
+          children:
+            - type: reference
+              id: ref1
+      """
+    When We identify threats
+    Then The threat status of q1 should be neutral
+    And  The threat status of a1 should be support
+    And  The threat status of ref1 should be support
+
+  Scenario: You can support an answer indirectly
+    Given A conversation with an answer supported by a reference
+      """
+      type: question
+      id: q1
+      children:
+        - type: answer
+          id: a1
+          children:
+            - type: pro
+              id: pro1
+              children:
+                - type: reference
+                  id: ref1
+      """
+    When We identify threats
+    Then The threat status of q1 should be neutral
+    And  The threat status of a1 should be support
+    And  The threat status of pro1 should be support
+    And  The threat status of ref1 should be support
+
   Scenario: Con neutralized by a con
     Given A conversation with a con neutralized by a con
       """
