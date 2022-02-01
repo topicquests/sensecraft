@@ -87,6 +87,12 @@
               <q-btn to="/">Home</q-btn>
             </q-item-section>
           </q-item>
+          <q-item clickable v-ripple :to="{ name: 'house_rules' }">
+            <q-item-section>
+              <q-btn to="/house_rules">House Rules</q-btn>
+            </q-item-section>
+          </q-item>
+
           <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
             <q-item-section>
               <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
