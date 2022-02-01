@@ -5,13 +5,13 @@ Feature: Base scoring
       type: question
       children:
         - type: answer
-          lid: n2
+          id: n2
           guild: first
           children:
             - type: pro
               guild: second
         - type: answer
-          lid: n3
+          id: n3
           guild: second
           children:
             - type: con

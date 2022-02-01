@@ -4,11 +4,10 @@ import {
   meta_state_enum,
 } from "../enums";
 
-export type node_lid = string | number;
+export type node_local_id = string | number;
 
 export interface Node {
-  lid?: node_lid;
-  id?: number;
+  id?: node_local_id;
   title: string;
   description?: string;
   quest?: string;
@@ -21,18 +20,18 @@ export interface Node {
 }
 
 export enum ThreatStatus {
-  "neutral",
-  "threat",
-  "threatened",
+  "neutral" = "neutral",
+  "threat" = "threat",
+  "threatened" = "threatened",
 }
 
-export type ThreatMap = { [key: node_lid]: ThreatStatus };
-export type ScoreMap = { [key: node_lid]: number };
+export type ThreatMap = { [key: node_local_id]: ThreatStatus };
+export type ScoreMap = { [key: node_local_id]: number };
 
-export function ensure_lid(node: Node, counter: number = 0): number {
-  node.lid = node.lid || node.id || `_lid_${++counter}`;
+export function ensure_id(node: Node, counter: number = 0): number {
+  node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
-    counter = ensure_lid(child, counter);
+    counter = ensure_id(child, counter);
   }
   return counter;
 }
@@ -53,10 +52,7 @@ export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
       case ThreatStatus.threatened:
     }
   }
-  if (
-    threats > 0 &&
-    !(node.type == ibis_node_type_enum.question && supports > 0)
-  ) {
+  if (threats > 0 && !(node.type == ibis_node_type_enum.question)) {
     status = ThreatStatus.threatened;
   } else {
     switch (node.type) {
@@ -70,6 +66,6 @@ export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
         }
     }
   }
-  map[node.lid] = status;
+  map[node.id] = status;
   return status;
 }

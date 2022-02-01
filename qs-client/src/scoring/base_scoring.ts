@@ -4,13 +4,13 @@ import {
   ThreatMap,
   ThreatStatus,
   calc_threat_status,
-  node_lid,
+  node_local_id,
 } from ".";
 import { ibis_node_type_enum } from "../enums";
 
-type ValueForGuild = { [key: node_lid]: number };
-type ValuesForGuilds = { [key: node_lid]: ValueForGuild };
-type StringSet = { [key: node_lid]: boolean };
+type ValueForGuild = { [key: node_local_id]: number };
+type ValuesForGuilds = { [key: node_local_id]: ValueForGuild };
+type StringSet = { [key: node_local_id]: boolean };
 
 export function base_scoring(node: Node, threat_status?: ThreatMap): ScoreMap {
   if (!threat_status) {
@@ -48,7 +48,7 @@ function base_scoring_internal(
   }
   const num_threadts = 0;
   for (const child of node.children || []) {
-    if (threat_status[child.lid] == ThreatStatus.threat) {
+    if (threat_status[child.id] == ThreatStatus.threat) {
       factor *= 0.5;
     }
     values = {
@@ -56,18 +56,18 @@ function base_scoring_internal(
       ...base_scoring_internal(child, guilds, threat_status, scores),
     };
     for (const guild of Object.keys(guilds)) {
-      value_for[guild] += values[child.lid][guild] / 2;
+      value_for[guild] += values[child.id][guild] / 2;
     }
   }
-  if (node.guild && threat_status[node.lid] == ThreatStatus.threat) {
+  if (node.guild && threat_status[node.id] == ThreatStatus.threat) {
     value_for[node.guild] += 1.0;
   }
   for (const guild of Object.keys(guilds)) {
     value_for[guild] *= factor;
   }
-  values[node.lid] = value_for;
+  values[node.id] = value_for;
   if (node.guild) {
-    scores[node.lid] = value_for[node.guild];
+    scores[node.id] = value_for[node.guild];
   }
   return values;
 }

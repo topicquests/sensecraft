@@ -6,7 +6,8 @@ import {
   Node,
   ScoreMap,
   ThreatMap,
-  ensure_lid,
+  ensure_id,
+  ThreatStatus,
   calc_threat_status,
 } from "../../src/scoring";
 import { base_scoring } from "../../src/scoring/base_scoring";
@@ -24,17 +25,29 @@ export class BaseScoring {
     this.threats = {};
   }
 
+  @when(/We identify threats/)
+  public identify_threats() {
+    ensure_id(this.conversation);
+    calc_threat_status(this.conversation, this.threats);
+    // console.log(this.threats);
+  }
+
   @when(/We apply basic scoring/)
   public do_scoring() {
-    ensure_lid(this.conversation);
+    // this.identify_threats();
+    ensure_id(this.conversation);
     calc_threat_status(this.conversation, this.threats);
     this.scores = base_scoring(this.conversation, this.threats);
-    // console.log(this.threats);
     // console.log(this.scores);
   }
 
   @then(/The score of (.*) will be higher than the score of (.*)/)
   public higher_score(p1, p2) {
     assert.isAbove(this.scores[p1], this.scores[p2]);
+  }
+
+  @then(/The threat status of (.*) should be (\w*)/)
+  public threat_status(node_id: string, status: ThreatStatus) {
+    assert.equal(this.threats[node_id], status);
   }
 }
