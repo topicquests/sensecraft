@@ -12,6 +12,9 @@ Feature: Base scoring
             - type: pro
               id: p1
               guild: first
+              children:
+                - type: reference
+                  guild: first
         - type: answer
           id: a2
           guild: second
@@ -19,6 +22,9 @@ Feature: Base scoring
             - type: con
               id: c1
               guild: first
+              children:
+                - type: reference
+                  guild: first
       """
     When We apply basic scoring
     Then The score of q1 is 0
@@ -38,12 +44,18 @@ Feature: Base scoring
           children:
             - type: pro
               guild: second
+              children:
+                - type: reference
+                  guild: second
         - type: answer
           id: n3
           guild: second
           children:
             - type: con
               guild: first
+              children:
+                - type: reference
+                  guild: first
       """
     When We apply basic scoring
     Then The score of n2 will be higher than the score of n3
@@ -60,6 +72,9 @@ Feature: Base scoring
           children:
             - type: pro
               guild: second
+              children:
+                - type: reference
+                  guild: second
         - type: answer
           id: a2
           guild: first
@@ -71,6 +86,12 @@ Feature: Base scoring
                 - type: con_answer
                   id: con_qa2
                   guild: second
+                  children:
+                    - type: pro
+                      guild: second
+                      children:
+                        - type: reference
+                          guild: second
         - type: answer
           id: a3
           guild: first
@@ -78,6 +99,9 @@ Feature: Base scoring
             - type: con
               id: con_a3
               guild: second
+              children:
+                - type: reference
+                  guild: second
       """
     When We apply basic scoring
     Then The score of qa2 will be at least the score of con_a3
