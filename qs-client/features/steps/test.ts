@@ -25,16 +25,16 @@ export class BaseScoring {
     this.threats = {};
   }
 
-  @when(/We identify threats/)
-  public identify_threats() {
+  @when(/We identify threats( with references optional)?/)
+  public identify_threats(no_req_references) {
     ensure_id(this.conversation);
-    calc_threat_status(this.conversation, this.threats);
+    calc_threat_status(this.conversation, this.threats, !!no_req_references);
     // console.log(this.threats);
   }
 
-  @when(/We apply basic scoring/)
-  public do_scoring() {
-    this.identify_threats();
+  @when(/We apply basic scoring( with references optional)?/)
+  public do_scoring(no_req_references) {
+    this.identify_threats(no_req_references);
     this.scores = base_scoring(this.conversation, this.threats);
     // console.log(this.scores);
   }

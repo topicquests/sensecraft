@@ -48,12 +48,16 @@ export function ensure_id(node: Node, counter: number = 0): number {
 //   But it's functionally equivalent to unsupported. Still worth a name.
 // So neutral really only applies to answered questions.
 
-export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
+export function calc_threat_status(
+  node: Node,
+  map: ThreatMap,
+  no_req_reference?: boolean
+): ThreatStatus {
   let status = ThreatStatus.neutral;
   let threats = 0;
   let supports = 0;
   for (const child of node.children || []) {
-    const child_status = calc_threat_status(child, map);
+    const child_status = calc_threat_status(child, map, no_req_reference);
     switch (child_status) {
       case ThreatStatus.threat:
         threats++;
@@ -78,7 +82,11 @@ export function calc_threat_status(node: Node, map: ThreatMap): ThreatStatus {
   } else {
     if (threats > 0) {
       status = ThreatStatus.threatened;
-    } else if (supports == 0 && node.type != ibis_node_type_enum.reference) {
+    } else if (
+      supports == 0 &&
+      node.type != ibis_node_type_enum.reference &&
+      !no_req_reference
+    ) {
       status = ThreatStatus.unsupported;
     } else {
       switch (node.type) {
