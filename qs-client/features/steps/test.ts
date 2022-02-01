@@ -18,7 +18,7 @@ export class BaseScoring {
   scores: ScoreMap;
   threats: ThreatMap;
 
-  @given(/A conversation .*/)
+  @given(/A conversation/)
   public init_conversation(text) {
     this.conversation = YAML.parse(text);
     this.scores = null;
@@ -41,9 +41,19 @@ export class BaseScoring {
     // console.log(this.scores);
   }
 
-  @then(/The score of (.*) will be higher than the score of (.*)/)
-  public higher_score(p1, p2) {
-    assert.isAbove(this.scores[p1], this.scores[p2]);
+  @then(/The score of (\w+) is ([0-9\.]+)/)
+  public score_value(node_id, value) {
+    assert.equal(this.scores[node_id], Number(value));
+  }
+
+  @then(/The score of (\w+) is more than ([0-9\.]+)/)
+  public score_value_at_least(node_id, value) {
+    assert.isAbove(this.scores[node_id], Number(value));
+  }
+
+  @then(/The score of (\w+) will be higher than the score of (\w+)/)
+  public higher_score(node1, node2) {
+    assert.isAbove(this.scores[node1], this.scores[node2]);
   }
 
   @then(/The threat status of (.*) should be (\w*)/)

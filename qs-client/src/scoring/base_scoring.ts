@@ -68,6 +68,8 @@ function base_scoring_internal(
   values[node.id] = value_for;
   if (node.guild) {
     scores[node.id] = value_for[node.guild];
+  } else {
+    scores[node.id] = 0;
   }
   return values;
 }
