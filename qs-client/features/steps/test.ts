@@ -11,6 +11,7 @@ import {
   calc_threat_status,
 } from "../../src/scoring";
 import { base_scoring } from "../../src/scoring/base_scoring";
+import { bucket_scoring } from "../../src/scoring/bucket_scoring";
 
 @binding()
 export class BaseScoring {
@@ -32,10 +33,20 @@ export class BaseScoring {
     // console.log(this.threats);
   }
 
-  @when(/We apply basic scoring( with references optional)?/)
-  public do_scoring(no_req_references) {
+  @when(/We apply (\w+) scoring( with references optional)?/)
+  public do_scoring(score_type, no_req_references) {
     this.identify_threats(no_req_references);
-    this.scores = base_scoring(this.conversation, this.threats);
+    switch (score_type) {
+      case "base":
+      case "basic":
+        this.scores = base_scoring(this.conversation, this.threats);
+        break;
+      case "bucket":
+        this.scores = bucket_scoring(this.conversation, this.threats);
+        break;
+      default:
+        throw new Error("Unknown score type: " + score_type);
+    }
     // console.log(this.scores);
   }
 

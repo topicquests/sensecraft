@@ -1,5 +1,5 @@
 Feature: Base scoring
-  Scenario: No score without subsequent moves
+  Scenario: No score without subsequent moves in bucket scoring
     Given A conversation
       """
       type: question
@@ -12,6 +12,9 @@ Feature: Base scoring
             - type: pro
               id: p1
               guild: first
+              children:
+                - type: reference
+                  guild: first
         - type: answer
           id: a2
           guild: second
@@ -19,8 +22,11 @@ Feature: Base scoring
             - type: con
               id: c1
               guild: first
+              children:
+                - type: reference
+                  guild: first
       """
-    When We apply basic scoring with references optional
+    When We apply bucket scoring with references optional
     Then The score of q1 is 0
     And  The score of a1 is 0
     And  The score of p1 is 0
