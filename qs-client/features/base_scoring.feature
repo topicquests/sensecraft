@@ -47,3 +47,38 @@ Feature: Base scoring
       """
     When We apply basic scoring
     Then The score of n2 will be higher than the score of n3
+
+  Scenario: A question should be worth at least as much as a counter-argument
+    Given A conversation with two options and a threat
+      """
+      type: question
+      id: q1
+      children:
+        - type: answer
+          id: a1
+          guild: first
+          children:
+            - type: pro
+              guild: second
+        - type: answer
+          id: a2
+          guild: first
+          children:
+            - type: question
+              id: qa2
+              guild: second
+              children:
+                - type: con_answer
+                  id: con_qa2
+                  guild: second
+        - type: answer
+          id: a3
+          guild: first
+          children:
+            - type: con
+              id: con_a3
+              guild: second
+      """
+    When We apply basic scoring
+    Then The score of qa2 will be at least the score of con_a3
+    And The score of a2 will be at least the score of a3

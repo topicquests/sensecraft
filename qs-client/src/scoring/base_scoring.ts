@@ -48,7 +48,10 @@ function base_scoring_internal(
   }
   const num_threadts = 0;
   for (const child of node.children || []) {
-    if (threat_status[child.id] == ThreatStatus.threat) {
+    if (
+      threat_status[child.id] == ThreatStatus.threat &&
+      node.type != ibis_node_type_enum.question
+    ) {
       factor *= 0.5;
     }
     values = {

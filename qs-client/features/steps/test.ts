@@ -34,9 +34,7 @@ export class BaseScoring {
 
   @when(/We apply basic scoring/)
   public do_scoring() {
-    // this.identify_threats();
-    ensure_id(this.conversation);
-    calc_threat_status(this.conversation, this.threats);
+    this.identify_threats();
     this.scores = base_scoring(this.conversation, this.threats);
     // console.log(this.scores);
   }
@@ -54,6 +52,11 @@ export class BaseScoring {
   @then(/The score of (\w+) will be higher than the score of (\w+)/)
   public higher_score(node1, node2) {
     assert.isAbove(this.scores[node1], this.scores[node2]);
+  }
+
+  @then(/The score of (\w+) will be at least the score of (\w+)/)
+  public higher_or_equal_score(node1, node2) {
+    assert.isAtLeast(this.scores[node1], this.scores[node2]);
   }
 
   @then(/The threat status of (.*) should be (\w*)/)
