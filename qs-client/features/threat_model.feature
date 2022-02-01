@@ -16,6 +16,27 @@ Feature: Threat model
     And  The threat status of a1 should be threatened
     And  The threat status of con1 should be threat
 
+  Scenario: Con neutralized by a con
+    Given A conversation with a con neutralized by a con
+      """
+      type: question
+      id: q1
+      children:
+        - type: answer
+          id: a1
+          children:
+            - type: con
+              id: con1
+              children:
+                - type: con
+                  id: con2
+      """
+    When We identify threats
+    Then The threat status of q1 should be neutral
+    And  The threat status of a1 should be neutral
+    And  The threat status of con1 should be threatened
+    And  The threat status of con2 should be threat
+
   Scenario: Question with con_answer
     Given A conversation with a con_answer
       """
@@ -30,7 +51,7 @@ Feature: Threat model
     And  The threat status of ca1 should be threat
 
   Scenario: Question with con_answer and alternative
-    Given A conversation with a con_answer
+    Given A conversation with a con_answer and an alternative
       """
       type: question
       id: q1
@@ -46,7 +67,7 @@ Feature: Threat model
     And  The threat status of a2 should be neutral
 
   Scenario: Question with con_answer and threatened alternative
-    Given A conversation with a con_answer
+    Given A conversation with a con_answer and a threatened alternative
       """
       type: question
       id: q1
@@ -66,7 +87,7 @@ Feature: Threat model
     And  The threat status of con2 should be threat
 
   Scenario: Answer threatened by a question
-    Given A conversation with a con_answer
+    Given A conversation with an answer threatened by a question
       """
       type: question
       id: q1
