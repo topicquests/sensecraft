@@ -113,26 +113,25 @@
         </p>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-12 col-md">
-        <p class="card-header">Team</p>
-      </div>
-      <div class="col-12 col-md">
-        <p class="card-header">Quest Move</p>
-      </div>
-      <div class="col-12 col-md">
-        <p class="card-header">Current Quest</p>
-      </div>
+    <div class="col-4 col-md">
+      <p class="card-header">Team</p>
     </div>
-    <div class="row q-pt-sm">
-      <div class="col-12 col-md q-mr-md">
-        <q-card>
-          <ul style="font-size: 20px; color: red; background: lightblue">
-            <li v-for="member in getGuildMembers()" :key="member.id">
+    <div class="column items-center q-mb-md">
+      <div class="col-6">
+        <q-card id="team-card">
+          <ul>
+            <li
+              v-for="member in getGuildMembers()"
+              :key="member.id"
+              class="q-ml-lg q-mr-md"
+              style="color: red"
+            >
               {{ member.handle }}
-              <span v-if="playingAsGuildId(member.id)" style="color: black">
-                <span v-if="playingAsGuildId(member.id) == currentGuildId">
+              <span v-if="playingAsGuildId(member.id)">
+                <span
+                  v-if="playingAsGuildId(member.id) == currentGuildId"
+                  style="color: black"
+                >
                   {{ getAllCastingRoleNames(member.id) }}
                 </span>
                 <span v-if="playingAsGuildId(member.id) != currentGuildId"
@@ -150,24 +149,31 @@
           </ul>
         </q-card>
       </div>
-      <div class="col-12 col-md q-mr-md q-mt-md">
-        <div v-if="getFocusNode" class="col-12 col-md">
-          <node-form v-bind:nodeInput="getFocusNode" />
-        </div>
+    </div>
+    <div class="row justify-center">
+      <div class="col-4 col-md">
+        <p class="card-header">Current Quest</p>
       </div>
-      <div class="col-12 col-md q-mt-md" v-if="getCurrentQuest">
-        <div>
-          <questCard
-            v-bind:currentQuestCard="getCurrentQuest"
-            style="width: 100%"
-            :creator="getQuestCreator()"
-            v-if="getCurrentQuest"
-          ></questCard>
+      <div class="col-4 col-md">
+        <p class="card-header">Quest Move</p>
+      </div>
+    </div>
+    <div class="row justify-center">
+      <div class="col-4 q-mt-md items-center" v-if="getCurrentQuest">
+        <questCard
+          v-bind:currentQuestCard="getCurrentQuest"
+          :creator="getQuestCreator()"
+          v-if="getCurrentQuest"
+        ></questCard>
+      </div>
+      <div class="col-4 q-ml-lg q-mt-md items-center" style="width: 30%">
+        <div v-if="getFocusNode">
+          <node-form v-bind:nodeInput="getFocusNode" />
         </div>
       </div>
     </div>
     <div class="column items-center" v-if="pastQuests.length > 0">
-      <div class="col-4" style="width: 900px">
+      <div class="col-4">
         <q-card>
           <q-table
             title="Past Quests"
@@ -754,6 +760,12 @@ export default class GuildPage extends Vue {
 </script>
 
 <style>
+#team-card {
+  font-size: 20px;
+  color: black;
+  border: grey;
+  background-color: floralwhite;
+}
 .handles {
   font-size: 20px;
   font-family: pragmatica-web, sans-serif;

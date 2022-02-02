@@ -5,28 +5,20 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="sidenav gt-sm">
-      <div class="q-pa-md q-gutter-sm">
-        <node-tree
-          v-bind:nodes="getConversationTree"
-          :channelId="null"
-          :editable="true"
-          :roles="[]"
-          :asQuest="true"
-          v-on:updateTree="selectionChanged"
-        />
-      </div>
-    </div>
+
     <div class="row justify-center">
       <div class="col-5 q-pa-lg">
-        <questCard
-          v-bind:currentQuestCard="getCurrentQuest"
-          :creator="getQuestCreator()"
-        >
-        </questCard>
+        <questCard v-bind:currentQuestCard="getCurrentQuest"> </questCard>
       </div>
-      <div class="col-5 q-pa-lg">
-        <node-form v-bind:nodeInput="selectedNode()" />
+    </div>
+    <div class="row justify-center q-mt-lg">
+      <div class="col-6 q-md q-mr-lg">
+        <node-tree
+          v-bind:nodes="getNeighbourhoodTree"
+          v-on:updateTree="selectionChanged"
+          :channelId="null"
+          :editable="false"
+        />
       </div>
     </div>
   </q-page>
@@ -42,6 +34,8 @@ import nodeForm from "../components/node-form.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import { ibis_node_type_type, ibis_node_type_list } from "../enums";
+import { ConversationNode } from "../types";
+import { GuildsActionTypes } from "../store/guilds";
 import {
   QuestsState,
   QuestsGetterTypes,
@@ -53,6 +47,7 @@ import {
   ibis_child_types,
 } from "../store/conversation";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+
 @Component<QuestViewPage>({
   components: {
     questCard: questCard,
@@ -61,26 +56,35 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
     nodeTree: nodeTree,
   },
   computed: {
-    ...mapState("quests", {
-      questId: (state: QuestsState) => state.currentQuest,
-    }),
-    ...mapGetters("quests", ["getCurrentQuest"]),
+    ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
       "getConversation",
       "getConversationTree",
       "getFocusNode",
+      "getNeighbourhoodTree",
+      "getRootNode",
     ]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
+    ...mapActions("guilds", ["ensureAllGuilds"]),
     ...mapActions("members", ["fetchMemberById"]),
-    ...mapActions("conversation", ["ensureConversation"]),
+    ...mapActions("conversation", [
+      "ensureConversation",
+      "ensureConversationSubtree",
+      "ensureRootNode",
+    ]),
   },
 })
 export default class QuestViewPage extends Vue {
+  questId: number;
+  newNode: Partial<ConversationNode> = {};
   selectedNodeId: number = null;
+  newNodeParent: number = null;
+  selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+  childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   currentQuestId!: QuestsState["currentQuest"];
 
   // declare the computed attributes for Typescript
@@ -90,60 +94,40 @@ export default class QuestViewPage extends Vue {
   getConversationTree: ConversationGetterTypes["getConversationTree"];
   getConversation: ConversationGetterTypes["getConversation"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
+  getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
+  getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
+  getRootNode!: ConversationGetterTypes["getRootNode"];
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   fetchMemberById: MembersActionTypes["fetchMemberById"];
   ensureConversation: ConversationActionTypes["ensureConversation"];
+  ensureRootNode: ConversationActionTypes["ensureRootNode"];
+  ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
+  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
 
-  getQuestCreator() {
-    return this.getCurrentQuest
-      ? this.getMemberById(this.getCurrentQuest.creator)
-      : null;
-  }
-  selectedNode(copy?: boolean) {
-    let node = this.getConversationNodeById(this.selectedNodeId);
-    if (copy) {
-      node = { ...node };
-    }
-    return node;
-  }
   selectionChanged(id) {
     this.selectedNodeId = id;
   }
-  async created() {
-    try {
-      const questId = Number.parseInt(this.$route.params.quest_id);
-      await userLoaded;
-      await this.setCurrentQuest(questId);
-      await this.ensureQuest({ quest_id: questId });
-      await this.ensureConversation(questId);
-      const quest = this.getCurrentQuest;
-      this.selectedNodeId = this.getConversation.length
-        ? this.getConversation[0].id
-        : null;
-      await this.fetchMemberById({ params: { id: quest.creator } });
-      const creator = this.getMemberById(quest.creator);
-    } catch (error) {
-      console.log("Error in questview create: ", error);
+  async beforeMount() {
+    this.questId = Number.parseInt(this.$route.params.quest_id);
+    await this.ensureConversation(this.questId);
+    await this.ensureAllGuilds;
+    await Promise.all([this.setCurrentQuest(this.questId)]);
+    let node_id = this.getCurrentGamePlay?.focus_node_id;
+    if (!node_id) {
+      await this.ensureRootNode(this.questId);
+      node_id = this.getRootNode?.id;
     }
+    if (node_id) {
+      await this.ensureConversationSubtree({
+        node_id,
+      });
+      this.selectedNodeId = this.getFocusNode.id;
+    }
+    const quest = this.getCurrentQuest;
   }
 }
 </script>
-<style>
-.sidenav {
-  height: 100%;
-  width: 15%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  color: black;
-  background-color: rgb(230, 234, 238);
-  overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 60px;
-  border: 1px solid gray;
-}
-</style>
+<style></style>
