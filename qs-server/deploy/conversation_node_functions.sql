@@ -33,7 +33,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF conversation_node STABLE AS $$
     SELECT DISTINCT * FROM (
-      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild AND guild_id IS NOT NULL
+      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild AND guild IS NOT NULL
       UNION SELECT * FROM conversation_node WHERE
         id = node_id OR
         parent_id = node_id OR
