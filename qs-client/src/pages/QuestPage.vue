@@ -14,7 +14,7 @@
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
-          v-bind:nodes="getNeighbourhoodTree"
+          v-bind:nodes="getConversationTree"
           v-on:updateTree="selectionChanged"
           :channelId="null"
           :editable="false"
@@ -63,13 +63,13 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
       "getConversation",
       "getConversationTree",
       "getFocusNode",
-      "getNeighbourhoodTree",
+      "getConversationTree",
       "getRootNode",
     ]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds"]),
+    ...mapActions("guilds", ["ensureGuildsPlayingQuest"]),
     ...mapActions("members", ["fetchMemberById"]),
     ...mapActions("conversation", [
       "ensureConversation",
@@ -94,7 +94,6 @@ export default class QuestViewPage extends Vue {
   getConversationTree: ConversationGetterTypes["getConversationTree"];
   getConversation: ConversationGetterTypes["getConversation"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
-  getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getRootNode!: ConversationGetterTypes["getRootNode"];
 
@@ -105,25 +104,23 @@ export default class QuestViewPage extends Vue {
   ensureConversation: ConversationActionTypes["ensureConversation"];
   ensureRootNode: ConversationActionTypes["ensureRootNode"];
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
-  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+  ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
 
   selectionChanged(id) {
     this.selectedNodeId = id;
   }
   async beforeMount() {
-    this.questId = Number.parseInt(this.$route.params.quest_id);
-    await this.ensureConversation(this.questId);
-    await this.ensureAllGuilds;
-    await Promise.all([this.setCurrentQuest(this.questId)]);
-    let node_id = this.getCurrentGamePlay?.focus_node_id;
-    if (!node_id) {
-      await this.ensureRootNode(this.questId);
-      node_id = this.getRootNode?.id;
-    }
+    const quest_id = Number.parseInt(this.$route.params.quest_id);
+    this.questId = quest_id;
+    await Promise.all([
+      this.setCurrentQuest(quest_id),
+      this.ensureConversation(quest_id),
+      this.ensureGuildsPlayingQuest({ quest_id }),
+      this.ensureQuest({ quest_id }),
+    ]);
+    let node_id =
+      this.getCurrentGamePlay?.focus_node_id || this.getRootNode?.id;
     if (node_id) {
-      await this.ensureConversationSubtree({
-        node_id,
-      });
       this.selectedNodeId = this.getFocusNode.id;
     }
     const quest = this.getCurrentQuest;
