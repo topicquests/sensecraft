@@ -53,11 +53,9 @@ const GuildsGetters = {
   },
   getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
     const guildId = quest.game_play.map((gp: GamePlay) => gp.guild_id);
-    console.log("Guilds", Object.values(state.guilds));
-    const guilds = Object.values(state.guilds).filter((guild: Guild) =>
+    return Object.values(state.guilds).filter((guild: Guild) =>
       guildId.includes(guild.id)
     );
-    return guilds;
   },
 };
 

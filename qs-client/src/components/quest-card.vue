@@ -21,7 +21,7 @@
         <div class="row">
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Players: {{ getPlayerCount }}
+              Players: {{ getCurrentQuest.casting.length }}
             </p>
           </div>
           <div class="col-6">
@@ -70,7 +70,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Guild, Member } from "../types";
+import { Quest, Member } from "../types";
 import { mapGetters } from "vuex";
 import { Prop } from "vue/types/options";
 import { ibis_node_icon } from "../store/conversation";
@@ -88,7 +88,6 @@ const QuestCardProps = Vue.extend({
   name: "questCard",
   computed: {
     ...mapGetters("conversation", ["getNeighbourhood"]),
-    ...mapGetters("guilds", ["getGuildById", "getGuildsPlayingQuest"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
 
     getStartDate() {
@@ -105,28 +104,12 @@ const QuestCardProps = Vue.extend({
         return endDate;
       }
     },
-    getPlayerCount() {
-      var count: number = 0;
-      let guild_in_quest: Guild[] = [];
-      guild_in_quest = this.getGuildsPlayingQuest(this.getCurrentQuest);
-      guild_in_quest.forEach((guild) => {
-        guild.casting.forEach((casting) => {
-          if (casting.quest_id == this.currentQuestCard.id) {
-            count++;
-          }
-        });
-      });
-
-      return count;
-    },
   },
   methods: {
     ibis_node_icon,
   },
 })
 export default class QuestCard extends QuestCardProps {
-  getGuildById!: GuildsGetterTypes["getGuildById"];
-  getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
 }
 </script>
