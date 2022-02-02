@@ -21,7 +21,7 @@
         <div class="row">
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Players: {{ currentQuestCard.casting.length }}
+              Players: {{ getPlayerCount }}
             </p>
           </div>
           <div class="col-6">
@@ -54,6 +54,13 @@
             </p>
           </div>
         </div>
+        <div class="row">
+          <div class="col-6">
+            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+              Status: {{ currentQuestCard.status }}
+            </p>
+          </div>
+        </div>
         <section class="quest-card-data"></section>
       </q-card-section>
     </q-card>
@@ -63,10 +70,12 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Member } from "../types";
+import { Quest, Guild, Member } from "../types";
 import { mapGetters } from "vuex";
 import { Prop } from "vue/types/options";
 import { ibis_node_icon } from "../store/conversation";
+import { guilds, GuildsGetterTypes } from "src/store/guilds";
+import { QuestsGetterTypes } from "src/store/quests";
 
 const QuestCardProps = Vue.extend({
   props: {
@@ -79,26 +88,47 @@ const QuestCardProps = Vue.extend({
   name: "questCard",
   computed: {
     ...mapGetters("conversation", ["getNeighbourhood"]),
+    ...mapGetters("guilds", ["getGuildById", "getGuildsPlayingQuest"]),
+    ...mapGetters("quests", ["getCurrentQuest"]),
+
     getStartDate() {
       if (this.currentQuestCard.start) {
-        let date = new Date(this.currentQuestCard.start);
-        let startDate = new Intl.DateTimeFormat("en-US").format(date);
+        let date: Date = new Date(this.currentQuestCard.start);
+        let startDate: String = new Intl.DateTimeFormat("en-US").format(date);
         return startDate;
       }
     },
     getEndDate() {
       if (this.currentQuestCard.end) {
-        let date = new Date(this.currentQuestCard.end);
-        let endDate = new Intl.DateTimeFormat("en-US").format(date);
+        let date: Date = new Date(this.currentQuestCard.end);
+        let endDate: String = new Intl.DateTimeFormat("en-US").format(date);
         return endDate;
       }
+    },
+    getPlayerCount() {
+      var count: number = 0;
+      let guild_in_quest: Guild[] = [];
+      guild_in_quest = this.getGuildsPlayingQuest(this.getCurrentQuest);
+      guild_in_quest.forEach((guild) => {
+        guild.casting.forEach((casting) => {
+          if (casting.quest_id == this.currentQuestCard.id) {
+            count++;
+          }
+        });
+      });
+
+      return count;
     },
   },
   methods: {
     ibis_node_icon,
   },
 })
-export default class QuestCard extends QuestCardProps {}
+export default class QuestCard extends QuestCardProps {
+  getGuildById!: GuildsGetterTypes["getGuildById"];
+  getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
+  getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+}
 </script>
 <style>
 .quest_card {

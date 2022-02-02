@@ -137,6 +137,7 @@ export interface Guild {
   default_role_id: number;
   guild_membership?: GuildMembership[];
   game_play?: GamePlay[];
+  casting?: Casting[];
 }
 
 export interface RoleNodeConstraint {

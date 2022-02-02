@@ -303,7 +303,7 @@ const ConversationActions = {
   },
   ensureConversationNeighbourhood: async (
     context,
-    { node_id, guild }: { node_id: number; guild: number }
+    { node_id, guild }: { node_id: number; guild?: number }
   ) => {
     if (
       node_id != context.state.neighbourhoodRoot ||
@@ -311,6 +311,19 @@ const ConversationActions = {
     ) {
       await context.dispatch("fetchConversationNeighbourhood", {
         params: { node_id, guild },
+      });
+    }
+  },
+  ensureConversationSubtree: async (
+    context,
+    { node_id }: { node_id: number }
+  ) => {
+    if (
+      node_id != context.state.neighbourhoodRoot ||
+      Object.keys(context.state.neighbourhood).length == 0
+    ) {
+      await context.dispatch("fetchConversationSubtree", {
+        params: { node_id },
       });
     }
   },
@@ -429,6 +442,39 @@ export const conversation = (axios: AxiosInstance) =>
         }
       },
     })
+    .call({
+      path: "node_subtree",
+      property: "conversation",
+      action: "fetchConversationSubtree",
+      readOnly: true,
+      onSuccess: (
+        state: ConversationState,
+        res: AxiosResponse<ConversationNode[]>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        const firstNode = res.data[0];
+        if (state.currentQuest !== firstNode.quest_id) {
+          state.currentQuest = firstNode.quest_id;
+          state.conversation = {};
+          state.conversationRoot = null;
+        }
+        state.neighbourhood = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
+        state.neighbourhoodRoot = params.node_id;
+        const root = res.data.find(
+          (node: ConversationNode) => node.parent_id == null
+        );
+        state.conversation = Object.assign(
+          state.conversation,
+          state.neighbourhood
+        );
+        if (root) {
+          state.conversationRoot = root;
+        }
+      },
+    })
     .post({
       action: "createConversationNode",
       path: "/conversation_node",
@@ -483,6 +529,12 @@ type ConversationRestActionTypes = {
   fetchConversationNeighbourhood: RestParamActionType<
     {
       guild: number;
+      node_id: number;
+    },
+    ConversationNode[]
+  >;
+  fetchConversationSubtree: RestParamActionType<
+    {
       node_id: number;
     },
     ConversationNode[]
