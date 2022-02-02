@@ -33,7 +33,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF conversation_node STABLE AS $$
     SELECT DISTINCT * FROM (
-      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild
+      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild AND guild_id IS NOT NULL
       UNION SELECT * FROM conversation_node WHERE
         id = node_id OR
         parent_id = node_id OR
@@ -78,6 +78,7 @@ BEGIN
     GROUP BY n.id ORDER BY n.id;
 
   result := jsonb_build_object(
+    'id', node.id,
     'node_type', node.node_type::varchar,
     'meta', node.meta::varchar,
     'status', node.status::varchar,

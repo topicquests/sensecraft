@@ -13,6 +13,13 @@ function num_nodes_in_json(json) {
   return i;
 }
 
+function remove_ids(recNode) {
+  delete recNode.id;
+  for (const child of (recNode.children || [])) {
+    remove_ids(child);
+  }
+}
+
 
 describe('\'conversation_node\' service', () => {
 
@@ -458,6 +465,7 @@ describe('\'conversation_node\' service', () => {
         assert.equal(num_nodes_in_json(result), 2);
         tree_info = await axiosUtil.call('nodes2json', { node_id: nodeIds.q1, include_level: 'private_draft', include_meta: true }, adminToken, true);
         console.log(JSON.stringify(tree_info));
+        remove_ids(tree_info);
         assert.notEqual(num_nodes_in_json(tree_info), num_nodes_in_json(result));
       });
       it('can reconstruct the conversation tree', async () => {
@@ -465,6 +473,7 @@ describe('\'conversation_node\' service', () => {
         await axiosUtil.call('populate_nodes', { data: tree_info }, adminToken);
         const root = await axiosUtil.get('conversation_node', { parent_id: 'is.null', quest_id: publicQuestId }, adminToken);
         const result = await axiosUtil.call('nodes2json', { node_id: root[0].id, include_level: 'private_draft', include_meta: true }, adminToken, true);
+        remove_ids(result);
         assert.equal(num_nodes_in_json(tree_info), num_nodes_in_json(result));
         assert.deepEqual(tree_info, result);
       });
