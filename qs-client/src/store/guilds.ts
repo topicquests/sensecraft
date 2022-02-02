@@ -111,9 +111,10 @@ const GuildsActions = {
       guildId = guildId.filter((id: number) => !context.state.guilds[id]);
     }
     if (guildId.length > 0) {
+      const guildParam = guildId.length == 1 ? guildId[0] : guildId;
       await context.dispatch("fetchGuilds", {
         full,
-        params: { id: guildId },
+        params: { id: guildParam },
       });
     }
   },
@@ -218,6 +219,11 @@ export const guilds = (axios: AxiosInstance) =>
       path: "/guilds",
       queryParams: true,
       beforeRequest: (state: GuildsState, { params }) => {
+        if (Array.isArray(params.id)) {
+          params.id = `in.(${params.id.join(",")})`;
+        } else {
+          params.id = `eq.${params.id}`;
+        }
         const userId = MyVapi.store.getters["member/getUserId"];
         if (userId) {
           Object.assign(params, {
