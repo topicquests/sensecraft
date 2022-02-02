@@ -1,5 +1,5 @@
 <template>
-  <q-page style="background-color: #caf0f8">
+  <q-page>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
         <scoreboard></scoreboard>
@@ -36,17 +36,11 @@ import { userLoaded } from "../boot/userLoaded";
 import { ibis_node_type_type, ibis_node_type_list } from "../enums";
 import { ConversationNode } from "../types";
 import { GuildsActionTypes } from "../store/guilds";
-import {
-  QuestsState,
-  QuestsGetterTypes,
-  QuestsActionTypes,
-} from "../store/quests";
+import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import {
   ConversationGetterTypes,
   ConversationActionTypes,
-  ibis_child_types,
 } from "../store/conversation";
-import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 
 @Component<QuestViewPage>({
   components: {
@@ -57,7 +51,6 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
-    ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
       "getConversation",
@@ -80,16 +73,10 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 })
 export default class QuestViewPage extends Vue {
   questId: number;
-  newNode: Partial<ConversationNode> = {};
   selectedNodeId: number = null;
-  newNodeParent: number = null;
-  selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-  childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-  currentQuestId!: QuestsState["currentQuest"];
 
   // declare the computed attributes for Typescript
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
-  getMemberById: MembersGetterTypes["getMemberById"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
   getConversationTree: ConversationGetterTypes["getConversationTree"];
   getConversation: ConversationGetterTypes["getConversation"];
@@ -100,7 +87,6 @@ export default class QuestViewPage extends Vue {
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
-  fetchMemberById: MembersActionTypes["fetchMemberById"];
   ensureConversation: ConversationActionTypes["ensureConversation"];
   ensureRootNode: ConversationActionTypes["ensureRootNode"];
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
@@ -123,7 +109,6 @@ export default class QuestViewPage extends Vue {
     if (node_id) {
       this.selectedNodeId = this.getFocusNode.id;
     }
-    const quest = this.getCurrentQuest;
   }
 }
 </script>
