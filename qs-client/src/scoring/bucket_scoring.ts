@@ -1,19 +1,13 @@
-import {
-  ScoreMap,
-  ThreatMap,
-  ThreatStatus,
-  calc_threat_status,
-  node_local_id,
-} from ".";
-import { QTreeNode } from "../types";
+import { ScoreMap, ThreatMap, ThreatStatus, calc_threat_status } from ".";
+import { MaybeRealNode, generic_id } from "../types";
 import { ibis_node_type_enum } from "../enums";
 
-type ValueForGuild = { [key: node_local_id]: number };
-type ValuesForGuilds = { [key: node_local_id]: ValueForGuild };
-type StringSet = { [key: node_local_id]: boolean };
+type ValueForGuild = { [key: generic_id]: number };
+type ValuesForGuilds = { [key: generic_id]: ValueForGuild };
+type StringSet = { [key: generic_id]: boolean };
 
 export function bucket_scoring(
-  node: QTreeNode,
+  node: MaybeRealNode,
   threat_status?: ThreatMap
 ): ScoreMap {
   if (!threat_status) {
@@ -27,7 +21,7 @@ export function bucket_scoring(
   return scores;
 }
 
-function find_guilds(node: QTreeNode, guilds: StringSet) {
+function find_guilds(node: MaybeRealNode, guilds: StringSet) {
   if (node.guild_id) {
     guilds[node.guild_id] = true;
   }
@@ -37,7 +31,7 @@ function find_guilds(node: QTreeNode, guilds: StringSet) {
 }
 
 function base_scoring_internal(
-  node: QTreeNode,
+  node: MaybeRealNode,
   guilds: StringSet,
   threat_status: ThreatMap,
   scores: ScoreMap

@@ -3,9 +3,7 @@ import {
   ibis_node_type_enum,
   meta_state_enum,
 } from "../enums";
-import { QTreeNode } from "../types";
-
-export type node_local_id = string | number;
+import { MaybeRealNode, generic_id } from "../types";
 
 export enum ThreatStatus {
   "neutral" = "neutral",
@@ -16,10 +14,10 @@ export enum ThreatStatus {
   "unanswered" = "unanswered",
 }
 
-export type ThreatMap = { [key: node_local_id]: ThreatStatus };
-export type ScoreMap = { [key: node_local_id]: number };
+export type ThreatMap = { [key: generic_id]: ThreatStatus };
+export type ScoreMap = { [key: generic_id]: number };
 
-export function ensure_id(node: QTreeNode, counter: number = 0): number {
+export function ensure_id(node: MaybeRealNode, counter: number = 0): number {
   node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
     counter = ensure_id(child, counter);
@@ -37,7 +35,7 @@ export function ensure_id(node: QTreeNode, counter: number = 0): number {
 // So neutral really only applies to answered questions.
 
 export function calc_threat_status(
-  node: QTreeNode,
+  node: MaybeRealNode,
   map: ThreatMap,
   no_req_reference?: boolean
 ): ThreatStatus {

@@ -81,13 +81,7 @@ export interface Quest {
   game_play?: GamePlay[];
 }
 
-export interface ConversationNode {
-  id: number;
-  quest_id: number;
-  guild_id?: number;
-  creator_id: number;
-  parent_id?: number;
-  ancestry: string;
+export interface BaseConversationNode {
   node_type: ibis_node_type_type;
   status: publication_state_type;
   created_at: string;
@@ -100,6 +94,14 @@ export interface ConversationNode {
   draft_for_role_id: number;
 }
 
+export interface ConversationNode extends BaseConversationNode {
+  id: number;
+  quest_id: number;
+  guild_id?: number;
+  creator_id: number;
+  parent_id?: number;
+  ancestry: string;
+}
 export interface QTreeNode extends ConversationNode {
   // id: number | string;
   children?: QTreeNode[];
@@ -107,6 +109,18 @@ export interface QTreeNode extends ConversationNode {
   color?: string;
   icon?: string;
 }
+
+export type generic_id = number | string;
+export interface PseudoNode extends BaseConversationNode {
+  id: generic_id;
+  quest_id: generic_id;
+  guild_id?: generic_id;
+  creator_id: generic_id;
+  parent_id?: generic_id;
+  children?: PseudoNode[];
+}
+
+export type MaybeRealNode = PseudoNode | QTreeNode;
 
 export interface Guild {
   id: number;

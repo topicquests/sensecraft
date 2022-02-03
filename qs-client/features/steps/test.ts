@@ -9,13 +9,13 @@ import {
   ThreatStatus,
   calc_threat_status,
 } from "../../src/scoring";
-import { QTreeNode } from "../../src/types";
+import { PseudoNode } from "../../src/types";
 import { base_scoring } from "../../src/scoring/base_scoring";
 import { bucket_scoring } from "../../src/scoring/bucket_scoring";
 
 @binding()
 export class BaseScoring {
-  conversation: QTreeNode;
+  conversation: PseudoNode;
   scores: ScoreMap;
   threats: ThreatMap;
 
