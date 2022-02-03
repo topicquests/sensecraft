@@ -31,13 +31,15 @@ CREATE OR REPLACE FUNCTION node_subtree(node_id int) RETURNS SETOF conversation_
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int) RETURNS SETOF conversation_node STABLE AS $$
+CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int DEFAULT NULL) RETURNS SETOF conversation_node STABLE AS $$
     SELECT DISTINCT * FROM (
-      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild AND guild IS NOT NULL
-      UNION SELECT * FROM conversation_node WHERE
+      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild
+      UNION SELECT * FROM conversation_node
+      WHERE status = 'published' AND (
         id = node_id OR
         parent_id = node_id OR
         id = (SELECT parent_id FROM conversation_node WHERE id = node_id)
+      )
     ) cn ORDER BY ancestry, status DESC, id;
 $$ LANGUAGE SQL;
 
