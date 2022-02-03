@@ -25,7 +25,7 @@
     "grant": "~5.4",
     "luxon": "~2.3",
     "pg-hstore": "~2.3",
-    "quasar": "~1.18",
+    "quasar": "1.18.1",
     "socket.io-client": "~4.4",
     "uuid": "~8.3",
     "vue": "~2.6",

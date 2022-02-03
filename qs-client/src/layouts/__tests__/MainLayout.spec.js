@@ -43,7 +43,7 @@ function createWrapper(storeConfig) {
       },
       localVue,
       store: new Store(storeConfig),
-      stubs: ["router-link", "router-view", "ripple"],
+      stubs: ["router-link", "router-view", "ripple", "Screen"],
       RouterLink: RouterLinkStub,
     },
     quasar: {
