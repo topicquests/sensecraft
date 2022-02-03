@@ -182,7 +182,11 @@ const ConversationGetters = {
         )
       : null,
   getPrivateConversationTree: (state: ConversationState) =>
-    makeTree(Object.values(state.conversation)),
+    makeTree(
+      Object.values(state.conversation),
+      publication_state_enum.private_draft,
+      false
+    ),
   getThreatMap: (state: ConversationState): ThreatMap => {
     const tree = MyVapi.store.getters["conversation/getConversationTree"];
     if (tree && tree.length > 0) {
