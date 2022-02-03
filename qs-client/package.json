@@ -21,11 +21,11 @@
   "dependencies": {
     "@quasar/extras": "~1.12",
     "axios": "~0.25",
-    "core-js": "^3.20",
+    "core-js": "^3.21",
     "grant": "~5.4",
     "luxon": "~2.3",
     "pg-hstore": "~2.3",
-    "quasar": "~1.17",
+    "quasar": "~1.18",
     "socket.io-client": "~4.4",
     "uuid": "~8.3",
     "vue": "~2.6",
