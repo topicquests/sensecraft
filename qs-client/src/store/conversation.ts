@@ -220,6 +220,24 @@ const ConversationGetters = {
       return base_scoring(tree[0], threatMap);
     }
   },
+  getGuildScoreMap: (state: ConversationState): ScoreMap => {
+    const scoreMap = MyVapi.store.getters["conversation/getScoreMap"];
+    const guildScoreMap: ScoreMap = {};
+    Object.keys(scoreMap).forEach((key) => {
+      const guild_id = state.conversation[key].guild_id;
+      guildScoreMap.guild_id = (guildScoreMap.guild_id || 0) + scoreMap[key];
+    });
+    return guildScoreMap;
+  },
+  getPrivateGuildScoreMap: (state: ConversationState): ScoreMap => {
+    const scoreMap = MyVapi.store.getters["conversation/getPrivateScoreMap"];
+    const guildScoreMap: ScoreMap = {};
+    Object.keys(scoreMap).forEach((key) => {
+      const guild_id = state.conversation[key].guild_id;
+      guildScoreMap.guild_id = (guildScoreMap.guild_id || 0) + scoreMap[key];
+    });
+    return guildScoreMap;
+  },
   getNode: (state: ConversationState) => state.node,
   getChildrenOf: (state: ConversationState) => (node_id: number) => {
     return Object.values(state.conversation).filter(
