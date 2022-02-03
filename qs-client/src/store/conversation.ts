@@ -127,15 +127,12 @@ export function ibis_node_icon(
   }
 }
 
-export type QTreeNode = {
-  id: number;
-  parent_id: number;
-  label: string;
+export interface QTreeNode extends ConversationNode {
   children?: QTreeNode[];
-  data?: any;
+  label: string;
   color?: string;
   icon?: string;
-};
+}
 
 export function makeTree(nodes: ConversationNode[]) {
   if (nodes.length == 0) {
@@ -144,12 +141,10 @@ export function makeTree(nodes: ConversationNode[]) {
   const elements = nodes.map(
     (el) =>
       ({
-        id: el.id,
-        label: el.title,
-        parent_id: el.parent_id,
-        data: el,
         children: [],
+        label: el.title,
         icon: "img:" + ibis_node_icon(el.node_type, false),
+        ...el,
       } as QTreeNode)
   );
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));

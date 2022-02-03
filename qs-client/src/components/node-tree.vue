@@ -2,6 +2,7 @@
   <q-tree
     :nodes="nodes"
     node-key="id"
+    label-key="title"
     :default-expand-all="true"
     :selected.sync="selectedNodeId"
   >
@@ -10,10 +11,7 @@
         <q-icon :name="prop.node.icon" class="q-mr-sm" />
         <div
           :class="
-            'node-status-' +
-            prop.node.data.status +
-            ' node-meta-' +
-            prop.node.data.meta
+            'node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
           "
         >
           {{ prop.node.label }}
@@ -44,7 +42,7 @@
         v-if="prop.node.id != editingNodeId && !hideDescription"
         class="row items-center"
       >
-        <div class="node-description" v-html="prop.node.data.description"></div>
+        <div class="node-description" v-html="prop.node.description"></div>
       </div>
       <node-form
         v-if="editable && prop.node.id == editingNodeId"
