@@ -3,21 +3,9 @@ import {
   ibis_node_type_enum,
   meta_state_enum,
 } from "../enums";
+import { QTreeNode } from "../types";
 
 export type node_local_id = string | number;
-
-export interface Node {
-  id?: node_local_id;
-  title: string;
-  description?: string;
-  quest?: string;
-  guild?: string;
-  creator: string;
-  status: publication_state_enum;
-  type: ibis_node_type_enum;
-  meta?: meta_state_enum;
-  children: Node[];
-}
 
 export enum ThreatStatus {
   "neutral" = "neutral",
@@ -31,7 +19,7 @@ export enum ThreatStatus {
 export type ThreatMap = { [key: node_local_id]: ThreatStatus };
 export type ScoreMap = { [key: node_local_id]: number };
 
-export function ensure_id(node: Node, counter: number = 0): number {
+export function ensure_id(node: QTreeNode, counter: number = 0): number {
   node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
     counter = ensure_id(child, counter);
@@ -49,7 +37,7 @@ export function ensure_id(node: Node, counter: number = 0): number {
 // So neutral really only applies to answered questions.
 
 export function calc_threat_status(
-  node: Node,
+  node: QTreeNode,
   map: ThreatMap,
   no_req_reference?: boolean
 ): ThreatStatus {
@@ -69,7 +57,7 @@ export function calc_threat_status(
       case ThreatStatus.unsupported:
     }
   }
-  if (node.type == ibis_node_type_enum.question) {
+  if (node.node_type == ibis_node_type_enum.question) {
     if (supports == 0) {
       if (threats > 0) {
         status = ThreatStatus.threat;
@@ -84,12 +72,12 @@ export function calc_threat_status(
       status = ThreatStatus.threatened;
     } else if (
       supports == 0 &&
-      node.type != ibis_node_type_enum.reference &&
+      node.node_type != ibis_node_type_enum.reference &&
       !no_req_reference
     ) {
       status = ThreatStatus.unsupported;
     } else {
-      switch (node.type) {
+      switch (node.node_type) {
         case ibis_node_type_enum.con:
         case ibis_node_type_enum.con_answer:
           status = ThreatStatus.threat;

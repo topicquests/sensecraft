@@ -9,6 +9,18 @@
     <template v-slot:default-header="prop">
       <div class="row items-center">
         <q-icon :name="prop.node.icon" class="q-mr-sm" />
+        <span
+          v-if="scores && scores[prop.node.id]"
+          :class="
+            'score' +
+            (currentGuild == prop.node.guild_id
+              ? ' my-score'
+              : ' other-score') +
+            (scores[prop.node.id] < 0 ? ' score-neg' : ' score-pos')
+          "
+        >
+          {{ scores[prop.node.id] }}&nbsp;
+        </span>
         <div
           :class="
             'node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
@@ -16,6 +28,9 @@
         >
           {{ prop.node.label }}
         </div>
+        <span class="threat" v-if="threats && threats[prop.node.id]"
+          >&nbsp;[{{ threats[prop.node.id] }}]</span
+        >
         <q-btn
           size="xs"
           :flat="true"
@@ -77,9 +92,8 @@ import Vue from "vue";
 import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
-import { ConversationNode, Role } from "../types";
+import { ConversationNode, Role, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
-import type { QTreeNode } from "../store/conversation";
 import {
   ConversationState,
   ConversationGetterTypes,
@@ -103,12 +117,16 @@ import {
   ChannelGetterTypes,
   ChannelActionTypes,
 } from "../store/channel";
+import { ThreatMap, ScoreMap } from "../scoring";
 
 class NodeTreeBase {}
 
 const NodeTreeProps = Vue.extend({
   props: {
     nodes: Array as Prop<QTreeNode[]>,
+    threats: Object as Prop<ThreatMap>,
+    scores: Object as Prop<ScoreMap>,
+    currentGuild: Number || null,
     channelId: Number || null,
     editable: Boolean,
     hideDescription: Boolean,
@@ -374,5 +392,20 @@ export default class NodeTree extends NodeTreeProps {
 
 .node-meta-meta {
   background-color: grey;
+}
+.score-neg.my-score {
+  color: red;
+}
+.score-pos.my-score {
+  color: green;
+}
+.score-neg.other-score {
+  color: blue;
+}
+.score-neg.other-score {
+  color: orange;
+}
+.threat {
+  color: grey;
 }
 </style>

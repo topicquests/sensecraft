@@ -2,13 +2,13 @@ Feature: Threat model
   Scenario: Con is a threat
     Given A conversation with a con
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: answer
+        - node_type: answer
           id: a1
           children:
-            - type: con
+            - node_type: con
               id: con1
       """
     When We identify threats with references optional
@@ -19,16 +19,16 @@ Feature: Threat model
   Scenario: Con neutralized by a con
     Given A conversation with a con neutralized by a con
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: answer
+        - node_type: answer
           id: a1
           children:
-            - type: con
+            - node_type: con
               id: con1
               children:
-                - type: con
+                - node_type: con
                   id: con2
       """
     When We identify threats with references optional
@@ -40,10 +40,10 @@ Feature: Threat model
   Scenario: Question with con_answer
     Given A conversation with a con_answer
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: con_answer
+        - node_type: con_answer
           id: ca1
       """
     When We identify threats with references optional
@@ -53,12 +53,12 @@ Feature: Threat model
   Scenario: Question with con_answer and alternative
     Given A conversation with a con_answer and an alternative
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: con_answer
+        - node_type: con_answer
           id: ca1
-        - type: answer
+        - node_type: answer
           id: a2
       """
     When We identify threats with references optional
@@ -69,15 +69,15 @@ Feature: Threat model
   Scenario: Question with con_answer and threatened alternative
     Given A conversation with a con_answer and a threatened alternative
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: con_answer
+        - node_type: con_answer
           id: ca1
-        - type: answer
+        - node_type: answer
           id: a2
           children:
-            - type: con
+            - node_type: con
               id: con2
       """
     When We identify threats with references optional
@@ -89,16 +89,16 @@ Feature: Threat model
   Scenario: Answer threatened by a question
     Given A conversation with an answer threatened by a question
       """
-      type: question
+      node_type: question
       id: q1
       children:
-        - type: answer
+        - node_type: answer
           id: a1
           children:
-            - type: question
+            - node_type: question
               id: q2
               children:
-                - type: con_answer
+                - node_type: con_answer
                   id: ca1
       """
     When We identify threats with references optional

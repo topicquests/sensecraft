@@ -1,20 +1,23 @@
 import {
-  Node,
   ScoreMap,
   ThreatMap,
   ThreatStatus,
   calc_threat_status,
   node_local_id,
 } from ".";
+import { QTreeNode } from "../types";
 import { ibis_node_type_enum } from "../enums";
 
-type NodeById = { [key: node_local_id]: Node };
+type NodeById = { [key: node_local_id]: QTreeNode };
 type ParentMap = { [key: node_local_id]: node_local_id };
 
 // simple algorithm: Reward effective threats/supports.
 // TODO: Reward multiple threats/supports in order of arrival.
 
-export function base_scoring(node: Node, threat_status?: ThreatMap): ScoreMap {
+export function base_scoring(
+  node: QTreeNode,
+  threat_status?: ThreatMap
+): ScoreMap {
   if (!threat_status) {
     threat_status = {};
     calc_threat_status(node, threat_status);
@@ -44,11 +47,11 @@ export function base_scoring(node: Node, threat_status?: ThreatMap): ScoreMap {
         scores[node_id] = -0.1;
         break;
       case ThreatStatus.threatened:
-        const my_guild = nodes[node_id].guild;
+        const my_guild = nodes[node_id].guild_id;
         for (const child of nodes[node_id].children || []) {
           if (
             threat_status[child.id] == ThreatStatus.threat &&
-            child.guild != my_guild
+            child.guild_id != my_guild
           ) {
             scores[node_id] = -1;
             break;
@@ -60,7 +63,7 @@ export function base_scoring(node: Node, threat_status?: ThreatMap): ScoreMap {
   return scores;
 }
 
-function flatten(node: Node, parent_map: ParentMap): NodeById {
+function flatten(node: QTreeNode, parent_map: ParentMap): NodeById {
   let map: NodeById = { [node.id]: node };
   for (const child of node.children || []) {
     map = { ...map, ...flatten(child, parent_map) };

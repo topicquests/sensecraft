@@ -100,6 +100,14 @@ export interface ConversationNode {
   draft_for_role_id: number;
 }
 
+export interface QTreeNode extends ConversationNode {
+  id: number | string;
+  children?: QTreeNode[];
+  label: string;
+  color?: string;
+  icon?: string;
+}
+
 export interface Guild {
   id: number;
   handle: string;

@@ -1,11 +1,11 @@
 import {
-  Node,
   ScoreMap,
   ThreatMap,
   ThreatStatus,
   calc_threat_status,
   node_local_id,
 } from ".";
+import { QTreeNode } from "../types";
 import { ibis_node_type_enum } from "../enums";
 
 type ValueForGuild = { [key: node_local_id]: number };
@@ -13,7 +13,7 @@ type ValuesForGuilds = { [key: node_local_id]: ValueForGuild };
 type StringSet = { [key: node_local_id]: boolean };
 
 export function bucket_scoring(
-  node: Node,
+  node: QTreeNode,
   threat_status?: ThreatMap
 ): ScoreMap {
   if (!threat_status) {
@@ -27,9 +27,9 @@ export function bucket_scoring(
   return scores;
 }
 
-function find_guilds(node: Node, guilds: StringSet) {
-  if (node.guild) {
-    guilds[node.guild] = true;
+function find_guilds(node: QTreeNode, guilds: StringSet) {
+  if (node.guild_id) {
+    guilds[node.guild_id] = true;
   }
   for (const child of node.children || []) {
     find_guilds(child, guilds);
@@ -37,7 +37,7 @@ function find_guilds(node: Node, guilds: StringSet) {
 }
 
 function base_scoring_internal(
-  node: Node,
+  node: QTreeNode,
   guilds: StringSet,
   threat_status: ThreatMap,
   scores: ScoreMap
@@ -47,13 +47,13 @@ function base_scoring_internal(
   let values: ValuesForGuilds = {};
   const value_for: ValueForGuild = {};
   for (const guild of Object.keys(guilds)) {
-    value_for[guild] = guild == node.guild ? 0.0 : 1.0;
+    value_for[guild] = guild == String(node.guild_id) ? 0.0 : 1.0;
   }
   const num_threadts = 0;
   for (const child of node.children || []) {
     if (
       threat_status[child.id] == ThreatStatus.threat &&
-      node.type != ibis_node_type_enum.question
+      node.node_type != ibis_node_type_enum.question
     ) {
       factor *= 0.5;
     }
@@ -65,15 +65,15 @@ function base_scoring_internal(
       value_for[guild] += values[child.id][guild] / 2;
     }
   }
-  if (node.guild && threat_status[node.id] == ThreatStatus.threat) {
-    value_for[node.guild] += 1.0;
+  if (node.guild_id && threat_status[node.id] == ThreatStatus.threat) {
+    value_for[node.guild_id] += 1.0;
   }
   for (const guild of Object.keys(guilds)) {
     value_for[guild] *= factor;
   }
   values[node.id] = value_for;
-  if (node.guild) {
-    scores[node.id] = value_for[node.guild];
+  if (node.guild_id) {
+    scores[node.id] = value_for[node.guild_id];
   } else {
     scores[node.id] = 0;
   }

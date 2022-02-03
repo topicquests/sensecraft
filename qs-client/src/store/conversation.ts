@@ -6,7 +6,7 @@ import {
   RetypeGetterTypes,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { ConversationNode } from "../types";
+import { ConversationNode, QTreeNode } from "../types";
 import {
   ibis_node_type_enum,
   ibis_node_type_type,
@@ -14,6 +14,8 @@ import {
   permission_enum,
   meta_state_enum,
 } from "../enums";
+import { calc_threat_status, ThreatMap, ScoreMap } from "../scoring";
+import { base_scoring } from "../scoring/base_scoring";
 
 export function ibis_child_types(
   parent_type: ibis_node_type_type
@@ -127,14 +129,11 @@ export function ibis_node_icon(
   }
 }
 
-export interface QTreeNode extends ConversationNode {
-  children?: QTreeNode[];
-  label: string;
-  color?: string;
-  icon?: string;
-}
-
-export function makeTree(nodes: ConversationNode[]) {
+export function makeTree(
+  nodes: ConversationNode[],
+  upToStatus: publication_state_enum = publication_state_enum.private_draft,
+  include_meta: boolean = true
+) {
   if (nodes.length == 0) {
     return [];
   }
@@ -150,6 +149,8 @@ export function makeTree(nodes: ConversationNode[]) {
   const byId = Object.fromEntries(elements.map((el) => [el.id, el]));
   const roots: QTreeNode[] = [];
   elements.forEach((el) => {
+    if (el.meta == meta_state_enum.meta && !include_meta) return;
+    if (el.status < upToStatus) return;
     const parent = el.parent_id ? byId[el.parent_id] : null;
     if (parent) {
       parent.children.push(el);
@@ -171,15 +172,50 @@ const ConversationGetters = {
   getFocusNode: (state: ConversationState) =>
     state.neighbourhood[state.neighbourhoodRoot],
   getNeighbourhoodTree: (state: ConversationState) =>
-    makeTree(Object.values(state.neighbourhood)),
+    state.neighbourhood ? makeTree(Object.values(state.neighbourhood)) : null,
   getConversationTree: (state: ConversationState) =>
-    makeTree(
-      Object.values(state.conversation).filter(
-        (n) =>
-          n.status == publication_state_enum.published &&
-          n.meta == meta_state_enum.conversation
-      )
-    ),
+    state.full
+      ? makeTree(
+          Object.values(state.conversation),
+          publication_state_enum.published,
+          false
+        )
+      : null,
+  getPrivateConversationTree: (state: ConversationState) =>
+    makeTree(Object.values(state.conversation)),
+  getThreatMap: (state: ConversationState): ThreatMap => {
+    const tree = MyVapi.store.getters["conversation/getConversationTree"];
+    if (tree && tree.length > 0) {
+      const threatMap: ThreatMap = {};
+      calc_threat_status(tree[0], threatMap);
+      return threatMap;
+    }
+  },
+  getPrivateThreatMap: (state: ConversationState): ThreatMap => {
+    const tree =
+      MyVapi.store.getters["conversation/getPrivateConversationTree"];
+    if (tree && tree.length > 0) {
+      const threatMap: ThreatMap = {};
+      calc_threat_status(tree[0], threatMap);
+      return threatMap;
+    }
+  },
+  getScoreMap: (state: ConversationState): ScoreMap => {
+    const tree = MyVapi.store.getters["conversation/getConversationTree"];
+    if (tree && tree.length > 0) {
+      const threatMap = MyVapi.store.getters["conversation/getThreatMap"];
+      return base_scoring(tree[0], threatMap);
+    }
+  },
+  getPrivateScoreMap: (state: ConversationState): ScoreMap => {
+    const tree =
+      MyVapi.store.getters["conversation/getPrivateConversationTree"];
+    if (tree && tree.length > 0) {
+      const threatMap =
+        MyVapi.store.getters["conversation/getPrivateThreatMap"];
+      return base_scoring(tree[0], threatMap);
+    }
+  },
   getNode: (state: ConversationState) => state.node,
   getChildrenOf: (state: ConversationState) => (node_id: number) => {
     return Object.values(state.conversation).filter(
