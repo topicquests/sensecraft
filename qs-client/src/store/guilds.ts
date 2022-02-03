@@ -16,6 +16,7 @@ import {
 import { registration_status_enum, permission_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { member } from "./member";
+import { parseMap } from "yaml/util";
 
 interface GuildMap {
   [key: number]: Guild;
@@ -219,10 +220,12 @@ export const guilds = (axios: AxiosInstance) =>
       path: "/guilds",
       queryParams: true,
       beforeRequest: (state: GuildsState, { params }) => {
-        if (Array.isArray(params.id)) {
-          params.id = `in.(${params.id.join(",")})`;
-        } else {
-          params.id = `eq.${params.id}`;
+        if (params.id) {
+          if (Array.isArray(params.id)) {
+            params.id = `in.(${params.id.join(",")})`;
+          } else {
+            params.id = `eq.${params.id}`;
+          }
         }
         const userId = MyVapi.store.getters["member/getUserId"];
         if (userId) {
