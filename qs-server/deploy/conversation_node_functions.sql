@@ -90,13 +90,13 @@ BEGIN
     result := jsonb_set(result, ARRAY['children'], to_jsonb(children_json));
   END IF;
   IF quest_handle IS NOT NULL THEN
-    result := jsonb_set(result, ARRAY['quest'], to_jsonb(quest_handle));
+    result := jsonb_set(result, ARRAY['quest_id'], to_jsonb(quest_handle));
   END IF;
   IF guild_handle IS NOT NULL THEN
-    result := jsonb_set(result, ARRAY['guild'], to_jsonb(guild_handle));
+    result := jsonb_set(result, ARRAY['guild_id'], to_jsonb(guild_handle));
   END IF;
   IF creator_handle IS NOT NULL THEN
-    result := jsonb_set(result, ARRAY['creator'], to_jsonb(creator_handle));
+    result := jsonb_set(result, ARRAY['creator_id'], to_jsonb(creator_handle));
   END IF;
   IF node.description IS NOT NULL THEN
     result := jsonb_set(result, ARRAY['description'], to_jsonb(node.description));
@@ -131,27 +131,27 @@ DECLARE
   child JSONB;
 BEGIN
   curuser := current_user;
-  IF data->>'creator' IS NULL THEN
-    RAISE EXCEPTION 'creator is required';
+  IF data->>'creator_id' IS NULL THEN
+    RAISE EXCEPTION 'creator_id is required';
   END IF;
-  SELECT id INTO creator_id STRICT
+  SELECT id INTO STRICT creator_id
     FROM members
-    WHERE members.handle = (data->>'creator')::varchar;
+    WHERE members.handle = (data->>'creator_id')::varchar;
   IF creator_id != current_member_id() THEN
     IF NOT has_permission('superadmin') THEN
       RAISE EXCEPTION 'only superadmin can create nodes on behalf of someone else';
     END IF;
     EXECUTE 'SET ROLE ' || current_database() || '__m_' || creator_id::text;
   END IF;
-  IF data->>'quest' IS NOT NULL THEN
-    SELECT id INTO quest_id STRICT
+  IF data->>'quest_id' IS NOT NULL THEN
+    SELECT id INTO STRICT quest_id
       FROM quests
-      WHERE quests.handle = (data->>'quest')::varchar;
+      WHERE quests.handle = (data->>'quest_id')::varchar;
   END IF;
-  IF data->>'guild' IS NOT NULL THEN
-    SELECT id INTO guild_id STRICT
+  IF data->>'guild_id' IS NOT NULL THEN
+    SELECT id INTO STRICT guild_id
       FROM guilds
-      WHERE guilds.handle = (data->>'guild')::varchar;
+      WHERE guilds.handle = (data->>'guild_id')::varchar;
   END IF;
   IF data->'description' IS NOT NULL THEN
     description := (data->>'description')::text;
@@ -161,9 +161,9 @@ BEGIN
   END IF;
   IF data->'draft_for_role' IS NOT NULL THEN
     IF data->'draft_for_role'->'name' IS NOT NULL THEN
-      SELECT r.id INTO draft_for_role_id STRICT FROM public.role r JOIN public.guilds g ON g.id = r.guild_id WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND g.handle = (data->>'draft_for_role'->'guild')::varchar;
+      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r JOIN public.guilds g ON g.id = r.guild_id WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND g.handle = (data->>'draft_for_role'->'guild')::varchar;
     ELSE
-      SELECT r.id INTO draft_for_role_id STRICT FROM public.role r WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND r.guild_id IS NULL;
+      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND r.guild_id IS NULL;
     END IF;
   END IF;
   INSERT INTO conversation_node ("quest_id", "guild_id", "node_type", "meta", "status", "title", "description", "url", "parent_id", "draft_for_role_id")
