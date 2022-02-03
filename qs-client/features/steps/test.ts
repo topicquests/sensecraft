@@ -3,19 +3,19 @@ import { assert } from "chai";
 import YAML from "yaml";
 
 import {
-  Node,
   ScoreMap,
   ThreatMap,
   ensure_id,
   ThreatStatus,
   calc_threat_status,
 } from "../../src/scoring";
+import { QTreeNode } from "../../src/types";
 import { base_scoring } from "../../src/scoring/base_scoring";
 import { bucket_scoring } from "../../src/scoring/bucket_scoring";
 
 @binding()
 export class BaseScoring {
-  conversation: Node;
+  conversation: QTreeNode;
   scores: ScoreMap;
   threats: ThreatMap;
 
