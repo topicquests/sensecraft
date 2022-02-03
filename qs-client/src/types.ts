@@ -101,7 +101,7 @@ export interface ConversationNode {
 }
 
 export interface QTreeNode extends ConversationNode {
-  id: number | string;
+  // id: number | string;
   children?: QTreeNode[];
   label: string;
   color?: string;

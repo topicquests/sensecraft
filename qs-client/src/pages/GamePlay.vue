@@ -21,6 +21,9 @@
       <div class="col-6 q-md q-mr-lg">
         <node-tree
           v-bind:nodes="getNeighbourhoodTree"
+          v-bind:threats="getPrivateThreatMap"
+          v-bind:scores="getPrivateScoreMap"
+          v-bind:currentGuild="guildId"
           v-on:updateTree="selectionChanged"
           :channelId="null"
           :editable="true"
@@ -108,6 +111,7 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
       "getCurrentGamePlay",
       "getCastingRolesById",
     ]),
+    ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("members", [
       "getMemberById",
       "getAvailableRolesMembersById",
@@ -120,6 +124,10 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
       "getNeighbourhood",
       "getRootNode",
       "getNode",
+      "getThreatMap",
+      "getScoreMap",
+      "getPrivateThreatMap",
+      "getPrivateScoreMap",
     ]),
     ...mapGetters("role", ["getRoles"]),
   },
@@ -159,6 +167,7 @@ export default class GamePlayPage extends Vue {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getCastingRolesById!: QuestsGetterTypes["getCastingRolesById"];
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   getMemberById: MembersGetterTypes["getMemberById"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
   getNeighbourhood: ConversationGetterTypes["getNeighbourhood"];
@@ -168,6 +177,10 @@ export default class GamePlayPage extends Vue {
   getRootNode: ConversationGetterTypes["getRootNode"];
   castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
   getRoleById!: RoleGetterTypes["getRoleById"];
+  getThreatMap!: ConversationGetterTypes["getThreatMap"];
+  getPrivateThreatMap!: ConversationGetterTypes["getPrivateThreatMap"];
+  getScoreMap!: ConversationGetterTypes["getScoreMap"];
+  getPrivateScoreMap!: ConversationGetterTypes["getPrivateScoreMap"];
   // declare the action attributes for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   addCastingRole!: QuestsActionTypes["addCastingRole"];
