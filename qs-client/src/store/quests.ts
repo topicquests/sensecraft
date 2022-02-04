@@ -90,6 +90,13 @@ const QuestsGetters = {
         (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
       );
     },
+  isGuildPlayingQuest:
+    (state: QuestsState) => (quest_id?: number, guild_id?: number) => {
+      quest_id = quest_id || state.currentQuest;
+      return state.quests[quest_id]?.casting?.find(
+        (c: Casting) => c.guild_id == guild_id
+      );
+    },
   getCurrentGamePlay: (state) => {
     if (state.currentQuest) {
       const quest = state.quests[state.currentQuest];

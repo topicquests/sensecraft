@@ -1,5 +1,8 @@
 <template>
   <q-page>
+    <div>
+      <member></member>
+    </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 55%">
         <scoreboard></scoreboard>
@@ -11,6 +14,12 @@
         <questCard v-bind:currentQuestCard="getCurrentQuest"> </questCard>
       </div>
     </div>
+    <div class="row justify-center">
+      <div class="col-6">
+        <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
+      </div>
+    </div>
+
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
@@ -29,12 +38,11 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import questCard from "../components/quest-card.vue";
 import scoreboard from "../components/scoreboard.vue";
+import member from "../components/member.vue";
 import nodeTree from "../components/node-tree.vue";
 import nodeForm from "../components/node-form.vue";
+import guildsToQuestCard from "../components/guilds-to-quest-card.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { userLoaded } from "../boot/userLoaded";
-import { ibis_node_type_type, ibis_node_type_list } from "../enums";
-import { ConversationNode } from "../types";
 import { GuildsActionTypes } from "../store/guilds";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import {
@@ -46,8 +54,10 @@ import {
   components: {
     questCard: questCard,
     scoreboard: scoreboard,
+    member: member,
     nodeForm: nodeForm,
     nodeTree: nodeTree,
+    guildsToQuestCard: guildsToQuestCard,
   },
   computed: {
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
@@ -68,6 +78,7 @@ import {
       "ensureConversation",
       "ensureConversationSubtree",
       "ensureRootNode",
+      "ensureConversationNeighbourhood",
     ]),
   },
 })
@@ -91,6 +102,7 @@ export default class QuestViewPage extends Vue {
   ensureRootNode: ConversationActionTypes["ensureRootNode"];
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
+  ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
 
   selectionChanged(id) {
     this.selectedNodeId = id;
@@ -107,6 +119,10 @@ export default class QuestViewPage extends Vue {
     let node_id =
       this.getCurrentGamePlay?.focus_node_id || this.getRootNode?.id;
     if (node_id) {
+      await this.ensureConversationNeighbourhood({
+        node_id,
+        guild_id: null,
+      });
       this.selectedNodeId = this.getFocusNode.id;
     }
   }

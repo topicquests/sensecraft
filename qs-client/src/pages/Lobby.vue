@@ -128,7 +128,7 @@ export default {
           required: true,
           label: "Member",
           align: "left",
-          filed: "guildBelongsTo",
+          field: "guildBelongsTo",
         },
         {
           name: "guildNodeId",
