@@ -164,6 +164,11 @@ const routes = [
         name: "game_channel_conversation",
         component: () => import("pages/ChannelPage.vue"),
       },
+      {
+        path: "house_rules",
+        name: "house_rules",
+        component: () => import("pages/HouseRules.vue"),
+      },
       // {
       //   path: "/guild/:guild_id/channel",
       //   name: "guild_channel_list",
