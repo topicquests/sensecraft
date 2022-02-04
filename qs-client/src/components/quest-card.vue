@@ -50,7 +50,7 @@
           </div>
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Last Activity:
+              Last Activity: {{ getLastActivity() }}
             </p>
           </div>
         </div>
@@ -70,10 +70,10 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Member } from "../types";
+import { Quest, Member, ConversationNode } from "../types";
 import { mapGetters } from "vuex";
 import { Prop } from "vue/types/options";
-import { ibis_node_icon } from "../store/conversation";
+import { ConversationGetterTypes, ibis_node_icon } from "../store/conversation";
 import { guilds, GuildsGetterTypes } from "src/store/guilds";
 import { QuestsGetterTypes } from "src/store/quests";
 
@@ -111,6 +111,27 @@ const QuestCardProps = Vue.extend({
 })
 export default class QuestCard extends QuestCardProps {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  getNeighbourhood!: ConversationGetterTypes["getNeighbourhood"];
+
+  getLastActivity() {
+    let date: Date = new Date();
+    let publishedNeighbourhood: ConversationNode[];
+    let newestDate;
+    const neighbourhood: ConversationNode[] = this.getNeighbourhood;
+    if (neighbourhood) {
+      publishedNeighbourhood = neighbourhood.map((pub) => {
+        if (pub.status == "published") {
+          date = new Date(pub.updated_at);
+          pub.updated_at = new Intl.DateTimeFormat("en-US").format(date);
+          return pub;
+        }
+      });
+      newestDate = publishedNeighbourhood.reduce((a, b) => {
+        return new Date(a.updated_at) > new Date(b.updated_at) ? a : b;
+      });
+      return newestDate.updated_at;
+    }
+  }
 }
 </script>
 <style>
