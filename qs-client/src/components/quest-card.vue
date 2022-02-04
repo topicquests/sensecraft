@@ -19,9 +19,9 @@
       <q-separator color="black"></q-separator>
       <q-card-section>
         <div class="row">
-          <div class="col-6">
+          <div v-if="currentQuestCard.casting" class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Players: {{ getCurrentQuest.casting.length }}
+              Players: {{ currentQuestCard.casting.length }}
             </p>
           </div>
           <div class="col-6">
