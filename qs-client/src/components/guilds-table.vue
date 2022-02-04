@@ -1,6 +1,7 @@
 <template>
   <div>
     <q-table
+      class="guilds-table"
       title="Guild List"
       :data="getGuilds"
       :columns="columns"
@@ -9,9 +10,11 @@
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-          <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
           <q-td key="playing" :props="props">{{
-            getPlayingInQuest(props.row.id)
+            getGuildPlayingInQuest(props.row.id)
+          }}</q-td>
+          <q-td key="player_playing" :props="props">{{
+            getPlayerPlayingInQuest(props.row.id)
           }}</q-td>
           <q-td key="date" :props="props">{{
             getDate(props.row.created_at)
@@ -52,7 +55,7 @@ const GuildsTableProp = Vue.extend({
   name: "GuildsTable",
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
-    ...mapGetters("quests", ["isGuildPlayingQuest"]),
+    ...mapGetters("quests", ["isGuildPlayingQuest", "isPlayingQuestInGuild"]),
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
@@ -69,17 +72,17 @@ export default class GuildTable extends GuildsTableProp {
       sortable: true,
     },
     {
-      name: "handle",
+      name: "playing",
       required: false,
-      label: "Handle",
+      label: "Guild Playing Quest",
       align: "left",
-      field: "handle",
+      field: "public",
       sortable: true,
     },
     {
-      name: "playing",
+      name: "player_playing",
       required: false,
-      label: "Playing",
+      label: "Player Playing Quest",
       align: "left",
       field: "public",
       sortable: true,
@@ -95,7 +98,7 @@ export default class GuildTable extends GuildsTableProp {
     {
       name: "guildMember",
       required: true,
-      label: "Member",
+      label: "Guild Member",
       align: "left",
       field: "guildBelongsTo",
     },
@@ -110,9 +113,18 @@ export default class GuildTable extends GuildsTableProp {
   ];
   getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
   isGuildPlayingQuest!: QuestsGetterTypes["isGuildPlayingQuest"];
+  isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
 
-  getPlayingInQuest(guildId: number) {
-    const playing = this.isGuildPlayingQuest(this.questId, guildId);
+  getGuildPlayingInQuest(guildId: number) {
+    const guildPlaying = this.isGuildPlayingQuest(this.questId, guildId);
+    if (guildPlaying) {
+      return "Yes";
+    } else {
+      return "No";
+    }
+  }
+  getPlayerPlayingInQuest(guildId: number) {
+    const playing = this.isPlayingQuestInGuild(this.questId, guildId);
     if (playing) {
       return "Yes";
     } else {
@@ -139,3 +151,10 @@ export default class GuildTable extends GuildsTableProp {
   }
 }
 </script>
+<style>
+.guilds-table {
+  text-align: center;
+  font-size: 1em;
+  background-color: ivory;
+}
+</style>
