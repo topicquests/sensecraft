@@ -118,7 +118,7 @@ export default class QuestCard extends QuestCardProps {
     let publishedNeighbourhood: ConversationNode[];
     let newestDate;
     const neighbourhood: ConversationNode[] = this.getNeighbourhood;
-    if (neighbourhood) {
+    if (neighbourhood.length) {
       publishedNeighbourhood = neighbourhood.map((pub) => {
         if (pub.status == "published") {
           date = new Date(pub.updated_at);
@@ -129,7 +129,9 @@ export default class QuestCard extends QuestCardProps {
       newestDate = publishedNeighbourhood.reduce((a, b) => {
         return new Date(a.updated_at) > new Date(b.updated_at) ? a : b;
       });
-      return newestDate.updated_at;
+      if (newestDate) {
+        return newestDate.updated_at;
+      }
     }
   }
 }
