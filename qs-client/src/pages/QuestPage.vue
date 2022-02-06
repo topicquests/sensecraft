@@ -19,6 +19,13 @@
         <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
       </div>
     </div>
+    <div class="col-3 q-md q-mb-md">
+      <channel-list
+        v-if="getGameChannels.length"
+        v-bind:channels="getGameChannels"
+        title="Game Channels"
+      />
+    </div>
 
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
@@ -49,6 +56,13 @@ import {
   ConversationGetterTypes,
   ConversationActionTypes,
 } from "../store/conversation";
+import {
+  ChannelState,
+  ChannelGetterTypes,
+  ChannelActionTypes,
+} from "../store/channel";
+import ChannelList from "../components/ChannelListComponent.vue";
+import { Casting } from "src/types";
 
 @Component<QuestViewPage>({
   components: {
@@ -58,9 +72,14 @@ import {
     nodeForm: nodeForm,
     nodeTree: nodeTree,
     guildsToQuestCard: guildsToQuestCard,
+    ChannelList: ChannelList,
   },
   computed: {
-    ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
+    ...mapGetters("quests", [
+      "getCurrentQuest",
+      "getCurrentGamePlay",
+      "castingInQuest",
+    ]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
       "getConversation",
@@ -69,6 +88,7 @@ import {
       "getConversationTree",
       "getRootNode",
     ]),
+    ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
@@ -80,6 +100,7 @@ import {
       "ensureRootNode",
       "ensureConversationNeighbourhood",
     ]),
+    ...mapActions("channel", ["ensureChannels"]),
   },
 })
 export default class QuestViewPage extends Vue {
@@ -88,12 +109,15 @@ export default class QuestViewPage extends Vue {
 
   // declare the computed attributes for Typescript
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
+  getGameChannels!: ChannelGetterTypes["getGameChannels"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
   getConversationTree: ConversationGetterTypes["getConversationTree"];
   getConversation: ConversationGetterTypes["getConversation"];
   getFocusNode: ConversationGetterTypes["getFocusNode"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getRootNode!: ConversationGetterTypes["getRootNode"];
+  isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
+  castingInQuest!: QuestsGetterTypes["castingInQuest"];
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
@@ -103,9 +127,16 @@ export default class QuestViewPage extends Vue {
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
   ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
 
   selectionChanged(id) {
     this.selectedNodeId = id;
+  }
+  async getPlayerPlayingInQuest() {
+    const playing = this.castingInQuest(this.questId);
+    if (playing) {
+      await this.ensureChannels(playing.guild_id);
+    }
   }
   async beforeMount() {
     const quest_id = Number.parseInt(this.$route.params.quest_id);
@@ -125,6 +156,7 @@ export default class QuestViewPage extends Vue {
       });
       this.selectedNodeId = this.getFocusNode.id;
     }
+    await this.getPlayerPlayingInQuest();
   }
 }
 </script>
