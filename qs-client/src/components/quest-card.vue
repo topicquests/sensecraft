@@ -26,7 +26,7 @@
           </div>
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Start Date: {{ getStartDate }}
+              Start Date: {{ getDate(currentQuestCard.start) }}
             </p>
           </div>
         </div>
@@ -38,7 +38,7 @@
           </div>
           <div class="col-6">
             <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              End Date: {{ getEndDate }}
+              End Date: {{ getDate(currentQuestCard.end) }}
             </p>
           </div>
         </div>
@@ -89,21 +89,6 @@ const QuestCardProps = Vue.extend({
   computed: {
     ...mapGetters("conversation", ["getNeighbourhood"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
-
-    getStartDate() {
-      if (this.currentQuestCard.start) {
-        let date: Date = new Date(this.currentQuestCard.start);
-        let startDate: String = new Intl.DateTimeFormat("en-US").format(date);
-        return startDate;
-      }
-    },
-    getEndDate() {
-      if (this.currentQuestCard.end) {
-        let date: Date = new Date(this.currentQuestCard.end);
-        let endDate: String = new Intl.DateTimeFormat("en-US").format(date);
-        return endDate;
-      }
-    },
   },
   methods: {
     ibis_node_icon,
@@ -112,6 +97,14 @@ const QuestCardProps = Vue.extend({
 export default class QuestCard extends QuestCardProps {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getNeighbourhood!: ConversationGetterTypes["getNeighbourhood"];
+
+  getDate(dte: string) {
+    if (dte) {
+      let date: Date = new Date(dte);
+      let formattedDate: String = new Intl.DateTimeFormat("en-US").format(date);
+      return formattedDate;
+    }
+  }
 
   getLastActivity() {
     let date: Date = new Date();

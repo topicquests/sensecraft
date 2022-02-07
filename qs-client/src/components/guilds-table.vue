@@ -3,16 +3,13 @@
     <q-table
       class="guilds-table"
       title="Guild List"
-      :data="getGuilds"
+      :data="getGuildsPlayingQuest(getQuestById(questId))"
       :columns="columns"
       row-key="desc"
     >
       <template slot="body" slot-scope="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-          <q-td key="playing" :props="props">{{
-            getGuildPlayingInQuest(props.row.id)
-          }}</q-td>
           <q-td key="player_playing" :props="props">{{
             getPlayerPlayingInQuest(props.row.id)
           }}</q-td>
@@ -54,8 +51,16 @@ const GuildsTableProp = Vue.extend({
 @Component<GuildTable>({
   name: "GuildsTable",
   computed: {
-    ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
-    ...mapGetters("quests", ["isGuildPlayingQuest", "isPlayingQuestInGuild"]),
+    ...mapGetters("guilds", [
+      "getGuilds",
+      "getMyGuilds",
+      "getGuildsPlayingQuest",
+    ]),
+    ...mapGetters("quests", [
+      "isGuildPlayingQuest",
+      "isPlayingQuestInGuild",
+      "getQuestById",
+    ]),
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
@@ -69,14 +74,6 @@ export default class GuildTable extends GuildsTableProp {
       label: "Name",
       align: "left",
       field: "name",
-      sortable: true,
-    },
-    {
-      name: "playing",
-      required: false,
-      label: "Guild Playing Quest",
-      align: "left",
-      field: "public",
       sortable: true,
     },
     {
@@ -112,6 +109,8 @@ export default class GuildTable extends GuildsTableProp {
     },
   ];
   getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
+  getGuildsPlayingQuest: GuildsGetterTypes["getGuildsPlayingQuest"];
+  getQuestById!: QuestsGetterTypes["getQuestById"];
   isGuildPlayingQuest!: QuestsGetterTypes["isGuildPlayingQuest"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
 
