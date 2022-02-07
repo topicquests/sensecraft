@@ -19,14 +19,6 @@
         <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
       </div>
     </div>
-    <div class="col-3 q-md q-mb-md">
-      <channel-list
-        v-if="getGameChannels.length"
-        v-bind:channels="getGameChannels"
-        title="Game Channels"
-      />
-    </div>
-
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
