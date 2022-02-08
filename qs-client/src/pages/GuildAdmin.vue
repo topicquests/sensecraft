@@ -4,9 +4,9 @@
       <div class="col-4">
         <q-card q-ma-md>
           <h2>
-            {{ getCurrentGuild.name }}
+            {{ getCurrentGuild?.name }}
             <router-link
-              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
+              :to="{ name: 'guild', params: { guild_id: getCurrentGuild?.id } }"
               style="font-size: smaller"
               >Guild</router-link
             >
@@ -253,7 +253,7 @@ import roleTable from "../components/role-table.vue";
     },
     guildGamePlays: {
       get: function () {
-        if (this.getCurrentGuild.game_play.length > 0) {
+        if (this.getCurrentGuild?.game_play.length > 0) {
           const gamePlay = this.getCurrentGuild.game_play.filter(
             (gp: GamePlay) => gp.status == registration_status_enum.confirmed
           );
@@ -408,7 +408,7 @@ export default class GuildAdminPage extends Vue {
   isAdmin = false;
   label = "";
   questId: number = null;
-  gamePlay: GamePlay = null;
+  gamePlay?: GamePlay = null;
   selectedNode: ConversationNode = null;
   focusNode: ConversationNode = null;
   guildId: number = null;
@@ -553,7 +553,6 @@ export default class GuildAdminPage extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
-    await this.setCurrentGuild(this.guildId);
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),
@@ -561,6 +560,7 @@ export default class GuildAdminPage extends Vue {
       this.ensureAllMembers(),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
+    await this.setCurrentGuild(this.guildId);
     this.rolesByMember = Object.fromEntries(
       this.getGuildMembers.map((m: Member) => [
         m.id,

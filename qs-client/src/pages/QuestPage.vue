@@ -10,13 +10,16 @@
     </div>
 
     <div class="row justify-center">
-      <div class="col-5 q-pa-lg">
+      <div class="col-4">
         <questCard v-bind:currentQuestCard="getCurrentQuest"> </questCard>
       </div>
     </div>
     <div class="row justify-center">
-      <div class="col-6">
+      <div v-if="getGuildsPlayingQuest(getCurrentQuest).length" class="col-6">
         <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
+      </div>
+      <div v-else>
+        <h5>There are no guilds playing quest</h5>
       </div>
     </div>
     <div class="row justify-center q-mt-lg">
@@ -42,7 +45,7 @@ import nodeTree from "../components/node-tree.vue";
 import nodeForm from "../components/node-form.vue";
 import guildsToQuestCard from "../components/guilds-to-quest-card.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { GuildsActionTypes } from "../store/guilds";
+import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import {
   ConversationGetterTypes,
@@ -81,6 +84,7 @@ import { Casting } from "src/types";
       "getRootNode",
     ]),
     ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
+    ...mapGetters("guilds", ["getGuildsPlayingQuest"]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
@@ -110,6 +114,7 @@ export default class QuestViewPage extends Vue {
   getRootNode!: ConversationGetterTypes["getRootNode"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
+  getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];

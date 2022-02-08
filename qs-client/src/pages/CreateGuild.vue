@@ -107,7 +107,7 @@ export default class GuildFormPage extends Vue {
         message: `Added new guild`,
         color: "positive",
       });
-      this.$router.push({ name: "guild_edit", params: { guild_id: res.id } });
+      //   this.$router.push({ name: "guild_admin", params: { guild_id: res.id } });
     } catch (err) {
       console.log("there was an error in creating guild ", err);
       this.$q.notify({

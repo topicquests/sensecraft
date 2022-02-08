@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card v-if="currentQuestCard" class="quest_card" style="width: 80%">
+    <q-card v-if="currentQuestCard" class="quest_card" style="width: 100%">
       <q-card-section class="q-pb-none">
         <q-avatar size="45px" class="q-ma-sm">
           <img :src="ibis_node_icon('quest')" />
@@ -10,7 +10,6 @@
             {{ currentQuestCard.name }}
           </h5>
           <q-btn class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" />
-
           <q-tooltip self="bottom middle" max-width="25rem">
             <div v-html="currentQuestCard.description"></div>
           </q-tooltip>
@@ -18,50 +17,34 @@
       </q-card-section>
       <q-separator color="black"></q-separator>
       <q-card-section>
-        <div class="row">
+        <q-card-section class="row">
+          <div class="col"></div>
           <div v-if="currentQuestCard.casting" class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+            <p class="quest-card-data">
               Players: {{ currentQuestCard.casting.length }}
             </p>
-          </div>
-          <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Start Date: {{ getDate(currentQuestCard.start) }}
-            </p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+            <p v-if="currentQuestCard.game_play.length" class="quest-card-data">
               Guilds: {{ currentQuestCard.game_play.length }}
             </p>
-          </div>
-          <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              End Date: {{ getDate(currentQuestCard.end) }}
-            </p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+            <p v-else class="quest-card-data">Guilds: 0</p>
+            <p class="quest-card-data">
               Moves: {{ getNeighbourhood.length - 1 }}
             </p>
+            <p class="quest-card-data">Status: {{ currentQuestCard.status }}</p>
           </div>
+
           <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
+            <p class="quest-card-data">
+              Start Date: {{ getDate(currentQuestCard.start) }}
+            </p>
+            <p class="quest-card-data">
+              End Date: {{ getDate(currentQuestCard.end) }}
+            </p>
+            <p class="quest-card-data">
               Last Activity: {{ getLastActivity() }}
             </p>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <p class="q-pt-sm q-ml-md q-mb-sm quest-card-data">
-              Status: {{ currentQuestCard.status }}
-            </p>
-          </div>
-        </div>
-        <section class="quest-card-data"></section>
+        </q-card-section>
       </q-card-section>
     </q-card>
   </div>
