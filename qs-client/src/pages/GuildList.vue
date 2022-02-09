@@ -7,7 +7,8 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
-        <guilds-table></guilds-table>
+        <guilds-table v-if="getGuilds && getGuilds.length"></guilds-table>
+        <h5 v-else>There currently are no guilds</h5>
       </div>
     </div>
   </q-page>
@@ -18,55 +19,11 @@ import scoreboard from "../components/scoreboard.vue";
 import { mapGetters, mapActions } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import GuildsTable from "../components/guilds-table.vue";
+import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
+import Component from "vue-class-component";
+import Vue from "vue";
 
-export default {
-  props: ["member"],
-  data() {
-    return {
-      columns: [
-        {
-          name: "desc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "public",
-          required: false,
-          label: "Public",
-          align: "left",
-          field: "public",
-          sortable: true,
-        },
-        {
-          name: "date",
-          required: true,
-          label: "Date",
-          align: "left",
-          field: "created_at",
-          sortable: true,
-        },
-        {
-          name: "nodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-    };
-  },
+@Component<GuildListPage>({
   components: {
     scoreboard: scoreboard,
     GuildsTable: GuildsTable,
@@ -80,10 +37,14 @@ export default {
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
   },
+})
+export default class GuildListPage extends Vue {
+  getGuilds!: GuildsGetterTypes["getGuilds"];
+  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
 
   async beforeMount() {
     await userLoaded;
     await this.ensureAllGuilds();
-  },
-};
+  }
+}
 </script>

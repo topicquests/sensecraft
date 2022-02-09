@@ -3,10 +3,10 @@
     <div class="column items-center" v-if="potentialQuests.length > 0">
       <div class="col-4">
         <q-card q-ma-md>
-          <h2>
-            {{ getCurrentGuild?.name }}
+          <h2 v-if="getCurrentGuild">
+            {{ getCurrentGuild.name }}
             <router-link
-              :to="{ name: 'guild', params: { guild_id: getCurrentGuild?.id } }"
+              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
               style="font-size: smaller"
               >Guild</router-link
             >
@@ -18,7 +18,7 @@
             row-key="desc"
             id="quest_table"
           >
-            <template slot="body" slot-scope="props">
+            <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
                 <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
@@ -550,7 +550,7 @@ export default class GuildAdminPage extends Vue {
     );
   }
 
-  async beforeMount() {
+  async created() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await Promise.all([
@@ -594,7 +594,7 @@ export default class GuildAdminPage extends Vue {
   }
 }
 </script>
-<style scoped>
+<style>
 .card {
   background-color: white;
   margin: 3%;

@@ -1,13 +1,15 @@
 <template>
   <div>
-    <q-card><guilds-table v-bind:questId="questId"> </guilds-table> </q-card>
+    <q-card
+      ><guilds-quest-table v-bind:questId="questId"> </guilds-quest-table>
+    </q-card>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import guildsTable from "../components/guilds-table.vue";
+import guildsQuestTable from "../components/guilds-quest-table.vue";
 import { Prop } from "vue/types/options";
 
 const GuildsToQuestProp = Vue.extend({
@@ -19,7 +21,7 @@ const GuildsToQuestProp = Vue.extend({
 @Component<GuildToQuestCard>({
   name: "GuildsToQuest",
   components: {
-    guildsTable: guildsTable,
+    guildsQuestTable: guildsQuestTable,
   },
   computed: {},
 })

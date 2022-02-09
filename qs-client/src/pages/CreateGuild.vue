@@ -69,7 +69,7 @@ import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import { GuildsActionTypes } from "../store/guilds";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
-import { Role } from "./../types";
+import { Role, Guild } from "./../types";
 
 @Component<GuildFormPage>({
   components: {
@@ -107,7 +107,7 @@ export default class GuildFormPage extends Vue {
         message: `Added new guild`,
         color: "positive",
       });
-      //   this.$router.push({ name: "guild_admin", params: { guild_id: res.id } });
+      this.$router.push({ name: "guild_admin", params: { guild_id: res.id } });
     } catch (err) {
       console.log("there was an error in creating guild ", err);
       this.$q.notify({

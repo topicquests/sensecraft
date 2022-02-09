@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { mapState } from "vuex";
 export default {
   // props: ['member'],

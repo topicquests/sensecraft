@@ -67,7 +67,7 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import scoreboard from "../components/scoreboard.vue";
 import questTable from "../components/quest-table.vue";
 import member from "../components/member.vue";

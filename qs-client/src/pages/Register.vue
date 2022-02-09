@@ -1,12 +1,12 @@
 <template>
-  <q-page
-    class="window-height window-width row justify-center items-center"
-  >
+  <q-page class="window-height window-width row justify-center items-center">
     <div class="column">
       <div class="row">
         <q-card square class="shadow-24" style="width: 400px; height: 500px">
           <q-card-section class="bg-deep-purple-7">
-            <h4  style="text-align: center" class="text-h5 text-white q-my-md">Sign Up</h4>
+            <h4 style="text-align: center" class="text-h5 text-white q-my-md">
+              Sign Up
+            </h4>
           </q-card-section>
           <q-card-section>
             <q-form class="">
@@ -81,7 +81,9 @@
             </q-card-actions>
           </q-card-section>
           <q-card-section class="text-center q-pa-sm">
-            <router-link to="/signin" class="text-grey-6">Existing user?</router-link>
+            <router-link to="/signin" class="text-grey-6"
+              >Existing user?</router-link
+            >
           </q-card-section>
         </q-card>
       </div>
@@ -89,7 +91,7 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import { mapActions } from "vuex";
 import { Notify } from "quasar";
 
@@ -97,7 +99,7 @@ export default {
   name: "RegisterPage",
   meta: {
     // sets document title
-    title: 'Register',
+    title: "Register",
   },
   data() {
     return {

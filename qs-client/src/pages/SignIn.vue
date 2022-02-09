@@ -1,13 +1,14 @@
 <template>
   <q-page
     class="window-height window-width row justify-center items-center animated-bg"
-    
   >
     <div class="column q-pa-lg">
       <div class="row">
         <q-card square class="shadow-24" style="width: 400px; height: 380px">
           <q-card-section class="bg-deep-purple-7">
-            <h3 style="text-align: center" class="text-h5 text-white q-my-md">Welcome back!</h3>
+            <h3 style="text-align: center" class="text-h5 text-white q-my-md">
+              Welcome back!
+            </h3>
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm">
@@ -50,19 +51,21 @@
           </q-card-section>
           <div class="text-center q-gutter-md">
             <q-card-section>
-                <q-card-actions>
-                  <q-btn
-                    size="lg"
-                    color="purple-4"
-                    class="text-white"
-                    label="Log in"
-                    style="width: 100%"
-                    @click="doLogin"
-                  />
-                </q-card-actions>
-                <q-card-section class="text-center q-pa-sm">
-                  <router-link to="/register" class="text-grey-6">New user?</router-link>
-                </q-card-section>
+              <q-card-actions>
+                <q-btn
+                  size="lg"
+                  color="purple-4"
+                  class="text-white"
+                  label="Log in"
+                  style="width: 100%"
+                  @click="doLogin"
+                />
+              </q-card-actions>
+              <q-card-section class="text-center q-pa-sm">
+                <router-link to="/register" class="text-grey-6"
+                  >New user?</router-link
+                >
+              </q-card-section>
             </q-card-section>
           </div>
         </q-card>
@@ -71,13 +74,13 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import { mapActions, mapGetters } from "vuex";
 
 export default {
   meta: {
     // sets document title
-    title: 'Sign In',
+    title: "Sign In",
   },
   data() {
     return {

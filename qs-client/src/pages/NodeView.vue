@@ -214,7 +214,7 @@
     </q-list>
   </q-page>
 </template>
-<script lang="ts">
+<script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 

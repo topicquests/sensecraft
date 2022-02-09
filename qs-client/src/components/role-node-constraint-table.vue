@@ -5,7 +5,7 @@
       :data="role.role_node_constraint"
       :columns="columns"
     >
-      <template slot="body" slot-scope="props">
+      <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="node_type" :props="props"> {{ props.row.node_type }}</q-td>
           <q-td key="publish_state" :props="props">{{
