@@ -25,7 +25,7 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 

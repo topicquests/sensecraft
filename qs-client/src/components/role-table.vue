@@ -1,6 +1,6 @@
 <template>
   <q-table :title="title" :data="roles" :columns="columns">
-    <template slot="body" slot-scope="props">
+    <template v-slot:body="props">
       <q-tr :props="props">
         <q-td key="name" :props="props"> {{ props.row.name }}</q-td>
         <q-td key="guild" :props="props"> {{ props.row.guild_id }}</q-td>

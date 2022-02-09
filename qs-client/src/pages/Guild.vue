@@ -182,7 +182,7 @@
             row-key="desc"
             id="quest_table"
           >
-            <template slot="body" slot-scope="props">
+            <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
                 <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
@@ -214,12 +214,12 @@
             :label="role.name"
             :val="role.id"
             @input="updateRole()"
-            v-close-popup
+            v-close-popup="true"
           >
           </q-radio>
         </div>
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup></q-btn>
+          <q-btn flat label="Cancel" v-close-popup="false"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -267,6 +267,7 @@ import {
   Member,
   Role,
   CastingRole,
+  PublicMember,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -335,7 +336,7 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
     ...mapGetters(["hasPermission"]),
 
     // ...mapGetters('member', ['getUserId']),
-    getRolesForQuest() {
+    getRolesForQuest(): Role {
       const castingRoles = this.castingRolesPerQuest(
         this.memberId,
         this.currentQuestId
@@ -380,7 +381,7 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       "ensureGuildsPlayingQuest",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
-    getGuildMembers() {
+    getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
         return this.getMembersOfGuild(this.getCurrentGuild);
       }

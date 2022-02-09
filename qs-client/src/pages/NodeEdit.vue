@@ -134,7 +134,7 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import { mapActions, mapMutations, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
@@ -160,16 +160,16 @@ export default {
   },
   computed: {
     ...mapState("quests", {
-      currentQuest: (state: QuestsState) => state.currentQuest,
+      currentQuest: (state) => state.currentQuest,
     }),
     ...mapState("conversation", {
-      currentNode: (state: ConversationState) => state.node,
+      currentNode: (state) => state.node,
     }),
     ...mapState("guilds", {
-      currentGuild: (state: GuildsState) => state.currentGuild,
+      currentGuild: (state) => state.currentGuild,
     }),
     ...mapState("member", {
-      member: (state: MemberState) => state.member,
+      member: (state) => state.member,
     }),
   },
   components: {

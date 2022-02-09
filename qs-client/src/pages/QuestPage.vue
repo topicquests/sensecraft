@@ -9,13 +9,19 @@
       </div>
     </div>
 
-    <div class="row justify-center">
+    <div class="row justify-center q-pb-md">
       <div class="col-4">
         <questCard v-bind:currentQuestCard="getCurrentQuest"> </questCard>
       </div>
     </div>
     <div class="row justify-center">
-      <div v-if="getGuildsPlayingQuest(getCurrentQuest).length" class="col-6">
+      <div
+        v-if="
+          getGuildsPlayingQuest(getCurrentQuest) &&
+          getGuildsPlayingQuest(getCurrentQuest).length
+        "
+        class="col-6"
+      >
         <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
       </div>
       <div v-else>
@@ -23,7 +29,7 @@
       </div>
     </div>
     <div class="row justify-center q-mt-lg">
-      <div class="col-6 q-md q-mr-lg">
+      <div v-if="getConversationTree" class="col-6 q-md q-mr-lg">
         <node-tree
           v-bind:nodes="getConversationTree"
           v-on:updateTree="selectionChanged"

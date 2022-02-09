@@ -91,18 +91,19 @@ export default class QuestCard extends QuestCardProps {
 
   getLastActivity() {
     let date: Date = new Date();
-    let publishedNeighbourhood: ConversationNode[];
     let newestDate;
+    var dateArray: ConversationNode[] = [];
     const neighbourhood: ConversationNode[] = this.getNeighbourhood;
     if (neighbourhood.length) {
-      publishedNeighbourhood = neighbourhood.map((pub) => {
+      neighbourhood.forEach((pub) => {
         if (pub.status == "published") {
           date = new Date(pub.updated_at);
           pub.updated_at = new Intl.DateTimeFormat("en-US").format(date);
-          return pub;
+          dateArray.push(pub);
         }
       });
-      newestDate = publishedNeighbourhood.reduce((a, b) => {
+
+      newestDate = dateArray.reduce((a, b) => {
         return new Date(a.updated_at) > new Date(b.updated_at) ? a : b;
       });
       if (newestDate) {
