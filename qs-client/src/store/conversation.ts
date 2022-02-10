@@ -11,6 +11,7 @@ import {
   ibis_node_type_enum,
   ibis_node_type_type,
   publication_state_enum,
+  publication_state_list,
   permission_enum,
   meta_state_enum,
 } from "../enums";
@@ -131,7 +132,7 @@ export function ibis_node_icon(
 
 export function makeTree(
   nodes: ConversationNode[],
-  upToStatus: publication_state_enum = publication_state_enum.private_draft,
+  upToStatus: publication_state_enum = publication_state_enum.obsolete,
   include_meta: boolean = true
 ) {
   if (nodes.length == 0) {
@@ -150,7 +151,11 @@ export function makeTree(
   const roots: QTreeNode[] = [];
   elements.forEach((el) => {
     if (el.meta == meta_state_enum.meta && !include_meta) return;
-    if (el.status < upToStatus) return;
+    if (
+      publication_state_list.indexOf(el.status) <
+      publication_state_list.indexOf(upToStatus)
+    )
+      return;
     const parent = el.parent_id ? byId[el.parent_id] : null;
     if (parent) {
       parent.children.push(el);
