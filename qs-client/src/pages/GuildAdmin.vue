@@ -1,16 +1,28 @@
 <template>
-  <q-page style="background-color: lightgrey" padding class="page">
-    <div class="column items-center" v-if="potentialQuests.length > 0">
+  <q-page>
+    <h3 v-if="getCurrentGuild" class="text-center">
+      <router-link
+        :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
+      >
+        {{ getCurrentGuild.name }}</router-link
+      >
+    </h3>
+    <q-tooltip>Click link to goto guild</q-tooltip>
+    <div class="row justify-center">
+      <div class="col-4">
+        <guild-card
+          v-bind:currentGuild="getCurrentGuild"
+          class="q-ml-xl"
+          style="width: 80%"
+        ></guild-card>
+      </div>
+    </div>
+    <div
+      class="column items-center q-mt-md"
+      v-if="potentialQuests && potentialQuests.length > 0"
+    >
       <div class="col-4">
         <q-card q-ma-md>
-          <h2 v-if="getCurrentGuild">
-            {{ getCurrentGuild.name }}
-            <router-link
-              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
-              style="font-size: smaller"
-              >Guild</router-link
-            >
-          </h2>
           <q-table
             title="Potential Quests"
             :data="potentialQuests"
@@ -66,40 +78,27 @@
     </div>
     <div v-else>
       <div class="column items-center">
-        <h1>No quest you can join</h1>
+        <h4>No quest you can join</h4>
       </div>
     </div>
-    <div class="row justify-center full-height full-width text-center">
-      <h4>Registered Quests</h4>
+    <div class="row justify-center text-center">
+      <h5>Registered Quests</h5>
     </div>
-    <div v-if="activeQuests.length > 0" class="row justify-center">
-      <div v-for="quest in activeQuests" :key="quest.id">
-        <div class="col-6 q-ma-md">
-          <q-card
-            class="q-pa-md q-ma-md card"
-            style="border: 1px solid gray; min-width: 400px"
+    <div v-if="activeQuests && activeQuests.length > 0">
+      <div class="row justify-center">
+        <q-card class="col-4 q-mb-md">
+          <div
+            v-for="quest in activeQuests"
+            :key="quest.id"
+            class="row justify-center"
           >
-            <q-radio
-              v-model="currentQuestIdS"
-              color="black"
-              style="font-size: 20px"
-              :val="quest.id"
-              :label="quest.name"
-            />
-            <ul>
-              <li v-for="member in getGuildMembers" :key="member.id">
-                {{ member.handle }}
-                <span v-if="playingAsGuildId(member.id)" style="color: black">
-                  <span v-if="playingAsGuildId(member.id) == currentGuildId">
-                    {{ getCastingRole(member.id, quest.id) }}
-                  </span>
-                </span>
-              </li>
-            </ul>
-          </q-card>
-        </div>
+            <h6>{{ quest.name }}</h6>
+            <q-tooltip max-width="25rem">{{ quest.description }}</q-tooltip>
+          </div>
+        </q-card>
       </div>
     </div>
+
     <div class="row justify-center">
       <q-card style="width: 40%">
         <div class="row justify-center">
@@ -194,12 +193,14 @@ import Component from "vue-class-component";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
 import roleTable from "../components/role-table.vue";
+import guildCard from "../components/guild-card.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
   components: {
     CastingRoleEdit,
     roleTable: roleTable,
+    guildCard: guildCard,
   },
   computed: {
     ...mapState("member", {
@@ -229,7 +230,7 @@ import roleTable from "../components/role-table.vue";
               q.status == quest_status_enum.registration) &&
             this.confirmedPlayQuestIds.includes(q.id)
         );
-        if (active_quests.length > 0) {
+        if (active_quests && active_quests.length > 0) {
           return active_quests;
         } else {
           return [];

@@ -8,78 +8,45 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-    <div class="col">
+    <div class="col-4">
       <div class="row justify-center">
         <h3>Edit Guild</h3>
       </div>
     </div>
-    <div class="column items-center" v-if="guild">
-      <div class="col-4 q-pa-lg" style="width: 55%">
-        <q-card class="q-pl-md">
-          <div class="row justify-start q-pa-lg">
-            <div class="q-gutter-sm">
-              <q-option-group
-                v-model="guild.public"
-                :options="public_private_bool"
-                color="primary"
-                inline
-              >
-              </q-option-group>
-            </div>
-          </div>
-          <div class="row justify-start q-pb-lg">
-            <q-input v-model="guild.name" label="Name" />
-          </div>
-          <div class="row justify-start q-pb-xs">Details<br /></div>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <q-editor v-model="guild.description"></q-editor>
-          </div>
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <span label="Handle">{{ guild.handle }}</span>
-          </div>
-          <div class="row justify-start q-pb-lg">
-            <q-btn
-              label="Submit"
-              @click="doSubmit"
-              color="primary"
-              class="q-mr-md q-ml-md"
-            />
-            <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
-          </div>
-        </q-card>
+    <div class="row justify-center">
+      <div class="col-4">
+        <guild-card
+          v-bind:currentGuild="getCurrentGuild"
+          class="q-ml-xl"
+          style="width: 80%"
+        ></guild-card>
       </div>
     </div>
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
+import { BaseGetterTypes } from "../store/baseStore";
 import { userLoaded } from "../boot/userLoaded";
-import { public_private_bool } from "../enums";
+import { permission_enum } from "../enums";
+import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
+import guildCard from "../components/guild-card.vue";
+import Component from "vue-class-component";
+import Vue from "vue";
 
-export default {
-  data() {
-    return {
-      group: "public",
-      public_private_bool,
-      guild_id: null,
-      isAdmin: false,
-      shape: "line",
-      submitResult: [],
-      details: "",
-      handle: "",
-      type: false,
-    };
-  },
+@Component<GuildEdit>({
+  name: "guild_edit",
   components: {
     scoreboard: scoreboard,
     member: member,
+    guildCard: guildCard,
   },
   computed: {
     ...mapState("member", ["member"]),
-    ...mapGetters("guilds", ["getGuildById"]),
+    ...mapGetters("guilds", ["getGuildById", "getCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
     guild: function () {
       return this.getGuildById(this.guild_id);
@@ -87,39 +54,27 @@ export default {
   },
   methods: {
     ...mapActions("guilds", ["updateGuild", "ensureGuild"]),
-
-    doSubmit: async function () {
-      if (this.group === true) {
-        this.guild.public = true;
-      }
-
-      if (this.group === false) {
-        this.guild.public = false;
-      }
-      try {
-        await this.updateGuild({ data: this.guild });
-        this.$q.notify({
-          message: "Guild was updated successfully",
-          color: "positive",
-        });
-      } catch (err) {
-        console.log("there was an error in updating guild ", err);
-        this.$q.notify({
-          message:
-            "There was an error updating guild. If this issue persists, contact support.",
-          color: "negative",
-        });
-      }
-    },
   },
+})
+export default class GuildEdit extends Vue {
+  guild_id: number;
+  isAdmin: Boolean = false;
+
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  hasPermission!: BaseGetterTypes["hasPermission"];
+
+  ensureGuild: GuildsActionTypes["ensureGuild"];
 
   async beforeMount() {
     this.guild_id = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await this.ensureGuild({ guild_id: this.guild_id });
-    this.isAdmin = this.hasPermission("guild_admin", this.guild_id);
-  },
-};
+    this.isAdmin = this.hasPermission(
+      permission_enum.guildAdmin,
+      this.guild_id
+    );
+  }
+}
 </script>
 
 <style>
