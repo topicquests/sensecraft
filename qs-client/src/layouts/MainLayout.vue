@@ -163,7 +163,7 @@
   </q-layout>
 </template>
 
-<script lang="ts">
+<script>
 import { mapState, mapGetters, mapActions } from "vuex";
 
 import { MemberState } from "../store/member";
@@ -201,8 +201,8 @@ export default {
     ]),
     ...mapGetters(["hasPermission"]),
     ...mapState("member", {
-      isAuthenticated: (state: MemberState) => state.isAuthenticated,
-      memberId: (state: MemberState) => state.member.id,
+      isAuthenticated: (state) => state.isAuthenticated,
+      memberId: (state) => state.member.id,
     }),
   },
   watch: {
