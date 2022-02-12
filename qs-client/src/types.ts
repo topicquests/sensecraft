@@ -5,6 +5,7 @@ import {
   ibis_node_type_type,
   publication_state_type,
   meta_state_type,
+  game_play_status_type,
 } from "./enums";
 
 export interface GuildMembership {
@@ -57,6 +58,7 @@ export interface GamePlay {
   quest_id: number;
   guild_id: number;
   status: registration_status_type;
+  game_status: game_play_status_type;
   created_at: string;
   updated_at: string;
   accepted_at?: string;

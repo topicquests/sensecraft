@@ -89,6 +89,18 @@ export const publication_state_list: publication_state_type[] = Object.keys(
   publication_state_enum
 ) as publication_state_type[];
 
+export enum game_play_status_enum {
+  cancelled = "cancelled",
+  interested = "interested",
+  confirmed = "confirmed",
+  full_team = "team_full",
+}
+
+export type game_play_status_type = keyof typeof game_play_status_enum;
+export const game_play_status_list: game_play_status_type[] = Object.keys(
+  game_play_status_enum
+) as game_play_status_type[];
+
 export const public_private_bool = [
   {
     label: "Public",

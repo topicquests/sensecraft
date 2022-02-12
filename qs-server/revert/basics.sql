@@ -9,6 +9,7 @@ DROP TYPE IF EXISTS public.quest_status;
 DROP TYPE IF EXISTS public.registration_status;
 DROP TYPE IF EXISTS public.player_role;
 DROP TYPE IF EXISTS public.meta_state;
+DROP TYPE IF EXISTS public.game_play_status;
 DROP EXTENSION IF EXISTS pgjwt;
 DROP EXTENSION IF EXISTS pgcrypto;
 DROP EXTENSION IF EXISTS ltree;

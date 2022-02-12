@@ -51,17 +51,6 @@ CREATE TYPE public.registration_status AS ENUM (
     'confirmed'
 );
 
---
--- Name: game_play_status; Type: TYPE
---
-
-CREATE TYPE public.game_play_status AS ENUM (
-    'cancelled',
-    'interested',
-    'confirmed',
-    'team_full'
-);
-
 
 --
 -- Name: quest_status; Type: TYPE

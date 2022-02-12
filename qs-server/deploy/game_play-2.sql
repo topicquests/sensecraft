@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS public.game_play (
     guild_id integer NOT NULL,
     quest_id integer NOT NULL,
     status public.registration_status DEFAULT 'confirmed'::public.registration_status NOT NULL,
-    game_status public.game_play_status DEFAULT 'interested'::public.game_play_status NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     accepted_at timestamp with time zone,
