@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="bg-secondary">
     <h3 v-if="getCurrentGuild" class="text-center">
       <router-link
         :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
@@ -77,12 +77,12 @@
       </div>
     </div>
     <div v-else>
-      <div class="column items-center">
+      <div class="column items-center q-mt-md">
         <h4>No quest you can join</h4>
       </div>
     </div>
     <div class="row justify-center text-center">
-      <h5>Registered Quests</h5>
+      <h5 class="q-mt-md q-mb-md">Registered Quests</h5>
     </div>
     <div v-if="activeQuests && activeQuests.length > 0">
       <div class="row justify-center">
@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <div class="row justify-center">
+    <div class="row justify-center q-mt-md">
       <q-card style="width: 40%">
         <div class="row justify-center">
           <H5>Members Available Roles </H5>
@@ -139,17 +139,18 @@
       </q-card>
     </div>
     <div class="column items-center">
-      <div class="col-6 q-pt-lg q-pb-sm" style="width: 55%">
+      <div class="col-6 q-pt-lg q-mb-md" style="width: 55%">
         <q-btn
           v-if="$store.state.member.member"
           id="newRoleBtn"
           label="New Role"
+          color="primary"
           @click="
             $router.push({ name: 'create_guild_role', params: { guildId } })
           "
         />
       </div>
-      <div id="roles" style="width: 55%">
+      <div class="q-mb-xl" style="width: 55%">
         <role-table v-bind:roles="getRoles"></role-table>
       </div>
     </div>
@@ -551,6 +552,10 @@ export default class GuildAdminPage extends Vue {
     );
   }
 
+  beforeMount() {
+    document.title = "Guild Admin";
+  }
+
   async created() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
@@ -595,21 +600,4 @@ export default class GuildAdminPage extends Vue {
   }
 }
 </script>
-<style>
-.card {
-  background-color: white;
-  margin: 3%;
-}
-li {
-  list-style: none;
-  background-color: white;
-}
-.page {
-  background-color: whitesmoke;
-}
-ul {
-  font-size: 17px;
-  color: red;
-  padding-left: 1%;
-}
-</style>
+<style></style>
