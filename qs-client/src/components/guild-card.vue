@@ -88,13 +88,8 @@ export default class GuildCard extends GuildCardProps {
   guild: Guild;
   guild_id: null;
   isAdmin: false;
-  shape: "line";
-  submitResult: [];
-  details: "";
-  handle: "";
-  type: false;
-  invintation: [];
-  public_private_bool;
+  invintation: Boolean;
+  public_private_bool: Boolean;
 
   created() {
     this.guild = this.currentGuild;
@@ -105,13 +100,6 @@ export default class GuildCard extends GuildCardProps {
   updateGuild: GuildsActionTypes["updateGuild"];
 
   async doSubmit() {
-    if (this.group) {
-      this.guild.public = true;
-    }
-
-    if (!this.group) {
-      this.guild.public = false;
-    }
     try {
       await this.updateGuild({ data: this.guild });
       this.$q.notify({
