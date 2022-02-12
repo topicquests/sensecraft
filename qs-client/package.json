@@ -27,10 +27,10 @@
     "grant": "~5.4",
     "luxon": "~2.3",
     "pg-hstore": "~2.3",
-    "quasar": "~1.18",
+    "quasar": "legacy",
     "socket.io-client": "~4.4",
     "uuid": "~8.3",
-    "vue": "~2.6",
+    "vue": "legacy",
     "vue-class-component": "~7",
     "vuelidate": "^0.7.6",
     "vuex": "~3.6",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@cucumber/cucumber": "~7.3",
     "@cucumber/pretty-formatter": "^1.0.0-alpha.1",
-    "@quasar/app": "~2.2.11",
+    "@quasar/app": "legacy",
     "@quasar/quasar-app-extension-testing": "~1.0.5",
     "@quasar/quasar-app-extension-testing-unit-jest": "~2.2.3",
     "@tsconfig/recommended": "~1.0",
@@ -52,13 +52,13 @@
     "babel-eslint": "^10.0.1",
     "chai": "~4.3.6",
     "cucumber-tsflow": "^4.0.0-preview.7",
-    "eslint": "~8.8",
+    "eslint": "~8.9",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-cucumber": "~1.4",
     "eslint-plugin-jest": "~26",
     "eslint-plugin-markdown": "~2.2",
     "eslint-plugin-vue": "~8",
-    "eslint-webpack-plugin": "~2.6",
+    "eslint-webpack-plugin": "2x",
     "husky": "~7.0",
     "jest-matcher-vue-test-utils": "^2.0.1",
     "jest-mock-axios": "^4.5.0",
@@ -93,6 +93,9 @@
   },
   "productName": "SenseCraft",
   "resolutions": {
+    "axios": "~0.25"
+  },
+  "overrides": {
     "axios": "~0.25"
   }
 }
