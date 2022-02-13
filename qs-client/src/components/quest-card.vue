@@ -26,8 +26,7 @@
             >
               Players: {{ currentQuest.casting.length }}
             </p>
-            <p v-else></p>
-            <p class="quest-card-data">Players: 0</p>
+            <p v-else>class="quest-card-data">Players: 0</p>
             <p v-if="currentQuest.game_play && currentQuest.game_play.length" class="quest-card-data">
               Guilds: {{ currentQuest.game_play.length }}
             </p>
@@ -66,7 +65,6 @@ import { Quest, Member, ConversationNode } from "../types";
 import { mapGetters } from "vuex";
 import { Prop } from "vue/types/options";
 import { ConversationGetterTypes, ibis_node_icon } from "../store/conversation";
-import { guilds, GuildsGetterTypes } from "src/store/guilds";
 import { QuestsGetterTypes } from "src/store/quests";
 
 const QuestCardProps = Vue.extend({
