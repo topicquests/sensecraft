@@ -93,7 +93,7 @@ import { Casting } from "src/types";
     ...mapGetters("guilds", ["getGuildsPlayingQuest"]),
   },
   methods: {
-    ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
+    ...mapActions("quests", ["setCurrentQuest", "ensureCurrentQuest", "ensureAllQuests"]),
     ...mapActions("guilds", ["ensureGuildsPlayingQuest"]),
     ...mapActions("members", ["fetchMemberById"]),
     ...mapActions("conversation", [
@@ -124,13 +124,14 @@ export default class QuestViewPage extends Vue {
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
-  ensureQuest: QuestsActionTypes["ensureQuest"];
+  ensureCurrentQuest: QuestsActionTypes["ensureCurrentQuest"];
   ensureConversation: ConversationActionTypes["ensureConversation"];
   ensureRootNode: ConversationActionTypes["ensureRootNode"];
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
   ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
   ensureChannels: ChannelActionTypes["ensureChannels"];
+  ensureAllQuests: QuestsActionTypes['ensureAllQuests']
 
   selectionChanged(id) {
     this.selectedNodeId = id;
@@ -145,13 +146,13 @@ export default class QuestViewPage extends Vue {
     const quest_id = Number.parseInt(this.$route.params.quest_id);
     this.questId = quest_id;
     await Promise.all([
-      this.setCurrentQuest(quest_id),
+      this.ensureAllQuests(),
+      this.ensureCurrentQuest({quest_id}),
       this.ensureConversation(quest_id),
       this.ensureGuildsPlayingQuest({ quest_id }),
-      this.ensureQuest({ quest_id }),
     ]);
     let node_id =
-      this.getCurrentGamePlay?.focus_node_id || this.getRootNode?.id;
+      await this.getCurrentGamePlay?.focus_node_id || this.getRootNode?.id;
     if (node_id) {
       await this.ensureConversationNeighbourhood({
         node_id,
