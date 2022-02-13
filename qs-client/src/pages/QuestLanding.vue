@@ -101,10 +101,10 @@ export default {
   async beforeMount() {
     await userLoaded;
     // not using those yet?
-    // await Promise.all([
-    //   this.ensureAllQuests(),
-    //   this.ensureAllGuilds(),
-    // ])
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.ensureAllGuilds(),
+    ])
   },
 };
 </script>

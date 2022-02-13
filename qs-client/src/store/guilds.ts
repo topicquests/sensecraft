@@ -101,7 +101,8 @@ const GuildsActions = {
   ensureGuildsPlayingQuest: async (
     context,
     { quest_id, full }: { quest_id: number; full?: boolean }
-  ) => {
+  // eslint-disable-next-line no-debugger
+  ) => {debugger
     await MyVapi.store.dispatch("quests/ensureQuest", {
       quest_id,
       full: true,
