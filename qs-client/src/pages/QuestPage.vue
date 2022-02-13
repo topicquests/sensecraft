@@ -64,6 +64,7 @@ import {
 } from "../store/channel";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { Casting } from "src/types";
+import { MembersActionTypes } from "src/store/members";
 
 @Component<QuestViewPage>({
   components: {
@@ -95,7 +96,7 @@ import { Casting } from "src/types";
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureCurrentQuest", "ensureAllQuests"]),
     ...mapActions("guilds", ["ensureGuildsPlayingQuest"]),
-    ...mapActions("members", ["fetchMemberById"]),
+    ...mapActions("members", ["fetchMemberById", 'ensureAllMembers']),
     ...mapActions("conversation", [
       "ensureConversation",
       "ensureConversationSubtree",
@@ -132,6 +133,7 @@ export default class QuestViewPage extends Vue {
   ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
   ensureChannels: ChannelActionTypes["ensureChannels"];
   ensureAllQuests: QuestsActionTypes['ensureAllQuests']
+  ensureAllMembers: MembersActionTypes['ensureAllMembers']
 
   selectionChanged(id) {
     this.selectedNodeId = id;
@@ -146,7 +148,7 @@ export default class QuestViewPage extends Vue {
     const quest_id = Number.parseInt(this.$route.params.quest_id);
     this.questId = quest_id;
     await Promise.all([
-      this.ensureAllQuests(),
+      this.ensureAllMembers(),
       this.ensureCurrentQuest({quest_id}),
       this.ensureConversation(quest_id),
       this.ensureGuildsPlayingQuest({ quest_id }),
