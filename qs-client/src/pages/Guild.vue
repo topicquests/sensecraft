@@ -161,7 +161,7 @@
     <div class="row justify-center">
       <div class="col-4 q-mt-md items-center" v-if="getCurrentQuest">
         <questCard
-          v-bind:currentQuestCard="getCurrentQuest"
+          v-bind:currentQuest="getCurrentQuest"
           :creator="getQuestCreator()"
           v-if="getCurrentQuest"
         ></questCard>
@@ -345,7 +345,7 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       return roles;
     },
 
-    getCastingRoleNames() {
+    getCastingRoleNames(): string[] {
       const roles = this.getRolesForQuest;
       const rolesName = roles.map((cr) => cr.name).join(",");
       return rolesName;
@@ -511,6 +511,9 @@ export default class GuildPage extends Vue {
   fetchQuestById!: QuestsActionTypes["fetchQuestById"];
   updateQuest!: QuestsActionTypes["updateQuest"];
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
+  getGuildMembers!: () => PublicMember[];
+  getRolesForQuest!: () => Role[];
+  getCastingRoleNames!: () => string[];
 
   async initialize() {
     await this.setCurrentGuild(this.guildId);

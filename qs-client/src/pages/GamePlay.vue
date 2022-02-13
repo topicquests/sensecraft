@@ -12,7 +12,7 @@
       <div class="col-4 q-md q-mr-lg">
         <questCard
           v-if="getCurrentQuest"
-          :currentQuestCard="getCurrentQuest"
+          :currentQuest="getCurrentQuest"
           :creator="getQuestCreator()"
         ></questCard>
       </div>

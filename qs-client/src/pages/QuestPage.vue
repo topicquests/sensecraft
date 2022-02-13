@@ -11,7 +11,7 @@
 
     <div class="row justify-center q-pb-md">
       <div class="col-4">
-        <questCard v-bind:currentQuestCard="getCurrentQuest"> </questCard>
+        <questCard v-bind:currentQuest="getCurrentQuest"> </questCard>
       </div>
     </div>
     <div class="row justify-center">

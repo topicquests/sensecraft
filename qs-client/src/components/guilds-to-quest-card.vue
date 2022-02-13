@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import guildsQuestTable from "../components/guilds-quest-table.vue";
+import guildsQuestTable from "./guilds-quest-table.vue";
 import { Prop } from "vue/types/options";
 
 const GuildsToQuestProp = Vue.extend({

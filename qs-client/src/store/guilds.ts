@@ -52,7 +52,9 @@ const GuildsGetters = {
     );
   },
   getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
-    const guildId = quest.game_play.map((gp: GamePlay) => gp.guild_id);
+    if (!quest) return [];
+    const guildId = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
+    if (guildId == undefined) return [];
     return Object.values(state.guilds).filter((guild: Guild) =>
       guildId.includes(guild.id)
     );
@@ -105,7 +107,8 @@ const GuildsActions = {
       full: true,
     });
     const quest = MyVapi.store.getters["quests/getQuestById"](quest_id);
-    let guildId: number[] = quest.game_play.map((gp: GamePlay) => gp.guild_id);
+    let guildId: number[] = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
+    if (guildId == undefined) return [];
     if (full) {
       guildId = guildId.filter((id: number) => !context.state.fullGuilds[id]);
     } else {
