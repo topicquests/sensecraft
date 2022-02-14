@@ -26,17 +26,21 @@
             >
               Players: {{ currentQuest.casting.length }}
             </p>
-            <p v-else>class="quest-card-data">Players: 0</p>
-            <p v-if="currentQuest.game_play && currentQuest.game_play.length" class="quest-card-data">
+            <p v-else class="quest-card-data">Players: 0</p>
+            <p
+              v-if="currentQuest.game_play && currentQuest.game_play.length"
+              class="quest-card-data"
+            >
               Guilds: {{ currentQuest.game_play.length }}
             </p>
             <p v-else class="quest-card-data">Guilds: 0</p>
-            <p v-if="getNeighbourhood && getNeighbourhood.length" class="quest-card-data">
+            <p
+              v-if="getNeighbourhood && getNeighbourhood.length"
+              class="quest-card-data"
+            >
               Moves: {{ getNeighbourhood.length - 1 }}
             </p>
-            <p v-else class="quest-card-data">
-              Moves: 0
-            </p>
+            <p v-else class="quest-card-data">Moves: 0</p>
 
             <p class="quest-card-data">Status: {{ currentQuest.status }}</p>
           </div>
