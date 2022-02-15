@@ -2,26 +2,26 @@
   <div>
     <q-table
       class="guilds-tale"
-      title="Guilds"
-      :data="getGuilds"
+      :title="title"
+      :data="guilds"
       :columns="columns"
       row-key="desc"
     >
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-          <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
-          <q-td key="guildMember" :props="props">
-            {{ guildBelongsTo(props.row.id) }}
+          <q-td key="numMembers">{{(props.row.guild_membership||[]).length}}</q-td>
+          <q-td key="actions">
+            <slot v-bind:guild="props.row"></slot>
           </q-td>
-          <q-td key="nodeId" auto-width :props="props">
+          <q-td key="view">
             <router-link
               :to="{
                 name: 'guild',
                 params: { guild_id: props.row.id },
               }"
             >
-              Enter
+              View
             </router-link>
           </q-td>
         </q-tr>
@@ -30,74 +30,65 @@
   </div>
 </template>
 
+            <!-- component :is="action_component" :props="props" />
+import { GuildsMembershipIndicator } from "./guilds-membership-indicator";
+
+-->
 <script lang="ts">
 import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import Vue from "vue";
+import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapActions, mapGetters } from "vuex";
+import { Guild } from "../types";
+
 
 const GuildsTableProp = Vue.extend({
-  props: {},
+  props: {
+    title: String,
+    guilds: Array as Prop<Guild[]>,
+  },
 });
 
 @Component<GuildTable>({
   name: "GuildsTable",
-  computed: {
-    ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
-  },
-  methods: {
-    ...mapActions("guilds", ["ensureAllGuilds"]),
-  },
 })
 export default class GuildTable extends GuildsTableProp {
   columns = [
     {
       name: "desc",
       required: true,
-      label: "Label",
+      label: "Name",
       align: "left",
       field: "name",
       sortable: true,
     },
     {
-      name: "handle",
-      required: false,
-      label: "Handle",
+      name: "numMembers",
+      required: true,
+      label: "# Members",
       align: "left",
-      field: "handle",
+      field: "(guild_membership||[]).length",
       sortable: true,
     },
     {
-      name: "guildMember",
-      required: true,
-      label: "Guild Member",
-      align: "left",
-      field: "guildBelongsTo",
-    },
-    {
-      name: "nodeId",
+      name: "membership",
       required: false,
-      label: "Action",
+      label: "Membership",
       align: "left",
       field: "id",
-      sortable: true,
+      sortable: false,
+    },
+    {
+      name: "view",
+      required: false,
+      label: "View",
+      align: "left",
+      field: "id",
+      sortable: false,
     },
   ];
-  getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
 
-  guildBelongsTo(id) {
-    const guildId = this.getMyGuilds.find((el) => el.id == id);
-    if (guildId) {
-      return "Yes";
-    } else {
-      return "No";
-    }
-  }
-
-  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
-  async beforeMount() {
-    await this.ensureAllGuilds();
-  }
 }
 </script>
 <style>

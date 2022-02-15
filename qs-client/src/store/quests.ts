@@ -90,12 +90,30 @@ const QuestsGetters = {
         (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
       );
     },
+  isPlayingQuestAsGuildId:
+    (state: QuestsState) =>
+    (quest_id?: number, member_id?: number) => {
+      member_id = member_id || MyVapi.store.getters["member/getUserId"];
+      quest_id = quest_id || state.currentQuest;
+      const casting = state.quests[quest_id]?.casting?.find(
+        (c: Casting) => c.member_id == member_id
+      );
+      return casting?.guild_id;
+    },
   isGuildPlayingQuest:
     (state: QuestsState) => (quest_id?: number, guild_id?: number) => {
       quest_id = quest_id || state.currentQuest;
       return state.quests[quest_id]?.casting?.find(
         (c: Casting) => c.guild_id == guild_id
       );
+    },
+  getGamePlayForGuild: (state) => (guild_id: number): GamePlay => {
+      if (state.currentQuest) {
+        const quest = state.quests[state.currentQuest];
+        return quest?.game_play?.find(
+          (gp: GamePlay) => gp.guild_id == guild_id
+        );
+      }
     },
   getCurrentGamePlay: (state) => {
     if (state.currentQuest) {

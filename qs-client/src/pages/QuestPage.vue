@@ -16,13 +16,17 @@
     </div>
     <div class="row justify-center">
       <div
-        v-if="
-          getGuildsPlayingQuest(getCurrentQuest) &&
-          getGuildsPlayingQuest(getCurrentQuest).length
-        "
+        v-if="getGuildsPlayingQuest(getCurrentQuest).length"
         class="col-6"
       >
-        <guilds-to-quest-card v-bind:questId="questId"></guilds-to-quest-card>
+        <guilds-table v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)">
+          <template v-slot:default="slotProps">
+            <guilds-playing-indicator
+              v-bind:quest="getCurrentQuest"
+              v-bind:playing="isPlayingQuestAsGuildId()"
+              v-bind:guild="slotProps.guild" />
+          </template>
+        </guilds-table>
       </div>
       <div v-else>
         <h5>There are no guilds playing quest</h5>
@@ -49,7 +53,8 @@ import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import nodeTree from "../components/node-tree.vue";
 import nodeForm from "../components/node-form.vue";
-import guildsToQuestCard from "../components/guilds-to-quest-card.vue";
+import GuildsTable from "../components/guilds-table.vue";
+import GuildsPlayingIndicator from "../components/guilds-playing-indicator.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
@@ -73,7 +78,8 @@ import { MembersActionTypes } from "src/store/members";
     member: member,
     nodeForm: nodeForm,
     nodeTree: nodeTree,
-    guildsToQuestCard: guildsToQuestCard,
+    GuildsTable: GuildsTable,
+    GuildsPlayingIndicator: GuildsPlayingIndicator,
     ChannelList: ChannelList,
   },
   computed: {
@@ -81,6 +87,7 @@ import { MembersActionTypes } from "src/store/members";
       "getCurrentQuest",
       "getCurrentGamePlay",
       "castingInQuest",
+      "isPlayingQuestAsGuildId",
     ]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
@@ -121,6 +128,7 @@ export default class QuestViewPage extends Vue {
   getRootNode!: ConversationGetterTypes["getRootNode"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
+  isPlayingQuestAsGuildId!: QuestsGetterTypes["isPlayingQuestAsGuildId"];
   getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
 
   // declare the methods for Typescript

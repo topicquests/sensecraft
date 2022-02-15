@@ -42,6 +42,8 @@ import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
 import { mapActions, mapGetters } from "vuex";
 
+// This component is obsolete, but may contain useful code
+
 const GuildsTableProp = Vue.extend({
   props: {
     questId: Number,

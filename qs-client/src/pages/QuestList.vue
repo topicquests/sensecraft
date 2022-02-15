@@ -53,6 +53,7 @@ import { userLoaded } from "../boot/userLoaded";
 import Component from "vue-class-component";
 import Vue from "vue";
 import { quest_status_enum, quest_status_list } from "../enums";
+import { Quest } from "../types";
 
 @Component<QuestList>({
   components: {
@@ -82,6 +83,10 @@ import { quest_status_enum, quest_status_list } from "../enums";
 export default class QuestList extends Vue {
   getQuestsByStatus!: QuestsGetterTypes["getQuestsByStatus"];
   ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
+  notStartedQuests!: Quest[];
+  registrationQuests!: Quest[];
+  ongoingQuests!: Quest[];
+  finishedQuests!: Quest[];
   async beforeMount() {
     await userLoaded;
     await this.ensureAllQuests();

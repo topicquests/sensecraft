@@ -556,7 +556,7 @@ export default class GuildPage extends Vue {
     }
   }
   getAvailableRolesById(memberId: number) {
-    const roles = this.getAvailableRolesMembersById(memberId);
+    const roles = this.getAvailableRolesMembersById(memberId) || [];
     const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
     return roleName;
   }

@@ -13,7 +13,7 @@ import {
   Quest,
   GuildMemberAvailableRole,
 } from "../types";
-import { registration_status_enum, permission_enum } from "../enums";
+import { registration_status_enum, permission_enum, game_play_status_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { member } from "./member";
 import { parseMap } from "yaml/util";
@@ -53,7 +53,7 @@ const GuildsGetters = {
   },
   getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
     if (!quest) return [];
-    const guildId = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
+    const guildId = quest.game_play?.map((gp: GamePlay) => (gp.game_status != game_play_status_enum.cancelled)? gp.guild_id : null);
     if (guildId == undefined) return [];
     return Object.values(state.guilds).filter((guild: Guild) =>
       guildId.includes(guild.id)
