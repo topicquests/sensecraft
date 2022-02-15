@@ -186,7 +186,7 @@ export const QuestsActions = {
     { quest_id, full = true }: { quest_id: number; full?: boolean }
   ) => {
     if (
-      await context.getters.getQuestById(quest_id) === undefined ||
+      context.getters.getQuestById(quest_id) === undefined ||
       (full && !context.state.fullQuests[quest_id])
     ) {
       await context.dispatch("fetchQuestById", {
