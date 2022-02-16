@@ -197,6 +197,10 @@ DROP POLICY IF EXISTS guild_member_available_role_update_policy ON public.guild_
 CREATE POLICY guild_member_available_role_update_policy ON public.guild_member_available_role FOR UPDATE USING (
     public.has_guild_permission(guild_id, 'guildAdmin'));
 
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.casting_role TO :dbm;
+GRANT SELECT ON TABLE public.casting_role TO :dbc;
+
 --
 -- Name: casting_role; Type: ROW SECURITY
 --
