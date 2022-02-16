@@ -37,7 +37,7 @@ import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapGetters } from "vuex";
 import { Guild, Quest } from "../types";
-import { game_play_status_enum } from "../enums";
+import { game_play_status_enum, game_play_status_type } from "../enums";
 
 
 
@@ -59,7 +59,7 @@ const GuildsPlayingIndicatorProp = Vue.extend({
 export default class GuildsPlayingIndicator extends GuildsPlayingIndicatorProp {
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
   getGamePlayForGuild!: QuestsGetterTypes["getGamePlayForGuild"];
-  open_play_status = [
+  open_play_status: game_play_status_type[] = [
     game_play_status_enum.interested,
     game_play_status_enum.confirmed,
   ];
