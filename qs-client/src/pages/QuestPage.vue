@@ -19,7 +19,11 @@
         v-if="getGuildsPlayingQuest(getCurrentQuest).length"
         class="col-6"
       >
-        <guilds-table v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)">
+        <guilds-table
+          v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)"
+          v-bind:scores="getGuildScoreMap"
+          v-bind:showPlayers="true"
+        >
           <template v-slot:default="slotProps">
             <guilds-playing-indicator
               v-bind:quest="getCurrentQuest"
@@ -75,14 +79,14 @@ import { MembersActionTypes } from "src/store/members";
 
 @Component<QuestViewPage>({
   components: {
-    questCard: questCard,
-    scoreboard: scoreboard,
-    member: member,
-    nodeForm: nodeForm,
-    nodeTree: nodeTree,
-    GuildsTable: GuildsTable,
-    GuildsPlayingIndicator: GuildsPlayingIndicator,
-    ChannelList: ChannelList,
+    questCard,
+    scoreboard,
+    member,
+    nodeForm,
+    nodeTree,
+    GuildsTable,
+    GuildsPlayingIndicator,
+    ChannelList,
   },
   computed: {
     ...mapGetters("quests", [
@@ -100,6 +104,7 @@ import { MembersActionTypes } from "src/store/members";
       "getRootNode",
       "getThreatMap",
       "getScoreMap",
+      "getGuildScoreMap",
     ]),
     ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
     ...mapGetters("guilds", ["getGuildsPlayingQuest"]),
@@ -136,6 +141,7 @@ export default class QuestViewPage extends Vue {
   getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
   getThreatMap!: ConversationGetterTypes["getThreatMap"];
   getScoreMap!: ConversationGetterTypes["getScoreMap"];
+  getGuildScoreMap!: ConversationGetterTypes["getGuildScoreMap"];
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];

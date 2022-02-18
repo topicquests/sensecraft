@@ -37,9 +37,4 @@ export default class GuildsMembershipIndicator extends GuildsMembershipIndicator
 }
 </script>
 <style>
-.guilds-table {
-  text-align: center;
-  font-size: 1em;
-  background-color: ivory;
-}
 </style>

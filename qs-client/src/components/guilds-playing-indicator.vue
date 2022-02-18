@@ -67,9 +67,4 @@ export default class GuildsPlayingIndicator extends GuildsPlayingIndicatorProp {
 }
 </script>
 <style>
-.guilds-table {
-  text-align: center;
-  font-size: 1em;
-  background-color: ivory;
-}
 </style>
