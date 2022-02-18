@@ -42,7 +42,7 @@ jobs:
         run: npm run test
       - name: cleanup postgres container
         run: |
-          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.1-alpine-jwt`
+          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.2-alpine-jwt`
           docker container stop $PGCONT
           docker container rm $PGCONT
       - name: Install client dependencies
