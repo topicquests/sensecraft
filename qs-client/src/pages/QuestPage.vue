@@ -37,6 +37,8 @@
         <node-tree
           v-bind:nodes="getConversationTree"
           v-on:updateTree="selectionChanged"
+          v-bind:threats="getThreatMap"
+          v-bind:scores="getScoreMap"
           :channelId="null"
           :editable="false"
         />
@@ -96,6 +98,8 @@ import { MembersActionTypes } from "src/store/members";
       "getFocusNode",
       "getConversationTree",
       "getRootNode",
+      "getThreatMap",
+      "getScoreMap",
     ]),
     ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
     ...mapGetters("guilds", ["getGuildsPlayingQuest"]),
@@ -130,6 +134,8 @@ export default class QuestViewPage extends Vue {
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
   isPlayingQuestAsGuildId!: QuestsGetterTypes["isPlayingQuestAsGuildId"];
   getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
+  getThreatMap!: ConversationGetterTypes["getThreatMap"];
+  getScoreMap!: ConversationGetterTypes["getScoreMap"];
 
   // declare the methods for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
