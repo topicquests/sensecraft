@@ -177,10 +177,11 @@ export const members = (axios: AxiosInstance) =>
           params.id = `eq.${params.id}`;
         }
         if (full) {
-          Object.assign(params, {
-            select:
-              "*,guild_member_available_role!member_id(*),casting_role!member_id(*)",
-          });
+          let select = "*,casting_role!member_id(*)";
+          if (MyVapi.store.getters["member/isAuthenticated"]) {
+            select += ",guild_member_available_role!member_id(*)";
+          }
+          Object.assign(params, {select});
         }
       },
       onSuccess: (
