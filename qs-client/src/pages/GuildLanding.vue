@@ -19,7 +19,11 @@
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 55%">
+      <div
+        v-if="getGuilds && getGuilds.length"
+        class="col-4 q-pa-md"
+        style="width: 55%"
+      >
         <q-table
           id="guildTable"
           title="Guilds"
@@ -27,7 +31,7 @@
           :columns="columns"
           row-key="desc"
         >
-          <template slot="body" slot-scope="props">
+          <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
               <q-td key="label" :props="props">{{ props.row.label }}</q-td>
@@ -46,59 +50,24 @@
           </template>
         </q-table>
       </div>
+      <div v-else class="column items-center q-mt-md">
+        <h4>There are no guilds</h4>
+      </div>
     </div>
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapActions } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { userLoaded } from "../boot/userLoaded";
+import Component from "vue-class-component";
+import Vue from "vue";
+import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
+import { RoleActionTypes } from "src/store/role";
 
-export default {
-  props: ["member"],
-  data() {
-    return {
-      columns: [
-        {
-          name: "desc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "date",
-          required: true,
-          label: "Date",
-          align: "left",
-          field: "created_at",
-          sortable: true,
-        },
-        {
-          name: "nodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-      serverPagination: {},
-      serverData: [],
-    };
-  },
-
+@Component<GuildLandingPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
@@ -111,12 +80,56 @@ export default {
     ...mapActions("guilds", ["ensureAllGuilds"]),
     ...mapActions("role", ["ensureAllRoles"]),
   },
+})
+export default class GuildLandingPage extends Vue {
+  columns = [
+    {
+      name: "desc",
+      required: true,
+      label: "Label",
+      align: "left",
+      field: "name",
+      sortable: true,
+    },
+    {
+      name: "handle",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+    {
+      name: "date",
+      required: true,
+      label: "Date",
+      align: "left",
+      field: "created_at",
+      sortable: true,
+    },
+    {
+      name: "nodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
+  ];
+  serverPagination: {};
+  serverData: [];
+
+  getGuilds!: GuildsGetterTypes["getGuilds"];
+
+  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+
   async beforeMount() {
     await userLoaded;
     await this.ensureAllGuilds();
     await this.ensureAllRoles();
-  },
-};
+  }
+}
 </script>
 
 <style>

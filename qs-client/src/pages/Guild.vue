@@ -219,7 +219,7 @@
           </q-radio>
         </div>
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup="false"></q-btn>
+          <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
