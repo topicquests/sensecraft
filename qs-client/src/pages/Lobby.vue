@@ -9,12 +9,19 @@
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
+      <div
+        v-if="getQuests && getQuests.length"
+        class="col-4 q-pa-lg"
+        style="width: 55%"
+      >
         <questTable
           v-bind:quests="getQuests"
           :view="true"
           title="Quests"
         ></questTable>
+      </div>
+      <div v-else class="column items-center q-mt-md">
+        <h4>There are no quests</h4>
       </div>
     </div>
     <div class="column items-center">
@@ -27,7 +34,11 @@
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
+      <div
+        v-if="getGuilds && getGuilds.length"
+        class="col-4 q-pa-lg"
+        style="width: 55%"
+      >
         <q-card>
           <q-table
             style="color: blue; background-color: lightgreen"
@@ -36,7 +47,7 @@
             :columns="columns2"
             row-key="desc"
           >
-            <template slot="body" slot-scope="props">
+            <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td key="guildDesc" :props="props">
                   {{ props.row.name }}</q-td
@@ -63,84 +74,26 @@
           </q-table>
         </q-card>
       </div>
+      <div v-else class="column items-center q-mt-md">
+        <h4>There are no guilds</h4>
+      </div>
     </div>
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import questTable from "../components/quest-table.vue";
 import member from "../components/member.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
+import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
+import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import { userLoaded } from "../boot/userLoaded";
+import Component from "vue-class-component";
+import Vue from "vue";
 
-export default {
+@Component<LobbyPage>({
   name: "LobbyPage",
-  props: ["guild"],
-  data() {
-    return {
-      columns1: [
-        {
-          name: "desc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "handle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-
-        {
-          name: "questNodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-      columns2: [
-        {
-          name: "guildDesc",
-          required: true,
-          label: "Label",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "guildHandle",
-          required: false,
-          label: "Handle",
-          align: "left",
-          field: "handle",
-          sortable: true,
-        },
-        {
-          name: "guildMember",
-          required: true,
-          label: "Member",
-          align: "left",
-          field: "guildBelongsTo",
-        },
-        {
-          name: "guildNodeId",
-          required: false,
-          label: "Action",
-          align: "left",
-          field: "id",
-          sortable: true,
-        },
-      ],
-    };
-  },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,
@@ -154,20 +107,93 @@ export default {
   methods: {
     ...mapActions("quests", ["ensureAllQuests"]),
     ...mapActions("guilds", ["ensureAllGuilds"]),
-    guildBelongsTo(id) {
-      const guildId = this.getMyGuilds.find((el) => el.id == id);
-      if (guildId) {
-        return "Yes";
-      } else {
-        return "No";
-      }
-    },
+    guildBelongsTo() {},
   },
+})
+export default class LobbyPage extends Vue {
+  columns1 = [
+    {
+      name: "desc",
+      required: true,
+      label: "Label",
+      align: "left",
+      field: "name",
+      sortable: true,
+    },
+    {
+      name: "handle",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+
+    {
+      name: "questNodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
+  ];
+  columns2 = [
+    {
+      name: "guildDesc",
+      required: true,
+      label: "Label",
+      align: "left",
+      field: "name",
+      sortable: true,
+    },
+    {
+      name: "guildHandle",
+      required: false,
+      label: "Handle",
+      align: "left",
+      field: "handle",
+      sortable: true,
+    },
+    {
+      name: "guildMember",
+      required: true,
+      label: "Member",
+      align: "left",
+      field: "guildBelongsTo",
+    },
+    {
+      name: "guildNodeId",
+      required: false,
+      label: "Action",
+      align: "left",
+      field: "id",
+      sortable: true,
+    },
+  ];
+
+  getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
+  getQuests!: QuestsGetterTypes["getQuests"];
+  getGuilds!: GuildsGetterTypes["getGuilds"];
+
+  // declare the methods for Typescript
+  ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
+  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+
+  guildBelongsTo(id) {
+    const guildId = this.getMyGuilds.find((el) => el.id == id);
+    if (guildId) {
+      return "Yes";
+    } else {
+      return "No";
+    }
+  }
+
   async beforeMount() {
     await userLoaded;
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
-  },
-};
+  }
+}
 </script>
 <style>
 p {
