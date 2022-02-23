@@ -70,6 +70,7 @@ import { public_private_bool } from "../enums";
 import { GuildsActionTypes } from "../store/guilds";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
 import { Role, Guild } from "./../types";
+import { MembersActionTypes } from "src/store/members";
 
 @Component<GuildFormPage>({
   components: {
@@ -84,6 +85,7 @@ import { Role, Guild } from "./../types";
   methods: {
     ...mapActions("guilds", ["createGuild"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions('members', ['ensureAllMembers'])
   },
 })
 export default class GuildFormPage extends Vue {
@@ -98,6 +100,7 @@ export default class GuildFormPage extends Vue {
 
   // declare the methods for Typescript
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
+  ensureAllMembers: MembersActionTypes['ensureAllMembers']
 
   async doSubmit(guild) {
     try {
@@ -120,6 +123,7 @@ export default class GuildFormPage extends Vue {
   async beforeMount() {
     await userLoaded;
     await this.ensureAllRoles();
+    await this.ensureAllMembers();
   }
   data() {
     return {
