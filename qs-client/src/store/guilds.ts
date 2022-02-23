@@ -17,6 +17,7 @@ import { registration_status_enum, permission_enum, game_play_status_enum } from
 import { AxiosResponse, AxiosInstance } from "axios";
 import { member } from "./member";
 import { parseMap } from "yaml/util";
+import { store } from "quasar/wrappers";
 
 interface GuildMap {
   [key: number]: Guild;
@@ -87,6 +88,13 @@ const GuildsActions = {
     await context.dispatch("fetchGuildById", { params: { id: guild_id } });
     // TODO: Get the membership from the guild
     await MyVapi.store.dispatch("member/fetchLoginUser");
+    await context.dispatch("addGuildMemberAvailableRole", {
+      data: {
+        member_id: res.data[0].creator,
+        guild_id: guild_id,
+        role_id: res.data[0].default_role_id,
+      },
+    });
     return res.data[0];
   },
   ensureAllGuilds: async (context) => {
@@ -101,7 +109,6 @@ const GuildsActions = {
   ensureGuildsPlayingQuest: async (
     context,
     { quest_id, full }: { quest_id: number; full?: boolean }
- 
   ) => {
     await MyVapi.store.dispatch("quests/ensureQuest", {
       quest_id,

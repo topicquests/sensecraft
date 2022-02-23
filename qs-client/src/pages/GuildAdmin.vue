@@ -8,7 +8,7 @@
       >
     </h3>
     <q-tooltip>Click link to goto guild</q-tooltip>
-    <div class="row justify-center">
+    <div v-if="getCurrentGuild" class="row justify-center">
       <div class="col-4">
         <guild-card
           v-bind:currentGuild="getCurrentGuild"

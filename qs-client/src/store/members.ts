@@ -74,7 +74,7 @@ const MembersGetters = {
     (state: MembersState) => (member_id: number, quest_id: number) => {
       const castingRole = [];
       const rolesPerQuest = state.members[member_id].casting_role;
-      if (rolesPerQuest.length > 0) {
+      if (rolesPerQuest?.length > 0) {
         rolesPerQuest.forEach((cr) => {
           if (cr.quest_id == quest_id) {
             castingRole.push(cr);
@@ -301,7 +301,7 @@ export const members = (axios: AxiosInstance) =>
           let member = state.members[member_id];
           if (member) {
             const casting_role =
-              member.casting_role.filter(
+              member.casting_role?.filter(
                 (cr: CastingRole) => cr.role_id != castingRole.role_id
               ) || [];
             casting_role.push(castingRole);
