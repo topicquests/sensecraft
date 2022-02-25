@@ -563,7 +563,6 @@ export default class GuildAdminPage extends Vue {
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllQuests(),
       this.ensureAllRoles(),
-      this.ensureAllMembers(),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
     await this.setCurrentGuild(this.guildId);
