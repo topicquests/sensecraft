@@ -178,7 +178,7 @@ export const members = (axios: AxiosInstance) =>
         }
         if (full) {
           let select = "*,casting_role!member_id(*)";
-          if (MyVapi.store.getters["member/isAuthenticated"]) {
+          if (MyVapi.store.state.member.isAuthenticated) {
             select += ",guild_member_available_role!member_id(*)";
           }
           Object.assign(params, {select});
