@@ -156,8 +156,8 @@
     </q-drawer>
     <q-page-container class="q-pa-md">
       <router-view />
-    </q-page-container>
-    <q-footer style="background-color: #fff" class="footer">
+    </q-page-container >
+    <q-footer class="footer bg-secondary">
       <p id="Pfooter">Sensecraft 2022</p>
     </q-footer>
   </q-layout>
@@ -255,7 +255,6 @@ export default {
   text-align: center;
   font-size: 15pt;
   color: #333;
-  background-color: #fff;
 }
 
 .sidenav {
