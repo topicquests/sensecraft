@@ -1,5 +1,5 @@
 <template>
-  <q-page style="background-color: #caf0f8">
+ <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>
@@ -8,7 +8,33 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-
+<div
+        class="col-4 q-pa-md bg-secondary"
+        v-if="getCurrentGuild"
+      >
+        <p
+        class="bg-secondary"
+          style="text-align: center; font-size: 40px;"
+        >
+          {{ getCurrentGuild.name }}
+          <q-btn
+            v-if="!isMember && getCurrentGuild.open_for_applications"
+            label="Join Guild"
+            @click="joinToGuild()"
+            style="margin-right: 1em"
+            class="bg-dark-blue"
+          />
+          <router-link
+            v-if="canRegisterToQuest"
+            :to="{
+              name: 'guild_admin',
+              params: { guild_id: currentGuildId },
+            }"
+            style="font-size: smaller"
+            >Admin</router-link
+          >
+        </p>
+      </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <q-card class="bg-light-blue no-border">
@@ -85,36 +111,10 @@
           ></castingRoleEdit>
         </div>
       </div>
-      <div
-        class="col-4 q-pa-md"
-        style="background-color: #caf0f8"
-        v-if="getCurrentGuild"
-      >
-        <p
-          style="text-align: center; font-size: 40px; background-color: #caf0f8"
-        >
-          {{ getCurrentGuild.name }}
-          <q-btn
-            v-if="!isMember && getCurrentGuild.open_for_applications"
-            label="Join Guild"
-            @click="joinToGuild()"
-            style="margin-right: 1em"
-            class="bg-dark-blue"
-          />
-          <router-link
-            v-if="canRegisterToQuest"
-            :to="{
-              name: 'guild_admin',
-              params: { guild_id: currentGuildId },
-            }"
-            style="font-size: smaller"
-            >Admin</router-link
-          >
-        </p>
-      </div>
+      
     </div>
     <div class="col-4 col-md">
-      <p class="card-header">Team</p>
+      <p class="card-header bg-secondary">Team</p>
     </div>
     <div class="column items-center q-mb-md">
       <div class="col-6">
@@ -150,12 +150,12 @@
         </q-card>
       </div>
     </div>
-    <div class="row justify-center">
-      <div class="col-4 col-md">
-        <p class="card-header">Current Quest</p>
+    <div class="row justify-center bg-secondary">
+      <div class="col-4 ">
+        <p class="card-header bg-secondary">Current Quest</p>
       </div>
-      <div class="col-4 col-md">
-        <p class="card-header">Quest Move</p>
+      <div class="col-4">
+        <p class="card-header bg-secondary">Quest Move</p>
       </div>
     </div>
     <div class="row justify-center">
@@ -749,6 +749,7 @@ export default class GuildPage extends Vue {
     });
   }
   async beforeMount() {
+    document.title = "Guild Page";
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await Promise.all([
@@ -777,7 +778,6 @@ export default class GuildPage extends Vue {
 .card-header {
   text-align: center;
   font-size: 20px;
-  background-color: #caf0f8;
   padding-bottom: sm;
 }
 #node_card {
