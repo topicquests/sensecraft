@@ -7,26 +7,41 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
-        <div  v-if="getGuilds.length">
+        <div v-if="getGuilds.length">
           <div v-if="getUserId">
-            <guilds-table v-if="getMyGuilds.length" v-bind:guilds="getMyGuilds" v-bind:title="'My Guilds'">
+            <guilds-table
+              v-if="getMyGuilds.length"
+              v-bind:guilds="getMyGuilds"
+              v-bind:title="'My Guilds'"
+            >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
               </template>
             </guilds-table>
-            <guilds-table v-if="getOpenGuilds.length" v-bind:guilds="getOpenGuilds" v-bind:title="'Open Guilds'">
+            <guilds-table
+              v-if="getOpenGuilds.length"
+              v-bind:guilds="getOpenGuilds"
+              v-bind:title="'Open Guilds'"
+            >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
               </template>
             </guilds-table>
-            <guilds-table v-if="getClosedGuilds.length" v-bind:guilds="getClosedGuilds" v-bind:title="'Closed Guilds'">
+            <guilds-table
+              v-if="getClosedGuilds.length"
+              v-bind:guilds="getClosedGuilds"
+              v-bind:title="'Closed Guilds'"
+            >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
               </template>
             </guilds-table>
           </div>
           <div v-else>
-            <guilds-table v-bind:guilds="getGuilds" v-bind:title="'Guilds'"></guilds-table>
+            <guilds-table
+              v-bind:guilds="getGuilds"
+              v-bind:title="'Guilds'"
+            ></guilds-table>
           </div>
         </div>
         <h5 v-else>There currently are no guilds</h5>
@@ -42,7 +57,7 @@ import { userLoaded } from "../boot/userLoaded";
 import GuildsTable from "../components/guilds-table.vue";
 import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
 import { MemberGetterTypes } from "../store/member";
-import {Guild} from "../types";
+import { Guild } from "../types";
 import Component from "vue-class-component";
 import Vue from "vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
@@ -58,12 +73,18 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     ...mapGetters("member", ["getUserId"]),
     getOpenGuilds: {
       get() {
-        return this.getGuilds.filter(guild => guild.open_for_applications && !this.isGuildMember(guild.id));
+        return this.getGuilds.filter(
+          (guild) =>
+            guild.open_for_applications && !this.isGuildMember(guild.id)
+        );
       },
     },
     getClosedGuilds: {
       get() {
-        return this.getGuilds.filter(guild => !guild.open_for_applications && !this.isGuildMember(guild.id));
+        return this.getGuilds.filter(
+          (guild) =>
+            !guild.open_for_applications && !this.isGuildMember(guild.id)
+        );
       },
     },
   },
@@ -80,8 +101,10 @@ export default class GuildListPage extends Vue {
   getClosedGuilds!: Guild[];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
   async beforeMount() {
+    document.title = "Guild list";
     await userLoaded;
     await this.ensureAllGuilds();
+    console.log("get userId", this.getUserId);
   }
 }
 </script>
