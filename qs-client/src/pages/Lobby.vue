@@ -113,9 +113,9 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
   computed: {
-    ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
+    ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
     ...mapGetters("quests", ["getQuests"]),
-    ...mapState("member", ["member", "getUserId"]),
+    ...mapGetters("member", ["member", "getUserId"]),
 
     getOpenGuilds: {
       get() {
@@ -181,19 +181,11 @@ export default class LobbyPage extends Vue {
   ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
 
-  guildBelongsTo(id) {
-    const guildId = this.getMyGuilds.find((el) => el.id == id);
-    if (guildId) {
-      return "Yes";
-    } else {
-      return "No";
-    }
-  }
-
   async beforeMount() {
     document.title = "Dashboard";
     await userLoaded;
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
+    console.log("get user id", this.getUserId);
   }
 }
 </script>

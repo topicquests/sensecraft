@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>
@@ -8,33 +8,27 @@
         <scoreboard></scoreboard>
       </div>
     </div>
-<div
-        class="col-4 q-pa-md bg-secondary"
-        v-if="getCurrentGuild"
-      >
-        <p
-        class="bg-secondary"
-          style="text-align: center; font-size: 40px;"
+    <div class="col-4 q-pa-md bg-secondary" v-if="getCurrentGuild">
+      <p class="bg-secondary" style="text-align: center; font-size: 40px">
+        {{ getCurrentGuild.name }}
+        <q-btn
+          v-if="!isMember && getCurrentGuild.open_for_applications"
+          label="Join Guild"
+          @click="joinToGuild()"
+          style="margin-right: 1em"
+          class="bg-dark-blue"
+        />
+        <router-link
+          v-if="canRegisterToQuest"
+          :to="{
+            name: 'guild_admin',
+            params: { guild_id: currentGuildId },
+          }"
+          style="font-size: smaller"
+          >Admin</router-link
         >
-          {{ getCurrentGuild.name }}
-          <q-btn
-            v-if="!isMember && getCurrentGuild.open_for_applications"
-            label="Join Guild"
-            @click="joinToGuild()"
-            style="margin-right: 1em"
-            class="bg-dark-blue"
-          />
-          <router-link
-            v-if="canRegisterToQuest"
-            :to="{
-              name: 'guild_admin',
-              params: { guild_id: currentGuildId },
-            }"
-            style="font-size: smaller"
-            >Admin</router-link
-          >
-        </p>
-      </div>
+      </p>
+    </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
         <q-card class="bg-light-blue no-border">
@@ -111,7 +105,6 @@
           ></castingRoleEdit>
         </div>
       </div>
-      
     </div>
     <div class="col-4 col-md">
       <p class="card-header bg-secondary">Team</p>
@@ -121,7 +114,7 @@
         <q-card id="team-card">
           <ul>
             <li
-              v-for="member in getGuildMembers()"
+              v-for="member in getMembersOfGuild(getCurrentGuild)"
               :key="member.id"
               class="q-ml-lg q-mr-md"
               style="color: red"
@@ -151,7 +144,7 @@
       </div>
     </div>
     <div class="row justify-center bg-secondary">
-      <div class="col-4 ">
+      <div class="col-4">
         <p class="card-header bg-secondary">Current Quest</p>
       </div>
       <div class="col-4">
