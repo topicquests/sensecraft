@@ -51,8 +51,7 @@ const MembersGetters = {
       .map((member: PublicMember) => member.handle)
       .sort(),
   getMembersOfGuild: (state: MembersState) => (guild: Guild) =>
-    guild.guild_membership
-      .map((gm: GuildMembership) => state.members[gm.member_id])
+    guild?.guild_membership?.map((gm: GuildMembership) => state.members[gm.member_id])
       .filter((member: PublicMember) => member),
   getMembersOfQuest: (state: MembersState) => (quest: Quest) =>
     quest.quest_membership

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page">
+  <q-page class="bg-secondary">
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree

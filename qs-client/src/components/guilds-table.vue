@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-table
-      class="guilds-tale"
+      class="guilds-table"
       :title="title"
       :data="guilds"
       :columns="columns"
@@ -122,6 +122,6 @@ export default class GuildTable extends GuildsTableProp {
 .guilds-table {
   text-align: center;
   font-size: 1em;
-  background-color: ivory;
+  background-color:ivory;
 }
 </style>

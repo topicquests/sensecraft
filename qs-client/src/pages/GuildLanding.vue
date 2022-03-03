@@ -1,5 +1,5 @@
 <template>
-  <q-page :padding="true" class="bg-grey-4">
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>

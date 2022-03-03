@@ -1,6 +1,6 @@
 <template>
   <q-page
-    class="window-height window-width row justify-center items-center animated-bg"
+    class="window-height window-width row justify-center items-center animated-bg bg-secondary"
   >
     <div class="column q-pa-lg">
       <div class="row">

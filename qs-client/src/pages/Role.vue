@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page class="bg-secondary">
     <div class="text-h2">My Role</div>
   </q-page>
 </template>

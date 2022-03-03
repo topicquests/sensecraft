@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page">
+  <q-page class="bg-secondary page">
     <div class="col-3 q-md q-mb-md">
       <channel-list v-bind:channels="getGuildChannels" title="Guild Channels" />
       <q-btn

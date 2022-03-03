@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+ <q-page class="bg-secondary">
     <div class="q-pa-md">
       <div class="q-gutter-sm">
         <div

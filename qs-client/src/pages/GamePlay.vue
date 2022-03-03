@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page">
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>

@@ -9,11 +9,11 @@
     </h3>
     <q-tooltip>Click link to goto guild</q-tooltip>
     <div v-if="getCurrentGuild" class="row justify-center">
-      <div class="col-4">
+      <div class="col-4" style="height:10%;">
         <guild-card
           v-bind:currentGuild="getCurrentGuild"
           class="q-ml-xl"
-          style="width: 80%"
+          style="width: 80%;"
         ></guild-card>
       </div>
     </div>
@@ -198,6 +198,9 @@ import guildCard from "../components/guild-card.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
+  meta: {
+    title: "Guild Admin"
+  },
   components: {
     CastingRoleEdit,
     roleTable: roleTable,
@@ -255,7 +258,7 @@ import guildCard from "../components/guild-card.vue";
     },
     guildGamePlays: {
       get: function () {
-        if (this.getCurrentGuild?.game_play.length > 0) {
+        if (this.getCurrentGuild?.game_play?.length > 0) {
           const gamePlay = this.getCurrentGuild.game_play.filter(
             (gp: GamePlay) => gp.status == registration_status_enum.confirmed
           );
@@ -377,32 +380,6 @@ export default class GuildAdminPage extends Vue {
       label: "Action",
       align: "left",
       field: "id",
-      sortable: true,
-    },
-  ];
-  columns2 = [
-    {
-      name: "member",
-      required: true,
-      label: "Member",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-    {
-      name: "permissions",
-      required: true,
-      label: "Permissions",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-    {
-      name: "update",
-      required: true,
-      label: "Update",
-      align: "left",
-      field: "handle",
       sortable: true,
     },
   ];
@@ -550,10 +527,6 @@ export default class GuildAdminPage extends Vue {
         ),
       ])
     );
-  }
-
-  beforeMount() {
-    document.title = "Guild Admin";
   }
 
   async created() {

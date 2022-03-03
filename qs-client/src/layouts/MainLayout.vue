@@ -95,7 +95,7 @@
 
           <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
             <q-item-section>
-              <q-btn :to="{ name: 'lobby' }">Lobby</q-btn>
+              <q-btn :to="{ name: 'lobby' }">Dashboard</q-btn>
             </q-item-section>
           </q-item>
           <q-item

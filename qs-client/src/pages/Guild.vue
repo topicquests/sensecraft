@@ -270,6 +270,9 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
 import castingRoleEdit from "src/components/casting_role_edit.vue";
 
 @Component<GuildPage>({
+  meta: {
+    title: 'Guild Page'
+  },
   components: {
     scoreboard: scoreboard,
     member: member,
@@ -742,7 +745,6 @@ export default class GuildPage extends Vue {
     });
   }
   async beforeMount() {
-    document.title = "Guild Page";
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await Promise.all([
