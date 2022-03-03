@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>
@@ -165,6 +165,7 @@ export default class QuestViewPage extends Vue {
     }
   }
   async beforeMount() {
+    document.title="Quest"
     const quest_id = Number.parseInt(this.$route.params.quest_id);
     this.questId = quest_id;
     await Promise.all([

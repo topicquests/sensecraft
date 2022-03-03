@@ -1,5 +1,5 @@
 <template>
-  <q-page style="background-color: lightgrey">
+ <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>

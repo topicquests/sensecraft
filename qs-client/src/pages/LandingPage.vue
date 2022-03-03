@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-blue">
+ <q-page class="bg-secondary">
     <div class="row justify-center text-center bg-primary">
       <div class="text-h4 text-bold text-white q-pt-lg q-pb-lg">
         Where teams co-construct structured conversation

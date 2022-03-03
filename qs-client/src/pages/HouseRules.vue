@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="bg-secondary">
     <h2>House Rules</h2>
     <h4>About</h4>
     <p>

@@ -1,5 +1,5 @@
 <template>
-  <q-page style="background-color: secondary">
+  <q-page class="bg-secondary">
     <div class="row justify-center text-center">
       <h1 class="text-h1 q-pt-lg">SenseCraft</h1>
       <h3 class="text-h3 q-pt-lg q-pb-lg">

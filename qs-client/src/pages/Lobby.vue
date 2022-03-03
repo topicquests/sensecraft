@@ -72,17 +72,7 @@
             ></guilds-table>
           </div>
         </div>
-        <h5 v-else>There currently are no guilds</h5>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="getGuilds && getGuilds.length"
-        class="col-4 q-pa-lg"
-        style="width: 55%"
-      ></div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no guilds</h4>
+        <h4 v-else style="text-align:center;">There currently are no guilds</h4>
       </div>
     </div>
   </q-page>
@@ -105,6 +95,9 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 
 @Component<LobbyPage>({
   name: "LobbyPage",
+  meta: {
+    title: "Dashboard"
+  },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,
@@ -182,10 +175,8 @@ export default class LobbyPage extends Vue {
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
 
   async beforeMount() {
-    document.title = "Dashboard";
     await userLoaded;
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
-    console.log("get user id", this.getUserId);
   }
 }
 </script>

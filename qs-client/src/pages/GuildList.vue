@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-grey-4">
+ <q-page class="bg-secondary">
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
         <scoreboard></scoreboard>
@@ -63,6 +63,9 @@ import Vue from "vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
 
 @Component<GuildListPage>({
+  meta: {
+    title: "Guild List"
+  },
   components: {
     scoreboard: scoreboard,
     GuildsTable: GuildsTable,
@@ -101,10 +104,8 @@ export default class GuildListPage extends Vue {
   getClosedGuilds!: Guild[];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
   async beforeMount() {
-    document.title = "Guild list";
     await userLoaded;
     await this.ensureAllGuilds();
-    console.log("get userId", this.getUserId);
   }
 }
 </script>
