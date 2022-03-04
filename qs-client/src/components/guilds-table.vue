@@ -5,18 +5,19 @@
       :title="title"
       :data="guilds"
       :columns="columns"
+      style="text-align: left"
       row-key="desc"
     >
       <template v-slot:body="props">
         <q-tr :props="props" style="text-align:left">
 
           <q-td key="name" :props="props"> {{ props.row.name }}</q-td>
-          <q-td key="numMembers">{{numMembers(props.row)}}</q-td>
-          <q-td v-if="scores" key="score">{{scores[props.row.id]}}</q-td>
+          <q-td key="numMembers">{{ numMembers(props.row) }}</q-td>
+          <q-td v-if="scores" key="score">{{ scores[props.row.id] }}</q-td>
           <q-td key="actions">
             <slot v-bind:guild="props.row"></slot>
           </q-td>
-          <q-td key="view">
+          <q-td v-if="view" key="view">
             <router-link
               :to="{
                 name: 'guild',
@@ -25,6 +26,15 @@
             >
               View
             </router-link>
+          </q-td>
+          <q-td v-if="edit" key="view">
+            <router-link
+              :to="{
+                name: 'guild_edit',
+                params: { guild_id: props.row.id },
+              }"
+              >Edit</router-link
+            >
           </q-td>
         </q-tr>
       </template>
@@ -49,13 +59,21 @@ const GuildsTableProp = Vue.extend({
     scores: Object as Prop<ScoreMap>,
     showPlayers: Boolean,
     extra_columns: Array as Prop<Object[]>,
+    edit: {
+      type: Boolean,
+      default: false,
+    },
+    view: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 
 @Component<GuildTable>({
   name: "GuildsTable",
   computed: {
-    columns: function() {
+    columns: function () {
       const extra = this.extra_columns || [];
       if (this.scores) {
         extra.push({
@@ -79,7 +97,7 @@ const GuildsTableProp = Vue.extend({
         {
           name: "numMembers",
           required: true,
-          label: this.showPlayers? "Players" :  "Members",
+          label: this.showPlayers ? "Players" : "Members",
           align: "left",
           field: "this.numMembers(row)",
           sortable: true,
@@ -103,8 +121,8 @@ const GuildsTableProp = Vue.extend({
         },
       ];
     },
-    ...mapGetters('quests', ["getCurrentQuest"]),
-  }
+    ...mapGetters("quests", ["getCurrentQuest"]),
+  },
 })
 export default class GuildTable extends GuildsTableProp {
   columns!: Object[];
@@ -112,7 +130,7 @@ export default class GuildTable extends GuildsTableProp {
   numMembers(guild: Guild) {
     if (this.showPlayers) {
       const quest = this.getCurrentQuest;
-      return (quest.casting || []).filter(c => c.guild_id==guild.id).length;
+      return (quest.casting || []).filter((c) => c.guild_id == guild.id).length;
     }
     return (guild.guild_membership || []).length;
   }
@@ -122,6 +140,6 @@ export default class GuildTable extends GuildsTableProp {
 .guilds-table {
   text-align: center;
   font-size: 1em;
-  background-color:ivory;
+  background-color: ivory;
 }
 </style>

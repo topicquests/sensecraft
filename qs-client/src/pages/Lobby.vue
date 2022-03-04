@@ -41,6 +41,7 @@
               v-if="getMyGuilds.length"
               v-bind:guilds="getMyGuilds"
               v-bind:title="'My Guilds'"
+              :view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -50,6 +51,7 @@
               v-if="getOpenGuilds.length"
               v-bind:guilds="getOpenGuilds"
               v-bind:title="'Open Guilds'"
+              :view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -59,6 +61,7 @@
               v-if="getClosedGuilds.length"
               v-bind:guilds="getClosedGuilds"
               v-bind:title="'Closed Guilds'"
+              :view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -69,10 +72,11 @@
             <guilds-table
               v-bind:guilds="getGuilds"
               v-bind:title="'Guilds'"
+              :view="true"
             ></guilds-table>
           </div>
         </div>
-        <h4 v-else style="text-align:center;">There currently are no guilds</h4>
+        <h4 v-else style="text-align: center">There currently are no guilds</h4>
       </div>
     </div>
   </q-page>
@@ -96,7 +100,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 @Component<LobbyPage>({
   name: "LobbyPage",
   meta: {
-    title: "Dashboard"
+    title: "Dashboard",
   },
   components: {
     scoreboard: scoreboard,

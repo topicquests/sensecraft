@@ -13,6 +13,7 @@
               v-if="getMyGuilds.length"
               v-bind:guilds="getMyGuilds"
               v-bind:title="'My Guilds'"
+              v-bind:view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -22,6 +23,7 @@
               v-if="getOpenGuilds.length"
               v-bind:guilds="getOpenGuilds"
               v-bind:title="'Open Guilds'"
+              v-bind:view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -31,6 +33,7 @@
               v-if="getClosedGuilds.length"
               v-bind:guilds="getClosedGuilds"
               v-bind:title="'Closed Guilds'"
+              v-bind:view="true"
             >
               <template v-slot:default="slotProps">
                 <guilds-membership-indicator v-bind:guild="slotProps.guild" />
@@ -41,6 +44,7 @@
             <guilds-table
               v-bind:guilds="getGuilds"
               v-bind:title="'Guilds'"
+              v-bind:view="true"
             ></guilds-table>
           </div>
         </div>
