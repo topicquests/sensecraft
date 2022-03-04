@@ -24,31 +24,16 @@
         class="col-4 q-pa-md"
         style="width: 55%"
       >
-        <q-table
-          id="guildTable"
-          title="Guilds"
-          :data="getGuilds"
-          :columns="columns"
-          row-key="desc"
+        <guilds-table
+          v-if="getMyGuilds.length"
+          v-bind:guilds="getMyGuilds"
+          v-bind:title="'My Guilds'"
+          :edit="true"
         >
-          <template v-slot:body="props">
-            <q-tr :props="props">
-              <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-              <q-td key="label" :props="props">{{ props.row.label }}</q-td>
-              <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
-              <q-td key="date" :props="props">{{ props.row.created_at }}</q-td>
-              <q-td key="nodeId" auto-width :props="props">
-                <router-link
-                  :to="{
-                    name: 'guild_edit',
-                    params: { guild_id: props.row.id },
-                  }"
-                  >Edit</router-link
-                >
-              </q-td>
-            </q-tr>
+          <template v-slot:default="slotProps">
+            <guilds-membership-indicator v-bind:guild="slotProps.guild" />
           </template>
-        </q-table>
+        </guilds-table>
       </div>
       <div v-else class="column items-center q-mt-md">
         <h4>There are no guilds</h4>
@@ -66,15 +51,19 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import { RoleActionTypes } from "src/store/role";
+import GuildsTable from "../components/guilds-table.vue";
+import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
 
 @Component<GuildLandingPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
+    GuildsTable: GuildsTable,
+    GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
 
   computed: {
-    ...mapGetters("guilds", ["getGuilds"]),
+    ...mapGetters("guilds", ["getGuilds", "getMyGuilds"]),
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
@@ -82,44 +71,11 @@ import { RoleActionTypes } from "src/store/role";
   },
 })
 export default class GuildLandingPage extends Vue {
-  columns = [
-    {
-      name: "desc",
-      required: true,
-      label: "Label",
-      align: "left",
-      field: "name",
-      sortable: true,
-    },
-    {
-      name: "handle",
-      required: false,
-      label: "Handle",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-    {
-      name: "date",
-      required: true,
-      label: "Date",
-      align: "left",
-      field: "created_at",
-      sortable: true,
-    },
-    {
-      name: "nodeId",
-      required: false,
-      label: "Action",
-      align: "left",
-      field: "id",
-      sortable: true,
-    },
-  ];
   serverPagination: {};
   serverData: [];
 
   getGuilds!: GuildsGetterTypes["getGuilds"];
+  getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
 
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];

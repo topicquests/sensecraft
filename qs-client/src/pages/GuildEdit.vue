@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>
@@ -39,6 +39,9 @@ import Vue from "vue";
 
 @Component<GuildEdit>({
   name: "guild_edit",
+  meta: {
+    title: "Guild edit",
+  },
   components: {
     scoreboard: scoreboard,
     member: member,
