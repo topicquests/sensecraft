@@ -1,7 +1,6 @@
-@startuml qaas
+@startuml sensecraft
 
-
-  enum ScoringCriterion {
+  enum ScoringCriterion #line.dotted:blue {
     
   }
 
@@ -13,7 +12,7 @@
     Reference
   }
 
-  class ScoringStrategy {
+  class ScoringStrategy #line.dotted:blue {
     name String
     criterion ScoringCriterion
     evalMove(ConversationNode): float
@@ -25,7 +24,7 @@
     url String
   }
 
-  enum MembershipStatus {
+  enum RegistrationStatus {
     request
     invitation
     confirmed
@@ -38,6 +37,13 @@
     ongoing
     scoring
     finished
+  }
+
+  enum GamePlayStatus {
+    cancelled
+    interested
+    confirmed
+    team_full
   }
 
   enum Permissions {
@@ -54,7 +60,7 @@
     retractGameMove
     joinQuest
     guildAdmin
-    setGameFocus
+    - setGameFocus
     ' within term time
     ' Quest permissions
     acceptQuestMembership
@@ -66,15 +72,16 @@
 
   ' Note: attach permissions to roles
 
-  class TurnStrategy {
+  class TurnStrategy #line.dotted:blue {
     synchronous boolean
     turnLength interval
   }
 
-  enum PubState {
+  enum PublicationState {
     obsolete
     private_draft
     guild_draft
+    role_draft
     proposed
     ' proposed: the node authors think it's ready
     submitted
@@ -84,11 +91,17 @@
     ' published and submitted are the same for v1; eventually we'll allow turn-based visibility
   }
 
-  enum Metric {
+  enum MetaState {
+    conversation
+    meta
+    channel
+  }
+
+  enum Metric #line.dotted:blue {
 
   }
 
-  enum BadgeType {
+  enum BadgeType #line.dotted:blue {
 
   }
 
@@ -98,11 +111,13 @@
   }
 
   class Member {
-    server ExternalServer
+    ' server ExternalServer
     handle String
     name String
     email String
     password String
+    created_at timestamp
+    updated_at timestamp
     permissions Permission[]
   }
   class Account #line.dotted:blue {
@@ -110,8 +125,8 @@
     service AccountService
     string id
   }
-  Account --> "1" AccountService
-  Member "1" --> "*" Account
+  Account ..> "1" AccountService
+  Member "1" ..> "*" Account
 
   class Guild {
     name String
@@ -121,7 +136,8 @@
     application_needs_approval boolean
     created_at timestamp
     updated_at timestamp
-    - server ExternalServer
+    default_role Role
+    ' server ExternalServer
     accept(GamePlay)
   }
   ' Guild --> "0..1" ExternalServer
@@ -138,10 +154,10 @@
     updated_at timestamp
     start timestamp
     end timestamp
-    - scoring ScoringStrategy
-    - turns TurnStrategy
-    - server ExternalServer
-    scoreMove(ConversationNode): GameMoveScore[]
+    ' scoring ScoringStrategy
+    ' turns TurnStrategy
+    ' server ExternalServer
+    ' scoreMove(ConversationNode): GameMoveScore[]
     register(Guild): GamePlay
   }
   Quest o--> "1" Member : > creator
@@ -152,7 +168,10 @@
   class QuestMembership {
     quest Quest
     member Member
-    status MembershipStatus
+    ' status RegistrationStatus
+    confirmed boolean
+    created_at timestamp
+    updated_at timestamp
     permissions Permission[]
   }
   Guild o--> "1" Member : > creator
@@ -163,12 +182,15 @@
   class GuildMembership { 
     guild Guild
     member Member
-    status MembershipStatus
-    boolean leadership
+    status RegistrationStatus
     permissions Permission[]
+    created_at timestamp
+    updated_at timestamp
   }
 
-  class ExternalServer {
+  GuildMembership *--> RegistrationStatus
+
+  class ExternalServer #line.dotted:blue {
     server_api URL
     name String
   }
@@ -181,12 +203,19 @@
     node_type NodeType
     title String
     description String
-    state PubState
+    state PublicationState
+    meta MetaState
     parent ConversationNode
     created_at timestamp
     published_at timestamp
+    draftForRole Role
     ancestry() ConversationNode[]
-}
+  }
+
+ConversationNode *--> PublicationState
+ConversationNode *--> MetaState
+
+ConversationNode --> "?" Role
 
 ConversationNode <|-- ConversationNodeV2
 
@@ -197,9 +226,9 @@ class ConversationNodeV2 #line.dotted:blue {
     contributors Casting[]
     node_action_type NodeActionType
     node_id integer
-    state_history <PubState, timestamp>[]
+    state_history <PublicationState, timestamp>[]
     ' GamePhase inferred from history?
-    ' allow more history than PubState?
+    ' allow more history than PublicationState?
     previous_version ConversationNode
     history() ConversationNode[]
     ' may materialize in a ltree
@@ -215,19 +244,20 @@ class ConversationNodeV2 #line.dotted:blue {
 
   <> diamond
   NodeReplacement . diamond
-  diamond - "new_node 1" ConversationNodeV2
-  diamond - "replacing_node 1" ConversationNodeV2
+  diamond . "new_node 1" ConversationNodeV2
+  diamond . "replacing_node 1" ConversationNodeV2
 
-  NodeReplacement --> "*" Casting : > approvals
+  NodeReplacement ..> "*" Casting : > approvals
 
-  ConversationNodeV2 "*" o--> "1..*" Casting
+  'ConversationNodeV2 "*" o..> "1..*" Casting
   ' Quest o--> ScoringStrategy
 
   Member "1" <-- "*" ConversationNode : < creator
   ConversationNode "1" o-> "0..1" ConversationNode : > parent
   Quest "1" o--> "*" ConversationNode
-  
-  class GameMoveScore {
+  Quest *--> QuestStatus
+
+  class GameMoveScore #line.dotted:blue {
     guild Guild
     moves ConversationNode[]
     metric Metric
@@ -236,9 +266,9 @@ class ConversationNodeV2 #line.dotted:blue {
     quest_signature crypto
     badge BadgeType
   }
-  ConversationNode "1..*" <-- "*" GameMoveScore
-  Quest *--> "*" GameMoveScore
-  class ScoreAssignment {
+  ConversationNode "1..*" <.. "*" GameMoveScore
+  Quest *..> "*" GameMoveScore
+  class ScoreAssignment #line.dotted:blue {
     from_score GameMoveScore
     casting Casting
     value float
@@ -276,7 +306,7 @@ class ConversationNodeV2 #line.dotted:blue {
     roles Role[]
   }
 
-  Member "1" o--> "*" Avatar
+  Member "1" o..> "*" Avatar
 
   class Casting {
     ' note: denormalized for uniqueness constraints
@@ -286,15 +316,13 @@ class ConversationNodeV2 #line.dotted:blue {
     guild Guild
     ' Constrain that the member be in playing guild
 
-    ' v1:
-    roles Role[]
     permissions Permission[]
 
     ' v2:
-    avatar Avatar
+    'avatar Avatar
     ' Constrain avatar having same member
     ' some permissions would be inherent in avatar's roles
-    alias String
+    'alias String
     ' alias defaults to avatar handle
     ' (quest+alias unique)
   }
@@ -302,17 +330,55 @@ class ConversationNodeV2 #line.dotted:blue {
   class GamePlay {
     Quest quest
     Guild guild
-    status MembershipStatus
+    status RegistrationStatus
+    game_play GamePlayStatus
     created_at timestamp
     accepted timestamp
     guild_focus ConversationNode
     scores {Metric->float}
   }
 
-  (Guild , Quest) .. GamePlay
-  (Avatar, GamePlay) .. Casting
+  GamePlay *--> RegistrationStatus
+  GamePlay *--> GamePlayStatus
 
-  class GamePhase {
+  (Guild , Quest) .. GamePlay
+  (Member, GamePlay) .. Casting
+
+  class Role {
+    name String
+    guild Guild?
+    permissions Permission[]
+    max_pub_state PublicationState
+    RoleDraftTargetRole Role
+  }
+
+  class CastingRole {
+    Member member
+    Quest quest
+    Guild guild
+    Role role
+  }
+
+  class GuildMemberAvailableRole {
+    guild Guild
+    member Member
+    role Role
+  }
+
+  (GuildMembership, Role) .. GuildMemberAvailableRole
+
+
+  class RoleNodeConstraint {
+    role Role
+    node_type NodeType
+    max_pub_state PublicationState
+    role_draft_target_role_id Role
+  }
+
+  Role *--> "*" RoleNodeConstraint
+  (Casting, Role) .. CastingRole
+
+  class GamePhase  #line.dotted:blue {
     quest Quest
     start timestamp
     end timestamp
@@ -320,6 +386,6 @@ class ConversationNodeV2 #line.dotted:blue {
     singlePlayer Guild
   }
 
-  Quest "1" o--> "*" GamePhase
+  Quest "1" o..> "*" GamePhase 
 
 @enduml
