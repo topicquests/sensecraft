@@ -6,7 +6,7 @@ import {
 import { MaybeRealNode, generic_id } from "../types";
 
 export enum ThreatStatus {
-  "neutral" = "neutral",
+  "answered" = "answered",
   "threat" = "threat",
   "threatened" = "threatened",
   "support" = "support",
@@ -28,18 +28,17 @@ export function ensure_id(node: MaybeRealNode, counter: number = 0): number {
 // logic: references support arguments (unless actively threatened.)
 // arguments are either supported or not. supported, non-threatened arguments are either
 //   threatening or supporting.
-// A solution is similarly threatened, threatening, unsupported... or supporting? (neutral? nah.)
-// A question is usually neutral, unless all (supported) solutions are actively threatening.
-//   then it's threatening as well. We could speak of unanswered questions...
-//   But it's functionally equivalent to unsupported. Still worth a name.
-// So neutral really only applies to answered questions.
+// A solution is similarly threatened, threatening, unsupported... or supporting?
+// A question is answered if it has a supported (non-threatening) solution,
+// threatening if all (supported) solutions are actively threatening,
+// unanswered otherwise
 
 export function calc_threat_status(
   node: MaybeRealNode,
   map: ThreatMap,
   no_req_reference?: boolean
 ): ThreatStatus {
-  let status = ThreatStatus.neutral;
+  let status = ThreatStatus.answered;
   let threats = 0;
   let supports = 0;
   for (const child of node.children || []) {
@@ -63,7 +62,7 @@ export function calc_threat_status(
         status = ThreatStatus.unanswered;
       }
     } else {
-      status = ThreatStatus.neutral;
+      status = ThreatStatus.answered;
     }
   } else {
     if (threats > 0) {

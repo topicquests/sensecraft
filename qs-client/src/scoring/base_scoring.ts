@@ -33,7 +33,7 @@ export function base_scoring(
       case ThreatStatus.threat:
         scores[node_id] = 1;
         break;
-      case ThreatStatus.neutral:
+      case ThreatStatus.answered:
         scores[node_id] = 0.5;
         break;
       case ThreatStatus.unsupported:
