@@ -51,7 +51,7 @@ Feature: Threat model
               id: ref1
       """
     When We identify threats
-    Then The threat status of q1 should be neutral
+    Then The threat status of q1 should be answered
     And  The threat status of a1 should be support
     And  The threat status of ref1 should be support
 
@@ -71,7 +71,7 @@ Feature: Threat model
                   id: ref1
       """
     When We identify threats
-    Then The threat status of q1 should be neutral
+    Then The threat status of q1 should be answered
     And  The threat status of a1 should be support
     And  The threat status of pro1 should be support
     And  The threat status of ref1 should be support
@@ -149,7 +149,7 @@ Feature: Threat model
                   node_type: reference
       """
     When We identify threats
-    Then The threat status of q1 should be neutral
+    Then The threat status of q1 should be answered
     And  The threat status of ca1 should be threat
     And  The threat status of a2 should be support
 

@@ -32,7 +32,7 @@ Feature: Threat model
                   id: con2
       """
     When We identify threats with references optional
-    Then The threat status of q1 should be neutral
+    Then The threat status of q1 should be answered
     And  The threat status of a1 should be support
     And  The threat status of con1 should be threatened
     And  The threat status of con2 should be threat
@@ -62,7 +62,7 @@ Feature: Threat model
           id: a2
       """
     When We identify threats with references optional
-    Then The threat status of q1 should be neutral
+    Then The threat status of q1 should be answered
     And  The threat status of ca1 should be threat
     And  The threat status of a2 should be support
 
