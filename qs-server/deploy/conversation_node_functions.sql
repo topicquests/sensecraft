@@ -422,6 +422,31 @@ END$$;
 DROP TRIGGER IF EXISTS before_update_node ON conversation_node;
 CREATE TRIGGER before_update_node BEFORE UPDATE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.before_update_node();
 
+
+CREATE OR REPLACE FUNCTION public.node_notification_constraints(node public.conversation_node) RETURNS VARCHAR
+  LANGUAGE plpgsql
+  AS $$
+DECLARE constraints VARCHAR;
+DECLARE public_quest BOOLEAN;
+BEGIN
+
+-- published game node only allowed if public quest or quest member (Q), only visible if looking at game (p)
+
+-- non-published game node (or play channel node) only allowed if playing as that guild (P,P+R,M), only visible if looking at game (p)
+-- guild channel node only allowed if guild member. (G)
+
+  IF node.meta = 'channel' AND node.quest_id == NULL THEN
+    RETURN concat('G', node.guild_id, ' g', node.guild_id);
+  ELSE IF node.status = 'published' THEN
+    SELECT public INTO STRICT public_quest FROM public.quests q WHERE id = node.quest_id;
+    IF public_quest THEN
+      RETURN concat('p', node.quest_id);
+    ELSE
+      RETURN concat('p', node.quest_id, ' P', node.quest_id, '|Q', node.quest_id);
+    END IF;
+  END IF;
+END$$
+
 CREATE OR REPLACE FUNCTION public.after_update_node() RETURNS trigger
   LANGUAGE plpgsql
   AS $$
@@ -436,6 +461,7 @@ BEGIN
     PERFORM public.update_node_ancestry(NEW.id, NULL);
   ELSE
   END CASE;
+  NOTIFY :dbn "U conversation_node " || NEW.id || " " || NEW.owner_id;
   RETURN NEW;
 END$$;
 
