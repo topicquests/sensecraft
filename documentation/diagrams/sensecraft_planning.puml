@@ -1,4 +1,8 @@
-@startuml sensecraft
+@startuml sensecraft_planning
+
+  enum ScoringCriterion #line.dotted:blue {
+    
+  }
 
   enum NodeType {
     Issue
@@ -6,6 +10,18 @@
     Pro
     Con
     Reference
+  }
+
+  class ScoringStrategy #line.dotted:blue {
+    name String
+    criterion ScoringCriterion
+    evalMove(ConversationNode): float
+    evalQuest(GamePlay, GamePlay): Badge[]
+  }
+
+  class AccountService #line.dotted:blue {
+    name String
+    url String
   }
 
   enum RegistrationStatus {
@@ -56,6 +72,11 @@
 
   ' Note: attach permissions to roles
 
+  class TurnStrategy #line.dotted:blue {
+    synchronous boolean
+    turnLength interval
+  }
+
   enum PublicationState {
     obsolete
     private_draft
@@ -76,6 +97,19 @@
     channel
   }
 
+  enum Metric #line.dotted:blue {
+
+  }
+
+  enum BadgeType #line.dotted:blue {
+
+  }
+
+  enum NodeActionType #line.dotted:blue {
+    add_node
+    ' Eventually refactorings
+  }
+
   class Member {
     ' server ExternalServer
     handle String
@@ -86,6 +120,13 @@
     updated_at timestamp
     permissions Permission[]
   }
+  class Account #line.dotted:blue {
+    Member member
+    service AccountService
+    string id
+  }
+  Account ..> "1" AccountService
+  Member "1" ..> "*" Account
 
   class Guild {
     name String
@@ -99,7 +140,9 @@
     ' server ExternalServer
     accept(GamePlay)
   }
-
+  ' Guild --> "0..1" ExternalServer
+  ' Quest --> "0..1" ExternalServer
+  ' Member --> "0..1" ExternalServer
   class Quest {
     name String
     description String
@@ -147,6 +190,12 @@
 
   GuildMembership *--> RegistrationStatus
 
+  class ExternalServer #line.dotted:blue {
+    server_api URL
+    name String
+  }
+
+
   class ConversationNode {
     id integer
     quest Quest
@@ -169,11 +218,69 @@ ConversationNode *--> MetaState
 
 ConversationNode --> "?" Role
 
+ConversationNode <|-- ConversationNodeV2
+
+class ConversationNodeV2 #line.dotted:blue {
+    boolean meta_conversation;
+    next_actor Member;
+    next_actor_role Role;
+    contributors Casting[]
+    node_action_type NodeActionType
+    node_id integer
+    state_history <PublicationState, timestamp>[]
+    ' GamePhase inferred from history?
+    ' allow more history than PublicationState?
+    previous_version ConversationNode
+    history() ConversationNode[]
+    ' may materialize in a ltree
+  }
+
+
+  class NodeReplacement #line.dotted:blue {
+    new_node ConversationNode
+    replacing_node ConversationNode
+    approved_by Casting[]
+    effective timestamp
+  }
+
+  <> diamond
+  NodeReplacement . diamond
+  diamond . "new_node 1" ConversationNodeV2
+  diamond . "replacing_node 1" ConversationNodeV2
+
+  NodeReplacement ..> "*" Casting : > approvals
+
+  'ConversationNodeV2 "*" o..> "1..*" Casting
+  ' Quest o--> ScoringStrategy
 
   Member "1" <-- "*" ConversationNode : < creator
   ConversationNode "1" o-> "0..1" ConversationNode : > parent
   Quest "1" o--> "*" ConversationNode
   Quest *--> QuestStatus
+
+  class GameMoveScore #line.dotted:blue {
+    guild Guild
+    moves ConversationNode[]
+    metric Metric
+    value float
+    strategy ScoringStrategy
+    quest_signature crypto
+    badge BadgeType
+  }
+  ConversationNode "1..*" <.. "*" GameMoveScore
+  Quest *..> "*" GameMoveScore
+  class ScoreAssignment #line.dotted:blue {
+    from_score GameMoveScore
+    casting Casting
+    value float
+    ' Should I put all values in one assignment? Easier to check the total constraint.
+    badge BadgeType
+    guild_signature crypto
+  }
+
+  (Casting, GameMoveScore) .. ScoreAssignment
+
+  Member "1" ..> "*" ScoreAssignment
 
   ' GameMoveScore --> "1" ScoringStrategy
   ' NOTE: GameMoveScore given by Quest, distribution of points to contributors is decided by guild
@@ -185,6 +292,22 @@ ConversationNode --> "?" Role
   ' Question: Should I allow multiple avatars in a guild, reusable between quests?
   ' Vs the Casting which is a way to play a game under a quest-specific identity...
   ' That creates the question: Do the points/badges belong to the Avatar or the Member?
+
+  class Avatar #line.dotted:blue {
+    ' Note: for v1, a single avatar.
+    member Member
+    server Server
+    badges BadgeType[]
+    scores {Metric->float}
+    name String
+    ' defaults to member's handle
+    ' (server+name unique)
+
+    ' v2
+    roles Role[]
+  }
+
+  Member "1" o..> "*" Avatar
 
   class Casting {
     ' note: denormalized for uniqueness constraints
@@ -255,5 +378,15 @@ ConversationNode --> "?" Role
 
   Role *--> "*" RoleNodeConstraint
   (Casting, Role) .. CastingRole
+
+  class GamePhase  #line.dotted:blue {
+    quest Quest
+    start timestamp
+    end timestamp
+    synchronous boolean
+    singlePlayer Guild
+  }
+
+  Quest "1" o..> "*" GamePhase 
 
 @enduml
