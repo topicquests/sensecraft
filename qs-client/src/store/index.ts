@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import type { Store } from "vuex";
 import { quests } from "./quests";
 import { members } from "./members";
 import { member } from "./member";
@@ -14,7 +15,7 @@ import type { AxiosInstance } from "axios";
 Vue.use(Vuex);
 
 // singleton
-let STORE = null;
+let STORE: Store<any> = null;
 
 export default function getStore(axios: AxiosInstance) {
   if (STORE === null) {

@@ -355,7 +355,7 @@ export const conversation = (axios: AxiosInstance) =>
     // Step 3
     .get({
       action: "fetchConversationNode",
-      queryParams: true,
+      queryParams: false,
       path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
       property: "node",
       onSuccess: (
