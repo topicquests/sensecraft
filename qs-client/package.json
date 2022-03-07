@@ -28,7 +28,7 @@
     "luxon": "~2.3",
     "pg-hstore": "~2.3",
     "quasar": "legacy",
-    "socket.io-client": "~4.4",
+    "robust-websocket": "~1.0",
     "uuid": "~8.3",
     "vue": "legacy",
     "vue-class-component": "~7",
