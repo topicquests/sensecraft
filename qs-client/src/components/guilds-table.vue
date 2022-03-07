@@ -8,7 +8,7 @@
       row-key="desc"
     >
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr :props="props" style="text-align:left">
 
           <q-td key="name" :props="props"> {{ props.row.name }}</q-td>
           <q-td key="numMembers">{{numMembers(props.row)}}</q-td>

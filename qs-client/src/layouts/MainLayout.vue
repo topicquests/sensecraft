@@ -68,15 +68,13 @@
         </div>
       </q-toolbar>
     </q-header>
-    <div id="mySidenav" class="sidenav">
+    <div v-if="rightDrawerOpen" style="width:350px" id="mySidenav" class="sidenav">
       <div class="q-pa-md q-gutter-sm">
-        <node-tree
-          v-if="getNeighbourhoodTree.length"
-          v-bind:nodes="getNeighbourhoodTree"
-          :channelId="null"
-          :editable="false"
-          :hideDescription="true"
-        />
+         <channel-list
+        v-if="getGuildChannels.length"
+        v-bind:channels="getGuildChannels"
+        title="Guild Channels"
+      />
       </div>
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
@@ -156,7 +154,7 @@
     </q-drawer>
     <q-page-container class="q-pa-md">
       <router-view />
-    </q-page-container >
+    </q-page-container>
     <q-footer class="footer bg-secondary">
       <p id="Pfooter">
         Sensecraft — © <a href="https://topicquests.org">TopicQuests</a> 2022.
@@ -166,14 +164,30 @@
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
-
-import { MemberState } from "../store/member";
+import {  MemberActionTypes, MemberState } from "../store/member";
+import { BaseGetterTypes} from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
+import Component from 'vue-class-component';
+import Vue from "vue";
+import { conversation, ConversationActionTypes, ConversationGetterTypes } from "src/store/conversation";
+import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
+import { GuildsGetterTypes } from "../store/guilds"
+import ChannelList from "../components/ChannelListComponent.vue";
 
-export default {
-  name: "MainLayout",
+@Component<MainLayout>({
+   name: "MainLayout",
+   components: {
+    nodeTree: nodeTree,
+    ChannelList: ChannelList,
+  },
+  meta: {
+    // sets document title
+    title: "Homepage",
+    // optional; sets final title as "Index Page - My Website", useful for multiple level meta
+    titleTemplate: (title) => `${title} - SenseCraft`,
+  },
   data() {
     return {
       simple: [
@@ -182,75 +196,85 @@ export default {
           avatar: "https://cdn.quasar.dev/img/boy-avatar.png",
         },
       ],
-      leftDrawer: false,
-      rightDrawerOpen: false,
+      
       selected: null,
-      showTree: true,
+     
     };
   },
-  components: {
-    nodeTree: nodeTree,
-  },
-  meta: {
-    // sets document title
-    title: "Homepage",
-    // optional; sets final title as "Index Page - My Website", useful for multiple level meta
-    titleTemplate: (title) => `${title} - SenseCraft`,
-  },
   computed: {
+    ...mapState("member", {
+       isAuthenticated: (state:MemberState) => state.isAuthenticated,
+      memberId: (state:MemberState) => state.member.id,     
+    }),
     ...mapGetters("conversation", [
       "getNeighbourhoodTree",
       "getConversationTree",
+      "getConversationNodeById",
     ]),
     ...mapGetters(["hasPermission"]),
-    ...mapState("member", {
-      isAuthenticated: (state) => state.isAuthenticated,
-      memberId: (state) => state.member.id,
-    }),
+    ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
+    ...mapGetters("guilds", ["getCurrentGuild"])
   },
   watch: {
     selected: function (val, oldVal) {
       this.setConversationNode(val);
     },
   },
-
-  methods: {
-    ...mapActions("conversation", [
-      "getConversationNodeById",
-      "setConversationNode",
-    ]),
+    methods: {
     ...mapActions("member", ["logout"]),
-    toggleNav() {
-      if (this.rightDrawerOpen) {
-        this.closeNav();
-      } else {
-        this.rightDrawerOpen = true;
-        this.$el.querySelector("#mySidenav").style.width = "450px";
-      }
-    },
-    closeNav() {
+    ...mapActions("channel", ["ensureChannels"]), 
+     ...mapActions("conversation", ["setConversationNode"]),   
+  }
+})
+
+export default class MainLayout extends Vue {
+  private leftDrawer: Boolean=false;
+  private rightDrawerOpen: Boolean=false;
+  private  showTree: Boolean=true;
+
+  // Declare computed attributes for typescript
+  getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
+  getGameChannels!: ChannelGetterTypes["getGameChannels"];
+  getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
+  getConversationTree!: ConversationGetterTypes["getConversationTree"];
+  hasPermission!: BaseGetterTypes["hasPermission"];
+  getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"]
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"]
+
+  // Declare action attributes for typescript
+  logout: MemberActionTypes["logout"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
+  public goTo(route): void {
       this.rightDrawerOpen = false;
-      this.$el.querySelector("#mySidenav").style.width = "0";
-    },
-    goTo(route) {
-      this.rightDrawer = false;
       this.leftDrawer = false;
       this.$router.push({ name: route });
-    },
+    }
+  toggleNav() {
+    if (this.rightDrawerOpen) {
+      this.closeNav();
+    } else {
+        this.rightDrawerOpen = true;
+        
+      }
+    }
+    closeNav() {
+      this.rightDrawerOpen = false;      
+    }
+
     async onLogout() {
-      this.rightDrawer = false;
+      this.rightDrawerOpen = false;
       this.leftDrawer = false;
-      // @Byron: Really unsure if this should have been moved up and why?
       this.goTo("home");
-      this.$el.querySelector("#mySidenav").style.width = "0";
       await this.logout();
       this.$q.notify({
         type: "positive",
         message: "You are now logged out",
       });
-      // this.goTo("home");
-    },
-  },
+    }
+
+    async beforeMount() {
+       await this.ensureChannels(this.getCurrentGuild?.id);
+    }
 };
 </script>
 <style>
