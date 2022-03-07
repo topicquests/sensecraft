@@ -98,7 +98,18 @@
         </q-card>
       </div>
     </div>
-
+    <div class="row justify-center">
+      <q-btn  
+      color="primary"
+      label="Create Guild Channel"
+      @click="
+                    $router.push({
+                      name: 'guild_channel_list',
+                      params: { guild_id: guildId },
+                    })
+                  ">
+      </q-btn>
+    </div>
     <div class="row justify-center q-mt-md">
       <q-card style="width: 40%">
         <div class="row justify-center">
