@@ -426,26 +426,35 @@ CREATE TRIGGER before_update_node BEFORE UPDATE ON public.conversation_node FOR 
 CREATE OR REPLACE FUNCTION public.node_notification_constraints(node public.conversation_node) RETURNS VARCHAR
   LANGUAGE plpgsql
   AS $$
-DECLARE constraints VARCHAR;
 DECLARE public_quest BOOLEAN;
 BEGIN
-
--- published game node only allowed if public quest or quest member (Q), only visible if looking at game (p)
-
--- non-published game node (or play channel node) only allowed if playing as that guild (P,P+R,M), only visible if looking at game (p)
--- guild channel node only allowed if guild member. (G)
-
-  IF node.meta = 'channel' AND node.quest_id == NULL THEN
-    RETURN concat('G', node.guild_id, ' g', node.guild_id);
-  ELSE IF node.status = 'published' THEN
-    SELECT public INTO STRICT public_quest FROM public.quests q WHERE id = node.quest_id;
-    IF public_quest THEN
-      RETURN concat('p', node.quest_id);
+  IF node.meta = 'channel' AND node.quest_id IS NULL THEN
+    -- guild channel node only allowed if guild member, maybe role restrictions.
+    IF node.status = 'role_draft' THEN
+      RETURN concat('G', node.guild_id, ':r', node.draft_for_role_id, ' g', node.guild_id);
     ELSE
-      RETURN concat('p', node.quest_id, ' P', node.quest_id, '|Q', node.quest_id);
+      RETURN concat('G', node.guild_id, ' g', node.guild_id);
     END IF;
+  ELSE
+    SELECT public INTO STRICT public_quest FROM public.quests q WHERE id = node.quest_id;
+    CASE node.status
+      WHEN 'published' THEN
+        -- published game node only allowed if public quest or playing or quest member (Q), only visible if looking at game (p)
+        IF public_quest THEN
+          RETURN concat('p', node.quest_id);
+        ELSE
+          RETURN concat('p', node.quest_id, ' P', node.quest_id, '|Q', node.quest_id);
+        END IF;
+      -- non-published game node (or play channel node) only allowed if playing as that guild (P,P+R,M), only visible if looking at game (p)
+      WHEN 'private_draft' THEN
+        RETURN concat('p', node.quest_id, ' M', node.creator_id);
+      WHEN 'role_draft' THEN
+        RETURN concat('p', node.quest_id, ' P', node.quest_id, ':r', node.draft_for_role_id);
+      ELSE
+        RETURN concat('p', node.quest_id, ' P', node.quest_id);
+    END CASE;
   END IF;
-END$$
+END$$;
 
 CREATE OR REPLACE FUNCTION public.after_update_node() RETURNS trigger
   LANGUAGE plpgsql
@@ -461,12 +470,39 @@ BEGIN
     PERFORM public.update_node_ancestry(NEW.id, NULL);
   ELSE
   END CASE;
-  NOTIFY :dbn "U conversation_node " || NEW.id || " " || NEW.owner_id;
+  PERFORM pg_notify(current_database(), concat('U conversation_node ' , NEW.id, ' 0 ', node_notification_constraints(NEW)));
   RETURN NEW;
 END$$;
 
 DROP TRIGGER IF EXISTS after_update_node ON conversation_node;
 CREATE TRIGGER after_update_node AFTER UPDATE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.after_update_node();
+
+
+
+CREATE OR REPLACE FUNCTION public.after_insert_node() RETURNS trigger
+  LANGUAGE plpgsql
+  AS $$
+BEGIN
+  PERFORM pg_notify(current_database(), concat('C conversation_node ' , NEW.id, ' 0 ', node_notification_constraints(NEW)));
+  RETURN NEW;
+END$$;
+
+DROP TRIGGER IF EXISTS after_insert_node ON conversation_node;
+CREATE TRIGGER after_insert_node AFTER INSERT ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.after_insert_node();
+
+
+CREATE OR REPLACE FUNCTION public.after_delete_node() RETURNS trigger
+  LANGUAGE plpgsql
+  AS $$
+DECLARE db_name VARCHAR = current_database();
+BEGIN
+  PERFORM pg_notify(current_database(), concat('D conversation_node ' , NEW.id, ' 0 ', node_notification_constraints(NEW)));
+  RETURN NEW;
+END$$;
+
+DROP TRIGGER IF EXISTS after_delete_node ON conversation_node;
+CREATE TRIGGER after_delete_node AFTER DELETE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.after_delete_node();
+
 
 ALTER TABLE public.conversation_node ENABLE ROW LEVEL SECURITY;
 
