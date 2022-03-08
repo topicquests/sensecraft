@@ -31,6 +31,8 @@ def psql_command(
     if variables:
         for k, v in variables.items():
             conn.extend(["-v", f"{k}={v}"])
+    if port != 5432:
+        conn.extend(["-p", str(port)])
     if cmdfile:
         conn.extend(["-f", cmdfile])
     else:
