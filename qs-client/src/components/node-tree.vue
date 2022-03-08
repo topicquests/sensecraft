@@ -26,7 +26,7 @@
             'node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
           "
         >
-          {{ prop.node.label }}
+          {{ prop.node.label  }} - {{getMemberById(prop.node.creator_id).handle}}
         </div>
         <span class="threat" v-if="threats && threats[prop.node.id]"
           >&nbsp;[{{ threats[prop.node.id] }}]</span
@@ -118,6 +118,7 @@ import {
   ChannelActionTypes,
 } from "../store/channel";
 import { ThreatMap, ScoreMap } from "../scoring";
+import { MembersGetterTypes, MembersActionTypes } from '../store/members'
 
 class NodeTreeBase {}
 
@@ -144,6 +145,7 @@ const NodeTreeProps = Vue.extend({
       "updateConversationNode",
     ]),
     ...mapActions("channel", ["createChannelNode", "updateChannelNode"]),
+    ...mapActions('members', ['ensureAllMembers'])
   },
   computed: {
     ...mapGetters({
@@ -157,6 +159,7 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("channel", ["getChannelNode"]),
     ...mapGetters("quests", ["getMaxPubStateForNodeType"]),
+    ...mapGetters('members', ['getMemberById'])
   },
   watch: {
     selectedNodeId: "selectionChanged",
@@ -174,6 +177,7 @@ export default class NodeTree extends NodeTreeProps {
 
   canEditConversation: ConversationGetterTypes["canEdit"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
+  getMemberById!: MembersGetterTypes['getMemberById']
   createConversationNode: ConversationActionTypes["createConversationNode"];
   updateConversationNode: ConversationActionTypes["updateConversationNode"];
   canMakeMeta: ConversationGetterTypes["canMakeMeta"];
@@ -183,6 +187,8 @@ export default class NodeTree extends NodeTreeProps {
   updateChannelNode: ChannelActionTypes["updateChannelNode"];
   getChildrenOf: ConversationGetterTypes["getChildrenOf"];
   getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
+
+  ensureAllMembers!: MembersActionTypes['ensureAllMembers']
 
   calcPublicationConstraints(node: Partial<ConversationNode>) {
     if (this.asQuest) {
@@ -364,6 +370,9 @@ export default class NodeTree extends NodeTreeProps {
   }
   selectionChanged(id) {
     this.selectedNodeId = id;
+  }
+  beforeMount() {
+    this.ensureAllMembers();
   }
 }
 </script>

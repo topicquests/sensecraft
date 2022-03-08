@@ -268,6 +268,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
 import castingRoleEdit from "src/components/casting_role_edit.vue";
+import { ChannelActionTypes } from '../store/channel'
 
 @Component<GuildPage>({
   meta: {
@@ -287,6 +288,13 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
     ...mapState("role", {
       allRoles: (state: RoleState) => state.role,
     }),
+    ...mapState("member", {
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
+    }),
+    ...mapState("guilds", {
+      currentGuildId: (state: GuildsState) => state.currentGuild,
+    }),
     currentQuestIdS: {
       get: function () {
         return this.currentQuestId;
@@ -304,14 +312,7 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       "getCastingRoles",
       "getCastingRolesForQuest",
       "isPlayingQuestInGuild",
-    ]),
-    ...mapState("member", {
-      member: (state: MemberState) => state.member,
-      memberId: (state: MemberState) => state.member?.id,
-    }),
-    ...mapState("guilds", {
-      currentGuildId: (state: GuildsState) => state.currentGuild,
-    }),
+    ]),    
     ...mapGetters("members", [
       "getMemberById",
       "getMembersOfGuild",
@@ -330,8 +331,6 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
     }),
     ...mapGetters("conversation", ["getFocusNode", "getConversationNodeById"]),
     ...mapGetters(["hasPermission"]),
-
-    // ...mapGetters('member', ['getUserId']),
     getRolesForQuest(): Role {
       const castingRoles = this.castingRolesPerQuest(
         this.memberId,
@@ -340,7 +339,6 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
     },
-
     getCastingRoleNames(): string[] {
       const roles = this.getRolesForQuest;
       const rolesName = roles.map((cr) => cr.name).join(",");
@@ -377,6 +375,7 @@ import castingRoleEdit from "src/components/casting_role_edit.vue";
       "ensureGuildsPlayingQuest",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions('channel', ['ensureChannels']),
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
         return this.getMembersOfGuild(this.getCurrentGuild);
@@ -481,10 +480,7 @@ export default class GuildPage extends Vue {
   getMembersAvailableRoles!: MemberGetterTypes["getMembersAvailableRoles"];
   guildPerQuest!: MemberGetterTypes["guildPerQuest"];
   castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
-  // getGamePlayByGuildIdAndQuestId!: ReturnType<
-  //   GuildsGetterTypes["getGamePlayByGuildIdAndQuestId"]
-  // >;
-
+ 
   // declare the methods for Typescript
   ensureGuildsPlayingQuest!: GuildsActionTypes["ensureGuildsPlayingQuest"];
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
@@ -504,6 +500,7 @@ export default class GuildPage extends Vue {
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   ensureQuest!: QuestsActionTypes["ensureQuest"];
+  ensureChannels!: ChannelActionTypes['ensureChannels']
   fetchQuestById!: QuestsActionTypes["fetchQuestById"];
   updateQuest!: QuestsActionTypes["updateQuest"];
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
@@ -514,8 +511,6 @@ export default class GuildPage extends Vue {
   async initialize() {
     await this.setCurrentGuild(this.guildId);
     this.checkPermissions();
-    // should be useful but unused for now
-    // const memb = await this.getGuildMembers();
     const playQuestIds = this.getCurrentGuild.game_play.map(
       (gp: GamePlay) => gp.quest_id
     );
@@ -751,6 +746,7 @@ export default class GuildPage extends Vue {
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllRoles(),
+      this.ensureChannels(this.guildId),
     ]);
     await this.ensureMembersOfGuild({ guildId: this.guildId });
     await this.initialize();
