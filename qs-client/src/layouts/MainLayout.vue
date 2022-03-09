@@ -54,7 +54,7 @@
           >
           </q-btn>
         </div>
-        <div v-if="isAuthenticated && showTree && getNeighbourhoodTree.length">
+        <div v-if="isAuthenticated && showTree && getChannels && getChannels.length">
           <q-btn
             flat
             dense
@@ -68,13 +68,18 @@
         </div>
       </q-toolbar>
     </q-header>
-    <div v-if="rightDrawerOpen" style="width:350px" id="mySidenav" class="sidenav">
+    <div
+      v-if="rightDrawerOpen"
+      style="width: 350px"
+      id="mySidenav"
+      class="sidenav"
+    >
       <div class="q-pa-md q-gutter-sm">
-         <channel-list
-        v-if="getGuildChannels.length"
-        v-bind:channels="getGuildChannels"
-        title="Guild Channels"
-      />
+        <channel-list
+          v-if="getGuildChannels.length"
+          v-bind:channels="getGuildChannels"
+          title="Guild Channels"
+        />
       </div>
     </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
@@ -166,19 +171,23 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
-import {  MemberActionTypes, MemberState } from "../store/member";
-import { BaseGetterTypes} from "../store/baseStore";
+import { MemberActionTypes, MemberState } from "../store/member";
+import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
-import Component from 'vue-class-component';
+import Component from "vue-class-component";
 import Vue from "vue";
-import { conversation, ConversationActionTypes, ConversationGetterTypes } from "src/store/conversation";
+import {
+  conversation,
+  ConversationActionTypes,
+  ConversationGetterTypes,
+} from "src/store/conversation";
 import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
-import { GuildsGetterTypes } from "../store/guilds"
+import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 
 @Component<MainLayout>({
-   name: "MainLayout",
-   components: {
+  name: "MainLayout",
+  components: {
     nodeTree: nodeTree,
     ChannelList: ChannelList,
   },
@@ -196,15 +205,14 @@ import ChannelList from "../components/ChannelListComponent.vue";
           avatar: "https://cdn.quasar.dev/img/boy-avatar.png",
         },
       ],
-      
+
       selected: null,
-     
     };
   },
   computed: {
     ...mapState("member", {
-       isAuthenticated: (state:MemberState) => state.isAuthenticated,
-      memberId: (state:MemberState) => state.member.id,     
+      isAuthenticated: (state: MemberState) => state.isAuthenticated,
+      memberId: (state: MemberState) => state.member.id,
     }),
     ...mapGetters("conversation", [
       "getNeighbourhoodTree",
@@ -212,25 +220,28 @@ import ChannelList from "../components/ChannelListComponent.vue";
       "getConversationNodeById",
     ]),
     ...mapGetters(["hasPermission"]),
-    ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
-    ...mapGetters("guilds", ["getCurrentGuild"])
+    ...mapGetters("channel", [
+      "getGuildChannels",
+      "getGameChannels",
+      "getChannels",
+    ]),
+    ...mapGetters("guilds", ["getCurrentGuild"]),
   },
   watch: {
     selected: function (val, oldVal) {
       this.setConversationNode(val);
     },
   },
-    methods: {
+  methods: {
     ...mapActions("member", ["logout"]),
-    ...mapActions("channel", ["ensureChannels"]), 
-     ...mapActions("conversation", ["setConversationNode"]),   
-  }
+    ...mapActions("channel", ["ensureChannels"]),
+    ...mapActions("conversation", ["setConversationNode"]),
+  },
 })
-
 export default class MainLayout extends Vue {
-  private leftDrawer: Boolean=false;
-  private rightDrawerOpen: Boolean=false;
-  private  showTree: Boolean=true;
+  private leftDrawer: Boolean = false;
+  private rightDrawerOpen: Boolean = false;
+  private showTree: Boolean = true;
 
   // Declare computed attributes for typescript
   getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
@@ -238,44 +249,44 @@ export default class MainLayout extends Vue {
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getConversationTree!: ConversationGetterTypes["getConversationTree"];
   hasPermission!: BaseGetterTypes["hasPermission"];
-  getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"]
-  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"]
+  getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  getChannels!:ChannelGetterTypes['getChannels']
 
   // Declare action attributes for typescript
   logout: MemberActionTypes["logout"];
   ensureChannels: ChannelActionTypes["ensureChannels"];
   public goTo(route): void {
-      this.rightDrawerOpen = false;
-      this.leftDrawer = false;
-      this.$router.push({ name: route });
-    }
+    this.rightDrawerOpen = false;
+    this.leftDrawer = false;
+    this.$router.push({ name: route });
+  }
   toggleNav() {
     if (this.rightDrawerOpen) {
       this.closeNav();
     } else {
-        this.rightDrawerOpen = true;
-        
-      }
+      this.rightDrawerOpen = true;
     }
-    closeNav() {
-      this.rightDrawerOpen = false;      
-    }
+  }
+  closeNav() {
+    this.rightDrawerOpen = false;
+  }
 
-    async onLogout() {
-      this.rightDrawerOpen = false;
-      this.leftDrawer = false;
-      this.goTo("home");
-      await this.logout();
-      this.$q.notify({
-        type: "positive",
-        message: "You are now logged out",
-      });
-    }
+  async onLogout() {
+    this.rightDrawerOpen = false;
+    this.leftDrawer = false;
+    this.goTo("home");
+    await this.logout();
+    this.$q.notify({
+      type: "positive",
+      message: "You are now logged out",
+    });
+  }
 
-    async beforeMount() {
-       await this.ensureChannels(this.getCurrentGuild?.id);
-    }
-};
+  async beforeMount() {
+    await this.ensureChannels(this.getCurrentGuild?.id);
+  }
+}
 </script>
 <style>
 #Pfooter {
