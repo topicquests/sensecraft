@@ -16,6 +16,7 @@ import {
   GuildMemberAvailableRole,
 } from "../types";
 import { MembersActionTypes } from "../store/members";
+import { getWSClient } from "../wsclient";
 
 export interface MemberState {
   member: Member;
@@ -71,6 +72,7 @@ const MemberGetters = {
 const MemberActions = {
   logout: (context) => {
     context.commit("LOGOUT");
+    getWSClient().logout();
   },
   registerUser: async (context, data) => {
     // const password = await hash(data.password, 10);
@@ -185,6 +187,7 @@ export const member = (axios: AxiosInstance) =>
         if (tokenExpiry) {
           state.tokenExpiry = Number.parseInt(tokenExpiry as string);
         }
+        getWSClient().login(state.member.id, state.token)
         return state.member;
       },
       onError: (
@@ -247,6 +250,7 @@ export const member = (axios: AxiosInstance) =>
         { params, data }
       ) => {
         state.token = res.data;
+        getWSClient().login(state.member.id, state.token);
         const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         state.tokenExpiry = tokenExpiry;
         const storage = window.localStorage;

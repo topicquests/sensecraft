@@ -6,16 +6,17 @@
 <script lang="ts">
 import Vue from "vue";
 import VueRouter from "vue-router";
-import getStore from "./store";
 import router from "./router";
 import type { MemberState } from "./store/member";
 import { mapState, mapActions } from "vuex";
-import { axiosInstance } from "./boot/axios";
+import store from "./boot/store";
+import { initWSClient } from "./wsclient";
 import { userLoadedResolve } from "./boot/userLoaded";
 
-const store = getStore(axiosInstance);
-
 Vue.use(VueRouter);
+
+declare var ws_url: string;
+initWSClient(ws_url);
 
 const app = new Vue({
   name: "App",
