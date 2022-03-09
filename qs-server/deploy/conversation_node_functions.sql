@@ -496,7 +496,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_node() RETURNS trigger
   AS $$
 DECLARE db_name VARCHAR = current_database();
 BEGIN
-  PERFORM pg_notify(current_database(), concat('D conversation_node ' , NEW.id, ' 0 ', node_notification_constraints(NEW)));
+  PERFORM pg_notify(current_database(), concat('D conversation_node ' , OLD.id, ' 0 ', node_notification_constraints(OLD)));
   RETURN NEW;
 END$$;
 
