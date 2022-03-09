@@ -1,12 +1,13 @@
 import type { Store } from "vuex";
 import RobustWebSocket from "robust-websocket";
-import store from "./boot/store";
 
 export default class WSClient {
   ws: RobustWebSocket;
   connected = false;
   login_message: string = null;
-  constructor(url) {
+  store: Store<any>;
+  constructor(store, url) {
+    this.store = store;
     function shouldReconnect (event, ws) {
       if (event.type === 'online') return 0
       return Math.pow(1.5, ws.attempts) * 500
@@ -17,8 +18,8 @@ export default class WSClient {
     this.ws.addEventListener('open', (event) => {
       console.log("Connected to server");
       this.connected = true;
-      if (!this.login_message && store.state.member.member) {
-          this.login(store.state.member.member.id, store.state.member.token);
+      if (!this.login_message && this.store.state.member.member) {
+          this.login(this.store.state.member.member.id, this.store.state.member.token);
       } else
         if (this.login_message) {
         this.ws.send(this.login_message);
@@ -72,7 +73,7 @@ export default class WSClient {
         if (crud == "D") {
           // TODO
         } else {
-          store.dispatch("conversation/fetchConversationNode", { params: { id } });
+          this.store.dispatch("conversation/fetchConversationNode", { params: { id } });
         }
         break;
       default:
@@ -83,10 +84,10 @@ export default class WSClient {
 
 let ws_client: WSClient;
 
-export function initWSClient(url) {
+export function initWSClient(store: Store<any>, url:string) {
   // dynamic because of circular dependency in store
   if (!ws_client) {
-    ws_client = new WSClient(url);
+    ws_client = new WSClient(store, url);
   }
   return ws_client;
 }

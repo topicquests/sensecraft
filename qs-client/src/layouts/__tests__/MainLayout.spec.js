@@ -77,6 +77,8 @@ describe("MainLayout.vue not logged in button", () => {
         isAuthenticated: false,
       },
       conversation: {},
+      guilds: {},
+      channel: {},
     },
     getters: {
       hasPermission: () => false,

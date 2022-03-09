@@ -15,8 +15,8 @@ import { userLoadedResolve } from "./boot/userLoaded";
 
 Vue.use(VueRouter);
 
-declare var ws_url: string;
-initWSClient(ws_url);
+declare const ws_url: string;
+initWSClient(store, ws_url);
 
 const app = new Vue({
   name: "App",
