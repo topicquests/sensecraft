@@ -45,6 +45,8 @@ As above, needed to run once only.
 
 This creates, then migrates the database.
 
+`npm run build`
+
 Those three steps will also be run using
 
 `npm run init`
@@ -59,14 +61,17 @@ In `qs-demo`:
 ## Start your app
 
 In `qs-server`:
+```npm run dev```
+
+Or, equivalently, in two separate terminals:
+
+```npm run socksrv```
+and
 ```
 postgrest postgrest_development.conf
 ```
 
-or equivalently
-`npm run dev`
-
-In `qs-client` (in another terminal):
+Also, in `qs-client` (in another terminal):
 ```
 ./node_modules/.bin/quasar dev
 ```
