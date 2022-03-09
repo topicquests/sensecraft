@@ -105,6 +105,23 @@ CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest integer, member i
 
 
 --
+-- Name: before_delete_quest(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.before_delete_quest() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      DELETE FROM public.conversation_node WHERE quest_id = OLD.id;
+      RETURN OLD;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS before_delete_quest ON public.quests;
+CREATE TRIGGER before_delete_quest BEFORE DELETE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.before_delete_quest();
+
+
+--
 -- Name: after_delete_quest(); Type: FUNCTION
 --
 

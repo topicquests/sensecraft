@@ -28,6 +28,7 @@ DROP POLICY IF EXISTS quest_membership_select_policy ON public.quest_membership;
 ALTER TABLE public.quest_membership DISABLE ROW LEVEL SECURITY;
 DROP TRIGGER IF EXISTS before_update_quest_membership ON public.quest_membership;
 DROP TRIGGER IF EXISTS before_update_quest ON public.quests;
+DROP TRIGGER IF EXISTS before_delete_quest ON public.quests;
 DROP TRIGGER IF EXISTS before_create_quest_membership ON public.quest_membership;
 DROP TRIGGER IF EXISTS before_create_quest ON public.quests;
 DROP TRIGGER IF EXISTS after_delete_quest_membership ON public.quest_membership;
@@ -43,6 +44,7 @@ DROP FUNCTION IF EXISTS  public.before_create_quest();
 DROP FUNCTION IF EXISTS  public.alter_quest_membership(quest character varying, member character varying, adding boolean);
 DROP FUNCTION IF EXISTS  public.after_delete_quest_membership();
 DROP FUNCTION IF EXISTS  public.after_delete_quest();
+DROP FUNCTION IF EXISTS  public.before_delete_quest();
 DROP FUNCTION IF EXISTS  public.after_create_quest();
 
 COMMIT;

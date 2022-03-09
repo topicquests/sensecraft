@@ -49,11 +49,11 @@ describe('\'conversation_node\' service', () => {
     after(async () => {
       if (process.env.NOREVERT)
         return;
-      await delete_nodes(['arg1', 'a1', 'q1'], nodeIds, adminToken);
+      await delete_nodes(Object.keys(nodeIds), nodeIds, adminToken);
       if (publicGuildId)
-        await axiosUtil.delete('guilds', {id: publicGuildId}, adminToken);
+        await axiosUtil.delete('guilds', { id: publicGuildId }, adminToken);
       if (publicQuestId)
-        await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
+        await axiosUtil.delete('quests', { id: publicQuestId }, adminToken);
       if (publicQuest2Id)
         await axiosUtil.delete('quests', {id: publicQuest2Id}, adminToken);
       delete_members(memberIds, adminToken);
