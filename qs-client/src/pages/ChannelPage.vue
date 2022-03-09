@@ -37,6 +37,7 @@ import {
   ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
+  channel,
 } from "../store/channel";
 import { ConversationMap, ibis_child_types } from "../store/conversation";
 import {
@@ -93,6 +94,14 @@ import { BaseGetterTypes } from "../store/baseStore";
       "canEdit",
     ]),
     ...mapGetters("role", ["getRoles"]),
+    channelId: {
+      get() {
+        const channelId = this.$route.params.channel_id;
+        this.getChannel(channelId);
+        return channelId;
+      },
+      set() {},
+    },
     channelTree: function () {
       return this.getChannelConversationTree(this.channelId);
     },
@@ -103,6 +112,12 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    async getChannel(channelId) {
+      this.ensureChannelConversation({
+        channel_id: channelId,
+        guild: this.guildId,
+      });
+    },
   },
   watch: {},
 })
