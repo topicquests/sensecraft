@@ -31,9 +31,9 @@ function addToState(state: ChannelState, node: ConversationNode) {
   if (node.parent_id && state.channelData[channel_id] == undefined)
     throw new Error("Missing channel");
   const channelData = { ...state.channelData[channel_id], [node.id]: node };
-  state.channelData = {
-    [channel_id]: channelData,
+  state.channelData = {   
     ...state.channelData,
+    [channel_id]: channelData,
   };
 }
 

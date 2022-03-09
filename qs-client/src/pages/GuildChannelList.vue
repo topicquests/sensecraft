@@ -106,7 +106,8 @@ export default class GuildChannelList extends Vue {
   cancelCreateGuildChannel() {
     this.creating = false;
   }
-  confirmCreateGuildChannel() {
+  async confirmCreateGuildChannel() {
+    try{ 
     let channel: Partial<ConversationNode> = {
       title: this.newChannelName,
       node_type: ibis_node_type_enum.channel,
@@ -114,7 +115,19 @@ export default class GuildChannelList extends Vue {
       status: publication_state_enum.guild_draft,
       guild_id: this.guildId,
     };
-    this.createChannelNode({ data: channel });
+    await this.createChannelNode({ data: channel });
+     this.$q.notify({
+        message: `Added new conversation node`,
+        color: "positive",
+      });
+    }
+    catch (err) {
+      console.log("there was an error in creating conversation node ", err);
+      this.$q.notify({
+        message: `There was an error creating new conversation node.`,
+        color: "negative",
+      });
+    }
   }
   async beforeCreate() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
