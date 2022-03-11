@@ -54,7 +54,15 @@
           >
           </q-btn>
         </div>
-        <div v-if="isAuthenticated && showTree && getChannels && getChannels.length">
+        <div
+          v-if="
+            isAuthenticated &&
+            showTree &&
+            getCurrentGuild &&
+            getChannels &&
+            getChannels.length
+          "
+        >
           <q-btn
             flat
             dense
@@ -74,14 +82,23 @@
       id="mySidenav"
       class="sidenav"
     >
-      <div class="q-pa-md q-gutter-sm">
+      <div v-if="getCurrentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
           v-if="getGuildChannels.length"
           v-bind:channels="getGuildChannels"
+          :game="true"
           title="Guild Channels"
         />
       </div>
-    </div>
+      <div v-if="getCurrentGuild && getCurrentQuest">
+          <channel-list
+            v-if="getGuildChannels.length"
+            v-bind:channels="getGameChannels"
+            :game="true"
+            title="Game Channels"
+          />
+        </div>
+      </div>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
       <q-scroll-area class="fit">
         <q-list>
@@ -184,6 +201,7 @@ import {
 import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
+import { QuestsGetterTypes } from "../store/quests";
 
 @Component<MainLayout>({
   name: "MainLayout",
@@ -226,6 +244,7 @@ import ChannelList from "../components/ChannelListComponent.vue";
       "getChannels",
     ]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
+    ...mapGetters("quests", ["getCurrentQuest"]),
   },
   watch: {
     selected: function (val, oldVal) {
@@ -251,7 +270,8 @@ export default class MainLayout extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
-  getChannels!:ChannelGetterTypes['getChannels']
+  getChannels!: ChannelGetterTypes["getChannels"];
+  getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
 
   // Declare action attributes for typescript
   logout: MemberActionTypes["logout"];
@@ -260,6 +280,9 @@ export default class MainLayout extends Vue {
     this.rightDrawerOpen = false;
     this.leftDrawer = false;
     this.$router.push({ name: route });
+  }
+  private showGameChannelList() {
+    if (this.getCurrentGuild && this.getCurrentQuest) return true;
   }
   toggleNav() {
     if (this.rightDrawerOpen) {

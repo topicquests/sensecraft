@@ -8,6 +8,20 @@
         <scoreboard></scoreboard>
       </div>
     </div>
+     <div class="row justify-center q-mt-md">
+      <q-btn  
+      color="primary"
+      label="Create Guild Channel"
+      @click="
+                    $router.push({
+                      name: 'game_channel_list',
+                      params: { 
+                        guild_id: guildId, 
+                        quest_id: questId},
+                    })
+                  ">
+      </q-btn>
+    </div>
     <div class="row justify-center q-mt-lg">
       <div class="col-4 q-md q-mr-lg">
         <questCard

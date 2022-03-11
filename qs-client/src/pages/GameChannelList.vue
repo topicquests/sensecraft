@@ -1,14 +1,17 @@
 <template>
- <q-page class="bg-secondary page">
-    <div class="col-3 q-md q-mb-md">
-      <channel-list
-        v-if="getGameChannels.length"
-        v-bind:channels="getGameChannels"
-        title="Game Channels"
-      />
-    </div>
-
-    <q-btn
+  <q-page class="bg-secondary page">
+    <div class="column items-center q-mb-md">
+      <div class="col-6">
+          <channel-list
+            v-if="getGameChannels.length"
+            v-bind:channels="getGameChannels"
+            title="Game Channels"
+          />
+        </div>
+      </div>
+      <div class="column items-center q-mb-md">
+      <div class="col-6">
+    <q-btn     
       v-if="canAddGameChannel() && !creatingGameC"
       @click="createGameChannel()"
       label="Create Game Channel"
@@ -30,37 +33,8 @@
       @click="confirmCreateGameChannel()"
       label="Confirm"
     />
-    <!-- todo: only active if non-empty name -->
-
-    <div class="col-3 q-md q-mb-md">
-      <channel-list
-        v-if="getGuildChannels.length"
-        v-bind:channels="getGuildChannels"
-        title="Guild Channels"
-      />
-    </div>
-    <q-btn
-      v-if="canAddGuildChannel() && !creatingGuildC"
-      @click="createGuildChannel()"
-      label="Create Guild Channel"
-    />
-    <q-input
-      v-if="creatingGuildC"
-      v-model="newGuildChannelName"
-      label="Guild channel name"
-      id="channel_name"
-    />
-    <q-btn
-      v-if="creatingGuildC"
-      @click="cancelCreateGuildChannel()"
-      label="Cancel"
-    />
-    <q-btn
-      v-if="creatingGuildC"
-      @click="confirmCreateGuildChannel()"
-      label="Confirm"
-    />
-    <!-- todo: only active if non-empty name -->
+      </div>
+     </div>
   </q-page>
 </template>
 

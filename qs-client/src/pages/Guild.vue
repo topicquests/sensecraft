@@ -31,7 +31,7 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
-        <q-card class="bg-light-blue no-border">
+        <q-card class="bg-secondary q-pa-md" style="border: false;">
           <div v-if="activeQuests.length > 0">
             <div v-for="quest in activeQuests" :key="quest.id">
               <q-radio
@@ -46,14 +46,14 @@
                   label="Play"
                   @click="prompt = true"
                   style="margin-right: 1em"
-                  class="bg-dark-blue"
+                  class="bg-primary"
                 />
                 <q-btn
                   v-else-if="
                     guildPerQuest[quest.id] &&
                     guildPerQuest[quest.id] == currentGuildId
                   "
-                  class="q-ml-md bg-dark-blue"
+                  class="q-ml-md bg-primary"
                   label="Go To Quest"
                   style="margin-right: 1em"
                   @click="
@@ -83,72 +83,74 @@
         </q-card>
       </div>
     </div>
-    <div class="row">
+    <div class="row justify-center">
       <div class="col-3">
-        <div
-          v-if="
-            getCurrentQuest &&
-            !getCurrentQuest.start &&
-            isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
-          "
-        >
-          <castingRoleEdit
-            class="q-ml-md"
-            v-if="getAvailableRolesById(memberId).length"
-            v-bind:availableRoles="getAvailableRolesById(memberId)"
-            v-bind:castingRoles="getRolesForQuest"
-            v-bind:guildId="guildId"
-            v-bind:questId="currentQuestId"
-            v-bind:memberId="memberId"
-            v-on:castingRoleAdd="castingRoleAdded"
-            v-on:castingRoleRemove="castingRoleRemoved"
-          ></castingRoleEdit>
+      </div>
+      <div class="col-2 ">
+        <p class="card-header bg-secondary ">Team</p>
+      </div>
+    </div>
+    <div
+      v-if="
+        getCurrentQuest &&
+        !getCurrentQuest.start &&
+        isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
+      "
+      class="row justify-center">
+      <div class="row justify-center q-mr-xl">
+        <castingRoleEdit
+          class="q-ml-md"
+          v-if="getAvailableRolesById(memberId).length"
+          v-bind:availableRoles="getAvailableRolesById(memberId)"
+          v-bind:castingRoles="getRolesForQuest"
+          v-bind:guildId="guildId"
+          v-bind:questId="currentQuestId"
+          v-bind:memberId="memberId"
+          v-on:castingRoleAdd="castingRoleAdded"
+          v-on:castingRoleRemove="castingRoleRemoved"
+        ></castingRoleEdit>
+      </div>
+      <div class="column items-center q-mb-md">
+        <div class="col-6">
+          <q-card id="team-card">
+            <ul>
+              <li
+                v-for="member in getMembersOfGuild(getCurrentGuild)"
+                :key="member.id"
+                class="q-ml-lg q-mr-md"
+                style="color: red"
+              >
+                {{ member.handle }}
+                <span v-if="playingAsGuildId(member.id)">
+                  <span
+                    v-if="playingAsGuildId(member.id) == currentGuildId"
+                    style="color: black"
+                  >
+                    {{ getAllCastingRoleNames(member.id) }}
+                  </span>
+                  <span v-if="playingAsGuildId(member.id) != currentGuildId"
+                    >Playing in
+                    <router-link
+                      :to="{
+                        name: 'guild',
+                        params: { guild_id: playingAsGuildId(member.id) },
+                      }"
+                      >{{ playingAsGuild(member.id).name }}</router-link
+                    ></span
+                  >
+                </span>
+              </li>
+            </ul>
+          </q-card>
         </div>
       </div>
     </div>
-    <div class="col-4 col-md">
-      <p class="card-header bg-secondary">Team</p>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div class="col-6">
-        <q-card id="team-card">
-          <ul>
-            <li
-              v-for="member in getMembersOfGuild(getCurrentGuild)"
-              :key="member.id"
-              class="q-ml-lg q-mr-md"
-              style="color: red"
-            >
-              {{ member.handle }}
-              <span v-if="playingAsGuildId(member.id)">
-                <span
-                  v-if="playingAsGuildId(member.id) == currentGuildId"
-                  style="color: black"
-                >
-                  {{ getAllCastingRoleNames(member.id) }}
-                </span>
-                <span v-if="playingAsGuildId(member.id) != currentGuildId"
-                  >Playing in
-                  <router-link
-                    :to="{
-                      name: 'guild',
-                      params: { guild_id: playingAsGuildId(member.id) },
-                    }"
-                    >{{ playingAsGuild(member.id).name }}</router-link
-                  ></span
-                >
-              </span>
-            </li>
-          </ul>
-        </q-card>
-      </div>
-    </div>
-    <div class="row justify-center bg-secondary">
+    <div class="row justify-center bg-secondary q-pt-lg">
       <div class="col-4">
-        <p class="card-header bg-secondary">Current Quest</p>
+        <h4 class="card-header bg-secondary">Current Quest</h4>
       </div>
       <div class="col-4">
-        <p class="card-header bg-secondary">Quest Move</p>
+        <h4 class="card-header bg-secondary">Quest Move</h4>
       </div>
     </div>
     <div class="row justify-center">
@@ -159,7 +161,7 @@
           v-if="getCurrentQuest"
         ></questCard>
       </div>
-      <div class="col-4 q-ml-lg q-mt-md items-center" style="width: 30%">
+      <div class="col-4 q-ml-lg q-mt-md q-mb-md items-center" style="width: 30%">
         <div v-if="getFocusNode">
           <node-form v-bind:nodeInput="getFocusNode" />
         </div>
@@ -268,11 +270,11 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
 import castingRoleEdit from "src/components/casting_role_edit.vue";
-import { ChannelActionTypes } from '../store/channel'
+import { ChannelActionTypes } from "../store/channel";
 
 @Component<GuildPage>({
   meta: {
-    title: 'Guild Page'
+    title: "Guild Page",
   },
   components: {
     scoreboard: scoreboard,
@@ -312,7 +314,7 @@ import { ChannelActionTypes } from '../store/channel'
       "getCastingRoles",
       "getCastingRolesForQuest",
       "isPlayingQuestInGuild",
-    ]),    
+    ]),
     ...mapGetters("members", [
       "getMemberById",
       "getMembersOfGuild",
@@ -375,7 +377,7 @@ import { ChannelActionTypes } from '../store/channel'
       "ensureGuildsPlayingQuest",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions('channel', ['ensureChannels']),
+    ...mapActions("channel", ["ensureChannels"]),
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
         return this.getMembersOfGuild(this.getCurrentGuild);
@@ -480,7 +482,7 @@ export default class GuildPage extends Vue {
   getMembersAvailableRoles!: MemberGetterTypes["getMembersAvailableRoles"];
   guildPerQuest!: MemberGetterTypes["guildPerQuest"];
   castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
- 
+
   // declare the methods for Typescript
   ensureGuildsPlayingQuest!: GuildsActionTypes["ensureGuildsPlayingQuest"];
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
@@ -500,7 +502,7 @@ export default class GuildPage extends Vue {
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   ensureQuest!: QuestsActionTypes["ensureQuest"];
-  ensureChannels!: ChannelActionTypes['ensureChannels']
+  ensureChannels!: ChannelActionTypes["ensureChannels"];
   fetchQuestById!: QuestsActionTypes["fetchQuestById"];
   updateQuest!: QuestsActionTypes["updateQuest"];
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
