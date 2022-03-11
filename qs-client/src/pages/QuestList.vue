@@ -82,6 +82,7 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { quest_status_enum, quest_status_list } from "../enums";
 import { Quest } from "../types";
+import { GuildsActionTypes } from "src/store/guilds";
 
 @Component<QuestList>({
   components: {
@@ -105,11 +106,14 @@ import { Quest } from "../types";
     },
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests"]),
+    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
+    ...mapActions("guilds", ["setCurrentGuild"]),
   },
 })
 export default class QuestList extends Vue {
   getQuestsByStatus!: QuestsGetterTypes["getQuestsByStatus"];
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
   notStartedQuests!: Quest[];
   registrationQuests!: Quest[];
@@ -118,6 +122,8 @@ export default class QuestList extends Vue {
   async beforeMount() {
     await userLoaded;
     await this.ensureAllQuests();
+    await this.setCurrentQuest(null);
+    await this.setCurrentGuild(null);
   }
 }
 </script>

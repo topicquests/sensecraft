@@ -128,8 +128,8 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     },
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests"]),
-    ...mapActions("guilds", ["ensureAllGuilds"]),
+    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
     guildBelongsTo() {},
   },
 })
@@ -171,11 +171,15 @@ export default class LobbyPage extends Vue {
   getUserId!: MemberGetterTypes["getUserId"];
 
   // declare the methods for Typescript
+  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
 
   async beforeMount() {
     await userLoaded;
+    await this.setCurrentGuild(null);
+    await this.setCurrentQuest(null);
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
   }
 }

@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+  <q-page class="bg-secondary">
     <div class="column items-center">
       <div class="col-4 q-pa-lg" style="width: 1000px">
         <scoreboard></scoreboard>
@@ -61,10 +61,11 @@ import { Guild } from "../types";
 import Component from "vue-class-component";
 import Vue from "vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
+import { QuestsActionTypes } from "src/store/quests";
 
 @Component<GuildListPage>({
   meta: {
-    title: "Guild List"
+    title: "Guild List",
   },
   components: {
     scoreboard: scoreboard,
@@ -92,7 +93,8 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     },
   },
   methods: {
-    ...mapActions("guilds", ["ensureAllGuilds"]),
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
+    ...mapActions("quests", ["setCurrentQuest"]),
   },
 })
 export default class GuildListPage extends Vue {
@@ -103,9 +105,13 @@ export default class GuildListPage extends Vue {
   getOpenGuilds!: Guild[];
   getClosedGuilds!: Guild[];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   async beforeMount() {
     await userLoaded;
     await this.ensureAllGuilds();
+    await this.setCurrentGuild(null);
+    await this.setCurrentQuest(null);
   }
 }
 </script>
