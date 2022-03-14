@@ -36,19 +36,17 @@ CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.guild_id IS NULL AND OLD.guild_id IS NOT NULL AND NOT public.has_permission('superadmin') THEN
-        RAISE EXCEPTION 'Only superadmin can make a guild role into a system role';
+      IF NEW.guild_id IS NULL AND NOT public.has_permission('superadmin') THEN
+        RAISE EXCEPTION 'Only superadmin can alter system roles';
       END IF;
       IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
         RAISE EXCEPTION 'Cannot change a system role into a guild role';
       END IF;
-      IF NEW.permissions != OLD.permissions THEN
-        IF NEW.guild_id IS NULL AND NOT public.has_permission('superadmin') THEN
-          RAISE EXCEPTION 'Only superadmin can change system role permissions';
-        END IF;
-        IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'guildAdmin') THEN
-          RAISE EXCEPTION 'Only guildAdmin can change guild role permissions';
-        END IF;
+      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission('guild_admin', NEW.guild_id) THEN
+        RAISE EXCEPTION 'Only guild admins can alter guild roles';
+      END IF;
+      IF OLD.guild_id != NEW.guild_id THEN
+        RAISE EXCEPTION 'You cannot change the guild of a role';
       END IF;
       RETURN NEW;
     END;
