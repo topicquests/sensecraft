@@ -284,8 +284,13 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
             return NULL;
           END IF;
         END IF;
-        IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions AND NOT public.has_guild_permission(guild_id, 'guildAdmin') THEN
-          RAISE EXCEPTION 'Only guildAdmin can change guild permissions';
+        IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions THEN
+          IF NOT public.has_guild_permission(guild_id, 'guildAdmin') THEN
+            RAISE EXCEPTION 'Only guildAdmin can change guild permissions';
+          END IF;
+          IF NEW.member_id != current_member_id() AND 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT has_permission('superadmin') THEN
+            RAISE EXCEPTION 'Only superadmin can remove another member''s guildAdmin permission';
+          END IF;
         END IF;
         NEW.updated_at := now();
         RETURN NEW;
