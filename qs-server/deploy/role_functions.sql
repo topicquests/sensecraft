@@ -240,36 +240,7 @@ CREATE POLICY casting_role_update_policy ON public.casting_role FOR UPDATE USING
 -- Name: has_game_permission(integer, public.permission); Type: FUNCTION
 --
 
-CREATE OR REPLACE FUNCTION public.has_game_permission(quest_id integer, perm public.permission) RETURNS boolean
-    LANGUAGE plpgsql STABLE
-    AS $$
-    DECLARE guild_id integer;
-    DECLARE casting_permissions public.permission[];
-    BEGIN
-      -- do we care about quest permissions?
-      IF public.has_quest_permission(quest_id, perm) THEN
-        RETURN TRUE;
-      END IF;
-      SELECT guild_id, permissions INTO STRICT guild_id, casting_permissions FROM public.casting WHERE quest_id = quest_id AND member_id == current_member_id();
-      IF guild_id IS NULL THEN
-        RETURN FALSE;
-      END IF;
-      IF casting_permissions && perm THEN
-        RETURN TRUE;
-      END IF;
-      IF public.has_guild_permission(guild_id, perm) THEN
-        RETURN TRUE;
-      END IF;
-      RETURN (SELECT count(*) FROM public.role_casting
-        JOIN public.role ON 
-          role_casting.role_id = role.id
-        WHERE
-          role_casting.member_id = current_member_id() AND
-          role_casting.quest_id = quest_id AND
-          role_casting.guild_id = guild_id AND
-          role.permissions && perm) > 0;
-      END;
-      $$;
+DROP FUNCTION IF EXISTS public.has_game_permission(quest_id integer, perm public.permission);
 
 DROP INDEX IF EXISTS public.guild_member_available_role_member_id_idx;
 CREATE INDEX guild_member_available_role_member_id_idx ON guild_member_available_role USING HASH (member_id);
