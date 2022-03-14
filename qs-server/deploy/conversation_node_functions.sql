@@ -290,6 +290,21 @@ BEGIN
   PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
   IF NEW.guild_id IS NULL THEN
     SELECT guild_id INTO NEW.guild_id FROM casting WHERE casting.quest_id = NEW.quest_id AND casting.member_id = NEW.creator_id;
+    IF NEW.guild_id IS NULL AND NEW.node_type = 'channel' THEN
+      RAISE EXCEPTION 'No quest channels';
+    END IF;
+  ELSE
+    IF NEW.node_type = 'channel' THEN
+      IF NEW.quest_id IS NULL THEN
+        IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
+          RAISE EXCEPTION 'Lacking createGuildChannel permission';
+        END IF;
+      ELSE
+        IF NEW.quest_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createPlayChannel') THEN
+          RAISE EXCEPTION 'Lacking createPlayChannel permission';
+        END IF;
+      END IF;
+    END IF;
   END IF;
   SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
   IF NEW.status != 'role_draft' THEN
@@ -422,6 +437,17 @@ BEGIN
     LOOP
       PERFORM check_node_type_rules(row.node_type, NEW.node_type);
     END LOOP;
+  END IF;
+  IF NEW.node_type = 'channel' AND OLD.node_type != 'channel' THEN
+    IF NEW.quest_id IS NULL THEN
+      IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
+        RAISE EXCEPTION 'Lacking createGuildChannel permission';
+      END IF;
+    ELSE
+      IF NEW.quest_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createPlayChannel') THEN
+        RAISE EXCEPTION 'Lacking createPlayChannel permission';
+      END IF;
+    END IF;
   END IF;
   NEW.updated_at := now();
   RETURN NEW;
