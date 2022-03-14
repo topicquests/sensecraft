@@ -37,15 +37,7 @@ CREATE TYPE public.permission AS ENUM (
     'proposeQuestMembership',
     'rejectGameMove',
     'guildAdmin',
-    'joinQuest',
-    'createPlayChannel',
-    'createGuildChannel',
-    'editConversationNode',
-    'addAvailableRole',
-    'setPlayerRole',
-    'createGuildRole',
-    'createSystemRole',
-    'changeFocus'
+    'joinQuest'
 );
 
 

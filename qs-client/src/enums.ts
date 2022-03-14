@@ -15,6 +15,14 @@ export enum permission_enum {
   rejectGameMove = "rejectGameMove",
   guildAdmin = "guildAdmin",
   joinQuest = "joinQuest",
+  createPlayChannel = "createPlayChannel",
+  createGuildChannel = "createGuildChannel",
+  editConversationNode = "editConversationNode",
+  addAvailableRole = "addAvailableRole",
+  setPlayerRole = "setPlayerRole",
+  createGuildRole = "createGuildRole",
+  createSystemRole = "createSystemRole",
+  changeFocus = "changeFocus",
 }
 
 export type permission_type = keyof typeof permission_enum;
