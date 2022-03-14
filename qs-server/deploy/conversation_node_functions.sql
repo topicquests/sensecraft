@@ -204,6 +204,14 @@ BEGIN
     END IF;
   ELSE
   END CASE;
+  IF status >= 'role_draft' AND status <= 'submitted' THEN
+    IF guild_id IS NULL THEN
+      RAISE EXCEPTION 'guild statuses require a guild';
+    END IF;
+  END IF;
+  IF guild_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
+    RAISE EXCEPTION 'Only guild members can create guild nodes';
+  END IF;
   -- status cannot be higher than parent_status
   IF status > parent_status THEN
     status := parent_status;

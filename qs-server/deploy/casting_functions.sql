@@ -11,6 +11,17 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
+--
+-- Name: is_playing_quest_in_guild(integer); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.is_playing_quest_in_guild(quest_id integer) RETURNS INTEGER AS $$
+  SELECT guild_id FROM public.casting c
+        WHERE
+          c.member_id = current_member_id() AND
+          c.quest_id = quest_id LIMIT 1;
+$$ LANGUAGE sql STABLE;
+
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.casting TO :dbm;
 GRANT SELECT ON TABLE public.casting TO :dbc;
 
