@@ -288,8 +288,13 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
           IF NOT public.has_guild_permission(guild_id, 'guildAdmin') THEN
             RAISE EXCEPTION 'Only guildAdmin can change guild permissions';
           END IF;
-          IF NEW.member_id != current_member_id() AND 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT has_permission('superadmin') THEN
-            RAISE EXCEPTION 'Only superadmin can remove another member''s guildAdmin permission';
+          IF 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT has_permission('superadmin') THEN
+            IF NEW.member_id != current_member_id() THEN
+              RAISE EXCEPTION 'Only superadmin can remove another member''s guildAdmin permission';
+            END IF;
+            IF 1 = (SELECT COUNT(*) FROM guild_membership WHERE guild_id = NEW.guild_id AND permissions @> ARRAY['guildAdmin'::public.permission]) THEN
+              RAISE EXCEPTION 'Cannot remove guildAdmin permission from the last guildAdmin member';
+            END IF;
           END IF;
         END IF;
         NEW.updated_at := now();
