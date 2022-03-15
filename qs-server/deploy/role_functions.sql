@@ -113,7 +113,6 @@ CREATE POLICY role_select_policy ON public.role FOR SELECT USING (true);
 --
 
 ALTER TABLE public.role_node_constraint ENABLE ROW LEVEL SECURITY;
-CREATE POLICY role_node_constraint_select_policy ON public.role_node_constraint FOR SELECT USING (true);
 
 --
 -- Name: role role_insert_policy; Type: POLICY
@@ -144,6 +143,7 @@ CREATE POLICY role_node_constraint_update_policy ON public.role_node_constraint 
 --
 
 DROP POLICY IF EXISTS role_node_constraint_select_policy ON public.role_node_constraint;
+CREATE POLICY role_node_constraint_select_policy ON public.role_node_constraint FOR SELECT USING (true);
 
 
 --
