@@ -9,11 +9,11 @@
     </h3>
     <q-tooltip>Click link to goto guild</q-tooltip>
     <div v-if="getCurrentGuild" class="row justify-center">
-      <div class="col-4" style="height:10%;">
+      <div class="col-4" style="height: 10%">
         <guild-card
           v-bind:currentGuild="getCurrentGuild"
           class="q-ml-xl"
-          style="width: 80%;"
+          style="width: 80%"
         ></guild-card>
       </div>
     </div>
@@ -98,31 +98,75 @@
         </q-card>
       </div>
     </div>
-    <div class="row justify-center">
-      <q-btn  
-      color="primary"
-      label="Create Guild Channel"
-      @click="
-                    $router.push({
-                      name: 'guild_channel_list',
-                      params: { guild_id: guildId },
-                    })
-                  ">
+    <div class="row justify-center q-mb-lg">
+      <q-btn
+        color="primary"
+        label="Create Guild Channel"
+        @click="
+          $router.push({
+            name: 'guild_channel_list',
+            params: { guild_id: guildId },
+          })
+        "
+      >
       </q-btn>
     </div>
+    <div class="column items-center q-mb-md">
+      <div class="col-6" style="width: 30%">
+        <q-card>
+          <div class="row justify-center">
+            <h5>Guild Admins</h5>
+          </div>
+          <q-select
+          class="q-pl-md"
+            style="width: 60%"
+            :multiple="true"
+            v-model="handle"
+            @add="
+              (details) => {
+                addGuildAdmin(details.value);
+              }
+            "
+            @remove="
+              (details) => {
+                removeGuildAdmin(details.value);
+              }
+            "
+            label="Member"
+            :options="getGuildMembers"
+            option-label="handle"
+            option-value="id"
+            emit-value
+            map-options
+          >
+          </q-select>
+          <div v-for="member in getGuildMembers" :key="member.id">
+            <div class="row">
+              <span
+                v-if="isGuildAdmin(member.id)"
+                class="q-pl-md q-pt-md"
+                style="width: 25%"
+              >
+                {{ member.handle }}
+              </span>
+            </div>
+          </div>
+        </q-card>
+      </div>
+    </div>
     <div class="row justify-center q-mt-md">
-      <q-card style="width: 40%">
+      <q-card style="width: 55%">
         <div class="row justify-center">
           <H5>Members Available Roles </H5>
         </div>
-        <div style="width: 90%">
+        <div>
           <div v-for="member in getGuildMembers" :key="member.id">
             <div class="row">
               <span class="q-pl-md q-pt-md" style="width: 25%">
                 {{ member.handle }}
               </span>
               <q-select
-                style="width: 70%"
+                style="width: 50%"
                 class="q-pl-md"
                 :multiple="true"
                 v-model="rolesByMember[member.id]"
@@ -150,7 +194,7 @@
       </q-card>
     </div>
     <div class="column items-center">
-      <div class="col-6 q-pt-lg q-mb-md" style="width: 55%">
+      <div class="col-6 q-pt-lg q-mb-md" style="width: 35%">
         <q-btn
           v-if="$store.state.member.member"
           id="newRoleBtn"
@@ -182,7 +226,7 @@ import {
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import { MemberState } from "../store/member";
+import { MemberState, MemberGetterTypes } from "../store/member";
 import { MembersActionTypes, MembersGetterTypes } from "../store/members";
 import {
   registration_status_enum,
@@ -210,7 +254,7 @@ import guildCard from "../components/guild-card.vue";
 @Component<GuildAdminPage>({
   name: "guild_admin",
   meta: {
-    title: "Guild Admin"
+    title: "Guild Admin",
   },
   components: {
     CastingRoleEdit,
@@ -316,14 +360,19 @@ import guildCard from "../components/guild-card.vue";
     ...mapState("role", {
       allRoles: (state: RoleState) => state.role,
     }),
-    ...mapGetters("member", ["getMembersAvailableRoles", "guildPerQuest"]),
+    ...mapGetters("member", [
+      "getMembersAvailableRoles",
+      "guildPerQuest",
+      "getUserById",
+    ]),
+    ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("quests", [
       "getQuests",
       "getQuestById",
       "castingInQuest",
       "getCastingRolesById",
     ]),
-    ...mapGetters("guilds", ["getCurrentGuild"]),
+    ...mapGetters("guilds", ["getCurrentGuild", "getGuildMembershipById"]),
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", [
       "getMembersOfGuild",
@@ -346,6 +395,7 @@ import guildCard from "../components/guild-card.vue";
       "setCurrentGuild",
       "addGuildMemberAvailableRole",
       "deleteGuildMemberAvailableRole",
+      "updateGuildMembership",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions("members", ["ensureMembersOfGuild", "ensureAllMembers"]),
@@ -394,6 +444,7 @@ export default class GuildAdminPage extends Vue {
       sortable: true,
     },
   ];
+  member_id: number = null;
   questGamePlay: GamePlay[] = [];
   isAdmin = false;
   label = "";
@@ -426,6 +477,9 @@ export default class GuildAdminPage extends Vue {
   castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
   getCastingRolesById!: QuestsGetterTypes["getCastingRolesById"];
   getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
+  getGuildMembershipById!: GuildsGetterTypes["getGuildMembershipById"];
+  getUserById!: MemberGetterTypes["getUserById"];
+  getMemberById!: MembersGetterTypes["getMemberById"];
   potentialQuests: Quest[];
   guildGamePlays: GamePlay[];
   getGuildMembers: PublicMember[];
@@ -444,6 +498,7 @@ export default class GuildAdminPage extends Vue {
   deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
   ensureAllMembers!: MembersActionTypes["ensureAllMembers"];
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
+  updateGuildMembership!: GuildsActionTypes["updateGuildMembership"];
 
   getCastingRole(memberId: number, questId: number) {
     const roles: CastingRole[] = this.castingRolesPerQuest(memberId, questId);
@@ -455,6 +510,67 @@ export default class GuildAdminPage extends Vue {
     const roles = this.getAvailableRolesMembersById(memberId);
     const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
     return roleName;
+  }
+  async addGuildAdmin(id) {
+    if (!this.isGuildAdmin(id)) {
+      const guildMembership = this.getGuildMembershipById(id);
+      guildMembership.permissions.push("guildAdmin");
+      await this.updateGuildMembership(guildMembership);
+      this.$q.notify({
+        type: "positive",
+        message:
+          "Guild admin added to " + (await this.getMemberById(id)?.handle),
+      });
+    } else if (this.isGuildAdmin(id)) {
+      const perm = this.getGuildMembershipById(id).permissions;
+      for (var i = 0; i < perm.length; i++) {
+        if (perm[i] == "guildAdmin") {
+          perm.splice(i, 1);
+        }
+      }
+      const guildMembership = this.getGuildMembershipById(id);
+      guildMembership.permissions = perm;
+      await this.updateGuildMembership(guildMembership);
+      this.$q.notify({
+        type: "positive",
+        message:
+          "Guild admin removed from " + (await this.getMemberById(id)?.handle),
+      });
+    }
+  }
+  async removeGuildAdmin(id) {
+    if (!this.isGuildAdmin(id)) {
+      const guildMembership = this.getGuildMembershipById(id);
+      guildMembership.permissions.push("guildAdmin");
+      await this.updateGuildMembership(guildMembership);
+      this.$q.notify({
+        type: "positive",
+        message:
+          "Guild admin added to  " + (await this.getMemberById(id)?.handle),
+      });
+    } else if (this.isGuildAdmin(id)) {
+      const perm = this.getGuildMembershipById(id).permissions;
+      for (var i = 0; i < perm.length; i++) {
+        if (perm[i] == "guildAdmin") {
+          perm.splice(i, 1);
+        }
+      }
+      const guildMembership = this.getGuildMembershipById(id);
+      guildMembership.permissions = perm;
+      await this.updateGuildMembership(guildMembership);
+      this.$q.notify({
+        type: "positive",
+        message:
+          "Guild admin removed from  " + (await this.getMemberById(id)?.handle),
+      });
+    }
+  }
+  isGuildAdmin(id) {
+    const perm = this.getGuildMembershipById(id).permissions;
+    if (perm.find((e) => e == "guildAdmin")) {
+      return true;
+    }
+    return false;
   }
   async doRegister(questId: number) {
     try {
@@ -549,6 +665,7 @@ export default class GuildAdminPage extends Vue {
       this.ensureAllRoles(),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
+    this.member_id = this.memberId;
     await this.setCurrentGuild(this.guildId);
     this.rolesByMember = Object.fromEntries(
       this.getGuildMembers.map((m: Member) => [

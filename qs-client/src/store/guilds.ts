@@ -60,6 +60,13 @@ const GuildsGetters = {
       guildId.includes(guild.id)
     );
   },
+  getGuildMembershipById: (state: GuildsState) => (member_id: number) => {
+    const guildId: number = state.currentGuild
+    return state.guilds[guildId]?.guild_membership?.find(
+      (m: GuildMembership) =>
+      m.member_id == member_id &&
+      m.guild_id == guildId);
+  } 
 };
 
 const GuildsActions = {
@@ -334,7 +341,11 @@ export const guilds = (axios: AxiosInstance) =>
     })
     .patch({
       action: "doUpdateGuildMembership",
-      path: "/guild_membership",
+      path: ({member_id, guild_id}) => `/guild_membership?member_id=eq.${member_id}&guild_id=eq.${guild_id}`,
+      beforeRequest: (state: GuildsState, { params, data }) => {
+        params.member_id = data.member_id;
+        params.guild_id = data.guild_id;
+      },
       onSuccess: (
         state: GuildsState,
         res: AxiosResponse<GuildMembership[]>,
@@ -346,7 +357,7 @@ export const guilds = (axios: AxiosInstance) =>
         if (guild) {
           const memberships =
             guild.guild_membership?.filter(
-              (gp: GuildMembership) => gp.guild_id !== membership.guild_id
+              (gp: GuildMembership) => gp.member_id !== membership.member_id
             ) || [];
           memberships.push(membership);
           guild.guild_membership = memberships;
