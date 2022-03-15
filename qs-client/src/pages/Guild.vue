@@ -31,7 +31,7 @@
     </div>
     <div class="column items-center">
       <div class="col-4 q-pa-md" style="width: 900px">
-        <q-card class="bg-secondary q-pa-md" style="border: false;">
+        <q-card class="bg-secondary q-pa-md" style="border: false">
           <div v-if="activeQuests.length > 0">
             <div v-for="quest in activeQuests" :key="quest.id">
               <q-radio
@@ -84,11 +84,7 @@
       </div>
     </div>
     <div class="row justify-center">
-      <div class="col-3">
-      </div>
-      <div class="col-2 ">
-        <p class="card-header bg-secondary ">Team</p>
-      </div>
+      <div class="col-3"></div>
     </div>
     <div
       v-if="
@@ -96,7 +92,8 @@
         !getCurrentQuest.start &&
         isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
       "
-      class="row justify-center">
+      class="row justify-center"
+    >
       <div class="row justify-center q-mr-xl">
         <castingRoleEdit
           class="q-ml-md"
@@ -110,41 +107,45 @@
           v-on:castingRoleRemove="castingRoleRemoved"
         ></castingRoleEdit>
       </div>
-      <div class="column items-center q-mb-md">
-        <div class="col-6">
-          <q-card id="team-card">
-            <ul>
-              <li
-                v-for="member in getMembersOfGuild(getCurrentGuild)"
-                :key="member.id"
-                class="q-ml-lg q-mr-md"
-                style="color: red"
-              >
-                {{ member.handle }}
-                <span v-if="playingAsGuildId(member.id)">
-                  <span
-                    v-if="playingAsGuildId(member.id) == currentGuildId"
-                    style="color: black"
-                  >
-                    {{ getAllCastingRoleNames(member.id) }}
-                  </span>
-                  <span v-if="playingAsGuildId(member.id) != currentGuildId"
-                    >Playing in
-                    <router-link
-                      :to="{
-                        name: 'guild',
-                        params: { guild_id: playingAsGuildId(member.id) },
-                      }"
-                      >{{ playingAsGuild(member.id).name }}</router-link
-                    ></span
-                  >
+    </div>
+    <div class="column items-center q-mb-md">
+      <div class="col-6">
+        <q-card id="team-card">
+          <div class="col-2">
+            <p class="card-header bg-secondary">Team</p>
+          </div>
+          <ul>
+            <li
+              v-for="member in getMembersOfGuild(getCurrentGuild)"
+              :key="member.id"
+              class="q-ml-lg q-mr-md"
+              style="color: red"
+            >
+              {{ member.handle }}
+              <span v-if="playingAsGuildId(member.id)">
+                <span
+                  v-if="playingAsGuildId(member.id) == currentGuildId"
+                  style="color: black"
+                >
+                  {{ getAllCastingRoleNames(member.id) }}
                 </span>
-              </li>
-            </ul>
-          </q-card>
-        </div>
+                <span v-if="playingAsGuildId(member.id) != currentGuildId"
+                  >Playing in
+                  <router-link
+                    :to="{
+                      name: 'guild',
+                      params: { guild_id: playingAsGuildId(member.id) },
+                    }"
+                    >{{ playingAsGuild(member.id).name }}</router-link
+                  ></span
+                >
+              </span>
+            </li>
+          </ul>
+        </q-card>
       </div>
     </div>
+
     <div class="row justify-center bg-secondary q-pt-lg">
       <div class="col-4">
         <h4 class="card-header bg-secondary">Current Quest</h4>
@@ -161,7 +162,10 @@
           v-if="getCurrentQuest"
         ></questCard>
       </div>
-      <div class="col-4 q-ml-lg q-mt-md q-mb-md items-center" style="width: 30%">
+      <div
+        class="col-4 q-ml-lg q-mt-md q-mb-md items-center"
+        style="width: 30%"
+      >
         <div v-if="getFocusNode">
           <node-form v-bind:nodeInput="getFocusNode" />
         </div>
