@@ -1,4 +1,4 @@
-import { registration_status_enum, permission_enum } from "../enums";
+import { registration_status_enum, permission_enum, ibis_node_type_enum } from "../enums";
 import {
   Member,
   Guild,
@@ -6,6 +6,7 @@ import {
   QuestMembership,
   GuildMembership,
   Casting,
+  CastingRole,
 } from "../types";
 import { MyVapi, RetypeGetterTypes, RetypeActionTypes } from "./base";
 
@@ -15,7 +16,8 @@ export const BaseGetters = {
     (
       permission: permission_enum,
       guildN?: number | Guild,
-      questN?: number | Quest
+      questN?: number | Quest,
+      nodeType?: ibis_node_type_enum
     ) => {
       const member = MyVapi.store.getters["member/getUser"];
       if (!member) return false;
@@ -34,12 +36,10 @@ export const BaseGetters = {
               m.member_id == member.id &&
               m.status == registration_status_enum.confirmed
           );
-          if (membership) {
-            if (membership.permissions.indexOf(permission) >= 0) return true;
-            // TODO: check that permission is a guild permission
-            if (membership.permissions.indexOf(permission_enum.guildAdmin) >= 0)
-              return true;
-          }
+          if (membership?.permissions?.indexOf(permission) >= 0) return true;
+          // TODO: check that permission is a guild permission
+          if (membership?.permissions?.indexOf(permission_enum.guildAdmin) >= 0)
+            return true;
         }
       }
       if (questN) {
@@ -51,22 +51,27 @@ export const BaseGetters = {
           const membership = (quest.quest_membership || []).find(
             (m: QuestMembership) => m.member_id == member.id && m.confirmed
           );
-          if (membership) {
-            if (membership.permissions.indexOf(permission) >= 0) return true;
-            // TODO: check that permission is a quest permission
-            // if (membership.permissions.indexOf(permission_enum.questAdmin) >= 0) return true;
-          }
+          if (membership?.permissions?.indexOf(permission) >= 0) return true;
+          // TODO: check that permission is a quest permission
+          // if (membership.permissions.indexOf(permission_enum.questAdmin) >= 0) return true;
         }
       }
       if (guild && quest) {
-        const casting = (quest.casting || []).find(
+        const casting = (member.casting || []).find(
           (c: Casting) =>
             c.guild_id == guild.id &&
-            c.quest_id == quest.id &&
-            c.member_id == member.id
+            c.quest_id == quest.id
         );
-        if (casting) {
-          if (casting.permissions.indexOf(permission) >= 0) return true;
+        if (casting?.permissions?.indexOf(permission) >= 0) return true;
+        const roles = (member.casting_role || []).filter((cr: CastingRole) =>
+          cr.guild_id == guild.id && cr.quest_id == quest.id
+        ).map((cr: CastingRole) => MyVapi.store.getters["roles/getRoleById"](cr.role_id));
+        for (const role of roles) {
+          if (role?.permissions?.indexOf(permission) >= 0) return true;
+          if (nodeType) {
+            const rnc = (role?.role_node_constraint || []).find(rnc => rnc.node_type == nodeType);
+            if (rnc?.permissions?.indexOf(permission) >= 0) return true;
+          }
         }
       }
       return false;

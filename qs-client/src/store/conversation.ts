@@ -252,30 +252,12 @@ const ConversationGetters = {
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
     const node = state.conversation[node_id];
+    if (!(node.status == publication_state_enum.private_draft || node.status == publication_state_enum.role_draft || node.status == publication_state_enum.guild_draft)) {
+      return false
+    }
     if (node && userId) {
-      if (node.status == publication_state_enum.private_draft) {
-        return node.creator_id == userId;
-        // TODO: role_draft
-      } else if (node.status == publication_state_enum.role_draft) {
-        if (node.creator_id == userId) return true;
-        const roles = MyVapi.store.getters["quest/getCastingRolesForQuest"](
-          userId,
-          node.quest_id
-        );
-        return roles.some((r) => r.id == node.draft_for_role_id);
-      } else if (node.status == publication_state_enum.guild_draft) {
-        const casting = MyVapi.store.getters["quests/castingInQuest"](
-          node.quest_id
-        );
-        return casting?.guild_id == node.guild_id;
-      } else if (node.status == publication_state_enum.proposed) {
-        return MyVapi.store.getters["hasPermission"](
-          permission_enum.guildAdmin,
-          node.guild_id,
-          node.quest_id
-        );
-      }
-      // TODO: Check that the node is under the focus node
+      if (node.creator_id == userId) return true;
+      return MyVapi.store.getters['hasPermission']('editConversationNode', node.guild_id, node.quest_id, node.node_type);
     }
     return false;
   },

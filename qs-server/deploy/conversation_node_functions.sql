@@ -4,6 +4,7 @@
 -- requires: guilds_functions
 -- requires: quests_functions
 -- requires: casting_role_functions
+-- requires: casting_functions
 -- idempotent
 
 BEGIN;
@@ -26,6 +27,44 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.conversation_node TO :dbm;
 GRANT USAGE ON SEQUENCE public.conversation_node_id_seq TO :dbm;
 GRANT SELECT ON TABLE public.conversation_node TO :dbc;
 
+
+CREATE OR REPLACE FUNCTION has_node_permission(quest_id INTEGER, node_type public.ibis_node_type, perm public.permission) RETURNS boolean AS $$
+  SELECT bool_or(hasp) FROM (
+    SELECT has_permission('superadmin') AS hasp
+    UNION
+    SELECT perm = ANY(coalesce(m.permissions, ARRAY[]::permission[]))
+        AND (public.is_playing_quest_in_guild(quest_id) IS NOT NULL OR public.is_quest_id_member(quest_id)) AS hasp
+        FROM members m WHERE id = current_member_id()
+    UNION
+    SELECT (coalesce(gm.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'guildAdmin'::permission]) AS hasp
+        FROM guild_membership gm
+        JOIN casting c ON (
+          c.guild_id = gm.guild_id AND
+          c.quest_id = quest_id AND
+          c.member_id = gm.member_id)
+        WHERE gm.member_id = current_member_id() AND
+          gm.status = 'confirmed' AND
+          gm.guild_id = public.is_playing_quest_in_guild(quest_id)
+    UNION
+    SELECT perm = ANY(coalesce(c.permissions, ARRAY[]::permission[])) AS hasp
+        FROM casting c
+        WHERE c.member_id = current_member_id() AND c.quest_id = quest_id
+    UNION
+    SELECT perm = ANY(coalesce(r.permissions, ARRAY[]::permission[])) AS hasp
+        FROM role r
+        JOIN casting_role rc ON (r.id = rc.role_id)
+        WHERE rc.member_id = current_member_id() AND rc.quest_id = quest_id
+    UNION
+    SELECT perm = ANY(coalesce(r.permissions, ARRAY[]::permission[])) AS hasp
+        FROM role_node_constraint rnc
+        JOIN role r ON (r.id = rnc.role_id)
+        JOIN casting_role rc ON (r.id = rc.role_id)
+        WHERE rc.member_id = current_member_id() AND rc.quest_id = quest_id AND rnc.node_type = node_type
+    ) q
+$$ LANGUAGE SQL STABLE;
+
+
+
 CREATE OR REPLACE FUNCTION node_subtree(node_id int) RETURNS SETOF conversation_node STABLE AS $$
     SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery ORDER BY ancestry, status DESC, id;
 $$ LANGUAGE SQL;
@@ -42,12 +81,6 @@ CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int DEFAULT NUL
       )
     ) cn ORDER BY ancestry, status DESC, id;
 $$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION playing_in_guild(quest_id integer) RETURNS integer STABLE AS $$
-  SELECT guild_id FROM casting WHERE quest_id = quest_id AND member_id = current_member_id();
-$$ LANGUAGE SQL;
-
 
 CREATE OR REPLACE FUNCTION nodes2json(node_id integer, include_level public.publication_state DEFAULT 'published', include_meta BOOLEAN DEFAULT false) RETURNS JSONB LANGUAGE plpgsql STABLE AS $$
 DECLARE
@@ -290,6 +323,21 @@ BEGIN
   PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
   IF NEW.guild_id IS NULL THEN
     SELECT guild_id INTO NEW.guild_id FROM casting WHERE casting.quest_id = NEW.quest_id AND casting.member_id = NEW.creator_id;
+    IF NEW.guild_id IS NULL AND NEW.node_type = 'channel' THEN
+      RAISE EXCEPTION 'No quest channels';
+    END IF;
+  ELSE
+    IF NEW.node_type = 'channel' THEN
+      IF NEW.quest_id IS NULL THEN
+        IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
+          RAISE EXCEPTION 'Lacking createGuildChannel permission';
+        END IF;
+      ELSE
+        IF NEW.quest_id IS NOT NULL AND NOT public.has_play_permission(NEW.quest_id, 'createPlayChannel') THEN
+          RAISE EXCEPTION 'Lacking createPlayChannel permission';
+        END IF;
+      END IF;
+    END IF;
   END IF;
   SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
   IF NEW.status != 'role_draft' THEN
@@ -358,6 +406,9 @@ BEGIN
   IF OLD.status > 'submitted' AND NEW.status < OLD.status THEN
     RAISE EXCEPTION 'Cannot lower status of submitted node';
   END IF;
+  IF NEW.creator_id != current_member_id() AND NOT has_node_permission(NEW.quest_id, NEW.node_type, 'editConversationNode') THEN
+    RAISE EXCEPTION 'Cannot change node of other member without editConversationNode permission';
+  END IF;
   IF NEW.parent_id IS NOT NULL THEN
     SELECT node_type, status, quest_id, meta INTO STRICT parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;
     IF parent_quest != NEW.quest_id THEN
@@ -422,6 +473,17 @@ BEGIN
     LOOP
       PERFORM check_node_type_rules(row.node_type, NEW.node_type);
     END LOOP;
+  END IF;
+  IF NEW.node_type = 'channel' AND OLD.node_type != 'channel' THEN
+    IF NEW.quest_id IS NULL THEN
+      IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
+        RAISE EXCEPTION 'Lacking createGuildChannel permission';
+      END IF;
+    ELSE
+      IF NEW.quest_id IS NOT NULL AND NOT public.has_play_permission(NEW.quest_id, 'createPlayChannel') THEN
+        RAISE EXCEPTION 'Lacking createPlayChannel permission';
+      END IF;
+    END IF;
   END IF;
   NEW.updated_at := now();
   RETURN NEW;
@@ -522,7 +584,7 @@ DROP POLICY IF EXISTS conversation_node_insert_policy ON public.conversation_nod
 CREATE POLICY conversation_node_insert_policy ON public.conversation_node FOR INSERT WITH CHECK (
   public.is_quest_id_member(quest_id) OR (
     quest_id IS NULL AND (
-      parent_id IS NOT NULL OR public.has_guild_permission(guild_id, 'guildAdmin'::public.permission))  -- we should have a "create channel" permission
+      parent_id IS NOT NULL OR public.has_guild_permission(guild_id, 'createGuildChannel'::public.permission))  -- we should have a "create channel" permission
   ) OR (
     SELECT COUNT(*) FROM public.casting
     WHERE public.casting.quest_id = public.conversation_node.quest_id
@@ -536,7 +598,7 @@ CREATE POLICY conversation_node_select_policy ON public.conversation_node FOR SE
   (status = 'submitted' AND public.is_quest_id_member(quest_id)) OR
   (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NOT NULL AND has_game_role(quest_id, guild_id, draft_for_role_id)) OR
   (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND can_play_role(guild_id, draft_for_role_id)) OR
-  (status > 'role_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
+  (status > 'role_draft' AND guild_id IS NOT NULL AND guild_id = public.is_playing_quest_in_guild(quest_id)) OR
   (status > 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND public.is_guild_id_member(guild_id))
 );
 
@@ -545,9 +607,11 @@ CREATE POLICY conversation_node_update_policy ON public.conversation_node FOR UP
   (status <= 'proposed' AND creator_id = current_member_id()) OR
   (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NOT NULL AND has_game_role(quest_id, guild_id, draft_for_role_id)) OR
   (status = 'role_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND can_play_role(guild_id, draft_for_role_id)) OR
-  (status >= 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.playing_in_guild(quest_id)) OR
+  (status >= 'guild_draft' AND guild_id IS NOT NULL AND guild_id = public.is_playing_quest_in_guild(quest_id)) OR
   (status >= 'guild_draft' AND guild_id IS NOT NULL AND quest_id IS NULL AND public.is_guild_id_member(guild_id)) OR
   (status >= 'submitted' AND (public.is_quest_id_member(quest_id) OR public.is_guild_id_leader(guild_id)))
 );
+
+DROP FUNCTION IF EXISTS playing_in_guild(quest_id integer);
 
 COMMIT;
