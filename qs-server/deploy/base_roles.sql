@@ -39,7 +39,7 @@ BEGIN
 END$$;
 
 CALL public.create_or_update_base_role('Guild leader', '{"guildAdmin"}', 'submitted', null, null);
-CALL public.create_or_update_base_role('Game leader', '{"publishGameMove"}', 'submitted', null, null);
+CALL public.create_or_update_base_role('Game leader', '{"createPlayChannel", "changeFocus"}', 'submitted', null, null);
 CALL public.create_or_update_base_role('Researcher', null, 'guild_draft', null, '{"reference":{"max_pub_state":"proposed"}}'::json);
 CALL public.create_or_update_base_role('Scribe', null, 'guild_draft', null, '{"question":{"max_pub_state":"proposed"}}'::json);
 CALL public.create_or_update_base_role('Philosopher', null, 'proposed', null, '{"question":{"max_pub_state":"proposed"}, "answer":{"max_pub_state":"proposed"}}'::json);

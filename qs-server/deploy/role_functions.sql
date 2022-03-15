@@ -42,7 +42,7 @@ CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
       IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
         RAISE EXCEPTION 'Cannot change a system role into a guild role';
       END IF;
-      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createGuidRole') THEN
+      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createGuildRole') THEN
         RAISE EXCEPTION 'Only guild admins can alter guild roles';
       END IF;
       IF OLD.guild_id != NEW.guild_id THEN
