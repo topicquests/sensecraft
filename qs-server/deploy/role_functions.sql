@@ -36,13 +36,13 @@ CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
     BEGIN
-      IF NEW.guild_id IS NULL AND NOT public.has_permission('superadmin') THEN
-        RAISE EXCEPTION 'Only superadmin can alter system roles';
+      IF NEW.guild_id IS NULL AND NOT public.has_permission('createSystemRole') THEN
+        RAISE EXCEPTION 'Lacking createSystemRole permission';
       END IF;
       IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
         RAISE EXCEPTION 'Cannot change a system role into a guild role';
       END IF;
-      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission('guild_admin', NEW.guild_id) THEN
+      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createGuidRole') THEN
         RAISE EXCEPTION 'Only guild admins can alter guild roles';
       END IF;
       IF OLD.guild_id != NEW.guild_id THEN
@@ -65,22 +65,12 @@ CREATE OR REPLACE FUNCTION public.is_guild_role(guild_id integer, role_id intege
 $$ LANGUAGE sql STABLE;
 
 --
--- Name: is_visible_role(integer); Type: FUNCTION
---
-
-CREATE OR REPLACE FUNCTION public.is_visible_role(guild_id integer) RETURNS boolean AS $$
-    SELECT guild_id IS NULL OR 
-           public.has_permission('superadmin') OR
-           public.is_guild_id_member(guild_id);
-$$ LANGUAGE sql STABLE;
-
---
 -- Name: is_editable_role(integer); Type: FUNCTION
 --
 
 CREATE OR REPLACE FUNCTION public.is_editable_role(guild_id integer) RETURNS boolean AS $$
-    SELECT (guild_id is NULL AND public.has_permission('superadmin')) OR
-    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'guildAdmin'));
+    SELECT (guild_id IS NULL AND public.has_permission('createSystemRole')) OR
+    (guild_id IS NOT NULL AND public.has_guild_permission(guild_id, 'createGuildRole'));
 $$ LANGUAGE sql STABLE;
 
 
@@ -116,14 +106,14 @@ CREATE POLICY role_update_policy ON public.role FOR UPDATE USING (is_editable_ro
 --
 
 DROP POLICY IF EXISTS role_select_policy ON public.role;
-CREATE POLICY role_select_policy ON public.role FOR SELECT USING (is_visible_role(guild_id));
-
+CREATE POLICY role_select_policy ON public.role FOR SELECT USING (true);
 
 --
 -- Name: role; Type: ROW SECURITY
 --
 
 ALTER TABLE public.role_node_constraint ENABLE ROW LEVEL SECURITY;
+CREATE POLICY role_node_constraint_select_policy ON public.role_node_constraint FOR SELECT USING (true);
 
 --
 -- Name: role role_insert_policy; Type: POLICY
@@ -154,8 +144,6 @@ CREATE POLICY role_node_constraint_update_policy ON public.role_node_constraint 
 --
 
 DROP POLICY IF EXISTS role_node_constraint_select_policy ON public.role_node_constraint;
-CREATE POLICY role_node_constraint_select_policy ON public.role_node_constraint FOR SELECT USING (
-   is_visible_role((SELECT guild_id FROM public.role WHERE id=role_id LIMIT 1)));
 
 
 --
@@ -170,14 +158,14 @@ ALTER TABLE public.guild_member_available_role ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS guild_member_available_role_insert_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_insert_policy ON public.guild_member_available_role FOR INSERT WITH CHECK (
-    public.has_guild_permission(guild_id, 'guildAdmin'));
+    public.has_guild_permission(guild_id, 'addAvailableRole'));
 --
 -- Name: guild_member_available_role guild_member_available_role_delete_policy; Type: POLICY
 --
 
 DROP POLICY IF EXISTS guild_member_available_role_delete_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_delete_policy ON public.guild_member_available_role FOR DELETE USING (
-    public.has_guild_permission(guild_id, 'guildAdmin'));
+    public.has_guild_permission(guild_id, 'addAvailableRole'));
 
 --
 -- Name: guild_member_available_role guild_member_available_role_select_policy; Type: POLICY
@@ -193,7 +181,7 @@ CREATE POLICY guild_member_available_role_select_policy ON public.guild_member_a
 
 DROP POLICY IF EXISTS guild_member_available_role_update_policy ON public.guild_member_available_role;
 CREATE POLICY guild_member_available_role_update_policy ON public.guild_member_available_role FOR UPDATE USING (
-    public.has_guild_permission(guild_id, 'guildAdmin'));
+    public.has_guild_permission(guild_id, 'addAvailableRole'));
 
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.casting_role TO :dbm;
@@ -211,7 +199,7 @@ ALTER TABLE public.casting_role ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS casting_role_insert_policy ON public.casting_role;
 CREATE POLICY casting_role_insert_policy ON public.casting_role FOR INSERT WITH CHECK (
-   public.current_member_id() = member_id);
+   public.current_member_id() = member_id OR public.has_guild_permission(guild_id, 'setPlayerRole'));
 
 --
 -- Name: casting_role casting_role_delete_policy; Type: POLICY
@@ -219,7 +207,7 @@ CREATE POLICY casting_role_insert_policy ON public.casting_role FOR INSERT WITH 
 
 DROP POLICY IF EXISTS casting_role_delete_policy ON public.casting_role;
 CREATE POLICY casting_role_delete_policy ON public.casting_role FOR DELETE USING(
-    public.current_member_id() = member_id);
+    public.current_member_id() = member_id OR public.has_guild_permission(guild_id, 'setPlayerRole'));
 
 --
 -- Name: casting_role casting_role_select_policy; Type: POLICY
@@ -234,7 +222,7 @@ CREATE POLICY casting_role_select_policy ON public.casting_role FOR SELECT USING
 
 DROP POLICY IF EXISTS casting_role_update_policy ON public.casting_role;
 CREATE POLICY casting_role_update_policy ON public.casting_role FOR UPDATE USING (
-    public.current_member_id() = member_id);
+    public.current_member_id() = member_id OR public.has_guild_permission(guild_id, 'setPlayerRole'));
 
 --
 -- Name: has_game_permission(integer, public.permission); Type: FUNCTION
@@ -247,5 +235,11 @@ CREATE INDEX guild_member_available_role_member_id_idx ON guild_member_available
 
 DROP INDEX IF EXISTS public.casting_role_member_id_idx;
 CREATE INDEX casting_role_member_id_idx ON casting_role USING HASH (member_id);
+
+--
+-- Name: is_visible_role(integer); Type: FUNCTION
+--
+
+DROP FUNCTION IF EXISTS public.is_visible_role(guild_id integer);
 
 COMMIT;
