@@ -1,5 +1,5 @@
 -- Deploy base_roles
--- requires: role
+-- requires: role_functions
 -- idempotent
 
 BEGIN;
