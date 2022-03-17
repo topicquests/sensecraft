@@ -63,7 +63,7 @@
     "jest-matcher-vue-test-utils": "^2.0.1",
     "jest-mock-axios": "^4.5.0",
     "lint-staged": "~12.3",
-    "prettier": "~2.5",
+    "prettier": "~2.6",
     "ts-node": "~10.7",
     "typescript": "~4.6",
     "vue-cli-plugin-store": "~0.0.7",
