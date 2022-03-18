@@ -1,213 +1,251 @@
 <template>
   <q-page class="bg-secondary">
-    <h3 v-if="getCurrentGuild" class="text-center">
-      <router-link
-        :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
-      >
-        {{ getCurrentGuild.name }}</router-link
-      >
-    </h3>
-    <q-tooltip>Click link to goto guild</q-tooltip>
-    <div v-if="getCurrentGuild" class="row justify-center">
-      <div class="col-4" style="height: 10%">
-        <guild-card
-          v-bind:currentGuild="getCurrentGuild"
-          class="q-ml-xl"
-          style="width: 80%"
-        ></guild-card>
-      </div>
-    </div>
-    <div
-      class="column items-center q-mt-md"
-      v-if="potentialQuests && potentialQuests.length > 0"
-    >
-      <div class="col-4">
-        <q-card q-ma-md>
-          <q-table
-            title="Potential Quests"
-            :data="potentialQuests"
-            :columns="columns1"
-            row-key="desc"
-            id="quest_table"
-          >
-            <template v-slot:body="props">
-              <q-tr :props="props">
-                <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-                <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
-                <q-td key="status" :props="props">{{ props.row.status }}</q-td>
-                <q-td key="start" :props="props">{{ props.row.start }}</q-td>
-                <span v-if="findPlayOfGuild(props.row.game_play)">
-                  <span
-                    v-if="
-                      findPlayOfGuild(props.row.game_play).status ==
-                      'invitation'
-                    "
-                  >
-                    <q-td key="questNodeId" auto-width :props="props">
-                      <q-btn
-                        label="Invitation"
-                        @click="doRegister(props.row.id)"
-                        class="q-mr-md q-ml-md"
-                      />
-                    </q-td>
-                  </span>
-                  <span
-                    v-if="
-                      findPlayOfGuild(props.row.game_play).status == 'requested'
-                    "
-                  >
-                    <q-td key="questNodeId" auto-width :props="props">
-                      Waiting for response
-                    </q-td>
-                  </span>
-                </span>
-                <span v-if="!findPlayOfGuild(props.row.game_play)">
-                  <q-td key="questNodeId" auto-width :props="props">
-                    <q-btn
-                      label="Register"
-                      @click="doRegister(props.row.id)"
-                      class="q-mr-md q-ml-md"
-                    />
-                  </q-td>
-                </span>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card>
-      </div>
-    </div>
-    <div v-else>
-      <div class="column items-center q-mt-md">
-        <h4>No quest you can join</h4>
-      </div>
-    </div>
-    <div class="row justify-center text-center">
-      <h5 class="q-mt-md q-mb-md">Registered Quests</h5>
-    </div>
-    <div v-if="activeQuests && activeQuests.length > 0">
-      <div class="row justify-center">
-        <q-card class="col-4 q-mb-md">
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div class="row guildAdmin-header">
+          <h4 v-if="getCurrentGuild">
+            <router-link
+              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
+            >
+              {{ getCurrentGuild.name }}</router-link
+            >
+          </h4>
+        </div>
+        <q-tooltip>Click link to goto guild</q-tooltip>
+        <section class="quest-section">
           <div
-            v-for="quest in activeQuests"
-            :key="quest.id"
-            class="row justify-center"
+            class="column items-center q-mt-md"
+            v-if="potentialQuests && potentialQuests.length > 0"
           >
-            <h6>{{ quest.name }}</h6>
-            <q-tooltip max-width="25rem">{{ quest.description }}</q-tooltip>
-          </div>
-        </q-card>
-      </div>
-    </div>
-    <div class="row justify-center q-mb-lg">
-      <q-btn
-        color="primary"
-        label="Create Guild Channel"
-        @click="
-          $router.push({
-            name: 'guild_channel_list',
-            params: { guild_id: guildId },
-          })
-        "
-      >
-      </q-btn>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div class="col-6" style="width: 30%">
-        <q-card>
-          <div class="row justify-center">
-            <h5>Guild Admins</h5>
-          </div>
-          <q-select
-          class="q-pl-md"
-            style="width: 60%"
-            :multiple="true"
-            v-model="handle"
-            @add="
-              (details) => {
-                addGuildAdmin(details.value);
-              }
-            "
-            @remove="
-              (details) => {
-                removeGuildAdmin(details.value);
-              }
-            "
-            label="Member"
-            :options="getGuildMembers"
-            option-label="handle"
-            option-value="id"
-            emit-value
-            map-options
-          >
-          </q-select>
-          <div v-for="member in getGuildMembers" :key="member.id">
-            <div class="row">
-              <span
-                v-if="isGuildAdmin(member.id)"
-                class="q-pl-md q-pt-md"
-                style="width: 25%"
-              >
-                {{ member.handle }}
-              </span>
+            <div class="col-4">
+              <q-card q-ma-md>
+                <q-table
+                  title="Potential Quests"
+                  :data="potentialQuests"
+                  :columns="columns1"
+                  row-key="desc"
+                  id="quest_table"
+                >
+                  <template v-slot:body="props">
+                    <q-tr :props="props">
+                      <q-td key="desc" :props="props">
+                        {{ props.row.name }}</q-td
+                      >
+                      <q-td key="handle" :props="props">{{
+                        props.row.handle
+                      }}</q-td>
+                      <q-td key="status" :props="props">{{
+                        props.row.status
+                      }}</q-td>
+                      <q-td key="start" :props="props">{{
+                        props.row.start
+                      }}</q-td>
+                      <span v-if="findPlayOfGuild(props.row.game_play)">
+                        <span
+                          v-if="
+                            findPlayOfGuild(props.row.game_play).status ==
+                            'invitation'
+                          "
+                        >
+                          <q-td key="questNodeId" auto-width :props="props">
+                            <q-btn
+                              label="Invitation"
+                              @click="doRegister(props.row.id)"
+                              class="q-mr-md q-ml-md"
+                            />
+                          </q-td>
+                        </span>
+                        <span
+                          v-if="
+                            findPlayOfGuild(props.row.game_play).status ==
+                            'requested'
+                          "
+                        >
+                          <q-td key="questNodeId" auto-width :props="props">
+                            Waiting for response
+                          </q-td>
+                        </span>
+                      </span>
+                      <span v-if="!findPlayOfGuild(props.row.game_play)">
+                        <q-td key="questNodeId" auto-width :props="props">
+                          <q-btn
+                            label="Register"
+                            @click="doRegister(props.row.id)"
+                            class="q-mr-md q-ml-md"
+                          />
+                        </q-td>
+                      </span>
+                    </q-tr>
+                  </template>
+                </q-table>
+              </q-card>
             </div>
           </div>
-        </q-card>
-      </div>
-    </div>
-    <div class="row justify-center q-mt-md">
-      <q-card style="width: 55%">
-        <div class="row justify-center">
-          <H5>Members Available Roles </H5>
-        </div>
-        <div>
-          <div v-for="member in getGuildMembers" :key="member.id">
-            <div class="row">
-              <span class="q-pl-md q-pt-md" style="width: 25%">
-                {{ member.handle }}
-              </span>
+          <div v-else>
+            <div class="column items-center q-mt-md">
+              <h4>No quest you can join</h4>
+            </div>
+          </div>
+
+          <div v-if="activeQuests && activeQuests.length > 0">
+            <div class="row justify-center">
+              <q-card class="active-quest-card col-12 q-mb-md">
+                <div class="row justify-center text-center">
+                  <h5 class="q-mt-md q-mb-md active-quest-header ">Registered Quests</h5>
+                </div>
+                <div
+                  v-for="quest in activeQuests"
+                  :key="quest.id"
+                  class="row justify-center"
+                >
+                  <h6>{{ quest.name }}</h6>
+                  <q-tooltip max-width="25rem">{{
+                    quest.description
+                  }}</q-tooltip>
+                </div>
+              </q-card>
+            </div>
+          </div>
+        </section>
+        <section class="guild-section">
+          <div class="channel row justify-center q-mb-lg">
+            <q-btn
+            class="q-mt-md"
+              color="primary"
+              label="Create Guild Channel"
+              @click="
+                $router.push({
+                  name: 'guild_channel_list',
+                  params: { guild_id: guildId },
+                })
+              "
+            >
+            </q-btn>
+          </div>
+          <div class="row justify-left">
+            <q-card class="guildAdmin-card">
+              <div class="row justify-center">
+                <div >
+                  <h5 class="guidlAdmin-card-header">Guild Admins</h5>
+                </div>
+              </div>
+              <div class="row q-pl-md">
+                <span
+                  >Select members to add as guild admins. You also can remove
+                  members that are listed by selecting them from the dropdown.</span
+                >
+              </div>
               <q-select
+                class="q-pl-lg"
                 style="width: 50%"
-                class="q-pl-md"
                 :multiple="true"
-                v-model="rolesByMember[member.id]"
+                v-model="handle"
                 @add="
                   (details) => {
-                    roleAdded(member.id, details.value);
+                    addGuildAdmin(details.value);
                   }
                 "
                 @remove="
                   (details) => {
-                    roleRemoved(member.id, details.value);
+                    removeGuildAdmin(details.value);
                   }
                 "
-                :options="getRoles"
-                option-label="name"
+                label="Member"
+                :options="getGuildMembers"
+                option-label="handle"
                 option-value="id"
                 emit-value
                 map-options
-                id="qselect"
               >
               </q-select>
-            </div>
+              <div v-for="member in getGuildMembers" :key="member.id">
+                <div class="row">
+                  <span
+                    v-if="isGuildAdmin(member.id)"
+                    class="q-pl-md q-pt-md"
+                    style="width: 25%"
+                  >
+                    {{ member.handle }}
+                  </span>
+                </div>
+              </div>
+            </q-card>
+            <guild-card class="guild-card" v-bind:currentGuild="getCurrentGuild" :showDescription="false"></guild-card>
           </div>
-        </div>
+          <div class="row justify-center q-mt-md">
+            <q-card class="available-roles-card">
+              <div class="row justify-center ">
+                <H5 class="available-roles-card-header">Members Available Roles </H5>
+              </div>
+              <div class="row q-pl-md">
+                <span
+                  >Here admin can set members available roles. Use the dropdown next to team members handle. Select from list of roles. Selecting existing roles removes that role from being available to player.
+                </span>
+              </div>
+              <div>
+                <div v-for="member in getGuildMembers" :key="member.id">
+                  <div class="row">
+                    <span class="q-pl-md q-pt-md" style="width: 25%">
+                      {{ member.handle }}
+                    </span>
+                    <q-select
+                      style="width: 50%"
+                      class="q-pl-md"
+                      :multiple="true"
+                      v-model="rolesByMember[member.id]"
+                      @add="
+                        (details) => {
+                          roleAdded(member.id, details.value);
+                        }
+                      "
+                      @remove="
+                        (details) => {
+                          roleRemoved(member.id, details.value);
+                        }
+                      "
+                      :options="getRoles"
+                      option-label="name"
+                      option-value="id"
+                      emit-value
+                      map-options
+                      id="qselect"
+                    >
+                    </q-select>
+                  </div>
+                </div>
+              </div>
+            </q-card>
+          </div>
+          <div class="row justify-center q-mt-md q-mb-sm">
+            <q-card class="roles-card">
+               <div class="row justify-center ">
+                <H5 class="roles-card-header"> Roles </H5>
+              </div>
+              <div class="row q-pl-md">
+                <span
+                  >Listed are system roles with their permissions. Guild admin can add specific guild roles. This new role will only be available for this guild. Click "NEW ROLE" button to name and create role.
+                </span>
+              </div>
+              <q-btn
+                  class="q-ma-md"
+                  v-if="$store.state.member.member"
+                  id="newRoleBtn"
+                  label="New Role"
+                  color="primary"
+                  @click="
+                    $router.push({
+                      name: 'create_guild_role',
+                      params: { guildId },
+                    })
+                  "
+              />
+              <div>
+                <role-table v-bind:roles="getRoles"></role-table>              
+              </div>
+            </q-card>
+          </div>              
+        </section>
       </q-card>
-    </div>
-    <div class="column items-center">
-      <div class="col-6 q-pt-lg q-mb-md" style="width: 35%">
-        <q-btn
-          v-if="$store.state.member.member"
-          id="newRoleBtn"
-          label="New Role"
-          color="primary"
-          @click="
-            $router.push({ name: 'create_guild_role', params: { guildId } })
-          "
-        />
-      </div>
-      <div class="q-mb-xl" style="width: 55%">
-        <role-table v-bind:roles="getRoles"></role-table>
-      </div>
     </div>
   </q-page>
 </template>
@@ -700,4 +738,67 @@ export default class GuildAdminPage extends Vue {
   }
 }
 </script>
-<style></style>
+<style>
+.quest-section {
+  background-color: gainsboro;
+  padding-bottom: 5em;
+  padding-top: 1em;
+}
+.active-quest-card {
+  background-color: white;
+  width: 100%;
+  margin-top: 1em;
+}
+.active-quest-header {
+  text-decoration: underline;
+  font-family: Arial, Helvetica, sans-serif;
+  color:blue
+}
+.guildAdmin-header {
+  background-color: azure;
+  padding: 0.5em;
+  align-items: flex-start;
+}
+
+.channel {
+  margin-top: 1em;
+}
+.guild-section {
+  background-color: seashell;
+}
+.guildAdmin-card {
+  background-color: white;
+  width: 40%;
+  margin-left: 10%;
+}
+.guidlAdmin-card-header {
+  text-decoration: underline;
+  font-family: Arial, Helvetica, sans-serif;
+  color:blue
+}
+.guild-card {
+  margin-bottom: 2em;
+  margin-left: 2em;
+  width: 40%;
+}
+.available-roles-card-header {
+  text-decoration: underline;
+  font-family: Arial, Helvetica, sans-serif;
+  color:blue
+}
+
+.available-roles-card {
+  background-color: white;
+  width: 80%;
+}
+
+.roles-card {
+  background-color: white;
+  width: 80%;
+}
+.roles-card-header {
+  text-decoration: underline;
+  font-family: Arial, Helvetica, sans-serif;
+  color:blue;
+}
+</style>
