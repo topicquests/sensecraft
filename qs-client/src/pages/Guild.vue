@@ -1,37 +1,45 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div class="col-4" id="scoreboard">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="col-4 q-pa-md bg-secondary" v-if="getCurrentGuild">
-      <p class="bg-secondary" style="text-align: center; font-size: 40px">
-        {{ getCurrentGuild.name }}
-        <q-btn
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" id="scoreboard">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="row justify-end guild-header">
+          <div class="col-4" v-if="getCurrentGuild">
+            <h5 class="guild-name">
+              {{ getCurrentGuild.name }}
+            <q-btn
           v-if="!isMember && getCurrentGuild.open_for_applications"
           label="Join Guild"
           @click="joinToGuild()"
           style="margin-right: 1em"
           class="bg-dark-blue"
-        />
-        <router-link
-          v-if="canRegisterToQuest"
-          :to="{
-            name: 'guild_admin',
-            params: { guild_id: currentGuildId },
-          }"
-          style="font-size: smaller"
-          >Admin</router-link
-        >
-      </p>
-    </div>
+            /> 
+            <span v-if="!getCurrentGuild.open_for_applications"> guild closed</span>       
+            </h5>
+          </div>
+          <div class="col-4 text-right q-pr-md" > 
+            <router-link
+              v-if="canRegisterToQuest"
+              :to="{
+              name: 'guild_admin',
+              params: { guild_id: currentGuildId },
+            }"
+            >>>go to admin page</router-link>
+          </div>
+        </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-md" style="width: 900px">
+      <div class="col-4 " style="width: 100%">
         <q-card class="bg-secondary q-pa-md" style="border: false">
+          <div class="row justify-center text-center">
+                  <h5 class="q-mt-md q-mb-md active-quest-header ">Registered Quests</h5>
+                </div>
           <div v-if="activeQuests.length > 0">
             <div v-for="quest in activeQuests" :key="quest.id">
               <q-radio
@@ -92,9 +100,9 @@
         !getCurrentQuest.start &&
         isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
       "
-      class="row justify-center"
+      class="row justify-center q-pt-lg"
     >
-      <div class="row justify-center q-mr-xl">
+      <div class="row justify-center q-mr-xl q-mt-md">
         <castingRoleEdit
           class="q-ml-md"
           v-if="getAvailableRolesById(memberId).length"
@@ -106,20 +114,19 @@
           v-on:castingRoleAdd="castingRoleAdded"
           v-on:castingRoleRemove="castingRoleRemoved"
         ></castingRoleEdit>
-      </div>
-    </div>
-    <div class="column items-center q-mb-md">
+      </div>   
+    <div class="column items-center q-mb-md q-mt-md">
       <div class="col-6">
         <q-card id="team-card">
           <div class="col-2">
-            <p class="card-header bg-secondary">Team</p>
+            <p class="card-header ">Team</p>
           </div>
           <ul>
             <li
               v-for="member in getMembersOfGuild(getCurrentGuild)"
               :key="member.id"
               class="q-ml-lg q-mr-md"
-              style="color: red"
+              style="color: royalblue"
             >
               {{ member.handle }}
               <span v-if="playingAsGuildId(member.id)">
@@ -145,32 +152,7 @@
         </q-card>
       </div>
     </div>
-
-    <div class="row justify-center bg-secondary q-pt-lg">
-      <div class="col-4">
-        <h4 class="card-header bg-secondary">Current Quest</h4>
-      </div>
-      <div class="col-4">
-        <h4 class="card-header bg-secondary">Quest Move</h4>
-      </div>
-    </div>
-    <div class="row justify-center">
-      <div class="col-4 q-mt-md items-center" v-if="getCurrentQuest">
-        <questCard
-          v-bind:currentQuest="getCurrentQuest"
-          :creator="getQuestCreator()"
-          v-if="getCurrentQuest"
-        ></questCard>
-      </div>
-      <div
-        class="col-4 q-ml-lg q-mt-md q-mb-md items-center"
-        style="width: 30%"
-      >
-        <div v-if="getFocusNode">
-          <node-form v-bind:nodeInput="getFocusNode" />
-        </div>
-      </div>
-    </div>
+     </div>   
     <div class="column items-center" v-if="pastQuests.length > 0">
       <div class="col-4">
         <q-card>
@@ -222,6 +204,8 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+      </q-card>
+    </div>
   </q-page>
 </template>
 
@@ -762,6 +746,20 @@ export default class GuildPage extends Vue {
 </script>
 
 <style>
+.active-quest-header {
+  text-decoration: underline;
+  font-family: Arial, Helvetica, sans-serif;
+  color:blue
+}
+.guild-header {
+  background-color: azure;
+  width: 100%
+}
+.guild-name {
+  text-align: center; 
+  font-size: 40px;
+  background-color: azure;
+}
 #team-card {
   font-size: 20px;
   color: black;
@@ -774,6 +772,8 @@ export default class GuildPage extends Vue {
 }
 .card-header {
   text-align: center;
+  color: blue;
+  text-decoration: underline;
   font-size: 20px;
   padding-bottom: sm;
 }

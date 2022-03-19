@@ -482,6 +482,7 @@ export default class GuildAdminPage extends Vue {
       sortable: true,
     },
   ];
+  handle: string = null
   member_id: number = null;
   questGamePlay: GamePlay[] = [];
   isAdmin = false;
