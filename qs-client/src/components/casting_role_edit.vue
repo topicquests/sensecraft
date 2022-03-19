@@ -1,9 +1,12 @@
 <template>
   <div>
     <q-card class="card">
+      <section>
       <div class="row justify-center">
         <H5 class="q-ml-lg q-mr-lg">Change casting role </H5>
       </div>
+      </section>
+      <q-separator color="grey" class="q-mb-md" ></q-separator>
       <p>Can only be changed prior to start of quest</p>
 
       <div class="row">
@@ -83,21 +86,25 @@ export default class CastingRoleEdit extends CastingRoleEditProps {
 </script>
 <style>
 H5 {
-  color: red;
+  color:blue;
   margin-top: 3%;
   margin-bottom: 3%;
+  text-decoration-line: underline;
 }
 .handle {
   font-size: 20px;
   color: royalblue;
+  padding-bottom: 2em;
 }
 .card {
-  background: lightblue;
+  background:white;
 }
 p {
   font-size: 15px;
-  background: lightblue;
+  background:white;
   text-align: center;
   color: black;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 </style>

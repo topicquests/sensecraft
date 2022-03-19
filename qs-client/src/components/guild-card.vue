@@ -1,31 +1,33 @@
 <template>
   <div>
     <q-card class="q-pl-md">
-      <div class="row justify-start q-pb-lg">
+      <div v-if="guild" class="row justify-start q-pb-lg">
         <q-input v-model="guild.name" />
       </div>
       <span class="q-ml-xl" style="font-weight: bold">Type of Guild</span>
       <div class="row justify-start">
-          <q-option-group
-            v-model="guild.public"
-            :options="public_private_bool"
-            color="primary"
-            inline
-          >
-          </q-option-group>
-      </div>      
-      <section v-if="showDescription==true">
-      <div  class="row justify-start q-pb-xs" style="font-weight: bold;">Description<br /></div>
+        <q-option-group
+          v-if="guild"
+          v-model="guild.public"
+          :options="public_private_bool"
+          color="primary"
+          inline
+        >
+        </q-option-group>
+      </div>
+      <section v-if="showDescription == true">
+        <div class="row justify-start q-pb-xs" style="font-weight: bold">
+          Description<br />
+        </div>
         <div class="row justify-start q-pb-sm">
-          <q-editor 
-          v-model="guild.description">
-        </q-editor>
-      </div>     
-        </section>
-         <div>
+          <q-editor v-model="guild.description"> </q-editor>
+        </div>
+      </section>
+      <div>
         <section class="q-pt-lg">
-          <span class="q-pl-xl" style="font-weight:bold">Invintation</span>
+          <span class="q-pl-xl" style="font-weight: bold">Invintation</span>
           <q-option-group
+           v-if="guild"
             v-model="guild.open_for_applications"
             :options="invintation"
             color="primary"
@@ -36,15 +38,15 @@
       </div>
       <q-separator color="grey"></q-separator>
       <section class="q-pt-md">
-      <div class="row justify-start q-pb-lg">
-        <q-btn
-          label="Submit"
-          @click="doSubmit"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-        <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
-      </div>
+        <div class="row justify-start q-pb-lg">
+          <q-btn
+            label="Submit"
+            @click="doSubmit"
+            color="primary"
+            class="q-mr-md q-ml-md"
+          />
+          <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+        </div>
       </section>
     </q-card>
   </div>
@@ -67,7 +69,7 @@ import { Prop } from "vue/types/options";
 const GuildCardProps = Vue.extend({
   props: {
     currentGuild: Object as Prop<Guild>,
-    showDescription: Boolean
+    showDescription: Boolean,
   },
 });
 
