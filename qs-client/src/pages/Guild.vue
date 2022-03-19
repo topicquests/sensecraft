@@ -95,14 +95,15 @@
       <div class="col-3"></div>
     </div>
     <div
-      v-if="
-        getCurrentQuest &&
-        !getCurrentQuest.start &&
-        isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
-      "
+      
       class="row justify-center q-pt-lg"
     >
       <div class="row justify-center q-mr-xl q-mt-md">
+        <div v-if="
+        getCurrentQuest &&
+        !getCurrentQuest.start &&
+        isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
+      " class="col">
         <castingRoleEdit
           class="q-ml-md"
           v-if="getAvailableRolesById(memberId).length"
@@ -114,6 +115,7 @@
           v-on:castingRoleAdd="castingRoleAdded"
           v-on:castingRoleRemove="castingRoleRemoved"
         ></castingRoleEdit>
+      </div>
       </div>   
     <div class="column items-center q-mb-md q-mt-md">
       <div class="col-6">

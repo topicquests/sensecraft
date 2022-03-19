@@ -7,7 +7,7 @@
       </div>
       </section>
       <q-separator color="grey" class="q-mb-md" ></q-separator>
-      <p>Can only be changed prior to start of quest</p>
+      <p class="note">Can only be changed prior to start of quest</p>
 
       <div class="row">
         <span class="handle q-pl-md q-mt-md">
@@ -99,7 +99,7 @@ H5 {
 .card {
   background:white;
 }
-p {
+.note {
   font-size: 15px;
   background:white;
   text-align: center;
