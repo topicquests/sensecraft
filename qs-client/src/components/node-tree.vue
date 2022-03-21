@@ -1,10 +1,41 @@
 <template>
+<div class="tree-container">
+  <div class="row justify-end">
+    <q-btn
+      icon="menu"
+      :flat="true"
+      :dense="true"
+      >
+      <q-menu>
+        <q-list>
+          <q-item>
+            <q-input
+              label="Search"
+              type="text"
+              v-model="searchFilter"
+              ></q-input>
+          </q-item>
+          <q-item>
+            <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true" v-if="!asQuest"></q-checkbox>
+          </q-item>
+          <q-item>
+            <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true" v-if="!asQuest"></q-checkbox>
+          </q-item>
+          <q-item>
+            <q-checkbox v-model="showObsolete" :dense="true" label="Obsolete nodes"></q-checkbox>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
+  </div>
   <q-tree
     :nodes="nodes"
     node-key="id"
     label-key="title"
-    :default-expand-all="true"
+    default-expand-all
     :selected.sync="selectedNodeId"
+    :filter-method="filterMethod"
+    :filter="searchFilter_"
   >
     <template v-slot:default-header="prop">
       <div class="row items-center">
@@ -85,6 +116,7 @@
       />
     </template>
   </q-tree>
+</div>
 </template>
 
 <script lang="ts">
@@ -159,7 +191,8 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("channel", ["getChannelNode"]),
     ...mapGetters("quests", ["getMaxPubStateForNodeType"]),
-    ...mapGetters('members', ['getMemberById'])
+    ...mapGetters('members', ['getMemberById']),
+    searchFilter_: function() { return this.searchFilter+"_" },
   },
   watch: {
     selectedNodeId: "selectionChanged",
@@ -174,6 +207,10 @@ export default class NodeTree extends NodeTreeProps {
   newNode: Partial<ConversationNode> = {};
   allowChangeMeta: boolean = false;
   baseNodePubStateConstraints: publication_state_type[];
+  showMeta: Boolean = true;
+  showObsolete: Boolean = false;
+  showDraft: Boolean = true;
+  searchFilter = '';
 
   canEditConversation: ConversationGetterTypes["canEdit"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
@@ -254,6 +291,19 @@ export default class NodeTree extends NodeTreeProps {
       pub_states.push(node.status);
     }
     return pub_states;
+  }
+
+  filterMethod(node: Partial<ConversationNode>, filter_string: string) {
+    if (!this.showObsolete && node.status == "obsolete") return false;
+    if (!this.showMeta && node.meta == "meta") return false;
+    if (!this.showDraft && node.status != "published") return false;
+    if (this.searchFilter != '') {
+      const search_string = this.searchFilter.toLowerCase();
+      if (node.title.toLowerCase().indexOf(search_string) < 0 &&
+          (node.description || '').toLowerCase().indexOf(search_string) < 0
+       ) return false;
+    }
+    return true;
   }
 
   canEdit(nodeId: number): boolean {
@@ -371,8 +421,11 @@ export default class NodeTree extends NodeTreeProps {
   selectionChanged(id) {
     this.selectedNodeId = id;
   }
-  beforeMount() {
-    this.ensureAllMembers();
+  async beforeMount() {
+    if (this.asQuest)
+      this.showDraft = true;
+    // TODO: Maybe only those in the tree?
+    await this.ensureAllMembers();
   }
 }
 </script>
