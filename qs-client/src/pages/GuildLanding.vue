@@ -1,43 +1,49 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pt-lg q-pb-sm q-pl-md" style="width: 55%">
-        <q-btn
-          v-if="$store.state.member.member"
-          id="newGuildBtn"
-          label="New Guild"
-          @click="$router.push({ name: 'create_guild' })"
-        />
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="getGuilds && getGuilds.length"
-        class="col-4 q-pa-md"
-        style="width: 55%"
-      >
-        <guilds-table
-          v-if="getMyGuilds.length"
-          v-bind:guilds="getMyGuilds"
-          v-bind:title="'My Guilds'"
-          :edit="true"
-        >
-          <template v-slot:default="slotProps">
-            <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-          </template>
-        </guilds-table>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no guilds</h4>
-      </div>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <q-btn
+              v-if="$store.state.member.member"
+              id="newGuildBtn"
+              label="New Guild"
+              @click="$router.push({ name: 'create_guild' })"
+            />
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+          <div
+            v-if="getGuilds && getGuilds.length"
+            class="col-4 "
+            style="width: 100%"
+          >
+            <guilds-table
+              v-if="getMyGuilds.length"
+              v-bind:guilds="getMyGuilds"
+              v-bind:title="'My Guilds'"
+              :edit="true"
+            >
+              <template v-slot:default="slotProps">
+                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
+              </template>
+            </guilds-table>
+          </div>
+          <div v-else class="column items-center q-mt-md">
+            <h4>There are no guilds</h4>
+          </div>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>

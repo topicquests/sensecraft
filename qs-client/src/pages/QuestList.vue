@@ -1,73 +1,80 @@
 <template>
   <q-page class="bg-secondary">
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="notStartedQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 1000px"
-      >
-        <QuestTable
-          v-bind:quests="notStartedQuests"
-          title="Not Started"
-          :view="true"
-        ></QuestTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no quests started</h4>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="registrationQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 1000px"
-      >
-        <QuestTable
-          v-bind:quests="registrationQuests"
-          title="Registering"
-          :view="true"
-        ></QuestTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no quests in registration</h4>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="ongoingQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 1000px"
-      >
-        <QuestTable
-          v-bind:quests="ongoingQuests"
-          title="Ongoing"
-          :view="true"
-        ></QuestTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no ongoing quests</h4>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="finishedQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 1000px"
-      >
-        <QuestTable
-          v-bind:quests="finishedQuests"
-          title="Finished"
-          :view="true"
-        ></QuestTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no quests finished</h4>
-      </div>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div
+            v-if="notStartedQuests.length"
+            class="col-4 q-pa-lg"
+            style="width: 1000px"
+          >
+            <QuestTable
+              v-bind:quests="notStartedQuests"
+              title="Not Started"
+              :view="true"
+            ></QuestTable>
+          </div>
+          <div v-else class="column items-center q-mt-md">
+            <h4>There are no quests started</h4>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div
+            v-if="registrationQuests.length"
+            class="col-4 "
+            style="width: 100%"
+          >
+            <QuestTable
+              v-bind:quests="registrationQuests"
+              title="Registering"
+              :view="true"
+            ></QuestTable>
+          </div>
+          <div v-else class="column items-center q-mt-md">
+            <h4>There are no quests in registration</h4>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div
+            v-if="ongoingQuests.length"
+            class="col-4 "
+            style="width: 100%"
+          >
+            <QuestTable
+              v-bind:quests="ongoingQuests"
+              title="Ongoing"
+              :view="true"
+            ></QuestTable>
+          </div>
+          <div v-else class="column items-center q-mt-md">
+            <h4>There are no ongoing quests</h4>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div
+            v-if="finishedQuests.length"
+            class="col-4"
+            style="width: 100%"
+          >
+            <QuestTable
+              v-bind:quests="finishedQuests"
+              title="Finished"
+              :view="true"
+            ></QuestTable>
+          </div>
+          <div v-else class="column items-center">
+            <h4>There are no quests finished</h4>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>

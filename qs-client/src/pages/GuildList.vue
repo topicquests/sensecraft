@@ -1,12 +1,17 @@
 <template>
   <q-page class="bg-secondary">
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
+      <div class="col-4" style="width: 100%">
         <div v-if="getGuilds.length">
           <div v-if="getUserId">
             <guilds-table
@@ -50,6 +55,8 @@
         </div>
         <h5 v-else>There currently are no guilds</h5>
       </div>
+    </div>
+      </q-card>
     </div>
   </q-page>
 </template>

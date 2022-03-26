@@ -1,49 +1,64 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div id="scoreboard">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-     <div class="row justify-center q-mt-md">
-      <q-btn  
-      color="primary"
-      label="Create Guild Channel"
-      @click="
-                    $router.push({
-                      name: 'game_channel_list',
-                      params: { 
-                        guild_id: guildId, 
-                        quest_id: questId},
-                    })
-                  ">
-      </q-btn>
-    </div>
-    <div class="row justify-center q-mt-lg">
-      <div class="col-4 q-md q-mr-lg">
-        <questCard
-          v-if="getCurrentQuest"
-          :currentQuest="getCurrentQuest"
-          :creator="getQuestCreator()"
-        ></questCard>
-      </div>
-    </div>
-    <div class="row justify-center q-mt-lg">
-      <div class="col-6 q-md q-mr-lg">
-        <node-tree
-          v-bind:nodes="getNeighbourhoodTree"
-          v-bind:threats="getPrivateThreatMap"
-          v-bind:scores="getPrivateScoreMap"
-          v-bind:currentGuild="guildId"
-          v-on:updateTree="selectionChanged"
-          :channelId="null"
-          :editable="true"
-          :roles="getRoles"
-        />
-      </div>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="col-4 text-right q-pr-md">
+            <router-link
+              :to="{
+                name: 'guild',
+                params: { guild_id: guildId },
+              }"
+              >>>back to guild page</router-link
+            >
+          </div>
+        <div class="row justify-center q-mt-md">
+          <q-btn
+            color="primary"
+            label="Create Guild Channel"
+            @click="
+              $router.push({
+                name: 'game_channel_list',
+                params: {
+                  guild_id: guildId,
+                  quest_id: questId,
+                },
+              })
+            "
+          >
+          </q-btn>
+        </div>
+        <div class="row justify-center q-mt-lg">
+          <div class="col-8">
+            <questCard
+              v-if="getCurrentQuest"
+              :currentQuest="getCurrentQuest"
+              :creator="getQuestCreator()"
+            ></questCard>
+          </div>
+        </div>
+        <div class="row justify-center q-mt-lg">
+          <div class="col-6 q-md q-mr-lg">
+            <node-tree
+              v-bind:nodes="getNeighbourhoodTree"
+              v-bind:threats="getPrivateThreatMap"
+              v-bind:scores="getPrivateScoreMap"
+              v-bind:currentGuild="guildId"
+              v-on:updateTree="selectionChanged"
+              :channelId="null"
+              :editable="true"
+              :roles="getRoles"
+            />
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
