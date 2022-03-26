@@ -6,206 +6,225 @@
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-4" id="scoreboard">
+          <div class="col-4" style="width: 100%">
             <scoreboard></scoreboard>
           </div>
         </div>
         <div class="row justify-end guild-header">
-          <div class="col-4" v-if="getCurrentGuild">
-            <h5 class="guild-name">
-              {{ getCurrentGuild.name }}
-            <q-btn
-          v-if="!isMember && getCurrentGuild.open_for_applications"
-          label="Join Guild"
-          @click="joinToGuild()"
-          style="margin-right: 1em"
-          class="bg-dark-blue"
-            /> 
-            <span v-if="!getCurrentGuild.open_for_applications"> guild closed</span>       
-            </h5>
-          </div>
-          <div class="col-4 text-right q-pr-md" > 
+           <div class="col-4 text-right q-pr-md">
             <router-link
               v-if="canRegisterToQuest"
               :to="{
-              name: 'guild_admin',
-              params: { guild_id: currentGuildId },
-            }"
-            >>>go to admin page</router-link>
+                name: 'guild_admin',
+                params: { guild_id: currentGuildId },
+              }"
+              >>>go to admin page</router-link
+            >
+          </div>
+          <div class="col-12" v-if="getCurrentGuild">
+            <h5 class="guild-name">
+              {{ getCurrentGuild.name }}
+              <q-btn
+                v-if="!isMember && getCurrentGuild.open_for_applications"
+                label="Join Guild"
+                @click="joinToGuild()"
+                style="margin-right: 1em"
+                class="bg-dark-blue"
+              />
+              <span v-if="!getCurrentGuild.open_for_applications">
+                guild closed</span
+              >
+            </h5>
+          </div>
+         
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <q-card class="bg-secondary q-pa-md" style="border: false">
+              <div class="row justify-center text-center">
+                <div class="col-10"> 
+                <h5 class="q-mt-md q-mb-md active-quest-header">
+                  Registered Quests
+                </h5>
+              </div>
+              <div v-if="activeQuests.length > 0">
+                <div v-for="quest in activeQuests" :key="quest.id">
+                  <q-radio
+                    v-model="currentQuestIdS"
+                    color="black"
+                    style="font-size: 20px"
+                    :val="quest.id"
+                    :label="quest.name"
+                  >
+                    <q-btn
+                      v-if="isMember && !guildPerQuest[quest.id]"
+                      label="Play"
+                      @click="prompt = true"
+                      style="margin-right: 1em"
+                      class="bg-primary"
+                    />
+                    <q-btn
+                      v-else-if="
+                        guildPerQuest[quest.id] &&
+                        guildPerQuest[quest.id] == currentGuildId
+                      "
+                      class="q-ml-md bg-primary"
+                      label="Go To Quest"
+                      style="margin-right: 1em"
+                      @click="
+                        $router.push({
+                          name: 'game_play',
+                          params: { quest_id: quest.id },
+                        })
+                      "
+                    />
+                    <router-link
+                      v-if="
+                        guildPerQuest[quest.id] &&
+                        guildPerQuest[quest.id] != currentGuildId
+                      "
+                      :to="{
+                        name: 'guild',
+                        params: { guild_id: guildPerQuest[quest.id] },
+                      }"
+                      >Playing in guild</router-link
+                    >
+                  </q-radio>
+                </div>
+              </div>
+              <div v-else>
+                <p style="font-size: 20px">
+                  You are not registered to any quests
+                </p>
+              </div>
+              </div>
+            </q-card>
           </div>
         </div>
-    <div class="column items-center">
-      <div class="col-4 " style="width: 100%">
-        <q-card class="bg-secondary q-pa-md" style="border: false">
-          <div class="row justify-center text-center">
-                  <h5 class="q-mt-md q-mb-md active-quest-header ">Registered Quests</h5>
-                </div>
-          <div v-if="activeQuests.length > 0">
-            <div v-for="quest in activeQuests" :key="quest.id">
-              <q-radio
-                v-model="currentQuestIdS"
-                color="black"
-                style="font-size: 20px"
-                :val="quest.id"
-                :label="quest.name"
-              >
-                <q-btn
-                  v-if="isMember && !guildPerQuest[quest.id]"
-                  label="Play"
-                  @click="prompt = true"
-                  style="margin-right: 1em"
-                  class="bg-primary"
-                />
-                <q-btn
-                  v-else-if="
-                    guildPerQuest[quest.id] &&
-                    guildPerQuest[quest.id] == currentGuildId
-                  "
-                  class="q-ml-md bg-primary"
-                  label="Go To Quest"
-                  style="margin-right: 1em"
-                  @click="
-                    $router.push({
-                      name: 'game_play',
-                      params: { quest_id: quest.id },
-                    })
-                  "
-                />
-                <router-link
-                  v-if="
-                    guildPerQuest[quest.id] &&
-                    guildPerQuest[quest.id] != currentGuildId
-                  "
-                  :to="{
-                    name: 'guild',
-                    params: { guild_id: guildPerQuest[quest.id] },
-                  }"
-                  >Playing in guild</router-link
-                >
-              </q-radio>
+        <div class="row justify-center">
+          <div class="col-3"></div>
+        </div>
+        <div class="row justify-center q-pt-lg">
+          <div class="row justify-center q-mr-xl q-mt-md">
+            <div
+              v-if="
+                getCurrentQuest &&
+                !getCurrentQuest.start &&
+                isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
+              "
+              class="col"
+            >
+              <castingRoleEdit
+                class="q-ml-md"
+                v-if="getAvailableRolesById(memberId).length"
+                v-bind:availableRoles="getAvailableRolesById(memberId)"
+                v-bind:castingRoles="getRolesForQuest"
+                v-bind:guildId="guildId"
+                v-bind:questId="currentQuestId"
+                v-bind:memberId="memberId"
+                v-on:castingRoleAdd="castingRoleAdded"
+                v-on:castingRoleRemove="castingRoleRemoved"
+              ></castingRoleEdit>
             </div>
           </div>
-          <div v-else>
-            <p style="font-size: 20px">You are not registered to any quests</p>
-          </div>
-        </q-card>
-      </div>
-    </div>
-    <div class="row justify-center">
-      <div class="col-3"></div>
-    </div>
-    <div
-      
-      class="row justify-center q-pt-lg"
-    >
-      <div class="row justify-center q-mr-xl q-mt-md">
-        <div v-if="
-        getCurrentQuest &&
-        !getCurrentQuest.start &&
-        isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
-      " class="col">
-        <castingRoleEdit
-          class="q-ml-md"
-          v-if="getAvailableRolesById(memberId).length"
-          v-bind:availableRoles="getAvailableRolesById(memberId)"
-          v-bind:castingRoles="getRolesForQuest"
-          v-bind:guildId="guildId"
-          v-bind:questId="currentQuestId"
-          v-bind:memberId="memberId"
-          v-on:castingRoleAdd="castingRoleAdded"
-          v-on:castingRoleRemove="castingRoleRemoved"
-        ></castingRoleEdit>
-      </div>
-      </div>   
-    <div class="column items-center q-mb-md q-mt-md">
-      <div class="col-6">
-        <q-card id="team-card">
-          <div class="col-2">
-            <p class="card-header ">Team</p>
-          </div>
-          <ul>
-            <li
-              v-for="member in getMembersOfGuild(getCurrentGuild)"
-              :key="member.id"
-              class="q-ml-lg q-mr-md"
-              style="color: royalblue"
-            >
-              {{ member.handle }}
-              <span v-if="playingAsGuildId(member.id)">
-                <span
-                  v-if="playingAsGuildId(member.id) == currentGuildId"
-                  style="color: black"
+          <div class="col-6 items-center q-mb-md q-mt-md">
+            <q-card id="team-card">
+              <div class="col-2">
+                <p class="card-header">Team</p>
+              </div>
+              <ul>
+                <li
+                  v-for="member in getMembersOfGuild(getCurrentGuild)"
+                  :key="member.id"
+                  class="q-ml-lg q-mr-md"
+                  id="team-card-members"
                 >
-                  {{ getAllCastingRoleNames(member.id) }}
-                </span>
-                <span v-if="playingAsGuildId(member.id) != currentGuildId"
-                  >Playing in
-                  <router-link
-                    :to="{
-                      name: 'guild',
-                      params: { guild_id: playingAsGuildId(member.id) },
-                    }"
-                    >{{ playingAsGuild(member.id).name }}</router-link
-                  ></span
-                >
-              </span>
-            </li>
-          </ul>
-        </q-card>
-      </div>
-    </div>
-     </div>   
-    <div class="column items-center" v-if="pastQuests.length > 0">
-      <div class="col-4">
-        <q-card>
-          <q-table
-            title="Past Quests"
-            :data="pastQuests"
-            :columns="columns1"
-            row-key="desc"
-            id="quest_table"
-          >
-            <template v-slot:body="props">
-              <q-tr :props="props">
-                <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
-                <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
-                <q-td key="status" :props="props">{{ props.row.status }}</q-td>
-                <q-td key="end" :props="props">{{ props.row.end }}</q-td>
-                <q-td key="questNodeId" auto-width :props="props">
-                  <router-link
-                    :to="{
-                      name: 'quest_page',
-                      params: { quest_id: props.row.id },
-                    }"
-                    >Enter</router-link
-                  >
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card>
-      </div>
-    </div>
-    <q-dialog v-model="prompt" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Available Roles</div>
-        </q-card-section>
-        <div v-for="role in roles" :key="role.id">
-          <q-radio
-            v-model="roleId"
-            :label="role.name"
-            :val="role.id"
-            @input="updateRole()"
-            v-close-popup="true"
-          >
-          </q-radio>
+                  <div class="row">
+                    <div class="col-6">
+                      <span class="q-pr-md q-ml-md"> {{ member.handle }} </span>
+                    </div>
+                    <div class="col-4">
+                      <span v-if="playingAsGuildId(member.id)">
+                        <span
+                          v-if="playingAsGuildId(member.id) == currentGuildId"
+                          style="color: black"
+                        >
+                          {{ getAllCastingRoleNames(member.id) }}
+                        </span>
+                        <span
+                          v-if="playingAsGuildId(member.id) != currentGuildId"
+                          >Playing in
+                          <router-link
+                            :to="{
+                              name: 'guild',
+                              params: { guild_id: playingAsGuildId(member.id) },
+                            }"
+                            >{{ playingAsGuild(member.id).name }}</router-link
+                          ></span
+                        >
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </q-card>
+          </div>
         </div>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+        <div class="column items-center" v-if="pastQuests.length > 0">
+          <div class="col-10">
+            <q-card>
+              <q-table
+                title="Past Quests"
+                :data="pastQuests"
+                :columns="columns1"
+                row-key="desc"
+                id="quest_table"
+              >
+                <template v-slot:body="props">
+                  <q-tr :props="props">
+                    <q-td key="desc" :props="props"> {{ props.row.name }}</q-td>
+                    <q-td key="handle" :props="props">{{
+                      props.row.handle
+                    }}</q-td>
+                    <q-td key="status" :props="props">{{
+                      props.row.status
+                    }}</q-td>
+                    <q-td key="end" :props="props">{{ props.row.end }}</q-td>
+                    <q-td key="questNodeId" auto-width :props="props">
+                      <router-link
+                        :to="{
+                          name: 'quest_page',
+                          params: { quest_id: props.row.id },
+                        }"
+                        >Enter</router-link
+                      >
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </q-card>
+          </div>
+        </div>
+        <q-dialog v-model="prompt" persistent>
+          <q-card style="min-width: 350px">
+            <q-card-section>
+              <div class="text-h6">Available Roles</div>
+            </q-card-section>
+            <div v-for="role in roles" :key="role.id">
+              <q-radio
+                v-model="roleId"
+                :label="role.name"
+                :val="role.id"
+                @input="updateRole()"
+                v-close-popup="true"
+              >
+              </q-radio>
+            </div>
+            <q-card-actions align="right" class="text-primary">
+              <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </q-card>
     </div>
   </q-page>
@@ -751,14 +770,14 @@ export default class GuildPage extends Vue {
 .active-quest-header {
   text-decoration: underline;
   font-family: Arial, Helvetica, sans-serif;
-  color:blue
+  color: blue;
 }
 .guild-header {
   background-color: azure;
-  width: 100%
+  width: 100%;
 }
 .guild-name {
-  text-align: center; 
+  text-align: center;
   font-size: 40px;
   background-color: azure;
 }
@@ -767,6 +786,9 @@ export default class GuildPage extends Vue {
   color: black;
   border: grey;
   background-color: floralwhite;
+}
+#team-card-members {
+  color: blue;
 }
 .handles {
   font-size: 20px;

@@ -1,35 +1,41 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg q-pl-lg" style="width: 55%">
-        <q-btn
-          color="primary"
-          v-if="$store.state.member.member"
-          style="margin-bottom: 4px"
-          label="New Quest"
-          @click="$router.push({ name: 'create_quest' })"
-        />
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="getQuests && getQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 55%"
-      >
-        <questTable v-bind:quests="getQuests" :view="false"></questTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no quests</h4>
-      </div>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <q-btn
+              color="primary"
+              v-if="$store.state.member.member"
+              style="margin-bottom: 4px"
+              label="New Quest"
+              @click="$router.push({ name: 'create_quest' })"
+            />
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <div
+              v-if="getQuests && getQuests.length"
+              class="col-4 q-pa-lg"
+              style="width: 100%"
+            >
+              <questTable v-bind:quests="getQuests" :view="false"></questTable>
+            </div>
+            <div v-else class="column items-center q-mt-md">
+              <h4>There are no quests</h4>
+            </div>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>

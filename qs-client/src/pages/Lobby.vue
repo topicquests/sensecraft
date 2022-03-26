@@ -1,83 +1,95 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div
-        v-if="getQuests && getQuests.length"
-        class="col-4 q-pa-lg"
-        style="width: 55%"
-      >
-        <questTable
-          v-bind:quests="getQuests"
-          :view="true"
-          title="Quests"
-        ></questTable>
-      </div>
-      <div v-else class="column items-center q-mt-md">
-        <h4>There are no quests</h4>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
-        <p>
-          If you have not already choosen a guild to join. Select one from the
-          list If you are already a member of a guild, click on enter button to
-          go to that guild's page
-        </p>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 1000px">
-        <div v-if="getGuilds.length">
-          <div v-if="getUserId">
-            <guilds-table
-              v-if="getMyGuilds.length"
-              v-bind:guilds="getMyGuilds"
-              v-bind:title="'My Guilds'"
-              :view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-            <guilds-table
-              v-if="getOpenGuilds.length"
-              v-bind:guilds="getOpenGuilds"
-              v-bind:title="'Open Guilds'"
-              :view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-            <guilds-table
-              v-if="getClosedGuilds.length"
-              v-bind:guilds="getClosedGuilds"
-              v-bind:title="'Closed Guilds'"
-              :view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-          </div>
-          <div v-else>
-            <guilds-table
-              v-bind:guilds="getGuilds"
-              v-bind:title="'Guilds'"
-              :view="true"
-            ></guilds-table>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <scoreboard></scoreboard>
           </div>
         </div>
-        <h4 v-else style="text-align: center">There currently are no guilds</h4>
-      </div>
+        <div class="column items-center">
+          <div
+            v-if="getQuests && getQuests.length"
+            class="col-4 "
+            style="width: 100%"
+          >
+            <questTable
+              v-bind:quests="getQuests"
+              :view="true"
+              title="Quests"
+            ></questTable>
+          </div>
+          <div v-else class="column items-center q-mt-md">
+            <h4>There are no quests</h4>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4 " style="width: 100%">
+            <p>
+              If you have not already choosen a guild to join. Select one from
+              the list If you are already a member of a guild, click on enter
+              button to go to that guild's page
+            </p>
+          </div>
+        </div>
+        <div class="column items-center">
+          <div class="col-4 " style="width: 100%">
+            <div v-if="getGuilds.length">
+              <div v-if="getUserId">
+                <guilds-table
+                  v-if="getMyGuilds.length"
+                  v-bind:guilds="getMyGuilds"
+                  v-bind:title="'My Guilds'"
+                  :view="true"
+                >
+                  <template v-slot:default="slotProps">
+                    <guilds-membership-indicator
+                      v-bind:guild="slotProps.guild"
+                    />
+                  </template>
+                </guilds-table>
+                <guilds-table
+                  v-if="getOpenGuilds.length"
+                  v-bind:guilds="getOpenGuilds"
+                  v-bind:title="'Open Guilds'"
+                  :view="true"
+                >
+                  <template v-slot:default="slotProps">
+                    <guilds-membership-indicator
+                      v-bind:guild="slotProps.guild"
+                    />
+                  </template>
+                </guilds-table>
+                <guilds-table
+                  v-if="getClosedGuilds.length"
+                  v-bind:guilds="getClosedGuilds"
+                  v-bind:title="'Closed Guilds'"
+                  :view="true"
+                >
+                  <template v-slot:default="slotProps">
+                    <guilds-membership-indicator
+                      v-bind:guild="slotProps.guild"
+                    />
+                  </template>
+                </guilds-table>
+              </div>
+              <div v-else>
+                <guilds-table
+                  v-bind:guilds="getGuilds"
+                  v-bind:title="'Guilds'"
+                  :view="true"
+                ></guilds-table>
+              </div>
+            </div>
+            <h4 v-else style="text-align: center">
+              There currently are no guilds
+            </h4>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
