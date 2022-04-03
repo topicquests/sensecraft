@@ -63,6 +63,7 @@
 
 <script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
+import member from "../components/member.vue";
 import { mapGetters, mapActions } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import GuildsTable from "../components/guilds-table.vue";
@@ -80,6 +81,7 @@ import { QuestsActionTypes } from "src/store/quests";
   },
   components: {
     scoreboard: scoreboard,
+    member: member,
     GuildsTable: GuildsTable,
     GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
@@ -120,9 +122,11 @@ export default class GuildListPage extends Vue {
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   async beforeMount() {
     await userLoaded;
-    await this.ensureAllGuilds();
-    await this.setCurrentGuild(null);
-    await this.setCurrentQuest(null);
+    await Promise.all([
+      this.ensureAllGuilds(),
+      this.setCurrentGuild(null),
+      this.setCurrentQuest(null),
+    ]);
   }
 }
 </script>

@@ -84,6 +84,7 @@ import { mapGetters, mapActions } from "vuex";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import scoreboard from "../components/scoreboard.vue";
 import QuestTable from "../components/quest-table.vue";
+import member from "../components/member.vue";
 import { userLoaded } from "../boot/userLoaded";
 import Component from "vue-class-component";
 import Vue from "vue";
@@ -95,6 +96,7 @@ import { GuildsActionTypes } from "src/store/guilds";
   components: {
     scoreboard: scoreboard,
     QuestTable,
+    member: member,
   },
 
   computed: {

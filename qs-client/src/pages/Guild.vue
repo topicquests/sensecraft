@@ -25,16 +25,19 @@
             <h5 class="guild-name">
               {{ getCurrentGuild.name }}
               <q-btn
-                v-if="!isMember && getCurrentGuild.open_for_applications"
+                v-if="member && !isMember && getCurrentGuild.open_for_applications"
                 label="Join Guild"
                 @click="joinToGuild()"
                 style="margin-right: 1em"
                 class="bg-dark-blue"
               />
-              <span v-if="!getCurrentGuild.open_for_applications">
-                guild closed</span
-              >
             </h5>
+            <span v-if="!getCurrentGuild.open_for_applications">
+              guild closed</span
+            >
+            <span v-if="!member && getCurrentGuild.open_for_applications">
+              login or register to join</span
+            >
           </div>
          
         </div>
@@ -520,7 +523,6 @@ export default class GuildPage extends Vue {
   getCastingRoleNames!: () => string[];
 
   async initialize() {
-    await this.setCurrentGuild(this.guildId);
     this.checkPermissions();
     const playQuestIds = this.getCurrentGuild.game_play.map(
       (gp: GamePlay) => gp.quest_id
@@ -758,10 +760,10 @@ export default class GuildPage extends Vue {
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllRoles(),
       this.ensureChannels(this.guildId),
+      this.ensureMembersOfGuild({ guildId: this.guildId }),
+      this.setCurrentGuild(this.guildId),
     ]);
-    await this.ensureMembersOfGuild({ guildId: this.guildId });
     await this.initialize();
-    this.getAvailableRoles();
   }
 }
 </script>

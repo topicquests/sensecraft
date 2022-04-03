@@ -393,7 +393,8 @@ export const conversation = (axios: AxiosInstance) =>
           state.neighbourhood = {};
           state.neighbourhoodRoot = null;
         }
-        addToState(state, res.data[0]);
+        if (res.data.length)
+          addToState(state, res.data[0]);
       },
     })
     .call({
