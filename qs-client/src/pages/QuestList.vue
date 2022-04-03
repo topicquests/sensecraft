@@ -13,8 +13,8 @@
         <div class="column items-center">
           <div
             v-if="notStartedQuests.length"
-            class="col-4 q-pa-lg"
-            style="width: 1000px"
+            class="col-4"
+            style="width: 100%"
           >
             <QuestTable
               v-bind:quests="notStartedQuests"
