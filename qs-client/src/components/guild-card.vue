@@ -25,11 +25,11 @@
       </section>
       <div>
         <section class="q-pt-lg">
-          <span class="q-pl-xl" style="font-weight: bold">Invintation</span>
+          <span class="q-pl-xl" style="font-weight: bold">Invitation</span>
           <q-option-group
            v-if="guild"
             v-model="guild.open_for_applications"
-            :options="invintation"
+            :options="invitation"
             color="primary"
             inline
           >
@@ -78,7 +78,7 @@ const GuildCardProps = Vue.extend({
   data() {
     return {
       public_private_bool: public_private_bool,
-      invintation: [
+      invitation: [
         { label: "open", value: true },
         { label: "close", value: false },
       ],
@@ -96,7 +96,7 @@ export default class GuildCard extends GuildCardProps {
   guild: Guild;
   guild_id: null;
   isAdmin: false;
-  invintation: Boolean;
+  invitation: Boolean;
   public_private_bool: Boolean;
 
   created() {
