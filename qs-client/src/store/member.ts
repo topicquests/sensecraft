@@ -49,7 +49,7 @@ const MemberGetters = {
     state.member?.id == id ? state.member : null,
   getCastingRoles: (state: MemberState) => state.member.casting_role,
   castingPerQuest: (state: MemberState) =>
-    Object.fromEntries(state.member.casting.map((c) => [c.quest_id, c])),
+    Object.fromEntries((state.member?.casting || []).map((c) => [c.quest_id, c])),
   guildPerQuest: (state: MemberState) =>
     Object.fromEntries(
       (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])

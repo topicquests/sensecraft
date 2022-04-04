@@ -1,5 +1,5 @@
 <template>
-  <div class="column items-right" v-if="member">
+  <div class="column items-right" v-if="getUser">
     <div class="col-12">
       <div class="member q-pr-md">{{ getUser.handle }}</div>
     </div>

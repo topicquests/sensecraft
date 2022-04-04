@@ -128,7 +128,7 @@ const MembersActions = {
     { questId, full = true }: { questId: number; full?: boolean }
   ) => {
     await MyVapi.store.dispatch("quests/ensureQuest", {
-      questId,
+      quest_id: questId,
       full: true,
     });
     const quest = MyVapi.store.getters["quests/getQuestById"](questId);

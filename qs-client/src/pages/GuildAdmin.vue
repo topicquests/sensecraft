@@ -5,7 +5,7 @@
         <div class="row guildAdmin-header">
           <h4 v-if="getCurrentGuild">
             <router-link
-              :to="{ name: 'guild', params: { guild_id: getCurrentGuild.id } }"
+              :to="{ name: 'guild', params: { guild_id: String(getCurrentGuild.id) } }"
             >
               {{ getCurrentGuild.name }}</router-link
             >
@@ -116,7 +116,7 @@
               @click="
                 $router.push({
                   name: 'guild_channel_list',
-                  params: { guild_id: guildId },
+                  params: { guild_id: String(guildId) },
                 })
               "
             >
@@ -235,7 +235,7 @@
                   @click="
                     $router.push({
                       name: 'create_guild_role',
-                      params: { guildId },
+                      params: { guildId: String(guildId) },
                     })
                   "
               />
@@ -733,7 +733,7 @@ export default class GuildAdminPage extends Vue {
     if (!canRegisterToQuest) {
       this.$router.push({
         name: "guild",
-        params: { guild_id: this.guildId.toString() },
+        params: { guild_id: String(this.guildId) },
       });
     }
   }

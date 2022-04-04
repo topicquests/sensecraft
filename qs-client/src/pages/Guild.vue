@@ -16,7 +16,7 @@
               v-if="canRegisterToQuest"
               :to="{
                 name: 'guild_admin',
-                params: { guild_id: currentGuildId },
+                params: { guild_id: String(currentGuildId) },
               }"
               >>>go to admin page</router-link
             >
@@ -76,8 +76,8 @@
                       style="margin-right: 1em"
                       @click="
                         $router.push({
-                          name: 'game_play',
-                          params: { quest_id: quest.id },
+                          name: 'quest_page',
+                          params: { quest_id: String(quest.id) },
                         })
                       "
                     />

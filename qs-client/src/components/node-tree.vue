@@ -15,11 +15,11 @@
               v-model="searchFilter"
               ></q-input>
           </q-item>
-          <q-item>
-            <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true" v-if="!asQuest"></q-checkbox>
+          <q-item v-if="!asQuest">
+            <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true"></q-checkbox>
           </q-item>
-          <q-item>
-            <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true" v-if="!asQuest"></q-checkbox>
+          <q-item  v-if="!asQuest">
+            <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true"></q-checkbox>
           </q-item>
           <q-item>
             <q-checkbox v-model="showObsolete" :dense="true" label="Obsolete nodes"></q-checkbox>
@@ -57,7 +57,7 @@
             'node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
           "
         >
-          {{ prop.node.label  }} - {{getMemberById(prop.node.creator_id).handle}}
+          {{ prop.node.label  }} - {{ getMemberHandle(prop.node.creator_id) }}
         </div>
         <span class="threat" v-if="threats && threats[prop.node.id]"
           >&nbsp;[{{ threats[prop.node.id] }}]</span
@@ -138,6 +138,11 @@ import {
   QuestsActionTypes,
 } from "../store/quests";
 import {
+  GuildsState,
+  GuildsGetterTypes,
+  GuildsActionTypes,
+} from "../store/guilds";
+import {
   ibis_node_type_type,
   ibis_node_type_list,
   publication_state_enum,
@@ -190,7 +195,8 @@ const NodeTreeProps = Vue.extend({
       "getChildrenOf",
     ]),
     ...mapGetters("channel", ["getChannelNode"]),
-    ...mapGetters("quests", ["getMaxPubStateForNodeType"]),
+    ...mapGetters("guilds", ["getGuildById"]),
+    ...mapGetters("quests", ["getMaxPubStateForNodeType", "getCurrentQuest"]),
     ...mapGetters('members', ['getMemberById']),
     searchFilter_: function() { return this.searchFilter+"_" },
   },
@@ -224,6 +230,8 @@ export default class NodeTree extends NodeTreeProps {
   updateChannelNode: ChannelActionTypes["updateChannelNode"];
   getChildrenOf: ConversationGetterTypes["getChildrenOf"];
   getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
+  getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
+  getGuildById: GuildsGetterTypes["getGuildById"];
 
   ensureAllMembers!: MembersActionTypes['ensureAllMembers']
 
@@ -265,6 +273,22 @@ export default class NodeTree extends NodeTreeProps {
       if (pos >= 0) pub_states.splice(pos);
     }
     this.baseNodePubStateConstraints = pub_states;
+  }
+
+  getMemberHandle(id: number) {
+    const member = this.getMemberById(id)
+    if (member) {
+      const castings = this.getCurrentQuest.casting || [];
+      const guild_id = castings.find(c => c.member_id == id)?.guild_id
+      if (guild_id) {
+        const guild = this.getGuildById(guild_id)
+        return `${member.handle} of ${guild?.name}`
+      }
+      else {
+        return member.handle
+      }
+    }
+    return ''
   }
 
   calcSpecificPubConstraints(node: Partial<ConversationNode>) {
