@@ -1,39 +1,18 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
           <member></member>
         </div>
-        <div class="column items-center">
-          <div class="col-4" style="width: 100%">
-            <scoreboard></scoreboard>
-          </div>
-        </div>
-        <div class="col-4 text-right q-pr-md">
+        <div class="col-4 text-right q-pr-md" v-if="guildId">
             <router-link
               :to="{
                 name: 'guild',
-                params: { guild_id: guildId },
+                params: { guild_id: String(guildId) },
               }"
               >>>back to guild page</router-link
             >
-          </div>
-        <div class="row justify-center q-mt-md">
-          <q-btn
-            color="primary"
-            label="Create Guild Channel"
-            @click="
-              $router.push({
-                name: 'game_channel_list',
-                params: {
-                  guild_id: guildId,
-                  quest_id: questId,
-                },
-              })
-            "
-          >
-          </q-btn>
         </div>
         <div class="row justify-center q-mt-lg">
           <div class="col-8">
@@ -47,19 +26,35 @@
         <div class="row justify-center q-mt-lg">
           <div class="col-6 q-md q-mr-lg">
             <node-tree
-              v-bind:nodes="getNeighbourhoodTree"
-              v-bind:threats="getPrivateThreatMap"
-              v-bind:scores="getPrivateScoreMap"
-              v-bind:currentGuild="guildId"
+              v-bind:currentQuestId="questId"
+              v-bind:currentGuildId="guildId"
               v-on:updateTree="selectionChanged"
               :channelId="null"
               :editable="true"
-              :roles="getRoles"
             />
           </div>
         </div>
       </q-card>
     </div>
+    <div class="sidenav gt-sm"  v-if="guildId">
+      <div class="q-pa-md q-gutter-sm">
+        <channel-list/>
+          <q-btn
+            color="primary"
+            label="Create Guild Channel"
+            @click="
+              $router.push({
+                name: 'game_channel_list',
+                params: {
+                  guild_id: String(guildId),
+                  quest_id: String(questId),
+                },
+              })
+            "
+          >
+          </q-btn>
+        </div>
+      </div>
   </q-page>
 </template>
 
@@ -78,12 +73,6 @@ import {
 } from "../enums";
 import { userLoaded } from "../boot/userLoaded";
 import {
-  ConversationState,
-  ConversationGetterTypes,
-  ConversationActionTypes,
-  ibis_child_types,
-} from "../store/conversation";
-import {
   QuestsState,
   QuestsActionTypes,
   QuestsGetterTypes,
@@ -98,26 +87,22 @@ import {
   MemberGetterTypes,
   MemberActionTypes,
 } from "../store/member";
+import {
+  ChannelState,
+  ChannelGetterTypes,
+  ChannelActionTypes,
+} from "../store/channel";
 import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
-  registration_status_enum,
-  quest_status_enum,
-  permission_enum,
-} from "../enums";
-import {
-  Quest,
-  Guild,
-  GamePlay,
   Casting,
   ConversationNode,
-  Member,
-  Role,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
+import ChannelList from "../components/ChannelListComponent.vue";
 
 @Component<GamePlayPage>({
   components: {
@@ -126,54 +111,31 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
     questCard: questCard,
     nodeTree: nodeTree,
     CastingRoleEdit,
+    ChannelList,
   },
   computed: {
     ...mapState("member", {
       member: (state: MemberState) => state.member,
       memberId: (state: MemberState) => state.member?.id,
     }),
-    ...mapState("role", {
-      allRoles: (state: RoleState) => state.role,
-    }),
+    ...mapGetters("member", [
+      "castingPerQuest",
+    ]),
     ...mapGetters("quests", [
       "getCurrentQuest",
-      "getCurrentGamePlay",
-      "getCastingRolesById",
     ]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("members", [
       "getMemberById",
-      "getAvailableRolesMembersById",
-      "castingRolesPerQuest",
     ]),
-    ...mapGetters("conversation", [
-      "getFocusNode",
-      "getConversationNodeById",
-      "getNeighbourhoodTree",
-      "getNeighbourhood",
-      "getRootNode",
-      "getNode",
-      "getThreatMap",
-      "getScoreMap",
-      "getPrivateThreatMap",
-      "getPrivateScoreMap",
-    ]),
-    ...mapGetters("role", ["getRoles"]),
   },
   methods: {
     ...mapActions("quests", [
       "setCurrentQuest",
       "ensureQuest",
-      "addCastingRole",
-      "deleteCastingRole",
     ]),
-    ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
-    ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("conversation", [
-      "ensureConversationNeighbourhood",
-      "ensureRootNode",
-    ]),
-    ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("guilds", ["setCurrentGuild"]),
+    ...mapActions("channel", ["ensureChannels"]),
   },
   watch: {},
 })
@@ -189,41 +151,19 @@ export default class GamePlayPage extends Vue {
   newNodeParent: number = null;
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-
   allRoles!: RoleState["role"];
+  ready = false;
 
   // declare the computed attributes for Typescript
+  castingPerQuest!: MemberGetterTypes["castingPerQuest"];
+  getMemberById!: MembersGetterTypes["getMemberById"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
-  getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
-  getCastingRolesById!: QuestsGetterTypes["getCastingRolesById"];
-  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
-  getMemberById: MembersGetterTypes["getMemberById"];
-  getFocusNode: ConversationGetterTypes["getFocusNode"];
-  getNeighbourhood: ConversationGetterTypes["getNeighbourhood"];
-  getNode: ConversationGetterTypes["getNode"];
-  getNeighbourhoodTree: ConversationGetterTypes["getNeighbourhoodTree"];
-  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
-  getRootNode: ConversationGetterTypes["getRootNode"];
-  castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
-  getRoleById!: RoleGetterTypes["getRoleById"];
-  getThreatMap!: ConversationGetterTypes["getThreatMap"];
-  getPrivateThreatMap!: ConversationGetterTypes["getPrivateThreatMap"];
-  getScoreMap!: ConversationGetterTypes["getScoreMap"];
-  getPrivateScoreMap!: ConversationGetterTypes["getPrivateScoreMap"];
+
   // declare the action attributes for Typescript
-  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
-  addCastingRole!: QuestsActionTypes["addCastingRole"];
-  deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
-  ensureQuest: QuestsActionTypes["ensureQuest"];
+  ensureChannels!: ChannelActionTypes["ensureChannels"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
-  ensureGuild: GuildsActionTypes["ensureGuild"];
-  fetchMemberById: MembersActionTypes["fetchMemberById"];
-  ensureConversationNeighbourhood!: ConversationActionTypes["ensureConversationNeighbourhood"];
-  ensureMemberById: MembersActionTypes["ensureMemberById"];
-  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
-  ensureRootNode: ConversationActionTypes["ensureRootNode"];
-  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
-  getRoles: RoleGetterTypes["getRoles"];
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  ensureQuest: QuestsActionTypes["ensureQuest"];
 
   getQuestCreator() {
     return this.getMemberById(this.getCurrentQuest.creator);
@@ -233,34 +173,24 @@ export default class GamePlayPage extends Vue {
     this.selectedNodeId = id;
   }
 
+  async guildIfPlaying() {
+    const casting: Casting = this.castingPerQuest[this.questId];
+    if (casting) {
+      return casting.guild_id;
+    }
+  }
+
   async beforeMount() {
-    this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
+    this.guildId = await this.guildIfPlaying();
     await Promise.all([
       this.setCurrentQuest(this.questId),
       this.setCurrentGuild(this.guildId),
-    ]);
-    await Promise.all([
       this.ensureQuest({ quest_id: this.questId }),
-      this.ensureGuild({ guild_id: this.guildId }),
-      this.ensureAllRoles(),
+      this.ensureChannels(this.guildId),
     ]);
-    let node_id = this.getCurrentGamePlay?.focus_node_id;
-    if (!node_id) {
-      await this.ensureRootNode(this.questId);
-      node_id = this.getRootNode?.id;
-    }
-    if (node_id) {
-      await this.ensureConversationNeighbourhood({
-        node_id,
-        guild: this.guildId,
-      });
-      this.selectedNodeId = this.getFocusNode.id;
-    }
-    const quest = this.getCurrentQuest;
-    await this.ensureMemberById({ id: quest.creator });
-    // const creator = this.getMemberById(quest.creator);
+    this.ready = true;
   }
 }
 </script>

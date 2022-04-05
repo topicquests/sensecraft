@@ -1,5 +1,5 @@
 <template>
-<div class="tree-container">
+<div class="tree-container" v-if="ready">
   <div class="row justify-end">
     <q-btn
       icon="menu"
@@ -15,11 +15,14 @@
               v-model="searchFilter"
               ></q-input>
           </q-item>
-          <q-item v-if="!asQuest">
+          <q-item v-if="currentGuildId">
             <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true"></q-checkbox>
           </q-item>
-          <q-item  v-if="!asQuest">
+          <q-item  v-if="currentGuildId">
             <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true"></q-checkbox>
+          </q-item>
+          <q-item  v-if="currentGuildId">
+            <q-checkbox v-model="showFocusNeighbourhood" label="Focus neighbourhood" :dense="true" v-on:input="changeNeighbourhood"></q-checkbox>
           </q-item>
           <q-item>
             <q-checkbox v-model="showObsolete" :dense="true" label="Obsolete nodes"></q-checkbox>
@@ -44,7 +47,7 @@
           v-if="scores && scores[prop.node.id]"
           :class="
             'score' +
-            (currentGuild == prop.node.guild_id
+            (currentGuildId == prop.node.guild_id
               ? ' my-score'
               : ' other-score') +
             (scores[prop.node.id] < 0 ? ' score-neg' : ' score-pos')
@@ -96,7 +99,7 @@
         :allowAddChild="false"
         :ibisTypes="selectedIbisTypes"
         :editing="true"
-        :roles="roles"
+        :roles="getRoles"
         :allowChangeMeta="allowChangeMeta"
         :pubFn="calcSpecificPubConstraints"
         v-on:action="confirmEdit"
@@ -108,7 +111,7 @@
         :allowAddChild="false"
         :ibisTypes="childIbisTypes"
         :editing="true"
-        :roles="roles"
+        :roles="getRoles"
         :allowChangeMeta="allowChangeMeta"
         :pubFn="calcSpecificPubConstraints"
         v-on:action="confirmAddChild"
@@ -124,7 +127,7 @@ import Vue from "vue";
 import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
-import { ConversationNode, Role, QTreeNode } from "../types";
+import { ConversationNode, Role, QTreeNode, Quest } from "../types";
 import NodeForm from "./node-form.vue";
 import {
   ConversationState,
@@ -142,6 +145,7 @@ import {
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
+import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   ibis_node_type_type,
   ibis_node_type_list,
@@ -161,15 +165,11 @@ class NodeTreeBase {}
 
 const NodeTreeProps = Vue.extend({
   props: {
-    nodes: Array as Prop<QTreeNode[]>,
-    threats: Object as Prop<ThreatMap>,
-    scores: Object as Prop<ScoreMap>,
-    currentGuild: Number || null,
+    currentQuestId: Number || null,
+    currentGuildId: Number || null,
     channelId: Number || null,
     editable: Boolean,
     hideDescription: Boolean,
-    asQuest: Boolean,
-    roles: Array as Prop<Role[]>,
   },
 });
 
@@ -177,28 +177,70 @@ const NodeTreeProps = Vue.extend({
   components: { NodeForm },
   name: "ConversationNodeTree",
   methods: {
+    ...mapActions("channel", ["createChannelNode", "updateChannelNode", "ensureChannelConversation"]),
     ...mapActions("conversation", [
       "createConversationNode",
       "updateConversationNode",
+      "ensureConversationNeighbourhood",
+      "ensureRootNode",
+      "ensureConversation",
     ]),
-    ...mapActions("channel", ["createChannelNode", "updateChannelNode"]),
-    ...mapActions('members', ['ensureAllMembers'])
+    ...mapActions("guilds", ["ensureGuild"]),
+    ...mapActions("members", [
+      "ensureMemberById",
+      "ensurePlayersOfQuest",
+      "ensureMembersOfGuild",
+    ]),
+    ...mapActions("quests", ["ensureQuest"]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
   computed: {
     ...mapGetters({
       canEditConversation: "conversation/canEdit",
       canEditChannel: "channel/canEdit",
     }),
+    ...mapGetters("channel", ["getChannelConversation", "getChannelNode"]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
       "canMakeMeta",
       "getChildrenOf",
+      "getRootNode",
+      "getConversationTree",
+      "getNeighbourhoodTree",
+      "getThreatMap",
+      "getScoreMap",
+      "getPrivateThreatMap",
+      "getPrivateScoreMap",
     ]),
-    ...mapGetters("channel", ["getChannelNode"]),
-    ...mapGetters("guilds", ["getGuildById"]),
-    ...mapGetters("quests", ["getMaxPubStateForNodeType", "getCurrentQuest"]),
+    ...mapGetters("guilds", [
+      "getGuildById",
+      "getCurrentGuild",
+    ]),
+    ...mapGetters("quests", [
+      "getMaxPubStateForNodeType",
+      "getCurrentQuest",
+      "getCurrentGamePlay",
+    ]),
     ...mapGetters('members', ['getMemberById']),
+    ...mapGetters('roles', ['getRoles']),
     searchFilter_: function() { return this.searchFilter+"_" },
+    nodes: function(): QTreeNode[] {
+      if (this.channelId)
+        return this.getChannelConversationTree(this.channelId);
+      if (this.showFocusNeighbourhood)
+        return this.getNeighbourhoodTree;
+      return this.getConversationTree;
+    },
+    threats: function(): ThreatMap {
+      if (this.channelId) return null;
+      if (this.currentGuildId && this.showDraft) return this.getPrivateThreatMap;
+      return this.getThreatMap;
+    },
+    scores: function(): ScoreMap {
+      if (this.channelId) return null;
+      if (this.currentGuildId && this.showDraft) return this.getPrivateScoreMap;
+      return this.getScoreMap;
+    },
   },
   watch: {
     selectedNodeId: "selectionChanged",
@@ -216,27 +258,53 @@ export default class NodeTree extends NodeTreeProps {
   showMeta: Boolean = true;
   showObsolete: Boolean = false;
   showDraft: Boolean = true;
+  showFocusNeighbourhood: Boolean = false;
   searchFilter = '';
+  ready = false;
 
-  canEditConversation: ConversationGetterTypes["canEdit"];
-  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
-  getMemberById!: MembersGetterTypes['getMemberById']
-  createConversationNode: ConversationActionTypes["createConversationNode"];
-  updateConversationNode: ConversationActionTypes["updateConversationNode"];
-  canMakeMeta: ConversationGetterTypes["canMakeMeta"];
+  searchFilter_!: string;
+  threats!: ThreatMap;
+  scores!: ScoreMap;
+  nodes!: QTreeNode[];
+  getChannelConversation: ChannelGetterTypes["getChannelConversation"];
   canEditChannel: ChannelGetterTypes["canEdit"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
-  createChannelNode: ChannelActionTypes["createChannelNode"];
-  updateChannelNode: ChannelActionTypes["updateChannelNode"];
+  canEditConversation: ConversationGetterTypes["canEdit"];
+  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
+  getRootNode: ConversationGetterTypes["getRootNode"];
+  canMakeMeta: ConversationGetterTypes["canMakeMeta"];
   getChildrenOf: ConversationGetterTypes["getChildrenOf"];
+  getThreatMap!: ConversationGetterTypes["getThreatMap"];
+  getPrivateThreatMap!: ConversationGetterTypes["getPrivateThreatMap"];
+  getScoreMap!: ConversationGetterTypes["getScoreMap"];
+  getPrivateScoreMap!: ConversationGetterTypes["getPrivateScoreMap"];
+  getConversationTree!: ConversationGetterTypes["getConversationTree"];
+  getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
+  getGuildById: GuildsGetterTypes["getGuildById"];
+  getCurrentGulid: GuildsGetterTypes["getCurrentGuild"];
+  getMemberById!: MembersGetterTypes['getMemberById']
   getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
-  getGuildById: GuildsGetterTypes["getGuildById"];
+  getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
+  getRoles!: RoleGetterTypes['getRoles'];
 
-  ensureAllMembers!: MembersActionTypes['ensureAllMembers']
+  createChannelNode: ChannelActionTypes["createChannelNode"];
+  updateChannelNode: ChannelActionTypes["updateChannelNode"];
+  ensureChannelConversation: ChannelActionTypes["ensureChannelConversation"];
+  createConversationNode: ConversationActionTypes["createConversationNode"];
+  updateConversationNode: ConversationActionTypes["updateConversationNode"];
+  ensureConversationNeighbourhood!: ConversationActionTypes["ensureConversationNeighbourhood"];
+  ensureConversation!: ConversationActionTypes["ensureConversation"];
+  ensureRootNode: ConversationActionTypes["ensureRootNode"];
+  ensureGuild: GuildsActionTypes["ensureGuild"];
+  ensureMemberById: MembersActionTypes["ensureMemberById"];
+  ensurePlayersOfQuest!: MembersActionTypes["ensurePlayersOfQuest"];
+  ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
+  ensureQuest: QuestsActionTypes["ensureQuest"];
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
 
   calcPublicationConstraints(node: Partial<ConversationNode>) {
-    if (this.asQuest) {
+    if (!this.currentGuildId) {
       this.baseNodePubStateConstraints = [
         publication_state_enum.private_draft,
         publication_state_enum.published,
@@ -292,7 +360,7 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   calcSpecificPubConstraints(node: Partial<ConversationNode>) {
-    if (node.meta == "channel" || this.asQuest)
+    if (node.meta == "channel" || !this.currentGuildId)
       return this.baseNodePubStateConstraints;
     const pub_states = [...this.baseNodePubStateConstraints];
     if (node.meta == "meta") {
@@ -445,11 +513,53 @@ export default class NodeTree extends NodeTreeProps {
   selectionChanged(id) {
     this.selectedNodeId = id;
   }
+  async changeNeighbourhood() {
+    this.ready = false;
+    await this.treePromise();
+    this.ready = true;
+  }
+  async treePromise() {
+    if (this.showFocusNeighbourhood) {
+      let node_id = this.getCurrentGamePlay?.focus_node_id;
+      if (!node_id) {
+        await this.ensureRootNode(this.currentQuestId);
+        node_id = this.getRootNode?.id;
+      }
+      if (node_id) {
+        this.selectedNodeId = node_id;
+        return await this.ensureConversationNeighbourhood({
+          node_id,
+          guild: this.currentGuildId,
+        });
+      }
+    }
+    if (this.channelId) {
+      return await this.ensureChannelConversation(this.channelId);
+    }
+    return await this.ensureConversation(this.currentQuestId);
+  }
+
   async beforeMount() {
-    if (this.asQuest)
+    if (this.currentGuildId) {
       this.showDraft = true;
-    // TODO: Maybe only those in the tree?
-    await this.ensureAllMembers();
+      if (!this.channelId)
+        this.showFocusNeighbourhood = true;
+    }
+    await this.ensureQuest({ quest_id: this.currentQuestId });
+    let promises = [
+      this.ensureAllRoles(),
+      this.ensurePlayersOfQuest({ questId: this.currentQuestId }),
+      this.ensureMemberById({ id: this.getCurrentQuest.creator }),
+    ];
+    if (this.currentGuildId) {
+      promises = [ ...promises,
+        this.ensureGuild({ guild_id: this.currentGuildId }),
+        this.ensureMembersOfGuild({ guildId: this.currentGuildId }),
+      ];
+    }
+    promises.push(this.treePromise());
+    await Promise.all(promises);
+    this.ready = true;
   }
 }
 </script>

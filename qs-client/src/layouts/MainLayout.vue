@@ -133,7 +133,7 @@
           <q-item
             clickable
             v-ripple
-            v-show="hasPermission('createQuest')"
+            v-show="hasPermission(permission_enum.createQuest)"
             id="createQuest"
           >
             <q-item-section>
@@ -154,7 +154,7 @@
           <q-item
             clickable
             v-ripple
-            v-show="hasPermission('createGuild')"
+            v-show="hasPermission(permission_enum.createGuild)"
             id="createGuild"
           >
             <q-item-section>
@@ -164,7 +164,7 @@
           <q-item
             clickable
             v-ripple
-            v-if="hasPermission('superadmin')"
+            v-if="hasPermission(permission_enum.superadmin)"
             id="admin"
           >
             <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
@@ -188,17 +188,18 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
+import Component from "vue-class-component";
+import Vue from "vue";
+import { permission_enum } from "../enums";
 import { MemberActionTypes, MemberState } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
-import Component from "vue-class-component";
-import Vue from "vue";
 import {
   conversation,
   ConversationActionTypes,
   ConversationGetterTypes,
 } from "src/store/conversation";
-import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
+import { ChannelGetterTypes, ChannelActionTypes, ChannelState } from "../store/channel";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { QuestsGetterTypes } from "../store/quests";
@@ -263,6 +264,8 @@ export default class MainLayout extends Vue {
   private showTree: Boolean = true;
 
   // Declare computed attributes for typescript
+  memberId!: number;
+  isAuthenticated!: boolean;
   getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
   getGameChannels!: ChannelGetterTypes["getGameChannels"];
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
@@ -272,6 +275,7 @@ export default class MainLayout extends Vue {
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   getChannels!: ChannelGetterTypes["getChannels"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  permission_enum = permission_enum;
 
   // Declare action attributes for typescript
   logout: MemberActionTypes["logout"];

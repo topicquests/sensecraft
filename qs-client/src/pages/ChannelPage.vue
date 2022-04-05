@@ -3,8 +3,9 @@
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
-          v-bind:nodes="channelTree"
           v-on:updateTree="selectionChanged"
+          :currentGuildId="guildId"
+          :currentQuestId="questId"
           :channelId="channelId"
           :roles="getRoles"
           :editable="true"
@@ -89,7 +90,6 @@ import { BaseGetterTypes } from "../store/baseStore";
       "getChannels",
       "getChannelById",
       "getChannelConversation",
-      "getChannelConversationTree",
       "getChannelNode",
       "canEdit",
     ]),
@@ -101,9 +101,6 @@ import { BaseGetterTypes } from "../store/baseStore";
         return channelId;
       },
       set() {},
-    },
-    channelTree: function () {
-      return this.getChannelConversationTree(this.channelId);
     },
   },
   methods: {
@@ -143,7 +140,6 @@ export default class RolePlayPage extends Vue {
   getChannels: ChannelGetterTypes["getChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
-  getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
   canEdit: ChannelGetterTypes["canEdit"];
   // declare the action attributes for Typescript

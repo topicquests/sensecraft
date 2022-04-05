@@ -36,18 +36,6 @@
         <h5>There are no guilds playing quest</h5>
       </div>
     </div>
-    <div class="row justify-center q-mt-lg">
-      <div v-if="getConversationTree" class="col-6 q-md q-mr-lg">
-        <node-tree
-          v-bind:nodes="getConversationTree"
-          v-on:updateTree="selectionChanged"
-          v-bind:threats="getThreatMap"
-          v-bind:scores="getScoreMap"
-          :channelId="null"
-          :editable="false"
-        />
-      </div>
-    </div>
   </q-page>
 </template>
 
@@ -74,8 +62,8 @@ import {
   ChannelActionTypes,
 } from "../store/channel";
 import ChannelList from "../components/ChannelListComponent.vue";
-import { Casting } from "src/types";
-import { MembersActionTypes } from "src/store/members";
+import { Casting } from "../types";
+import { MembersActionTypes } from "../store/members";
 
 @Component<QuestViewPage>({
   components: {
@@ -100,7 +88,6 @@ import { MembersActionTypes } from "src/store/members";
       "getConversation",
       "getConversationTree",
       "getFocusNode",
-      "getConversationTree",
       "getRootNode",
       "getThreatMap",
       "getScoreMap",
