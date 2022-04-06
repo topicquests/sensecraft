@@ -94,14 +94,6 @@ import { BaseGetterTypes } from "../store/baseStore";
       "canEdit",
     ]),
     ...mapGetters("role", ["getRoles"]),
-    channelId: {
-      get() {
-        const channelId = this.$route.params.channel_id;
-        this.getChannel(channelId);
-        return channelId;
-      },
-      set() {},
-    },
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
@@ -164,14 +156,10 @@ export default class RolePlayPage extends Vue {
     this.channelId = Number.parseInt(this.$route.params.channel_id);
     await userLoaded;
     const promises = [];
+    this.setCurrentGuild(this.guildId);
+    this.setCurrentQuest(this.questId);
     if (this.questId) {
-      await Promise.all([
-        this.setCurrentQuest(this.questId),
-        this.setCurrentGuild(this.guildId),
-      ]);
       promises.push(this.ensureQuest({ quest_id: this.questId }));
-    } else {
-      await this.setCurrentGuild(this.guildId);
     }
     promises.push(this.ensureGuild({ guild_id: this.guildId }));
     promises.push(this.ensureAllRoles());

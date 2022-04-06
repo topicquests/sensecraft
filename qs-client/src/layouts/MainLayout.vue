@@ -58,9 +58,7 @@
           v-if="
             isAuthenticated &&
             showTree &&
-            getCurrentGuild &&
-            getChannels &&
-            getChannels.length
+            getCurrentGuild
           "
         >
           <q-btn
@@ -69,36 +67,33 @@
             round
             aria-label="Tree View"
             @click="toggleNav"
-            id="conversation_tree"
+            id="channel_list"
           >
             <q-icon name="menu" />
           </q-btn>
         </div>
       </q-toolbar>
     </q-header>
-    <div
-      v-if="rightDrawerOpen"
-      style="width: 350px"
+    <q-drawer v-model="rightDrawerOpen" :breakpoint="200" bordered side="right"
       id="mySidenav"
       class="sidenav"
     >
       <div v-if="getCurrentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
-          v-if="getGuildChannels.length"
-          v-bind:channels="getGuildChannels"
-          :game="true"
+          v-bind:guild_id="getCurrentGuild.id"
+          :inPage="false"
           title="Guild Channels"
         />
       </div>
-      <div v-if="getCurrentGuild && getCurrentQuest">
-          <channel-list
-            v-if="getGuildChannels.length"
-            v-bind:channels="getGameChannels"
-            :game="true"
-            title="Game Channels"
-          />
-        </div>
+      <div v-if="getCurrentGuild && getCurrentQuest" class="q-pa-md q-gutter-sm">
+        <channel-list
+          v-bind:guild_id="getCurrentGuild.id"
+          v-bind:quest_id="getCurrentQuest.id"
+          :inPage="false"
+          title="Game Channels"
+        />
       </div>
+    </q-drawer>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
       <q-scroll-area class="fit">
         <q-list>
@@ -199,7 +194,6 @@ import {
   ConversationActionTypes,
   ConversationGetterTypes,
 } from "src/store/conversation";
-import { ChannelGetterTypes, ChannelActionTypes, ChannelState } from "../store/channel";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { QuestsGetterTypes } from "../store/quests";
@@ -239,11 +233,6 @@ import { QuestsGetterTypes } from "../store/quests";
       "getConversationNodeById",
     ]),
     ...mapGetters(["hasPermission"]),
-    ...mapGetters("channel", [
-      "getGuildChannels",
-      "getGameChannels",
-      "getChannels",
-    ]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
   },
@@ -254,7 +243,6 @@ import { QuestsGetterTypes } from "../store/quests";
   },
   methods: {
     ...mapActions("member", ["logout"]),
-    ...mapActions("channel", ["ensureChannels"]),
     ...mapActions("conversation", ["setConversationNode"]),
   },
 })
@@ -266,20 +254,16 @@ export default class MainLayout extends Vue {
   // Declare computed attributes for typescript
   memberId!: number;
   isAuthenticated!: boolean;
-  getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
-  getGameChannels!: ChannelGetterTypes["getGameChannels"];
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getConversationTree!: ConversationGetterTypes["getConversationTree"];
   hasPermission!: BaseGetterTypes["hasPermission"];
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
-  getChannels!: ChannelGetterTypes["getChannels"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   permission_enum = permission_enum;
 
   // Declare action attributes for typescript
   logout: MemberActionTypes["logout"];
-  ensureChannels: ChannelActionTypes["ensureChannels"];
   public goTo(route): void {
     this.rightDrawerOpen = false;
     this.leftDrawer = false;
@@ -308,10 +292,6 @@ export default class MainLayout extends Vue {
       type: "positive",
       message: "You are now logged out",
     });
-  }
-
-  async beforeMount() {
-    await this.ensureChannels(this.getCurrentGuild?.id);
   }
 }
 </script>

@@ -56,12 +56,6 @@ import {
   ConversationGetterTypes,
   ConversationActionTypes,
 } from "../store/conversation";
-import {
-  ChannelState,
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
-import ChannelList from "../components/ChannelListComponent.vue";
 import { Casting } from "../types";
 import { MembersActionTypes } from "../store/members";
 
@@ -74,7 +68,6 @@ import { MembersActionTypes } from "../store/members";
     nodeTree,
     GuildsTable,
     GuildsPlayingIndicator,
-    ChannelList,
   },
   computed: {
     ...mapGetters("quests", [
@@ -93,7 +86,6 @@ import { MembersActionTypes } from "../store/members";
       "getScoreMap",
       "getGuildScoreMap",
     ]),
-    ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
     ...mapGetters("guilds", ["getGuildsPlayingQuest"]),
   },
   methods: {
@@ -106,7 +98,6 @@ import { MembersActionTypes } from "../store/members";
       "ensureRootNode",
       "ensureConversationNeighbourhood",
     ]),
-    ...mapActions("channel", ["ensureChannels"]),
   },
 })
 export default class QuestViewPage extends Vue {
@@ -115,7 +106,6 @@ export default class QuestViewPage extends Vue {
 
   // declare the computed attributes for Typescript
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
-  getGameChannels!: ChannelGetterTypes["getGameChannels"];
   getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
   getConversationTree: ConversationGetterTypes["getConversationTree"];
   getConversation: ConversationGetterTypes["getConversation"];
@@ -138,7 +128,6 @@ export default class QuestViewPage extends Vue {
   ensureConversationSubtree: ConversationActionTypes["ensureConversationSubtree"];
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
   ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
-  ensureChannels: ChannelActionTypes["ensureChannels"];
   ensureAllQuests: QuestsActionTypes['ensureAllQuests']
   ensureAllMembers: MembersActionTypes['ensureAllMembers']
 
@@ -147,9 +136,6 @@ export default class QuestViewPage extends Vue {
   }
   async getPlayerPlayingInQuest() {
     const playing = this.castingInQuest(this.questId);
-    if (playing) {
-      await this.ensureChannels(playing.guild_id);
-    }
   }
   async beforeMount() {
     document.title="Quest"

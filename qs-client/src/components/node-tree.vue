@@ -15,13 +15,13 @@
               v-model="searchFilter"
               ></q-input>
           </q-item>
-          <q-item v-if="currentGuildId">
+          <q-item v-if="currentGuildId && !channelId">
             <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true"></q-checkbox>
           </q-item>
-          <q-item  v-if="currentGuildId">
+          <q-item  v-if="currentGuildId && !channelId">
             <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true"></q-checkbox>
           </q-item>
-          <q-item  v-if="currentGuildId">
+          <q-item  v-if="currentGuildId && !channelId">
             <q-checkbox v-model="showFocusNeighbourhood" label="Focus neighbourhood" :dense="true" v-on:input="changeNeighbourhood"></q-checkbox>
           </q-item>
           <q-item>
@@ -199,7 +199,7 @@ const NodeTreeProps = Vue.extend({
       canEditConversation: "conversation/canEdit",
       canEditChannel: "channel/canEdit",
     }),
-    ...mapGetters("channel", ["getChannelConversation", "getChannelNode"]),
+    ...mapGetters("channel", ["getChannelConversationTree", "getChannelNode"]),
     ...mapGetters("conversation", [
       "getConversationNodeById",
       "canMakeMeta",
@@ -266,7 +266,7 @@ export default class NodeTree extends NodeTreeProps {
   threats!: ThreatMap;
   scores!: ScoreMap;
   nodes!: QTreeNode[];
-  getChannelConversation: ChannelGetterTypes["getChannelConversation"];
+  getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
   canEditChannel: ChannelGetterTypes["canEdit"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
   canEditConversation: ConversationGetterTypes["canEdit"];
@@ -534,30 +534,42 @@ export default class NodeTree extends NodeTreeProps {
       }
     }
     if (this.channelId) {
-      return await this.ensureChannelConversation(this.channelId);
+      return await this.ensureChannelConversation({
+        channel_id: this.channelId,
+        guild: this.currentGuildId});
     }
     return await this.ensureConversation(this.currentQuestId);
   }
 
   async beforeMount() {
+    let promises = [
+      this.ensureAllRoles(),
+    ];
     if (this.currentGuildId) {
       this.showDraft = true;
       if (!this.channelId)
         this.showFocusNeighbourhood = true;
     }
-    await this.ensureQuest({ quest_id: this.currentQuestId });
-    let promises = [
-      this.ensureAllRoles(),
-      this.ensurePlayersOfQuest({ questId: this.currentQuestId }),
-      this.ensureMemberById({ id: this.getCurrentQuest.creator }),
-    ];
+    if (this.currentQuestId) {
+      promises = [...promises,
+        this.ensureQuest({ quest_id: this.currentQuestId }),
+        this.ensurePlayersOfQuest({ questId: this.currentQuestId }),
+      ]
+    }
     if (this.currentGuildId) {
       promises = [ ...promises,
         this.ensureGuild({ guild_id: this.currentGuildId }),
         this.ensureMembersOfGuild({ guildId: this.currentGuildId }),
       ];
     }
-    promises.push(this.treePromise());
+    await Promise.all(promises);
+    promises = [
+      this.treePromise(),
+    ];
+    if (this.currentQuestId)
+      promises.push(
+        this.ensureMemberById({ id: this.getCurrentQuest.creator })
+      );
     await Promise.all(promises);
     this.ready = true;
   }

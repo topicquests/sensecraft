@@ -38,7 +38,6 @@ export default class MemberComponent extends Vue {
 <style>
 .member {
   text-align: right;
-  color: blue;
   font-size: 1.2em;
   font-family: Arial, Helvetica, sans-serif;
 }

@@ -8,10 +8,11 @@
         <div class="row justify-center q-mt-lg">
           <h5 class="q-mt-md">
             {{ getCurrentQuest.name }}
-          <q-btn v-if="getCurrentQuest.description" class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" />
+          <q-btn v-if="getCurrentQuest.description" class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" >
           <q-tooltip self="bottom middle" max-width="25rem">
             <div v-html="getCurrentQuest.description"></div>
           </q-tooltip>
+          </q-btn>
           </h5>
         </div>
         <div class="row justify-center q-mt-lg">
@@ -19,7 +20,10 @@
             <router-link :to="{name: 'signin'}">Login to play</router-link>
           </span>
           <span v-else-if="guildId">
-            You're playing in guild {{ getCurrentGuild.name }}
+            You're playing in guild 
+            <router-link 
+              :to="{name: 'guild', params:{ guild_id: guildId }}"
+              >{{ getCurrentGuild.name }}</router-link>
           </span>
           <span v-else-if="getCurrentQuest.status != 'registration'">
             The game has started
@@ -91,25 +95,6 @@
         </div>
       </q-card>
     </div>
-    <div class="sidenav gt-sm"  v-if="guildId">
-      <div class="q-pa-md q-gutter-sm">
-        <channel-list/>
-          <q-btn
-            color="primary"
-            label="Create Guild Channel"
-            @click="
-              $router.push({
-                name: 'game_channel_list',
-                params: {
-                  guild_id: String(guildId),
-                  quest_id: String(questId),
-                },
-              })
-            "
-          >
-          </q-btn>
-        </div>
-      </div>
   </q-page>
 </template>
 
@@ -143,11 +128,6 @@ import {
   MemberGetterTypes,
   MemberActionTypes,
 } from "../store/member";
-import {
-  ChannelState,
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
 import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   Casting,
@@ -159,7 +139,6 @@ import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
-import ChannelList from "../components/ChannelListComponent.vue";
 
 @Component<GamePlayPage>({
   components: {
@@ -168,7 +147,6 @@ import ChannelList from "../components/ChannelListComponent.vue";
     questCard: questCard,
     nodeTree: nodeTree,
     CastingRoleEdit,
-    ChannelList,
   },
   computed: {
     ...mapState("member", {
@@ -200,7 +178,6 @@ import ChannelList from "../components/ChannelListComponent.vue";
       "ensureGuild",
       "ensureGuildsPlayingQuest",
     ]),
-    ...mapActions("channel", ["ensureChannels"]),
   },
   watch: {},
 })
@@ -231,7 +208,6 @@ export default class GamePlayPage extends Vue {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
 
   // declare the action attributes for Typescript
-  ensureChannels!: ChannelActionTypes["ensureChannels"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureGuild: GuildsActionTypes["ensureGuild"];
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
@@ -284,7 +260,6 @@ export default class GamePlayPage extends Vue {
     this.setCurrentGuild(this.guildId);
     const promises: Promise<any>[] = [
       this.ensureQuest({ quest_id: this.questId }),
-      this.ensureChannels(this.guildId),
       this.ensureGuildsPlayingQuest({ quest_id: this.questId }),
     ];
     if (this.guildId) {
