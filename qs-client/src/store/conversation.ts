@@ -346,8 +346,14 @@ export const conversation = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        state.node = res.data[0];
-        addToState(state, state.node);
+        const node = res.data[0];
+        if (node.meta == "channel") {
+          // maybe we came here through the websocket
+          MyVapi.store.commit("channel/ADD_TO_STATE", node);
+        } else {
+          state.node = res.data[0];
+          addToState(state, state.node);
+        }
       },
     })
     .get({

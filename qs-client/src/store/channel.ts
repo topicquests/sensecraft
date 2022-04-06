@@ -28,8 +28,13 @@ export interface ChannelState extends Object {
 
 function addToState(state: ChannelState, node: ConversationNode) {
   const channel_id = Number.parseInt(node.ancestry.split(".")[0]);
-  if (node.parent_id && state.channelData[channel_id] == undefined)
-    throw new Error("Missing channel");
+  if (!node.parent_id) {
+    state.channels = {...state.channels, [channel_id]: node};
+  }
+  if (node.parent_id && state.channelData[channel_id] == undefined) {
+    console.log("Missing channel");
+    return;
+  }
   const channelData = { ...state.channelData[channel_id], [node.id]: node };
   state.channelData = {   
     ...state.channelData,
@@ -48,11 +53,11 @@ const ChannelGetters = {
     Object.values(state.channels).filter(
       (c: ConversationNode) => c.quest_id != undefined
     ),
-  getGameChannel:
+  getGameChannelsOfQuest:
     (state: ChannelState) =>
     (quest_id: number): ConversationNode[] =>
       Object.values(state.channels).filter(
-        (c: ConversationNode) => c.quest_id !== quest_id
+        (c: ConversationNode) => c.quest_id == quest_id
       ),
   getChannelById: (state: ChannelState) => (id: number) => state.channels[id],
   getChannelConversation: (state: ChannelState) => (channel_id: number) =>
@@ -211,6 +216,9 @@ export const channel = (axios: AxiosInstance) =>
       mutations: {
         CLEAR_STATE: (state: ChannelState) => {
           Object.assign(state, baseState);
+        },
+        ADD_TO_STATE: (state: ChannelState, node: ConversationNode) => {
+          addToState(state, node);
         },
       },
     });
