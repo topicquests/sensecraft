@@ -107,7 +107,7 @@ const ChannelActions = {
       context.state.channelData[channel_id] === undefined
     ) {
       await context.dispatch("fetchChannelConversation", {
-        params: { node_id: channel_id, guild },
+        params: { node_id: channel_id },
       });
     }
   },
@@ -149,7 +149,7 @@ export const channel = (axios: AxiosInstance) =>
       },
     })
     .call({
-      path: "node_neighbourhood",
+      path: "node_subtree",
       property: "conversation",
       action: "fetchChannelConversation",
       readOnly: true,
