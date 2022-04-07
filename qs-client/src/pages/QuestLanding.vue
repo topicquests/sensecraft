@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -67,6 +67,7 @@ import { GuildsActionTypes } from "src/store/guilds";
   },
 })
 export default class QuestLandingPage extends Vue {
+  ready = false;
   columns = [
     {
       name: "desc",
@@ -122,6 +123,7 @@ export default class QuestLandingPage extends Vue {
     await userLoaded;
     // not using those yet?
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
+    this.ready = true;
   }
 }
 </script>

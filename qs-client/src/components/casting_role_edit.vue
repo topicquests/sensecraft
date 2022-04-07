@@ -86,10 +86,8 @@ export default class CastingRoleEdit extends CastingRoleEditProps {
 </script>
 <style>
 H5 {
-  color:blue;
   margin-top: 3%;
   margin-bottom: 3%;
-  text-decoration-line: underline;
 }
 .handle {
   font-size: 20px;

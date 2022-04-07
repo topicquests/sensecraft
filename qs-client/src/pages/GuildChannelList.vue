@@ -1,7 +1,19 @@
 <template>
-  <q-page class="bg-secondary page">
+  <q-page class="bg-secondary page" v-if="ready">
+    <div class="row justify-center q-mt-lg">
+      <h5>
+        Channels of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+      </h5>
+    </div>
     <div class="col-3 q-md q-mb-md">
-      <channel-list v-bind:channels="getGuildChannels" title="Guild Channels" />
+      <channel-list v-bind:guild_id="guildId" :inPage="true" title="Guild Channels" />
       <q-btn
         v-if="canAddChannel() && !creating"
         @click="createGuildChannel()"
@@ -63,14 +75,14 @@ import { BaseGetterTypes } from "../store/baseStore";
     ChannelList: ChannelList,
   },
   computed: {
+    ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("members", ["getMemberById"]),
-    ...mapGetters("channel", ["getGuildChannels"]),
     ...mapGetters(["hasPermission"]),
   },
   methods: {
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["ensureChannels", "createChannelNode"]),
+    ...mapActions("channel", ["createChannelNode"]),
   },
   watch: {},
 })
@@ -80,11 +92,12 @@ export default class GuildChannelList extends Vue {
   channels: ConversationNode[];
   creating: boolean = false;
   newChannelName: string = "";
+  ready = false;
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
   getChannels: ChannelGetterTypes["getChannels"];
-  getGuildChannels: ChannelGetterTypes["getGuildChannels"];
   getGameChannels: ChannelGetterTypes["getGameChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
@@ -94,7 +107,6 @@ export default class GuildChannelList extends Vue {
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureGuild: GuildsActionTypes["ensureGuild"];
   fetchMemberById: MembersActionTypes["fetchMemberById"];
-  ensureChannels: ChannelActionTypes["ensureChannels"];
   createChannelNode: ChannelActionTypes["createChannelNode"];
   hasPermission: BaseGetterTypes["hasPermission"];
   canAddChannel() {
@@ -108,15 +120,15 @@ export default class GuildChannelList extends Vue {
   }
   async confirmCreateGuildChannel() {
     try{ 
-    let channel: Partial<ConversationNode> = {
-      title: this.newChannelName,
-      node_type: ibis_node_type_enum.channel,
-      meta: meta_state_enum.channel,
-      status: publication_state_enum.guild_draft,
-      guild_id: this.guildId,
-    };
-    await this.createChannelNode({ data: channel });
-     this.$q.notify({
+      let channel: Partial<ConversationNode> = {
+        title: this.newChannelName,
+        node_type: ibis_node_type_enum.channel,
+        meta: meta_state_enum.channel,
+        status: publication_state_enum.guild_draft,
+        guild_id: this.guildId,
+      };
+      await this.createChannelNode({ data: channel });
+      this.$q.notify({
         message: `Added new conversation node`,
         color: "positive",
       });
@@ -128,13 +140,14 @@ export default class GuildChannelList extends Vue {
         color: "negative",
       });
     }
+    this.creating = false;
   }
-  async beforeCreate() {
+  async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
-    await this.setCurrentGuild(this.guildId),
-      await this.ensureGuild({ guild_id: this.guildId });
-    await this.ensureChannels(this.guildId);
+    this.setCurrentGuild(this.guildId),
+    await this.ensureGuild({ guild_id: this.guildId });
+    this.ready = true;
   }
 }
 </script>

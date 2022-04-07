@@ -1,5 +1,5 @@
 <template>
-  <div class="column items-right" v-if="getUser">
+  <div class="column items-right" v-if="ready">
     <div class="col-12">
       <div class="member q-pr-md">{{ getUser.handle }}</div>
     </div>
@@ -26,11 +26,13 @@ import { mapState, mapActions, mapGetters } from "vuex";
 
 export default class MemberComponent extends Vue {
   member: MemberState;
-  getUser!: MemberGetterTypes['getUser']
+  ready = false;
+  getUser!: MemberGetterTypes['getUser'];
 
   ensureLoginUser: MemberActionTypes["ensureLoginUser"]
   async beforeMount(){
     await this.ensureLoginUser
+    this.ready = true;
   }
  
 };
@@ -38,7 +40,6 @@ export default class MemberComponent extends Vue {
 <style>
 .member {
   text-align: right;
-  color: blue;
   font-size: 1.2em;
   font-family: Arial, Helvetica, sans-serif;
 }

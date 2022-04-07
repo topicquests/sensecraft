@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -131,46 +131,11 @@
             </div>
           </div>
           <div class="col-6 items-center q-mb-md q-mt-md">
-            <q-card id="team-card">
-              <div class="col-2">
-                <p class="card-header">Team</p>
-              </div>
-              <ul>
-                <li
-                  v-for="member in getMembersOfGuild(getCurrentGuild)"
-                  :key="member.id"
-                  class="q-ml-lg q-mr-md"
-                  id="team-card-members"
-                >
-                  <div class="row">
-                    <div class="col-6">
-                      <span class="q-pr-md q-ml-md"> {{ member.handle }} </span>
-                    </div>
-                    <div class="col-4">
-                      <span v-if="playingAsGuildId(member.id)">
-                        <span
-                          v-if="playingAsGuildId(member.id) == currentGuildId"
-                          style="color: black"
-                        >
-                          {{ getAllCastingRoleNames(member.id) }}
-                        </span>
-                        <span
-                          v-if="playingAsGuildId(member.id) != currentGuildId"
-                          >Playing in
-                          <router-link
-                            :to="{
-                              name: 'guild',
-                              params: { guild_id: playingAsGuildId(member.id) },
-                            }"
-                            >{{ playingAsGuild(member.id).name }}</router-link
-                          ></span
-                        >
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </q-card>
+            <guild-members
+              v-bind:guild="getCurrentGuild"
+              v-bind:quest="getCurrentQuest"
+              v-bind:members="getMembersOfGuild(getCurrentGuild)"
+              />
           </div>
         </div>
         <div class="column items-center" v-if="pastQuests.length > 0">
@@ -281,7 +246,8 @@ import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
-import castingRoleEdit from "src/components/casting_role_edit.vue";
+import castingRoleEdit from "../components/casting_role_edit.vue";
+import guildMembers from "../components/guild-members.vue";
 import { ChannelActionTypes } from "../store/channel";
 
 @Component<GuildPage>({
@@ -294,6 +260,7 @@ import { ChannelActionTypes } from "../store/channel";
     questCard: questCard,
     nodeForm: nodeForm,
     castingRoleEdit: castingRoleEdit,
+    guildMembers: guildMembers,
   },
   computed: {
     ...mapState("quests", {
@@ -321,7 +288,6 @@ import { ChannelActionTypes } from "../store/channel";
       "getQuestById",
       "getQuests",
       "getCurrentQuest",
-      "castingInQuest",
       "getCurrentGamePlay",
       "getCastingRoles",
       "getCastingRolesForQuest",
@@ -352,11 +318,6 @@ import { ChannelActionTypes } from "../store/channel";
       );
       const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
-    },
-    getCastingRoleNames(): string[] {
-      const roles = this.getRolesForQuest;
-      const rolesName = roles.map((cr) => cr.name).join(",");
-      return rolesName;
     },
   },
   watch: {
@@ -400,6 +361,7 @@ import { ChannelActionTypes } from "../store/channel";
 })
 export default class GuildPage extends Vue {
   // data
+  ready = false;
   columns1 = [
     {
       name: "desc",
@@ -475,7 +437,6 @@ export default class GuildPage extends Vue {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getQuests!: QuestsGetterTypes["getQuests"];
   getQuestById!: QuestsGetterTypes["getQuestById"];
-  castingInQuest!: QuestsGetterTypes["castingInQuest"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   getFocusNode!: ConversationGetterTypes["getFocusNode"];
   getGuildById!: GuildsGetterTypes["getGuildById"];
@@ -520,7 +481,6 @@ export default class GuildPage extends Vue {
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
   getGuildMembers!: () => PublicMember[];
   getRolesForQuest!: () => Role[];
-  getCastingRoleNames!: () => string[];
 
   async initialize() {
     this.checkPermissions();
@@ -563,13 +523,6 @@ export default class GuildPage extends Vue {
     const roles = this.getAvailableRolesMembersById(memberId) || [];
     const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
     return roleName;
-  }
-  playingAsGuildId(member_id) {
-    return this.castingInQuest(null, member_id)?.guild_id;
-  }
-  playingAsGuild(member_id) {
-    const guild_id = this.playingAsGuildId(member_id);
-    if (guild_id) return this.getGuildById(guild_id);
   }
   async initializeQuest() {
     var quest_id = this.currentQuestId;
@@ -619,21 +572,6 @@ export default class GuildPage extends Vue {
       await this.resetConversation();
     }
     return "success";
-  }
-
-  getCastingRoleNamesForQuest(memberId: number) {
-    const castingRoles = this.castingRolesPerQuest(
-      memberId,
-      this.currentQuestId
-    );
-    const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
-    return roles;
-  }
-
-  getAllCastingRoleNames(memberId: number) {
-    const roles = this.getCastingRoleNamesForQuest(memberId);
-    const rolesName = roles.map((cr) => cr.name).join(",");
-    return rolesName;
   }
   async joinToGuild() {
     await this.addGuildMembership({
@@ -764,6 +702,7 @@ export default class GuildPage extends Vue {
       this.setCurrentGuild(this.guildId),
     ]);
     await this.initialize();
+    this.ready = true;
   }
 }
 </script>
@@ -782,15 +721,6 @@ export default class GuildPage extends Vue {
   text-align: center;
   font-size: 40px;
   background-color: azure;
-}
-#team-card {
-  font-size: 20px;
-  color: black;
-  border: grey;
-  background-color: floralwhite;
-}
-#team-card-members {
-  color: blue;
 }
 .handles {
   font-size: 20px;

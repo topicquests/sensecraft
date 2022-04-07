@@ -58,6 +58,7 @@ import { userLoaded } from "../boot/userLoaded";
 
 export default {
   name: "HomePage",
+  ready: false,
   data() {
     return {
       payload: 100,
@@ -75,6 +76,7 @@ export default {
     //   this.ensureAllQuests(),
     //   this.ensureAllGuilds(),
     // ])
+    this.ready = true;
   },
 };
 </script>

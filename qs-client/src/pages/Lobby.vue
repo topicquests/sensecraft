@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -150,6 +150,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
   },
 })
 export default class LobbyPage extends Vue {
+  ready = false;
   columns1 = [
     {
       name: "desc",
@@ -196,7 +197,11 @@ export default class LobbyPage extends Vue {
     await userLoaded;
     await this.setCurrentGuild(null);
     await this.setCurrentQuest(null);
-    await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.ensureAllGuilds(),
+    ]);
+    this.ready = true;
   }
 }
 </script>

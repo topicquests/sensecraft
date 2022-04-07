@@ -1,10 +1,56 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
+    <div class="row justify-center q-mt-lg">
+      <h5 v-if="questId">
+        Channel of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        in quest
+        <router-link
+          :to="{
+            name: 'quest_page',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentQuest.name }}</router-link>
+        (<router-link
+          :to="{
+            name: 'game_channel_list',
+            params: {
+              guild_id: this.guildId,
+              quest_id: this.questId,
+            },
+          }">more</router-link>)
+      </h5>
+      <h5 v-else>
+        Channel of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        (<router-link
+          :to="{
+            name: 'guild_channel_list',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">more</router-link>)
+      </h5>
+    </div>
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
-          v-bind:nodes="channelTree"
           v-on:updateTree="selectionChanged"
+          :currentGuildId="guildId"
+          :currentQuestId="questId"
           :channelId="channelId"
           :roles="getRoles"
           :editable="true"
@@ -83,28 +129,17 @@ import { BaseGetterTypes } from "../store/baseStore";
     nodeTree: nodeTree,
   },
   computed: {
+    ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("channel", [
       "getChannels",
       "getChannelById",
       "getChannelConversation",
-      "getChannelConversationTree",
       "getChannelNode",
       "canEdit",
     ]),
     ...mapGetters("role", ["getRoles"]),
-    channelId: {
-      get() {
-        const channelId = this.$route.params.channel_id;
-        this.getChannel(channelId);
-        return channelId;
-      },
-      set() {},
-    },
-    channelTree: function () {
-      return this.getChannelConversationTree(this.channelId);
-    },
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
@@ -135,15 +170,16 @@ export default class RolePlayPage extends Vue {
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   channelTree: any;
+  ready = false;
 
   // declare the computed attributes for Typescript
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMemberById: MembersGetterTypes["getMemberById"];
   getChannels: ChannelGetterTypes["getChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
-  getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
   canEdit: ChannelGetterTypes["canEdit"];
   // declare the action attributes for Typescript
@@ -168,14 +204,10 @@ export default class RolePlayPage extends Vue {
     this.channelId = Number.parseInt(this.$route.params.channel_id);
     await userLoaded;
     const promises = [];
+    this.setCurrentGuild(this.guildId);
+    this.setCurrentQuest(this.questId);
     if (this.questId) {
-      await Promise.all([
-        this.setCurrentQuest(this.questId),
-        this.setCurrentGuild(this.guildId),
-      ]);
       promises.push(this.ensureQuest({ quest_id: this.questId }));
-    } else {
-      await this.setCurrentGuild(this.guildId);
     }
     promises.push(this.ensureGuild({ guild_id: this.guildId }));
     promises.push(this.ensureAllRoles());
@@ -186,6 +218,7 @@ export default class RolePlayPage extends Vue {
       })
     );
     await Promise.all(promises);
+    this.ready = true;
   }
 }
 </script>

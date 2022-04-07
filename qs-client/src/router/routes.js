@@ -55,6 +55,11 @@ const routes = [
       {
         path: "/quest/:quest_id",
         name: "quest_page",
+        component: () => import("pages/GamePlay.vue"),
+      },
+      {
+        path: "/quest/:quest_id/teams",
+        name: "quest_teams",
         component: () => import("pages/QuestPage.vue"),
       },
       {
@@ -77,11 +82,6 @@ const routes = [
         path: "/guild/:guild_id",
         name: "guild",
         component: () => import("pages/Guild.vue"),
-      },
-      {
-        path: "/guild/:guild_id/play/:quest_id",
-        name: "game_play",
-        component: () => import("pages/GamePlay.vue"),
       },
       {
         path: "/guild/:guild_id/edit",

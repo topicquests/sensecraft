@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -97,6 +97,7 @@ function ensure(array, value, present) {
 export default {
   name: "Admin-app",
   props: {},
+  ready: false,
   data() {
     return {
       userIsSuperAdmin: false,
@@ -157,6 +158,7 @@ export default {
     await this.ensureAllRoles();
     this.member_id = this.getUserId;
     this.userIsSuperAdmin = this.hasPermission("superadmin");
+    this.ready = true;
   },
 };
 </script>

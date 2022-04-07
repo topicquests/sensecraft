@@ -58,9 +58,7 @@
           v-if="
             isAuthenticated &&
             showTree &&
-            getCurrentGuild &&
-            getChannels &&
-            getChannels.length
+            getCurrentGuild
           "
         >
           <q-btn
@@ -69,36 +67,33 @@
             round
             aria-label="Tree View"
             @click="toggleNav"
-            id="conversation_tree"
+            id="channel_list"
           >
             <q-icon name="menu" />
           </q-btn>
         </div>
       </q-toolbar>
     </q-header>
-    <div
-      v-if="rightDrawerOpen"
-      style="width: 350px"
+    <q-drawer v-model="rightDrawerOpen" :breakpoint="200" bordered side="right"
       id="mySidenav"
       class="sidenav"
     >
       <div v-if="getCurrentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
-          v-if="getGuildChannels.length"
-          v-bind:channels="getGuildChannels"
-          :game="true"
+          v-bind:guild_id="getCurrentGuild.id"
+          :inPage="false"
           title="Guild Channels"
         />
       </div>
-      <div v-if="getCurrentGuild && getCurrentQuest">
-          <channel-list
-            v-if="getGuildChannels.length"
-            v-bind:channels="getGameChannels"
-            :game="true"
-            title="Game Channels"
-          />
-        </div>
+      <div v-if="getCurrentGuild && getCurrentQuest" class="q-pa-md q-gutter-sm">
+        <channel-list
+          v-bind:guild_id="getCurrentGuild.id"
+          v-bind:quest_id="getCurrentQuest.id"
+          :inPage="false"
+          title="Game Channels"
+        />
       </div>
+    </q-drawer>
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
       <q-scroll-area class="fit">
         <q-list>
@@ -133,7 +128,7 @@
           <q-item
             clickable
             v-ripple
-            v-show="hasPermission('createQuest')"
+            v-show="hasPermission(permission_enum.createQuest)"
             id="createQuest"
           >
             <q-item-section>
@@ -154,7 +149,7 @@
           <q-item
             clickable
             v-ripple
-            v-show="hasPermission('createGuild')"
+            v-show="hasPermission(permission_enum.createGuild)"
             id="createGuild"
           >
             <q-item-section>
@@ -164,7 +159,7 @@
           <q-item
             clickable
             v-ripple
-            v-if="hasPermission('superadmin')"
+            v-if="hasPermission(permission_enum.superadmin)"
             id="admin"
           >
             <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
@@ -188,17 +183,17 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapActions } from "vuex";
+import Component from "vue-class-component";
+import Vue from "vue";
+import { permission_enum } from "../enums";
 import { MemberActionTypes, MemberState } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
-import Component from "vue-class-component";
-import Vue from "vue";
 import {
   conversation,
   ConversationActionTypes,
   ConversationGetterTypes,
 } from "src/store/conversation";
-import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { QuestsGetterTypes } from "../store/quests";
@@ -238,11 +233,6 @@ import { QuestsGetterTypes } from "../store/quests";
       "getConversationNodeById",
     ]),
     ...mapGetters(["hasPermission"]),
-    ...mapGetters("channel", [
-      "getGuildChannels",
-      "getGameChannels",
-      "getChannels",
-    ]),
     ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
   },
@@ -253,7 +243,6 @@ import { QuestsGetterTypes } from "../store/quests";
   },
   methods: {
     ...mapActions("member", ["logout"]),
-    ...mapActions("channel", ["ensureChannels"]),
     ...mapActions("conversation", ["setConversationNode"]),
   },
 })
@@ -263,19 +252,18 @@ export default class MainLayout extends Vue {
   private showTree: Boolean = true;
 
   // Declare computed attributes for typescript
-  getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
-  getGameChannels!: ChannelGetterTypes["getGameChannels"];
+  memberId!: number;
+  isAuthenticated!: boolean;
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getConversationTree!: ConversationGetterTypes["getConversationTree"];
   hasPermission!: BaseGetterTypes["hasPermission"];
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
-  getChannels!: ChannelGetterTypes["getChannels"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  permission_enum = permission_enum;
 
   // Declare action attributes for typescript
   logout: MemberActionTypes["logout"];
-  ensureChannels: ChannelActionTypes["ensureChannels"];
   public goTo(route): void {
     this.rightDrawerOpen = false;
     this.leftDrawer = false;
@@ -304,10 +292,6 @@ export default class MainLayout extends Vue {
       type: "positive",
       message: "You are now logged out",
     });
-  }
-
-  async beforeMount() {
-    await this.ensureChannels(this.getCurrentGuild?.id);
   }
 }
 </script>

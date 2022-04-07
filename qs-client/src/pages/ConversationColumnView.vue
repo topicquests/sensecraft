@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+ <q-page class="bg-secondary" v-if="ready">
     <div class="row">
       <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 1000px">
@@ -168,6 +168,7 @@ export default {
       nodeId: null,
     };
   },
+  ready: false,
   computed: {
     ...mapState("quests", {
       currentQuest: (state: QuestsState) => state.currentQuest,
@@ -215,6 +216,7 @@ export default {
       // should we also get corresponding members?
       this.ensureAllGuilds(),
     ]);
+    this.ready = true;
   },
 };
 </script>

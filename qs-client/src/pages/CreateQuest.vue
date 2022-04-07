@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -61,6 +61,7 @@ import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 
 export default {
+  ready: false,
   data() {
     return {
       group: "public",
@@ -96,6 +97,7 @@ export default {
   },
   async beforeMount() {
     await userLoaded;
+    this.ready = true;
   },
 };
 </script>

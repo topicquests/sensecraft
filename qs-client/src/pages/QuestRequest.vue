@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+ <q-page class="bg-secondary" v-if="ready">
     <div class="q-pa-md">
       <div class="q-gutter-sm">
         <div
@@ -30,6 +30,7 @@ import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 
 export default {
+  ready: false,
   data() {
     return {
       quest_id: null,
@@ -103,6 +104,7 @@ export default {
       this.ensureQuest({ quest_id: this.quest_id }),
       this.ensureAllGuilds(),
     ]);
+    this.ready = true;
   },
   // name: 'PageName',
 };

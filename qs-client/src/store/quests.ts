@@ -261,7 +261,7 @@ export const quests = (axios: AxiosInstance) =>
           params.id = `eq.${params.id}`;
         }
         const userId = MyVapi.store.getters["member/getUserId"];
-        if (userId) {
+        if (userId || full) {
           params.select =
             "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";
           if (!full) {

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -90,6 +90,7 @@ import { MembersActionTypes } from "src/store/members";
 })
 export default class GuildFormPage extends Vue {
   public_private_bool = public_private_bool;
+  ready = false;
   createGuild: GuildsActionTypes["createGuild"];
 
   // declare the computed attributes for Typescript
@@ -124,6 +125,7 @@ export default class GuildFormPage extends Vue {
     await userLoaded;
     await this.ensureAllRoles();
     await this.ensureAllMembers();
+    this.ready = true;
   }
   data() {
     return {

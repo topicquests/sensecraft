@@ -1,12 +1,28 @@
 <template>
-  <q-page class="bg-secondary page">
+  <q-page class="bg-secondary page" v-if="ready">
+    <div class="row justify-center q-mt-lg">
+      <h5>
+        Channels of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        in quest
+        <router-link
+          :to="{
+            name: 'quest_page',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentQuest.name }}</router-link>
+      </h5>
+    </div>
     <div class="column items-center q-mb-md">
       <div class="col-6">
-          <channel-list
-            v-if="getGameChannels.length"
-            v-bind:channels="getGameChannels"
-            title="Game Channels"
-          />
+        <channel-list v-bind:guild_id="guildId" v-bind:quest_id="questId" :inPage="true" title="Game Channels" />
         </div>
       </div>
       <div class="column items-center q-mb-md">
@@ -62,6 +78,9 @@ import {
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
+import {
+  GuildsGetterTypes,
+} from "../store/guilds";
 import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -74,15 +93,15 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   computed: {
     ...mapGetters("members", ["getMemberById"]),
-    ...mapGetters("channel", ["getGuildChannels", "getGameChannels"]),
-    ...mapGetters("quests", ["isPlayingQuestInGuild"]),
+    ...mapGetters("guilds", ["getCurrentGuild"]),
+    ...mapGetters("quests", ["isPlayingQuestInGuild", "getCurrentQuest"]),
+    ...mapGetters(["hasPermission"]),
   },
   methods: {
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["ensureChannels", "createChannelNode"]),
-    ...mapGetters(["hasPermission"]),
+    ...mapActions("channel", ["createChannelNode"]),
   },
   watch: {},
 })
@@ -90,17 +109,17 @@ export default class GameChannelList extends Vue {
   //data
   guildId: number;
   questId: number;
-  channels: ConversationNode[];
   creatingGuildC: boolean = false;
   newGuildChannelName: string = "";
   creatingGameC: boolean = false;
   newGameChannelName: string = "";
+  ready = false;
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
+  getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
   getChannels: ChannelGetterTypes["getChannels"];
-  getGuildChannels: ChannelGetterTypes["getGuildChannels"];
-  getGameChannels: ChannelGetterTypes["getGameChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
   getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
@@ -112,7 +131,6 @@ export default class GameChannelList extends Vue {
   isPlayingQuestInGuild: QuestsGetterTypes["isPlayingQuestInGuild"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   fetchMemberById: MembersActionTypes["fetchMemberById"];
-  ensureChannels: ChannelActionTypes["ensureChannels"];
   createChannelNode: ChannelActionTypes["createChannelNode"];
   hasPermission: BaseGetterTypes["hasPermission"];
 
@@ -165,16 +183,19 @@ export default class GameChannelList extends Vue {
       quest_id: this.questId,
     };
     this.createChannelNode({ data: channel });
+    this.creatingGameC = false;
   }
-  async beforeCreate() {
+  async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
+    this.setCurrentGuild(this.guildId),
+    this.setCurrentQuest(this.questId),
     await userLoaded;
-    await this.setCurrentGuild(this.guildId),
-      await this.setCurrentQuest(this.questId),
-      await this.ensureGuild({ guild_id: this.guildId });
-    await this.ensureQuest({ quest_id: this.questId });
-    await this.ensureChannels(this.guildId);
+    await Promise.all([
+      this.ensureGuild({ guild_id: this.guildId }),
+      this.ensureQuest({ quest_id: this.questId }),
+    ]);
+    this.ready = true;
   }
 }
 </script>

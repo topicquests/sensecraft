@@ -96,6 +96,7 @@ import { mapActions } from "vuex";
 import { Notify } from "quasar";
 
 export default {
+  ready: false,
   name: "RegisterPage",
   meta: {
     // sets document title
