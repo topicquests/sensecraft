@@ -1,5 +1,17 @@
 <template>
   <q-page class="bg-secondary page" v-if="ready">
+    <div class="row justify-center q-mt-lg">
+      <h5>
+        Channels of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+      </h5>
+    </div>
     <div class="col-3 q-md q-mb-md">
       <channel-list v-bind:guild_id="guildId" :inPage="true" title="Guild Channels" />
       <q-btn
@@ -63,6 +75,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ChannelList: ChannelList,
   },
   computed: {
+    ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters(["hasPermission"]),
   },
@@ -83,6 +96,7 @@ export default class GuildChannelList extends Vue {
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
   getChannels: ChannelGetterTypes["getChannels"];
   getGameChannels: ChannelGetterTypes["getGameChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];

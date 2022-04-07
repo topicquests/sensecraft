@@ -1,6 +1,51 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center q-mt-lg">
+      <h5 v-if="questId">
+        Channel of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        in quest
+        <router-link
+          :to="{
+            name: 'quest_page',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentQuest.name }}</router-link>
+        (<router-link
+          :to="{
+            name: 'game_channel_list',
+            params: {
+              guild_id: this.guildId,
+              quest_id: this.questId,
+            },
+          }">more</router-link>)
+      </h5>
+      <h5 v-else>
+        Channel of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        (<router-link
+          :to="{
+            name: 'guild_channel_list',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">more</router-link>)
+      </h5>
+    </div>
+    <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
           v-on:updateTree="selectionChanged"
@@ -84,6 +129,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     nodeTree: nodeTree,
   },
   computed: {
+    ...mapGetters("guilds", ["getCurrentGuild"]),
     ...mapGetters("quests", ["getCurrentQuest", "getCurrentGamePlay"]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("channel", [
@@ -127,6 +173,7 @@ export default class RolePlayPage extends Vue {
   ready = false;
 
   // declare the computed attributes for Typescript
+  getCurrentGuild: GuildGetterTypes["getCurrentGuild"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMemberById: MembersGetterTypes["getMemberById"];

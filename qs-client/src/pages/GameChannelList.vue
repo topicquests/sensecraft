@@ -1,5 +1,25 @@
 <template>
   <q-page class="bg-secondary page" v-if="ready">
+    <div class="row justify-center q-mt-lg">
+      <h5>
+        Channels of guild
+        <router-link
+          :to="{
+            name: 'guild',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentGuild.name }}</router-link>
+        in quest
+        <router-link
+          :to="{
+            name: 'quest_page',
+            params: {
+              guild_id: this.guildId,
+            },
+          }">{{ this.getCurrentQuest.name }}</router-link>
+      </h5>
+    </div>
     <div class="column items-center q-mb-md">
       <div class="col-6">
         <channel-list v-bind:guild_id="guildId" v-bind:quest_id="questId" :inPage="true" title="Game Channels" />
@@ -58,6 +78,9 @@ import {
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
+import {
+  GuildsGetterTypes,
+} from "../store/guilds";
 import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -70,7 +93,8 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   computed: {
     ...mapGetters("members", ["getMemberById"]),
-    ...mapGetters("quests", ["isPlayingQuestInGuild"]),
+    ...mapGetters("guilds", ["getCurrentGuild"]),
+    ...mapGetters("quests", ["isPlayingQuestInGuild", "getCurrentQuest"]),
     ...mapGetters(["hasPermission"]),
   },
   methods: {
@@ -93,6 +117,8 @@ export default class GameChannelList extends Vue {
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
+  getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
   getChannels: ChannelGetterTypes["getChannels"];
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
