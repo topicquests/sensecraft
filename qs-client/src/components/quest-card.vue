@@ -14,6 +14,8 @@
             <div v-html="currentQuest.description"></div>
           </q-tooltip>
           </q-btn>
+          <router-link :to="{name: 'quest_page', params:{ quest_id: currentQuest.id }}" class="q-ml-sm q-mt-md"
+          >Game</router-link>
         </div>
       </q-card-section>
       <q-separator color="black"></q-separator>

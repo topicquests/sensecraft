@@ -14,6 +14,8 @@
           </q-tooltip>
           </q-btn>
           </h5>
+          <router-link :to="{name: 'quest_teams', params:{ quest_id: getCurrentQuest.id }}" class="q-ml-sm q-mt-md"
+          >Teams</router-link>
         </div>
         <div class="row justify-center q-mt-lg">
           <span v-if="!memberId">

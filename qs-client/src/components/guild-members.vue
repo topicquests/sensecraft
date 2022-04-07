@@ -64,8 +64,6 @@ const GuildMembersProps = Vue.extend({
 
 @Component<GuildMembers>({
   name: "guild-members",
-  data: {
-  },
   computed: {
     ...mapState("role", {
       allRoles: (state: RoleState) => state.role,

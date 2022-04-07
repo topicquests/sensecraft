@@ -10,6 +10,7 @@
       :selection="selectable?'single':'none'"
       :selected.sync = "selectedGuild"
       :selected-rows-label="()=>''"
+      v-on:selection="selectionChanged"
     >
       <template v-slot:body-cell-view="props">
         <td>
@@ -49,7 +50,7 @@ import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapActions, mapGetters } from "vuex";
 import { QuestsGetterTypes } from "src/store/quests";
-import { GuildsGetterTypes } from "src/store/guilds";
+import { GuildsGetterTypes, GuildsActionTypes } from "src/store/guilds";
 import { MemberGetterTypes } from "src/store/member";
 import { Guild, Casting } from "../types";
 import { ScoreMap } from "../scoring";
@@ -146,6 +147,9 @@ const GuildsTableProp = Vue.extend({
       return this.guilds.map((guild: Guild) => this.guildRow(guild));
     },
   },
+  methods: {
+    ...mapActions("guilds", ["setCurrentGuild"]),
+  }
 })
 export default class GuildTable extends GuildsTableProp {
   selectedGuild = [];
@@ -155,6 +159,7 @@ export default class GuildTable extends GuildsTableProp {
   getGuildById!: GuildsGetterTypes["getGuildById"];
   castingPerQuest!: MemberGetterTypes["castingPerQuest"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
   numMembers(guild: Guild) {
     if (this.showPlayers) {
       const quest = this.getCurrentQuest;
@@ -170,6 +175,14 @@ export default class GuildTable extends GuildsTableProp {
     }
   }
 
+  selectionChanged(rowEvent) {
+    if (rowEvent.added) {
+      this.setCurrentGuild(rowEvent.rows[0].id);
+    } else {
+      this.setCurrentGuild(null);
+    }
+  }
+
   guildRow(guild: Guild): GuildRow {
     return {
       id: guild.id,
@@ -180,7 +193,7 @@ export default class GuildTable extends GuildsTableProp {
     }
   }
 
-  beforeMount() {
+  async beforeMount() {
     if (this.selectable) {
       let guild = this.getCurrentGuild;
       if (!guild && this.getCurrentQuest) {
@@ -191,6 +204,7 @@ export default class GuildTable extends GuildsTableProp {
       }
       if (guild) {
         this.selectedGuild = [this.guildRow(guild)];
+        await this.setCurrentGuild(guild.id);
       }
     }
   }
