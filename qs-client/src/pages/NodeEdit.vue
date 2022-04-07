@@ -146,7 +146,6 @@ import { GuildsState } from "../store/guilds";
 import { MemberState } from "../store/member";
 
 export default {
-  ready: false,
   data() {
     return {
       node: {
@@ -157,6 +156,7 @@ export default {
         node_type: "reference",
         status: "private_draft",
       },
+      ready: false,
     };
   },
   computed: {

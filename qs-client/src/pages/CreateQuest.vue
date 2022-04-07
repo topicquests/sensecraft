@@ -61,7 +61,6 @@ import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 
 export default {
-  ready: false,
   data() {
     return {
       group: "public",
@@ -73,6 +72,7 @@ export default {
         public: true,
         description: "",
       },
+      ready: false,
       shape: "line",
       submitResult: [],
       details: "",

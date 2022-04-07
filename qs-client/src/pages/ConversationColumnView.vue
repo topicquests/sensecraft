@@ -166,9 +166,9 @@ export default {
       q: "",
       quest: null,
       nodeId: null,
+      ready: false,
     };
   },
-  ready: false,
   computed: {
     ...mapState("quests", {
       currentQuest: (state: QuestsState) => state.currentQuest,

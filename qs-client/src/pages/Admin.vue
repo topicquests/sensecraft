@@ -97,9 +97,9 @@ function ensure(array, value, present) {
 export default {
   name: "Admin-app",
   props: {},
-  ready: false,
   data() {
     return {
+      ready: false,
       userIsSuperAdmin: false,
       member_id: null,
     };

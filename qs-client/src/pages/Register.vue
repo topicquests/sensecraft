@@ -96,7 +96,6 @@ import { mapActions } from "vuex";
 import { Notify } from "quasar";
 
 export default {
-  ready: false,
   name: "RegisterPage",
   meta: {
     // sets document title
@@ -104,6 +103,7 @@ export default {
   },
   data() {
     return {
+      ready: false,
       formdata: {
         email: null,
         handle: null,

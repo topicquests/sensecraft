@@ -58,9 +58,9 @@ import { userLoaded } from "../boot/userLoaded";
 
 export default {
   name: "HomePage",
-  ready: false,
   data() {
     return {
+      ready: false,
       payload: 100,
     };
   },

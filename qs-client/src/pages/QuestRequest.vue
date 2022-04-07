@@ -30,9 +30,9 @@ import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 
 export default {
-  ready: false,
   data() {
     return {
+      ready: false,
       quest_id: null,
       val: false,
       columns: [
