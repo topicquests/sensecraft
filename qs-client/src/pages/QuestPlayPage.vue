@@ -21,6 +21,9 @@
           <span v-if="!memberId">
             <router-link :to="{name: 'signin'}">Login to play</router-link>
           </span>
+          <span v-else-if="isQuestMember(questId)">
+            You can <router-link :to="{name: 'quest_edit', params:{ quest_id: questId }}">administer</router-link> this quest.
+          </span>
           <span v-else-if="guildId">
             You're playing in guild 
             <router-link 
@@ -159,7 +162,7 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
       "castingPerQuest",
     ]),
     ...mapGetters("quests", [
-      "getCurrentQuest",
+      "getCurrentQuest", "isQuestMember"
     ]),
     ...mapGetters("guilds", [
       "getCurrentGuild",
@@ -208,6 +211,7 @@ export default class QuestPlayPage extends Vue {
   castingPerQuest!: MemberGetterTypes["castingPerQuest"];
   getMemberById!: MembersGetterTypes["getMemberById"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
+  isQuestMember!: QuestsGetterTypes["isQuestMember"];
 
   // declare the action attributes for Typescript
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
