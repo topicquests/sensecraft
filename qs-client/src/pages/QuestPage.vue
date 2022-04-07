@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -101,6 +101,7 @@ import { MembersActionTypes } from "../store/members";
   },
 })
 export default class QuestViewPage extends Vue {
+  ready = false;
   questId: number;
   selectedNodeId: number = null;
 
@@ -157,6 +158,7 @@ export default class QuestViewPage extends Vue {
       this.selectedNodeId = this.getFocusNode.id;
     }
     await this.getPlayerPlayingInQuest();
+    this.ready = true;
   }
 }
 </script>

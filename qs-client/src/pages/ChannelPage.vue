@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">
         <node-tree
@@ -124,6 +124,7 @@ export default class RolePlayPage extends Vue {
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   channelTree: any;
+  ready = false;
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -170,6 +171,7 @@ export default class RolePlayPage extends Vue {
       })
     );
     await Promise.all(promises);
+    this.ready = true;
   }
 }
 </script>

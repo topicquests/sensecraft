@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+ <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -89,6 +89,7 @@ export default class RoleEditPage extends Vue {
   newRoleNodeConstraint: Boolean = false;
   role_id: number;
   isAdmin: Boolean = false;
+  ready = false;
   newRoleNodeConstraintCard: Partial<RoleNodeConstraint> = {
     node_type: "question",
     max_pub_state: "published",
@@ -182,7 +183,8 @@ export default class RoleEditPage extends Vue {
   async beforeMount() {
     this.role_id = Number.parseInt(this.$route.params.role_id);
     await this.ensureRole({ role_id: this.role_id });
-    await this.ensureAllRoles;
+    await this.ensureAllRoles();
+    this.ready = true;
   }
 }
 </script>

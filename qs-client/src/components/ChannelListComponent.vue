@@ -87,7 +87,7 @@ export default class ChannelList extends ChannelListProps {
   ensureChannels!: ChannelActionTypes["ensureChannels"];
 
 
-  async beforeCreate() {
+  async beforeMount() {
     await userLoaded;
     await this.ensureChannels(this.guild_id, this.quest_id);
     this.ready = true;

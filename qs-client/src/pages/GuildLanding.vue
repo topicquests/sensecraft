@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -77,6 +77,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
   },
 })
 export default class GuildLandingPage extends Vue {
+  ready = false;
   serverPagination: {};
   serverData: [];
 
@@ -90,6 +91,7 @@ export default class GuildLandingPage extends Vue {
     await userLoaded;
     await this.ensureAllGuilds();
     await this.ensureAllRoles();
+    this.ready = true;
   }
 }
 </script>

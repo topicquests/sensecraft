@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -63,6 +63,7 @@ import Vue from "vue";
 export default class GuildEdit extends Vue {
   guild_id: number;
   isAdmin: Boolean = false;
+  ready = false;
 
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   hasPermission!: BaseGetterTypes["hasPermission"];
@@ -79,6 +80,7 @@ export default class GuildEdit extends Vue {
       permission_enum.guildAdmin,
       this.guild_id
     );
+    this.ready = true;
   }
 }
 </script>

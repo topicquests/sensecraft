@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -400,6 +400,7 @@ import { ChannelActionTypes } from "../store/channel";
 })
 export default class GuildPage extends Vue {
   // data
+  ready = false;
   columns1 = [
     {
       name: "desc",
@@ -764,6 +765,7 @@ export default class GuildPage extends Vue {
       this.setCurrentGuild(this.guildId),
     ]);
     await this.initialize();
+    this.ready = true;
   }
 }
 </script>

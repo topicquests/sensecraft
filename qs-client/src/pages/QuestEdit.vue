@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+ <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -225,6 +225,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
 })
 export default class QuestEditPage extends Vue {
+  ready = false;
   public_private_bool = public_private_bool;
   quest_status_list = quest_status_list;
   publication_state_list;
@@ -348,6 +349,7 @@ export default class QuestEditPage extends Vue {
     if (this.getConversation.length > 0) {
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     }
+    this.ready = true;
   }
 }
 </script>

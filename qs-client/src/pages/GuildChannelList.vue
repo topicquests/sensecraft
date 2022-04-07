@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary page">
+  <q-page class="bg-secondary page" v-if="ready">
     <div class="col-3 q-md q-mb-md">
       <channel-list v-bind:guild_id="guildId" :inPage="true" title="Guild Channels" />
       <q-btn
@@ -79,6 +79,7 @@ export default class GuildChannelList extends Vue {
   channels: ConversationNode[];
   creating: boolean = false;
   newChannelName: string = "";
+  ready = false;
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
@@ -127,11 +128,12 @@ export default class GuildChannelList extends Vue {
     }
     this.creating = false;
   }
-  async beforeCreate() {
+  async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     this.setCurrentGuild(this.guildId),
     await this.ensureGuild({ guild_id: this.guildId });
+    this.ready = true;
   }
 }
 </script>

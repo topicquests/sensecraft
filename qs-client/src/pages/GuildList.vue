@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -111,6 +111,7 @@ import { QuestsActionTypes } from "src/store/quests";
   },
 })
 export default class GuildListPage extends Vue {
+  ready = false;
   getGuilds!: GuildsGetterTypes["getGuilds"];
   getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
@@ -127,6 +128,7 @@ export default class GuildListPage extends Vue {
       this.setCurrentGuild(null),
       this.setCurrentQuest(null),
     ]);
+    this.ready = true;
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary page">
+  <q-page class="bg-secondary page" v-if="ready">
     <div class="column items-center q-mb-md">
       <div class="col-6">
         <channel-list v-bind:guild_id="guildId" v-bind:quest_id="questId" :inPage="true" title="Game Channels" />
@@ -89,6 +89,7 @@ export default class GameChannelList extends Vue {
   newGuildChannelName: string = "";
   creatingGameC: boolean = false;
   newGameChannelName: string = "";
+  ready = false;
 
   // declare the computed attributes for Typescript
   getMemberById: MembersGetterTypes["getMemberById"];
@@ -168,6 +169,7 @@ export default class GameChannelList extends Vue {
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureQuest({ quest_id: this.questId }),
     ]);
+    this.ready = true;
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -146,6 +146,7 @@ import { GuildsState } from "../store/guilds";
 import { MemberState } from "../store/member";
 
 export default {
+  ready: false,
   data() {
     return {
       node: {
@@ -247,6 +248,7 @@ export default {
     // TODO: Ensure quest, node, guild
     // this.quest.id = this.$route.params.quest_id;
     await this.initialize();
+    this.ready = true;
   },
 };
 </script>

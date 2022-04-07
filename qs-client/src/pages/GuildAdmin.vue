@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div class="row guildAdmin-header">
@@ -503,6 +503,7 @@ export default class GuildAdminPage extends Vue {
   currentQuestId!: QuestsState["currentQuest"];
   allRoles!: RoleState["role"];
   currentQuestIdS!: number;
+  ready = false;
 
   // declare the computed attributes for Typescript
   getQuests!: QuestsGetterTypes["getQuests"];
@@ -695,7 +696,7 @@ export default class GuildAdminPage extends Vue {
     );
   }
 
-  async created() {
+  async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await Promise.all([
@@ -736,6 +737,7 @@ export default class GuildAdminPage extends Vue {
         params: { guild_id: String(this.guildId) },
       });
     }
+    this.ready = true;
   }
 }
 </script>

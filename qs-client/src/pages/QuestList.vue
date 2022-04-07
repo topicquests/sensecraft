@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
@@ -120,6 +120,7 @@ import { GuildsActionTypes } from "src/store/guilds";
   },
 })
 export default class QuestList extends Vue {
+  ready = false;
   getQuestsByStatus!: QuestsGetterTypes["getQuestsByStatus"];
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
@@ -133,6 +134,7 @@ export default class QuestList extends Vue {
     await this.ensureAllQuests();
     await this.setCurrentQuest(null);
     await this.setCurrentGuild(null);
+    this.ready = true;
   }
 }
 </script>

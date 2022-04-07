@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="ready">
     <q-table
       class="guilds-table"
       title="Guild List"
@@ -110,6 +110,7 @@ export default class GuildTable extends GuildsTableProp {
       sortable: true,
     },
   ];
+  ready = false;
   getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
   getGuildsPlayingQuest: GuildsGetterTypes["getGuildsPlayingQuest"];
   getQuestById!: QuestsGetterTypes["getQuestById"];
@@ -149,6 +150,7 @@ export default class GuildTable extends GuildsTableProp {
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
   async beforeMount() {
     await this.ensureAllGuilds();
+    this.ready = true;
   }
 }
 </script>
