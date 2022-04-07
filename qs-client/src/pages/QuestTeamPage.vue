@@ -69,7 +69,7 @@ import { Casting } from "../types";
 import { MembersActionTypes } from "../store/members";
 import GuildMembers from "../components/guild-members.vue";
 
-@Component<QuestViewPage>({
+@Component<QuestTeamPage>({
   components: {
     questCard,
     scoreboard,
@@ -102,7 +102,7 @@ import GuildMembers from "../components/guild-members.vue";
     ]),
   },
 })
-export default class QuestViewPage extends Vue {
+export default class QuestTeamPage extends Vue {
   ready = false;
   questId: number;
 

@@ -55,12 +55,12 @@ const routes = [
       {
         path: "/quest/:quest_id",
         name: "quest_page",
-        component: () => import("pages/GamePlay.vue"),
+        component: () => import("pages/QuestPlayPage.vue"),
       },
       {
         path: "/quest/:quest_id/teams",
         name: "quest_teams",
-        component: () => import("pages/QuestPage.vue"),
+        component: () => import("pages/QuestTeamPage.vue"),
       },
       {
         path: "/guild",

@@ -142,7 +142,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
 
-@Component<GamePlayPage>({
+@Component<QuestPlayPage>({
   components: {
     scoreboard: scoreboard,
     member: member,
@@ -183,7 +183,7 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
   },
   watch: {},
 })
-export default class GamePlayPage extends Vue {
+export default class QuestPlayPage extends Vue {
   //data
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;
