@@ -16,7 +16,6 @@ import {
 import { registration_status_enum, permission_enum, game_play_status_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { member } from "./member";
-import { parseMap } from "yaml/util";
 import { store } from "quasar/wrappers";
 
 interface GuildMap {
