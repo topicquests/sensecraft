@@ -41,7 +41,7 @@
       <guild-members
         v-bind:guild="getCurrentGuild"
         v-bind:quest="getCurrentQuest"
-        v-bind:members="getPlayersOfQuest(getCurrentQuest)"
+        v-bind:members="getPlayersOfQuestGuild(getCurrentQuest, getCurrentGuild)"
         v-bind:playersOnly="true"
       />
     </div>
@@ -90,7 +90,7 @@ import GuildMembers from "../components/guild-members.vue";
       "getGuildScoreMap",
     ]),
     ...mapGetters("guilds", ["getGuildsPlayingQuest", "getCurrentGuild"]),
-    ...mapGetters("members", ["getPlayersOfQuest"]),
+    ...mapGetters("members", ["getPlayersOfQuestGuild"]),
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "ensureCurrentQuest", "ensureAllQuests"]),
@@ -117,7 +117,7 @@ export default class QuestTeamPage extends Vue {
   getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
   getScoreMap!: ConversationGetterTypes["getScoreMap"];
   getGuildScoreMap!: ConversationGetterTypes["getGuildScoreMap"];
-  getPlayersOfQuest!: MembersGetterTypes["getPlayersOfQuest"];
+  getPlayersOfQuestGuild!: MembersGetterTypes["getPlayersOfQuestGuild"];
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
 
   // declare the methods for Typescript

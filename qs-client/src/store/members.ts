@@ -61,6 +61,11 @@ const MembersGetters = {
     quest.casting
       .map((c: Casting) => state.members[c.member_id])
       .filter((member: PublicMember) => member),
+  getPlayersOfQuestGuild: (state: MembersState) => (quest: Quest, guild: Guild) =>
+  quest.casting
+    .filter((c: Casting) => c.guild_id == guild.id)
+    .map((c: Casting) => state.members[c.member_id])
+    .filter((member: PublicMember) => member),
   getPlayersRoles: (state: MembersState) => (member_id: number) => {
     return state.members[member_id]?.casting_role;
   },
