@@ -346,15 +346,15 @@ export default class NodeTree extends NodeTreeProps {
   getMemberHandle(id: number) {
     const member = this.getMemberById(id)
     if (member) {
-      const castings = this.getCurrentQuest.casting || [];
-      const guild_id = castings.find(c => c.member_id == id)?.guild_id
-      if (guild_id) {
-        const guild = this.getGuildById(guild_id)
-        return `${member.handle} of ${guild?.name}`
+      if (this.getCurrentQuest && !this.channelId) {
+        const castings = this.getCurrentQuest.casting || [];
+        const guild_id = castings.find(c => c.member_id == id)?.guild_id
+        if (guild_id) {
+          const guild = this.getGuildById(guild_id)
+          return `${member.handle} of ${guild?.name}`
+        }
       }
-      else {
-        return member.handle
-      }
+      return member.handle
     }
     return ''
   }
