@@ -173,7 +173,7 @@ export default class RolePlayPage extends Vue {
   ready = false;
 
   // declare the computed attributes for Typescript
-  getCurrentGuild: GuildGetterTypes["getCurrentGuild"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getMemberById: MembersGetterTypes["getMemberById"];

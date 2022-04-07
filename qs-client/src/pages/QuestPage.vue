@@ -23,6 +23,7 @@
           v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)"
           v-bind:scores="getGuildScoreMap"
           v-bind:showPlayers="true"
+          v-bind:selectable="true"
         >
           <template v-slot:default="slotProps">
             <guilds-playing-indicator

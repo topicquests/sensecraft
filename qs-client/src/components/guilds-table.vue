@@ -3,21 +3,17 @@
     <q-table
       class="guilds-table"
       :title="title"
-      :data="guilds"
+      :data="guildData"
       :columns="columns"
       style="text-align: left"
-      row-key="desc"
+      row-key="id"
+      :selection="selectable?'single':'none'"
+      :selected.sync = "selectedGuild"
+      :selected-rows-label="()=>''"
     >
-      <template v-slot:body="props">
-        <q-tr :props="props" style="text-align:left">
-
-          <q-td key="name" :props="props"> {{ props.row.name }}</q-td>
-          <q-td key="numMembers">{{ numMembers(props.row) }}</q-td>
-          <q-td v-if="scores" key="score">{{ scores[props.row.id] }}</q-td>
-          <q-td key="actions">
-            <slot v-bind:guild="props.row"></slot>
-          </q-td>
-          <q-td v-if="view" key="view">
+      <template v-slot:body-cell-view="props">
+        <td>
+          <span v-if="view" key="view">
             <router-link
               :to="{
                 name: 'guild',
@@ -26,8 +22,8 @@
             >
               View
             </router-link>
-          </q-td>
-          <q-td v-if="edit" key="view">
+          </span>
+          <span v-if="edit" key="view">
             <router-link
               :to="{
                 name: 'guild_edit',
@@ -35,22 +31,36 @@
               }"
               >Edit</router-link
             >
-          </q-td>
-        </q-tr>
+          </span>
+        </td>
+      </template>
+      <template v-slot:body-cell-actions="props">
+        <td>
+          <slot v-bind:guild="props.row.guild"></slot>
+        </td>
       </template>
     </q-table>
   </div>
 </template>
 
 <script lang="ts">
-import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import Vue from "vue";
 import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapActions, mapGetters } from "vuex";
 import { QuestsGetterTypes } from "src/store/quests";
-import { Guild } from "../types";
+import { GuildsGetterTypes } from "src/store/guilds";
+import { MemberGetterTypes } from "src/store/member";
+import { Guild, Casting } from "../types";
 import { ScoreMap } from "../scoring";
+
+type GuildRow = {
+  id: number,
+  name: string,
+  guild: Guild,
+  score?: number,
+  numMembers: number,
+}
 
 const GuildsTableProp = Vue.extend({
   props: {
@@ -58,6 +68,7 @@ const GuildsTableProp = Vue.extend({
     guilds: Array as Prop<Guild[]>,
     scores: Object as Prop<ScoreMap>,
     showPlayers: Boolean,
+    selectable: Boolean,
     extra_columns: Array as Prop<Object[]>,
     edit: {
       type: Boolean,
@@ -81,11 +92,18 @@ const GuildsTableProp = Vue.extend({
           required: true,
           label: "Score",
           align: "left",
-          field: "scores[id]",
+          field: "score",
           sortable: true,
         });
       }
       return [
+        {
+          name: "id",
+          label: "id",
+          align: "right",
+          field: "id",
+          sortable: true,
+        },
         {
           name: "name",
           required: true,
@@ -99,7 +117,7 @@ const GuildsTableProp = Vue.extend({
           required: true,
           label: this.showPlayers ? "Players" : "Members",
           align: "left",
-          field: "this.numMembers(row)",
+          field: "numMembers",
           sortable: true,
         },
         ...extra,
@@ -121,11 +139,21 @@ const GuildsTableProp = Vue.extend({
         },
       ];
     },
+    ...mapGetters("guilds", ["getCurrentGuild", "getGuildById"]),
+    ...mapGetters("member", ["castingPerQuest"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
+    guildData: function(): GuildRow[] {
+      return this.guilds.map((guild: Guild) => this.guildRow(guild));
+    },
   },
 })
 export default class GuildTable extends GuildsTableProp {
+  selectedGuild = [];
   columns!: Object[];
+  guildData!: GuildRow[];
+  getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  getGuildById!: GuildsGetterTypes["getGuildById"];
+  castingPerQuest!: MemberGetterTypes["castingPerQuest"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   numMembers(guild: Guild) {
     if (this.showPlayers) {
@@ -133,6 +161,38 @@ export default class GuildTable extends GuildsTableProp {
       return (quest.casting || []).filter((c) => c.guild_id == guild.id).length;
     }
     return (guild.guild_membership || []).length;
+  }
+
+  guildIfPlaying(quest_id) {
+    const casting: Casting = this.castingPerQuest[quest_id];
+    if (casting) {
+      return casting.guild_id;
+    }
+  }
+
+  guildRow(guild: Guild): GuildRow {
+    return {
+      id: guild.id,
+      guild: guild,
+      name: guild.name,
+      numMembers: this.numMembers(guild),
+      score: this.scores ? this.scores[guild.id] : null,
+    }
+  }
+
+  beforeMount() {
+    if (this.selectable) {
+      let guild = this.getCurrentGuild;
+      if (!guild && this.getCurrentQuest) {
+        const guild_id = this.guildIfPlaying(this.getCurrentQuest.id);
+        if (guild_id) {
+          guild = this.getGuildById(guild_id)
+        }
+      }
+      if (guild) {
+        this.selectedGuild = [this.guildRow(guild)];
+      }
+    }
   }
 }
 </script>

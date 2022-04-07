@@ -245,7 +245,7 @@ export default class GamePlayPage extends Vue {
     return guild_ids.map((gid) => this.getGuildById(gid));
   }
 
-  async guildIfPlaying() {
+  guildIfPlaying() {
     const casting: Casting = this.castingPerQuest[this.questId];
     if (casting) {
       return casting.guild_id;
@@ -255,7 +255,7 @@ export default class GamePlayPage extends Vue {
   async beforeMount() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
-    this.guildId = await this.guildIfPlaying();
+    this.guildId = this.guildIfPlaying();
     this.setCurrentQuest(this.questId);
     this.setCurrentGuild(this.guildId);
     const promises: Promise<any>[] = [
