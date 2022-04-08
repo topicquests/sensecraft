@@ -65,7 +65,7 @@ export const BaseGetters = {
         if (casting?.permissions?.indexOf(permission) >= 0) return true;
         const roles = (member.casting_role || []).filter((cr: CastingRole) =>
           cr.guild_id == guild.id && cr.quest_id == quest.id
-        ).map((cr: CastingRole) => MyVapi.store.getters["roles/getRoleById"](cr.role_id));
+        ).map((cr: CastingRole) => MyVapi.store.getters["role/getRoleById"](cr.role_id));
         for (const role of roles) {
           if (role?.permissions?.indexOf(permission) >= 0) return true;
           if (nodeType) {
