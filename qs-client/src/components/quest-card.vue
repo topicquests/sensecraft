@@ -19,8 +19,8 @@
         </div>
       </q-card-section>
       <q-separator color="black"></q-separator>
-      <q-card-section>
-        <q-card-section class="row">
+     
+        <q-card-section v-if="showQuestInfo" class="row">
           <div class="col"></div>
           <div class="col-6">
             <p
@@ -60,7 +60,7 @@
             </p>
           </div>
         </q-card-section>
-      </q-card-section>
+     
     </q-card>
   </div>
 </template>
@@ -78,6 +78,10 @@ const QuestCardProps = Vue.extend({
   props: {
     currentQuest: Object as Prop<Quest>,
     creator: Object as Prop<Member>,
+    showQuestInfo: {
+      type: Boolean,
+      default: true
+    }
   },
 });
 

@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 70%" class="q-mt-md">
         <div>
           <member></member>
         </div>
@@ -93,6 +93,10 @@ import { Quest } from "../types";
 import { GuildsActionTypes } from "src/store/guilds";
 
 @Component<QuestList>({
+  name: "QuestList",
+  meta: {
+    title: "Quests",
+  },
   components: {
     scoreboard: scoreboard,
     QuestTable,
