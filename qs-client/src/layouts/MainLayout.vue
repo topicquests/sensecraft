@@ -164,6 +164,8 @@
       <p id="Pfooter">
         Sensecraft — © <a href="https://topicquests.org">TopicQuests</a> 2022.
         <a href="https://github.com/topicquests/sensecraft">Open Source</a>
+        &nbsp;&nbsp;
+        <a href="https://creativecommons.org/licenses/by/4.0/"><img src="../statics/images/by.png" ></a>
       </p>
     </q-footer>
   </q-layout>

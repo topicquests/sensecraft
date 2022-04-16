@@ -169,7 +169,12 @@ const routes = [
         name: "house_rules",
         component: () => import("pages/HouseRules.vue"),
       },
-      // {
+      {
+        path: "manual",
+        name: "manual",
+        component: () => import("pages/Manual.vue"),
+      },
+       // {
       //   path: "/guild/:guild_id/channel",
       //   name: "guild_channel_list",
       //   component: () => import("pages/ChannelList.vue"),
