@@ -1,29 +1,31 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
+     <div class="row justify-center">
+       <q-card style="width:60%">
     <div>
       <member></member>
     </div>
     <div class="column items-center">
-      <div class="col-4 q-pa-lg" style="width: 55%">
+      <div class="col-4 q-pa-lg" style="width: 100%">
         <scoreboard></scoreboard>
       </div>
     </div>
 
     <div class="row justify-center q-pb-md">
-      <div class="col-4">
+      <div class="col-6">
         <questCard v-bind:currentQuest="getCurrentQuest"> </questCard>
       </div>
     </div>
     <div class="row justify-center">
       <div
         v-if="getGuildsPlayingQuest(getCurrentQuest).length"
-        class="col-6"
       >
         <guilds-table
           v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)"
           v-bind:scores="getGuildScoreMap"
           v-bind:showPlayers="true"
           v-bind:selectable="true"
+          style="width: 100%;"
         >
           <template v-slot:default="slotProps">
             <guilds-playing-indicator
@@ -34,16 +36,20 @@
         </guilds-table>
       </div>
       <div v-else>
-        <h5>There are no guilds playing quest</h5>
+        <h3>There are no guilds playing quest</h3>
       </div>
     </div>
-    <div class="row justify-center" v-if="getCurrentGuild">
+    <div class="row justify-center"  v-if="getCurrentGuild">
       <guild-members
         v-bind:guild="getCurrentGuild"
         v-bind:quest="getCurrentQuest"
         v-bind:members="getPlayersOfQuestGuild(getCurrentQuest, getCurrentGuild)"
         v-bind:playersOnly="true"
+        style="width:70%"
+        class="q-mt-md q-mb-md"
       />
+    </div>
+    </q-card>
     </div>
   </q-page>
 </template>

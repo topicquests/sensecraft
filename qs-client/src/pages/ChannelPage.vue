@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center q-mt-lg">
-      <h5 v-if="questId">
+      <h3 v-if="questId">
         Channel of guild
         <router-link
           :to="{
@@ -26,8 +26,8 @@
               quest_id: this.questId,
             },
           }">more</router-link>)
-      </h5>
-      <h5 v-else>
+      </h3>
+      <h3 v-else>
         Channel of guild
         <router-link
           :to="{
@@ -43,7 +43,7 @@
               guild_id: this.guildId,
             },
           }">more</router-link>)
-      </h5>
+      </h3>
     </div>
     <div class="row justify-center q-mt-lg">
       <div class="col-6 q-md q-mr-lg">

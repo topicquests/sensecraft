@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-card class="q-mt-md q-pa-md">
-      <h5 class="justify-item-center">Role Node Constraint</h5>
+      <h3 class="justify-item-center">Role Node Constraint</h3>
       <q-select
         style="width: 60%"
         clearable

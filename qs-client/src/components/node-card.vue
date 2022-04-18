@@ -2,10 +2,10 @@
   <div class="col-12 col-md q-pa-md">
     <q-card id="node-card">
       <section id="node-card-title">
-        <h5 class="q-ma-md">
+        <h3 class="q-ma-md">
           <IbisButton v-bind:node_type="node.node_type"></IbisButton>
           {{ node.title }}
-        </h5>
+        </h3>
       </section>
       <section>
         <div>
