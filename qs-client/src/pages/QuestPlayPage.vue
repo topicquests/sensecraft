@@ -6,14 +6,14 @@
           <member></member>
         </div>
         <div class="row justify-center q-mt-lg">
-          <h5 class="q-mt-md">
+          <h3 class="q-mt-md">
             {{ getCurrentQuest.name }}
           <q-btn v-if="getCurrentQuest.description" class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" >
           <q-tooltip self="bottom middle" max-width="25rem">
             <div v-html="getCurrentQuest.description"></div>
           </q-tooltip>
           </q-btn>
-          </h5>
+          </h3>
           <router-link :to="{name: 'quest_teams', params:{ quest_id: getCurrentQuest.id }}" class="q-ml-sm q-mt-md"
           >Teams</router-link>
         </div>

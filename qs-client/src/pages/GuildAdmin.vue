@@ -91,14 +91,14 @@
             <div class="row justify-center">
               <q-card class="active-quest-card col-12 q-mb-md">
                 <div class="row justify-center text-center">
-                  <h5 class="q-mt-md q-mb-md active-quest-header ">Registered Quests</h5>
+                  <h3 class="q-mt-md q-mb-md active-quest-header ">Registered Quests</h3>
                 </div>
                 <div
                   v-for="quest in activeQuests"
                   :key="quest.id"
                   class="row justify-center"
                 >
-                  <h6>{{ quest.name }}</h6>
+                  <h2>{{ quest.name }}</h2>
                   <q-tooltip max-width="25rem">{{
                     quest.description
                   }}</q-tooltip>
@@ -126,7 +126,7 @@
             <q-card class="guildAdmin-card">
               <div class="row justify-center">
                 <div >
-                  <h5 class="guidlAdmin-card-header">Guild Admins</h5>
+                  <h3 class="guidlAdmin-card-header">Guild Admins</h3>
                 </div>
               </div>
               <div class="row q-pl-md">
@@ -175,7 +175,7 @@
           <div class="row justify-center q-mt-md">
             <q-card class="available-roles-card">
               <div class="row justify-center ">
-                <H5 class="available-roles-card-header">Members Available Roles </H5>
+                <h3 class="available-roles-card-header">Members Available Roles </h3>
               </div>
               <div class="row q-pl-md">
                 <span
@@ -219,7 +219,7 @@
           <div class="row justify-center q-mt-md q-mb-sm">
             <q-card class="roles-card">
                <div class="row justify-center ">
-                <H5 class="roles-card-header"> Roles </H5>
+                <h3 class="roles-card-header"> Roles </h3>
               </div>
               <div class="row q-pl-md">
                 <span

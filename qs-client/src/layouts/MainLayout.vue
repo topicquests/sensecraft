@@ -77,6 +77,7 @@
     <q-drawer v-model="rightDrawerOpen" :breakpoint="200" bordered side="right"
       id="mySidenav"
       class="sidenav"
+      overlay="true"
     >
       <div v-if="getCurrentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
@@ -94,7 +95,7 @@
         />
       </div>
     </q-drawer>
-    <q-drawer v-model="leftDrawer" :breakpoint="200" bordered>
+    <q-drawer v-model="leftDrawer" :breakpoint="200" bordered overlay="true">
       <q-scroll-area class="fit">
         <q-list>
           <q-item clickable v-ripple :to="{ name: 'root' }">

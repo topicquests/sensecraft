@@ -53,7 +53,7 @@
             ></guilds-table>
           </div>
         </div>
-        <h5 v-else>There currently are no guilds</h5>
+        <h3 v-else>There currently are no guilds</h3>
       </div>
     </div>
       </q-card>

@@ -6,9 +6,9 @@
           <img :src="ibis_node_icon('quest', false)" />
         </q-avatar>
         <div class="row justify-center">
-          <h5 class="q-mt-md">
+          <h3 class="q-mt-md">
             {{ currentQuest.name }}
-          </h5>
+          </h3>
           <q-btn class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" v-if="currentQuest.description">
           <q-tooltip self="bottom middle" max-width="25rem">
             <div v-html="currentQuest.description"></div>

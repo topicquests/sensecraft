@@ -22,7 +22,7 @@
             >
           </div>
           <div class="col-12" v-if="getCurrentGuild">
-            <h5 class="guild-name">
+            <h1 class="text-center">
               {{ getCurrentGuild.name }}
               <q-btn
                 v-if="member && !isMember && getCurrentGuild.open_for_applications"
@@ -31,7 +31,7 @@
                 style="margin-right: 1em"
                 class="bg-dark-blue"
               />
-            </h5>
+            </h1>
             <span v-if="!getCurrentGuild.open_for_applications">
               guild closed</span
             >
@@ -46,9 +46,9 @@
             <q-card class="bg-secondary q-pa-md" style="border: false">
               <div class="row justify-center text-center">
                 <div class="col-10"> 
-                <h5 class="q-mt-md q-mb-md active-quest-header">
+                <h2 class="q-mt-md q-mb-md">
                   Registered Quests
-                </h5>
+                </h2>
               </div>
               <div v-if="activeQuests.length > 0">
                 <div v-for="quest in activeQuests" :key="quest.id">
@@ -249,6 +249,7 @@ import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
 import castingRoleEdit from "../components/casting_role_edit.vue";
 import guildMembers from "../components/guild-members.vue";
 import { ChannelActionTypes } from "../store/channel";
+import '../css/app.scss'
 
 @Component<GuildPage>({
   meta: {
@@ -707,11 +708,11 @@ export default class GuildPage extends Vue {
 }
 </script>
 
-<style>
+<style lang = 'scss'>
 .active-quest-header {
   text-decoration: underline;
   font-family: Arial, Helvetica, sans-serif;
-  color: blue;
+  color: $primary
 }
 .guild-header {
   background-color: azure;

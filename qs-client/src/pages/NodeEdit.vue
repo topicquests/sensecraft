@@ -12,14 +12,14 @@
       <div class="col-4 q-pb-xs q-mt-md" style="width: 55%">
         <div v-if="currentNode" class="col-12 col-md q-pa-md">
           <q-card id="quest_card">
-            <h4 style="text-align: center">Quest</h4>
+            <h2 style="text-align: center">Quest</h2>
             <q-card-section>
-              <h6
+              <h3
                 v-if="currentQuest"
                 style="text-align: center; color: darkgreen"
               >
                 {{ currentQuest.name }}
-              </h6>
+              </h3>
             </q-card-section>
             <q-card-section>
               <div v-if="currentQuest" style="font-size: 17px">

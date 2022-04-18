@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary page" v-if="ready">
     <div class="row justify-center q-mt-lg">
-      <h5>
+      <h3>
         Channels of guild
         <router-link
           :to="{
@@ -10,7 +10,7 @@
               guild_id: this.guildId,
             },
           }">{{ this.getCurrentGuild.name }}</router-link>
-      </h5>
+      </h3>
     </div>
     <div class="col-3 q-md q-mb-md">
       <channel-list v-bind:guild_id="guildId" :inPage="true" title="Guild Channels" />

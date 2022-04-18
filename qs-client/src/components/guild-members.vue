@@ -1,14 +1,13 @@
 <template>
   <q-card id="team-card">
     <div class="col-2">
-      <p class="card-header">Team</p>
+      <h3 class="text-center">Team</h3>
     </div>
     <ul>
       <li
         v-for="member in members"
         :key="member.id"
         class="q-ml-lg q-mr-md"
-        id="team-card-members"
       >
         <div class="row">
           <div class="col-6">

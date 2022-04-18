@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary page" v-if="ready">
     <div class="row justify-center q-mt-lg">
-      <h5>
+      <h3>
         Channels of guild
         <router-link
           :to="{
@@ -18,7 +18,7 @@
               guild_id: this.guildId,
             },
           }">{{ this.getCurrentQuest.name }}</router-link>
-      </h5>
+      </h3>
     </div>
     <div class="column items-center q-mb-md">
       <div class="col-6">
