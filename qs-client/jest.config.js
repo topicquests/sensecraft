@@ -77,4 +77,5 @@ module.exports = {
   },
   transformIgnorePatterns: [`node_modules/(?!(${esModules}))`],
   snapshotSerializers: ["<rootDir>/node_modules/jest-serializer-vue"],
+  testEnvironment: "jsdom",
 };
