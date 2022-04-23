@@ -222,7 +222,7 @@ const NodeTreeProps = Vue.extend({
       "getCurrentGamePlay",
     ]),
     ...mapGetters('members', ['getMemberById']),
-    ...mapGetters('roles', ['getRoles']),
+    ...mapGetters('role', ['getRoles']),
     searchFilter_: function() { return this.searchFilter+"_" },
     nodes: function(): QTreeNode[] {
       if (this.channelId)
