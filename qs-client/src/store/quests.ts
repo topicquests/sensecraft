@@ -23,6 +23,7 @@ import {
   publication_state_list,
 } from "../enums";
 import type { RoleState } from "./role";
+import { getWSClient } from "../wsclient";
 
 interface QuestMap {
   [key: number]: Quest;
@@ -586,6 +587,7 @@ export const quests = (axios: AxiosInstance) =>
       mutations: {
         SET_CURRENT_QUEST: (state: QuestsState, quest_id: number) => {
           state.currentQuest = quest_id;
+          getWSClient().setDefaultQuest(quest_id);
         },
         SET_CASTING_ROLE: (state: RoleState, role_id: number) => {},
         CLEAR_STATE: (state: QuestsState) => {

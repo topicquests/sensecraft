@@ -17,6 +17,7 @@ import { registration_status_enum, permission_enum, game_play_status_enum } from
 import { AxiosResponse, AxiosInstance } from "axios";
 import { member } from "./member";
 import { store } from "quasar/wrappers";
+import { getWSClient } from "../wsclient";
 
 interface GuildMap {
   [key: number]: Guild;
@@ -444,6 +445,7 @@ export const guilds = (axios: AxiosInstance) =>
       mutations: {
         SET_CURRENT_GUILD: (state: GuildsState, guild_id: number) => {
           state.currentGuild = guild_id;
+          getWSClient().setDefaultGuild(guild_id);
         },
         CLEAR_STATE: (state: GuildsState) => {
           Object.assign(state, baseState);

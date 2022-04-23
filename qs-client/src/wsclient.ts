@@ -1,11 +1,13 @@
 import type { Store } from "vuex";
 import RobustWebSocket from "robust-websocket";
 
-export default class WSClient {
+export class WSClient {
   ws: RobustWebSocket;
   connected = false;
   login_message: string = null;
   store: Store<any>;
+  guild_id: number = null;
+  quest_id: number = null;
   constructor(store, url) {
     this.store = store;
     function shouldReconnect (event, ws) {
@@ -23,6 +25,12 @@ export default class WSClient {
       } else
         if (this.login_message) {
         this.ws.send(this.login_message);
+      }
+      if (this.quest_id) {
+        this.ws.send(`GUILD ${this.quest_id}`)
+      }
+      if (this.guild_id) {
+        this.ws.send(`GUILD ${this.guild_id}`)
       }
     })
     this.ws.addEventListener('message', (event) => {
@@ -46,6 +54,7 @@ export default class WSClient {
     this.ws.send(`LOGOUT`)
   }
   setDefaultGuild(id: number) {
+    this.guild_id = id;
     if (!this.connected) return;
     if (id)
       this.ws.send(`GUILD ${id}`)
@@ -53,6 +62,7 @@ export default class WSClient {
       this.ws.send('GUILD')
   }
   setDefaultQuest(id: number) {
+    this.quest_id = id;
     if (!this.connected) return;
     if (id)
       this.ws.send(`QUEST ${id}`)
