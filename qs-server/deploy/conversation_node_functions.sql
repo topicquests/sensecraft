@@ -260,10 +260,10 @@ BEGIN
     RAISE EXCEPTION 'Channels must be at root';
   END IF;
   CASE WHEN parent_type = 'question' THEN
-    IF child_type NOT IN ('answer', 'reference', 'question') THEN
-      RAISE EXCEPTION 'Question node can only have answer, question, or reference as a child';
+    IF child_type NOT IN ('answer', 'reference', 'question', 'con_answer') THEN
+      RAISE EXCEPTION 'Question node can only have answer, con_answer, question, or reference as a child';
     END IF;
-  WHEN parent_type = 'answer' THEN
+  WHEN parent_type IN ('answer', 'con_answer') THEN
     NULL;
   WHEN parent_type IN ('pro', 'con') THEN
     IF child_type = 'answer' THEN
