@@ -178,7 +178,7 @@
             <q-card-section>
               <div class="text-h6">Available Roles</div>
             </q-card-section>
-            <div v-for="role in roles" :key="role.id">
+            <div v-for="role in getAvailableRolesById(memberId)" :key="role.id">
               <q-radio
                 v-model="roleId"
                 :label="role.name"
