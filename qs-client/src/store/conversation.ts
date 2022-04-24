@@ -163,6 +163,11 @@ export function makeTree(
       roots.push(el);
     }
   });
+  // special case: if many roots, choose the one with highest pub status.
+  if (roots.length > 1) {
+    const ordered_roots = roots.sort((el) => - publication_state_list.indexOf(el.status));
+    roots.splice(0, roots.length, ordered_roots[0]);
+  }
   return roots;
 }
 
@@ -189,8 +194,7 @@ const ConversationGetters = {
   getPrivateConversationTree: (state: ConversationState) =>
     makeTree(
       Object.values(state.conversation),
-      publication_state_enum.private_draft,
-      false
+      publication_state_enum.private_draft
     ),
   getThreatMap: (state: ConversationState): ThreatMap => {
     const tree = MyVapi.store.getters["conversation/getConversationTree"];

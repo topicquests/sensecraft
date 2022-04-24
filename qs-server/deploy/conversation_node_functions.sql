@@ -71,8 +71,10 @@ $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION node_neighbourhood(node_id int, guild int DEFAULT NULL) RETURNS SETOF conversation_node STABLE AS $$
+    -- this is efficient, but may pick unpublished descendents that are below published excluded descendants.
+    -- compensate in FE for now.
     SELECT DISTINCT * FROM (
-      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild
+      SELECT * FROM conversation_node WHERE ancestry @ node_id::varchar::ltxtquery AND guild_id = guild AND status < 'published'
       UNION SELECT * FROM conversation_node
       WHERE status = 'published' AND (
         id = node_id OR

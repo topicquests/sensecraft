@@ -211,6 +211,7 @@ const NodeTreeProps = Vue.extend({
       "getScoreMap",
       "getPrivateThreatMap",
       "getPrivateScoreMap",
+      "getPrivateConversationTree",
     ]),
     ...mapGetters("guilds", [
       "getGuildById",
@@ -229,7 +230,7 @@ const NodeTreeProps = Vue.extend({
         return this.getChannelConversationTree(this.channelId);
       if (this.showFocusNeighbourhood)
         return this.getNeighbourhoodTree;
-      return this.getConversationTree;
+      return this.getPrivateConversationTree;
     },
     threats: function(): ThreatMap {
       if (this.channelId) return null;
@@ -267,6 +268,7 @@ export default class NodeTree extends NodeTreeProps {
   scores!: ScoreMap;
   nodes!: QTreeNode[];
   getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
+  getPrivateConversationTree: ConversationGetterTypes["getPrivateConversationTree"];
   canEditChannel: ChannelGetterTypes["canEdit"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
   canEditConversation: ConversationGetterTypes["canEdit"];
