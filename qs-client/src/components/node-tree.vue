@@ -230,7 +230,9 @@ const NodeTreeProps = Vue.extend({
         return this.getChannelConversationTree(this.channelId);
       if (this.showFocusNeighbourhood)
         return this.getNeighbourhoodTree;
-      return this.getPrivateConversationTree;
+      if (this.currentGuildId)
+        return this.getPrivateConversationTree;
+      return this.getConversationTree;
     },
     threats: function(): ThreatMap {
       if (this.channelId) return null;
