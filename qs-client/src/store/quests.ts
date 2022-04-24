@@ -9,6 +9,7 @@ import {
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
   Quest,
+  Guild,
   Casting,
   QuestMembership,
   GamePlay,
@@ -119,11 +120,13 @@ const QuestsGetters = {
   getCurrentGamePlay: (state) => {
     if (state.currentQuest) {
       const quest = state.quests[state.currentQuest];
-      const currentGuildId: number =
-        MyVapi.store.getters["guilds/getCurrentGuildId"];
-      return quest?.game_play?.find(
-        (gp: GamePlay) => gp.guild_id == currentGuildId
-      );
+      const currentGuild: Guild =
+        MyVapi.store.getters["guilds/getCurrentGuild"];
+      if (currentGuild) {
+        return quest?.game_play?.find(
+          (gp: GamePlay) => gp.guild_id == currentGuild.id
+        );
+      }
     }
   },
   getCastingRoles:
