@@ -49,6 +49,9 @@ import { Role } from "../types";
   methods: {
     ...mapActions("role", ["ensureRole", "createRole"]),
   },
+  meta: {
+    title: 'Create Role',
+  },
 })
 export default class RoleEditPage extends Vue {
   name: "RoleEdit";

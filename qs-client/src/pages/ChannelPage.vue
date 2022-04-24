@@ -121,7 +121,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
-@Component<RolePlayPage>({
+@Component<ChannelPage>({
   components: {
     member: member,
     nodeCard: nodeCard,
@@ -147,16 +147,14 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
     ...mapActions("role", ["ensureAllRoles"]),
-    async getChannel(channelId) {
-      this.ensureChannelConversation({
-        channel_id: channelId,
-        guild: this.guildId,
-      });
-    },
   },
   watch: {},
+  meta: (c) => ({
+    // todo: not reactive because not computed
+    title: `${c.getCurrentQuest?'Game':'Guild'} Channel - ${c.getChannelById(c.channelId).title}`,
+  }),
 })
-export default class RolePlayPage extends Vue {
+export default class ChannelPage extends Vue {
   //data
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;

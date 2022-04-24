@@ -84,6 +84,9 @@ export default {
     scoreboard: scoreboard,
     member: member,
   },
+  meta: {
+    title: 'Create Quest',
+  },
   methods: {
     ...mapActions("quests", ["createQuest", "findquests"]),
     async doSubmit() {

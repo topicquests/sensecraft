@@ -87,6 +87,9 @@ import { MembersActionTypes } from "src/store/members";
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions('members', ['ensureAllMembers'])
   },
+  meta: {
+    title: 'Create Guild',
+  },
 })
 export default class GuildFormPage extends Vue {
   public_private_bool = public_private_bool;

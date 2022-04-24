@@ -252,9 +252,9 @@ import { ChannelActionTypes } from "../store/channel";
 import '../css/app.scss'
 
 @Component<GuildPage>({
-  meta: {
-    title: "Guild Page",
-  },
+  meta: (c) => ({
+    title: `Guild - ${c.getCurrentGuild.name}`,
+  }),
   components: {
     scoreboard: scoreboard,
     member: member,

@@ -70,6 +70,9 @@ import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 @Component<GuildChannelList>({
+  meta: (c) => ({
+    title: `Guild Channels for ${c.getCurrentGuild.name}`,
+  }),
   components: {
     member: member,
     ChannelList: ChannelList,

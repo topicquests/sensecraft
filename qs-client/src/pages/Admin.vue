@@ -97,6 +97,10 @@ function ensure(array, value, present) {
 export default {
   name: "Admin-app",
   props: {},
+  meta: {
+    // sets document title
+    title: "Administration",
+  },
   data() {
     return {
       ready: false,

@@ -40,9 +40,9 @@ import Vue from "vue";
 
 @Component<GuildEdit>({
   name: "guild_edit",
-  meta: {
-    title: "Guild edit",
-  },
+  meta: (c) => ({
+    title: `Guild edition - ${c.getCurrentGuild.name}`,
+  }),
   components: {
     scoreboard: scoreboard,
     member: member,

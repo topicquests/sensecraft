@@ -61,6 +61,9 @@ import GuildsTable from "../components/guilds-table.vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
 
 @Component<GuildLandingPage>({
+  meta: {
+    title: 'Guilds',
+  },
   components: {
     scoreboard: scoreboard,
     member: member,

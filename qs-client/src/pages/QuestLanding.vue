@@ -52,6 +52,9 @@ import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes } from "src/store/guilds";
 
 @Component<QuestLandingPage>({
+  meta: {
+    title: 'Quests',
+  },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,

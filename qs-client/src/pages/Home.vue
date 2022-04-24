@@ -57,6 +57,9 @@ import { mapActions } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 
 export default {
+  meta: {
+    title: 'Home',
+  },
   name: "HomePage",
   data() {
     return {

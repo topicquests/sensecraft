@@ -52,7 +52,11 @@
 </template>
 
 <script lang="ts">
-export default {};
+export default {
+  meta: (c) => ({
+    title: 'Home',
+  }),
+};
 </script>
 
 <style lang="scss" scoped>

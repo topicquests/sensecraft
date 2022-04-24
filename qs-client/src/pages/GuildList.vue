@@ -77,7 +77,7 @@ import { QuestsActionTypes } from "src/store/quests";
 
 @Component<GuildListPage>({
   meta: {
-    title: "Guild List",
+    title: "Guilds",
   },
   components: {
     scoreboard: scoreboard,
