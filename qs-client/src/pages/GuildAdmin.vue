@@ -292,7 +292,7 @@ import guildCard from "../components/guild-card.vue";
 @Component<GuildAdminPage>({
   name: "guild_admin",
   meta: (c) => ({
-    title: `Guild Administration - ${c.getCurrentGuild.name}`,
+    title: `Guild Administration - ${c.getCurrentGuild?.name}`,
   }),
   components: {
     CastingRoleEdit,

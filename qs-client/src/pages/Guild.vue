@@ -253,7 +253,7 @@ import '../css/app.scss'
 
 @Component<GuildPage>({
   meta: (c) => ({
-    title: `Guild - ${c.getCurrentGuild.name}`,
+    title: `Guild - ${c.getCurrentGuild?.name}`,
   }),
   components: {
     scoreboard: scoreboard,

@@ -151,7 +151,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   watch: {},
   meta: (c) => ({
     // todo: not reactive because not computed
-    title: `${c.getCurrentQuest?'Game':'Guild'} Channel - ${c.getChannelById(c.channelId).title}`,
+    title: `${c.getCurrentQuest?'Game':'Guild'} Channel - ${c.getChannelById(c.channelId)?.title}`,
   }),
 })
 export default class ChannelPage extends Vue {

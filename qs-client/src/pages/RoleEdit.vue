@@ -58,7 +58,7 @@ import RoleNodeConstraintCard from "src/components/role-node-constraint-card.vue
 
 @Component<RoleEditPage>({
   meta: (c) => ({
-    title: `Role edit - ${c.getRoleById(c.role_id).name}`,
+    title: `Role edit - ${c.getRoleById(c.role_id)?.name}`,
   }),
   components: {
     scoreboard: scoreboard,

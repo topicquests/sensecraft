@@ -186,7 +186,7 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
   },
   watch: {},
   meta: (c) => ({
-    title: `Quest - ${c.getCurrentQuest.name}`,
+    title: `Quest - ${c.getCurrentQuest?.name}`,
   }),
 })
 export default class QuestPlayPage extends Vue {

@@ -41,7 +41,7 @@ import Vue from "vue";
 @Component<GuildEdit>({
   name: "guild_edit",
   meta: (c) => ({
-    title: `Guild edition - ${c.getCurrentGuild.name}`,
+    title: `Guild edition - ${c.getCurrentGuild?.name}`,
   }),
   components: {
     scoreboard: scoreboard,

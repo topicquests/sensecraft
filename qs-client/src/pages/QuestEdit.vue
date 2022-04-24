@@ -197,7 +197,7 @@ import { BaseGetterTypes } from "../store/baseStore";
 
 @Component<QuestEditPage>({
   meta: (c) => ({
-    title: `Quest edit - ${c.getCurrentQuest.name}`,
+    title: `Quest edit - ${c.getCurrentQuest?.name}`,
   }),
   components: {
     scoreboard: scoreboard,

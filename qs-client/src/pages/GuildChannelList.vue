@@ -71,7 +71,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 @Component<GuildChannelList>({
   meta: (c) => ({
-    title: `Guild Channels for ${c.getCurrentGuild.name}`,
+    title: `Guild Channels for ${c.getCurrentGuild?.name}`,
   }),
   components: {
     member: member,

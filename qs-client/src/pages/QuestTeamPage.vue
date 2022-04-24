@@ -77,7 +77,7 @@ import GuildMembers from "../components/guild-members.vue";
 
 @Component<QuestTeamPage>({
   meta: (c) => ({
-    title: `Quest teams - ${c.getCurrentQuest.name}`,
+    title: `Quest teams - ${c.getCurrentQuest?.name}`,
   }),
   components: {
     questCard,

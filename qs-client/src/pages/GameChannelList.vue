@@ -105,7 +105,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   },
   watch: {},
   meta: (c) => ({
-    title: `Channels for quest - ${c.getCurrentQuest.name}`,
+    title: `Channels for quest - ${c.getCurrentQuest?.name}`,
   }),
 })
 export default class GameChannelList extends Vue {
