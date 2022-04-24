@@ -3,7 +3,7 @@
     <q-card class="card">
       <section>
       <div class="row justify-center">
-        <H3 class="q-ml-lg q-mr-lg">Change casting role </H3>
+        <H2 class="q-ml-lg q-mr-lg">Change casting role </H2>
       </div>
       </section>
       <q-separator color="grey" class="q-mb-md" ></q-separator>

@@ -3,14 +3,14 @@
     <div class="col-2">
       <h3 class="text-center">Team</h3>
     </div>
-    <ul>
+    <ul class="q-ml-md">
       <li
         v-for="member in members"
         :key="member.id"
         class="q-ml-lg q-mr-md"
       >
         <div class="row">
-          <div class="col-6">
+          <div class="col-5">
             <span class="q-pr-md q-ml-md"> {{ member.handle }} </span>
           </div>
           <div class="col-4">
