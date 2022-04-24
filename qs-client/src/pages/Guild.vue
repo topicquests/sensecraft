@@ -174,15 +174,20 @@
             <q-card-section>
               <div class="text-h6">Available Roles</div>
             </q-card-section>
-            <div v-for="role in getAvailableRolesById(memberId)" :key="role.id">
-              <q-radio
-                v-model="roleId"
-                :label="role.name"
-                :val="role.id"
-                @input="updateRole()"
-                v-close-popup="true"
-              >
-              </q-radio>
+            <div v-if="getAvailableRolesById(memberId).length">
+              <div v-for="role in getAvailableRolesById(memberId)" :key="role.id">
+                <q-radio
+                  v-model="roleId"
+                  :label="role.name"
+                  :val="role.id"
+                  @input="updateRole()"
+                  v-close-popup="true"
+                >
+                </q-radio>
+              </div>
+            </div>
+            <div v-else>
+              <div class="text-h6">Please ask your guild leader give you roles</div>
             </div>
             <q-card-actions align="right" class="text-primary">
               <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
