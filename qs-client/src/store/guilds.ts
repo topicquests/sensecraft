@@ -275,6 +275,8 @@ export const guilds = (axios: AxiosInstance) =>
               casting: guild.casting,
               guild_membership: guild.guild_membership,
             });
+          } else {
+            guilds[guild.id] = guild;
           }
         }
         state.guilds = guilds;

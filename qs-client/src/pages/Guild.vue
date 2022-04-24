@@ -690,13 +690,13 @@ export default class GuildPage extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
+    this.setCurrentGuild(this.guildId)
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllRoles(),
       this.ensureChannels(this.guildId),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
-      this.setCurrentGuild(this.guildId),
     ]);
     await this.initialize();
     this.ready = true;
