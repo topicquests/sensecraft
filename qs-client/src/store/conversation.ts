@@ -165,7 +165,7 @@ export function makeTree(
   });
   // special case: if many roots, choose the one with highest pub status.
   if (roots.length > 1) {
-    const ordered_roots = roots.sort((el) => - publication_state_list.indexOf(el.status));
+    const ordered_roots = roots.sort((e1, e2) => publication_state_list.indexOf(e2.status) - publication_state_list.indexOf(e1.status));
     roots.splice(0, roots.length, ordered_roots[0]);
   }
   return roots;
