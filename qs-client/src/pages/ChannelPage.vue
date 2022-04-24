@@ -148,7 +148,12 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
     ...mapActions("role", ["ensureAllRoles"]),
   },
-  watch: {},
+  watch: {
+    $route(to, from) {
+      this.ready = false;
+      this.initialize()
+    }
+  },
   meta: (c) => ({
     // todo: not reactive because not computed
     title: `${c.getCurrentQuest?'Game':'Guild'} Channel - ${c.getChannelById(c.channelId)?.title}`,
@@ -196,7 +201,7 @@ export default class ChannelPage extends Vue {
     this.selectedNodeId = id;
   }
 
-  async beforeMount() {
+  async initialize() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
     this.channelId = Number.parseInt(this.$route.params.channel_id);
@@ -219,6 +224,9 @@ export default class ChannelPage extends Vue {
     );
     await Promise.all(promises);
     this.ready = true;
+  }
+  async beforeMount() {
+    await this.initialize();
   }
 }
 </script>

@@ -319,6 +319,10 @@ import "../css/app.scss";
   },
   watch: {
     currentQuestId: "onCurrentQuestChange",
+    $route(to, from) {
+      this.ready = false;
+      this.initialize()
+    }
   },
   methods: {
     ...mapActions("conversation", [
@@ -479,7 +483,7 @@ export default class GuildPage extends Vue {
   getGuildMembers!: () => PublicMember[];
   getRolesForQuest!: () => Role[];
 
-  async initialize() {
+  async initializeStage2() {
     this.checkPermissions();
     const playQuestIds = this.getCurrentGuild.game_play.map(
       (gp: GamePlay) => gp.quest_id
@@ -687,7 +691,7 @@ export default class GuildPage extends Vue {
       data: {},
     });
   }
-  async beforeMount() {
+  async initialize() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     this.setCurrentGuild(this.guildId)
@@ -698,8 +702,11 @@ export default class GuildPage extends Vue {
       this.ensureChannels(this.guildId),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
-    await this.initialize();
+    await this.initializeStage2();
     this.ready = true;
+  }
+  async beforeMount() {
+    await this.initialize();
   }
 }
 </script>

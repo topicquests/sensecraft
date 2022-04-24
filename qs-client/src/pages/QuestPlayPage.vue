@@ -184,7 +184,12 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
       "ensureGuildsPlayingQuest",
     ]),
   },
-  watch: {},
+  watch: {
+    $route(to, from) {
+      this.ready = false;
+      this.initialize()
+    }
+  },
   meta: (c) => ({
     title: `Quest - ${c.getCurrentQuest?.name}`,
   }),
@@ -261,7 +266,7 @@ export default class QuestPlayPage extends Vue {
     }
   }
 
-  async beforeMount() {
+  async initialize() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
     this.guildId = this.guildIfPlaying();
@@ -276,6 +281,9 @@ export default class QuestPlayPage extends Vue {
     }
     await Promise.all(promises);
     this.ready = true;
+  }
+  async beforeMount() {
+    await this.initialize();
   }
 }
 </script>

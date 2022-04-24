@@ -110,6 +110,12 @@ import GuildMembers from "../components/guild-members.vue";
       "ensureConversation",
     ]),
   },
+  watch: {
+    $route(to, from) {
+      this.ready = false;
+      this.initialize()
+    }
+  },
 })
 export default class QuestTeamPage extends Vue {
   ready = false;
@@ -137,8 +143,7 @@ export default class QuestTeamPage extends Vue {
   ensureAllQuests: QuestsActionTypes['ensureAllQuests']
   ensurePlayersOfQuest: MembersActionTypes['ensurePlayersOfQuest']
 
-  async beforeMount() {
-    document.title="Quest"
+  async initialize() {
     const quest_id = Number.parseInt(this.$route.params.quest_id);
     this.questId = quest_id;
     await Promise.all([
@@ -149,6 +154,9 @@ export default class QuestTeamPage extends Vue {
     ]);
     await this.ensureGuildsPlayingQuest({ quest_id });
     this.ready = true;
+  }
+  async beforeMount() {
+    await this.initialize();
   }
 }
 </script>
