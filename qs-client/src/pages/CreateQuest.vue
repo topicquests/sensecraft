@@ -53,33 +53,18 @@
 </template>
 
 <script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import { mapActions } from "vuex";
 import { Notify } from "quasar";
 import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
+import { Quest } from "../types";
+import { QuestsActionTypes } from "../store/quests";
 
-export default {
-  data() {
-    return {
-      group: "public",
-      public_private_bool,
-      quest: {
-        name: "",
-        handle: "",
-        status: "draft",
-        public: true,
-        description: "",
-      },
-      ready: false,
-      shape: "line",
-      submitResult: [],
-      details: "",
-      handle: "",
-      type: false,
-    };
-  },
+@Component<QuestCreatePage>({
   components: {
     scoreboard: scoreboard,
     member: member,
@@ -89,19 +74,39 @@ export default {
   },
   methods: {
     ...mapActions("quests", ["createQuest", "findquests"]),
-    async doSubmit() {
-      const res = await this.createQuest({ data: this.quest });
-      Notify.create({
-        message: `New quest was created successfully`,
-        color: "positive",
-      });
-      this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
-    },
-  },
+  }
+})
+export default class QuestCreatePage extends Vue {
+  createQuest!: QuestsActionTypes["createQuest"];
+
+  group = "public"
+  public_private_bool = public_private_bool
+  quest: Partial<Quest> = {
+    name: "",
+    handle: "",
+    status: "draft",
+    public: true,
+    description: "",
+  }
+  ready = false
+  shape = "line"
+  submitResult = []
+  details = ""
+  handle = ""
+  type = false
+
+  async doSubmit() {
+    const res = await this.createQuest({ data: this.quest });
+    Notify.create({
+      message: `New quest was created successfully`,
+      color: "positive",
+    });
+    this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
+  }
   async beforeMount() {
     await userLoaded;
     this.ready = true;
-  },
+  }
 };
 </script>
 
