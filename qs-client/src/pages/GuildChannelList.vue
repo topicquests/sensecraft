@@ -85,7 +85,7 @@ import { BaseGetterTypes } from "../store/baseStore";
   methods: {
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["createChannelNode"]),
+    ...mapActions("channel", ["createChannelNode", "ensureChannels"]),
   },
   watch: {},
 })
@@ -112,6 +112,7 @@ export default class GuildChannelList extends Vue {
   fetchMemberById: MembersActionTypes["fetchMemberById"];
   createChannelNode: ChannelActionTypes["createChannelNode"];
   hasPermission: BaseGetterTypes["hasPermission"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
   canAddChannel() {
     return this.hasPermission(permission_enum.guildAdmin, this.guildId);
   }
@@ -148,8 +149,12 @@ export default class GuildChannelList extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
-    this.setCurrentGuild(this.guildId),
-    await this.ensureGuild({ guild_id: this.guildId });
+    this.setCurrentGuild(this.guildId)
+    const promises = [
+      this.ensureGuild({ guild_id: this.guildId }),
+      this.ensureChannels(this.guildId),
+    ];
+    await Promise.all(promises);
     this.ready = true;
   }
 }

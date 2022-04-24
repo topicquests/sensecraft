@@ -101,7 +101,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["createChannelNode"]),
+    ...mapActions("channel", ["createChannelNode", "ensureChannels"]),
   },
   watch: {},
   meta: (c) => ({
@@ -136,6 +136,7 @@ export default class GameChannelList extends Vue {
   fetchMemberById: MembersActionTypes["fetchMemberById"];
   createChannelNode: ChannelActionTypes["createChannelNode"];
   hasPermission: BaseGetterTypes["hasPermission"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
 
   canAddGuildChannel() {
     // todo: create_guild_channel permission
@@ -191,12 +192,14 @@ export default class GameChannelList extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
-    this.setCurrentGuild(this.guildId),
-    this.setCurrentQuest(this.questId),
     await userLoaded;
+    this.setCurrentGuild(this.guildId)
+    this.setCurrentQuest(this.questId)
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureQuest({ quest_id: this.questId }),
+      this.ensureChannels(this.guildId),
+      this.ensureChannels(this.guildId, this.questId),
     ]);
     this.ready = true;
   }

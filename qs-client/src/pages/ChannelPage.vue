@@ -206,7 +206,9 @@ export default class ChannelPage extends Vue {
     this.setCurrentQuest(this.questId);
     if (this.questId) {
       promises.push(this.ensureQuest({ quest_id: this.questId }));
+      promises.push(this.ensureChannels(this.guildId, this.questId));
     }
+    promises.push(this.ensureChannels(this.guildId));
     promises.push(this.ensureGuild({ guild_id: this.guildId }));
     promises.push(this.ensureAllRoles());
     promises.push(
