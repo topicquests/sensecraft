@@ -156,9 +156,7 @@ export default class GuildFormPage extends Vue {
   width: 25%;
 }
 #h4 {
-  color: blue;
   font-family: Arial, Helvetica, sans-serif;
-  text-decoration: underline;
   text-align: center;
 }
 </style>

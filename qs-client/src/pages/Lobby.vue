@@ -208,7 +208,6 @@ export default class LobbyPage extends Vue {
 <style>
 p {
   background-color: lightgrey;
-  color: blue;
   font-size: 15pt;
 }
 </style>

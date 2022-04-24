@@ -371,7 +371,6 @@ export default class QuestEditPage extends Vue {
 
 h4 {
   text-align: center;
-  color: blue;
 }
 .q-editor {
   width: 80%;

@@ -126,7 +126,7 @@
             <q-card class="guildAdmin-card">
               <div class="row justify-center">
                 <div >
-                  <h3 class="guidlAdmin-card-header">Guild Admins</h3>
+                  <h3 class="guildAdmin-card-header">Guild Admins</h3>
                 </div>
               </div>
               <div class="row q-pl-md">
@@ -774,10 +774,8 @@ export default class GuildAdminPage extends Vue {
   width: 40%;
   margin-left: 10%;
 }
-.guidlAdmin-card-header {
-  text-decoration: underline;
+.guildAdmin-card-header {
   font-family: Arial, Helvetica, sans-serif;
-  color:blue
 }
 .guild-card {
   margin-bottom: 2em;
@@ -785,9 +783,7 @@ export default class GuildAdminPage extends Vue {
   width: 40%;
 }
 .available-roles-card-header {
-  text-decoration: underline;
   font-family: Arial, Helvetica, sans-serif;
-  color:blue
 }
 
 .available-roles-card {
@@ -800,8 +796,6 @@ export default class GuildAdminPage extends Vue {
   width: 80%;
 }
 .roles-card-header {
-  text-decoration: underline;
   font-family: Arial, Helvetica, sans-serif;
-  color:blue;
 }
 </style>

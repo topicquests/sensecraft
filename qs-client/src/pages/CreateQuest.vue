@@ -113,9 +113,7 @@ export default {
   overflow-wrap: normal;
 }
 #h4 {
-  color: blue;
   font-family: Arial, Helvetica, sans-serif;
-  text-decoration: underline;
   text-align: center;
 }
 </style>
