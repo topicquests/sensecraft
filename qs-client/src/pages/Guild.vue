@@ -591,15 +591,6 @@ export default class GuildPage extends Vue {
         (gp: GamePlay) => gp.guild_id == this.currentGuildId
       );
   }
-  async doAddCasting(quest_id: number) {
-    await this.addCasting({
-      data: {
-        quest_id,
-        guild_id: this.currentGuildId,
-        member_id: this.memberId,
-      },
-    });
-  }
   checkPermissions() {
     this.isMember = !!this.isGuildMember(this.currentGuildId);
     if (this.isMember) {
