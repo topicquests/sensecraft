@@ -1,9 +1,9 @@
 <template>
-    <q-card style="min-width: 350px">
-      <q-card-section>
-        <div class="text-h6">Available Roles</div>
-      </q-card-section>
+    <q-card style="min-width: 350px" v-if="ready">
       <div v-if="availableRoles.length">
+        <q-card-section>
+          <div class="text-h6">Available Roles</div>
+        </q-card-section>
         <div v-for="role in availableRoles" :key="role.id">
           <q-radio
             v-model="roleId"
@@ -81,6 +81,7 @@ const MemberGameRegistrationProp = Vue.extend({
   methods: {
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions("quests", ["addCasting", "addCastingRole"]),
+    ...mapActions("members", ["ensureMembersOfGuild"]),
   },
 })
 export default class MemberGameRegistration extends MemberGameRegistrationProp {
@@ -89,11 +90,13 @@ export default class MemberGameRegistration extends MemberGameRegistrationProp {
   addCasting!: QuestsActionTypes["addCasting"];
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
   addCastingRole!: QuestsActionTypes["addCastingRole"];
+  ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
   availableRoles!: Role[];
   memberId!: number;
   member!: MemberState["member"];
 
   roleId: number = null;
+  ready = false;
 
   async doAddCasting(quest_id: number) {
     await this.addCasting({
@@ -117,7 +120,11 @@ export default class MemberGameRegistration extends MemberGameRegistrationProp {
   }
 
   async beforeMount() {
-    await this.ensureAllRoles();
+    await Promise.all([
+      this.ensureAllRoles(),
+      this.ensureMembersOfGuild({ guildId: this.guildId }),
+    ])
+    this.ready = true;
   }
 }
 </script>

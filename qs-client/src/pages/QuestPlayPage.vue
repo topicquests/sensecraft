@@ -33,17 +33,21 @@
           <span v-else-if="getCurrentQuest.status != 'registration'">
             The game has started
           </span>
-          <span v-else-if="guildsPlayingGame(true).length == 1">
-            Your guild {{ guildsPlayingGame(true)[0].name }} is playing!
-            <!-- todo: repeat the quest join mechanic here -->
-            Go <router-link :to="{name: 'guild', params:{
-              guild_id: guildsPlayingGame(true)[0].id,
-            }}">here</router-link> to join the team!
+          <span v-else-if="myPlayingGuilds.length == 1">
+            Your guild <router-link :to="{name: 'guild', params:{
+              guild_id: myPlayingGuilds[0].id,
+            }}">{{ myPlayingGuilds[0].name }}</router-link> is playing!
+            <q-btn
+              label="Join the game"
+              @click="registerMemberDialog = true"
+              style="margin-right: 1em"
+              class="bg-primary q-ml-md"
+            />
           </span>
-          <span v-else-if="guildsPlayingGame(true).length > 1">
+          <span v-else-if="myPlayingGuilds.length > 1">
             You are part of many guilds which are playing this quest. Pick one:
             <ul>
-              <li v-for="guild in guildsPlayingGame(true)" :key="guild.id">
+              <li v-for="guild in myPlayingGuilds" :key="guild.id">
                 <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
               </li>
             </ul>
@@ -98,6 +102,12 @@
             />
           </div>
         </div>
+        <q-dialog v-model="registerMemberDialog" persistent>
+          <member-game-registration
+            v-bind:guildId="mySelectedPlayingGuildId"
+            v-bind:questId="questId"
+          />
+        </q-dialog>
       </q-card>
     </div>
   </q-page>
@@ -138,12 +148,14 @@ import {
   Casting,
   ConversationNode,
   Member,
+  Guild,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
+import memberGameRegistration from "../components/member_game_registration.vue";
 
 @Component<QuestPlayPage>({
   components: {
@@ -152,6 +164,7 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
     questCard: questCard,
     nodeTree: nodeTree,
     CastingRoleEdit,
+    memberGameRegistration,
   },
   computed: {
     ...mapState("member", {
@@ -172,6 +185,12 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
       "getMemberById",
     ]),
     ...mapGetters(["hasPermission"]),
+    guildId() {
+      const casting: Casting = this.castingPerQuest[this.questId];
+      if (casting) {
+        return casting.guild_id
+      }
+    }
   },
   methods: {
     ...mapActions("quests", [
@@ -188,7 +207,8 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
     $route(to, from) {
       this.ready = false;
       this.initialize()
-    }
+    },
+    guildId: "initializeGuild"
   },
   meta: (c) => ({
     title: `Quest - ${c.getCurrentQuest?.name}`,
@@ -199,8 +219,10 @@ export default class QuestPlayPage extends Vue {
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;
   public_private_bool = public_private_bool;
-  guildId: number;
+  guildId!: number;
   questId: number;
+  myPlayingGuilds: Guild[];
+  mySelectedPlayingGuildId: number = null;
   newNode: Partial<ConversationNode> = {};
   selectedNodeId: number = null;
   newNodeParent: number = null;
@@ -208,6 +230,7 @@ export default class QuestPlayPage extends Vue {
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   allRoles!: RoleState["role"];
   ready = false;
+  registerMemberDialog = false;
 
   // declare state
   member!: Member;
@@ -259,28 +282,34 @@ export default class QuestPlayPage extends Vue {
     return guild_ids.map((gid) => this.getGuildById(gid));
   }
 
-  guildIfPlaying() {
-    const casting: Casting = this.castingPerQuest[this.questId];
-    if (casting) {
-      return casting.guild_id;
-    }
-  }
-
   async initialize() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
-    this.guildId = this.guildIfPlaying();
     this.setCurrentQuest(this.questId);
-    this.setCurrentGuild(this.guildId);
     const promises: Promise<any>[] = [
       this.ensureQuest({ quest_id: this.questId }),
       this.ensureGuildsPlayingQuest({ quest_id: this.questId }),
     ];
-    if (this.guildId) {
-      promises.push(this.ensureGuild({guild_id: this.guildId}));
-    }
-    await Promise.all(promises);
+    await Promise.all(promises)
+    // after so we have game_play ready
+    await this.initializeGuildInner()
     this.ready = true;
+  }
+  async initializeGuild() {
+    await this.initializeGuildInner()
+    this.ready = true
+  }
+  async initializeGuildInner() {
+    if (this.guildId) {
+      this.ready = false;
+      this.setCurrentGuild(this.guildId);
+      await this.ensureGuild({guild_id: this.guildId});
+    } else {
+      this.myPlayingGuilds = this.guildsPlayingGame(true);
+      if (this.myPlayingGuilds.length) {
+        this.mySelectedPlayingGuildId = this.myPlayingGuilds[0].id;
+      }
+    }
   }
   async beforeMount() {
     await this.initialize();

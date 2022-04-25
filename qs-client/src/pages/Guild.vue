@@ -325,7 +325,6 @@ import "../css/app.scss";
       "ensureAllQuests",
       "setCurrentQuest",
       "setCastingRole",
-      "addCasting",
       "addCastingRole",
       "deleteCastingRole",
       "updateGamePlay",
@@ -463,7 +462,6 @@ export default class GuildPage extends Vue {
   registerAllMembers!: GuildsActionTypes["registerAllMembers"];
   resetConversation!: ConversationActionTypes["resetConversation"];
   addGuildMembership!: GuildsActionTypes["addGuildMembership"];
-  addCasting!: QuestsActionTypes["addCasting"];
   addCastingRole!: QuestsActionTypes["addCastingRole"];
   deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
   ensureAllQuests!: QuestsActionTypes["ensureAllQuests"];
