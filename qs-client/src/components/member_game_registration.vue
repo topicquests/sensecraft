@@ -1,0 +1,147 @@
+<template>
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">Available Roles</div>
+      </q-card-section>
+      <div v-if="availableRoles.length">
+        <div v-for="role in availableRoles" :key="role.id">
+          <q-radio
+            v-model="roleId"
+            :label="role.name"
+            :val="role.id"
+            @input="updateRole()"
+            v-close-popup="true"
+          >
+          </q-radio>
+        </div>
+      </div>
+      <div v-else>
+        <div class="text-h6">Please ask your guild leader give you roles</div>
+      </div>
+      <q-card-actions align="right" class="text-primary">
+        <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
+      </q-card-actions>
+    </q-card>
+</template>
+
+<script lang="ts">
+import {
+  MemberState,
+  MemberGetterTypes,
+  MemberActionTypes,
+} from "../store/member";
+import {
+  MembersState,
+  MembersGetterTypes,
+  MembersActionTypes,
+} from "../store/members";
+import {
+  RoleState,
+  RoleGetterTypes,
+  RoleActionTypes,
+} from "../store/role";
+import {
+  QuestsGetterTypes,
+  QuestsActionTypes
+} from "../store/quests";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { Prop } from "vue/types/options";
+import { mapActions, mapGetters, mapState } from "vuex";
+import { Role } from '../types';
+
+// This component is obsolete, but may contain useful code
+
+const MemberGameRegistrationProp = Vue.extend({
+  props: {
+    show: Boolean,
+    questId: Number,
+    guildId: Number,
+  },
+});
+
+@Component<MemberGameRegistration>({
+  name: "MemberGameRegistration",
+  computed: {
+    ...mapGetters("role", ["getRoleById"]),
+    ...mapState("member", {
+      member: (state: MemberState) => state.member,
+      memberId: (state: MemberState) => state.member?.id,
+    }),
+    ...mapGetters("members", [
+      "getAvailableRolesMembersById",
+    ]),
+    availableRoles(): Role[] {
+      const memberId = this.memberId
+      const roleCastings = this.getAvailableRolesMembersById(memberId) || [];
+      const roles = roleCastings.map((cr) => this.getRoleById(cr.role_id));
+      return roles;
+    }
+  },
+  methods: {
+    ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("quests", ["addCasting", "addCastingRole", "deleteCastingRole"]),
+  },
+})
+export default class MemberGameRegistration extends MemberGameRegistrationProp {
+  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
+  getRoleById!: RoleGetterTypes["getRoleById"];
+  addCasting!: QuestsActionTypes["addCasting"];
+  ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
+  addCastingRole!: QuestsActionTypes["addCastingRole"];
+  deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
+  availableRoles!: Role[];
+  memberId!: number;
+  member!: MemberState["member"];
+
+  roleId: number = null;
+
+  async doAddCasting(quest_id: number) {
+    await this.addCasting({
+      data: {
+        quest_id,
+        guild_id: this.guildId,
+        member_id: this.memberId,
+      },
+    });
+  }
+
+  async castingRoleAdded(role_id: number) {
+    const guild_id = this.guildId;
+    const quest_id: number = this.questId;
+    await this.addCastingRole({
+      data: { member_id: this.memberId, role_id, guild_id, quest_id },
+    });
+  }
+
+  async castingRoleRemoved(role_id: number) {
+    const guild_id: number = this.guildId;
+    const quest_id: number = this.questId;
+    await this.deleteCastingRole({
+      params: {
+        member_id: this.memberId,
+        role_id,
+        guild_id,
+        quest_id,
+      },
+      data: {},
+    });
+  }
+  async updateRole() {
+    const guild_id = this.guildId;
+    const role_id = this.roleId;
+    const member_id = this.memberId;
+    const quest_id = this.questId;
+    await this.doAddCasting(quest_id);
+    await this.addCastingRole({
+      data: { member_id, guild_id, role_id, quest_id },
+    });
+  }
+
+  async beforeMount() {
+    await this.ensureAllRoles();
+  }
+}
+</script>
+<style lang="css">
+</style>

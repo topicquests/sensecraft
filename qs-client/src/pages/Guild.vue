@@ -115,9 +115,9 @@
             >
               <castingRoleEdit
                 class="q-ml-md"
-                v-if="getAvailableRolesById(memberId).length"
-                v-bind:availableRoles="getAvailableRolesById(memberId)"
-                v-bind:castingRoles="getRolesForQuest"
+                v-if="availableRoles.length"
+                v-bind:availableRoles="availableRoles"
+                v-bind:castingRoles="castingRoles"
                 v-bind:guildId="guildId"
                 v-bind:questId="currentQuestId"
                 v-bind:memberId="memberId"
@@ -170,29 +170,10 @@
           </div>
         </div>
         <q-dialog v-model="prompt" persistent>
-          <q-card style="min-width: 350px">
-            <q-card-section>
-              <div class="text-h6">Available Roles</div>
-            </q-card-section>
-            <div v-if="getAvailableRolesById(memberId).length">
-              <div v-for="role in getAvailableRolesById(memberId)" :key="role.id">
-                <q-radio
-                  v-model="roleId"
-                  :label="role.name"
-                  :val="role.id"
-                  @input="updateRole()"
-                  v-close-popup="true"
-                >
-                </q-radio>
-              </div>
-            </div>
-            <div v-else>
-              <div class="text-h6">Please ask your guild leader give you roles</div>
-            </div>
-            <q-card-actions align="right" class="text-primary">
-              <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
-            </q-card-actions>
-          </q-card>
+          <member-game-registration
+            v-bind:guildId="guildId"
+            v-bind:questId="currentQuestId"
+          />
         </q-dialog>
       </q-card>
     </div>
@@ -249,6 +230,7 @@ import { BaseGetterTypes } from "../store/baseStore";
 import { RoleActionTypes, RoleGetterTypes, RoleState } from "../store/role";
 import castingRoleEdit from "../components/casting_role_edit.vue";
 import guildMembers from "../components/guild-members.vue";
+import memberGameRegistration from "../components/member_game_registration.vue";
 import { ChannelActionTypes } from "../store/channel";
 import "../css/app.scss";
 
@@ -263,6 +245,7 @@ import "../css/app.scss";
     nodeForm: nodeForm,
     castingRoleEdit: castingRoleEdit,
     guildMembers: guildMembers,
+    memberGameRegistration: memberGameRegistration,
   },
   computed: {
     ...mapState("quests", {
@@ -313,12 +296,15 @@ import "../css/app.scss";
     }),
     ...mapGetters("conversation", ["getFocusNode", "getConversationNodeById"]),
     ...mapGetters(["hasPermission"]),
-    getRolesForQuest(): Role {
-      const castingRoles = this.castingRolesPerQuest(
-        this.memberId,
-        this.currentQuestId
-      );
+    castingRoles(): Role[] {
+      const currentQuest = this.getCurrentQuest;
+      const castingRoles = this.castingRolesPerQuest(this.memberId, currentQuest.id) || [];
       const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
+      return roles;
+    },
+    availableRoles(): Role[] {
+      const availableRoles = this.getAvailableRolesMembersById(this.memberId) || [];
+      const roles = availableRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
     },
   },
@@ -438,6 +424,8 @@ export default class GuildPage extends Vue {
   rootNode!: ConversationState["conversationRoot"];
   currentQuestIdS!: number;
   allRoles!: RoleState["role"];
+  availableRoles!: Role[];
+  castingRoles!: Role[];
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -486,7 +474,6 @@ export default class GuildPage extends Vue {
   updateQuest!: QuestsActionTypes["updateQuest"];
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
   getGuildMembers!: () => PublicMember[];
-  getRolesForQuest!: () => Role[];
 
   async initializeStage2() {
     this.checkPermissions();
@@ -524,11 +511,6 @@ export default class GuildPage extends Vue {
     if (this.guildGamePlays.length > 0) {
       const response = await this.initializeQuest();
     }
-  }
-  getAvailableRolesById(memberId: number) {
-    const roles = this.getAvailableRolesMembersById(memberId) || [];
-    const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
-    return roleName;
   }
   async initializeQuest() {
     var quest_id = this.currentQuestId;
@@ -579,6 +561,7 @@ export default class GuildPage extends Vue {
     }
     return "success";
   }
+
   async joinToGuild() {
     await this.addGuildMembership({
       guild_id: this.currentGuildId,
@@ -653,27 +636,11 @@ export default class GuildPage extends Vue {
     }
   }
 
-  getAvailableRoles() {
-    this.getMembersAvailableRoles.map((role) => {
-      this.roles.push(this.getRoleById(role.role_id));
-    });
-  }
-
   getQuestCreator() {
     const quest = this.getCurrentQuest;
     if (quest) {
       return this.getMemberById(quest.creator);
     }
-  }
-  async updateRole() {
-    const guild_id = this.guildId;
-    const role_id = this.roleId;
-    const member_id = this.memberId;
-    const quest_id = this.currentQuestId;
-    await this.doAddCasting(quest_id);
-    await this.addCastingRole({
-      data: { member_id, guild_id, role_id, quest_id },
-    });
   }
   async castingRoleAdded(role_id: number) {
     const guild_id = this.guildId;

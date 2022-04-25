@@ -64,15 +64,21 @@ const CastingRoleEditProps = Vue.extend({
       memberId: (state: MemberState) => state.member?.id,
     }),
   },
-  watch: {},
+  watch: {
+    castingRoles: "resetCastingRoles",
+  },
 })
 export default class CastingRoleEdit extends CastingRoleEditProps {
-  cr: Role[];
+  cr: Role[] = [];
   member: MemberState["member"];
   memberId: number;
 
-  created() {
+  resetCastingRoles() {
     this.cr = [...this.castingRoles];
+  }
+
+  created() {
+    this.resetCastingRoles()
   }
 
   castingRoleAdd(role_id: number) {
