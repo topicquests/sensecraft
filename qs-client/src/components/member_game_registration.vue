@@ -80,7 +80,7 @@ const MemberGameRegistrationProp = Vue.extend({
   },
   methods: {
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions("quests", ["addCasting", "addCastingRole", "deleteCastingRole"]),
+    ...mapActions("quests", ["addCasting", "addCastingRole"]),
   },
 })
 export default class MemberGameRegistration extends MemberGameRegistrationProp {
@@ -89,7 +89,6 @@ export default class MemberGameRegistration extends MemberGameRegistrationProp {
   addCasting!: QuestsActionTypes["addCasting"];
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
   addCastingRole!: QuestsActionTypes["addCastingRole"];
-  deleteCastingRole!: QuestsActionTypes["deleteCastingRole"];
   availableRoles!: Role[];
   memberId!: number;
   member!: MemberState["member"];
@@ -106,27 +105,6 @@ export default class MemberGameRegistration extends MemberGameRegistrationProp {
     });
   }
 
-  async castingRoleAdded(role_id: number) {
-    const guild_id = this.guildId;
-    const quest_id: number = this.questId;
-    await this.addCastingRole({
-      data: { member_id: this.memberId, role_id, guild_id, quest_id },
-    });
-  }
-
-  async castingRoleRemoved(role_id: number) {
-    const guild_id: number = this.guildId;
-    const quest_id: number = this.questId;
-    await this.deleteCastingRole({
-      params: {
-        member_id: this.memberId,
-        role_id,
-        guild_id,
-        quest_id,
-      },
-      data: {},
-    });
-  }
   async updateRole() {
     const guild_id = this.guildId;
     const role_id = this.roleId;
