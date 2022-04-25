@@ -247,6 +247,7 @@ const NodeTreeProps = Vue.extend({
   },
   watch: {
     selectedNodeId: "selectionChanged",
+    currentGuildId: "guildChanged",
   },
 })
 export default class NodeTree extends NodeTreeProps {
@@ -543,6 +544,10 @@ export default class NodeTree extends NodeTreeProps {
         guild: this.currentGuildId});
     }
     return await this.ensureConversation(this.currentQuestId);
+  }
+
+  async guildChanged() {
+    // TODO. Force reload of tree
   }
 
   async beforeMount() {
