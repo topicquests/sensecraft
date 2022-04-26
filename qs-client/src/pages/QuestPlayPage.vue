@@ -304,7 +304,7 @@ export default class QuestPlayPage extends Vue {
       this.ready = false;
       this.setCurrentGuild(this.guildId);
       await this.ensureGuild({guild_id: this.guildId});
-    } else {
+    } else if (this.member) {
       this.myPlayingGuilds = this.guildsPlayingGame(true);
       if (this.myPlayingGuilds.length) {
         this.mySelectedPlayingGuildId = this.myPlayingGuilds[0].id;

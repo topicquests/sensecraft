@@ -67,6 +67,7 @@ export interface ConversationState extends Object {
   full: boolean;
   node?: ConversationNode;
   currentQuest?: number;
+  // currentGuild?: number;
   conversation: ConversationMap;
   neighbourhoodRoot?: number;
   neighbourhood: ConversationMap;
@@ -280,6 +281,7 @@ const ConversationGetters = {
 
 const ConversationActions = {
   ensureConversation: async (context, quest_id: number) => {
+    // maybe allow guildId, min status.
     if (quest_id != context.state.currentQuest || !context.state.full) {
       await context.dispatch("fetchConversation", { params: { quest_id } });
     }
