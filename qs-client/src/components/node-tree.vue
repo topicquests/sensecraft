@@ -44,6 +44,14 @@
       <div class="row items-center">
         <q-icon :name="prop.node.icon" class="q-mr-sm" />
         <span
+          :class="
+            'node-title node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
+          "
+        >
+          {{ prop.node.label  }}</span>
+          &nbsp;-&nbsp;<span class="node-creator">{{ getMemberHandle(prop.node.creator_id) }}</span>
+        <span class="threat-status" v-if="threats && threats[prop.node.id]"
+          >&nbsp;[<span
           v-if="scores && scores[prop.node.id]"
           :class="
             'score' +
@@ -52,19 +60,7 @@
               : ' other-score') +
             (scores[prop.node.id] < 0 ? ' score-neg' : ' score-pos')
           "
-        >
-          {{ scores[prop.node.id] }}&nbsp;
-        </span>
-        <div
-          :class="
-            'node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
-          "
-        >
-          {{ prop.node.label  }} - {{ getMemberHandle(prop.node.creator_id) }}
-        </div>
-        <span class="threat" v-if="threats && threats[prop.node.id]"
-          >&nbsp;[{{ threats[prop.node.id] }}]</span
-        >
+        >{{ scores[prop.node.id] }}</span>&nbsp;{{ threats[prop.node.id] }}]</span>
         <q-btn
           size="xs"
           :flat="true"
@@ -585,6 +581,24 @@ export default class NodeTree extends NodeTreeProps {
 }
 </script>
 <style>
+.node-title {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.2em;
+}
+.node-creator {
+  font-size: small
+}
+.score {
+  font-size: small
+}
+.threat-status {
+  color: grey;
+  font-size: small
+}
+.q-tree__node--selected {
+  border: 1px dashed #ccc;
+  margin: -1px;
+}
 .node-status-private_draft {
   color: red;
 }
@@ -621,8 +635,5 @@ export default class NodeTree extends NodeTreeProps {
 }
 .score-neg.other-score {
   color: orange;
-}
-.threat {
-  color: grey;
 }
 </style>
