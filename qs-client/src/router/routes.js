@@ -53,6 +53,11 @@ const routes = [
         component: () => import("pages/QuestRequest.vue"),
       },
       {
+        path: "/quest/:quest_id/node/:node_id(\\d+)",
+        name: "quest_page_node",
+        component: () => import("pages/QuestPlayPage.vue"),
+      },
+      {
         path: "/quest/:quest_id",
         name: "quest_page",
         component: () => import("pages/QuestPlayPage.vue"),

@@ -96,7 +96,8 @@
             <node-tree
               v-bind:currentQuestId="questId"
               v-bind:currentGuildId="guildId"
-              v-on:updateTree="selectionChanged"
+              v-bind:initialSelectedNodeId="selectedNodeId"
+              @tree-selection="selectionChanged"
               :channelId="null"
               :editable="true"
             />
@@ -205,8 +206,10 @@ import memberGameRegistration from "../components/member_game_registration.vue";
   },
   watch: {
     $route(to, from) {
-      this.ready = false;
-      this.initialize()
+      if (from.params.quest_id != to.params.quest_id) {
+        this.ready = false;
+        this.initialize()
+      }
     },
     guildId: "initializeGuild"
   },
@@ -256,7 +259,13 @@ export default class QuestPlayPage extends Vue {
   }
 
   selectionChanged(id) {
-    this.selectedNodeId = id;
+    this.$router.push({
+      name: id ? "quest_page_node" : "quest_page",
+      params: {
+        quest_id: String(this.questId),
+        node_id: id ? String(id) : undefined
+      },
+    });
   }
 
   guildsPlayingGame(only_mine: boolean= false, recruiting: boolean=false) {
@@ -284,6 +293,9 @@ export default class QuestPlayPage extends Vue {
 
   async initialize() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
+    if (this.$route.params.node_id) {
+      this.selectedNodeId = Number.parseInt(this.$route.params.node_id);
+    }
     await userLoaded;
     this.setCurrentQuest(this.questId);
     const promises: Promise<any>[] = [

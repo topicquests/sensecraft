@@ -36,6 +36,7 @@
     node-key="id"
     label-key="title"
     default-expand-all
+    @update:selected="selectionChanged"
     :selected.sync="selectedNodeId"
     :filter-method="filterMethod"
     :filter="searchFilter_"
@@ -166,6 +167,7 @@ const NodeTreeProps = Vue.extend({
     channelId: Number || null,
     editable: Boolean,
     hideDescription: Boolean,
+    initialSelectedNodeId: Number || null,
   },
 });
 
@@ -242,7 +244,6 @@ const NodeTreeProps = Vue.extend({
     },
   },
   watch: {
-    selectedNodeId: "selectionChanged",
     currentGuildId: "guildChanged",
   },
 })
@@ -303,6 +304,10 @@ export default class NodeTree extends NodeTreeProps {
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+
+  emits = [
+    "tree-selection"
+  ]
 
   calcPublicationConstraints(node: Partial<ConversationNode>) {
     if (!this.currentGuildId) {
@@ -513,6 +518,7 @@ export default class NodeTree extends NodeTreeProps {
   }
   selectionChanged(id) {
     this.selectedNodeId = id;
+    this.$emit("tree-selection", id);
   }
   async changeNeighbourhood() {
     this.ready = false;
@@ -547,6 +553,7 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   async beforeMount() {
+    this.selectedNodeId = this.initialSelectedNodeId;
     let promises = [
       this.ensureAllRoles(),
     ];
@@ -586,6 +593,7 @@ export default class NodeTree extends NodeTreeProps {
   font-size: 1.2em;
 }
 .node-creator {
+  color: black;
   font-size: small
 }
 .score {
@@ -596,8 +604,9 @@ export default class NodeTree extends NodeTreeProps {
   font-size: small
 }
 .q-tree__node--selected {
-  border: 1px dashed #ccc;
-  margin: -1px;
+  border: 1px dashed #bbb;
+  margin: 2px -1px -1px -1px;
+  background-color: #f8f8f8;
 }
 .node-status-private_draft {
   color: red;
