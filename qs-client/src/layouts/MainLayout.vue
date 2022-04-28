@@ -98,14 +98,14 @@
     <q-drawer v-model="leftDrawer" :breakpoint="200" bordered :overlay="true">
       <q-scroll-area class="fit">
         <q-list>
-          <q-item clickable v-ripple :to="{ name: 'root' }">
+          <q-item clickable v-ripple id="root">
             <q-item-section>
-              <q-btn to="/">Home</q-btn>
+              <q-btn :to="{ name: 'root' }">Home</q-btn>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple :to="{ name: 'house_rules' }">
+          <q-item clickable v-ripple id="house_rules">
             <q-item-section>
-              <q-btn to="/house_rules">House Rules</q-btn>
+              <q-btn :to="{name: 'house_rules'}">House Rules</q-btn>
             </q-item-section>
           </q-item>
 
@@ -117,10 +117,9 @@
           <q-item
             clickable
             v-ripple
-            :to="{ name: 'quest_list' }"
             id="questView"
           >
-            <q-item-section>
+            <q-item-section id="quest_list">
               <q-item-label>
                 <q-btn :to="{ name: 'quest_list' }">All Quests </q-btn>
               </q-item-label>
