@@ -150,6 +150,7 @@ import {
   ConversationNode,
   Member,
   Guild,
+  GamePlay,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -176,7 +177,7 @@ import memberGameRegistration from "../components/member_game_registration.vue";
       "castingPerQuest",
     ]),
     ...mapGetters("quests", [
-      "getCurrentQuest", "isQuestMember"
+      "getCurrentQuest", "isQuestMember", "getCurrentGamePlay"
     ]),
     ...mapGetters("guilds", [
       "getCurrentGuild",
@@ -238,6 +239,7 @@ export default class QuestPlayPage extends Vue {
   // declare state
   member!: Member;
   memberId!: number;
+
   // declare the computed attributes for Typescript
   hasPermission!: BaseGetterTypes["hasPermission"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
@@ -246,6 +248,7 @@ export default class QuestPlayPage extends Vue {
   getMemberById!: MembersGetterTypes["getMemberById"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   isQuestMember!: QuestsGetterTypes["isQuestMember"];
+  getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
 
   // declare the action attributes for Typescript
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
@@ -316,6 +319,9 @@ export default class QuestPlayPage extends Vue {
       this.ready = false;
       this.setCurrentGuild(this.guildId);
       await this.ensureGuild({guild_id: this.guildId});
+      if (!this.selectedNodeId) {
+        this.selectedNodeId = this.getCurrentGamePlay?.focus_node_id;
+      }
     } else if (this.member) {
       this.myPlayingGuilds = this.guildsPlayingGame(true);
       if (this.myPlayingGuilds.length) {
