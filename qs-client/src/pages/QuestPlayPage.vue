@@ -188,7 +188,8 @@ import memberGameRegistration from "../components/member_game_registration.vue";
     ]),
     ...mapGetters(["hasPermission"]),
     guildId() {
-      const casting: Casting = this.castingPerQuest[this.questId];
+      const quest_id = this.getCurrentQuest?.id
+      const casting: Casting = this.castingPerQuest[quest_id];
       if (casting) {
         return casting.guild_id
       }
