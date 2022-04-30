@@ -131,6 +131,17 @@ export function ibis_node_icon(
   }
 }
 
+export function depthFirst(tree: QTreeNode, seq: number[] = []): number[] {
+  if (!tree) {
+    return seq;
+  }
+  seq.push(tree.id)
+  for (const child of tree.children || []) {
+    depthFirst(child, seq);
+  }
+  return seq
+}
+
 export function makeTree(
   nodes: ConversationNode[],
   upToStatus: publication_state_enum = publication_state_enum.obsolete,
@@ -158,6 +169,7 @@ export function makeTree(
     )
       return;
     const parent = el.parent_id ? byId[el.parent_id] : null;
+    el.parent = parent;
     if (parent) {
       parent.children.push(el);
     } else {
@@ -197,6 +209,10 @@ const ConversationGetters = {
       Object.values(state.conversation),
       publication_state_enum.private_draft
     ),
+  getTreeSequence: (state: ConversationState): number[] =>
+    depthFirst(makeTree(Object.values(
+        state.conversation || state.neighbourhood,
+      ))[0]),
   getThreatMap: (state: ConversationState): ThreatMap => {
     const tree = MyVapi.store.getters["conversation/getConversationTree"];
     if (tree && tree.length > 0) {

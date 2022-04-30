@@ -32,7 +32,8 @@
     </q-btn>
   </div>
   <q-tree
-    :nodes="nodes"
+    ref="tree"
+    :nodes="nodesTree"
     node-key="id"
     label-key="title"
     default-expand-all
@@ -127,11 +128,13 @@ import { Prop } from "vue/types/options";
 import { ConversationNode, Role, QTreeNode, Quest } from "../types";
 import NodeForm from "./node-form.vue";
 import {
+  ConversationMap,
   ConversationState,
   ConversationGetterTypes,
   ConversationActionTypes,
   ibis_child_types,
 } from "../store/conversation";
+import {QTree} from "quasar"
 import {
   QuestsState,
   QuestsGetterTypes,
@@ -193,6 +196,7 @@ const NodeTreeProps = Vue.extend({
     ...mapActions("role", ["ensureAllRoles"]),
   },
   computed: {
+    ...mapState("conversation", ["neighbourhood", "conversation"]),
     ...mapGetters({
       canEditConversation: "conversation/canEdit",
       canEditChannel: "channel/canEdit",
@@ -207,6 +211,7 @@ const NodeTreeProps = Vue.extend({
       "getNeighbourhoodTree",
       "getThreatMap",
       "getScoreMap",
+      "getTreeSequence",
       "getPrivateThreatMap",
       "getPrivateScoreMap",
       "getPrivateConversationTree",
@@ -223,7 +228,19 @@ const NodeTreeProps = Vue.extend({
     ...mapGetters('members', ['getMemberById']),
     ...mapGetters('role', ['getRoles']),
     searchFilter_: function() { return this.searchFilter+"_" },
-    nodes: function(): QTreeNode[] {
+    nodeMap: function(): ConversationMap {
+      if (this.channelId)
+        return this.getChannelById(this.channelId);
+      if (this.showFocusNeighbourhood)
+        return this.neighbourhood;
+      if (this.currentGuildId)
+        return this.conversation;
+      const entries: [string, ConversationNode][] = Object.entries(this.conversation)
+      return Object.fromEntries(
+        entries.filter(([id, node]) => node.status == 'published')
+      )
+    },
+    nodesTree: function(): QTreeNode[] {
       if (this.channelId)
         return this.getChannelConversationTree(this.channelId);
       if (this.showFocusNeighbourhood)
@@ -266,7 +283,7 @@ export default class NodeTree extends NodeTreeProps {
   searchFilter_!: string;
   threats!: ThreatMap;
   scores!: ScoreMap;
-  nodes!: QTreeNode[];
+  nodesTree!: QTreeNode[];
   getChannelConversationTree: ChannelGetterTypes["getChannelConversationTree"];
   getPrivateConversationTree: ConversationGetterTypes["getPrivateConversationTree"];
   canEditChannel: ChannelGetterTypes["canEdit"];
@@ -289,6 +306,8 @@ export default class NodeTree extends NodeTreeProps {
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getRoles!: RoleGetterTypes['getRoles'];
+  getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
+  nodeMap!: ConversationMap;
 
   createChannelNode: ChannelActionTypes["createChannelNode"];
   updateChannelNode: ChannelActionTypes["updateChannelNode"];
@@ -395,7 +414,7 @@ export default class NodeTree extends NodeTreeProps {
     if (!this.showObsolete && node.status == "obsolete") return false;
     if (!this.showMeta && node.meta == "meta") return false;
     if (!this.showDraft && node.status != "published") return false;
-    if (this.searchFilter != '') {
+    if (filter_string.length > 1) {
       const search_string = this.searchFilter.toLowerCase();
       if (node.title.toLowerCase().indexOf(search_string) < 0 &&
           (node.description || '').toLowerCase().indexOf(search_string) < 0
@@ -552,7 +571,101 @@ export default class NodeTree extends NodeTreeProps {
     // TODO. Force reload of tree
   }
 
+  keyResponder(evt) {
+    if (!(this.selectedNodeId || this.addingChildToNodeId)) return;
+    const qtree = this.$refs.tree as QTree;
+    if (!qtree) return;
+    const nodeName = evt.target.nodeName;
+    if (nodeName != "BODY" && nodeName != "DIV") return;
+    switch (evt.key) {
+      case "ArrowUp":
+        this.selectPrevious();
+        break;
+      case "ArrowDown":
+        this.selectNext();
+        break;
+      case "ArrowLeft":
+        qtree.setExpanded(this.selectedNodeId, false);
+        break;
+      case "ArrowRight":
+        qtree.setExpanded(this.selectedNodeId, true);
+        break;
+      case "Escape":
+        this.editingNodeId = null;
+        this.addingChildToNodeId = null;
+        break;
+      case "Enter":
+        if (this.editable &&
+            this.canEdit(this.selectedNodeId) &&
+            !this.editingNodeId &&
+            !this.addingChildToNodeId)
+          this.editNode(this.selectedNodeId);
+        break;
+      case "+":
+        if (this.editable && !this.editingNodeId && !this.addingChildToNodeId)
+          this.addChildToNode(this.selectedNodeId)
+    }
+  }
+
+  hiddenByCollapse(qnode: QTreeNode) {
+    const qtree = this.$refs.tree as QTree;
+    while (qnode) {
+      qnode = qnode.parent;
+      if (!qnode) break;
+      if (!qtree.isExpanded(qnode.id)) return true;
+    }
+    return false;
+  }
+
+  inSearchFilter(qnode: QTreeNode) {
+    // assume searchFilter not empty
+    if (this.filterMethod(qnode, this.searchFilter_)) return true;
+    for (const child of qnode.children || []) {
+      if (this.inSearchFilter(child)) return true;
+    }
+    return false;
+  }
+
+  selectPrevious() {
+    const qtree = this.$refs.tree as QTree;
+    const sequence = this.getTreeSequence;
+    let pos = sequence.indexOf(this.selectedNodeId) - 1;
+    while (pos >= 0) {
+      const node_id = sequence[pos--];
+      const qnode = qtree.getNodeByKey(node_id) as QTreeNode;
+      if (qnode && this.filterMethod(qnode, "") && !this.hiddenByCollapse(qnode)) {
+        if (this.searchFilter.length > 0 && !this.inSearchFilter(qnode)) {
+          continue;
+        }
+        this.selectionChanged(qnode.id);
+        return;
+      }
+    }
+  }
+
+  selectNext() {
+    const qtree = this.$refs.tree as QTree;
+    const sequence = this.getTreeSequence;
+    let pos = sequence.indexOf(this.selectedNodeId) + 1;
+    while (pos < sequence.length) {
+      const node_id = sequence[pos++];
+      const qnode = qtree.getNodeByKey(node_id) as QTreeNode;
+      if (qnode && this.filterMethod(qnode, "") && !this.hiddenByCollapse(qnode)) {
+        if (this.searchFilter.length > 0 && !this.inSearchFilter(qnode)) {
+          continue;
+        }
+        this.selectionChanged(qnode.id);
+        return;
+      }
+    }
+  }
+
+  beforeUnmount() {
+    document.removeEventListener("keyup", this.keyResponder);
+  }
+
   async beforeMount() {
+    document.addEventListener("keyup", this.keyResponder);
     this.selectedNodeId = this.initialSelectedNodeId;
     let promises = [
       this.ensureAllRoles(),

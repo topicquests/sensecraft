@@ -110,6 +110,7 @@ export interface QTreeNode extends ConversationNode {
   label: string;
   color?: string;
   icon?: string;
+  parent?: QTreeNode;
 }
 
 export type generic_id = number | string;
