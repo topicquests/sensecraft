@@ -651,11 +651,13 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   scrollToNode(id, later=null) {
-    if (later !== null)
+    if (later !== null) {
       setTimeout(() => this.scrollToNode(id, null), later);
-    const vnode = this.$refs["node_" + id] as Element
-    if (vnode)
-      vnode.scrollIntoView({block:"center"})
+    } else {
+      const vnode = this.$refs["node_" + id] as Element
+      if (vnode)
+        vnode.scrollIntoView({block:"center"})
+    }
   }
 
   selectPrevious() {
