@@ -561,9 +561,9 @@ export default class NodeTree extends NodeTreeProps {
       if (!node_id) {
         await this.ensureRootNode(this.currentQuestId);
         node_id = this.getRootNode?.id;
-      }
-      if (node_id) {
-        this.selectedNodeId = node_id;
+      } else {
+        if (!this.initialSelectedNodeId)
+          this.selectedNodeId = node_id;
         return await this.ensureConversationNeighbourhood({
           node_id,
           guild: this.currentGuildId,
@@ -650,6 +650,14 @@ export default class NodeTree extends NodeTreeProps {
     return false;
   }
 
+  scrollToNode(id, later=null) {
+    if (later !== null)
+      setTimeout(() => this.scrollToNode(id, null), later);
+    const vnode = this.$refs["node_" + id] as Element
+    if (vnode)
+      vnode.scrollIntoView({block:"center"})
+  }
+
   selectPrevious() {
     const qtree = this.$refs.tree as QTree;
     const sequence = this.getTreeSequence;
@@ -662,9 +670,7 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
-        const vnode = this.$refs["node_" + qnode.id] as Element
-        if (vnode)
-          setTimeout(() => vnode.scrollIntoView({block:"center"}), 100);
+        this.scrollToNode(qnode.id, 10);
         return true;
       }
     }
@@ -682,9 +688,7 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
-        const vnode = this.$refs["node_" + qnode.id] as Element
-        if (vnode)
-          setTimeout(() => vnode.scrollIntoView({block:"center"}), 100);
+        this.scrollToNode(qnode.id, 10);
         return true;
       }
     }
@@ -730,6 +734,7 @@ export default class NodeTree extends NodeTreeProps {
         this.ensureMemberById({ id: this.getCurrentQuest.creator })
       );
     await Promise.all(promises);
+    this.scrollToNode(this.selectedNodeId, 100);
     this.ready = true;
   }
 }
