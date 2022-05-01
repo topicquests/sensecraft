@@ -43,7 +43,8 @@
     :filter="searchFilter_"
   >
     <template v-slot:default-header="prop">
-      <div class="row items-center">
+      <div class="row items-center"
+          :ref="'node_' + prop.node.id">
         <q-icon :name="prop.node.icon" class="q-mr-sm" />
         <span
           :class="
@@ -660,6 +661,10 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
+        const vnode = this.$refs["node_" + qnode.id] as Element
+        console.log(vnode)
+        if (vnode)
+          setTimeout(() => vnode.scrollIntoView(), 100);
         return true;
       }
     }
@@ -677,6 +682,10 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
+        const vnode = this.$refs["node_" + qnode.id] as Element
+        console.log(vnode)
+        if (vnode)
+          setTimeout(() => vnode.scrollIntoView(), 100);
         return true;
       }
     }
