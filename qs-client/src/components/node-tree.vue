@@ -282,6 +282,7 @@ export default class NodeTree extends NodeTreeProps {
   showFocusNeighbourhood: Boolean = false;
   searchFilter = '';
   ready = false;
+  listenerInstalled = false;
 
   searchFilter_!: string;
   threats!: ThreatMap;
@@ -662,9 +663,8 @@ export default class NodeTree extends NodeTreeProps {
         }
         this.selectionChanged(qnode.id);
         const vnode = this.$refs["node_" + qnode.id] as Element
-        console.log(vnode)
         if (vnode)
-          setTimeout(() => vnode.scrollIntoView(), 100);
+          setTimeout(() => vnode.scrollIntoView({block:"center"}), 100);
         return true;
       }
     }
@@ -683,20 +683,23 @@ export default class NodeTree extends NodeTreeProps {
         }
         this.selectionChanged(qnode.id);
         const vnode = this.$refs["node_" + qnode.id] as Element
-        console.log(vnode)
         if (vnode)
-          setTimeout(() => vnode.scrollIntoView(), 100);
+          setTimeout(() => vnode.scrollIntoView({block:"center"}), 100);
         return true;
       }
     }
   }
 
   beforeUnmount() {
-    document.removeEventListener("keyup", this.keyResponder);
+    if (this.listenerInstalled)
+      document.removeEventListener("keyup", this.keyResponder);
   }
 
   async beforeMount() {
-    document.addEventListener("keyup", this.keyResponder);
+    if (!this.listenerInstalled) {
+      document.addEventListener("keyup", this.keyResponder);
+      this.listenerInstalled = true;
+    }
     this.selectedNodeId = this.initialSelectedNodeId;
     let promises = [
       this.ensureAllRoles(),
