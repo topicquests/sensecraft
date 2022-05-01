@@ -1,7 +1,7 @@
 <template>
   <q-card class="node-card q-pa-md">
     <section class="node-card-title">
-      <q-input v-model="node.title" label="Node title" />
+      <q-input v-model="node.title" label="Node title" ref="title"/>
       <h3 class="q-ma-md">
         <IbisButton v-bind:node_type="node.node_type"></IbisButton>
         {{ node.title }}
@@ -179,6 +179,9 @@ export default class NodeForm extends NodeFormProps {
   }
   statusChanged(event) {
     if (this.pubFn) this.pub_state_list = this.pubFn(this.node);
+  }
+  setFocus() {
+    this.$refs.title.focus();
   }
 }
 </script>

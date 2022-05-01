@@ -92,6 +92,7 @@
         <div class="node-description" v-html="prop.node.description"></div>
       </div>
       <node-form
+        :ref="'editForm_' + prop.node.id"
         v-if="editable && prop.node.id == editingNodeId"
         :nodeInput="selectedNode(true)"
         :allowAddChild="false"
@@ -104,6 +105,7 @@
         v-on:cancel="cancel"
       />
       <node-form
+        :ref="'addChildForm_' + prop.node.id"
         v-if="editable && prop.node.id == addingChildToNodeId"
         :nodeInput="newNode"
         :allowAddChild="false"
@@ -455,6 +457,12 @@ export default class NodeTree extends NodeTreeProps {
     }
     this.calcPublicationConstraints(selectedNode);
     this.editingNodeId = nodeId;
+    const refs = this.$refs
+    setTimeout(() => {
+      const form = refs[`editForm_${nodeId}`] as NodeForm;
+      if (form)
+        form.setFocus();
+    }, 0);
   }
   addChildToNode(nodeId: number) {
     this.editingNodeId = null;
@@ -462,21 +470,22 @@ export default class NodeTree extends NodeTreeProps {
     const parent_ibis_type = parent.node_type;
     this.childIbisTypes = ibis_child_types(parent_ibis_type);
     this.allowChangeMeta = parent.meta === "conversation";
-    this.newNode = Object.assign(
-      {
-        status: "private_draft",
-      },
-      this.newNode,
-      {
-        node_type: this.childIbisTypes[0],
-        parent_id: nodeId,
-        quest_id: parent.quest_id,
-        guild_id: parent.guild_id,
-        meta: parent.meta,
-      }
-    );
+    this.newNode = {
+      status: "private_draft",
+      node_type: this.childIbisTypes[0],
+      parent_id: nodeId,
+      quest_id: parent.quest_id,
+      guild_id: parent.guild_id,
+      meta: parent.meta,
+    }
     this.calcPublicationConstraints(this.newNode);
     this.addingChildToNodeId = nodeId;
+    const refs = this.$refs
+    setTimeout(() => {
+      const form = refs[`addChildForm_${nodeId}`] as NodeForm;
+      if (form)
+        form.setFocus();
+    }, 0);
   }
   cancel() {
     this.editingNodeId = null;
@@ -576,7 +585,16 @@ export default class NodeTree extends NodeTreeProps {
     const qtree = this.$refs.tree as QTree;
     if (!qtree) return;
     const nodeName = evt.target.nodeName;
-    if (nodeName != "BODY" && nodeName != "DIV") return;
+    const inField = !(nodeName == "BODY" || nodeName == "DIV");
+    if (this.editingNodeId || this.addingChildToNodeId) {
+      if (evt.key == "Escape" || (evt.key == "Enter" && nodeName == "BODY")) {
+        this.editingNodeId = null;
+        this.addingChildToNodeId = null;
+        evt.preventDefault()
+      }
+      return
+    }
+    if (inField) return;
     switch (evt.key) {
       case "ArrowUp":
         if (this.selectPrevious())
@@ -593,13 +611,6 @@ export default class NodeTree extends NodeTreeProps {
       case "ArrowRight":
         qtree.setExpanded(this.selectedNodeId, true);
         evt.preventDefault()
-        break;
-      case "Escape":
-        if (this.editingNodeId || this.addingChildToNodeId) {
-          this.editingNodeId = null;
-          this.addingChildToNodeId = null;
-          evt.preventDefault()
-        }
         break;
       case "Enter":
         if (this.editable &&
