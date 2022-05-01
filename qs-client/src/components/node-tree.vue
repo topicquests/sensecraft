@@ -579,31 +579,42 @@ export default class NodeTree extends NodeTreeProps {
     if (nodeName != "BODY" && nodeName != "DIV") return;
     switch (evt.key) {
       case "ArrowUp":
-        this.selectPrevious();
+        if (this.selectPrevious())
+          evt.preventDefault()
         break;
       case "ArrowDown":
-        this.selectNext();
+        if (this.selectNext())
+          evt.preventDefault()
         break;
       case "ArrowLeft":
         qtree.setExpanded(this.selectedNodeId, false);
+        evt.preventDefault()
         break;
       case "ArrowRight":
         qtree.setExpanded(this.selectedNodeId, true);
+        evt.preventDefault()
         break;
       case "Escape":
-        this.editingNodeId = null;
-        this.addingChildToNodeId = null;
+        if (this.editingNodeId || this.addingChildToNodeId) {
+          this.editingNodeId = null;
+          this.addingChildToNodeId = null;
+          evt.preventDefault()
+        }
         break;
       case "Enter":
         if (this.editable &&
             this.canEdit(this.selectedNodeId) &&
             !this.editingNodeId &&
-            !this.addingChildToNodeId)
-          this.editNode(this.selectedNodeId);
+            !this.addingChildToNodeId) {
+          this.editNode(this.selectedNodeId)
+          evt.preventDefault()
+        }
         break;
       case "+":
-        if (this.editable && !this.editingNodeId && !this.addingChildToNodeId)
+        if (this.editable && !this.editingNodeId && !this.addingChildToNodeId) {
           this.addChildToNode(this.selectedNodeId)
+          evt.preventDefault()
+        }
     }
   }
 
@@ -638,7 +649,7 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
-        return;
+        return true;
       }
     }
   }
@@ -655,7 +666,7 @@ export default class NodeTree extends NodeTreeProps {
           continue;
         }
         this.selectionChanged(qnode.id);
-        return;
+        return true;
       }
     }
   }
