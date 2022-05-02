@@ -7,6 +7,16 @@
         {{ node.title }}
       </h3>
     </section>
+    <section v-if="node.url || node.node_type=='reference'">
+      <template v-if="editing">
+        <q-input v-model="node.url" label="URL" ref="url"/>
+      </template>
+      <template v-else>
+        <a v-bind:href="node.url" target="_blank">
+          {{ node.url }}
+        </a>
+      </template>
+    </section>
     <section>
       <div
         class="row q-pb-xs q-ma-lg"
@@ -109,6 +119,7 @@ import Component from "vue-class-component";
 import IbisButton from "./ibis-btn.vue";
 import { ConversationNode, Role } from "../types";
 import {
+  ibis_node_type_enum,
   ibis_node_type_list,
   ibis_node_type_type,
   publication_state_enum,

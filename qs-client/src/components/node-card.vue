@@ -8,6 +8,11 @@
         </h3>
       </section>
       <section>
+        <div v-if="node.url">
+          <a v-bind:href="node.url" target="_blank">
+            {{ node.url }}
+          </a>
+        </div>
         <div>
           <p id="node-card-detail-header">Details<br /></p>
         </div>

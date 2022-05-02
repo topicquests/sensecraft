@@ -90,6 +90,11 @@
         v-if="prop.node.id != editingNodeId && !hideDescription"
         class="row items-center"
       >
+        <div v-if="prop.node.url">
+          <a v-bind:href="prop.node.url" target="_blank">
+            {{ prop.node.url }}
+          </a>
+        </div>
         <div class="node-description" v-html="prop.node.description"></div>
       </div>
       <node-form
