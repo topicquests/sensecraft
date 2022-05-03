@@ -60,6 +60,34 @@ Feature: Base scoring
     When We apply basic scoring
     Then The score of n2 will be higher than the score of n3
 
+  Scenario: Comments do not support
+    Given A conversation with two options and a threat supported by a comment
+      """
+      node_type: question
+      children:
+        - node_type: answer
+          id: n2
+          guild_id: 1
+          children:
+            - node_type: con
+              guild_id: 2
+              children:
+                - node_type: reference
+                  guild_id: 2
+        - node_type: answer
+          id: n3
+          guild_id: 2
+          children:
+            - node_type: con
+              guild_id: 1
+              children:
+                - node_type: reference
+                  meta: meta
+                  guild_id: 1
+      """
+    When We apply basic scoring
+    Then The score of n2 and n3 will not be the same
+
   Scenario: A question should be worth at least as much as a counter-argument
     Given A conversation with two options and a threat
       """

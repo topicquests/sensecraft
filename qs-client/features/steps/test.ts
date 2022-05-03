@@ -70,6 +70,15 @@ export class BaseScoring {
     assert.isAtLeast(this.scores[node1], this.scores[node2]);
   }
 
+  @then(/The score of (\w+) and (\w+) will (not )?be the same/)
+  public equal_score(node1, node2, negation) {
+    console.log(this.scores[node1], this.scores[node2], negation)
+    if (negation)
+      assert.notEqual(this.scores[node1], this.scores[node2]);
+    else
+      assert.equal(this.scores[node1], this.scores[node2]);
+  }
+
   @then(/The threat status of (.*) should be (\w*)/)
   public threat_status(node_id: string, status: ThreatStatus) {
     assert.equal(this.threats[node_id], status);

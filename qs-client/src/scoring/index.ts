@@ -20,7 +20,8 @@ export type ScoreMap = { [key: generic_id]: number };
 export function ensure_id(node: MaybeRealNode, counter: number = 0): number {
   node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
-    counter = ensure_id(child, counter);
+    if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)
+      counter = ensure_id(child, counter);
   }
   return counter;
 }
@@ -42,6 +43,8 @@ export function calc_threat_status(
   let threats = 0;
   let supports = 0;
   for (const child of node.children || []) {
+    if ((child.meta || meta_state_enum.conversation) != meta_state_enum.conversation)
+      continue;
     const child_status = calc_threat_status(child, map, no_req_reference);
     switch (child_status) {
       case ThreatStatus.threat:

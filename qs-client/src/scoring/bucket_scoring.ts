@@ -1,6 +1,6 @@
 import { ScoreMap, ThreatMap, ThreatStatus, calc_threat_status } from ".";
 import { MaybeRealNode, generic_id } from "../types";
-import { ibis_node_type_enum } from "../enums";
+import { ibis_node_type_enum, meta_state_enum } from "../enums";
 
 type ValueForGuild = { [key: generic_id]: number };
 type ValuesForGuilds = { [key: generic_id]: ValueForGuild };
@@ -26,7 +26,8 @@ function find_guilds(node: MaybeRealNode, guilds: StringSet) {
     guilds[node.guild_id] = true;
   }
   for (const child of node.children || []) {
-    find_guilds(child, guilds);
+    if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)
+      find_guilds(child, guilds);
   }
 }
 
@@ -45,6 +46,8 @@ function base_scoring_internal(
   }
   const num_threadts = 0;
   for (const child of node.children || []) {
+    if ((child.meta || meta_state_enum.conversation) != meta_state_enum.conversation)
+      continue;
     if (
       threat_status[child.id] == ThreatStatus.threat &&
       node.node_type != ibis_node_type_enum.question
