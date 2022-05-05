@@ -80,7 +80,7 @@
             You could tell the guild leader in one of them to join this quest!
           </span>
           <span v-else-if="guildsPlayingGame(false, true).length > 1">
-            Here are guilds playing the game which are you could join:
+            Here are guilds playing the game which you could join:
             <ul>
               <li v-for="guild in guildsPlayingGame(false, true)" :key="guild.id">
                 <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
