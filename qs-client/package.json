@@ -5,7 +5,7 @@
   "description": "A Quasar Framework app",
   "author": "byroncoughlinsr <byroncoughlinsr@gmail.com>",
   "scripts": {
-    "lint": "eslint --ext .js,.vue,.ts ./",
+    "lint": "eslint --ext .js,.vue,.ts ./src ./features ./test",
     "lint-staged": "lint-staged",
     "test": "echo \"See package.json => scripts for available tests.\" && exit 0",
     "prepare": "cd .. ; husky install",
@@ -52,7 +52,7 @@
     "babel-eslint": "^10.0.1",
     "chai": "~4.3.6",
     "cucumber-tsflow": "^4.0.0-preview.7",
-    "eslint": "~8.14",
+    "eslint": "~8.15",
     "eslint-config-prettier": "~8.5",
     "eslint-plugin-cucumber": "~2.0",
     "eslint-plugin-jest": "~26",
