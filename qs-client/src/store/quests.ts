@@ -9,6 +9,7 @@ import {
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
   Quest,
+  QuestData,
   Guild,
   Casting,
   QuestMembership,
@@ -27,7 +28,7 @@ import type { RoleState } from "./role";
 import { getWSClient } from "../wsclient";
 
 interface QuestMap {
-  [key: number]: Quest;
+  [key: number]: QuestData;
 }
 export interface QuestsState {
   quests: QuestMap;
@@ -39,14 +40,14 @@ export interface QuestsState {
 const QuestsGetters = {
   getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
     Object.values(state.quests).filter(
-      (quest: Quest) => quest.status == status
+      (quest: QuestData) => quest.status == status
     ),
   getQuests: (state: QuestsState) => Object.values(state.quests),
   getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
   getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
   getMyQuests: (state: QuestsState) => {
     const member_id = MyVapi.store.getters["member/getUserId"];
-    return Object.values(state.quests).filter((quest: Quest) =>
+    return Object.values(state.quests).filter((quest: QuestData) =>
       quest?.quest_membership?.find(
         (m: QuestMembership) => m.member_id == member_id && m.confirmed
       )
@@ -54,7 +55,7 @@ const QuestsGetters = {
   },
   getPlayingQuests: (state: QuestsState) => {
     const member_id = MyVapi.store.getters["member/getUserId"];
-    return Object.values(state.quests).filter((quest: Quest) =>
+    return Object.values(state.quests).filter((quest: QuestData) =>
       quest.casting?.find((c: Casting) => c.member_id == member_id)
     );
   },
@@ -256,7 +257,7 @@ export const quests = (axios: AxiosInstance) =>
     // Step 3
     .get({
       action: "fetchQuestById",
-      path: "/quests",
+      path: "/quests_data",
       queryParams: true,
       beforeRequest: (state: QuestsState, { full, params }) => {
         if (Array.isArray(params.id)) {
@@ -280,21 +281,21 @@ export const quests = (axios: AxiosInstance) =>
       },
       onSuccess: (
         state: QuestsState,
-        res: AxiosResponse<Quest[]>,
+        res: AxiosResponse<QuestData[]>,
         axios: AxiosInstance,
         actionParams
       ) => {
         state.quests = {
           ...state.quests,
           ...Object.fromEntries(
-            res.data.map((quest: Quest) => [quest.id, quest])
+            res.data.map((quest: QuestData) => [quest.id, quest])
           ),
         };
         if (actionParams.full) {
           state.fullQuests = {
             ...state.fullQuests,
             ...Object.fromEntries(
-              res.data.map((quest: Quest) => [quest.id, true])
+              res.data.map((quest: QuestData) => [quest.id, true])
             ),
           };
         }
@@ -303,7 +304,7 @@ export const quests = (axios: AxiosInstance) =>
     .get({
       action: "fetchQuests",
       property: "quests",
-      path: "/quests",
+      path: "/quests_data",
       queryParams: true,
       beforeRequest: (state: QuestsState, { params }) => {
         const userId = MyVapi.store.getters["member/getUserId"];
@@ -320,15 +321,15 @@ export const quests = (axios: AxiosInstance) =>
       },
       onSuccess: (
         state: QuestsState,
-        res: AxiosResponse<Quest[]>,
+        res: AxiosResponse<QuestData[]>,
         axios: AxiosInstance,
         actionParams
       ) => {
         const fullQuests = Object.values(state.quests).filter(
-          (quest: Quest) => state.fullQuests[quest.id]
+          (quest: QuestData) => state.fullQuests[quest.id]
         );
         const quests = Object.fromEntries(
-          res.data.map((quest: Quest) => [quest.id, quest])
+          res.data.map((quest: QuestData) => [quest.id, quest])
         );
         for (const quest of fullQuests) {
           if (quests[quest.id]) {
@@ -351,8 +352,18 @@ export const quests = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { data }
       ) => {
-        const quest = res.data[0];
-        state.quests = { ...state.quests, [quest.id]: quest };
+        const questData: QuestData = Object.assign(res.data[0], {
+          last_node_published_at: null,
+          node_count: 0,
+          confirmed_guild_count: 0,
+          interested_guild_count: 0,
+          player_count: 0,
+          is_playing: false,
+          my_confirmed_guild_count: 0,
+          my_recruiting_guild_count: 0,
+          is_quest_member: true,
+        })
+        state.quests = { ...state.quests, [questData.id]: questData };
       },
     })
     .patch({
@@ -374,9 +385,11 @@ export const quests = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { data }
       ) => {
-        let quest = res.data[0];
-        quest = Object.assign({}, state.quests[quest.id], quest);
-        state.quests = { ...state.quests, [quest.id]: quest };
+        const quest = res.data[0];
+        // Update the QuestData with the Quest object;
+        // assume other fields were not affected.
+        const questData: QuestData = Object.assign({}, state.quests[quest.id], quest);
+        state.quests = { ...state.quests, [quest.id]: questData };
         state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
       },
     })
@@ -606,10 +619,10 @@ type QuestsRestActionTypes = {
   }: {
     full?: boolean;
     params: { id: number | number[] };
-  }) => Promise<AxiosResponse<Quest[]>>;
-  fetchQuests: RestEmptyActionType<Quest[]>;
-  createQuestBase: RestDataActionType<Partial<Quest>, Quest[]>;
-  updateQuest: RestDataActionType<Partial<Quest>, Quest[]>;
+  }) => Promise<AxiosResponse<QuestData[]>>;
+  fetchQuests: RestEmptyActionType<QuestData[]>;
+  createQuestBase: RestDataActionType<Partial<Quest>, QuestData[]>;
+  updateQuest: RestDataActionType<Partial<Quest>, QuestData[]>;
   addQuestMembership: RestDataActionType<
     Partial<QuestMembership>,
     QuestMembership[]
