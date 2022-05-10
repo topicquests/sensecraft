@@ -198,6 +198,12 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
     AS $$
     BEGIN
       NEW.updated_at := now();
+      IF NEW.status = 'ongoing' AND COALESCE(OLD.status, 'draft'::quest_status) < 'ongoing' THEN
+        NEW.start := now();
+      END IF;
+      IF NEW.status = 'finished' AND OLD.status < 'finished' THEN
+        NEW."end" := now();
+      END IF;
       RETURN NEW;
     END;
     $$;
