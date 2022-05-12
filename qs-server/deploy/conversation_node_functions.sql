@@ -157,7 +157,7 @@ DECLARE
   quest_id INTEGER = NULL;
   guild_id INTEGER = NULL;
   description text = NULL;
-  url varchar[255] = NULL;
+  url varchar(255) = NULL;
   creator_id INTEGER;
   node_id INTEGER;
   draft_for_role_id INTEGER = NULL;
@@ -204,15 +204,16 @@ BEGIN
   INSERT INTO conversation_node ("quest_id", "guild_id", "node_type", "meta", "status", "title", "description", "url", "parent_id", "draft_for_role_id")
     VALUES (quest_id, guild_id,
       (data->>'node_type')::public.ibis_node_type,
-      (data->>'meta')::public.meta_state,
+      COALESCE(data->>'meta', 'conversation')::public.meta_state,
       'private_draft'::public.publication_state,
       (data->>'title')::varchar, description, url, parent_id, draft_for_role_id)
-    RETURNING id INTO node_id;
+    RETURNING id INTO STRICT node_id;
   IF data->'lid' IS NOT NULL THEN
     id_map = jsonb_set(id_map, data->>'lid', to_jsonb(node_id));
   END IF;
   EXECUTE 'SET ROLE ' || curuser;
-  UPDATE conversation_node SET "status" = (data->>'status')::public.publication_state WHERE id = node_id;
+  UPDATE conversation_node SET "status" = COALESCE(data->>'status', 'private_draft')::public.publication_state
+    WHERE id = node_id;
   IF data->'children' IS NOT NULL THEN
     FOR child IN SELECT value FROM jsonb_array_elements(data->'children') LOOP
       SELECT populate_nodes(child, node_id) INTO child;
