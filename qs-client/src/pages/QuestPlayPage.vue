@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 90%" class="q-mt-md">
         <div>
           <member></member>
         </div>
@@ -92,7 +92,7 @@
           </span>
         </div>
         <div class="row justify-center q-mt-lg">
-          <div class="col-6 q-md q-mr-lg">
+          <div class="col-11 q-md q-mr-lg">
             <node-tree
               v-bind:currentQuestId="questId"
               v-bind:currentGuildId="guildId"
