@@ -270,6 +270,7 @@ const NodeTreeProps = Vue.extend({
   },
   watch: {
     currentGuildId: "guildChanged",
+    conversation: "conversationChanged",
   },
 })
 export default class NodeTree extends NodeTreeProps {
@@ -585,6 +586,23 @@ export default class NodeTree extends NodeTreeProps {
 
   async guildChanged() {
     // TODO. Force reload of tree
+  }
+
+  async conversationChanged(after, before) {
+    const before_ids = new Set(Object.keys(before))
+    const added_ids = [...Object.keys(after)].filter(id => !before_ids.has(id))
+    if (added_ids.length == 1) {
+      let node = after[added_ids[0]];
+      const qtree = this.$refs.tree as QTree;
+      if (qtree && node.parent_id) {
+        setTimeout(() => {
+          while (node.parent_id) {
+            node = after[node.parent_id];
+            qtree.setExpanded(node.id, true);
+          }
+        }, 0);
+      }
+    }
   }
 
   keyResponder(evt) {
