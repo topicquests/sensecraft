@@ -567,14 +567,13 @@ export default class NodeTree extends NodeTreeProps {
       if (!node_id) {
         await this.ensureRootNode(this.currentQuestId);
         node_id = this.getRootNode?.id;
-      } else {
-        if (!this.initialSelectedNodeId)
-          this.selectedNodeId = node_id;
-        return await this.ensureConversationNeighbourhood({
-          node_id,
-          guild: this.currentGuildId,
-        });
       }
+      if (!this.initialSelectedNodeId)
+        this.selectedNodeId = node_id;
+      return await this.ensureConversationNeighbourhood({
+        node_id,
+        guild: this.currentGuildId,
+      });
     }
     if (this.channelId) {
       return await this.ensureChannelConversation({
