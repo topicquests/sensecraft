@@ -155,6 +155,18 @@ export interface Guild {
   casting?: Casting[];
 }
 
+export interface GuildData extends Guild {
+  member_count: number;
+  member_request_count: number;
+  is_member: boolean;
+  is_admin: boolean;
+  last_node_ublished_at: string;
+  node_count: number;
+  ongoing_quest_count: number;
+  finished_quest_count: number;
+  recruiting_for_quest_count: number;
+}
+
 export interface RoleNodeConstraint {
   role_id: number;
   node_type: ibis_node_type_type;
