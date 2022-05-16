@@ -8,6 +8,7 @@ import {
 } from "./base";
 import {
   Guild,
+  GuildData,
   GuildMembership,
   GamePlay,
   Quest,
@@ -20,7 +21,7 @@ import { store } from "quasar/wrappers";
 import { getWSClient } from "../wsclient";
 
 interface GuildMap {
-  [key: number]: Guild;
+  [key: number]: GuildData;
 }
 
 export interface GuildsState {
@@ -36,7 +37,7 @@ const GuildsGetters = {
   getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
   getMyGuilds: (state: GuildsState) => {
     const memberId = MyVapi.store.getters["member/getUserId"];
-    return Object.values(state.guilds).filter((guild: Guild) =>
+    return Object.values(state.guilds).filter((guild: GuildData) =>
       guild?.guild_membership?.find(
         (m: GuildMembership) =>
           m.member_id == memberId &&
@@ -56,7 +57,7 @@ const GuildsGetters = {
     if (!quest) return [];
     const guildId = quest.game_play?.map((gp: GamePlay) => (gp.game_status != game_play_status_enum.cancelled)? gp.guild_id : null);
     if (guildId == undefined) return [];
-    return Object.values(state.guilds).filter((guild: Guild) =>
+    return Object.values(state.guilds).filter((guild: GuildData) =>
       guildId.includes(guild.id)
     );
   },
@@ -188,7 +189,7 @@ export const guilds = (axios: AxiosInstance) =>
     // Step 3
     .get({
       action: "fetchGuildById",
-      path: "/guilds",
+      path: "/guilds_data",
       queryParams: true,
       beforeRequest: (state: GuildsState, { full, params }) => {
         if (Array.isArray(params.id)) {
@@ -212,21 +213,21 @@ export const guilds = (axios: AxiosInstance) =>
       },
       onSuccess: (
         state: GuildsState,
-        res: AxiosResponse<Guild[]>,
+        res: AxiosResponse<GuildData[]>,
         axios: AxiosInstance,
         actionParams
       ) => {
         state.guilds = {
           ...state.guilds,
           ...Object.fromEntries(
-            res.data.map((guild: Guild) => [guild.id, guild])
+            res.data.map((guild: GuildData) => [guild.id, guild])
           ),
         };
         if (actionParams.full) {
           state.fullGuilds = {
             ...state.fullGuilds,
             ...Object.fromEntries(
-              res.data.map((guild: Guild) => [guild.id, true])
+              res.data.map((guild: GuildData) => [guild.id, true])
             ),
           };
         }
@@ -235,7 +236,7 @@ export const guilds = (axios: AxiosInstance) =>
     .get({
       action: "fetchGuilds",
       property: "guilds",
-      path: "/guilds",
+      path: "/guilds_data",
       queryParams: true,
       beforeRequest: (state: GuildsState, { params }) => {
         if (params.id) {
@@ -259,15 +260,15 @@ export const guilds = (axios: AxiosInstance) =>
       },
       onSuccess: (
         state: GuildsState,
-        res: AxiosResponse<Guild[]>,
+        res: AxiosResponse<GuildData[]>,
         axios: AxiosInstance,
         actionParams
       ) => {
         const fullGuilds = Object.values(state.guilds).filter(
-          (guild: Guild) => state.fullGuilds[guild.id]
+          (guild: GuildData) => state.fullGuilds[guild.id]
         );
         const guilds = Object.fromEntries(
-          res.data.map((guild: Guild) => [guild.id, guild])
+          res.data.map((guild: GuildData) => [guild.id, guild])
         );
         for (const guild of fullGuilds) {
           if (guilds[guild.id]) {
@@ -292,9 +293,19 @@ export const guilds = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { data }
       ) => {
-        const guild = res.data[0];
-        state.guilds = { ...state.guilds, [guild.id]: guild };
-        state.fullGuilds = { ...state.fullGuilds, [guild.id]: undefined };
+        const guildData: GuildData = Object.assign(res.data[0], {
+          member_count: 1,
+          member_request_count: 0,
+          is_member: true,
+          is_admin: true,
+          last_node_ublished_at: null,
+          node_count: 0,
+          ongoing_quest_count: 0,
+          finished_quest_count: 0,
+          recruiting_for_quest_count: 0,
+        });
+        state.guilds = { ...state.guilds, [guildData.id]: guildData };
+        state.fullGuilds = { ...state.fullGuilds, [guildData.id]: undefined };
         // TODO: update memberships in member.
       },
     })
@@ -317,9 +328,9 @@ export const guilds = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { data }
       ) => {
-        let guild = res.data[0];
-        guild = Object.assign({}, state.guilds[guild.id], guild);
-        state.guilds = { ...state.guilds, [guild.id]: guild };
+        const guild = res.data[0];
+        const guildData: GuildData = Object.assign(state.guilds[guild.id], guild);
+        state.guilds = { ...state.guilds, [guild.id]: guildData };
       },
     })
     .post({
@@ -475,8 +486,8 @@ type GuildsRestActionTypes = {
   }: {
     full?: boolean;
     params: { id: number | number[] };
-  }) => Promise<AxiosResponse<Guild[]>>;
-  fetchGuilds: RestEmptyActionType<Guild[]>;
+  }) => Promise<AxiosResponse<GuildData[]>>;
+  fetchGuilds: RestEmptyActionType<GuildData[]>;
   createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
   updateGuild: RestDataActionType<Partial<Guild>, Guild[]>;
   doAddGuildMembership: RestDataActionType<

@@ -83,6 +83,18 @@ export interface Quest {
   game_play?: GamePlay[];
 }
 
+export interface QuestData extends Quest {
+  last_node_published_at: string;
+  node_count: number;
+  confirmed_guild_count: number;
+  interested_guild_count: number;
+  player_count: number;
+  is_playing: boolean;
+  my_confirmed_guild_count: number;
+  my_recruiting_guild_count: number;
+  is_quest_member: boolean;
+}
+
 export interface BaseConversationNode {
   node_type: ibis_node_type_type;
   status: publication_state_type;
@@ -141,6 +153,18 @@ export interface Guild {
   guild_membership?: GuildMembership[];
   game_play?: GamePlay[];
   casting?: Casting[];
+}
+
+export interface GuildData extends Guild {
+  member_count: number;
+  member_request_count: number;
+  is_member: boolean;
+  is_admin: boolean;
+  last_node_ublished_at: string;
+  node_count: number;
+  ongoing_quest_count: number;
+  finished_quest_count: number;
+  recruiting_for_quest_count: number;
 }
 
 export interface RoleNodeConstraint {
