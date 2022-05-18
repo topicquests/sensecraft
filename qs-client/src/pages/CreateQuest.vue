@@ -34,6 +34,119 @@
           <div class="row justify-start q-pb-lg">
             <q-editor v-model="quest.description" style="width: 80%"></q-editor>
           </div>
+          <div class="row">
+            <p>Enter desired start and end date and time below</p>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <span>Start</span>
+              <template>
+                <div class="q-pa-md" style="max-width: 300px">
+                  <q-input filled v-model="startDate">
+                    <template v-slot:prepend>
+                      <q-icon name="event" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-date v-model="startDate" mask="MM-DD-YYYY HH:mm">
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-date>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+
+                    <template v-slot:append>
+                      <q-icon name="access_time" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-time
+                            v-model="startDate"
+                           mask="MM-DD-YYYY HH:mm">
+                            format24h
+                          >
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-time>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </div>
+              </template>
+            </div>
+            <div class="col-6">
+              <span>End</span>
+              <template>
+                <div class="q-pa-md" style="max-width: 300px">
+                  <q-input filled v-model="endDate">
+                    <template v-slot:prepend>
+                      <q-icon name="event" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-date v-model="endDate" mask="MM-DD-YYYY HH:mm">>
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-date>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+
+                    <template v-slot:append>
+                      <q-icon name="access_time" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-time
+                            v-model="endDate"
+                            mask="MM-DD-YYYY HH:mm">
+                            format24h
+                          >
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-time>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </div>
+              </template>
+            </div>
+          </div>
           <div class="row justify-start q-pb-lg">
             <q-input v-model="quest.handle" label="Handle" style="width: 40%" />
           </div>
