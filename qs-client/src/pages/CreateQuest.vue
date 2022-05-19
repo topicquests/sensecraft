@@ -42,7 +42,7 @@
               <span>Start</span>
               <template>
                 <div class="q-pa-md" style="max-width: 300px">
-                  <q-input filled v-model="startDate">
+                  <q-input filled v-model="quest.start">
                     <template v-slot:prepend>
                       <q-icon name="event" class="cursor-pointer">
                         <q-popup-proxy
@@ -50,7 +50,7 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-date v-model="startDate" mask="MM-DD-YYYY HH:mm">
+                          <q-date v-model="quest.start" mask="MM-DD-YYYY HH:mm">
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
@@ -71,11 +71,8 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-time
-                            v-model="startDate"
-                           mask="MM-DD-YYYY HH:mm">
-                            format24h
-                          >
+                          <q-time v-model="quest.start" mask="MM-DD-YYYY HH:mm">
+                            format24h >
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
@@ -96,7 +93,7 @@
               <span>End</span>
               <template>
                 <div class="q-pa-md" style="max-width: 300px">
-                  <q-input filled v-model="endDate">
+                  <q-input filled v-model="quest.end">
                     <template v-slot:prepend>
                       <q-icon name="event" class="cursor-pointer">
                         <q-popup-proxy
@@ -104,7 +101,8 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-date v-model="endDate" mask="MM-DD-YYYY HH:mm">>
+                          <q-date v-model="quest.end" mask="MM-DD-YYYY HH:mm"
+                            >>
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
@@ -125,11 +123,8 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-time
-                            v-model="endDate"
-                            mask="MM-DD-YYYY HH:mm">
-                            format24h
-                          >
+                          <q-time v-model="quest.end" mask="MM-DD-YYYY HH:mm">
+                            format24h >
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
