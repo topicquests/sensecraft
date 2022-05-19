@@ -377,6 +377,16 @@ export const quests = (axios: AxiosInstance) =>
           quest_membership: undefined,
           game_play: undefined,
           updated_at: undefined,
+          // and all QuestData Fields. Not DRY, alas.
+          last_node_published_at: undefined,
+          node_count: undefined,
+          confirmed_guild_count: undefined,
+          interested_guild_count: undefined,
+          player_count: undefined,
+          is_playing: undefined,
+          my_confirmed_guild_count: undefined,
+          my_recruiting_guild_count: undefined,
+          is_quest_member: undefined,
         });
       },
       onSuccess: (

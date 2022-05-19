@@ -320,6 +320,16 @@ export const guilds = (axios: AxiosInstance) =>
           guild_membership: undefined,
           game_play: undefined,
           updated_at: undefined,
+          // And all GuildData fields. Not DRY, alas.
+          member_count: undefined,
+          member_request_count: undefined,
+          is_member: undefined,
+          is_admin: undefined,
+          last_node_ublished_at: undefined,
+          node_count: undefined,
+          ongoing_quest_count: undefined,
+          finished_quest_count: undefined,
+          recruiting_for_quest_count: undefined,
         });
       },
       onSuccess: (
