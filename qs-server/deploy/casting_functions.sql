@@ -49,7 +49,7 @@ CREATE OR REPLACE FUNCTION public.before_update_casting() RETURNS trigger
       NEW.quest_id = OLD.quest_id;
       NEW.member_id = OLD.member_id;
       IF NEW.permissions != OLD.permissions AND NOT public.has_guild_permission(NEW.guild_id, 'guildAdmin') THEN
-        RAISE EXCEPTION 'Only guildAdmin can change casting permissions';
+        RAISE EXCEPTION 'permission guildAdmin / change casting permissions';
       END IF;
       RETURN NEW;
     END;

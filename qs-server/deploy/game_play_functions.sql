@@ -63,7 +63,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_game_play() RETURNS trigger
       END IF;
       IF OLD IS NOT NULL AND OLD.focus_node_id != NEW.focus_node_id AND
          NOT public.has_play_permission(NEW.quest_id, 'changeFocus'::permission) THEN
-          RAISE EXCEPTION 'You do not have permission to change the focus node';
+          RAISE EXCEPTION 'permission changeFocus';
       END IF;
       NEW.updated_at := now();
       RETURN NEW;

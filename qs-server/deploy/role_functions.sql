@@ -37,16 +37,17 @@ CREATE OR REPLACE FUNCTION public.before_update_role() RETURNS trigger
     AS $$
     BEGIN
       IF NEW.guild_id IS NULL AND NOT public.has_permission('createSystemRole') THEN
-        RAISE EXCEPTION 'Lacking createSystemRole permission';
-      END IF;
-      IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
-        RAISE EXCEPTION 'Cannot change a system role into a guild role';
-      END IF;
-      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createGuildRole') THEN
-        RAISE EXCEPTION 'Only guild admins can alter guild roles';
+        RAISE EXCEPTION 'permission createSystemRole';
       END IF;
       IF OLD.guild_id != NEW.guild_id THEN
-        RAISE EXCEPTION 'You cannot change the guild of a role';
+        IF NEW.guild_id IS NOT NULL AND OLD.guild_id IS NULL THEN
+            RAISE EXCEPTION 'immutable guild_id / Cannot change a system role into a guild role';
+        ELSE
+            RAISE EXCEPTION 'immutable guild_id';
+        END IF;
+      END IF;
+      IF NEW.guild_id IS NOT NULL AND NOT public.has_guild_permission(NEW.guild_id, 'createGuildRole') THEN
+        RAISE EXCEPTION 'permission createGuildRole';
       END IF;
       RETURN NEW;
     END;

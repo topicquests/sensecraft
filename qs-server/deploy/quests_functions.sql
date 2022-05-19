@@ -250,7 +250,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_quest_membership() RETURNS tri
     DECLARE member_id INTEGER;
     BEGIN
       IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions AND NOT public.has_quest_permission(OLD.quest_id, 'createQuest') THEN
-        RAISE EXCEPTION 'Only quest admin can change casting permissions';
+        RAISE EXCEPTION 'permission createQuest / change casting permissions';
       END IF;
       SELECT id INTO quest_id FROM quests WHERE id=NEW.quest_id;
       SELECT id INTO member_id FROM members WHERE id=NEW.member_id;

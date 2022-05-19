@@ -267,7 +267,7 @@ describe('\'conversation_node\' service', () => {
           await axiosUtil.update('conversation_node', { id: a1Id }, {
             status: 'submitted'
           }, quidamToken);
-        }, /Only guild leaders can submit nodes/);
+        }, /permission submit/);
       });
       it('quidam can update draft node to proposed', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {

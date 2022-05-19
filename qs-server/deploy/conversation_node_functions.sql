@@ -167,14 +167,14 @@ DECLARE
 BEGIN
   curuser := current_user;
   IF data->>'creator_id' IS NULL THEN
-    RAISE EXCEPTION 'creator_id is required';
+    RAISE EXCEPTION 'missing creator_id';
   END IF;
   SELECT id INTO STRICT creator_id
     FROM members
     WHERE members.handle = (data->>'creator_id')::varchar;
   IF creator_id != current_member_id() THEN
     IF NOT has_permission('superadmin') THEN
-      RAISE EXCEPTION 'only superadmin can create nodes on behalf of someone else';
+      RAISE EXCEPTION 'permission superadmin / create nodes as other member';
     END IF;
     EXECUTE 'SET ROLE ' || current_database() || '__m_' || creator_id::text;
   END IF;
@@ -230,23 +230,24 @@ CREATE OR REPLACE FUNCTION public.check_node_status_rules(status public.publicat
 BEGIN
   CASE WHEN status = 'submitted' THEN
     IF NOT (is_guild_id_leader(guild_id) OR has_permission('superadmin'))  THEN
-      RAISE EXCEPTION 'Only guild leaders can submit nodes';
+      RAISE EXCEPTION 'permission submitGameMove';
     END IF;
     -- TODO: The following should not happen if the quest is turn-based
     status := 'published';
   WHEN status = 'published' THEN
     IF NOT (is_quest_id_member(quest_id) OR has_permission('superadmin')) THEN
-      RAISE EXCEPTION 'Only quest members can publish nodes';
+      RAISE EXCEPTION 'permission publishGameMove';
     END IF;
   ELSE
   END CASE;
   IF status >= 'role_draft' AND status <= 'submitted' THEN
     IF guild_id IS NULL THEN
-      RAISE EXCEPTION 'guild statuses require a guild';
+      RAISE EXCEPTION 'invalid status / guild statuses require a guild';
     END IF;
   END IF;
   IF guild_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
-    RAISE EXCEPTION 'Only guild members can create guild nodes';
+    -- create a basic "playGame" permission, automatic on joining?
+    RAISE EXCEPTION 'permission playGame / not playing game';
   END IF;
   -- status cannot be higher than parent_status
   IF status > parent_status THEN
@@ -260,32 +261,32 @@ CREATE OR REPLACE FUNCTION public.check_node_type_rules(child_type public.ibis_n
   AS $$
 BEGIN
   IF child_type = 'channel' AND parent_type IS NOT NULL THEN
-    RAISE EXCEPTION 'Channels must be at root';
+    RAISE EXCEPTION 'invalid node_type / Channels must be at root';
   END IF;
   CASE WHEN parent_type = 'question' THEN
     IF child_type NOT IN ('answer', 'reference', 'question', 'con_answer') THEN
-      RAISE EXCEPTION 'Question node can only have answer, con_answer, question, or reference as a child';
+      RAISE EXCEPTION 'invalid node_type / Question node can only have answer, con_answer, question, or reference as a child';
     END IF;
   WHEN parent_type IN ('answer', 'con_answer') THEN
     NULL;
   WHEN parent_type IN ('pro', 'con') THEN
     IF child_type = 'answer' THEN
-      RAISE EXCEPTION 'Argument node cannot have an answer node as a child';
+      RAISE EXCEPTION 'invalid node_type / Argument node cannot have an answer node as a child';
     END IF;
   WHEN parent_type = 'reference' THEN
     IF child_type IN ('answer', 'reference') THEN
-      RAISE EXCEPTION 'Reference node cannot have answer or reference as a child';
+      RAISE EXCEPTION 'invalid node_type / Reference node cannot have answer or reference as a child';
     END IF;
   WHEN parent_type IS NULL THEN
     IF child_type NOT IN ('question', 'channel') THEN
-      RAISE EXCEPTION 'Root node type must be question or channel';
+      RAISE EXCEPTION 'invalid node_type / Root node type must be question or channel';
     END IF;
   WHEN parent_type = 'channel' THEN
     IF child_type NOT IN ('question', 'reference') THEN
-      RAISE EXCEPTION 'Children of channel must be question or reference';
+      RAISE EXCEPTION 'invalid node_type / Children of channel must be question or reference';
     END IF;
   ELSE
-    RAISE EXCEPTION 'Invalid parent node type';
+    RAISE EXCEPTION 'invalid node_type / Invalid parent node type';
   END CASE;
 END$$;
 
@@ -303,7 +304,7 @@ BEGIN
   IF NEW.parent_id IS NOT NULL THEN
     SELECT ancestry, node_type, status, quest_id, meta INTO STRICT parent_ancestry, parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;
     IF parent_quest != NEW.quest_id THEN
-      RAISE EXCEPTION 'Parent node does not belong to the same quest';
+      RAISE EXCEPTION 'invalid parent_id / Parent node does not belong to the same quest';
     END IF;
     NEW.ancestry = parent_ancestry || NEW.id::varchar::ltree;
     IF parent_meta != 'conversation'::meta_state THEN
@@ -312,14 +313,14 @@ BEGIN
   ELSE
     NEW.ancestry = NEW.id::varchar::ltree;
     IF NEW.meta = 'conversation'::meta_state AND (SELECT count(id) FROM conversation_node WHERE quest_id = NEW.quest_id AND parent_id IS NULL AND meta = 'conversation'::meta_state) != 0 THEN
-      RAISE EXCEPTION 'Each quest must have a single root';
+      RAISE EXCEPTION 'invalid parent_id / Each quest must have a single root';
     END IF;
     IF NEW.node_type = 'channel' THEN
       NEW.meta = 'channel'::meta_state;
     ELSE
       NEW.meta = 'conversation'::meta_state;
       IF NEW.quest_id IS NULL THEN
-        RAISE EXCEPTION 'Quest Id must be defined';
+        RAISE EXCEPTION 'invalid quest_id / Quest Id must be defined';
       END IF;
     END IF;
   END IF;
@@ -327,17 +328,17 @@ BEGIN
   IF NEW.guild_id IS NULL THEN
     SELECT guild_id INTO NEW.guild_id FROM casting WHERE casting.quest_id = NEW.quest_id AND casting.member_id = NEW.creator_id;
     IF NEW.guild_id IS NULL AND NEW.node_type = 'channel' THEN
-      RAISE EXCEPTION 'No quest channels';
+      RAISE EXCEPTION 'missing guild_id / No quest channels';
     END IF;
   ELSE
     IF NEW.node_type = 'channel' THEN
       IF NEW.quest_id IS NULL THEN
         IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
-          RAISE EXCEPTION 'Lacking createGuildChannel permission';
+          RAISE EXCEPTION 'permission createGuildChannel';
         END IF;
       ELSE
         IF NEW.quest_id IS NOT NULL AND NOT public.has_play_permission(NEW.quest_id, 'createPlayChannel') THEN
-          RAISE EXCEPTION 'Lacking createPlayChannel permission';
+          RAISE EXCEPTION 'permission createPlayChannel';
         END IF;
       END IF;
     END IF;
@@ -347,11 +348,11 @@ BEGIN
     NEW.draft_for_role_id = NULL;
   ELSE
     IF NOT public.is_guild_role(NEW.guild_id, NEW.draft_for_role_id) THEN
-      RAISE EXCEPTION 'Role must be a guild role';
+      RAISE EXCEPTION 'invalid draft_for_role_id / Role must be a guild role';
     END IF;
   END IF;
   IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' AND NOT has_permission('superadmin') THEN
-    RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
+    RAISE EXCEPTION 'invalid status / Do not submit nodes unless quest is ongoing';
   END IF;
   IF NEW.status = 'published' THEN
     NEW.published_at = now();
@@ -398,24 +399,24 @@ DECLARE row record;
 BEGIN
   -- those should not change
   IF NEW.creator_id != OLD.creator_id THEN
-    RAISE EXCEPTION 'Cannot change creator';
+    RAISE EXCEPTION 'immutable creator_id';
   END IF;
   IF NEW.quest_id != OLD.quest_id THEN
-    RAISE EXCEPTION 'Cannot change quest';
+    RAISE EXCEPTION 'immutable quest_id';
   END IF;
   IF NEW.guild_id != OLD.guild_id THEN
-    RAISE EXCEPTION 'Cannot change guild';
+    RAISE EXCEPTION 'immutable guild_id';
   END IF;
   IF OLD.status > 'submitted' AND NEW.status < OLD.status THEN
-    RAISE EXCEPTION 'Cannot lower status of submitted node';
+    RAISE EXCEPTION 'invalid status / Cannot lower status of submitted node';
   END IF;
   IF NEW.creator_id != current_member_id() AND NOT has_node_permission(NEW.quest_id, NEW.node_type, 'editConversationNode') THEN
-    RAISE EXCEPTION 'Cannot change node of other member without editConversationNode permission';
+    RAISE EXCEPTION 'permission editConversationNode / Cannot change node of other member';
   END IF;
   IF NEW.parent_id IS NOT NULL THEN
     SELECT node_type, status, quest_id, meta INTO STRICT parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;
     IF parent_quest != NEW.quest_id THEN
-      RAISE EXCEPTION 'Parent node does not belong to the same quest';
+      RAISE EXCEPTION 'invalid parent_id / Parent node does not belong to the same quest';
     END IF;
     IF NEW.meta = 'conversation'::meta_state THEN
       IF parent_meta != 'conversation'::meta_state THEN
@@ -426,7 +427,7 @@ BEGIN
         IF OLD.meta = 'conversation'::meta_state THEN
           -- allowed if no conversation child
           IF (SELECT count(id) FROM conversation_node WHERE parent_id = NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
-            RAISE EXCEPTION 'Cannot change conversation to meta if conversation child exists';
+            RAISE EXCEPTION 'invalid meta / Cannot change conversation to meta if conversation child exists';
           END IF;
         END IF;
       ELSE
@@ -448,28 +449,28 @@ BEGIN
     IF NEW.status != OLD.status THEN
       SELECT MIN(status) INTO children_status FROM conversation_node WHERE parent_id = NEW.id;
       IF children_status > NEW.status THEN
-        RAISE EXCEPTION 'Cannot lower the status below that of children';
+        RAISE EXCEPTION 'invalid status / Cannot lower the status below that of children';
       END IF;
     END IF;
     IF NEW.status != 'role_draft' THEN
       NEW.draft_for_role_id = NULL;
     ELSE
       IF NOT public.is_guild_role(NEW.guild_id, NEW.draft_for_role_id) THEN
-        RAISE EXCEPTION 'Role must be a guild role';
+        RAISE EXCEPTION 'invalid role_id / Role must be a guild role';
       END IF;
     END IF;
     IF NEW.parent_id IS NULL AND NEW.meta = 'conversation'::meta_state AND (
         SELECT count(id) FROM conversation_node
         WHERE quest_id = NEW.quest_id AND parent_id IS NULL
           AND id != NEW.id AND meta = 'conversation'::meta_state) != 0 THEN
-      RAISE EXCEPTION 'Each quest must have a single root';
+      RAISE EXCEPTION 'invalid parent_id / Each quest must have a single root';
     END IF;
     IF NEW.status = 'published' AND OLD.status < 'published' THEN
       NEW.published_at = now();
     END IF;
   END IF;
   IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' THEN
-    RAISE EXCEPTION 'Do not submit nodes unless quest is ongoing';
+    RAISE EXCEPTION 'invalid status / Do not submit nodes unless quest is ongoing';
   END IF;
   IF NEW.node_type != OLD.node_type THEN
     FOR row IN SELECT node_type FROM conversation_node WHERE parent_id = NEW.id
@@ -480,11 +481,11 @@ BEGIN
   IF NEW.node_type = 'channel' AND OLD.node_type != 'channel' THEN
     IF NEW.quest_id IS NULL THEN
       IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
-        RAISE EXCEPTION 'Lacking createGuildChannel permission';
+        RAISE EXCEPTION 'permission createGuildChannel';
       END IF;
     ELSE
       IF NEW.quest_id IS NOT NULL AND NOT public.has_play_permission(NEW.quest_id, 'createPlayChannel') THEN
-        RAISE EXCEPTION 'Lacking createPlayChannel permission';
+        RAISE EXCEPTION 'permission createPlayChannel';
       END IF;
     END IF;
   END IF;
