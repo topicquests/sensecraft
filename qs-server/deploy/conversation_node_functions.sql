@@ -224,34 +224,54 @@ BEGIN
 END$$;
 
 
-CREATE OR REPLACE FUNCTION public.check_node_status_rules(status public.publication_state, parent_status public.publication_state, guild_id integer, quest_id integer) RETURNS public.publication_state
+CREATE OR REPLACE FUNCTION public.check_node_status_rules(
+    status public.publication_state,
+    parent_status public.publication_state,
+    guild_id integer,
+    quest_id integer,
+    node_type public.ibis_node_type) RETURNS public.publication_state
   LANGUAGE plpgsql STABLE
   AS $$
+DECLARE
+  max_role_status public.publication_state;
 BEGIN
-  CASE WHEN status = 'submitted' THEN
+  IF status = 'published' THEN
+    IF NOT (is_quest_id_member(quest_id) OR has_permission('publishGameMove')) THEN
+      RAISE EXCEPTION 'permission publishGameMove';  -- need an editQuest permission?
+    END IF;
+  END IF;
+  IF guild_id IS NULL THEN
+    IF status >= 'role_draft' AND status <= 'submitted' THEN
+      RAISE EXCEPTION 'invalid status / guild statuses require a guild';
+    END IF;
+  ELSE
+    IF NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
+      -- create a basic "playGame" permission, automatic on joining?
+      RAISE EXCEPTION 'permission playGame / not playing game';
+    END IF;
+    IF node_type != 'channel' AND NOT has_permission('superadmin') THEN
+      SELECT max(max_pub_state) INTO max_role_status FROM public.role_node_constraint
+        JOIN casting_role ON casting_role.role_id = role_node_constraint.role_id
+        WHERE casting_role.guild_id = check_node_status_rules.guild_id
+          AND casting_role.quest_id = check_node_status_rules.quest_id
+          AND casting_role.member_id = current_member_id()
+          AND role_node_constraint.node_type = check_node_status_rules.node_type;
+      SELECT COALESCE(greatest(max_role_status, max(max_pub_state)), 'private_draft') INTO STRICT max_role_status FROM public.role
+        JOIN casting_role ON casting_role.role_id = role.id
+        WHERE casting_role.guild_id = check_node_status_rules.guild_id
+          AND casting_role.quest_id = check_node_status_rules.quest_id
+          AND casting_role.member_id = current_member_id();
+      status := least(status, max_role_status);
+    END IF;
+  END IF;
+  -- status cannot be higher than parent_status
+  status := least(status, parent_status);
+  IF status = 'submitted' THEN
     IF NOT (is_guild_id_leader(guild_id) OR has_permission('superadmin'))  THEN
-      RAISE EXCEPTION 'permission submitGameMove';
+      RAISE EXCEPTION 'permission guildAdmin,publishGameMove';
     END IF;
     -- TODO: The following should not happen if the quest is turn-based
     status := 'published';
-  WHEN status = 'published' THEN
-    IF NOT (is_quest_id_member(quest_id) OR has_permission('superadmin')) THEN
-      RAISE EXCEPTION 'permission publishGameMove';
-    END IF;
-  ELSE
-  END CASE;
-  IF status >= 'role_draft' AND status <= 'submitted' THEN
-    IF guild_id IS NULL THEN
-      RAISE EXCEPTION 'invalid status / guild statuses require a guild';
-    END IF;
-  END IF;
-  IF guild_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
-    -- create a basic "playGame" permission, automatic on joining?
-    RAISE EXCEPTION 'permission playGame / not playing game';
-  END IF;
-  -- status cannot be higher than parent_status
-  IF status > parent_status THEN
-    status := parent_status;
   END IF;
   RETURN status;
 END$$;
@@ -343,7 +363,7 @@ BEGIN
       END IF;
     END IF;
   END IF;
-  SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
+  SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id, CASE WHEN NEW.meta = 'conversation' THEN NEW.node_type ELSE 'channel' END) INTO STRICT NEW.status;
   IF NEW.status != 'role_draft' THEN
     NEW.draft_for_role_id = NULL;
   ELSE
@@ -445,7 +465,7 @@ BEGIN
     PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
   END IF;
   IF COALESCE(NEW.parent_id, -1) != COALESCE(OLD.parent_id, -1) OR NEW.status != OLD.status THEN
-    SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id) INTO STRICT NEW.status;
+    SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id, CASE WHEN NEW.meta = 'conversation' THEN NEW.node_type ELSE 'channel' END) INTO STRICT NEW.status;
     IF NEW.status != OLD.status THEN
       SELECT MIN(status) INTO children_status FROM conversation_node WHERE parent_id = NEW.id;
       IF children_status > NEW.status THEN

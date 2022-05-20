@@ -25,7 +25,8 @@ describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
     var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
-      q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId, tree_info, nodeIds = {};
+      q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId,
+      gameLeaderRoleId, tree_info, nodeIds = {};
 
     async function my_add_node(node, qId=publicQuestId) {
       return await add_nodes([node], qId, memberTokens, nodeIds);
@@ -44,6 +45,7 @@ describe('\'conversation_node\' service', () => {
       roles = await get_base_roles(adminToken);
       researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
       philosopherRoleId = get_system_role_by_name(roles, 'Philosopher').id;
+      gameLeaderRoleId = get_system_role_by_name(roles, 'Game leader').id;
     });
 
     after(async () => {
@@ -116,6 +118,23 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
         assert.ok(r);
       });
+      it('leader can make game leader role available for self', async () => {
+        const r = await axiosUtil.create('guild_member_available_role', {
+          member_id: memberIds[leaderInfo.handle],
+          guild_id: publicGuildId,
+          role_id: gameLeaderRoleId
+        }, leaderToken);
+        assert.ok(r);
+      });
+      it('leader can self-assign game leader role', async () => {
+        const r = await axiosUtil.create('casting_role', {
+          member_id: memberIds[leaderInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
+          role_id: gameLeaderRoleId
+        }, leaderToken);
+        assert.ok(r);
+      });
       it('quidam can self-register', async () => {
         const r = await axiosUtil.create('casting', {
           member_id: memberIds[quidamInfo.handle],
@@ -124,7 +143,7 @@ describe('\'conversation_node\' service', () => {
         }, quidamToken);
         assert.ok(r);
       });
-      it('quidam can self-cast', async () => {
+      it('quidam can self-cast with default role', async () => {
         const r = await axiosUtil.create('casting_role', {
           member_id: memberIds[quidamInfo.handle],
           guild_id: publicGuildId,
@@ -183,7 +202,7 @@ describe('\'conversation_node\' service', () => {
         const node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
         assert.equal(node_model.length, 0);
       });
-      it('leader can make role available for self', async () => {
+      it('leader can make philosopher role available for self', async () => {
         const r = await axiosUtil.create('guild_member_available_role', {
           member_id: memberIds[leaderInfo.handle],
           guild_id: publicGuildId,
@@ -191,7 +210,7 @@ describe('\'conversation_node\' service', () => {
         }, leaderToken);
         assert.ok(r);
       });
-      it('leader can self-assign game role', async () => {
+      it('leader can self-assign philosopher role', async () => {
         const r = await axiosUtil.create('casting_role', {
           member_id: memberIds[leaderInfo.handle],
           guild_id: publicGuildId,
@@ -263,13 +282,37 @@ describe('\'conversation_node\' service', () => {
         assert.equal(arg1Models[0].status, 'guild_draft');
       });
       it('quidam cannot submit node', async () => {
-        await assert.rejects(async () => {
-          await axiosUtil.update('conversation_node', { id: a1Id }, {
-            status: 'submitted'
-          }, quidamToken);
-        }, /permission submit/);
+        const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
+          status: 'submitted'
+        }, quidamToken);
+        assert.equal(arg1Models.length, 1);
+        assert.equal(arg1Models[0].status, 'guild_draft');
       });
-      it('quidam can update draft node to proposed', async () => {
+      it('quidam cannot update draft node to proposed as researcher', async () => {
+        const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
+          description: 'details about the answer',
+          status: 'proposed',
+        }, quidamToken);
+        assert.equal(arg1Models[0].status, 'guild_draft');
+      });
+      it('guild leader can assign philosopher role to quidam', async () => {
+        const r = await axiosUtil.create('guild_member_available_role', {
+          member_id: memberIds[quidamInfo.handle],
+          guild_id: publicGuildId,
+          role_id: philosopherRoleId
+        }, leaderToken);
+        assert.ok(r);
+      });
+      it('quidam can self-cast', async () => {
+        const r = await axiosUtil.create('casting_role', {
+          member_id: memberIds[quidamInfo.handle],
+          guild_id: publicGuildId,
+          quest_id: publicQuestId,
+          role_id: philosopherRoleId
+        }, quidamToken);
+        assert.ok(r);
+      });
+      it('quidam can update draft node to proposed as philosopher', async () => {
         const arg1Models = await axiosUtil.update('conversation_node', { id: a1Id }, {
           description: 'details about the answer',
           status: 'proposed',
