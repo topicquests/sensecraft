@@ -27,7 +27,7 @@ export class WSClient {
         this.ws.send(this.login_message);
       }
       if (this.quest_id) {
-        this.ws.send(`GUILD ${this.quest_id}`)
+        this.ws.send(`QUEST ${this.quest_id}`)
       }
       if (this.guild_id) {
         this.ws.send(`GUILD ${this.guild_id}`)
@@ -83,9 +83,15 @@ export class WSClient {
         if (crud == "D") {
           // TODO
         } else {
-          this.store.dispatch("conversation/fetchConversationNode", { params: { id } });
+          await this.store.dispatch("conversation/fetchConversationNode", { params: { id } });
         }
         break;
+      case "quests":
+        if (crud == "D") {
+          // TODO
+        } else {
+          await this.store.dispatch("quests/fetchQuestById", { full: true, params: { id } });
+        }
       default:
         console.warn(`Unhandled ws event: ${event}`);
     }
