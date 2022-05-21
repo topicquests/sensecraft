@@ -286,12 +286,17 @@ class Dispatcher {
   async automation(timer: number = null) {
     const r = await this.pgClient.query("SELECT quests_automation()");
     const new_date = r.rows[0].quests_automation as Date;
-    if (new_date != null && new_date.getTime() != this.next_automation
-      && !(timer != null && timer != this.next_automation)) {
-        const new_time = new_date.getTime()
+    if (new_date != null) {
+      const new_time = new_date.getTime()
+      if (new_time != this.next_automation
+        && !(
+          timer != null &&
+          timer != this.next_automation &&
+          this.next_automation == new_time)) {
         console.log(`next automation: ${new_time}`)
         setTimeout(this.automation.bind(this, new_time), new_time - Date.now())
         this.next_automation = new_time
+      }
     }
   }
 
