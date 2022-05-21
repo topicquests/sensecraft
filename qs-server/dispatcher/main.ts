@@ -1,5 +1,6 @@
 import createSubscriber from "pg-listen"
-import type {Subscriber} from "pg-listen"
+import type { Subscriber } from "pg-listen"
+import { Client as PGClient } from "pg"
 import WebSocket from "ws"
 import express from "express"
 import {createServer} from "http"
@@ -251,8 +252,11 @@ class Client {
 class Dispatcher {
   channel: string;
   subscriber: Subscriber;
+  pgClient: PGClient;
+  next_automation: number = null;
   constructor(channel: string) {
     this.channel = channel;
+    this.pgClient = new PGClient({ connectionString: databaseURL })
     this.subscriber = createSubscriber(
       { connectionString: databaseURL },
       {
@@ -266,6 +270,29 @@ class Dispatcher {
   async connect() {
     await this.subscriber.connect()
     await this.subscriber.listenTo(database)
+    await this.pgClient.connect()
+    await this.automation();
+  }
+
+  /*
+  Call the automation function and schedule the next call.
+  Cases:
+  1. First call: timer == next_automation == null => schedule
+  2. Called by timer, no other call happened: timer == next_automation != null => schedule
+  3. Called because of a quest change: timer = null, next_automation != null
+    -> schedule only if next_automation changed.
+  4. Called by timer, but another call happened: timer != next_automation != null => don't schedule
+  */
+  async automation(timer: number = null) {
+    const r = await this.pgClient.query("SELECT quests_automation()");
+    const new_date = r.rows[0].quests_automation as Date;
+    if (new_date != null && new_date.getTime() != this.next_automation
+      && !(timer != null && timer != this.next_automation)) {
+        const new_time = new_date.getTime()
+        console.log(`next automation: ${new_time}`)
+        setTimeout(this.automation.bind(this, new_time), new_time - Date.now())
+        this.next_automation = new_time
+    }
   }
 
   onError(error: string) {
@@ -279,8 +306,12 @@ class Dispatcher {
       throw new Error(`invalid message: ${message}`)
     }
     const [_, base, member_id_s, constraints_s] = parts
-    const constraints = constraints_s.trim().split(' ').map(c => c.split('|').map(s => Client.constraintRe.exec(s).slice(1, 6)));
+    const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => (s?Client.constraintRe.exec(s).slice(1, 6):undefined)).filter(s => s !== undefined));
     const member_id = Number(member_id_s)
+    const [crud, type, id] = base.split(" ")
+    if (type == 'quests') {
+      this.automation();
+    }
     for (const client of Client.clients) {
       client.onReceive(base, member_id, constraints)
     }

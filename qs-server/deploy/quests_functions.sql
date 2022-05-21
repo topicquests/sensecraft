@@ -150,6 +150,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'DROP ROLE ' || questrole;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      PERFORM pg_notify(current_database(), concat('D quests ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' Q'||NEW.id) END));
       RETURN NEW;
     END;
     $$;
@@ -195,6 +196,7 @@ CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
         INSERT INTO quest_membership (quest_id, member_id, confirmed) VALUES (NEW.id, member_id, true);
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      PERFORM pg_notify(current_database(), concat('C quests ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' Q'||NEW.id) END));
       RETURN NEW;
     END;
     $$;
@@ -225,6 +227,17 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
 DROP TRIGGER IF EXISTS before_update_quest ON public.quests;
 CREATE TRIGGER before_update_quest BEFORE UPDATE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.before_update_quest();
 
+CREATE OR REPLACE FUNCTION public.after_update_quest() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      PERFORM pg_notify(current_database(), concat('U quests ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' Q'||NEW.id) END));
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS after_update_quest ON public.quests;
+CREATE TRIGGER after_update_quest after UPDATE ON public.quests FOR EACH ROW EXECUTE FUNCTION public.after_update_quest();
 
 --
 -- Name: after_delete_quest_membership(); Type: FUNCTION
