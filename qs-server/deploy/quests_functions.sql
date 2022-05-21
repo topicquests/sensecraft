@@ -104,6 +104,20 @@ CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest integer, member i
     $$;
 
 
+CREATE OR REPLACE FUNCTION public.quests_automation() RETURNS timestamp with time zone
+LANGUAGE plpgsql
+AS $$
+DECLARE next_time timestamp with time zone;
+BEGIN
+  -- TODO: scoring status
+  UPDATE quests SET status = 'finished' WHERE status < 'scoring' AND "end" <= now();
+  UPDATE quests SET status = 'ongoing' WHERE status < 'ongoing' AND "start" <= now();
+  SELECT min(case when "start" > now() then start else "end" end) INTO STRICT next_time from quests where "end" > now();
+  RETURN next_time;
+END;
+$$;
+
+
 --
 -- Name: before_delete_quest(); Type: FUNCTION
 --
