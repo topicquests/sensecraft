@@ -45,11 +45,11 @@
     "@types/pg": "~8.6",
     "@types/properties-reader": "^2.1.1",
     "@types/ws": "~8.5",
-    "@typescript-eslint/eslint-plugin": "~5.25",
-    "@typescript-eslint/parser": "~5.25",
+    "@typescript-eslint/eslint-plugin": "~5.26",
+    "@typescript-eslint/parser": "~5.26",
     "eslint": "~8",
     "mocha": "~10.0",
-    "typescript": "~4.6"
+    "typescript": "~4.7"
   },
   "dependencies": {
     "axios": "~0.27",
