@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 80%" class="q-mt-md">
         <div>
           <member></member>
         </div>
@@ -13,21 +13,21 @@
         <div class="column items-center">
           <div
             v-if="getQuests && getQuests.length"
-            class="col-4 "
+            class="col-6"
             style="width: 100%"
           >
-            <questTable
-              v-bind:quests="getQuests"
-              :view="true"
-              title="Quests"
-            ></questTable>
+            <questTable v-bind:quests="getQuests" :view="true" title="Quests">
+              <template v-slot:default="slotProps">
+                <quest-date-time-interval v-bind:quest="slotProps.quest"/>
+              </template>
+            </questTable>
           </div>
           <div v-else class="column items-center q-mt-md">
             <h4>There are no quests</h4>
           </div>
         </div>
         <div class="column items-center">
-          <div class="col-4 " style="width: 100%">
+          <div class="col-4" style="width: 100%">
             <p>
               If you have not already choosen a guild to join. Select one from
               the list If you are already a member of a guild, click on enter
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="column items-center">
-          <div class="col-4 " style="width: 100%">
+          <div class="col-4" style="width: 100%">
             <div v-if="getGuilds.length">
               <div v-if="getUserId">
                 <guilds-table
@@ -108,6 +108,7 @@ import { userLoaded } from "../boot/userLoaded";
 import Component from "vue-class-component";
 import Vue from "vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
+import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
 
 @Component<LobbyPage>({
   name: "LobbyPage",
@@ -120,6 +121,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     member: member,
     GuildsTable: GuildsTable,
     GuildsMembershipIndicator: GuildsMembershipIndicator,
+    QuestDateTimeInterval: QuestDateTimeInterval,
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
@@ -197,10 +199,7 @@ export default class LobbyPage extends Vue {
     await userLoaded;
     await this.setCurrentGuild(null);
     await this.setCurrentQuest(null);
-    await Promise.all([
-      this.ensureAllQuests(),
-      this.ensureAllGuilds(),
-    ]);
+    await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
     this.ready = true;
   }
 }

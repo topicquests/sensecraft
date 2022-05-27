@@ -28,7 +28,11 @@
               class="col-4 q-pa-lg"
               style="width: 100%"
             >
-              <questTable v-bind:quests="getQuests" :view="false"></questTable>
+              <questTable v-bind:quests="getQuests" :edit="true" title="Quests">
+              <template v-slot:default="slotProps">
+                <quest-date-time-interval v-bind:quest="slotProps.quest"/>
+              </template>
+            </questTable>
             </div>
             <div v-else class="column items-center q-mt-md">
               <h4>There are no quests</h4>
@@ -50,6 +54,7 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes } from "src/store/guilds";
+import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
 
 @Component<QuestLandingPage>({
   meta: {
@@ -59,6 +64,7 @@ import { GuildsActionTypes } from "src/store/guilds";
     scoreboard: scoreboard,
     questTable: questTable,
     member: member,
+    QuestDateTimeInterval: QuestDateTimeInterval,
   },
   computed: {
     ...mapGetters("quests", ["getQuests"]),
