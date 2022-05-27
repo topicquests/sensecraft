@@ -1,8 +1,5 @@
 <template>
-  <time v-if="ifBeforeQuestStartTime()"> until start {{ display }}</time>
-  <time v-else-if="ifDuringQuestPlay()">playing {{ display }} </time>
-  <time v-else-if="ifQuestEnded()"> ended {{ endDisplay }}</time>
-  <time v-else>error</time>
+  <time :title="refTimeFull">{{ display }}</time>
 </template>
 
 <script lang="ts">
@@ -21,57 +18,34 @@ const QuestDateTimeIntervalProps = Vue.extend({
 @Component<QuestDateTimeInterval>({
   name: "QuestDateTimeInterval",
   computed: {
-    remaining(): string {
-      return this.start.diff(this.now).toObject();
+    refTime(): DateTime {
+      if (this.start > this.now)
+        return this.start
+      else
+        return this.end
+    },
+    refTimeFull (): string {
+      return this.refTime.toLocaleString(DateTime.DATETIME_FULL);
     },
     display(): string {
-      return Duration.fromObject(this.remaining).toFormat(
-        "MM 'months' dd 'days'  hh 'hours'  mm 'minutes' ss 'seconds'"
-      );
-    },
-    endCompleted(): string {
-      return this.end.diff(this.now).toObject();
-    },
-    endDisplay(): string {
-      return Duration.fromObject(this.endCompleted).toHuman({ unitDisplay: "short", listStyle: "long" })
+      let prefix: string;
+      if (this.now < this.start)
+        prefix = "starting "
+      else if (this.now > this.end)
+        prefix = "ended "
+      else
+        prefix = "ending "
+      return prefix + this.refTime.toRelative()
     },
   },
 })
 export default class QuestDateTimeInterval extends QuestDateTimeIntervalProps {
   now = DateTime.now();
-  end = DateTime.fromISO(this.quest.end);
-  remaining!: string;
+  start: DateTime = DateTime.fromISO(this.quest.start);
+  end: DateTime = DateTime.fromISO(this.quest.end);
   display!: string;
-  endCompleted!: string;
-  endDisplay: string;
-  start = DateTime.fromISO(this.quest.start);
-  nowToISO = this.now.toISO();
-  BeforeQuestStartTime: DateTime;
-  
-  DuringQuestPlay() {
-    return this.now;
-  }
-  QuestEnded() {
-    return this.now;
-  }
-  ifBeforeQuestStartTime() {
-    if (this.nowToISO < this.quest.start) {
-      return true;
-    }
-    return false;
-  }
-  ifDuringQuestPlay() {
-    if (this.nowToISO > this.quest.start && this.nowToISO < this.quest.end) {
-      return true;
-    }
-    return false;
-  }
-  ifQuestEnded() {
-    if (this.nowToISO > this.quest.end) {
-      return true;
-    }
-    return false;
-  }
+  refTime!: DateTime;
+  refTimeFull!: string;
 
   mounted() {
     setInterval(() => {
