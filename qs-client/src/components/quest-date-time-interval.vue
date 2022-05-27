@@ -1,7 +1,7 @@
 <template>
   <time v-if="ifBeforeQuestStartTime()"> until start {{ display }}</time>
   <time v-else-if="ifDuringQuestPlay()">playing {{ display }} </time>
-  <time v-else-if="ifQuestEnded()"> finished {{ endDisplay }}</time>
+  <time v-else-if="ifQuestEnded()"> ended {{ endDisplay }}</time>
   <time v-else>error</time>
 </template>
 
@@ -21,28 +21,33 @@ const QuestDateTimeIntervalProps = Vue.extend({
 @Component<QuestDateTimeInterval>({
   name: "QuestDateTimeInterval",
   computed: {
-    remaining() {
+    remaining(): string {
       return this.start.diff(this.now).toObject();
     },
-    display() {
-      return Duration.fromObject(this.remaining).toFormat("MM 'months' dd 'days'  hh 'hours'  mm 'minutes' ss 'seconds'");
+    display(): string {
+      return Duration.fromObject(this.remaining).toFormat(
+        "MM 'months' dd 'days'  hh 'hours'  mm 'minutes' ss 'seconds'"
+      );
     },
-    endCompleted() {
+    endCompleted(): string {
       return this.end.diff(this.now).toObject();
     },
-    endDisplay() {
-      return Duration.fromObject(this.endCompleted).toFormat("MM 'months' dd 'days'  hh 'hours'  mm 'minutes' ss 'seconds'");
+    endDisplay(): string {
+      return Duration.fromObject(this.endCompleted).toHuman({ unitDisplay: "short", listStyle: "long" })
     },
   },
 })
 export default class QuestDateTimeInterval extends QuestDateTimeIntervalProps {
   now = DateTime.now();
   end = DateTime.fromISO(this.quest.end);
+  remaining!: string;
+  display!: string;
+  endCompleted!: string;
+  endDisplay: string;
   start = DateTime.fromISO(this.quest.start);
   nowToISO = this.now.toISO();
-  BeforeQuestStartTime() {
-    return this.now;
-  }
+  BeforeQuestStartTime: DateTime;
+  
   DuringQuestPlay() {
     return this.now;
   }

@@ -3,11 +3,11 @@
     <q-table
       class="quest-table"
       :title="title"
-      :data="questData"
+      :data="quests"
       :columns="columns"
       row-key="id"
     >
-     <template v-slot:body-cell-view="props">
+      <template v-slot:body-cell-view="props">
         <td>
           <span v-if="view" key="view">
             <router-link
@@ -32,7 +32,7 @@
       </template>
       <template v-slot:body-cell-actions="props">
         <td>
-          <slot v-bind:quest="props.row.quest"></slot>
+          <slot v-bind:quest="props.row"></slot>
         </td>
       </template>
     </q-table>
@@ -42,20 +42,12 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Member } from "../types";
+import { Quest, Member, QuestData } from "../types";
 import { Prop } from "vue/types/options";
-
-type QuestRow = {
-  id: number;
-  name: string;
-  quest: Quest;
-  numPlayers: number;
-  numMoves: number;
-};
 
 const QuestTableProps = Vue.extend({
   props: {
-    quests: Array as Prop<Quest[]>,
+    quests: Array as Prop<QuestData[]>,
     title: String,
     view: {
       type: Boolean,
@@ -126,24 +118,10 @@ const QuestTableProps = Vue.extend({
         },
       ];
     },
-    questData: function (): QuestRow[] {
-      return this.quests.map((quest: Quest) => this.questRow(quest));
-    },
   },
 })
 export default class QuestTable extends QuestTableProps {
-  questData: QuestRow[];
   columns!: Object[];
-
-  questRow(quest: Quest): QuestRow {
-    return {
-      id: quest.id,
-      quest: quest,
-      name: quest.name,
-      numPlayers: null,
-      numMoves: null,
-    };
-  }
 }
 </script>
 
