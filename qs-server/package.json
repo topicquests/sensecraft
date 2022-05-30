@@ -56,6 +56,6 @@
     "express": "~4.18",
     "pg-listen": "~1.7",
     "properties-reader": "~2.2",
-    "ws": "~8.6"
+    "ws": "~8.7"
   }
 }
