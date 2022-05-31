@@ -101,6 +101,7 @@ const QuestTableProps = Vue.extend({
           field: "node_count",
           sortable: true,
         },
+        ...extra,
         {
           name: "actions",
           required: true,
@@ -117,7 +118,7 @@ const QuestTableProps = Vue.extend({
           field: "actions",
           sortable: true,
         },
-      ] + extra;
+      ];
     },
   },
 })
