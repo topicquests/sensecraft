@@ -2,14 +2,14 @@ import assert from 'assert';
 import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } from './fixtures';
 
-describe('\'role\' service', () => {
-  describe('guild creation', () => {
+describe('\'role\' service', function() {
+  describe('guild creation', function() {
     let adminToken, quidamId, leaderId, playerId, sponsorId,
       publicGuildId, publicQuestId, sponsorToken, leaderToken,
       quidamToken, playerToken, sysRoleId, guildRoleId, roles,
       researcherRoleId;
 
-    before(async () => {
+    before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       }, null, true);
@@ -33,7 +33,7 @@ describe('\'role\' service', () => {
       researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
     });
 
-    after(async () => {
+    after(async function() {
       if (process.env.NOREVERT)
         return;
       if (publicGuildId)
@@ -50,58 +50,58 @@ describe('\'role\' service', () => {
         await axiosUtil.delete('members', {id: sponsorId}, adminToken);
     });
 
-    describe('guild creation by authorized user', () => {
-      const game_play_id = {};
-      it('creates public quest', async () => {
+    describe('guild creation by authorized user', function() {
+      const game_play_id: any = {};
+      it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
         game_play_id.quest_id = publicQuestId;
         const quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 1);
       });
-      it('creates public guild', async () => {
+      it('creates public guild', async function() {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
         game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
         assert.equal(guilds.length, 1);
       });
-      it('guild leader can register guild to quest', async () => {
+      it('guild leader can register guild to quest', async function() {
         const register = await axiosUtil.create('game_play', game_play_id, leaderToken);
         assert.ok(register);
         const game_play = await axiosUtil.get('game_play', game_play_id, leaderToken);
         assert.equal(game_play.length, 1);
         assert.equal(game_play[0].status, 'confirmed');
       });
-      it('guild leader can then self-register to quest', async () => {
+      it('guild leader can then self-register to quest', async function() {
         const register = await axiosUtil.create('casting', {
           member_id: leaderId,
           ...game_play_id
         }, leaderToken);
         assert.ok(register);
       });
-      it('quidam can register to guild', async () => {
+      it('quidam can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
         }, quidamToken);
         assert.ok(register);
       });
-      it('player can register to guild', async () => {
+      it('player can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: playerId,
           guild_id: publicGuildId,
         }, playerToken);
         assert.ok(register);
       });
-      it('guild leader can call global registration', async () => {
+      it('guild leader can call global registration', async function() {
         await axiosUtil.call('register_all_members', {
           guildid: publicGuildId,
           questid: publicQuestId,
         }, leaderToken);
       });
       // TODO: Should we prevent others from calling this function?
-      it('global registration registered quidam', async () => {
+      it('global registration registered quidam', async function() {
         const registers = await axiosUtil.get('casting', game_play_id, leaderToken);
         assert.equal(registers.length, 3);
         const quidam_r = registers.find(r => r.member_id == quidamId);
@@ -110,7 +110,7 @@ describe('\'role\' service', () => {
       });
       //Role tests
       //GuildAdm create new role
-      it('guild admin create new role', async () => {
+      it('guild admin create new role', async function() {
         const newRole = {
           guild_id: publicGuildId,
           name: 'test_role'
@@ -119,27 +119,27 @@ describe('\'role\' service', () => {
         guildRoleId = guildRole.id;
       });
       //Superadmin create new role
-      it('superadmin create new role', async () => {
+      it('superadmin create new role', async function() {
         const sysRole = await axiosUtil.create('role', {
           name: 'super_role'}, adminToken);
         sysRoleId = sysRole.id;
       });
       //player cannot create new role
-      it('player cannot create new role', async () => {
+      it('player cannot create new role', async function() {
         await assert.rejects( async() => {
           await axiosUtil.create('role', {
             name: 'player_role',}, playerToken);
         }, 'GeneralError');
       });
       //guildadmin cannot create new role without guildId
-      it('guildadmin cannot create new role without guildId', async () => {
+      it('guildadmin cannot create new role without guildId', async function() {
         await assert.rejects(async() => {
           await axiosUtil.create('role', {
             name: 'guild_role',}, leaderToken);
         }, 'GeneralError');
       });
       //Player attempts to select casting role before guild admin creates
-      it('Cannot select casting role before guildadmin allows', async() => {
+      it('Cannot select casting role before guildadmin allows', async function() {
         await assert.rejects( async() => {
           await axiosUtil.create('casting_role', {
             member_id: playerId,
@@ -149,7 +149,7 @@ describe('\'role\' service', () => {
         }, 'GeneralError');
       });
       //GuildAdmin select sys roles for player
-      it('guildadmin select sys roles for player', async () => {
+      it('guildadmin select sys roles for player', async function() {
         const sysRole = await axiosUtil.create('guild_member_available_role', {
           member_id: playerId,
           role_id: sysRoleId,
@@ -158,7 +158,7 @@ describe('\'role\' service', () => {
         assert.ok(sysRole);
       });
       //GuildAdmin select roles for player
-      it('guildadmin select guild roles for player', async () => {
+      it('guildadmin select guild roles for player', async function() {
         const guildRole = await axiosUtil.create('guild_member_available_role', {
           member_id: playerId,
           guild_id: publicGuildId,
@@ -167,7 +167,7 @@ describe('\'role\' service', () => {
         assert.ok(guildRole);
       });
       //Player selects casting role after guild admin creates
-      it('Player select casting role', async() => {
+      it('Player select casting role', async function() {
         await axiosUtil.create('casting_role', {
           member_id: playerId,
           quest_id: publicQuestId,
@@ -175,14 +175,14 @@ describe('\'role\' service', () => {
           role_id: sysRoleId}, playerToken);
       });
       //Player selects second casting role after guild admin creates
-      it('Player select casting role', async() => {
+      it('Player select second casting role', async function() {
         await axiosUtil.create('casting_role', {
           member_id: playerId,
           quest_id: publicQuestId,
           guild_id: publicGuildId,
           role_id: guildRoleId}, playerToken);
       });
-      it('Leader cannot delete an available role in use', async () => {
+      it('Leader cannot delete an available role in use', async function() {
         await assert.rejects(async () => {
           await axiosUtil.delete('guild_member_available_role', {
             member_id: playerId,
@@ -191,7 +191,7 @@ describe('\'role\' service', () => {
           }, leaderToken);
         }, /casting_role_available_role_fkey/);
       });
-      it('Leader cannot delete a role in use', async () => {
+      it('Leader cannot delete a role in use', async function() {
         await assert.rejects(async () => {
           await axiosUtil.delete('role', {
             id: guildRoleId

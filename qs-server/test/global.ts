@@ -4,13 +4,12 @@ import { axiosUtil } from './utils';
 let postgrest;
 
 
-const adminInfo = {
+export const adminInfo = {
   name: 'Admin', handle: 'admin', password: 'admin', email: 'admin@example.com'
 };
 
-exports.adminInfo = adminInfo;
 
-exports.mochaGlobalSetup = async function () {
+export async function mochaGlobalSetup() {
   execSync('./scripts/db_updater.py -d test init');
   execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
@@ -28,7 +27,7 @@ exports.mochaGlobalSetup = async function () {
   await p;
   await axiosUtil.call('create_member', adminInfo);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
-};
+}
 
 
 exports.mochaGlobalTeardown = async function () {

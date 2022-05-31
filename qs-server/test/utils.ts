@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 
 function enhanceError(err) {
   const response = err.response || { data: {} };
@@ -11,19 +12,19 @@ function enhanceError(err) {
 const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
 
 class AxiosUtil {
+  axios: AxiosInstance;
   constructor(baseURL) {
     this.axios = axios.create({ baseURL });
   }
-  headers(token, headers) {
-    headers = headers || {};
+  headers(token: string, headers: { [key: string]: string } = {}): { headers?: { [key: string]: string } } {
     if (token)
       headers.Authorization = `Bearer ${token}`;
-    return (headers) ? { headers } : {};
+    return Object.keys(headers).length ? { headers } : {};
   }
 
   as_params(id) {
     return Object.fromEntries(
-      Object.entries(id).map(([key, value]) => [key, (postgrest_operators[String(value).split('.')[0]])?value:`eq.${value}`]));
+      Object.entries(id).map(([key, value]) => [key, (postgrest_operators[String(value).split('.')[0]]) ? value : `eq.${value}`]));
   }
 
   async get(path, id, token) {
@@ -40,7 +41,7 @@ class AxiosUtil {
   async delete(path, id, token) {
     const params = this.as_params(id);
     try {
-      const headers = this.headers(token, { Prefer: 'return=representation'});
+      const headers = this.headers(token, { Prefer: 'return=representation' });
       const response = await this.axios.delete(path, { params, ...headers });
       return response.data;
     } catch (error) {
@@ -54,8 +55,8 @@ class AxiosUtil {
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
       const response = await this.axios.post(path, data, { params, ...headers });
-      let location = response.headers.location.split('?')[1].split('&');
-      location = Object.fromEntries(location.map((p) => {
+      const locationParts = response.headers.location.split('?')[1].split('&');
+      const location = Object.fromEntries(locationParts.map((p) => {
         const [k, v] = p.split('=');
         return [k, v.substring(3)];
       }));
@@ -69,7 +70,7 @@ class AxiosUtil {
   async update(path, id, data, token) {
     try {
       const params = this.as_params(id);
-      const headers = this.headers(token, { Prefer: 'return=representation'});
+      const headers = this.headers(token, { Prefer: 'return=representation' });
       const response = await this.axios({
         method: 'patch',
         url: path,
@@ -83,7 +84,7 @@ class AxiosUtil {
     }
   }
 
-  async call(fn, params, token, readonly=false) {
+  async call(fn, params, token?, readonly=false) {
     try {
       if (readonly) {
         const response = await this.axios.get(`/rpc/${fn}`, { params, ... this.headers(token) });
