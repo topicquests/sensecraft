@@ -33,7 +33,7 @@ module.exports = {
     "@vue/typescript",
     // '@vue/typescript/recommended',
 
-    // '@vue/prettier',
+    'prettier',
   ],
 
   plugins: [
