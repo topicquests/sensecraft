@@ -1,7 +1,7 @@
-const { spawn, execSync } = require('child_process');
-const { axiosUtil } = require('./utils');
+import { spawn, execSync } from 'child_process';
+import { axiosUtil } from './utils';
 
-var postgrest;
+let postgrest;
 
 
 const adminInfo = {
@@ -14,7 +14,7 @@ exports.mochaGlobalSetup = async function () {
   execSync('./scripts/db_updater.py -d test init');
   execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
-  var resolve;
+  let resolve;
   const p = new Promise((rs) => { resolve = rs; });
   function wakeup(data) {
     data = data.toString();

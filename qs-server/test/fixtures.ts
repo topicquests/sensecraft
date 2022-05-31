@@ -1,32 +1,34 @@
-const { adminInfo } = require('./global.cjs');
+import { adminInfo as aig } from './global';
 
-const sponsorInfo = {
+export const adminInfo = aig;
+
+export const sponsorInfo = {
   email: 'sponsor@example.com',
   handle: 'sponsor',
   name: 'Quest Sponsor',
   password: 'supersecret',
   permissions: ['createQuest']
 };
-const leaderInfo = {
+export const leaderInfo = {
   email: 'guild_leader@example.com',
   handle: 'guild_leader',
   name: 'Guild Leader',
   password: 'supersecret',
   permissions: ['createGuild']
 };
-const quidamInfo = {
+export const quidamInfo = {
   email: 'quidam@example.com',
   handle: 'quidam',
   name: 'Quidam',
   password: 'supersecret'
 };
-const guildPlayerInfo = {
+export const guildPlayerInfo = {
   email: 'guild_player@example.com',
   handle: 'guild_player',
   name: 'Guild Player',
   password: 'supersecret',
 };
-const publicGuildInfo = (role_id) => ({
+export const publicGuildInfo = (role_id) => ({
   name: 'My great guild',
   handle: 'pubguild',
   public: true,
@@ -34,7 +36,7 @@ const publicGuildInfo = (role_id) => ({
   open_for_applications: true,
   application_needs_approval: false,
 });
-const publicQuestInfo = {
+export const publicQuestInfo = {
   name: 'My great quest',
   handle: 'pubquest',
   status: 'registration',
@@ -42,7 +44,7 @@ const publicQuestInfo = {
   start: new Date(),
   end: new Date(Date.now() + 100000000000),
 };
-const draftPublicQuestInfo = {
+export const draftPublicQuestInfo = {
   name: 'My great quest',
   handle: 'dpubquest',
   status: 'draft',
@@ -50,7 +52,7 @@ const draftPublicQuestInfo = {
   start: new Date(),
   end: new Date(Date.now() + 100000000000),
 };
-const privateQuestInfo = {
+export const privateQuestInfo = {
   name: 'My private quest',
   handle: 'privquest1',
   public: false,
@@ -58,7 +60,7 @@ const privateQuestInfo = {
   start: new Date(),
   end: new Date(Date.now() + 100000000000),
 };
-const publicQuest2Info = {
+export const publicQuest2Info = {
   name: 'My lesser quest',
   handle: 'pubquest2',
   status: 'registration',
@@ -66,40 +68,24 @@ const publicQuest2Info = {
   start: new Date(),
   end: new Date(Date.now() + 100000000000),
 };
-const question1Info = {
+export const question1Info = {
   id: 'q1',
   node_type: 'question',
   status: 'published',
   title: 'first question',
   member: sponsorInfo.handle,
 };
-const answer1Info = {
+export const answer1Info = {
   id: 'a1',
   node_type: 'answer',
   parent: question1Info.id,
   title: 'first answer',
   member: quidamInfo.handle,
 };
-const argument1Info = {
+export const argument1Info = {
   id: 'arg1',
   member: quidamInfo.handle,
   node_type: 'pro',
   parent: answer1Info.id,
   title: 'first pro argument'
-};
-
-module.exports = {
-  adminInfo,
-  sponsorInfo,
-  leaderInfo,
-  quidamInfo,
-  guildPlayerInfo,
-  publicGuildInfo,
-  publicQuestInfo,
-  draftPublicQuestInfo,
-  privateQuestInfo,
-  publicQuest2Info,
-  question1Info,
-  answer1Info,
-  argument1Info,
 };

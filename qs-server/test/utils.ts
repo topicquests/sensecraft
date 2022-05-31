@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 function enhanceError(err) {
   const response = err.response || { data: {} };
@@ -54,7 +54,7 @@ class AxiosUtil {
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
       const response = await this.axios.post(path, data, { params, ...headers });
-      var location = response.headers.location.split('?')[1].split('&');
+      let location = response.headers.location.split('?')[1].split('&');
       location = Object.fromEntries(location.map((p) => {
         const [k, v] = p.split('=');
         return [k, v.substring(3)];
@@ -99,9 +99,9 @@ class AxiosUtil {
   }
 }
 
-const axiosUtil = new AxiosUtil('http://localhost:3001');
+export const axiosUtil = new AxiosUtil('http://localhost:3001');
 
-async function add_members(members) {
+export async function add_members(members) {
   const memberIds = {};
   const memberTokens = {};
   for (const member of members) {
@@ -117,21 +117,21 @@ async function add_members(members) {
   return {memberIds, memberTokens};
 }
 
-async function get_base_roles(adminToken) {
+export async function get_base_roles(adminToken) {
   return await axiosUtil.get('role', {}, adminToken);
 }
 
-function get_system_role_by_name(roles, name) {
+export function get_system_role_by_name(roles, name) {
   return roles.find((role) => role.name === name && role.guild_id === null);
 }
 
-async function delete_members(memberIds, adminToken) {
+export async function delete_members(memberIds, adminToken) {
   for (const memberId of Object.values(memberIds || {})) {
     await axiosUtil.delete('members', {id: memberId}, adminToken);
   }
 }
 
-async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
+export async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
   node_ids = node_ids || {};
   for (const nodeData of nodes) {
     const {id, member, parent, ...rest} = nodeData;
@@ -152,21 +152,10 @@ async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
   return node_ids;
 }
 
-async function delete_nodes(nodes, node_ids, adminToken) {
+export async function delete_nodes(nodes, node_ids, adminToken) {
   for (const local_id of nodes) {
     const id = node_ids[local_id];
     await axiosUtil.delete('conversation_node', {id}, adminToken);
     delete node_ids[local_id];
   }
 }
-
-
-module.exports = {
-  add_members,
-  delete_members,
-  add_nodes,
-  delete_nodes,
-  get_base_roles,
-  get_system_role_by_name,
-  axiosUtil,
-};

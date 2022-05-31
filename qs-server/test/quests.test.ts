@@ -1,10 +1,10 @@
-const assert = require('assert');
-const { axiosUtil } = require('./utils');
-const { adminInfo, quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo } = require('./fixtures');
+import assert from 'assert';
+import { axiosUtil } from './utils';
+import { adminInfo, quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo } from './fixtures';
 
 describe('\'quests\' service', () => {
   describe('quest creation', () => {
-    var adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, accessToken;
+    let adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, accessToken;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {

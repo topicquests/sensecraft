@@ -1,6 +1,6 @@
-const assert = require('assert');
-const { axiosUtil, get_base_roles, get_system_role_by_name } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } = require('./fixtures');
+import assert from 'assert';
+import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
+import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } from './fixtures';
 
 describe('\'guilds\' service', () => {
 
@@ -26,7 +26,7 @@ describe('\'guilds\' service', () => {
       open_for_applications: true,
       application_needs_approval: true,
     };
-    var adminToken, quidamId, quidam2Id, sponsorId, publicGuildId, quasiPublicGuildId, quasiPublicGuildModel, privateGuildId, accessToken, publicGuildModel, roles, researcherRoleId;
+    let adminToken, quidamId, quidam2Id, sponsorId, publicGuildId, quasiPublicGuildId, quasiPublicGuildModel, privateGuildId, accessToken, publicGuildModel, roles, researcherRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {

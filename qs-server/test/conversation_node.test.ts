@@ -1,9 +1,9 @@
-const assert = require('assert');
-const {
+import assert from 'assert';
+import {
   axiosUtil, get_base_roles, get_system_role_by_name, add_members,
-  delete_members, add_nodes, delete_nodes } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } = require('./fixtures');
-//const { devNull } = require('os');
+  delete_members, add_nodes, delete_nodes } from './utils';
+import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } from './fixtures';
+//import { devNull } from 'os';
 
 function num_nodes_in_json(json) {
   let i = 1;
@@ -24,9 +24,10 @@ function remove_ids(recNode) {
 describe('\'conversation_node\' service', () => {
 
   describe('guild creation', () => {
-    var adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
+    const nodeIds = {};
+    let adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId,
-      gameLeaderRoleId, tree_info, nodeIds = {};
+      gameLeaderRoleId, tree_info;
 
     async function my_add_node(node, qId=publicQuestId) {
       return await add_nodes([node], qId, memberTokens, nodeIds);
@@ -64,10 +65,10 @@ describe('\'conversation_node\' service', () => {
     describe('conversation_node tests', () => {
       const game_play_id = {};
       it('creates two public quests', async () => {
-        var publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
+        let publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
         game_play_id.quest_id = publicQuestId;
-        var quests = await axiosUtil.get('quests', {}, leaderToken);
+        let quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 1);
         publicQuestModel = await axiosUtil.create('quests', publicQuest2Info, sponsorToken);
         publicQuest2Id = publicQuestModel.id;
@@ -182,7 +183,7 @@ describe('\'conversation_node\' service', () => {
         });
       });
       it('leader and sponsor cannot see private draft', async () => {
-        var node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
+        let node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
         assert.equal(node_model.length, 0);
         node_model = await axiosUtil.get('conversation_node', { id: a1Id }, sponsorToken);
         assert.equal(node_model.length, 0);
@@ -253,7 +254,7 @@ describe('\'conversation_node\' service', () => {
         assert.deepEqual(descModels.map(x => String(x.id)), [a1Id, arg1Id]);
       });
       it('see neighbourhood', async () => {
-        var descModels = await axiosUtil.call('node_neighbourhood', {
+        let descModels = await axiosUtil.call('node_neighbourhood', {
           node_id: q1Id, guild: publicGuildId
         }, quidamToken);
         assert.equal(descModels.length, 3);

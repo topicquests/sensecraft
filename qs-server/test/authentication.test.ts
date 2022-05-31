@@ -1,6 +1,6 @@
-const assert = require('assert');
-const { axiosUtil } = require('./utils');
-const { adminInfo } = require('./fixtures');
+import assert from 'assert';
+import { axiosUtil } from './utils';
+import { adminInfo } from './fixtures';
 
 describe('authentication', () => {
   describe('', () => {

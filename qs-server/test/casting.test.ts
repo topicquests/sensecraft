@@ -1,11 +1,11 @@
-const assert = require('assert');
-const { axiosUtil, get_base_roles, get_system_role_by_name } = require('./utils');
-const { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo } = require('./fixtures');
+import assert from 'assert';
+import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
+import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo } from './fixtures';
 
 describe('\'casting\' service', () => {
 
   describe('guild creation', () => {
-    var adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
+    let adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
 
     before(async () => {
       adminToken = await axiosUtil.call('get_token', {
