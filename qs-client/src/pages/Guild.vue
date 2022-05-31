@@ -617,7 +617,7 @@ export default class GuildPage extends Vue {
     const gamePlay = this.getCurrentGamePlay;
     if (gamePlay) {
       gamePlay.focus_node_id = node_id;
-      await this.updateGamePlay(gamePlay);
+      await this.updateGamePlay({data: gamePlay});
     }
   }
 
