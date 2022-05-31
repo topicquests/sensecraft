@@ -51,12 +51,12 @@ const QuestTableProps = Vue.extend({
     title: String,
     view: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
     edit: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
   },
