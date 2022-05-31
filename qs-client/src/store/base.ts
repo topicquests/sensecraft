@@ -7,7 +7,6 @@ import {
   MutationMap,
 } from "vuex-rest-api/dist/Store";
 import {
-  ResourceOptions,
   ShorthandResourceActionOptions,
   ResourceActionOptions,
 } from "vuex-rest-api/dist/Resource";

@@ -44,7 +44,7 @@
 <script lang="ts">
 import Component from "vue-class-component";
 import Vue from "vue";
-import { RoleNodeConstraint, Role } from "../types";
+import { RoleNodeConstraint } from "../types";
 import { Prop } from "vue/types/options";
 import { publication_state_enum, ibis_node_type_enum } from "../enums";
 

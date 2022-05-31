@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 // import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 //import questCard from "../components/quest-card.vue";
@@ -71,56 +71,31 @@ import nodeForm from "../components/node-form.vue";
 import nodeTree from "../components/node-tree.vue";
 import { userLoaded } from "../boot/userLoaded";
 import {
-  ibis_node_type_enum,
   ibis_node_type_type,
   ibis_node_type_list,
   publication_state_list,
   public_private_bool,
 } from "../enums";
-import app from "../App.vue";
-import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
+import { RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
-  ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
-  channel,
 } from "../store/channel";
-import { ConversationMap, ibis_child_types } from "../store/conversation";
 import {
-  QuestsState,
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
 import {
-  //TODO don't need
-  GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
 import {
-  //TODO don't need
-  MemberState,
-  MemberGetterTypes,
-  MemberActionTypes,
-} from "../store/member";
-import {
-  registration_status_enum,
-  quest_status_enum,
-  permission_enum,
-} from "../enums";
-import {
-  Quest,
-  Guild,
-  GamePlay,
-  Casting,
   ConversationNode,
-  Member,
-  Role,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
-import { BaseGetterTypes } from "../store/baseStore";
+
 @Component<ChannelPage>({
   components: {
     member: member,
@@ -172,7 +147,6 @@ export default class ChannelPage extends Vue {
   newNodeParent: number = null;
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-  channelTree: any;
   ready = false;
 
   // declare the computed attributes for Typescript

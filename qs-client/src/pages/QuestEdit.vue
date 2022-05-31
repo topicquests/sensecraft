@@ -286,14 +286,12 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import nodeForm from "../components/node-form.vue";
-import IbisButton from "../components/ibis-btn.vue";
 import Component from "vue-class-component";
 import { userLoaded } from "../boot/userLoaded";
 import Vue from "vue";
 import { DateTime } from "luxon";
 import {
   quest_status_list,
-  publication_state_list,
   public_private_bool,
   ibis_node_type_enum,
 } from "../enums";
@@ -447,7 +445,7 @@ export default class QuestEditPage extends Vue {
         throw "End date is before start date";
       }
       console.log(this.validateStartEnd());
-      const questUpdateResponse = await this.updateQuest({
+      await this.updateQuest({
         data: this.quest,
       });
       this.$q.notify({
@@ -469,7 +467,7 @@ export default class QuestEditPage extends Vue {
     await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
     await this.ensureConversation(this.quest_id);
-    const questMembership = this.isQuestMember(this.quest_id);
+    // const questMembership = this.isQuestMember(this.quest_id);
 
     if (this.getConversation.length > 0) {
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });

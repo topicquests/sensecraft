@@ -14,10 +14,8 @@ import {
   Quest,
   GuildMemberAvailableRole,
 } from "../types";
-import { registration_status_enum, permission_enum, game_play_status_enum } from "../enums";
+import { registration_status_enum, game_play_status_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { member } from "./member";
-import { store } from "quasar/wrappers";
 import { getWSClient } from "../wsclient";
 
 interface GuildMap {

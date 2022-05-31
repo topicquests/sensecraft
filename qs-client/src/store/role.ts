@@ -1,6 +1,5 @@
 import {
   MyVapi,
-  RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
@@ -8,7 +7,6 @@ import {
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { Role, RoleNodeConstraint } from "../types";
-import { store } from "quasar/wrappers";
 
 interface RoleMap {
   [key: number]: Role;
@@ -75,19 +73,19 @@ export const RoleActions = {
     context.commit("CLEAR_STATE");
   },
   createRoleNodeConstraint: async (context, { data }) => {
-    const res = await context.dispatch("createRoleNodeConstraintBase", {
+    await context.dispatch("createRoleNodeConstraintBase", {
       data,
     });
     await context.dispatch("fetchRoles");
   },
   updateRoleNodeConstraint: async (context, { data }) => {
-    const res = await context.dispatch("updateRoleNodeConstraintBase", {
+    await context.dispatch("updateRoleNodeConstraintBase", {
       data,
     });
     await context.dispatch("fetchRoles");
   },
   deleteRoleNodeConstraint: async (context, { data }) => {
-    const res = await context.dispatch("deleteRoleNodeConstraintBase", {
+    await context.dispatch("deleteRoleNodeConstraintBase", {
       data,
     });
     await context.dispatch("fetchRoles");

@@ -39,7 +39,6 @@ import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import { QuestsGetterTypes } from "src/store/quests";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Prop } from "vue/types/options";
 import { mapActions, mapGetters } from "vuex";
 
 // This component is obsolete, but may contain useful code

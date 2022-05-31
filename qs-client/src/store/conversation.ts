@@ -12,7 +12,6 @@ import {
   ibis_node_type_type,
   publication_state_enum,
   publication_state_list,
-  permission_enum,
   meta_state_enum,
 } from "../enums";
 import { calc_threat_status, ThreatMap, ScoreMap } from "../scoring";

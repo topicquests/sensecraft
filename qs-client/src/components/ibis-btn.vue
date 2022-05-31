@@ -5,7 +5,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { ConversationNode } from "../types";
 import { ibis_node_type_type } from "../enums";
 import { ibis_node_icon } from "../store/conversation";
 

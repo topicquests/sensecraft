@@ -135,15 +135,11 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import IbisButton from "../components/ibis-btn.vue";
 import { userLoaded } from "../boot/userLoaded";
-import { QuestsState } from "../store/quests";
-import { ConversationState } from "../store/conversation";
-import { GuildsState } from "../store/guilds";
-import { MemberState } from "../store/member";
 
 export default {
   data() {
@@ -191,13 +187,13 @@ export default {
         guild_id: this.currentGuild.id,
         creator_id: this.member.id,
       };
-      const resp = await this.getNode(thisNode);
+      await this.getNode(thisNode);
       this.show_tree();
       return "initialized";
     },
     async show_tree() {
       try {
-        const resp = await this.createConversationTree();
+        await this.createConversationTree();
         this.$store.commit("conversation/SHOW_TREE", true);
         return console.log("able to show tree");
       } catch (err) {
@@ -210,8 +206,8 @@ export default {
         if (this.currentNode) {
           this.node.parent_id = this.currentNode.id;
         }
-        const nodeResponse = await this.addConversationNode(this.node);
-        const resp = await this.show_tree();
+        await this.addConversationNode(this.node);
+        await this.show_tree();
         this.$q.notify({
           message: `Added node to conversation`,
           color: "positive",
@@ -227,7 +223,7 @@ export default {
     async editNode() {
       try {
         const nodeUpdateResponse = await this.updateNode(this.currentNode);
-        const response = await this.getNode(this.currentNode.id);
+        await this.getNode(this.currentNode.id);
         this.$q.notify({
           message: `Edited node to conversation`,
           color: "positive",

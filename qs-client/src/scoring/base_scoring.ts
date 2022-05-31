@@ -1,6 +1,6 @@
 import { ScoreMap, ThreatMap, ThreatStatus, calc_threat_status } from ".";
 import { MaybeRealNode, generic_id } from "../types";
-import { ibis_node_type_enum, meta_state_enum } from "../enums";
+import { meta_state_enum } from "../enums";
 
 type NodeById = { [key: generic_id]: MaybeRealNode };
 type ParentMap = { [key: generic_id]: generic_id };

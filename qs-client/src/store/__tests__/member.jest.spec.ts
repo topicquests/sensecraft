@@ -69,7 +69,7 @@ describe("Member store", () => {
     expect(interval).toBeLessThanOrEqual(TOKEN_EXPIRATION);
   });
   it("fetches the login user", async () => {
-    const promise = store.dispatch("member/ensureLoginUser");
+    store.dispatch("member/ensureLoginUser");
     expect(mockAxios.request).toHaveBeenCalledWith(
       makeReq({
         url: "/members",

@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 // import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import ChannelList from "../components/ChannelListComponent.vue";
@@ -67,7 +67,6 @@ import {
   publication_state_enum,
 } from "../enums";
 import {
-  ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
   // createChannelNode,

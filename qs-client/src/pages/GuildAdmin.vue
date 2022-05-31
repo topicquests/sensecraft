@@ -277,7 +277,6 @@ import {
   GamePlay,
   ConversationNode,
   Member,
-  Role,
   GuildMemberAvailableRole,
   PublicMember,
   CastingRole,
@@ -629,7 +628,7 @@ export default class GuildAdminPage extends Vue {
         guild_id: this.currentGuildId,
         quest_id: questId,
       };
-      const play = await this.addGamePlay({ data: payload });
+      await this.addGamePlay({ data: payload });
       this.$q.notify({
         type: "positive",
         message: "You have registered to Quest ",

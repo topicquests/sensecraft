@@ -62,7 +62,7 @@ import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import GuildsTable from "../components/guilds-table.vue";
 import GuildsPlayingIndicator from "../components/guilds-playing-indicator.vue";
-import { mapActions, mapState, mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
 import { MembersGetterTypes } from "../store/members";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
@@ -71,7 +71,6 @@ import {
   ConversationActionTypes,
 } from "../store/conversation";
 import { RoleActionTypes } from "../store/role";
-import { Casting } from "../types";
 import { MembersActionTypes } from "../store/members";
 import GuildMembers from "../components/guild-members.vue";
 

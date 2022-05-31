@@ -34,7 +34,7 @@ import Component from "vue-class-component";
 import { Prop } from "vue/types/options";
 import { Role } from "../types";
 import { mapGetters } from "vuex";
-import { RoleNodeConstraint } from "../types";
+// import { RoleNodeConstraint } from "../types";
 import { RoleGetterTypes } from "src/store/role";
 
 const RoleNodeConstraintTableProps = Vue.extend({

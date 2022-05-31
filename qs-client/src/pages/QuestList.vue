@@ -96,7 +96,7 @@ import member from "../components/member.vue";
 import { userLoaded } from "../boot/userLoaded";
 import Component from "vue-class-component";
 import Vue from "vue";
-import { quest_status_enum, quest_status_list } from "../enums";
+import { quest_status_enum } from "../enums";
 import { Quest } from "../types";
 import { GuildsActionTypes } from "src/store/guilds";
 import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";

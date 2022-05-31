@@ -1,6 +1,5 @@
 import { registration_status_enum, permission_enum, ibis_node_type_enum } from "../enums";
 import {
-  Member,
   Guild,
   Quest,
   QuestMembership,

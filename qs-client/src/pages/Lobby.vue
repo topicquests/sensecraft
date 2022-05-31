@@ -100,7 +100,7 @@ import questTable from "../components/quest-table.vue";
 import GuildsTable from "../components/guilds-table.vue";
 import member from "../components/member.vue";
 import { Guild } from "../types";
-import { mapActions, mapState, mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
 import { MemberGetterTypes } from "src/store/member";

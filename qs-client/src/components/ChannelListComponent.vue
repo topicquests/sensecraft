@@ -40,15 +40,13 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Prop } from "vue/types/options";
 
 import { ConversationNode } from "../types";
 import { userLoaded } from "../boot/userLoaded";
 import {
-  ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
 } from "../store/channel";

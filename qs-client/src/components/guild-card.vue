@@ -55,12 +55,11 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { mapActions, mapState, mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import { Guild } from "../types";
 import {
-  GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
@@ -122,6 +121,9 @@ export default class GuildCard extends GuildCardProps {
         color: "negative",
       });
     }
+  }
+  async beforeMount() {
+    await userLoaded;
   }
 }
 </script>

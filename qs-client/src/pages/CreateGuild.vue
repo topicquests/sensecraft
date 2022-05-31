@@ -69,7 +69,7 @@ import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import { GuildsActionTypes } from "../store/guilds";
 import { RoleActionTypes, RoleGetterTypes } from "../store/role";
-import { Role, Guild } from "./../types";
+import { Role } from "./../types";
 import { MembersActionTypes } from "src/store/members";
 
 @Component<GuildFormPage>({

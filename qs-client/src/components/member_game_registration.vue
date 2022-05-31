@@ -27,26 +27,20 @@
 <script lang="ts">
 import {
   MemberState,
-  MemberGetterTypes,
-  MemberActionTypes,
 } from "../store/member";
 import {
-  MembersState,
   MembersGetterTypes,
   MembersActionTypes,
 } from "../store/members";
 import {
-  RoleState,
   RoleGetterTypes,
   RoleActionTypes,
 } from "../store/role";
 import {
-  QuestsGetterTypes,
   QuestsActionTypes
 } from "../store/quests";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Prop } from "vue/types/options";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Role } from '../types';
 

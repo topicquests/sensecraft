@@ -37,14 +37,12 @@ function base_scoring_internal(
   threat_status: ThreatMap,
   scores: ScoreMap
 ): ValuesForGuilds {
-  const score_map: ScoreMap = {};
   let factor = 1.0;
   let values: ValuesForGuilds = {};
   const value_for: ValueForGuild = {};
   for (const guild of Object.keys(guilds)) {
     value_for[guild] = guild == String(node.guild_id) ? 0.0 : 1.0;
   }
-  const num_threadts = 0;
   for (const child of node.children || []) {
     if ((child.meta || meta_state_enum.conversation) != meta_state_enum.conversation)
       continue;

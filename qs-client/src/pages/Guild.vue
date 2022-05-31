@@ -205,7 +205,6 @@ import {
 import {
   MemberState,
   MemberGetterTypes,
-  MemberActionTypes,
 } from "../store/member";
 import {
   registration_status_enum,
@@ -214,13 +213,10 @@ import {
 } from "../enums";
 import {
   Quest,
-  Guild,
   GamePlay,
   Casting,
-  ConversationNode,
   Member,
   Role,
-  CastingRole,
   PublicMember,
 } from "../types";
 import Vue from "vue";
@@ -507,7 +503,7 @@ export default class GuildPage extends Vue {
     );
 
     if (this.guildGamePlays.length > 0) {
-      const response = await this.initializeQuest();
+      await this.initializeQuest();
     }
   }
   async initializeQuest() {

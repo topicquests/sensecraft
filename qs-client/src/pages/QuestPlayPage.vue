@@ -121,7 +121,6 @@ import member from "../components/member.vue";
 import questCard from "../components/quest-card.vue";
 import nodeTree from "../components/node-tree.vue";
 import {
-  ibis_node_type_enum,
   ibis_node_type_type,
   ibis_node_type_list,
   publication_state_list,
@@ -130,31 +129,27 @@ import {
 } from "../enums";
 import { userLoaded } from "../boot/userLoaded";
 import {
-  QuestsState,
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
 import {
-  GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
 import {
   MemberState,
   MemberGetterTypes,
-  MemberActionTypes,
 } from "../store/member";
-import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
+import { RoleState } from "../store/role";
 import {
   Casting,
   ConversationNode,
   Member,
   Guild,
-  GamePlay,
 } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { MembersGetterTypes, MembersActionTypes } from "../store/members";
+import { MembersGetterTypes } from "../store/members";
 import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
 import memberGameRegistration from "../components/member_game_registration.vue";

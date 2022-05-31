@@ -42,7 +42,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Quest, Member, QuestData } from "../types";
+import { QuestData } from "../types";
 import { Prop } from "vue/types/options";
 import { QTableColumns } from "../types";
 
@@ -117,7 +117,7 @@ const QuestTableProps = Vue.extend({
           field: "actions",
           sortable: true,
         },
-      ];
+      ] + extra;
     },
   },
 })

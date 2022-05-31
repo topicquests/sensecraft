@@ -1,6 +1,5 @@
 import {
   MyVapi,
-  RestActionType,
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
@@ -118,7 +117,7 @@ const QuestsGetters = {
         );
       }
     },
-  getCurrentGamePlay: (state) => {
+  getCurrentGamePlay: (state: QuestsState) => {
     if (state.currentQuest) {
       const quest = state.quests[state.currentQuest];
       const currentGuild: Guild =

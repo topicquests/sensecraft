@@ -42,19 +42,16 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 // import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { userLoaded } from "../boot/userLoaded";
 import {
-  ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
 } from "../store/channel";
 import {
-  //TODO don't need
-  GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";

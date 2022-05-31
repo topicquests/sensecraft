@@ -33,7 +33,7 @@ export class WSClient {
         this.ws.send(`GUILD ${this.guild_id}`)
       }
     })
-    this.ws.addEventListener('message', (event) => {
+    this.ws.addEventListener('message', (event: Event) => {
       this.onMessage(event)
     })
     this.ws.addEventListener('close', (event) => {

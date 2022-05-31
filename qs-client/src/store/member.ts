@@ -15,7 +15,6 @@ import {
   CastingRole,
   GuildMemberAvailableRole,
 } from "../types";
-import { MembersActionTypes } from "../store/members";
 import { getWSClient } from "../wsclient";
 
 export interface MemberState {

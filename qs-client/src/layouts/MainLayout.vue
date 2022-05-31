@@ -190,8 +190,6 @@ import { MemberActionTypes, MemberState } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
 import {
-  conversation,
-  ConversationActionTypes,
   ConversationGetterTypes,
 } from "src/store/conversation";
 import { GuildsGetterTypes } from "../store/guilds";

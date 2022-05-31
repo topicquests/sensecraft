@@ -43,8 +43,6 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { userLoaded } from "../boot/userLoaded";
-import { public_private_bool } from "../enums";
 import { Guild, Member, Quest } from "../types";
 import { GuildsGetterTypes } from "../store/guilds";
 import { MembersGetterTypes } from "../store/members";

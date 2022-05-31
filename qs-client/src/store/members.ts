@@ -1,6 +1,5 @@
 import {
   MyVapi,
-  RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,

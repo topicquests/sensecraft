@@ -119,13 +119,10 @@ import Component from "vue-class-component";
 import IbisButton from "./ibis-btn.vue";
 import { ConversationNode, Role } from "../types";
 import {
-  ibis_node_type_enum,
   ibis_node_type_list,
   ibis_node_type_type,
-  publication_state_enum,
   publication_state_list,
   publication_state_type,
-  public_private_bool,
 } from "../enums";
 
 import { Prop } from "vue/types/options";

@@ -132,28 +132,24 @@
 import Vue from "vue";
 import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
-import { Prop } from "vue/types/options";
-import { ConversationNode, Role, QTreeNode, Quest } from "../types";
+import { ConversationNode, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
 import {
   ConversationMap,
-  ConversationState,
   ConversationGetterTypes,
   ConversationActionTypes,
   ibis_child_types,
 } from "../store/conversation";
 import {QTree} from "quasar"
 import {
-  QuestsState,
   QuestsGetterTypes,
   QuestsActionTypes,
 } from "../store/quests";
 import {
-  GuildsState,
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import { RoleState, RoleGetterTypes, RoleActionTypes } from "../store/role";
+import { RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   ibis_node_type_type,
   ibis_node_type_list,
@@ -162,14 +158,11 @@ import {
   publication_state_list,
 } from "../enums";
 import {
-  ChannelState,
   ChannelGetterTypes,
   ChannelActionTypes,
 } from "../store/channel";
 import { ThreatMap, ScoreMap } from "../scoring";
 import { MembersGetterTypes, MembersActionTypes } from '../store/members'
-
-class NodeTreeBase {}
 
 const NodeTreeProps = Vue.extend({
   props: {
@@ -511,7 +504,7 @@ export default class NodeTree extends NodeTreeProps {
     return node;
   }
   async confirmAddChild(node) {
-    const parent = this.getNode(this.addingChildToNodeId);
+    // const parent = this.getNode(this.addingChildToNodeId);
     try {
       if (this.channelId) {
         await this.createChannelNode({ data: node });

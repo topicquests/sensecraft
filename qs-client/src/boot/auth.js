@@ -1,4 +1,3 @@
-import { LocalStorage, Notify } from "quasar";
 
 // TODO: This is clearly dead code
 export default async ({ router, store }) => {
