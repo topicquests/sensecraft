@@ -23,6 +23,7 @@ module.exports = {
     // 'plugin:vue/recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
     "plugin:vue/essential",
     "plugin:markdown/recommended",
+    "plugin:jest/recommended",
     // Base ESLint recommended rules
     //"eslint:recommended",
 

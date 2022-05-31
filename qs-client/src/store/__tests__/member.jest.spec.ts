@@ -59,12 +59,8 @@ describe("Member store", () => {
     // simulating a server response
     mockAxios.mockResponse({ data: token });
 
-    try {
-      const result = await promise;
-      expect(result.data).toEqual(token);
-    } catch (e) {
-      expect(e).toBeUndefined();
-    }
+    const result = await promise;
+    expect(result.data).toEqual(token);
     expect(store.state.member.token).toEqual(token);
     expect(store.state.member.email).toEqual(mail);
     const expiry = new Date(store.state.member.tokenExpiry);
