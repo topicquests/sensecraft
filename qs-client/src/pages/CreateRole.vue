@@ -57,7 +57,7 @@ export default class RoleEditPage extends Vue {
   name: "RoleEdit";
 
   role_id: number;
-  isAdmin: Boolean = false;
+  isAdmin = false;
   newRole: Partial<Role> = {
     name: "",
     permissions: [],

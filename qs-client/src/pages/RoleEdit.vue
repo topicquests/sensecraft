@@ -89,9 +89,9 @@ import RoleNodeConstraintCard from "src/components/role-node-constraint-card.vue
 })
 export default class RoleEditPage extends Vue {
   name: "RoleEdit";
-  newRoleNodeConstraint: Boolean = false;
+  newRoleNodeConstraint = false;
   role_id: number;
-  isAdmin: Boolean = false;
+  isAdmin = false;
   ready = false;
   newRoleNodeConstraintCard: Partial<RoleNodeConstraint> = {
     node_type: "question",
@@ -177,7 +177,7 @@ export default class RoleEditPage extends Vue {
     });
   }
 
-  async editRoleNodeConstraint(roleNodeConstraint: {}) {
+  async editRoleNodeConstraint(roleNodeConstraint: RoleNodeConstraint) {
     this.newRoleNodeConstraintCard = roleNodeConstraint[0];
     console.log("Edit Role Constraint", roleNodeConstraint[0]);
     this.newRoleNodeConstraint = true;

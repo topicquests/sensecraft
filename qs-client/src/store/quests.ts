@@ -615,7 +615,9 @@ export const quests = (axios: AxiosInstance) =>
           state.currentQuest = quest_id;
           getWSClient().setDefaultQuest(quest_id);
         },
-        SET_CASTING_ROLE: (state: RoleState, role_id: number) => {},
+        SET_CASTING_ROLE: (state: RoleState, role_id: number) => {
+          // TODO
+        },
         CLEAR_STATE: (state: QuestsState) => {
           Object.assign(state, baseState);
         },

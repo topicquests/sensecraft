@@ -40,7 +40,7 @@ const RoleGetters = {
     state.role[id].role_node_constraint,
   getRoleNodeConstraintByType:
     (state: RoleState) => (id: number, node_type: string) => {
-      const roleNodeConstraint: {} = state.role[id].role_node_constraint.filter(
+      const roleNodeConstraint: RoleNodeConstraint[] = state.role[id].role_node_constraint.filter(
         (node: RoleNodeConstraint) => node.node_type == node_type
       );
       return roleNodeConstraint;
@@ -182,13 +182,6 @@ export const role = (axios: AxiosInstance) =>
     .delete({
       action: "deleteRole",
       path: ({ id }) => `/role?id=eq.${id}`,
-      onSuccess: (
-        state: RoleState,
-        res: AxiosResponse<Role[]>,
-        axios: AxiosInstance,
-        actionParams,
-        context
-      ) => {},
     })
 
     .post({
@@ -216,12 +209,6 @@ export const role = (axios: AxiosInstance) =>
           role_node_constraint: undefined,
         });
       },
-      onSuccess: (
-        state: RoleNodeConstraintState,
-        res: AxiosResponse<RoleNodeConstraint[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {},
     })
     .delete({
       action: "deleteRoleNodeConstraintBase",
@@ -236,13 +223,6 @@ export const role = (axios: AxiosInstance) =>
           role_node_constraint: undefined,
         });
       },
-      onSuccess: (
-        state: RoleNodeConstraintState,
-        res: AxiosResponse<RoleNodeConstraint[]>,
-        axios: AxiosInstance,
-        actionParams,
-        context
-      ) => {},
     })
 
     .getVuexStore({

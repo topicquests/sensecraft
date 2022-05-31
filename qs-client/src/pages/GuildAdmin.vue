@@ -385,7 +385,6 @@ import guildCard from "../components/guild-card.vue";
           return [];
         }
       },
-      set: function () {},
     },
     getGuildMembers: {
       get: function () {

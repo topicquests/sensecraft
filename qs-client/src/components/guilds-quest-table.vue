@@ -143,7 +143,7 @@ export default class GuildTable extends GuildsTableProp {
   }
   getDate(guildDate) {
     let date: Date = new Date(guildDate);
-    let startDate: String = new Intl.DateTimeFormat("en-US").format(date);
+    let startDate: string = new Intl.DateTimeFormat("en-US").format(date);
     return startDate;
   }
 

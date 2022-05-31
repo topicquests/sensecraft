@@ -272,7 +272,7 @@ export default class QuestPlayPage extends Vue {
     });
   }
 
-  guildsPlayingGame(only_mine: boolean= false, recruiting: boolean=false) {
+  guildsPlayingGame(only_mine=false, recruiting=false) {
     let guild_ids = this.getCurrentQuest.game_play?.map((gp) => gp.guild_id) || [];
     if (only_mine) {
       guild_ids = guild_ids.filter((g) => (
@@ -285,7 +285,7 @@ export default class QuestPlayPage extends Vue {
     return guilds;
   }
 
-  myGuilds(only_as_leader: boolean = false) {
+  myGuilds(only_as_leader=false) {
     let memberships = this.member.guild_membership || [];
     memberships = memberships.filter((gm) => gm.status == 'confirmed');
     let guild_ids = memberships.map((gm) => gm.guild_id);

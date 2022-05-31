@@ -37,7 +37,7 @@ var router;
 export default {
   // parentId required on new nodes
   // id not required on new nodes
-  props: ["id", "type", parentId],
+  props: ["id", "type", "parentId"],
   data() {
     return {
       label: "",

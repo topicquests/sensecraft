@@ -54,6 +54,7 @@ import { GuildsGetterTypes, GuildsActionTypes } from "src/store/guilds";
 import { MemberGetterTypes } from "src/store/member";
 import { Guild, Casting } from "../types";
 import { ScoreMap } from "../scoring";
+import { QTableColumns } from "../types";
 
 type GuildRow = {
   id: number,
@@ -70,7 +71,7 @@ const GuildsTableProp = Vue.extend({
     scores: Object as Prop<ScoreMap>,
     showPlayers: Boolean,
     selectable: Boolean,
-    extra_columns: Array as Prop<Object[]>,
+    extra_columns: Array as Prop<QTableColumns>,
     edit: {
       type: Boolean,
       default: false,
@@ -85,7 +86,7 @@ const GuildsTableProp = Vue.extend({
 @Component<GuildTable>({
   name: "GuildsTable",
   computed: {
-    columns: function () {
+    columns: function (): QTableColumns {
       const extra = this.extra_columns || [];
       if (this.scores) {
         extra.push({
@@ -153,7 +154,7 @@ const GuildsTableProp = Vue.extend({
 })
 export default class GuildTable extends GuildsTableProp {
   selectedGuild = [];
-  columns!: Object[];
+  columns!: QTableColumns;
   guildData!: GuildRow[];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   getGuildById!: GuildsGetterTypes["getGuildById"];

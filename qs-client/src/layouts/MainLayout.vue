@@ -247,9 +247,9 @@ import { QuestsGetterTypes } from "../store/quests";
   },
 })
 export default class MainLayout extends Vue {
-  private leftDrawer: Boolean = false;
-  private rightDrawerOpen: Boolean = false;
-  private showTree: Boolean = true;
+  private leftDrawer = false;
+  private rightDrawerOpen = false;
+  private showTree = true;
 
   // Declare computed attributes for typescript
   memberId!: number;

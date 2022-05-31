@@ -18,8 +18,7 @@ import {
   QPageContainer,
   QFooter,
 } from "quasar"; // <= cherry pick only the components you actually use
-import { createLocalVue, createWrapper, RouterLinkStub } from "@vue/test-utils";
-import routes from "../../router/routes";
+import { createLocalVue, RouterLinkStub } from "@vue/test-utils";
 import merge from "lodash.merge";
 import { Store } from "vuex-mock-store";
 
@@ -35,7 +34,6 @@ function createWrapper(storeConfig) {
   const defaultMountOptions = {
     mount: {
       mocks: {
-        $route: routes,
         $router: mockRouter,
         $route: {
           params: { name: "top" },

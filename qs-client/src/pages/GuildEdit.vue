@@ -62,7 +62,7 @@ import Vue from "vue";
 })
 export default class GuildEdit extends Vue {
   guild_id: number;
-  isAdmin: Boolean = false;
+  isAdmin = false;
   ready = false;
 
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];

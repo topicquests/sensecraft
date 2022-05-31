@@ -280,12 +280,12 @@ export default class NodeTree extends NodeTreeProps {
   selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
   newNode: Partial<ConversationNode> = {};
-  allowChangeMeta: boolean = false;
+  allowChangeMeta = false;
   baseNodePubStateConstraints: publication_state_type[];
-  showMeta: Boolean = true;
-  showObsolete: Boolean = false;
-  showDraft: Boolean = true;
-  showFocusNeighbourhood: Boolean = false;
+  showMeta = true;
+  showObsolete = false;
+  showDraft = true;
+  showFocusNeighbourhood = false;
   searchFilter = '';
   ready = false;
   listenerInstalled = false;

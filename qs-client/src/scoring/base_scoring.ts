@@ -20,6 +20,7 @@ export function base_scoring(
   const nodes = flatten(node, parent_map);
   const scores: ScoreMap = {};
   for (const node_id of Object.keys(threat_status)) {
+    const my_guild = nodes[node_id].guild_id;
     switch (threat_status[node_id]) {
       case ThreatStatus.support:
         if (
@@ -41,7 +42,6 @@ export function base_scoring(
         scores[node_id] = -0.1;
         break;
       case ThreatStatus.threatened:
-        const my_guild = nodes[node_id].guild_id;
         for (const child of nodes[node_id].children || []) {
           if (
             threat_status[child.id] == ThreatStatus.threat &&

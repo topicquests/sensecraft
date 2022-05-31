@@ -11,8 +11,8 @@ function makeReq({
   method,
 }: {
   url: string;
-  data?: Object;
-  params?: Object;
+  data?: any;
+  params?: any;
   method?: string;
 }) {
   const token = store.state.member.token;

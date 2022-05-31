@@ -112,10 +112,10 @@ export default class GameChannelList extends Vue {
   //data
   guildId: number;
   questId: number;
-  creatingGuildC: boolean = false;
-  newGuildChannelName: string = "";
-  creatingGameC: boolean = false;
-  newGameChannelName: string = "";
+  creatingGuildC = false;
+  newGuildChannelName = "";
+  creatingGameC = false;
+  newGameChannelName = "";
   ready = false;
 
   // declare the computed attributes for Typescript

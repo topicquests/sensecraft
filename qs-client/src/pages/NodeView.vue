@@ -326,7 +326,6 @@ export default {
         console.info("Initialize", "fetching data for ", nodeId, "error", e);
       }
 
-      const self = this;
       try {
         //TODO treeview must look for 'topic'
         // rather than 'map' to paint a tree view

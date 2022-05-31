@@ -55,6 +55,7 @@ import Vue from "vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes } from "src/store/guilds";
 import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
+import { QTableColumns } from "../types";
 
 @Component<QuestLandingPage>({
   meta: {
@@ -77,7 +78,7 @@ import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
 })
 export default class QuestLandingPage extends Vue {
   ready = false;
-  columns = [
+  columns: QTableColumns = [
     {
       name: "desc",
       required: true,
@@ -120,7 +121,6 @@ export default class QuestLandingPage extends Vue {
     },
   ];
   isAuthenticated: false;
-  serverPagination: {};
   serverData: [];
 
   getQuests!: QuestsGetterTypes["getQuests"];

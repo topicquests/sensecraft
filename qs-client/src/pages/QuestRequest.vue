@@ -93,8 +93,9 @@ export default {
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
     ...mapActions("guilds", ["ensureQuest"]),
-    joinQuest(quest) {},
-    toggleCheckbox: function (guild) {},
+    toggleCheckbox: function (guild) {
+      // TODO
+    },
   },
 
   async beforeMount() {

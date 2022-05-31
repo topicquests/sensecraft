@@ -148,7 +148,6 @@ import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
     ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
-    guildBelongsTo() {},
   },
 })
 export default class LobbyPage extends Vue {

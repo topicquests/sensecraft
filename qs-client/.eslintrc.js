@@ -4,6 +4,8 @@ module.exports = {
   // Remove this if you have an higher level ESLint config file (it usually happens into a monorepos)
   root: true,
 
+  parser: "vue-eslint-parser",
+
   parserOptions: {
     parser: "@typescript-eslint/parser",
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
@@ -25,7 +27,8 @@ module.exports = {
     "plugin:markdown/recommended",
     "plugin:jest/recommended",
     // Base ESLint recommended rules
-    //"eslint:recommended",
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!
@@ -40,6 +43,7 @@ module.exports = {
     "vue",
     "jest",
     "cucumber",
+    "@typescript-eslint",
     // https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-file
     // 'plugin:vue/essential',
     // '@vue/typescript',
@@ -51,11 +55,9 @@ module.exports = {
 
   globals: {
     ga: "readonly", // Google Analytics
-    cordova: "readonly",
     __statics: "readonly",
     process: "readonly",
-    Capacitor: "readonly",
-    chrome: "readonly",
+    server_url: "readonly",
   },
 
   // add your custom rules here

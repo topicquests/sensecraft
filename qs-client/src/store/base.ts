@@ -25,18 +25,18 @@ export type RestParamActionType<P, R> = ({
   data,
 }: {
   params: P;
-  data?: {};
+  data?: any;
 }) => Promise<AxiosResponse<R>>;
 export type RestDataActionType<D, R> = ({
   params,
   data,
 }: {
-  params?: {};
+  params?: any;
   data: D;
 }) => Promise<AxiosResponse<R>>;
 export type RestEmptyActionType<R> = (actionParams?: {
-  params?: {};
-  data?: {};
+  params?: any;
+  data?: any;
 }) => Promise<AxiosResponse<R>>;
 type ActionFn<F extends (...args: any) => any> = (
   ...args: [...Parameters<F>[1]]
@@ -50,7 +50,7 @@ export type RetypeGetterTypes<
 export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
 interface GetterMap {
-  [action: string]: Function;
+  [action: string]: Function;  //eslint-disable-line
 }
 
 interface MyVapiStore extends VapiStore {
@@ -118,7 +118,7 @@ export class MyVapi<S> extends Vapi {
     const baseHeaders = options.headers || {};
     return super.add(
       Object.assign(options, {
-        headers: (params: Object) => {
+        headers: (params: any) => {
           const token = MyVapi.store?.state.member.token;
           const tokenExpiry = MyVapi.store?.state.member.tokenExpiry;
           if (token && tokenExpiry && Date.now() < tokenExpiry) {

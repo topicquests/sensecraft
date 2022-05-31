@@ -415,12 +415,6 @@ export const guilds = (axios: AxiosInstance) =>
     .patch({
       action: "updateGuildMemberAvailable",
       path: "/guild_member_available_role",
-      onSuccess: (
-        state: GuildsState,
-        res: AxiosResponse<GuildMembership[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {},
     })
     .delete({
       action: "deleteGuildMemberAvailableRole",

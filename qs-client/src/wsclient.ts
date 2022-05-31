@@ -92,6 +92,7 @@ export class WSClient {
         } else {
           await this.store.dispatch("quests/fetchQuestById", { full: true, params: { id } });
         }
+        break;
       default:
         console.warn(`Unhandled ws event: ${event}`);
     }

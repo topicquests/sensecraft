@@ -145,7 +145,7 @@ export function depthFirst(tree: QTreeNode, seq: number[] = []): number[] {
 export function makeTree(
   nodes: ConversationNode[],
   upToStatus: publication_state_enum = publication_state_enum.obsolete,
-  include_meta: boolean = true
+  include_meta = true
 ) {
   if (nodes.length == 0) {
     return [];

@@ -81,7 +81,6 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 })
 export default class GuildLandingPage extends Vue {
   ready = false;
-  serverPagination: {};
   serverData: [];
 
   getGuilds!: GuildsGetterTypes["getGuilds"];

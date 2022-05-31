@@ -93,8 +93,8 @@ export default class GuildChannelList extends Vue {
   //data
   guildId: number;
   channels: ConversationNode[];
-  creating: boolean = false;
-  newChannelName: string = "";
+  creating = false;
+  newChannelName = "";
   ready = false;
 
   // declare the computed attributes for Typescript

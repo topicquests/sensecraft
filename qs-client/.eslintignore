@@ -4,6 +4,7 @@
 /src-cordova
 /.quasar
 /node_modules
+/test/loaders/jest-loader.js
 
 .eslintrc.js
 *.json

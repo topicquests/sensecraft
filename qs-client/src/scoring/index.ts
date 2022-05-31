@@ -17,7 +17,7 @@ export enum ThreatStatus {
 export type ThreatMap = { [key: generic_id]: ThreatStatus };
 export type ScoreMap = { [key: generic_id]: number };
 
-export function ensure_id(node: MaybeRealNode, counter: number = 0): number {
+export function ensure_id(node: MaybeRealNode, counter = 0): number {
   node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
     if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)

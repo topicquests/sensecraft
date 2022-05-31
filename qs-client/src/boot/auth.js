@@ -1,9 +1,10 @@
 import { LocalStorage, Notify } from "quasar";
 
+// TODO: This is clearly dead code
 export default async ({ router, store }) => {
   router.beforeEach((to, from, next) => {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-      if (!auth.loggedIn()) {
+      if (!store.getters["member/getUserId"]) {
         next({
           path: "/signon",
           query: { redirect: to.fullPath },

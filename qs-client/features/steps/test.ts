@@ -50,12 +50,12 @@ export class BaseScoring {
     // console.log(this.scores);
   }
 
-  @then(/The score of (\w+) is ([0-9\.]+)/)
+  @then(/The score of (\w+) is ([0-9.]+)/)
   public score_value(node_id, value) {
     assert.equal(this.scores[node_id], Number(value));
   }
 
-  @then(/The score of (\w+) is more than ([0-9\.]+)/)
+  @then(/The score of (\w+) is more than ([0-9.]+)/)
   public score_value_at_least(node_id, value) {
     assert.isAbove(this.scores[node_id], Number(value));
   }

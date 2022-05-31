@@ -140,7 +140,6 @@ export default {
       }, 50);
     },
   },
-  async beforeMount() {},
 };
 </script>
 

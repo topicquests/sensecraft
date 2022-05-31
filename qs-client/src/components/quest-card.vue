@@ -103,7 +103,7 @@ export default class QuestCard extends QuestCardProps {
   getDate(dte: string) {
     if (dte) {
       let date: Date = new Date(dte);
-      let formattedDate: String = new Intl.DateTimeFormat("en-US").format(date);
+      let formattedDate: string = new Intl.DateTimeFormat("en-US").format(date);
       return formattedDate;
     }
   }

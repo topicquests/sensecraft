@@ -96,8 +96,8 @@ export default class GuildCard extends GuildCardProps {
   guild: Guild;
   guild_id: null;
   isAdmin: false;
-  invitation: Boolean;
-  public_private_bool: Boolean;
+  invitation: boolean;
+  public_private_bool: boolean;
 
   created() {
     this.guild = this.currentGuild;
