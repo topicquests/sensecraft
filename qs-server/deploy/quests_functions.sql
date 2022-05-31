@@ -167,6 +167,9 @@ CREATE OR REPLACE FUNCTION public.before_create_quest() RETURNS trigger
     AS $$
     BEGIN
       NEW.creator := current_member_id();
+      if NEW.end < NEW.start THEN
+        NEW.end := NEW.start;
+      END IF;
       RETURN NEW;
     END;
     $$;
@@ -219,6 +222,9 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
       END IF;
       IF NEW.status = 'finished' AND OLD.status < 'finished' THEN
         NEW."end" := now();
+      END IF;
+      if NEW.end < NEW.start THEN
+        NEW.end := NEW.start;
       END IF;
       RETURN NEW;
     END;
