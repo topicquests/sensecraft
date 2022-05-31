@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary" v-if="ready">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>
@@ -160,7 +160,7 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-date v-model="quest.start" mask="MM-DD-YYYY HH:mm">
+                          <q-date v-model="quest.start" mask="YYYY-MM-DD HH:mm">
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
@@ -181,7 +181,7 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-time v-model="quest.start" mask="MM-DD-YYYY HH:mm">
+                          <q-time v-model="quest.start" mask="YYYY-MM-DD HH:mm">
                             format24h >
                             <div class="row items-center justify-end">
                               <q-btn
@@ -210,7 +210,7 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-date v-model="quest.end" mask="MM-DD-YYYY HH:mm"
+                          <q-date v-model="quest.end" mask="YYYY-MM-DD HH:mm"
                             >>
                             <div class="row items-center justify-end">
                               <q-btn
@@ -232,7 +232,7 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-time v-model="quest.end" mask="MM-DD-YYYY HH:mm">
+                          <q-time v-model="quest.end" mask="YYYY-MM-DD HH:mm">
                             format24h >
                             <div class="row items-center justify-end">
                               <q-btn
@@ -343,7 +343,6 @@ export default class QuestEditPage extends Vue {
   public_private_bool = public_private_bool;
   quest_status_list = quest_status_list;
   publication_state_list;
-
   isAdmin: true;
   quest_id: number;
 
@@ -434,9 +433,20 @@ export default class QuestEditPage extends Vue {
     }
     this.quest.status = value;
   }
+  validateStartEnd() {
+    if (this.quest.start < this.quest.end) {
+      return true;
+    }
+    return false;
+  }
 
   async doSubmitQuest() {
     try {
+      if (!this.validateStartEnd()) {
+        console.log(this.validateStartEnd());
+        throw "End date is before start date";
+      }
+      console.log(this.validateStartEnd());
       const questUpdateResponse = await this.updateQuest({
         data: this.quest,
       });
@@ -460,6 +470,7 @@ export default class QuestEditPage extends Vue {
     await this.ensureQuest({ quest_id: this.quest_id });
     await this.ensureConversation(this.quest_id);
     const questMembership = this.isQuestMember(this.quest_id);
+
     if (this.getConversation.length > 0) {
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     }

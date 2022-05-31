@@ -6,7 +6,7 @@
 import { Quest } from "../types";
 import { Prop } from "vue/types/options";
 import Vue from "vue";
-import { DateTime, Duration } from "luxon";
+import { DateTime } from "luxon";
 import Component from "vue-class-component";
 
 const QuestDateTimeIntervalProps = Vue.extend({
