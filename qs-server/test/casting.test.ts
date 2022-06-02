@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo } from './fixtures';
+import type { GuildMembership, Casting, GamePlay } from '../../qs-client/src/types';
 
 describe('\'casting\' service', function() {
 
@@ -43,7 +44,7 @@ describe('\'casting\' service', function() {
     });
 
     describe('guild creation by authorized user', function() {
-      const game_play_id: any = {};
+      const game_play_id: Partial<GamePlay> = {};
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
@@ -69,7 +70,7 @@ describe('\'casting\' service', function() {
         const register = await axiosUtil.create('casting', {
           member_id: leaderId,
           ...game_play_id
-        }, leaderToken);
+        } as Partial<Casting>, leaderToken);
         assert.ok(register);
       });
       it('quidam cannot register to quest from outside guild', async function() {
@@ -77,14 +78,14 @@ describe('\'casting\' service', function() {
           await axiosUtil.create('casting', {
             member_id: quidamId,
             ...game_play_id
-          }, quidamToken);
+          } as Partial<Casting>, quidamToken);
         }, 'GeneralError');
       });
       it('quidam can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
-        }, quidamToken);
+        } as Partial<GuildMembership>, quidamToken);
         console.log(register);
         assert.ok(register);
       });
@@ -112,7 +113,7 @@ describe('\'casting\' service', function() {
         const r = await axiosUtil.create('casting', {
           member_id: quidamId,
           ...game_play_id
-        }, quidamToken);
+        } as Partial<Casting>, quidamToken);
         assert.ok(r);
       });
       it('quidam has the guild default role', async function() {

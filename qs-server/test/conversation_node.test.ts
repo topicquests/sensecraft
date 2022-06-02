@@ -3,6 +3,7 @@ import {
   axiosUtil, get_base_roles, get_system_role_by_name, add_members,
   delete_members, add_nodes, delete_nodes } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } from './fixtures';
+import type { PseudoNode, GamePlay, GuildMemberAvailableRole, GuildMembership, Casting, CastingRole } from '../../qs-client/src/types';
 //import { devNull } from 'os';
 
 function num_nodes_in_json(json) {
@@ -24,12 +25,12 @@ function remove_ids(recNode) {
 describe('\'conversation_node\' service', function() {
 
   describe('guild creation', function() {
-    const nodeIds: any = {};
+    const nodeIds: {[key: string]: number} = {};
     let adminToken, publicGuildId, publicQuestId, publicQuest2Id, sponsorToken, leaderToken, quidamToken,
       q1Id, a1Id, arg1Id, memberIds, memberTokens, roles, researcherRoleId, philosopherRoleId,
       gameLeaderRoleId, tree_info;
 
-    async function my_add_node(node, qId=publicQuestId) {
+    async function my_add_node(node: Partial<PseudoNode>, qId=publicQuestId) {
       return await add_nodes([node], qId, memberTokens, nodeIds);
     }
 
@@ -63,7 +64,7 @@ describe('\'conversation_node\' service', function() {
     });
 
     describe('conversation_node tests', function() {
-      const game_play_id: any = {};
+      const game_play_id: Partial<GamePlay> = {};
       it('creates two public quests', async function() {
         let publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
@@ -86,7 +87,7 @@ describe('\'conversation_node\' service', function() {
             node_type: 'question',
             status: 'published',
             title: 'second question',
-            member: sponsorInfo.handle,
+            creator_id: sponsorInfo.handle,
           });
         }, /Each quest must have a single root/);
       });
@@ -101,7 +102,7 @@ describe('\'conversation_node\' service', function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: memberIds[quidamInfo.handle],
           guild_id: publicGuildId,
-        }, quidamToken);
+        } as Partial<GuildMembership>, quidamToken);
         assert.ok(register);
       });
       it('guild leader can register guild to quest', async function() {
@@ -116,7 +117,7 @@ describe('\'conversation_node\' service', function() {
           member_id: memberIds[leaderInfo.handle],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
-        }, leaderToken);
+        } as Partial<Casting>, leaderToken);
         assert.ok(r);
       });
       it('leader can make game leader role available for self', async function() {
@@ -124,7 +125,7 @@ describe('\'conversation_node\' service', function() {
           member_id: memberIds[leaderInfo.handle],
           guild_id: publicGuildId,
           role_id: gameLeaderRoleId
-        }, leaderToken);
+        } as Partial<GuildMemberAvailableRole>, leaderToken);
         assert.ok(r);
       });
       it('leader can self-assign game leader role', async function() {
@@ -133,7 +134,7 @@ describe('\'conversation_node\' service', function() {
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: gameLeaderRoleId
-        }, leaderToken);
+        } as Partial<CastingRole>, leaderToken);
         assert.ok(r);
       });
       it('quidam can self-register', async function() {
@@ -141,7 +142,7 @@ describe('\'conversation_node\' service', function() {
           member_id: memberIds[quidamInfo.handle],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
-        }, quidamToken);
+        } as Partial<Casting>, quidamToken);
         assert.ok(r);
       });
       it('quidam can self-cast with default role', async function() {
@@ -150,7 +151,7 @@ describe('\'conversation_node\' service', function() {
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: researcherRoleId
-        }, quidamToken);
+        } as Partial<CastingRole>, quidamToken);
         assert.ok(r);
       });
       it('quidam can create private draft node', async function() {
@@ -162,7 +163,7 @@ describe('\'conversation_node\' service', function() {
           await my_add_node({
             id: 'a2',
             node_type: 'answer',
-            parent: 'q1',
+            parent_id: 'q1',
             status: 'submitted',
             title: 'first question'
           });
@@ -175,9 +176,9 @@ describe('\'conversation_node\' service', function() {
         await assert.rejects(async () => {
           await my_add_node({
             id: 'arg0',
-            member: quidamInfo.handle,
+            creator_id: quidamInfo.handle,
             node_type: 'pro',
-            parent: 'q1',
+            parent_id: 'q1',
             title: 'pro argument'
           });
         });
@@ -208,7 +209,7 @@ describe('\'conversation_node\' service', function() {
           member_id: memberIds[leaderInfo.handle],
           guild_id: publicGuildId,
           role_id: philosopherRoleId
-        }, leaderToken);
+        } as Partial<GuildMemberAvailableRole>, leaderToken);
         assert.ok(r);
       });
       it('leader can self-assign philosopher role', async function() {
@@ -217,7 +218,7 @@ describe('\'conversation_node\' service', function() {
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: philosopherRoleId
-        }, leaderToken);
+        } as Partial<CastingRole>, leaderToken);
         assert.ok(r);
       });
       it('leader can see role draft with appropriate role', async function() {
@@ -301,7 +302,7 @@ describe('\'conversation_node\' service', function() {
           member_id: memberIds[quidamInfo.handle],
           guild_id: publicGuildId,
           role_id: philosopherRoleId
-        }, leaderToken);
+        } as Partial<GuildMemberAvailableRole>, leaderToken);
         assert.ok(r);
       });
       it('quidam can self-cast', async function() {
@@ -310,7 +311,7 @@ describe('\'conversation_node\' service', function() {
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: philosopherRoleId
-        }, quidamToken);
+        } as Partial<CastingRole>, quidamToken);
         assert.ok(r);
       });
       it('quidam can update draft node to proposed as philosopher', async function() {
@@ -336,17 +337,17 @@ describe('\'conversation_node\' service', function() {
           node_type: 'question',
           status: 'published',
           title: 'second question',
-          member: sponsorInfo.handle,
+          creator_id: sponsorInfo.handle,
         }, publicQuest2Id));
         // now add a node in quest1 with the q2 node as parent
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q30',
-            parent: 'q2',
+            parent_id: 'q2',
             node_type: 'question',
             status: 'published',
             title: 'another question',
-            member: quidamInfo.handle,
+            creator_id: quidamInfo.handle,
           });
         }, /Parent node does not belong to the same quest/);
 
@@ -357,46 +358,46 @@ describe('\'conversation_node\' service', function() {
         // create a meta node
         Object.assign(nodeIds, await my_add_node({
           id: 'q29',
-          parent: answer1Info.id,
+          parent_id: answer1Info.id,
           node_type: 'question',
           meta: 'meta',
           status: 'guild_draft',
           title: 'third question',
-          member: quidamInfo.handle,
+          creator_id: quidamInfo.handle,
         }));
       });
       it('can add a meta-node to a descendant of the focus node', async function() {
         Object.assign(nodeIds, await my_add_node({
           id: 'q3111',
-          parent: argument1Info.id,
+          parent_id: argument1Info.id,
           node_type: 'question',
           meta: 'meta',
           status: 'guild_draft',
           title: 'yet still another question',
-          member: quidamInfo.handle,
+          creator_id: quidamInfo.handle,
         }));
       });
       it('can add a meta-node to an existing meta-node', async function() {
         Object.assign(nodeIds, await my_add_node({
           id: 'q3112',
-          parent: 'q3111',
+          parent_id: 'q3111',
           node_type: 'question',
           meta: 'meta',
           status: 'guild_draft',
           title: 'yet still another question',
-          member: quidamInfo.handle,
+          creator_id: quidamInfo.handle,
         }));
       });
       it.skip('cannot add a meta-node outside of the focus node descendants', async function() {
         await assert.rejects(async () => {
           await my_add_node({
             id: 'q2921',
-            parent: 'q2',
+            parent_id: 'q2',
             node_type: 'question',
             meta: 'meta',
             status: 'guild_draft',
             title: 'yet still another question',
-            member: quidamInfo.handle,
+            creator_id: quidamInfo.handle,
           });
         }, /Parent node out of focus/);
         // not implemented yet
@@ -409,7 +410,7 @@ describe('\'conversation_node\' service', function() {
           status: 'guild_draft',
           meta: 'channel',
           title: 'My Channel',
-          member: leaderInfo.handle,
+          creator_id: leaderInfo.handle,
         }));
       });
       ///// Test I can add a channel in the game_play
@@ -423,7 +424,7 @@ describe('\'conversation_node\' service', function() {
           // meta: 'channel', can remain implicit because implied by node_type
           title: 'My Channel',
           guild_id: publicGuildId,  // explicit, not given by game_play
-          member: leaderInfo.handle,
+          creator_id: leaderInfo.handle,
         }, null));
       });
       it('cannot add a non-root channel', async function() {
@@ -432,22 +433,22 @@ describe('\'conversation_node\' service', function() {
             id: 'q8991',
             node_type: 'channel',
             status: 'guild_draft',
-            parent: 'q899',
+            parent_id: 'q899',
             meta: 'channel',
             title: 'My Channel',
-            member: leaderInfo.handle,
+            creator_id: leaderInfo.handle,
           });
         }, /Channels must be at root/);
       });
       it('can add a meta-node to either channel', async function() {
         Object.assign(nodeIds, await my_add_node({
           id: 'q31123',
-          parent: 'q899',
+          parent_id: 'q899',
           node_type: 'question',
           meta: 'meta',
           status: 'guild_draft',
           title: 'yet still another question',
-          member: quidamInfo.handle,
+          creator_id: quidamInfo.handle,
         }));
       });
       it('cannot add a quest-less non-meta node', async function() {
@@ -457,7 +458,7 @@ describe('\'conversation_node\' service', function() {
             node_type: 'question',
             status: 'guild_draft',
             title: 'great question',
-            member: leaderInfo.handle,
+            creator_id: leaderInfo.handle,
           }, null);
         }, /Quest Id must be defined/);
       });
@@ -468,7 +469,7 @@ describe('\'conversation_node\' service', function() {
           status: 'guild_draft',
           meta: 'channel',
           title: 'great question',
-          member: leaderInfo.handle,
+          creator_id: leaderInfo.handle,
         }));
         const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434348}, leaderToken);
         assert(node.length === 1);
@@ -477,11 +478,11 @@ describe('\'conversation_node\' service', function() {
       it('cannot add a node in non-channel state inside a channel', async function() {
         Object.assign(nodeIds, await my_add_node({
           id: 'q3434349',
-          parent: 'q898',
+          parent_id: 'q898',
           node_type: 'question',
           status: 'guild_draft',
           title: 'great question',
-          member: leaderInfo.handle,
+          creator_id: leaderInfo.handle,
         }));
         const node = await axiosUtil.get('conversation_node', {id: nodeIds.q3434349}, leaderToken);
         assert(node.length === 1);
@@ -490,13 +491,13 @@ describe('\'conversation_node\' service', function() {
       it('can add a guild draft meta-node to a guild channel', async function() {
         Object.assign(nodeIds, await my_add_node({
           id: 'q8992',
-          parent: 'q899',
+          parent_id: 'q899',
           node_type: 'question',
           meta: 'meta',
           status: 'role_draft',
           draft_for_role_id: philosopherRoleId,
           title: 'yet still another question',
-          member: quidamInfo.handle,
+          creator_id: quidamInfo.handle,
         }));
       });
       it('role member can see that meta-node', async function() {

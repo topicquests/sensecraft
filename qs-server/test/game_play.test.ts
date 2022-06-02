@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, draftPublicQuestInfo } from './fixtures';
+import type { GamePlay } from '../../qs-client/src/types';
 
 describe('\'game_play\' service', function() {
 
@@ -43,7 +44,7 @@ describe('\'game_play\' service', function() {
     });
 
     describe('guild creation by authorized user', function() {
-      const game_play_id: any = {};
+      const game_play_id: Partial<GamePlay> = {};
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', draftPublicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;

@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } from './fixtures';
+import type { CastingRole, Casting, GuildMembership, GuildMemberAvailableRole, Role, GamePlay } from '../../qs-client/src/types';
 
 describe('\'role\' service', function() {
   describe('guild creation', function() {
@@ -51,7 +52,7 @@ describe('\'role\' service', function() {
     });
 
     describe('guild creation by authorized user', function() {
-      const game_play_id: any = {};
+      const game_play_id: Partial<GamePlay> = {};
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
@@ -77,21 +78,21 @@ describe('\'role\' service', function() {
         const register = await axiosUtil.create('casting', {
           member_id: leaderId,
           ...game_play_id
-        }, leaderToken);
+        } as Partial<Casting>, leaderToken);
         assert.ok(register);
       });
       it('quidam can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
-        }, quidamToken);
+        } as Partial<GuildMembership>, quidamToken);
         assert.ok(register);
       });
       it('player can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
           member_id: playerId,
           guild_id: publicGuildId,
-        }, playerToken);
+        } as Partial<GuildMembership>, playerToken);
         assert.ok(register);
       });
       it('guild leader can call global registration', async function() {
@@ -121,21 +122,21 @@ describe('\'role\' service', function() {
       //Superadmin create new role
       it('superadmin create new role', async function() {
         const sysRole = await axiosUtil.create('role', {
-          name: 'super_role'}, adminToken);
+          name: 'super_role'} as Partial<Role>, adminToken);
         sysRoleId = sysRole.id;
       });
       //player cannot create new role
       it('player cannot create new role', async function() {
         await assert.rejects( async() => {
           await axiosUtil.create('role', {
-            name: 'player_role',}, playerToken);
+            name: 'player_role',} as Partial<Role>, playerToken);
         }, 'GeneralError');
       });
       //guildadmin cannot create new role without guildId
       it('guildadmin cannot create new role without guildId', async function() {
         await assert.rejects(async() => {
           await axiosUtil.create('role', {
-            name: 'guild_role',}, leaderToken);
+            name: 'guild_role',} as Partial<Role>, leaderToken);
         }, 'GeneralError');
       });
       //Player attempts to select casting role before guild admin creates
@@ -145,7 +146,7 @@ describe('\'role\' service', function() {
             member_id: playerId,
             quest_id: publicQuestId,
             guild_id: publicGuildId,
-            role_id: sysRoleId}, playerToken);
+            role_id: sysRoleId} as Partial<CastingRole>, playerToken);
         }, 'GeneralError');
       });
       //GuildAdmin select sys roles for player
@@ -153,7 +154,7 @@ describe('\'role\' service', function() {
         const sysRole = await axiosUtil.create('guild_member_available_role', {
           member_id: playerId,
           role_id: sysRoleId,
-          guild_id: publicGuildId},
+          guild_id: publicGuildId} as Partial<GuildMemberAvailableRole>,
         leaderToken);
         assert.ok(sysRole);
       });
@@ -162,7 +163,7 @@ describe('\'role\' service', function() {
         const guildRole = await axiosUtil.create('guild_member_available_role', {
           member_id: playerId,
           guild_id: publicGuildId,
-          role_id: guildRoleId},
+          role_id: guildRoleId} as Partial<GuildMemberAvailableRole>,
         leaderToken);
         assert.ok(guildRole);
       });
@@ -172,7 +173,7 @@ describe('\'role\' service', function() {
           member_id: playerId,
           quest_id: publicQuestId,
           guild_id: publicGuildId,
-          role_id: sysRoleId}, playerToken);
+          role_id: sysRoleId} as Partial<CastingRole>, playerToken);
       });
       //Player selects second casting role after guild admin creates
       it('Player select second casting role', async function() {
@@ -180,7 +181,7 @@ describe('\'role\' service', function() {
           member_id: playerId,
           quest_id: publicQuestId,
           guild_id: publicGuildId,
-          role_id: guildRoleId}, playerToken);
+          role_id: guildRoleId} as Partial<CastingRole>, playerToken);
       });
       it('Leader cannot delete an available role in use', async function() {
         await assert.rejects(async () => {
@@ -188,7 +189,7 @@ describe('\'role\' service', function() {
             member_id: playerId,
             guild_id: publicGuildId,
             role_id: guildRoleId
-          }, leaderToken);
+          } as Partial<CastingRole>, leaderToken);
         }, /casting_role_available_role_fkey/);
       });
       it('Leader cannot delete a role in use', async function() {

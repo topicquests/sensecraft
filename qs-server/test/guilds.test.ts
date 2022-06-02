@@ -1,25 +1,26 @@
 import assert from 'assert';
 import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } from './fixtures';
+import type { Guild, Member, GuildMembership } from '../../qs-client/src/types';
 
 describe('\'guilds\' service', function() {
 
   describe('guild creation', function() {
 
-    const quidam2Info = {
+    const quidam2Info: Partial<Member> = {
       email: 'quidam2@example.com',
       handle: 'quidam2',
       name: 'Quidam2',
       password: 'supersecret'
     };
-    const quasiPublicGuildInfo = {
+    const quasiPublicGuildInfo: Partial<Guild> = {
       name: 'My other great guild',
       handle: 'pubguild2',
       public: true,
       open_for_applications: true,
       application_needs_approval: true,
     };
-    const privateGuildInfo = {
+    const privateGuildInfo: Partial<Guild> = {
       name: 'My private guild',
       handle: 'privguild1',
       public: false,
@@ -114,7 +115,7 @@ describe('\'guilds\' service', function() {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        }, accessToken);
+        } as Partial<GuildMembership>, accessToken);
         const guild_membership = await axiosUtil.get('guild_membership', guild_membership_id, accessToken);
         assert.equal(guild_membership.length, 1);
         assert.equal(guild_membership[0].status, 'invitation');
@@ -129,7 +130,7 @@ describe('\'guilds\' service', function() {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        }, accessToken);
+        } as Partial<GuildMembership>, accessToken);
         const guild_membership = await axiosUtil.get('guild_membership', guild_membership_id, accessToken);
         assert.equal(guild_membership.length, 1);
         assert.equal(guild_membership[0].status, 'invitation');
@@ -170,7 +171,7 @@ describe('\'guilds\' service', function() {
             member_id: quidam2Id,
             guild_id: publicGuildId,
             status: 'confirmed'
-          }, accessToken);
+          } as Partial<GuildMembership>, accessToken);
         }, 'SequelizeDatabaseError');
         const memberships = await axiosUtil.get('guild_membership',
           { member_id: quidam2Id }, accessToken);
@@ -181,7 +182,7 @@ describe('\'guilds\' service', function() {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        }, accessToken);
+        } as Partial<GuildMembership>, accessToken);
         const membership = await axiosUtil.get('guild_membership', membership_id, accessToken);
         assert.equal(membership.length, 1);
         assert.equal(membership[0].status, 'confirmed');
@@ -191,7 +192,7 @@ describe('\'guilds\' service', function() {
           member_id: quidamId,
           guild_id: quasiPublicGuildId,
           status: 'confirmed'
-        }, accessToken);
+        } as Partial<GuildMembership>, accessToken);
         const membership = await axiosUtil.get('guild_membership', membership_id, accessToken);
         assert.equal(membership.length, 1);
         assert.equal(membership[0].status, 'request');

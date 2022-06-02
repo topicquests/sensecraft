@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
+import type { PseudoNode, ConversationNode, Member } from '../../qs-client/src/types';
 
 function enhanceError(err) {
   const response = err.response || { data: {} };
@@ -102,7 +103,7 @@ class AxiosUtil {
 
 export const axiosUtil = new AxiosUtil('http://localhost:3001');
 
-export async function add_members(members) {
+export async function add_members(members: Partial<Member>[]) {
   const memberIds = {};
   const memberTokens = {};
   for (const member of members) {
@@ -132,23 +133,24 @@ export async function delete_members(memberIds, adminToken) {
   }
 }
 
-export async function add_nodes(nodes, quest_id, member_tokens, node_ids) {
+export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, member_tokens, node_ids: { [key: string]: number }) {
   node_ids = node_ids || {};
   for (const nodeData of nodes) {
-    const {id, member, parent, ...rest} = nodeData;
-    const parent_id = (parent)?node_ids[parent]:undefined;
-    if (parent && !parent_id) {
+    const {id, creator_id, parent_id, guild_id, ...rest} = nodeData;
+    const parent_dbid = (parent_id)?node_ids[parent_id]:undefined;
+    if (parent_id && !parent_dbid) {
       throw Error('missing parent');
     }
-    const node = {
-      parent_id,
+    const node: Partial<ConversationNode> = {
+      parent_id: parent_dbid,
+      ...rest,
       quest_id,
-      ...rest
+      guild_id: (typeof(guild_id) == 'string') ? parseInt(guild_id): guild_id,
     };
-    const member_token = member_tokens[member];
+    const member_token = member_tokens[creator_id];
     console.log(node);
     const id_data = await axiosUtil.create('conversation_node', node, member_token);
-    node_ids[id] = id_data.id;
+    node_ids[id] = parseInt(id_data.id);
   }
   return node_ids;
 }
