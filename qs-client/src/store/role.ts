@@ -186,12 +186,16 @@ export const role = (axios: AxiosInstance) =>
       action: "createRoleNodeConstraintBase",
       path: "/role_node_constraint",
       onSuccess: (
-        state: RoleNodeConstraintState,
+        state: RoleState,
         res: AxiosResponse<RoleNodeConstraint[]>,
         axios: AxiosInstance,
         { data }
       ) => {
-        const role = res.data[0];
+        const rnc = res.data[0];
+        const role = state.role[rnc.role_id];
+        const role_node_constraint = role.role_node_constraint;
+        role_node_constraint.push(rnc);
+        state.role[rnc.role_id] = {...role, role_node_constraint}
       },
     })
     .patch({

@@ -65,5 +65,6 @@ module.exports = {
     "prefer-promise-reject-errors": "warn",
     // allow debugger during development only
     "no-debugger": "error",
+    "@typescript-eslint/no-unused-vars": ["error", {args: "none", varsIgnorePattern: "^_"}],
   },
 };

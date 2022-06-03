@@ -114,7 +114,7 @@ export default class RoleEditPage extends Vue {
 
   async updateCurrentRole(role) {
     try {
-      const res = await this.updateRole({ data: role });
+      await this.updateRole({ data: role });
       await this.fetchRoles();
       this.$q.notify({
         message: `role updated`,
@@ -131,7 +131,7 @@ export default class RoleEditPage extends Vue {
 
   async deleteRoleById(role: Role) {
     try {
-      const res = await this.deleteRole({ params: { id: role.id }, data: {} });
+      await this.deleteRole({ params: { id: role.id }, data: {} });
       await this.fetchRoles();
       this.$q.notify({
         message: `role deleted`,

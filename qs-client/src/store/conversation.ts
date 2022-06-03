@@ -259,7 +259,7 @@ const ConversationGetters = {
     const guildScoreMap: ScoreMap = {};
     Object.keys(scoreMap).forEach((key) => {
       const guild_id = state.conversation[key].guild_id;
-      guildScoreMap.guild_id = (guildScoreMap.guild_id || 0) + scoreMap[key];
+      guildScoreMap[guild_id] = (guildScoreMap[guild_id] || 0) + scoreMap[key];
     });
     return guildScoreMap;
   },

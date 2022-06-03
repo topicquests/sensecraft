@@ -71,7 +71,6 @@ export default {
       json.type = "topic";
       if (mytype) {
         //only a mytype if this is a child of some other topic
-        var kid;
         if (mytype === "subclass") {
           //subclass we are only allowing single inheritance for now
           json.subOf = this.id;

@@ -267,7 +267,7 @@ export default {
     },
   },
   async beforeMount() {
-    const id = Number.parseInt(this.$route.params.id);
+    // const id = Number.parseInt(this.$route.params.id);
     this.$data.rightDrawerOpen = false; //turn off conversation tree
     await userLoaded;
     //this.$store.commit("questView", false);
@@ -335,7 +335,7 @@ export default {
         // only show the tree if the root is a map
         //if (img === 'statics/images/map_sm.png' ||
         //    img === 'statics/images/bookmark_sm.png') {
-        const result = [];
+        // const result = [];
         // result.push(tree);
         // self.$store.commit("tree", result);
         // self.$store.commit("questView", true);

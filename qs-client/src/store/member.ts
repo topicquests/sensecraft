@@ -284,7 +284,6 @@ export const member = (axios: AxiosInstance) =>
           }
         },
         ADD_CASTING_ROLE: (state: MemberState, casting_role) => {
-          const member_id = MyVapi.store.getters["member/getUserId"];
           if (state.member) {
             const castingRoles =
               state.member.casting_role.filter(
