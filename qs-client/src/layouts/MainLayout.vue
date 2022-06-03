@@ -142,16 +142,6 @@
           <q-item
             clickable
             v-ripple
-            v-show="hasPermission(permission_enum.createGuild)"
-            id="createGuild"
-          >
-            <q-item-section>
-              <q-btn :to="{ name: 'guild_landing' }"> Guild create\edit </q-btn>
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-ripple
             v-if="hasPermission(permission_enum.superadmin)"
             id="admin"
           >
