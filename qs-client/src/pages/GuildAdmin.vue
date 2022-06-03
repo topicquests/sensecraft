@@ -19,65 +19,35 @@
           >
             <div class="col-4">
               <q-card q-ma-md>
-                <q-table
-                  title="Potential Quests"
-                  :data="potentialQuests"
-                  :columns="columns1"
-                  row-key="desc"
-                  id="quest_table"
-                >
-                  <template v-slot:body="props">
-                    <q-tr :props="props">
-                      <q-td key="desc" :props="props">
-                        {{ props.row.name }}</q-td
-                      >
-                      <q-td key="handle" :props="props">{{
-                        props.row.handle
-                      }}</q-td>
-                      <q-td key="status" :props="props">{{
-                        props.row.status
-                      }}</q-td>
-                      <q-td key="start" :props="props">{{
-                        props.row.start
-                      }}</q-td>
-                      <span v-if="findPlayOfGuild(props.row.game_play)">
-                        <span
-                          v-if="
-                            findPlayOfGuild(props.row.game_play).status ==
-                            'invitation'
-                          "
-                        >
-                          <q-td key="questNodeId" auto-width :props="props">
-                            <q-btn
-                              label="Invitation"
-                              @click="doRegister(props.row.id)"
-                              class="q-mr-md q-ml-md"
-                            />
-                          </q-td>
-                        </span>
-                        <span
-                          v-if="
-                            findPlayOfGuild(props.row.game_play).status ==
-                            'requested'
-                          "
-                        >
-                          <q-td key="questNodeId" auto-width :props="props">
-                            Waiting for response
-                          </q-td>
-                        </span>
-                      </span>
-                      <span v-if="!findPlayOfGuild(props.row.game_play)">
-                        <q-td key="questNodeId" auto-width :props="props">
-                          <q-btn
-                            label="Register"
-                            @click="doRegister(props.row.id)"
-                            class="q-mr-md q-ml-md"
-                          />
-                        </q-td>
-                      </span>
-                    </q-tr>
-                  </template>
-                </q-table>
+              <quest-table v-bind:quests="potentialQuests" title="Potential Quests" >
+                <template v-slot:default="slotProps">
+                  <span v-if="findPlayOfGuild(slotProps.quest.game_play)">
+                    <q-btn
+                      v-if="
+                        findPlayOfGuild(slotProps.quest.game_play).status ==
+                        'invitation'
+                      "
+                      label="Invitation"
+                      @click="doRegister(slotProps.quest.id)"
+                      class="q-mr-md q-ml-md"
+                    />
+                    <span
+                      v-else-if="
+                        findPlayOfGuild(slotProps.quest.game_play).status ==
+                        'requested'
+                      "
+                    >
+                        Waiting for response
+                    </span>
+                  </span>
+                  <q-btn
+                    v-else
+                    label="Register"
+                    @click="doRegister(slotProps.quest.id)"
+                    class="q-mr-md q-ml-md"
+                  />
+                </template>
+              </quest-table>
               </q-card>
             </div>
           </div>
@@ -287,6 +257,7 @@ import { BaseGetterTypes } from "../store/baseStore";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
 import roleTable from "../components/role-table.vue";
 import guildCard from "../components/guild-card.vue";
+import QuestTable from "../components/quest-table.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
@@ -295,8 +266,9 @@ import guildCard from "../components/guild-card.vue";
   }),
   components: {
     CastingRoleEdit,
-    roleTable: roleTable,
-    guildCard: guildCard,
+    roleTable,
+    guildCard,
+    QuestTable,
   },
   computed: {
     ...mapState("member", {
@@ -438,48 +410,6 @@ import guildCard from "../components/guild-card.vue";
   },
 })
 export default class GuildAdminPage extends Vue {
-  columns1 = [
-    {
-      name: "desc",
-      required: true,
-      label: "Quest",
-      align: "left",
-      field: "name",
-      sortable: true,
-    },
-    {
-      name: "status",
-      required: false,
-      label: "Handle",
-      align: "left",
-      field: "status",
-      sortable: true,
-    },
-    {
-      name: "handle",
-      required: false,
-      label: "Status",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-    {
-      name: "start",
-      required: false,
-      label: "Start Date",
-      align: "left",
-      field: "start",
-      sortable: true,
-    },
-    {
-      name: "questNodeId",
-      required: false,
-      label: "Action",
-      align: "left",
-      field: "id",
-      sortable: true,
-    },
-  ];
   handle: string = null
   member_id: number = null;
   questGamePlay: GamePlay[] = [];

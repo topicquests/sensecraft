@@ -15,6 +15,7 @@
       </template>
       <template v-slot:body-cell-view="props">
         <td>
+          <slot v-bind:quest="props.row">
           <span v-if="props.row.is_quest_member">
             <router-link
               :to="{
@@ -77,11 +78,7 @@
               View
             </router-link>
           </span>
-        </td>
-      </template>
-      <template v-slot:body-cell-actions="props">
-        <td>
-          <slot v-bind:quest="props.row"></slot>
+          </slot>
         </td>
       </template>
     </q-table>
