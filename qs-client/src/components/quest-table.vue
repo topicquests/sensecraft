@@ -208,10 +208,10 @@ export default class QuestTable extends QuestTableProps {
     return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toLocaleString(DateTime.DATETIME_FULL) : "";
   }
   canAdminGuilds(): boolean {
-    return this.hasPermission(permission_enum.joinQuest) || (this.getUser.guild_membership || []).any((gm: GuildMembership) => {
+    return this.hasPermission(permission_enum.joinQuest) || (this.getUser.guild_membership || []).find((gm: GuildMembership) => {
       const permissions = gm.permissions || [];
       return gm.status == 'confirmed' && permissions.includes(permission_enum.joinQuest)||permissions.includes(permission_enum.guildAdmin);
-    });
+    }) != undefined;
   }
 }
 </script>
