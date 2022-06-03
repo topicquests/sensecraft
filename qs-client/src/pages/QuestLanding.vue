@@ -28,11 +28,7 @@
               class="col-4 q-pa-lg"
               style="width: 100%"
             >
-              <questTable v-bind:quests="getQuests" :edit="true" title="Quests">
-              <template v-slot:default="slotProps">
-                <quest-date-time-interval v-bind:quest="slotProps.quest"/>
-              </template>
-            </questTable>
+              <quest-table v-bind:quests="getQuests" title="Quests" />
             </div>
             <div v-else class="column items-center q-mt-md">
               <h4>There are no quests</h4>
@@ -54,8 +50,6 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes } from "src/store/guilds";
-import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
-import { QTableColumns } from "../types";
 
 @Component<QuestLandingPage>({
   meta: {
@@ -65,7 +59,6 @@ import { QTableColumns } from "../types";
     scoreboard: scoreboard,
     questTable: questTable,
     member: member,
-    QuestDateTimeInterval: QuestDateTimeInterval,
   },
   computed: {
     ...mapGetters("quests", ["getQuests"]),
@@ -78,48 +71,7 @@ import { QTableColumns } from "../types";
 })
 export default class QuestLandingPage extends Vue {
   ready = false;
-  columns: QTableColumns = [
-    {
-      name: "desc",
-      required: true,
-      label: "Label",
-      align: "left",
-      field: "name",
-      sortable: true,
-    },
-    {
-      name: "handle",
-      required: false,
-      label: "Handle",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-    {
-      name: "status",
-      required: false,
-      label: "Status",
-      align: "left",
-      field: "status",
-      sortable: true,
-    },
-    {
-      name: "date",
-      required: true,
-      label: "Date",
-      align: "left",
-      field: "created_at",
-      sortable: true,
-    },
-    {
-      name: "nodeId",
-      required: false,
-      label: "Action",
-      align: "left",
-      field: "id",
-      sortable: true,
-    },
-  ];
+
   isAuthenticated: false;
   serverData: [];
 

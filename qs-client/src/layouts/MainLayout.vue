@@ -121,7 +121,7 @@
           >
             <q-item-section id="quest_list">
               <q-item-label>
-                <q-btn :to="{ name: 'quest_list' }">All Quests </q-btn>
+                <q-btn :to="{ name: 'quest_list' }">Quests</q-btn>
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -131,13 +131,6 @@
             v-show="hasPermission(permission_enum.createQuest)"
             id="createQuest"
           >
-            <q-item-section>
-              <q-item-label>
-                <q-btn :to="{ name: 'quest_landing' }">
-                  Quest create\edit
-                </q-btn>
-              </q-item-label>
-            </q-item-section>
           </q-item>
 
           <q-item clickable v-ripple id="guildView">

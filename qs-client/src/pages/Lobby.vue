@@ -16,11 +16,7 @@
             class="col-6"
             style="width: 100%"
           >
-            <questTable v-bind:quests="getQuests" :view="true" title="Quests">
-              <template v-slot:default="slotProps">
-                <quest-date-time-interval v-bind:quest="slotProps.quest"/>
-              </template>
-            </questTable>
+            <quest-table v-bind:quests="getQuests" title="Quests" />
           </div>
           <div v-else class="column items-center q-mt-md">
             <h4>There are no quests</h4>
@@ -108,7 +104,6 @@ import { userLoaded } from "../boot/userLoaded";
 import Component from "vue-class-component";
 import Vue from "vue";
 import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
-import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
 
 @Component<LobbyPage>({
   name: "LobbyPage",
@@ -121,7 +116,6 @@ import QuestDateTimeInterval from "../components/quest-date-time-interval.vue";
     member: member,
     GuildsTable: GuildsTable,
     GuildsMembershipIndicator: GuildsMembershipIndicator,
-    QuestDateTimeInterval: QuestDateTimeInterval,
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),

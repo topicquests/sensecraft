@@ -28,12 +28,6 @@ const routes = [
       {
         path: "/quest",
         name: "quest_list",
-        component: () => import("pages/QuestList.vue"),
-      },
-      {
-        // suggestion: fuse quest_list and quest-landing pages
-        path: "/quest/landing",
-        name: "quest_landing",
         component: () => import("pages/QuestLanding.vue"),
       },
       {
