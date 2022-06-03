@@ -52,6 +52,9 @@ const QuestsGetters = {
       )
     );
   },
+  getActiveQuests: (state: QuestsState) =>
+    Object.values(state.quests).filter(
+      (quest) => ["ongoing", "paused", "registration"].indexOf(quest.status) >= 0),
   getPlayingQuests: (state: QuestsState) => {
     const member_id = MyVapi.store.getters["member/getUserId"];
     return Object.values(state.quests).filter((quest: QuestData) =>

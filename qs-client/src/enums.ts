@@ -53,8 +53,8 @@ export const meta_state_list: meta_state_type[] = Object.keys(
 ) as meta_state_type[];
 
 export enum quest_status_enum {
-  registration = "registration",
   draft = "draft",
+  registration = "registration",
   ongoing = "ongoing",
   paused = "paused",
   scoring = "scoring",

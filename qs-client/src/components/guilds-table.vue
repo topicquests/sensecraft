@@ -12,8 +12,9 @@
       :selected-rows-label="()=>''"
       v-on:selection="selectionChanged"
     >
-      <template v-slot:body-cell-view="props">
+      <template v-slot:body-cell-actions="props">
         <td>
+          <slot v-bind:guild="props.row.guild">
           <span v-if="view" key="view">
             <router-link
               :to="{
@@ -33,11 +34,18 @@
               >Edit</router-link
             >
           </span>
+          </slot>
         </td>
       </template>
-      <template v-slot:body-cell-actions="props">
+      <template v-slot:body-cell-status="props">
         <td>
-          <slot v-bind:guild="props.row.guild"></slot>
+          <guilds-playing-indicator v-if="showPlayers" v-bind:guild="props.row.guild"/>
+          <guilds-membership-indicator v-else v-bind:guild="props.row" />
+        </td>
+      </template>
+      <template v-slot:body-cell-lastMove="props">
+        <td>
+          <span :title="lastMoveFull(props.row)">{{lastMoveRel(props.row)}}</span>
         </td>
       </template>
     </q-table>
@@ -49,25 +57,26 @@ import Vue from "vue";
 import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapActions, mapGetters } from "vuex";
+import { DateTime } from "luxon";
 import { QuestsGetterTypes } from "src/store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "src/store/guilds";
-import { MemberGetterTypes } from "src/store/member";
-import { Guild, Casting } from "../types";
+import GuildsMembershipIndicator from "./guilds-membership-indicator";
+import GuildsPlayingIndicator from "./guilds-playing-indicator";
+import { MemberGetterTypes } from "../store/member";
+import { Guild, GuildData, Casting } from "../types";
 import { ScoreMap } from "../scoring";
 import { QTableColumns } from "../types";
 
-type GuildRow = {
-  id: number,
-  name: string,
-  guild: Guild,
+interface GuildRow extends GuildData {
   score?: number,
-  numMembers: number,
+  status_order?: number,
+  numPlayers?: number,
 }
 
 const GuildsTableProp = Vue.extend({
   props: {
     title: String,
-    guilds: Array as Prop<Guild[]>,
+    guilds: Array as Prop<GuildData[]>,
     scores: Object as Prop<ScoreMap>,
     showPlayers: Boolean,
     selectable: Boolean,
@@ -80,6 +89,10 @@ const GuildsTableProp = Vue.extend({
       type: Boolean,
       default: false,
     },
+  },
+  components: {
+    GuildsMembershipIndicator,
+    GuildsPlayingIndicator,
   },
 });
 
@@ -100,13 +113,6 @@ const GuildsTableProp = Vue.extend({
       }
       return [
         {
-          name: "id",
-          label: "id",
-          align: "right",
-          field: "id",
-          sortable: true,
-        },
-        {
           name: "name",
           required: true,
           label: "Guild",
@@ -115,14 +121,13 @@ const GuildsTableProp = Vue.extend({
           sortable: true,
         },
         {
-          name: "numMembers",
-          required: true,
-          label: this.showPlayers ? "Players" : "Members",
+          name: "status",
+          required: false,
+          label: "Status",
           align: "left",
-          field: "numMembers",
+          field: "status_order",
           sortable: true,
         },
-        ...extra,
         {
           name: "actions",
           required: true,
@@ -132,20 +137,45 @@ const GuildsTableProp = Vue.extend({
           sortable: true,
         },
         {
-          name: "view",
-          required: true,
-          label: "View",
+          name: "numPlayers",
+          required: false,
+          label: this.showPlayers ? "Players" : "Members",
           align: "left",
-          field: "view",
-          sortable: false,
+          field: "member_count",
+          sortable: true,
         },
+        {
+          name: "numOngoingQuests",
+          required: false,
+          label: "Ongoing Quests",
+          align: "left",
+          field: "ongoing_quest_count",
+          sortable: true,
+        },
+        {
+          name: "numFinishedQuests",
+          required: false,
+          label: "Quests Completed",
+          align: "left",
+          field: "finished_quest_count",
+          sortable: true,
+        },
+        {
+          name: "lastMove",
+          required: false,
+          label: "Last Move",
+          align: "left",
+          field: "last_node_published_at",
+          sortable: true,
+        },
+        ...extra,
       ];
     },
-    ...mapGetters("guilds", ["getCurrentGuild", "getGuildById"]),
+    ...mapGetters("guilds", ["getCurrentGuild", "getGuildById", "isGuildMember"]),
     ...mapGetters("member", ["castingPerQuest"]),
     ...mapGetters("quests", ["getCurrentQuest"]),
     guildData: function(): GuildRow[] {
-      return this.guilds.map((guild: Guild) => this.guildRow(guild));
+      return this.guilds.map((guild: GuildData) => this.guildRow(guild));
     },
   },
   methods: {
@@ -161,7 +191,8 @@ export default class GuildTable extends GuildsTableProp {
   castingPerQuest!: MemberGetterTypes["castingPerQuest"];
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
-  numMembers(guild: Guild) {
+  isGuildMember!: GuildsGetterTypes["isGuildMember"];
+  numPlayers(guild: Guild) {
     if (this.showPlayers) {
       const quest = this.getCurrentQuest;
       return (quest.casting || []).filter((c) => c.guild_id == guild.id).length;
@@ -184,14 +215,20 @@ export default class GuildTable extends GuildsTableProp {
     }
   }
 
-  guildRow(guild: Guild): GuildRow {
+  guildRow(guild: GuildData): GuildRow {
     return {
-      id: guild.id,
-      guild: guild,
-      name: guild.name,
-      numMembers: this.numMembers(guild),
+      ...guild,
+      status_order: this.isGuildMember(guild.id)? 0 : (guild.open_for_applications ? 1 : 2),
+      numPlayers: this.numPlayers(guild),
       score: this.scores ? this.scores[guild.id] : null,
     }
+  }
+
+lastMoveRel(row: GuildData) {
+    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toRelative() : "";
+  }
+  lastMoveFull(row: GuildData) {
+    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toLocaleString(DateTime.DATETIME_FULL) : "";
   }
 
   async beforeMount() {

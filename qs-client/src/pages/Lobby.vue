@@ -12,7 +12,15 @@
         </div>
         <div class="column items-center">
           <div
-            v-if="getQuests && getQuests.length"
+            v-if="getActiveQuests.length"
+            class="col-6"
+            style="width: 100%"
+          >
+            <quest-table v-bind:quests="getActiveQuests" title="Active Quests" />
+            <q-btn :to="{ name: 'quest_list' }">All Quests</q-btn>
+          </div>
+          <div
+            v-else-if="getQuests.length"
             class="col-6"
             style="width: 100%"
           >
@@ -24,64 +32,33 @@
         </div>
         <div class="column items-center">
           <div class="col-4" style="width: 100%">
-            <p>
-              If you have not already choosen a guild to join. Select one from
-              the list If you are already a member of a guild, click on enter
-              button to go to that guild's page
-            </p>
-          </div>
-        </div>
-        <div class="column items-center">
-          <div class="col-4" style="width: 100%">
-            <div v-if="getGuilds.length">
-              <div v-if="getUserId">
-                <guilds-table
-                  v-if="getMyGuilds.length"
-                  v-bind:guilds="getMyGuilds"
-                  v-bind:title="'My Guilds'"
-                  :view="true"
-                >
-                  <template v-slot:default="slotProps">
-                    <guilds-membership-indicator
-                      v-bind:guild="slotProps.guild"
-                    />
-                  </template>
-                </guilds-table>
-                <guilds-table
-                  v-if="getOpenGuilds.length"
-                  v-bind:guilds="getOpenGuilds"
-                  v-bind:title="'Open Guilds'"
-                  :view="true"
-                >
-                  <template v-slot:default="slotProps">
-                    <guilds-membership-indicator
-                      v-bind:guild="slotProps.guild"
-                    />
-                  </template>
-                </guilds-table>
-                <guilds-table
-                  v-if="getClosedGuilds.length"
-                  v-bind:guilds="getClosedGuilds"
-                  v-bind:title="'Closed Guilds'"
-                  :view="true"
-                >
-                  <template v-slot:default="slotProps">
-                    <guilds-membership-indicator
-                      v-bind:guild="slotProps.guild"
-                    />
-                  </template>
-                </guilds-table>
-              </div>
-              <div v-else>
-                <guilds-table
-                  v-bind:guilds="getGuilds"
-                  v-bind:title="'Guilds'"
-                  :view="true"
-                ></guilds-table>
-              </div>
+            <div v-if="getMyGuilds.length">
+              <guilds-table
+                v-bind:guilds="getMyGuilds"
+                v-bind:title="'My Guilds'"
+                :view="true"
+              />
+              <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
+            </div>
+            <div v-else-if="getOpenGuilds.length">
+              <guilds-table
+                v-bind:guilds="getOpenGuilds"
+                v-bind:title="'Open Guilds'"
+                :view="true"
+              />
+              <p>Consider joining one of these guilds!</p>
+              <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
+            </div>
+            <div v-else-if="getGuilds.length">
+              <guilds-table
+                v-bind:guilds="getGuilds"
+                v-bind:title="'Guilds'"
+                :view="true"
+              />
+              <p>No guild is recruiting right now</p>
             </div>
             <h4 v-else style="text-align: center">
-              There currently are no guilds
+              There are currently no guilds
             </h4>
           </div>
         </div>
@@ -119,7 +96,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
-    ...mapGetters("quests", ["getQuests"]),
+    ...mapGetters("quests", ["getQuests", "getActiveQuests"]),
     ...mapGetters("member", ["member", "getUserId"]),
 
     getOpenGuilds: {
@@ -146,39 +123,13 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 })
 export default class LobbyPage extends Vue {
   ready = false;
-  columns1 = [
-    {
-      name: "desc",
-      required: true,
-      label: "Label",
-      align: "left",
-      field: "name",
-      sortable: true,
-    },
-    {
-      name: "handle",
-      required: false,
-      label: "Handle",
-      align: "left",
-      field: "handle",
-      sortable: true,
-    },
-
-    {
-      name: "questNodeId",
-      required: false,
-      label: "Action",
-      align: "left",
-      field: "id",
-      sortable: true,
-    },
-  ];
 
   getOpenGuilds!: Guild[];
   getClosedGuilds!: Guild[];
 
   getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
   getQuests!: QuestsGetterTypes["getQuests"];
+  getActiveQuests!: QuestsGetterTypes["getActiveQuests"];
   getGuilds!: GuildsGetterTypes["getGuilds"];
   getUserId!: MemberGetterTypes["getUserId"];
 

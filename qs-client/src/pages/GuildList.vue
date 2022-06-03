@@ -13,52 +13,11 @@
     <div class="column items-center">
       <div class="col-4" style="width: 100%">
         <div v-if="getGuilds.length">
-          <div v-if="getUserId">
-            <q-btn
-              v-if="hasPermission('createGuild')"
-              id="newGuildBtn"
-              label="New Guild"
-              @click="$router.push({ name: 'create_guild' })"
-            />
-
-            <guilds-table
-              v-if="getMyGuilds.length"
-              v-bind:guilds="getMyGuilds"
-              v-bind:title="'My Guilds'"
-              v-bind:view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-            <guilds-table
-              v-if="getOpenGuilds.length"
-              v-bind:guilds="getOpenGuilds"
-              v-bind:title="'Open Guilds'"
-              v-bind:view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-            <guilds-table
-              v-if="getClosedGuilds.length"
-              v-bind:guilds="getClosedGuilds"
-              v-bind:title="'Closed Guilds'"
-              v-bind:view="true"
-            >
-              <template v-slot:default="slotProps">
-                <guilds-membership-indicator v-bind:guild="slotProps.guild" />
-              </template>
-            </guilds-table>
-          </div>
-          <div v-else>
             <guilds-table
               v-bind:guilds="getGuilds"
               v-bind:title="'Guilds'"
               v-bind:view="true"
-            ></guilds-table>
-          </div>
+            />
         </div>
         <h3 v-else>There currently are no guilds</h3>
       </div>
@@ -98,6 +57,7 @@ import { QuestsActionTypes } from "src/store/quests";
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
     ...mapGetters("member", ["getUserId"]),
     ...mapGetters(["hasPermission"]),
+    /*
     getOpenGuilds: {
       get() {
         return this.getGuilds.filter(
@@ -114,6 +74,7 @@ import { QuestsActionTypes } from "src/store/quests";
         );
       },
     },
+    */
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
