@@ -165,7 +165,7 @@ export interface GuildData extends Guild {
   member_request_count: number;
   is_member: boolean;
   is_admin: boolean;
-  last_node_ublished_at: string;
+  last_node_published_at: string;
   node_count: number;
   ongoing_quest_count: number;
   finished_quest_count: number;
