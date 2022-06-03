@@ -45,6 +45,7 @@
     "@quasar/quasar-app-extension-testing-unit-jest": "~2.2.3",
     "@tsconfig/recommended": "~1.0",
     "@types/chai": "~4.3",
+    "@types/node": "~16",
     "@typescript-eslint/eslint-plugin": "~5.27",
     "@typescript-eslint/parser": "~5.27",
     "@vue/eslint-config-typescript": "~10",
