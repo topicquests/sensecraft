@@ -39,8 +39,14 @@
       </template>
       <template v-slot:body-cell-status="props">
         <td>
-          <guilds-playing-indicator v-if="showPlayers" v-bind:guild="props.row.guild"/>
-          <guilds-membership-indicator v-else v-bind:guild="props.row" />
+          <guilds-playing-indicator
+            v-if="showPlayers"
+            v-bind:quest="getCurrentQuest"
+            v-bind:playing="isPlayingQuestAsGuildId() == props.row.id"
+            v-bind:guild="props.row"/>
+          <guilds-membership-indicator
+            v-else
+            v-bind:guild="props.row" />
         </td>
       </template>
       <template v-slot:body-cell-lastMove="props">
@@ -173,7 +179,7 @@ const GuildsTableProp = Vue.extend({
     },
     ...mapGetters("guilds", ["getCurrentGuild", "getGuildById", "isGuildMember"]),
     ...mapGetters("member", ["castingPerQuest"]),
-    ...mapGetters("quests", ["getCurrentQuest"]),
+    ...mapGetters("quests", ["getCurrentQuest", "isPlayingQuestAsGuildId"]),
     guildData: function(): GuildRow[] {
       return this.guilds.map((guild: GuildData) => this.guildRow(guild));
     },
@@ -192,6 +198,8 @@ export default class GuildTable extends GuildsTableProp {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
+  isPlayingQuestAsGuildId!: QuestsGetterTypes["isPlayingQuestAsGuildId"];
+
   numPlayers(guild: Guild) {
     if (this.showPlayers) {
       const quest = this.getCurrentQuest;

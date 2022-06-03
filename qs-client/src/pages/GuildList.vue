@@ -40,8 +40,7 @@ import { BaseGetterTypes } from "../store/baseStore";
 import { Guild } from "../types";
 import Component from "vue-class-component";
 import Vue from "vue";
-import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
-import { QuestsActionTypes } from "src/store/quests";
+import { QuestsActionTypes } from "../store/quests";
 
 @Component<GuildListPage>({
   meta: {
@@ -51,7 +50,6 @@ import { QuestsActionTypes } from "src/store/quests";
     scoreboard: scoreboard,
     member: member,
     GuildsTable: GuildsTable,
-    GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),

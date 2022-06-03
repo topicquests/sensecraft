@@ -27,12 +27,12 @@
           v-bind:selectable="true"
           style="width: 100%;"
         >
-          <template v-slot:default="slotProps">
+          <!-- template v-slot:default="slotProps">
             <guilds-playing-indicator
               v-bind:quest="getCurrentQuest"
-              v-bind:playing="isPlayingQuestAsGuildId() == slotProps.guild.id"
-              v-bind:guild="slotProps.guild" />
-          </template>
+              v-bind:playing="isPlayingQuestAsGuildId() == slotProps.id"
+              v-bind:guild="slotProps" />
+          </template -->
         </guilds-table>
       </div>
       <div v-else>
