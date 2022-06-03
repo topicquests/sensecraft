@@ -46,8 +46,9 @@
                 v-bind:title="'Open Guilds'"
                 :view="true"
               />
-              <p>Consider joining one of these guilds!</p>
-              <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
+              <p v-if="getUserId">Consider joining one of these guilds!</p>
+              <p v-else>Register and join one of these guilds!</p>
+              <q-btn v-if="getOpenGuilds.length < getGuilds.length" :to="{ name: 'guild_list' }">All Guilds</q-btn>
             </div>
             <div v-else-if="getGuilds.length">
               <guilds-table
