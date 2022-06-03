@@ -51,7 +51,7 @@ import Vue from "vue";
 import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
 import { GuildsActionTypes } from "src/store/guilds";
 
-@Component<QuestLandingPage>({
+@Component<QuestListPage>({
   meta: {
     title: 'Quests',
   },
@@ -69,7 +69,7 @@ import { GuildsActionTypes } from "src/store/guilds";
     ...mapActions("guilds", ["ensureAllGuilds"]),
   },
 })
-export default class QuestLandingPage extends Vue {
+export default class QuestListPage extends Vue {
   ready = false;
 
   isAuthenticated: false;
