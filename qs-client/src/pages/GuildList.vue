@@ -14,6 +14,13 @@
       <div class="col-4" style="width: 100%">
         <div v-if="getGuilds.length">
           <div v-if="getUserId">
+            <q-btn
+              v-if="hasPermission('createGuild')"
+              id="newGuildBtn"
+              label="New Guild"
+              @click="$router.push({ name: 'create_guild' })"
+            />
+
             <guilds-table
               v-if="getMyGuilds.length"
               v-bind:guilds="getMyGuilds"
@@ -69,6 +76,8 @@ import { userLoaded } from "../boot/userLoaded";
 import GuildsTable from "../components/guilds-table.vue";
 import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
 import { MemberGetterTypes } from "../store/member";
+import { RoleActionTypes } from "../store/role";
+import { BaseGetterTypes } from "../store/baseStore";
 import { Guild } from "../types";
 import Component from "vue-class-component";
 import Vue from "vue";
@@ -88,6 +97,7 @@ import { QuestsActionTypes } from "src/store/quests";
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
     ...mapGetters("member", ["getUserId"]),
+    ...mapGetters(["hasPermission"]),
     getOpenGuilds: {
       get() {
         return this.getGuilds.filter(
@@ -108,6 +118,7 @@ import { QuestsActionTypes } from "src/store/quests";
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
     ...mapActions("quests", ["setCurrentQuest"]),
+    ...mapActions("role", ["ensureAllRoles"]),
   },
 })
 export default class GuildListPage extends Vue {
@@ -121,10 +132,14 @@ export default class GuildListPage extends Vue {
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
-  async beforeMount() {
+  hasPermission!: BaseGetterTypes["hasPermission"];
+  ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+
+async beforeMount() {
     await userLoaded;
     await Promise.all([
       this.ensureAllGuilds(),
+      await this.ensureAllRoles(),
       this.setCurrentGuild(null),
       this.setCurrentQuest(null),
     ]);

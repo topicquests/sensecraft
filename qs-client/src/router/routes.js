@@ -67,12 +67,6 @@ const routes = [
         component: () => import("pages/GuildList.vue"),
       },
       {
-        // suggestion: fuse guild_list and guild-landing pages
-        path: "/guild/landing",
-        name: "guild_landing",
-        component: () => import("pages/GuildLanding.vue"),
-      },
-      {
         path: "guild/create",
         name: "create_guild",
         component: () => import("pages/CreateGuild.vue"),
