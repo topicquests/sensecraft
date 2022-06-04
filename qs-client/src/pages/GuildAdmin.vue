@@ -334,9 +334,6 @@ import QuestTable from "../components/quest-table.vue";
     },
     potentialQuests: {
       get: function () {
-        this.confirmedPlayQuestIds = this.guildGamePlays.map(
-          (gp: GamePlay) => gp.quest_id
-        );
         return this.getQuests.filter(
           (q: Quest) =>
             (q.status == quest_status_enum.registration ||
@@ -346,15 +343,9 @@ import QuestTable from "../components/quest-table.vue";
       },
     },
     confirmedPlayQuestIds: {
-      get: function () {
-        if (this.guildGamePlays.length > 0) {
-          const gamePlay = this.guildGamePlays.map(
-            (gp: GamePlay) => gp.quest_id
-          );
-          return gamePlay;
-        } else {
-          return [];
-        }
+      get: function() {
+        return (this.guildGamePlays || []).map(
+        (gp: GamePlay) => gp.quest_id);
       },
     },
     getGuildMembers: {

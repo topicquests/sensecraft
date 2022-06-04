@@ -477,7 +477,7 @@ export default class GuildPage extends Vue {
     this.guildGamePlays = this.getCurrentGuild.game_play.filter(
       (gp: GamePlay) => gp.status == registration_status_enum.confirmed
     );
-    const confirmedPlayQuestIds = this.guildGamePlays.map(
+    const confirmedPlayQuestIds = (this.guildGamePlays || []).map(
       (gp: GamePlay) => gp.quest_id
     );
     if (this.canRegisterToQuest) {
