@@ -15,25 +15,63 @@
       <template v-slot:body-cell-actions="props">
         <td>
           <slot v-bind:guild="props.row.guild">
-          <span v-if="view" key="view">
-            <router-link
-              :to="{
-                name: 'guild',
-                params: { guild_id: props.row.id },
-              }"
-            >
-              View
-            </router-link>
-          </span>
-          <span v-if="edit" key="view">
-            <router-link
-              :to="{
-                name: 'guild_edit',
-                params: { guild_id: props.row.id },
-              }"
-              >Edit</router-link
-            >
-          </span>
+              &nbsp;
+              <span v-if="quest">
+                <router-link
+                  :to="{
+                    name: 'guild',
+                    params: { guild_id: props.row.id },
+                  }"
+                >
+                  View
+                </router-link>&nbsp;
+                <span v-if="quest.is_playing">
+                  <!-- already playing -->
+                </span>
+                <span v-else-if="quest.status !='registration'">
+                  <!-- not in registration phase -->
+                </span>
+                <span v-else-if="props.row.is_member">
+                  Join Game <!-- TODO: join game -->
+                </span>
+                <span v-else-if="props.quest.my_confirmed_guild_count + props.my_recruiting_guild_count > 0">
+                  <!-- one of my guilds is recruiting or confirmed, nothing to do here -->
+                </span>
+                <span v-else-if="props.row.open_for_applications">
+                  Join Guild<!-- TODO: Join guild -->
+                </span>
+              </span>
+              <span v-else>
+                <router-link
+                  :to="{
+                    name: 'guild',
+                    params: { guild_id: props.row.id },
+                  }"
+                >
+                  <span v-if="false"> <!-- my guild is playing at least a game with me -->
+                    Playing
+                    <!-- link to guild is already there. -->
+                  </span>
+                  <span v-else-if="0"> <!-- my guild registering for a game -->
+                    Recruiting
+                    <!-- link to guild is already there. -->
+                  </span>
+                  <span v-else-if="''"> <!-- a guild registering for a game, I'm not in any guild -->
+                    Joinable
+                    <!-- link to guild is already there. -->
+                  </span>
+                  <span v-else>View</span>
+                </router-link>
+              </span>
+              <router-link
+                v-if="hasPermission('guildAdmin', props.row.id)"
+                :to="{
+                  name: 'guild_admin',
+                  params: { guild_id: props.row.id },
+                }"
+              >
+                / Admin
+              </router-link>
           </slot>
         </td>
       </template>
@@ -69,7 +107,8 @@ import { GuildsGetterTypes, GuildsActionTypes } from "src/store/guilds";
 import GuildsMembershipIndicator from "./guilds-membership-indicator.vue";
 import GuildsPlayingIndicator from "./guilds-playing-indicator.vue";
 import { MemberGetterTypes } from "../store/member";
-import { Guild, GuildData, Casting } from "../types";
+import { BaseGetterTypes } from "../store/baseStore";
+import { Guild, GuildData, Casting, QuestData } from "../types";
 import { ScoreMap } from "../scoring";
 import { QTableColumns } from "../types";
 
@@ -84,17 +123,10 @@ const GuildsTableProp = Vue.extend({
     title: String,
     guilds: Array as Prop<GuildData[]>,
     scores: Object as Prop<ScoreMap>,
+    quest: Object as Prop<QuestData>,
     showPlayers: Boolean,
     selectable: Boolean,
     extra_columns: Array as Prop<QTableColumns>,
-    edit: {
-      type: Boolean,
-      default: false,
-    },
-    view: {
-      type: Boolean,
-      default: false,
-    },
   },
   components: {
     GuildsMembershipIndicator,
@@ -180,6 +212,7 @@ const GuildsTableProp = Vue.extend({
     ...mapGetters("guilds", ["getCurrentGuild", "getGuildById", "isGuildMember"]),
     ...mapGetters("member", ["castingPerQuest"]),
     ...mapGetters("quests", ["getCurrentQuest", "isPlayingQuestAsGuildId"]),
+    ...mapGetters(["hasPermission"]),
     guildData: function(): GuildRow[] {
       return this.guilds.map((guild: GuildData) => this.guildRow(guild));
     },
@@ -199,6 +232,7 @@ export default class GuildTable extends GuildsTableProp {
   setCurrentGuild!: GuildsActionTypes["setCurrentGuild"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
   isPlayingQuestAsGuildId!: QuestsGetterTypes["isPlayingQuestAsGuildId"];
+  hasPermission!: BaseGetterTypes["hasPermission"];
 
   numPlayers(guild: Guild) {
     if (this.showPlayers) {

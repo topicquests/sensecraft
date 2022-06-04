@@ -16,7 +16,6 @@
             <guilds-table
               v-bind:guilds="getGuilds"
               v-bind:title="'Guilds'"
-              v-bind:view="true"
             />
         </div>
         <h3 v-else>There currently are no guilds</h3>

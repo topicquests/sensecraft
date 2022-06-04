@@ -36,7 +36,6 @@
               <guilds-table
                 v-bind:guilds="getMyGuilds"
                 v-bind:title="'My Guilds'"
-                :view="true"
               />
               <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
             </div>
@@ -44,7 +43,6 @@
               <guilds-table
                 v-bind:guilds="getOpenGuilds"
                 v-bind:title="'Open Guilds'"
-                :view="true"
               />
               <p v-if="getUserId">Consider joining one of these guilds!</p>
               <p v-else>Register and join one of these guilds!</p>
@@ -54,7 +52,6 @@
               <guilds-table
                 v-bind:guilds="getGuilds"
                 v-bind:title="'Guilds'"
-                :view="true"
               />
               <p>No guild is recruiting right now</p>
             </div>

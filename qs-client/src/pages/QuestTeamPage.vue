@@ -25,6 +25,7 @@
           v-bind:scores="getGuildScoreMap"
           v-bind:showPlayers="true"
           v-bind:selectable="true"
+          v-bind:quest="getCurrentQuest"
           style="width: 100%;"
         >
           <!-- template v-slot:default="slotProps">
