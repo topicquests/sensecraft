@@ -20,7 +20,7 @@ export class WSClient {
     this.ws.addEventListener('open', (event) => {
       console.log("Connected to server");
       this.connected = true;
-      if (!this.login_message && this.store.state.member.member) {
+      if (!this.login_message && this.store.state.member.member && this.store.getters["member/tokenIsValid"]) {
           this.login(this.store.state.member.member.id, this.store.state.member.token);
       } else
         if (this.login_message) {

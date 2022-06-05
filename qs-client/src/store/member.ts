@@ -44,6 +44,8 @@ const MemberGetters = {
   getUserId: (state: MemberState) => state.member?.id,
   getMembersAvailableRoles: (state: MemberState) =>
     state.member.guild_member_available_role,
+  tokenIsValid: (state: MemberState) =>
+    state.token && state.tokenExpiry && state.tokenExpiry > Date.now(),
   getUserById: (state: MemberState) => (id: number) =>
     state.member?.id == id ? state.member : null,
   getCastingRoles: (state: MemberState) => state.member.casting_role,
