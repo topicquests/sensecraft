@@ -14,64 +14,36 @@
     >
       <template v-slot:body-cell-actions="props">
         <td>
-          <slot v-bind:guild="props.row.guild">
-              &nbsp;
-              <span v-if="quest">
-                <router-link
-                  :to="{
-                    name: 'guild',
-                    params: { guild_id: props.row.id },
-                  }"
-                >
-                  View
-                </router-link>&nbsp;
-                <span v-if="quest.is_playing">
-                  <!-- already playing -->
-                </span>
-                <span v-else-if="quest.status !='registration'">
-                  <!-- not in registration phase -->
-                </span>
-                <span v-else-if="props.row.is_member">
-                  Join Game <!-- TODO: join game -->
-                </span>
-                <span v-else-if="props.quest.my_confirmed_guild_count + props.my_recruiting_guild_count > 0">
-                  <!-- one of my guilds is recruiting or confirmed, nothing to do here -->
-                </span>
-                <span v-else-if="props.row.open_for_applications">
-                  Join Guild<!-- TODO: Join guild -->
-                </span>
+          <slot v-bind:guild="props.row">
+            <router-link
+              :to="{
+                name: 'guild',
+                params: { guild_id: props.row.id },
+              }"
+            >
+              <span v-if="false"> <!-- my guild is playing at least a game with me -->
+                Playing
+                <!-- link to guild is already there. -->
               </span>
-              <span v-else>
-                <router-link
-                  :to="{
-                    name: 'guild',
-                    params: { guild_id: props.row.id },
-                  }"
-                >
-                  <span v-if="false"> <!-- my guild is playing at least a game with me -->
-                    Playing
-                    <!-- link to guild is already there. -->
-                  </span>
-                  <span v-else-if="0"> <!-- my guild registering for a game -->
-                    Recruiting
-                    <!-- link to guild is already there. -->
-                  </span>
-                  <span v-else-if="''"> <!-- a guild registering for a game, I'm not in any guild -->
-                    Joinable
-                    <!-- link to guild is already there. -->
-                  </span>
-                  <span v-else>View</span>
-                </router-link>
+              <span v-else-if="0"> <!-- my guild registering for a game -->
+                Recruiting
+                <!-- link to guild is already there. -->
               </span>
-              <router-link
-                v-if="hasPermission('guildAdmin', props.row.id)"
-                :to="{
-                  name: 'guild_admin',
-                  params: { guild_id: props.row.id },
-                }"
-              >
-                / Admin
-              </router-link>
+              <span v-else-if="''"> <!-- a guild registering for a game, I'm not in any guild -->
+                Joinable
+                <!-- link to guild is already there. -->
+              </span>
+              <span v-else>View</span>
+            </router-link>
+            <router-link
+              v-if="hasPermission('guildAdmin', props.row.id)"
+              :to="{
+                name: 'guild_admin',
+                params: { guild_id: props.row.id },
+              }"
+            >
+              / Admin
+            </router-link>
           </slot>
         </td>
       </template>

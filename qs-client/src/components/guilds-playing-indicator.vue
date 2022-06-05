@@ -4,10 +4,10 @@
       Playing ({{getGamePlayForGuild(guild.id).game_status}})
     </span>
     <span v-else-if="open_play_status.indexOf(this.getGamePlayForGuild(guild.id).game_status)>=0">
-      <span v-if="isGuildMember(guild.id)">
+      <span v-if="guild.is_member">
         Play in this Quest!
       </span>
-      <span v-else-if="guild.open_for_applications">
+      <span v-else-if="!quest.is_playing && guild.open_for_applications">
         Join this Guild!
         <span v-if="getGamePlayForGuild(guild.id).game_status == game_play_status_enum.confirmed">
           (They are playing)
@@ -30,7 +30,6 @@
 </template>
 <!-- TODO filter out cancelled game play in quest page -->
 <script lang="ts">
-import { GuildsGetterTypes } from "src/store/guilds";
 import { QuestsGetterTypes } from "src/store/quests";
 import Vue from "vue";
 import { Prop } from "vue/types/options";
@@ -52,12 +51,10 @@ const GuildsPlayingIndicatorProp = Vue.extend({
 @Component<GuildsPlayingIndicator>({
   name: "GuildsPlayingIndicator",
   computed: {
-    ...mapGetters("guilds", ["isGuildMember"]),
     ...mapGetters("quests", ["getGamePlayForGuild"]),
   },
 })
 export default class GuildsPlayingIndicator extends GuildsPlayingIndicatorProp {
-  isGuildMember!: GuildsGetterTypes["isGuildMember"];
   getGamePlayForGuild!: QuestsGetterTypes["getGamePlayForGuild"];
   open_play_status: game_play_status_type[] = [
     game_play_status_enum.interested,

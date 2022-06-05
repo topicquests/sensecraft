@@ -28,12 +28,32 @@
           v-bind:quest="getCurrentQuest"
           style="width: 100%;"
         >
-          <!-- template v-slot:default="slotProps">
-            <guilds-playing-indicator
-              v-bind:quest="getCurrentQuest"
-              v-bind:playing="isPlayingQuestAsGuildId() == slotProps.id"
-              v-bind:guild="slotProps" />
-          </template -->
+          <template v-slot:default="slotProps">
+            <router-link
+              :to="{
+                name: 'guild',
+                params: { guild_id: slotProps.guild.id },
+              }"
+            >
+              View
+            </router-link>
+            <span v-if="getCurrentQuest.is_playing">
+              <!-- already playing -->
+            </span>
+            <span v-else-if="getCurrentQuest.status !='registration'">
+              <!-- not in registration phase -->
+            </span>
+            <span v-else-if="slotProps.guild.is_member">
+              &nbsp;Join Game <!-- TODO: join game -->
+            </span>
+            <span v-else-if="getCurrentQuest.my_confirmed_guild_count + getCurrentQuest.my_recruiting_guild_count > 0">
+              <!-- one of my guilds is recruiting or confirmed, nothing to do here -->
+            </span>
+            <span v-else-if="slotProps.guild.open_for_applications">
+              &nbsp;Join Guild<!-- TODO: Join guild -->
+            </span>
+            <span v-else></span>
+          </template>
         </guilds-table>
       </div>
       <div v-else>
