@@ -427,6 +427,9 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   canEdit(nodeId: number): boolean {
+    const quest = this.getCurrentQuest
+    if (!quest.is_playing || quest.status == "finished")
+      return false;
     if (this.channelId) {
       return this.canEditChannel(this.channelId, nodeId);
     } else {
@@ -434,7 +437,8 @@ export default class NodeTree extends NodeTreeProps {
     }
   }
   canAddTo(nodeId: number): boolean {
-    return this.getCurrentQuest.is_playing;
+    const quest = this.getCurrentQuest
+    return quest.is_playing && quest.status != "finished";
   }
   getNode(nodeId: number): ConversationNode {
     if (this.channelId) {
