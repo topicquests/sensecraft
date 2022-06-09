@@ -79,7 +79,7 @@
         <q-btn
           size="xs"
           :flat="true"
-          v-if="editable && !editingNodeId && !addingChildToNodeId"
+          v-if="editable && canAddTo(prop.node.id) && !editingNodeId && !addingChildToNodeId"
           icon="add"
           @click="addChildToNode(prop.node.id)"
         />
@@ -432,6 +432,9 @@ export default class NodeTree extends NodeTreeProps {
     } else {
       return this.canEditConversation(nodeId);
     }
+  }
+  canAddTo(nodeId: number): boolean {
+    return this.getCurrentQuest.is_playing;
   }
   getNode(nodeId: number): ConversationNode {
     if (this.channelId) {
