@@ -2,7 +2,7 @@
   <q-card class="items-center">
     <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
       <q-option-group
-        v-bind="quest.public"
+        v-model="quest.public"
         :options="public_private_bool"
         color="primary"
         inline
@@ -12,7 +12,7 @@
     <div class="q-pa-md q-gutter-sm">
       <q-btn-group>
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-if="quest.status != 'draft'"
           color="grey"
           text-color="black"
@@ -20,14 +20,14 @@
           :disable="true"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else
           color="yellow"
           text-color="black"
           label="draft"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-if="
             quest.status != 'draft' &&
             quest.status != 'registration'
@@ -38,7 +38,7 @@
           :disable="true"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else-if="quest.status == 'draft'"
           color="green"
           text-color="black"
@@ -47,14 +47,14 @@
           @click="updateStatus('registration')"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else
           color="red"
           text-color="black"
           label="registration"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-if="
             quest.status != 'draft' &&
             quest.status != 'registration' &&
@@ -66,7 +66,7 @@
           :disable="true"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else-if="quest.status == 'registration'"
           color="green"
           text-color="black"
@@ -74,14 +74,14 @@
           @click="updateStatus('ongoing')"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else
           color="red"
           text-color="black"
           label="Start"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-if="
             quest.status != 'draft' &&
             quest.status != 'registration' &&
@@ -93,7 +93,7 @@
           :disable="true"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else-if="quest.status == 'ongoing'"
           color="green"
           text-color="black"
@@ -101,7 +101,7 @@
           @click="updateStatus('finished')"
         />
         <q-btn
-          v-bind="quest.status"
+          v-model="quest.status"
           v-else
           color="red"
           text-color="black"
@@ -117,14 +117,14 @@
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
         class="field-name"
-        v-bind="quest.name"
+        v-model="quest.name"
         label="Quest name"
         style="width: 350px"
       />
     </div>
     <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
     <div class="row justify-start q-pb-lg q-ml-lg">
-      <q-editor v-bind="quest.description" class="q-editor"></q-editor>
+      <q-editor v-model="quest.description" class="q-editor"></q-editor>
     </div>
     <div class="row">
       <div class="col-6 q-pl-md">
@@ -138,7 +138,7 @@
       <template>
         <div class="col-6">
           <div class="q-pa-md" style="max-width: 400px">
-            <q-input filled v-bind="quest.start">
+            <q-input filled v-model="quest.start">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
@@ -146,7 +146,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-bind="quest.start" mask="YYYY-MM-DD HH:mm">
+                    <q-date v-model="quest.start" mask="YYYY-MM-DD HH:mm">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -167,7 +167,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-time v-bind="quest.start" mask="YYYY-MM-DD HH:mm">
+                    <q-time v-model="quest.start" mask="YYYY-MM-DD HH:mm">
                       format24h >
                       <div class="row items-center justify-end">
                         <q-btn
@@ -188,7 +188,7 @@
       <div class="col-6">
         <template>
           <div class="q-pa-md" style="max-width: 400px">
-            <q-input filled v-bind="quest.end">
+            <q-input filled v-model="quest.end">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
@@ -196,7 +196,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-bind="quest.end" mask="YYYY-MM-DD HH:mm"
+                    <q-date v-model="quest.end" mask="YYYY-MM-DD HH:mm"
                       >>
                       <div class="row items-center justify-end">
                         <q-btn
@@ -218,7 +218,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-time v-bind="quest.end" mask="YYYY-MM-DD HH:mm">
+                    <q-time v-model="quest.end" mask="YYYY-MM-DD HH:mm">
                       format24h >
                       <div class="row items-center justify-end">
                         <q-btn
@@ -243,7 +243,7 @@
     <div class="row justify-center q-pb-lg">
       <q-btn
         label="Submit"
-        @click="doSubmitQuest"
+        @click="doUpdateQuest"
         color="primary"
         class="q-mr-md q-ml-md"
       />
@@ -257,14 +257,14 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { Prop } from "vue/types/options";
 import { Quest } from "../types";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions } from "vuex";
 import { quest_status_list, public_private_bool } from "../enums";
-import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
+import { QuestsActionTypes } from "../store/quests";
 import { DateTime } from "luxon";
 
 const QuestCardProps = Vue.extend({
   props: {
-    quest: Object as Prop<Quest>,
+    thisQuest: Object as Prop<Quest>,
     edit: {
       type: Boolean,
       default: false,
@@ -278,10 +278,24 @@ const QuestCardProps = Vue.extend({
 
 @Component<QuestCard>({
   name: "QuestCard",
-
-  components: {
-
+  computed: {
+    description: {
+      get() {
+        return this.thisQuest.description || "";
+      },
+      set(value) {
+        this.quest.description = value;
+      },
+    },
   },
+
+  watch: {
+    thisQuest(newNode: Partial<Quest>) {
+      // TODO: watch if data is dirty
+      this.quest = { ...this.thisQuest };
+    },
+  },
+
   methods: {
     ...mapActions("quests", ["upDateQuest"]),
   },
@@ -291,10 +305,24 @@ export default class QuestCard extends QuestCardProps {
   public_private_bool = public_private_bool;
   quest_status_list = quest_status_list;
   publication_state_list;
+  quest: Partial<Quest> = {}
 
   // declare the computed attributes for Typescript
 
   // declare the method attributes for Typescript
+  created() {
+    this.quest=this.thisQuest;
+    console.log ("Quest", this.quest);
+  }
+  getDescription() {
+    return this.quest.description || "";
+  }
+  setDescription(description: string) {
+    this.quest.description = description;
+  }
+  descriptionChange(value: string) {
+    this.quest.description = value;
+  }
   updateQuest: QuestsActionTypes["updateQuest"];
 
   updateStatus(value) {
@@ -313,32 +341,9 @@ export default class QuestCard extends QuestCardProps {
     }
     this.quest.status = value;
   }
-  validateStartEnd() {
-    if (this.quest.start < this.quest.end) {
-      return true;
-    }
-    return false;
-  }
-
-  async doSubmitQuest() {
-    try {
-      if (!this.validateStartEnd()) {
-        throw "End date is before start date";
-      }
-      const questUpdateResponse = await this.updateQuest({
-        data: this.quest,
-      });
-      this.$q.notify({
-        message: "Quest was updated successfully",
-        color: "positive",
-      });
-    } catch (err) {
-      console.log("there was an error in updating quest ", err);
-      this.$q.notify({
-        message: `There was an error updating quest. If this issue persists, contact support.`,
-        color: "negative",
-      });
-    }
-  }
+  doUpdateQuest() {
+    console.log("Entered in doSubmitQuest")
+    this.$emit("doUpdateQuest",this.quest);
+  }  
 }
 </script>
