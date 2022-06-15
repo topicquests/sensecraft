@@ -155,6 +155,7 @@
                           flat
                         />
                       </div>
+                      
                     </q-date>
                   </q-popup-proxy>
                 </q-icon>
@@ -183,6 +184,7 @@
               </template>
             </q-input>
           </div>
+          
         </div>
       </template>
       <div class="col-6">
@@ -238,7 +240,12 @@
       </div>
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
-      <span label="Handle">{{ quest.handle }}</span>
+      <q-input
+        class="field-name"
+        v-model="quest.handle"
+        label="Quest handle"
+        style="width: 350px"
+      />
     </div>
     <div class="row justify-center q-pb-lg">
       <q-btn
