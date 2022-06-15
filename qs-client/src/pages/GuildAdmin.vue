@@ -140,7 +140,7 @@
                 </div>
               </div>
             </q-card>
-            <guild-card class="guild-card" v-bind:currentGuild="getCurrentGuild" :showDescription="false"></guild-card>
+            <guild-card class="guild-card" v-bind:currentGuild="{...getCurrentGuild}" :showDescription="false"></guild-card>
           </div>
           <div class="row justify-center q-mt-md">
             <q-card class="available-roles-card">
