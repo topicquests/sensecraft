@@ -16,7 +16,7 @@
     <div class="row justify-center">
       <div class="col-4">
         <guild-card
-          v-bind:currentGuild="getCurrentGuild"
+          v-bind:currentGuild="{...getCurrentGuild}"
           :showDescription="true"
           class="q-ml-xl"
           style="width: 80%"
