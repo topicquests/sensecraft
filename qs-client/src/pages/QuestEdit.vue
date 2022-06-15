@@ -14,7 +14,7 @@
     <div class="column items-center" v-if="getCurrentQuest">
       <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
         <quest-card
-          v-bind:thisQuest="getCurrentQuest"
+          v-bind:thisQuest="{... getCurrentQuest}"
           :edit="true"
           v-on:doUpdateQuest="doSubmitQuest"
         ></quest-card>
