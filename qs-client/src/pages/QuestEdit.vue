@@ -15,7 +15,7 @@
     <div class="column items-center" v-if="getCurrentQuest && edit">
       <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
         <quest-card
-          v-bind:thisQuest="{... getCurrentQuest}"
+          v-bind:thisQuest="{ ...getCurrentQuest }"
           :edit="true"
           v-on:doUpdateQuest="doSubmitQuest"
         ></quest-card>
@@ -201,8 +201,8 @@ export default class QuestEditPage extends Vue {
       });
     }
   }
-  validateStartEnd() {
-    if (this.quest.start < this.quest.end) {
+  validateStartEnd(quest) {
+    if (quest.start < quest.end) {
       return true;
     }
     return false;
@@ -210,12 +210,9 @@ export default class QuestEditPage extends Vue {
 
   async doSubmitQuest(quest) {
     try {
-      console.log("Entered in do update quest");
-      if (!this.validateStartEnd()) {
-        console.log(this.validateStartEnd());
+      if (!this.validateStartEnd(quest)) {
         throw "End date is before start date";
       }
-      console.log(this.validateStartEnd());
       if (this.edit) {
         await this.updateQuest({
           data: quest,
@@ -245,7 +242,6 @@ export default class QuestEditPage extends Vue {
 
   async beforeMount() {
     this.quest_id = Number.parseInt(this.$route.params.quest_id);
-    console.log("Quest_id", this.quest_id);
     await userLoaded;
     if (this.quest_id) {
       await this.setCurrentQuest(this.quest_id);
