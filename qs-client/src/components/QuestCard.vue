@@ -1,118 +1,117 @@
 <template>
   <q-card class="items-center">
-    <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
-      <q-option-group
-        v-model="quest.public"
-        :options="public_private_bool"
-        color="primary"
-        inline
-      >
-      </q-option-group>
-    </div>
-    <div class="q-pa-md q-gutter-sm">
-      <q-btn-group>
-        <q-btn
-          v-model="quest.status"
-          v-if="quest.status != 'draft'"
-          color="grey"
-          text-color="black"
-          label="draft"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="yellow"
-          text-color="black"
-          label="draft"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-if="
-            quest.status != 'draft' &&
-            quest.status != 'registration'
-          "
-          color="grey"
-          text-color="black"
-          label="registration"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'draft'"
-          color="green"
-          text-color="black"
-          label="registration"
-          value="registration"
-          @click="updateStatus('registration')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="registration"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-if="
-            quest.status != 'draft' &&
-            quest.status != 'registration' &&
-            quest.status != 'ongoing'
-          "
-          color="grey"
-          text-color="black"
-          label="ongoing"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'registration'"
-          color="green"
-          text-color="black"
-          label="Start"
-          @click="updateStatus('ongoing')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="Start"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-if="
-            quest.status != 'draft' &&
-            quest.status != 'registration' &&
-            quest.status != 'ongoing'
-          "
-          color="grey"
-          text-color="black"
-          label="finished"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'ongoing'"
-          color="green"
-          text-color="black"
-          label="finished"
-          @click="updateStatus('finished')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="finished"
-        />
-      </q-btn-group>
-    </div>
-    <div class="row justify-start q-pb-lg q-ml-lg">
-      <p style="color: black; background-color: white">
-        Status: {{ quest.status }}
-      </p>
+    <div v-if="edit">
+      <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
+        <q-option-group
+          v-model="quest.public"
+          :options="public_private_bool"
+          color="primary"
+          inline
+        >
+        </q-option-group>
+      </div>
+      <div class="q-pa-md q-gutter-sm">
+        <q-btn-group>
+          <q-btn
+            v-model="quest.status"
+            v-if="quest.status != 'draft'"
+            color="grey"
+            text-color="black"
+            label="draft"
+            :disable="true"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else
+            color="yellow"
+            text-color="black"
+            label="draft"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-if="quest.status != 'draft' && quest.status != 'registration'"
+            color="grey"
+            text-color="black"
+            label="registration"
+            :disable="true"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else-if="quest.status == 'draft'"
+            color="green"
+            text-color="black"
+            label="registration"
+            value="registration"
+            @click="updateStatus('registration')"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else
+            color="red"
+            text-color="black"
+            label="registration"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-if="
+              quest.status != 'draft' &&
+              quest.status != 'registration' &&
+              quest.status != 'ongoing'
+            "
+            color="grey"
+            text-color="black"
+            label="ongoing"
+            :disable="true"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else-if="quest.status == 'registration'"
+            color="green"
+            text-color="black"
+            label="Start"
+            @click="updateStatus('ongoing')"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else
+            color="red"
+            text-color="black"
+            label="Start"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-if="
+              quest.status != 'draft' &&
+              quest.status != 'registration' &&
+              quest.status != 'ongoing'
+            "
+            color="grey"
+            text-color="black"
+            label="finished"
+            :disable="true"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else-if="quest.status == 'ongoing'"
+            color="green"
+            text-color="black"
+            label="finished"
+            @click="updateStatus('finished')"
+          />
+          <q-btn
+            v-model="quest.status"
+            v-else
+            color="red"
+            text-color="black"
+            label="finished"
+          />
+        </q-btn-group>
+      </div>
+      <div class="row justify-start q-pb-lg q-ml-lg">
+        <p style="color: black; background-color: white">
+          Status: {{ quest.status }}
+        </p>
+      </div>
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
@@ -155,7 +154,6 @@
                           flat
                         />
                       </div>
-                      
                     </q-date>
                   </q-popup-proxy>
                 </q-icon>
@@ -184,7 +182,6 @@
               </template>
             </q-input>
           </div>
-          
         </div>
       </template>
       <div class="col-6">
@@ -307,19 +304,18 @@ const QuestCardProps = Vue.extend({
     ...mapActions("quests", ["upDateQuest"]),
   },
 })
-
 export default class QuestCard extends QuestCardProps {
   public_private_bool = public_private_bool;
   quest_status_list = quest_status_list;
   publication_state_list;
-  quest: Partial<Quest> = {}
+  quest: Partial<Quest> = {};
 
   // declare the computed attributes for Typescript
 
   // declare the method attributes for Typescript
   created() {
-    this.quest=this.thisQuest;
-    console.log ("Quest", this.quest);
+    this.quest = this.thisQuest;
+    console.log("Quest", this.quest);
   }
   getDescription() {
     return this.quest.description || "";
@@ -349,8 +345,8 @@ export default class QuestCard extends QuestCardProps {
     this.quest.status = value;
   }
   doUpdateQuest() {
-    console.log("Entered in doSubmitQuest")
-    this.$emit("doUpdateQuest",this.quest);
-  }  
+    console.log("Entered in doSubmitQuest");
+    this.$emit("doUpdateQuest", this.quest);
+  }
 }
 </script>
