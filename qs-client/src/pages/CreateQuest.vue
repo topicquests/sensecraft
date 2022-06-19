@@ -99,7 +99,6 @@ export default class CreateQuestPage extends Vue {
   }
   async beforeMount() {
     await userLoaded;
-    console.log("Quest ", this.quest);
   }
 }
 </script>
