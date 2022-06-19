@@ -292,14 +292,6 @@ const QuestCardProps = Vue.extend({
       },
     },
   },
-
-  watch: {
-    thisQuest(newNode: Partial<Quest>) {
-      // TODO: watch if data is dirty
-      this.quest = { ...this.thisQuest };
-    },
-  },
-
   methods: {
     ...mapActions("quests", ["upDateQuest"]),
   },
@@ -309,8 +301,6 @@ export default class QuestCard extends QuestCardProps {
   quest_status_list = quest_status_list;
   publication_state_list;
   quest: Partial<Quest> = {};
-
-  // declare the computed attributes for Typescript
 
   // declare the method attributes for Typescript
   created() {
@@ -345,7 +335,7 @@ export default class QuestCard extends QuestCardProps {
     this.quest.status = value;
   }
   doUpdateQuest() {
-    console.log("Entered in doSubmitQuest");
+    console.log("Quest ", this.quest);
     this.$emit("doUpdateQuest", this.quest);
   }
 }
