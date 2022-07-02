@@ -1,5 +1,6 @@
 Feature: Create Quest
 	Scenario: Show the quest page
 		Given member is logged in
+		And member has createQuest permision
 		When createQuest page is requested
-		Then member has createQuest permission or superadmin permmison
+		Then new quest page is displayed

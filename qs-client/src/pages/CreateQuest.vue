@@ -13,11 +13,11 @@
         <h4 id="h4" class="q-pa-xs q-ma-xs">Create New Quest</h4>
       </div>
     </div>
-    <div class="column items-center">
-      <div class="col-4 q-pa-xs" style="width: 55%">
+    <div class="column items-center" v-if="newQuest">
+      <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
         <quest-card
-          v-bind:thisQuest="quest"
-          :edit="true"
+          v-bind:thisQuest="newQuest"
+          :create="true"
           v-on:doUpdateQuest="doSubmitQuest"
         ></quest-card>
       </div>
@@ -31,7 +31,7 @@ import member from "../components/member.vue";
 import { mapActions} from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
-import QuestCard from "../components/QuestCard.vue";
+import QuestCard from "../components/quest-edit-card.vue";
 import Component from "vue-class-component";
 import { QuestsActionTypes } from "src/store/quests";
 import Vue from "vue";
@@ -57,20 +57,20 @@ export default class CreateQuestPage extends Vue {
   details: "";
   handle: "";
   type: false;
-  quest = {
+  newQuest = {
     name: "",
     handle: "",
     status: "draft",
     public: true,
     description: "",
     start: "",
-    end: ""
+    end: "",
   };
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"]
   createQuest!: QuestsActionTypes["createQuest"];
 
-  validateStartEnd() {
-    if (this.quest.start < this.quest.end) {
+  validateStartEnd(quest) {
+    if (quest.start < quest.end) {
       return true;
     }
     return false;
@@ -79,8 +79,7 @@ export default class CreateQuestPage extends Vue {
   async doSubmitQuest(quest) {
     try {
       console.log("Entered in do update quest")
-      if (!this.validateStartEnd()) {
-        console.log(this.validateStartEnd());
+      if (!this.validateStartEnd(quest)) {
         throw "End date is before start date";
       }
       const res = await this.createQuest({ data: quest });

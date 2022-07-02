@@ -9,10 +9,9 @@
       </div>
     </div>
     <div class="col-12" style="width: 100%">
-      <h4 v-if="edit" class="q-pb-sm q-ma-sm">Edit Quest</h4>
-      <h4 v-if="create" class="q-pb-sm q-ma-sm">Create Quest</h4>
+      <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
     </div>
-    <div class="column items-center" v-if="getCurrentQuest && edit">
+    <div class="column items-center" v-if="getCurrentQuest">
       <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
         <quest-card
           v-bind:thisQuest="{ ...getCurrentQuest }"
@@ -21,21 +20,12 @@
         ></quest-card>
       </div>
     </div>
-    <div class="column items-center" v-if="newQuest && create">
-      <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
-        <quest-card
-          v-bind:thisQuest="newQuest"
-          :create="true"
-          v-on:doUpdateQuest="doSubmitQuest"
-        ></quest-card>
-      </div>
-    </div>
-    <div v-if="edit">
+    <div>
       <div class="col-4 q-ma-sm">
         <h4 v-if="!node.id">New Conversation Node</h4>
         <h4 v-if="node.id">Update Conversation Node</h4>
       </div>
-      <div class="column items-center" v-if="getCurrentQuest && edit">
+      <div class="column items-center" v-if="getCurrentQuest">
         <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
           <node-form
             :nodeInput="node"
@@ -54,7 +44,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import nodeForm from "../components/node-form.vue";
-import questCard from "../components/QuestCard.vue";
+import questCard from "../components/quest-edit-card.vue";
 import Component from "vue-class-component";
 import { userLoaded } from "../boot/userLoaded";
 import Vue from "vue";
@@ -99,7 +89,6 @@ import { BaseGetterTypes } from "../store/baseStore";
     ...mapActions("quests", [
       "setCurrentQuest",
       "updateQuest",
-      "createQuest",
       "ensureQuest",
     ]),
     ...mapActions("conversation", [
@@ -117,18 +106,7 @@ export default class QuestEditPage extends Vue {
   quest_status_list = quest_status_list;
   publication_state_list;
   isAdmin: true;
-  edit = false;
-  create = false;
   quest_id: number;
-  newQuest = {
-    name: "",
-    handle: "",
-    status: "draft",
-    public: true,
-    description: "",
-    start: "",
-    end: "",
-  };
 
   // declare the computed attributes for Typescript
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];
@@ -138,7 +116,6 @@ export default class QuestEditPage extends Vue {
   getConversation: ConversationGetterTypes["getConversation"];
   hasPermission: BaseGetterTypes["hasPermission"];
   updateQuest!: QuestsActionTypes["updateQuest"];
-  createQuest!: QuestsActionTypes["createQuest"];
   ensureQuest!: QuestsActionTypes["ensureQuest"];
   ensureConversation!: ConversationActionTypes["ensureConversation"];
   ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
@@ -213,24 +190,13 @@ export default class QuestEditPage extends Vue {
       if (!this.validateStartEnd(quest)) {
         throw "End date is before start date";
       }
-      if (this.edit) {
-        await this.updateQuest({
+      await this.updateQuest({
           data: quest,
-        });
-        this.$q.notify({
-          message: "Quest was updated successfully",
-          color: "positive",
-        });
-      } else {
-        const res = await this.createQuest({ data: quest });
-        this.create = false;
-        this.edit = true;
-        this.$q.notify({
-          message: "Quest was updated successfully",
-          color: "positive",
-        });
-        this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
-      }
+      });
+      this.$q.notify({
+        message: "Quest was updated successfully",
+        color: "positive",
+      });      
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
@@ -243,18 +209,11 @@ export default class QuestEditPage extends Vue {
   async beforeMount() {
     this.quest_id = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
-    if (this.quest_id) {
-      await this.setCurrentQuest(this.quest_id);
-      await this.ensureQuest({ quest_id: this.quest_id });
-      await this.ensureConversation(this.quest_id);
-      this.edit = true;
-      // const questMembership = this.isQuestMember(this.quest_id);
-
-      if (this.getConversation.length > 0) {
-        await this.fetchRootNode({ params: { quest_id: this.quest_id } });
-      }
-    } else {
-      this.create = true;
+    await this.setCurrentQuest(this.quest_id);
+    await this.ensureQuest({ quest_id: this.quest_id });
+    await this.ensureConversation(this.quest_id);
+    if (this.getConversation.length > 0) {
+      await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     }
     this.ready = true;
   }

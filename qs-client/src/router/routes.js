@@ -33,7 +33,7 @@ const routes = [
       {
         path: "/quest/create",
         name: "quest_create",
-        component: () => import("pages/QuestEdit.vue"),
+        component: () => import("pages/CreateQuest.vue"),
       },
       {
         path: "/quest/:quest_id/edit",

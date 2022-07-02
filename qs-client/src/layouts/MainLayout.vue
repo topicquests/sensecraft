@@ -54,13 +54,7 @@
           >
           </q-btn>
         </div>
-        <div
-          v-if="
-            isAuthenticated &&
-            showTree &&
-            getCurrentGuild
-          "
-        >
+        <div v-if="isAuthenticated && showTree && getCurrentGuild">
           <q-btn
             flat
             dense
@@ -74,7 +68,11 @@
         </div>
       </q-toolbar>
     </q-header>
-    <q-drawer v-model="rightDrawerOpen" :breakpoint="200" bordered side="right"
+    <q-drawer
+      v-model="rightDrawerOpen"
+      :breakpoint="200"
+      bordered
+      side="right"
       id="mySidenav"
       class="sidenav"
       :overlay="true"
@@ -86,7 +84,10 @@
           title="Guild Channels"
         />
       </div>
-      <div v-if="getCurrentGuild && getCurrentQuest" class="q-pa-md q-gutter-sm">
+      <div
+        v-if="getCurrentGuild && getCurrentQuest"
+        class="q-pa-md q-gutter-sm"
+      >
         <channel-list
           v-bind:guild_id="getCurrentGuild.id"
           v-bind:quest_id="getCurrentQuest.id"
@@ -105,37 +106,48 @@
           </q-item>
           <q-item clickable v-ripple id="house_rules">
             <q-item-section>
-              <q-btn :to="{name: 'house_rules'}">House Rules</q-btn>
+              <q-btn :to="{ name: 'house_rules' }">House Rules</q-btn>
             </q-item-section>
           </q-item>
-
           <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
             <q-item-section>
               <q-btn :to="{ name: 'lobby' }">Dashboard</q-btn>
             </q-item-section>
           </q-item>
-          <q-item
-            clickable
-            v-ripple
-            id="questView"
-          >
+          <q-item clickable v-ripple id="questView">
             <q-item-section id="quest_list">
               <q-item-label>
                 <q-btn :to="{ name: 'quest_list' }">Quests</q-btn>
               </q-item-label>
             </q-item-section>
           </q-item>
-          <q-item
-            clickable
-            v-ripple
-            v-show="hasPermission(permission_enum.createQuest)"
+          <q-item 
+            clickable 
+            v-ripple 
             id="createQuest"
+            v-show="hasPermission(permission_enum.createQuest)"      
           >
+            <q-item-section id="quest_create">
+              <q-item-label>
+                <q-btn :to="{ name: 'quest_create' }">Create Quests</q-btn>
+              </q-item-label>
+            </q-item-section>
           </q-item>
-
           <q-item clickable v-ripple id="guildView">
             <q-item-section>
               <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
+            </q-item-section>
+          </q-item>
+          <q-item 
+            clickable 
+            v-ripple 
+            id="createGuild"
+             v-show="hasPermission(permission_enum.createGuild)"         
+          >
+            <q-item-section id="guild_create">
+              <q-item-label>
+                <q-btn :to="{ name: 'create_guild' }">Create Guild</q-btn>
+              </q-item-label>
             </q-item-section>
           </q-item>
 
@@ -172,9 +184,7 @@ import { permission_enum } from "../enums";
 import { MemberActionTypes, MemberState } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
-import {
-  ConversationGetterTypes,
-} from "src/store/conversation";
+import { ConversationGetterTypes } from "src/store/conversation";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { QuestsGetterTypes } from "../store/quests";
