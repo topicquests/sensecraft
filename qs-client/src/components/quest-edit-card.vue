@@ -123,7 +123,7 @@
     </div>
     <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
     <div class="row justify-start q-pb-lg q-ml-lg">
-      <q-editor v-model="quest.description" class="q-editor"></q-editor>
+      <q-editor v-model="quest.description" class="q-editor" style="width:80%"></q-editor>
     </div>
     <div class="row">
       <div class="col-6 q-pl-md">
