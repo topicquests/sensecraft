@@ -29,8 +29,8 @@
     "pgst": "postgrest postgrest_development.conf",
     "socksrv": "node dist/qs-server/dispatcher/main.js",
     "dev": "(postgrest postgrest_development.conf &) && sleep 3 && node dist/qs-server/dispatcher/main.js",
-    "pretest1": "npm run lint && npm run mocha -- -r test/frontend.test.ts",
-    "test1": "(postgrest postgrest_test.conf &) && sleep 3 && node dist/qs-server/dispatcher/main.js",
+    "prefrontend_test": "npm run lint && npm run mocha -- -r test/frontend.test.ts",
+    "frontend_test": "(postgrest postgrest_test.conf &) && sleep 3 && node dist/qs-server/dispatcher/main.js",
     "test": "npm run lint && npm run mocha -- -r test/global.ts",
     "lint": "eslint test/. --config .eslintrc.json --fix",
     "mocha": "ts-mocha test/*.test.ts --recursive --exit"
