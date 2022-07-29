@@ -33,14 +33,18 @@ import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import QuestCard from "../components/quest-edit-card.vue";
 import Component from "vue-class-component";
-import { QuestsActionTypes } from "src/store/quests";
+import { QuestsActionTypes } from "../store/quests";
 import Vue from "vue";
 
 @Component<CreateQuestPage>({
+  meta: {
+    title: "New Quest",
+  },
   components: {
     scoreboard: scoreboard,
     member: member,
     QuestCard: QuestCard,
+    
   },
   computed: {
 

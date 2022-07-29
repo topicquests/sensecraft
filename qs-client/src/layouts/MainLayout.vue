@@ -8,6 +8,7 @@
           flat
           round
           icon="menu"
+          name="leftdrawerBtn"
           @click="leftDrawer = !leftDrawer"
         />
         <q-toolbar-title>
@@ -31,6 +32,7 @@
             roundeded
             label="sign in"
             id="signin"
+            name="signinBtn"
             class="q-mr-sm bg-deep-purple-7"
           >
           </q-btn>
@@ -38,6 +40,7 @@
             v-show="!isAuthenticated"
             @click="goTo('register')"
             class="bg-deep-purple-7"
+            name="registerBtn"
             roundeded
             label="Register"
             id="register"
@@ -50,7 +53,7 @@
             roundeded
             label="log off"
             id="logoff"
-            name="logoff"
+            name="logoffBtn"
           >
           </q-btn>
         </div>
@@ -129,7 +132,10 @@
           >
             <q-item-section id="quest_create">
               <q-item-label>
-                <q-btn :to="{ name: 'quest_create' }">Create Quests</q-btn>
+                <q-btn 
+                :to="{ name: 'quest_create' }"
+                name="createQuestBtn">
+                Create Quests</q-btn>
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -184,7 +190,7 @@ import { permission_enum } from "../enums";
 import { MemberActionTypes, MemberState } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
 import nodeTree from "../components/node-tree.vue";
-import { ConversationGetterTypes } from "src/store/conversation";
+import { ConversationGetterTypes } from "../store/conversation";
 import { GuildsGetterTypes } from "../store/guilds";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { QuestsGetterTypes } from "../store/quests";

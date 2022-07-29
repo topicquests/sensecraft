@@ -118,12 +118,18 @@
         class="field-name"
         v-model="quest.name"
         label="Quest name"
+        name="name"
         style="width: 350px"
       />
     </div>
     <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
     <div class="row justify-start q-pb-lg q-ml-lg">
-      <q-editor v-model="quest.description" class="q-editor" style="width:80%"></q-editor>
+      <q-editor
+        v-model="quest.description"
+        class="q-editor"
+        style="width: 80%"
+        name="description"
+      ></q-editor>
     </div>
     <div class="row">
       <div class="col-6 q-pl-md">
@@ -137,7 +143,7 @@
       <template>
         <div class="col-6">
           <div class="q-pa-md" style="max-width: 400px">
-            <q-input filled v-model="quest.start">
+            <q-input filled v-model="quest.start" name="startDate">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
@@ -187,7 +193,7 @@
       <div class="col-6">
         <template>
           <div class="q-pa-md" style="max-width: 400px">
-            <q-input filled v-model="quest.end">
+            <q-input filled v-model="quest.end" name="endDate">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
@@ -239,6 +245,7 @@
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
         class="field-name"
+        name="handle"
         v-model="quest.handle"
         label="Quest handle"
         style="width: 350px"
@@ -247,6 +254,7 @@
     <div class="row justify-center q-pb-lg">
       <q-btn
         label="Submit"
+        name="updateQuestBtn"
         @click="doUpdateQuest"
         color="primary"
         class="q-mr-md q-ml-md"

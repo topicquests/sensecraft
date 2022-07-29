@@ -4,75 +4,79 @@ import { Builder, By } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import { assert } from "chai";
 
+const options = new chrome.Options();
+let pageName = null;
+
+const driver = new Builder()
+  .setChromeOptions(options)
+  .forBrowser("chrome")
+  .build();
+
 @binding()
-export class RegistrationSteps {
-  options = new chrome.Options();
-  driver = new Builder();
-
-  @given(/A Registration page/)
-  public async givenRegistrationPage() {
+export class CreateQuestSteps {
+  @given(
+    "User signs in with email {string} and password {string}. Has create quest permission"
+  )
+  public async givenLogin(email: string, password: string) {
     try {
-      this.driver = await new Builder()
-        .setChromeOptions(this.options)
-        .forBrowser("chrome")
-        .build();
-      await this.driver.get("http://localhost:8080/register");
+      await driver.get("http://localhost:8080/home");
+      await driver.sleep(1000);
+      await driver.findElement(By.name("signinBtn")).click();
+      await driver.findElement(By.name("email")).sendKeys(email);
+      await driver.findElement(By.name("password")).sendKeys(password);
+
+      await driver.findElement(By.name("loginBtn")).click();
     } catch (error) {
       console.log(error);
     }
   }
-  @when("User fills out registration page email as {string}")
-  public async whenUserInputsEmail(email: string) {
-    await this.driver.findElement(By.name("email")).sendKeys(email);
+  @when(/user opens leftdrawer/)
+  public async whenOpenLeftdrawer() {
+    await driver.sleep(1000);
+    await driver.findElement(By.name("leftdrawerBtn")).click();
   }
-  @when("name as {string}")
-  public async whenUserInputsName(name: string) {
-    await this.driver.findElement(By.name("name")).sendKeys(name);
+  @when(/selects create quest from menu/)
+  public async whenOpenSelectCreateQuest() {
+    await driver.sleep(1000);
+    await driver.findElement(By.name("createQuestBtn")).click();
   }
-  @when("handle as {string}")
-  public async whenUserInputsHandle(handle: string) {
-    await this.driver.findElement(By.name("handle")).sendKeys(handle);
+  @then("Create {string} form is displayed")
+  public async thenCreateQuestCurrentPage(title: string) {
+    await driver.sleep(1000);
+    assert.equal(await driver.getTitle(), title);
   }
-  @when("password as {string}")
-  public async whenUserInputsPassword(password: string) {
-    await this.driver.findElement(By.name("password")).sendKeys(password);
+  @when("Player enters name {string}")
+  public async whenPlayerEntersName(name: string) {
+    pageName=name;
+    await driver.findElement(By.name("name")).sendKeys(name);
   }
-  @when("User clicks Get Started button")
-  public async andClicksRegister() {
-    await this.driver.findElement(By.name("registerButton")).click();
+  @when("enters description {string}")
+  public async playEntersDescription(description: string) {
+    await driver.findElement(By.className("q-editor__content")).sendKeys(description);
   }
-  @then("Goes to Signin page {string}")
-  public async thenSigninIsCurrentPage(title: string) {
-    await this.driver.sleep(2000);
-    assert.equal(await this.driver.getTitle(), title);
+  @when("enters {string} for handle")
+  public async playerEntersHandle(handle: string) {
+    await driver.findElement(By.name("handle")).sendKeys(handle);
   }
+  @when("start date of {string}")
+  public async playerEntersStartDate(startDate: string) {
+    await driver.findElement(By.name("startDate")).sendKeys(startDate);
+  }
+  @when("end date of {string}")
+  public async playerEntersEndDate(endDate: string) {
+    await driver.findElement(By.name("endDate")).sendKeys(endDate);
+  }
+  @when(/clicks submit button/)
+  public async whenClicksSubmit() {
+    await driver.findElement(By.name("updateQuestBtn")).click();
 
-  @given(/A Logon Page/)
-  public async givenALogonPage() {
-    try {
-      this.driver = await new Builder()
-        .setChromeOptions(this.options)
-        .forBrowser("chrome")
-        .build();
-      await this.driver.get("http://localhost:8080/signin");
-    } catch (error) {
-      console.log(error);
-    }
   }
-
-  @when("user logged in using username as {string} and password as {string}")
-  public async whenLogin(username: string, password: string) {
-    await this.driver.findElement(By.name("email")).sendKeys(username);
-    await this.driver.findElement(By.name("password")).sendKeys(password);
-  }
-  @when("User clicks login")
-  public async andClicksLogin() {
-    await this.driver.findElement(By.name("loginBtn")).click();
-  }
-
-  @then("Current page title {string}")
-  public async thenDashboardIsCurrentPage(title: string) {
-    await this.driver.sleep(2000);
-    assert.equal(await this.driver.getTitle(), title);
+  @then("player goes to quest edit page")
+  public async thenQuestEditPage() {
+    await driver.sleep(1000);
+    const title = "Quest edit - " + pageName + " - SenseCraft"
+    assert.equal(await driver.getTitle(), title);
+    await driver.sleep(1000);
+    //await driver.findElement(By.name("logoffBtn")).click();
   }
 }
