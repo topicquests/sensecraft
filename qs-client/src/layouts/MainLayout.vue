@@ -130,10 +130,10 @@
             id="createQuest"
             v-show="hasPermission(permission_enum.createQuest)"      
           >
-            <q-item-section id="quest_create">
+            <q-item-section id="create_quest">
               <q-item-label>
                 <q-btn 
-                :to="{ name: 'quest_create' }"
+                :to="{ name: 'create_quest' }"
                 name="createQuestBtn">
                 Create Quests</q-btn>
               </q-item-label>

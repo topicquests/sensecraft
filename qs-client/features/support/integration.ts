@@ -10,7 +10,7 @@ let backend: Promise<ChildProcessWithoutNullStreams> = null;
 let frontend: Promise<ChildProcessWithoutNullStreams> = null;
 
 // todo: refactor rather than copy
-export async function waitForOutput(
+async function waitForOutput(
   proc: ChildProcessWithoutNullStreams, trigger: string
 ): Promise<ChildProcessWithoutNullStreams> {
   let resolve: (v: any)=>void;

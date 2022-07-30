@@ -18,7 +18,7 @@
               style="margin-bottom: 4px"
               label="New Quest"
               @click="$router.push({  
-              name: 'quest_create'})"
+              name: 'create_quest'})"
             />
           </div>
         </div>
