@@ -5,12 +5,14 @@ import { Builder } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 
 
-let selenium: Builder = null;
-let backend: ChildProcessWithoutNullStreams = null;
-let frontend: ChildProcessWithoutNullStreams = null;
+let selenium: Promise<Builder> = null;
+let backend: Promise<ChildProcessWithoutNullStreams> = null;
+let frontend: Promise<ChildProcessWithoutNullStreams> = null;
 
 // todo: refactor rather than copy
-export async function waitForOutput(proc: ChildProcessWithoutNullStreams, trigger: string): Promise<void> {
+export async function waitForOutput(
+  proc: ChildProcessWithoutNullStreams, trigger: string
+): Promise<ChildProcessWithoutNullStreams> {
   let resolve: (v: any)=>void;
   const ready = new Promise<void>((rs) => {
     resolve = rs;
@@ -24,14 +26,15 @@ export async function waitForOutput(proc: ChildProcessWithoutNullStreams, trigge
   }
   proc.stderr.on('data', wakeup);
   proc.stdout.on('data', wakeup);
-  return ready;
+  await ready;
+  return proc;
 }
 
-export async function ensureSelenium(): Builder {
+export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
     options.addArguments("--headless");
-    selenium = await new Builder()
+    selenium = new Builder()
       .setChromeOptions(options)
       .forBrowser("chrome")
       .build();
@@ -44,46 +47,48 @@ async function ensureBackend() {
     const current = cwd();
     chdir('..');
     chdir('qs-server');
-    backend = spawn('npm', ['run', 'test_backend'])
+    const backendProc = spawn('npm', ['run', 'test_backend'])
     chdir(current);
-    await waitForOutput(backend, 'Ready');
+    backend = waitForOutput(backendProc, 'Ready');
   }
 }
 
 async function ensureFrontend() {
   if (frontend == null) {
-    frontend = spawn('npm', ['run', 'dev'])
-    await waitForOutput(frontend, 'Project is running');
+    const frontendProc = spawn('npm', ['run', 'dev'])
+    frontend = waitForOutput(frontendProc, 'Project is running');
   }
 }
 
 async function killSelenium() {
-  if (selenium) {
-    await selenium.quit()
+  if (selenium != null) {
+    const seleniumP = await selenium;
+    await seleniumP.quit()
     selenium = null;
   }
 }
 
 async function killBackend() {
   if (backend) {
-    backend.kill('SIGINT');
+    const backendP = await backend;
+    backendP.kill('SIGINT');
     backend = null;
   }
 }
 
 async function killFrontend() {
   if (frontend) {
-    frontend.kill('SIGINT');
+    const frontendP = await frontend;
+    frontendP.kill('SIGINT');
     frontend = null;
   }
 }
 
 Before({ tags: '@integration', timeout: 15000 }, async function (scenario) {
-  await Promise.all([
-    ensureBackend(),
-    ensureFrontend(),
-    ensureSelenium()
-  ])
+  ensureBackend();
+  ensureFrontend();
+  ensureSelenium();
+  await Promise.all([backend, frontend, selenium]);
   console.log("Ready to run integration scenario")
 })
 
