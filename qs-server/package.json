@@ -44,7 +44,7 @@
     "@tsconfig/recommended": "~1.0",
     "@types/expect": "~24",
     "@types/express": "~4.17",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "~9",
     "@types/node": "~16",
     "@types/pg": "~8.6",
     "@types/properties-reader": "^2.1.1",
