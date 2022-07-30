@@ -1,3 +1,4 @@
+@integration
 Feature: Logon to Sensecraft
   Scenario: Register a new user into Sensecraft
     Given A Registration page

@@ -1,3 +1,4 @@
+@integration
 Feature: Create a new quest
 
     After user logs in, if they have permission they goto create a new quest.

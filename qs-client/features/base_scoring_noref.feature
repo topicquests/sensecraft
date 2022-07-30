@@ -1,3 +1,4 @@
+@scoring
 Feature: Base scoring
   Scenario: No score without subsequent moves in bucket scoring
     Given A conversation
