@@ -18,8 +18,8 @@ DROP TRIGGER IF EXISTS before_update_member ON public.members;
 DROP FUNCTION IF EXISTS  public.before_update_member();
 DROP TRIGGER IF EXISTS after_delete_member ON public.members;
 DROP FUNCTION IF EXISTS  public.after_delete_member();
-DROP TRIGGER IF EXISTS before_create_member ON public.members;
-DROP FUNCTION IF EXISTS  public.before_create_member();
+DROP TRIGGER IF EXISTS after_create_member ON public.members;
+DROP FUNCTION IF EXISTS  public.after_create_member();
 
 DROP FUNCTION IF EXISTS  public.get_token(mail character varying, pass character varying);
 DROP FUNCTION IF EXISTS  public.renew_token(token character varying);
