@@ -1,20 +1,41 @@
 import axios from 'axios';
-import type { AxiosInstance } from 'axios';
-import type { PseudoNode, ConversationNode, Member } from '../../qs-client/src/types';
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
+import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
+import type { PseudoNode, ConversationNode, Member, Role } from '../../qs-client/src/types';
 
-function enhanceError(err) {
-  const response = err.response || { data: {} };
-  if (response)
+function enhanceError(err: AxiosError) {
+  const response: AxiosResponse = err.response;
+  if (response) {
     err.message = `${err.message}: ${response.data.message}`;
-  console.log(response.status, response.data.message);
+    console.log(response.status, response.data.message);
+  }
+}
+
+export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promise<void> {
+  let resolve: (v: any)=>void;
+  const ready = new Promise<void>((rs) => {
+    resolve = rs;
+  });
+  function wakeup(data: any) {
+    data = data.toString();
+    console.log(data);
+    if (data.indexOf('Listening on') > -1) {
+      setTimeout(resolve, 500);
+    }
+  }
+  proc.stderr.on('data', wakeup);
+  proc.stdout.on('data', wakeup);
+  return ready;
 }
 
 
 const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
 
+type multiId = { [id: string]: number };
+
 class AxiosUtil {
   axios: AxiosInstance;
-  constructor(baseURL) {
+  constructor(baseURL: string) {
     this.axios = axios.create({ baseURL });
   }
   headers(token: string, headers: { [key: string]: string } = {}): { headers?: { [key: string]: string } } {
@@ -23,12 +44,12 @@ class AxiosUtil {
     return Object.keys(headers).length ? { headers } : {};
   }
 
-  as_params(id) {
+  as_params(id: multiId) {
     return Object.fromEntries(
       Object.entries(id).map(([key, value]) => [key, (postgrest_operators[String(value).split('.')[0]]) ? value : `eq.${value}`]));
   }
 
-  async get(path, id, token) {
+  async get(path: string, id: multiId, token: string) {
     const params = this.as_params(id);
     try {
       const response = await this.axios.get(path, { params, ... this.headers(token) });
@@ -39,7 +60,7 @@ class AxiosUtil {
     }
   }
 
-  async delete(path, id, token) {
+  async delete(path: string, id: multiId, token: string) {
     const params = this.as_params(id);
     try {
       const headers = this.headers(token, { Prefer: 'return=representation' });
@@ -51,7 +72,7 @@ class AxiosUtil {
     }
   }
 
-  async create(path, data, token) {
+  async create(path: string, data: any, token: string) {
     try {
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
@@ -68,7 +89,7 @@ class AxiosUtil {
     }
   }
 
-  async update(path, id, data, token) {
+  async update(path: string, id: multiId, data: any, token: string) {
     try {
       const params = this.as_params(id);
       const headers = this.headers(token, { Prefer: 'return=representation' });
@@ -85,7 +106,7 @@ class AxiosUtil {
     }
   }
 
-  async call(fn, params, token?, readonly=false) {
+  async call(fn: string, params: any, token?: string, readonly=false) {
     try {
       if (readonly) {
         const response = await this.axios.get(`/rpc/${fn}`, { params, ... this.headers(token) });
@@ -104,8 +125,8 @@ class AxiosUtil {
 export const axiosUtil = new AxiosUtil('http://localhost:3001');
 
 export async function add_members(members: Partial<Member>[]) {
-  const memberIds = {};
-  const memberTokens = {};
+  const memberIds: {[handle: string]: number} = {};
+  const memberTokens: {[handle: string]: string} = {};
   for (const member of members) {
     try {
       memberIds[member.handle] = await axiosUtil.call('create_member', member);
@@ -119,21 +140,21 @@ export async function add_members(members: Partial<Member>[]) {
   return {memberIds, memberTokens};
 }
 
-export async function get_base_roles(adminToken) {
+export async function get_base_roles(adminToken: string): Promise<Role[]> {
   return await axiosUtil.get('role', {}, adminToken);
 }
 
-export function get_system_role_by_name(roles, name) {
+export function get_system_role_by_name(roles: Role[], name: string) {
   return roles.find((role) => role.name === name && role.guild_id === null);
 }
 
-export async function delete_members(memberIds, adminToken) {
+export async function delete_members(memberIds: number, adminToken: string) {
   for (const memberId of Object.values(memberIds || {})) {
     await axiosUtil.delete('members', {id: memberId}, adminToken);
   }
 }
 
-export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, member_tokens, node_ids: { [key: string]: number }) {
+export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, member_tokens: {[id:string]: string}, node_ids: { [key: string]: number }) {
   node_ids = node_ids || {};
   for (const nodeData of nodes) {
     const {id, creator_id, parent_id, guild_id, ...rest} = nodeData;
@@ -155,7 +176,7 @@ export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, 
   return node_ids;
 }
 
-export async function delete_nodes(nodes, node_ids, adminToken) {
+export async function delete_nodes(nodes: string[], node_ids: {[id: string]: number}, adminToken: string) {
   for (const local_id of nodes) {
     const id = node_ids[local_id];
     await axiosUtil.delete('conversation_node', {id}, adminToken);
