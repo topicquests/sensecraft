@@ -31,7 +31,7 @@ export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promi
 
 const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
 
-type multiId = { [id: string]: number };
+type multiId = { [id: string]: number | string };
 
 class AxiosUtil {
   axios: AxiosInstance;
