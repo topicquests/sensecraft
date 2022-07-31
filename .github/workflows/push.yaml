@@ -30,9 +30,9 @@ jobs:
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
       - name: install postgrest
         run: |
-          wget https://github.com/PostgREST/postgrest/releases/download/v9.0.0/postgrest-v9.0.0-linux-static-x64.tar.xz
-          tar -Jxf postgrest-v9.0.0-linux-static-x64.tar.xz
-          rm postgrest-v9.0.0-linux-static-x64.tar.xz
+          wget https://github.com/PostgREST/postgrest/releases/download/v9.0.1/postgrest-v9.0.1-linux-static-x64.tar.xz
+          tar -Jxf postgrest-v9.0.1-linux-static-x64.tar.xz
+          rm postgrest-v9.0.1-linux-static-x64.tar.xz
           sudo mv postgrest /usr/bin/
       - name: Install server dependencies
         working-directory: ./qs-server
