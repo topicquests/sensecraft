@@ -19,12 +19,13 @@ import {
 } from "quasar"; // <= cherry pick only the components you actually use
 import { createLocalVue, RouterLinkStub } from "@vue/test-utils";
 import merge from "lodash/merge"
-import { testStore } from "./teststore";
+import { testStore, makeTestStore } from "./teststore";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-export default function createWrapper(name, view, router) {
+export default function createWrapper(name, view, router, stateInfo = null) {
+  const store = stateInfo ? makeTestStore(stateInfo) : testStore;
   const defaultMountOptions = {
     mount: {
       mocks: {
@@ -34,7 +35,7 @@ export default function createWrapper(name, view, router) {
         },
       },
       localVue,
-      store: testStore,
+      store,
       stubs: ["router-link", "router-view", "ripple", "Screen"],
       RouterLink: RouterLinkStub,
     },
