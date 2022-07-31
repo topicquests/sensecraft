@@ -43,12 +43,12 @@ const MemberGetters = {
   getUserEmail: (state: MemberState) => state.email,
   getUserId: (state: MemberState) => state.member?.id,
   getMembersAvailableRoles: (state: MemberState) =>
-    state.member.guild_member_available_role,
+    state.member?.guild_member_available_role,
   tokenIsValid: (state: MemberState) =>
     state.token && state.tokenExpiry && state.tokenExpiry > Date.now(),
   getUserById: (state: MemberState) => (id: number) =>
     state.member?.id == id ? state.member : null,
-  getCastingRoles: (state: MemberState) => state.member.casting_role,
+  getCastingRoles: (state: MemberState) => state.member?.casting_role,
   castingPerQuest: (state: MemberState) =>
     Object.fromEntries((state.member?.casting || []).map((c) => [c.quest_id, c])),
   guildPerQuest: (state: MemberState) =>
@@ -56,11 +56,11 @@ const MemberGetters = {
       (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])
     ),
   castingRolesForQuest: (state: MemberState) => (questId: number) => {
-    return state.member.casting_role.filter((role) => role.quest_id == questId);
+    return state.member?.casting_role.filter((role) => role.quest_id == questId);
   },
   castingRolesPerQuest: (state: MemberState) => {
     const castingRolesPerQuest: { [id: number]: CastingRole[] } = {};
-    state.member.casting_role?.forEach((cr) => {
+    state.member?.casting_role?.forEach((cr) => {
       if (!castingRolesPerQuest[cr.quest_id]) {
         castingRolesPerQuest[cr.quest_id] = [];
       }
