@@ -3,11 +3,14 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import type { PseudoNode, ConversationNode, Member, Role } from '../../qs-client/src/types';
 
-function enhanceError(err: AxiosError) {
-  const response: AxiosResponse = err.response;
-  if (response) {
-    err.message = `${err.message}: ${response.data.message}`;
-    console.log(response.status, response.data.message);
+function enhanceError(err0: any) {
+  if (axios.isAxiosError(err0)) {
+    const err = err0 as AxiosError;
+    const response: AxiosResponse | undefined = err.response;
+    if (response) {
+      err.message = `${err.message}: ${response.data.message}`;
+      console.log(response.status, response.data.message);
+    }
   }
 }
 
@@ -38,7 +41,7 @@ class AxiosUtil {
   constructor(baseURL: string) {
     this.axios = axios.create({ baseURL });
   }
-  headers(token: string, headers: { [key: string]: string } = {}): { headers?: { [key: string]: string } } {
+  headers(token?: string, headers: { [key: string]: string } = {}): { headers?: { [key: string]: string } } {
     if (token)
       headers.Authorization = `Bearer ${token}`;
     return Object.keys(headers).length ? { headers } : {};
@@ -129,10 +132,10 @@ export async function add_members(members: Partial<Member>[]) {
   const memberTokens: {[handle: string]: string} = {};
   for (const member of members) {
     try {
-      memberIds[member.handle] = await axiosUtil.call('create_member', member);
-      memberTokens[member.handle] = await axiosUtil.call('get_token', {
+      memberIds[member.handle as string] = await axiosUtil.call('create_member', member);
+      memberTokens[member.handle as string] = await axiosUtil.call('get_token', {
         mail: member.email, pass: member.password
-      }, null, false);
+      }, undefined, false);
     } catch (err) {
       break;
     }
@@ -157,7 +160,8 @@ export async function delete_members(memberIds: number, adminToken: string) {
 export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, member_tokens: {[id:string]: string}, node_ids: { [key: string]: number }) {
   node_ids = node_ids || {};
   for (const nodeData of nodes) {
-    const {id, creator_id, parent_id, guild_id, ...rest} = nodeData;
+    const { id, creator_id, parent_id, guild_id, ...rest } = nodeData;
+    if (!id || !creator_id) continue;
     const parent_dbid = (parent_id)?node_ids[parent_id]:undefined;
     if (parent_id && !parent_dbid) {
       throw Error('missing parent');
