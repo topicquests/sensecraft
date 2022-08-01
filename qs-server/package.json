@@ -40,6 +40,7 @@
     "ignore": []
   },
   "devDependencies": {
+    "@tsconfig/recommended": "~1.0",
     "@types/expect": "~24",
     "@types/express": "~4.17",
     "@types/mocha": "~9",

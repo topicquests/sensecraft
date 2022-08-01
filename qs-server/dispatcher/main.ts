@@ -1,29 +1,29 @@
-import createSubscriber from "pg-listen"
-import type { Subscriber } from "pg-listen"
-import { Client as PGClient } from "pg"
-import WebSocket from "ws"
-import express from "express"
-import {createServer} from "http"
-import axios from "axios"
-import propertiesReader from "properties-reader"
+import createSubscriber from 'pg-listen';
+import type { Subscriber } from 'pg-listen';
+import { Client as PGClient } from 'pg';
+import WebSocket from 'ws';
+import express from 'express';
+import { createServer } from 'http';
+import axios from 'axios';
+import propertiesReader from 'properties-reader';
 
 
-const config = propertiesReader("config.ini")
-const _env = process.argv[2] || "development"
-const database: string = config.getRaw(`${_env}.database`)
-const databaseURL = `postgres://${config.getRaw(`${_env}.owner`)}:${config.getRaw(`${_env}.owner_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port')||5432}/${database}`
-const port = Number(process.env["DISPATCHER_PORT"] || "4000")
+const config = propertiesReader('config.ini')
+const _env = process.argv[2] || 'development'
+const database: string = config.getRaw(`${_env}.database`) || 'sensecraft'
+const databaseURL = `postgres://${config.getRaw(`${_env}.owner`)}:${config.getRaw(`${_env}.owner_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port') || 5432}/${database}`
+const port = Number(process.env['DISPATCHER_PORT'] || '4000');
 const pgst_config = propertiesReader(`postgrest_${_env}.conf`)
-const postgrestURL: string = `http://localhost:${pgst_config.getRaw("server-port")}`
+const postgrestURL = `http://localhost:${pgst_config.getRaw('server-port')}`
 
 
 const app: express.Express = express();
 
 const server = createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server })
 
-import { registration_status_enum } from "../../qs-client/src/enums"
-import { PublicMember, Casting, Role } from "../../qs-client/src/types"
+import { registration_status_enum } from '../../qs-client/src/enums'
+import { PublicMember, Casting, Role } from '../../qs-client/src/types'
 
 enum ClientStatus {
   CONNECTED,
@@ -31,28 +31,28 @@ enum ClientStatus {
   CLOSED
 }
 
-const axiosClient = axios.create({url: postgrestURL})
+const axiosClient = axios.create({ url: postgrestURL });
 
-const memberQueryString = '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)'
+const memberQueryString = '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
 
 class Client {
   static clients = new Set<Client>();
-  static constraintRe = /^([gqpm])(\d+)(:([pr])(\w+))?$/i
-  static messageRe = /^([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*$/
+  static constraintRe = /^([gqpm])(\d+)(:([pr])(\w+))?$/i;
+  static messageRe = /^([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*$/;
   ws: WebSocket.WebSocket;
   status: ClientStatus;
-  member?: PublicMember = null;
+  member?: PublicMember = undefined;
   currentGuild?: number;
   currentQuest?: number;
   token?: string;
   static roles: Map<number, Role> = new Map();
   static guildRolesLoaded: Set<number> = new Set();
-  static systemRolesLoaded: boolean = false;
+  static systemRolesLoaded = false;
   constructor(ws: WebSocket.WebSocket) {
     this.ws = ws
     this.status = ClientStatus.CONNECTED
-    this.ws.on("message", this.onMessage.bind(this))
-    this.ws.on("close", this.onMessage.bind(this))
+    this.ws.on('message', this.onMessage.bind(this))
+    this.ws.on('close', this.onMessage.bind(this))
     Client.clients.add(this)
   }
   onClose() {
@@ -98,22 +98,23 @@ class Client {
     return false
   }
   async loadMember(id: number) {
+    const token = this.token as string;
     const r = await axiosClient.get(
       `${postgrestURL}/members?id=eq.${id}&select=${memberQueryString}`,
-      { headers: { Authorization: `Bearer ${this.token}` } })
+      { headers: { Authorization: `Bearer ${token}` } })
     if (r.data.length > 0) {
       this.member = r.data[0]
       this.status = ClientStatus.IDENTIFIED
       const guilds = (this.member?.guild_membership?.filter(
         gm => gm.status == registration_status_enum.confirmed) || []).map(
         gm => gm.guild_id);
-      await Client.loadRoles(this.token, guilds)
+      await Client.loadRoles(token, guilds)
     } else {
       throw new Error(`no answer from axios: ${r}`)
     }
   }
   async onMessage(message: Uint8Array | Buffer | number | string) {
-    if (typeof (message) === "number") {
+    if (typeof (message) === 'number') {
       if (message > 1000 && message < 2000) {
         this.ws.close();
       } else {
@@ -121,13 +122,13 @@ class Client {
       }
       return;
     }
-    if (typeof message === "object") {
+    if (typeof message === 'object') {
       message = message.toString();
     }
     console.log(message)
-    const parts = message.split(" ")
+    const parts = message.split(' ')
     try {
-      if (parts[0] === "LOGIN") {
+      if (parts[0] === 'LOGIN') {
         if (parts.length !== 3) {
           throw new Error(`invalid message: ${message}`)
         }
@@ -138,18 +139,18 @@ class Client {
           // we may just be renewing the token
           await this.loadMember(id)
         }
-      } else if (parts[0] === "LOGOUT") {
+      } else if (parts[0] === 'LOGOUT') {
         if (parts.length !== 1) {
           throw new Error(`invalid message: ${message}`)
         }
-        this.member = null;
+        this.member = undefined;
       } else {
         if (parts.length > 2) {
           throw new Error(`invalid message: ${message}`)
         }
-        if (parts[0] == "GUILD") {
+        if (parts[0] == 'GUILD') {
           this.currentGuild = (parts.length > 0) ? Number(parts[1]) : undefined
-        } else if (parts[0] == "QUEST") {
+        } else if (parts[0] == 'QUEST') {
           this.currentQuest = (parts.length > 0) ? Number(parts[1]) : undefined
         } else {
           throw new Error(`invalid message: ${message}`)
@@ -173,7 +174,7 @@ class Client {
     const missingGuilds = guilds.filter(guild => !Client.guildRolesLoaded.has(guild))
     if (missingGuilds.length > 0) {
       const r = await axiosClient.get(
-        `${postgrestURL}/role?guild_id=in.(${missingGuilds.join(",")})`,
+        `${postgrestURL}/role?guild_id=in.(${missingGuilds.join(',')})`,
         { headers: { Authorization: `Bearer ${token}` } })
       for (const role of r.data) {
         Client.roles.set(role.id, role)
@@ -186,51 +187,51 @@ class Client {
   checkConstraint(constraint: string[]) {
     const [type, id, _, subtype, subname] = constraint
     const id_num = Number(id)
-    let casting: Casting;
+    let casting: Casting | undefined;
     switch (type) {
-      case "g":
-        return id_num == this.currentGuild;
-      case "q":
-        return id_num == this.currentQuest;
-      case "p":
-        if (id_num != this.currentQuest) return false;
-        casting = this.member?.casting?.find(c => c.quest_id == id_num)
-        return casting?.guild_id == this.currentGuild;
-      case "M":
-        return this.member?.id == id_num;
-      case "G":
-        if (!(this.member?.guild_membership?.some(
-            gm => gm.guild_id === id_num && gm.status == registration_status_enum.confirmed)))
-          return false;
-        if (subtype == "r")
-          return this.hasRole(Number.parseInt(subname), null, id_num);
-        else if (subtype == "p")
-          return this.hasPermission(subname, null, id_num);
-        return true;
-      case "Q":
-        if (!(this.member?.quest_membership?.some(qm => qm.quest_id === id_num && qm.confirmed)))
-          return false;
-        if (subtype == "p")
-          return this.hasPermission(subname, id_num);
-      case "P":
-        casting = this.member?.casting?.find(c => c.quest_id == id_num)
-        if (!casting) return false;
-        const guild_id = casting.guild_id
-        if (subtype == "r")
-          return this.hasRole(Number.parseInt(subname), id_num, guild_id);
-        else if (subtype == "p")
-          return this.hasPermission(subname, id_num, guild_id);
-        return true;
+    case 'g':
+      return id_num == this.currentGuild;
+    case 'q':
+      return id_num == this.currentQuest;
+    case 'p':
+      if (id_num != this.currentQuest) return false;
+      casting = this.member?.casting?.find(c => c.quest_id == id_num)
+      return casting?.guild_id == this.currentGuild;
+    case 'M':
+      return this.member?.id == id_num;
+    case 'G':
+      if (!(this.member?.guild_membership?.some(
+        gm => gm.guild_id === id_num && gm.status == registration_status_enum.confirmed)))
+        return false;
+      if (subtype == 'r')
+        return this.hasRole(Number.parseInt(subname), undefined, id_num);
+      else if (subtype == 'p')
+        return this.hasPermission(subname, undefined, id_num);
+      return true;
+    case 'Q':
+      if (!(this.member?.quest_membership?.some(qm => qm.quest_id === id_num && qm.confirmed)))
+        return false;
+      if (subtype == 'p')
+        return this.hasPermission(subname, id_num)
+      break;
+    case 'P':
+      casting = this.member?.casting?.find(c => c.quest_id == id_num);
+      if (!casting) return false;
+      if (subtype == 'r')
+        return this.hasRole(Number.parseInt(subname), id_num, casting.guild_id);
+      else if (subtype == 'p')
+        return this.hasPermission(subname, id_num, casting.guild_id);
+      return true;
     }
   }
 
   async onReceive(base: string, member_id: number, constraints_conj_disj: string[][][]) {
     // constraints is a conjunction of disjunctions of constraints
-    const [crud, type, id] = base.split(" ")
-    if (type == "role") {
+    const [crud, type, id] = base.split(' ')
+    if (type == 'role') {
       // update roles
     } else if (this.member?.id == member_id &&
-      ["casting", "guild_member_available_role", "casting_role", "quest_membership", "guild_membership"].includes(type)) {
+      ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership'].includes(type)) {
       // heavy-handed but works
       await this.loadMember(member_id)
     }
@@ -253,7 +254,7 @@ class Dispatcher {
   channel: string;
   subscriber: Subscriber;
   pgClient: PGClient;
-  next_automation: number = null;
+  next_automation: number | null = null;
   constructor(channel: string) {
     this.channel = channel;
     this.pgClient = new PGClient({ connectionString: databaseURL })
@@ -264,7 +265,7 @@ class Dispatcher {
         serialize: (x) => x,
       })
     this.subscriber.notifications.on(channel, this.onReceive.bind(this))
-    this.subscriber.events.on("error", this.onError.bind(this))    
+    this.subscriber.events.on('error', this.onError.bind(this))
   }
 
   async connect() {
@@ -283,8 +284,8 @@ class Dispatcher {
     -> schedule only if next_automation changed.
   4. Called by timer, but another call happened: timer != next_automation != null => don't schedule
   */
-  async automation(timer: number = null) {
-    const r = await this.pgClient.query("SELECT quests_automation()");
+  async automation(timer: number | null = null) {
+    const r = await this.pgClient.query('SELECT quests_automation()');
     const new_date = r.rows[0].quests_automation as Date;
     if (new_date != null) {
       const new_time = new_date.getTime()
@@ -300,8 +301,8 @@ class Dispatcher {
     }
   }
 
-  onError(error: string) {
-    console.error("Fatal database connection error:", error)
+  onError(error: Error) {
+    console.error('Fatal database connection error:', error)
     process.exit(1)
   }
 
@@ -311,9 +312,12 @@ class Dispatcher {
       throw new Error(`invalid message: ${message}`)
     }
     const [_, base, member_id_s, constraints_s] = parts
-    const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => (s?Client.constraintRe.exec(s).slice(1, 6):undefined)).filter(s => s !== undefined));
+    const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
+      const result = ((s != null) ? Client.constraintRe.exec(s) : null);
+      return (result !== null) ? result.slice(1, 6) : null;
+    }).filter(x => x !== null)) as string[][][];
     const member_id = Number(member_id_s)
-    const [crud, type, id] = base.split(" ")
+    const [crud, type, id] = base.split(' ')
     if (type == 'quests') {
       this.automation();
     }
@@ -332,7 +336,7 @@ wss.on('connection', function (ws) {
 
 const dispatcher = new Dispatcher(database);
 
-process.on("exit", () => {
+process.on('exit', () => {
   dispatcher.close()
 })
 
@@ -346,7 +350,7 @@ async function main() {
 
 (async () => {
   try {
-      await main();
+    await main();
   } catch (e) {
     console.error(e)
   }
