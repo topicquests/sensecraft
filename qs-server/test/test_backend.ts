@@ -43,13 +43,13 @@ async function frontendSetup() {
 }
 
 async function frontendTeardown () {
-  postgrest.kill('SIGINT');
-  dispatcher.kill('SIGINT');
+  postgrest.kill('SIGTERM');
+  dispatcher.kill('SIGTERM');
   execSync('./scripts/db_updater.py -d test revert');
 }
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT');
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM');
   await frontendTeardown();
   console.log('done');
 });

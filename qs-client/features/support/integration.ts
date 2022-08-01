@@ -71,7 +71,7 @@ async function killSelenium() {
 async function killBackend() {
   if (backend) {
     const backendP = await backend;
-    backendP.kill('SIGINT');
+    backendP.kill('SIGTERM');
     backend = null;
   }
 }
@@ -79,12 +79,12 @@ async function killBackend() {
 async function killFrontend() {
   if (frontend) {
     const frontendP = await frontend;
-    frontendP.kill('SIGINT');
+    frontendP.kill('SIGTERM');
     frontend = null;
   }
 }
 
-Before({ tags: '@integration', timeout: 15000 }, async function (scenario) {
+Before({ tags: '@integration', timeout: 25000 }, async function (scenario) {
   ensureBackend();
   ensureFrontend();
   ensureSelenium();
@@ -92,9 +92,9 @@ Before({ tags: '@integration', timeout: 15000 }, async function (scenario) {
   console.log("Ready to run integration scenario")
 })
 
-AfterAll(async () => {
+AfterAll({ timeout: 15000 }, async () => {
   console.log("AfterAll start")
-  Promise.all([
+  await Promise.all([
     killBackend(),
     killFrontend(),
     killSelenium()
