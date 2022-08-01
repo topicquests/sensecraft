@@ -54,4 +54,10 @@ process.on('SIGTERM', async () => {
   console.log('done');
 });
 
+process.on('SIGINT', async () => {
+  console.log('SIGINT');
+  await frontendTeardown();
+  console.log('done');
+});
+
 frontendSetup();

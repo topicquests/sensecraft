@@ -47,7 +47,7 @@ async function ensureBackend() {
     const current = cwd();
     chdir('..');
     chdir('qs-server');
-    const backendProc = spawn('npm', ['run', 'test_backend'])
+    const backendProc = spawn('./node_modules/.bin/ts-node', ['test/test_backend.ts'])
     chdir(current);
     backend = waitForOutput(backendProc, 'Ready');
   }
@@ -55,7 +55,7 @@ async function ensureBackend() {
 
 async function ensureFrontend() {
   if (frontend == null) {
-    const frontendProc = spawn('npm', ['run', 'dev'])
+    const frontendProc = spawn('./node_modules/.bin/quasar', ['dev'])
     frontend = waitForOutput(frontendProc, 'Project is running');
   }
 }
