@@ -31,7 +31,7 @@ async function frontendSetup() {
   execSync('./scripts/db_updater.py -d test init');
   execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
-  dispatcher = spawn('node', ['dist/qs-server/dispatcher/main.js']);
+  dispatcher = spawn('node', ['dist/qs-server/dispatcher/main.js', 'test']);
   await Promise.all([waitForListen(postgrest), waitForListen(dispatcher)]);
   await axiosUtil.call('create_member', adminInfo);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
