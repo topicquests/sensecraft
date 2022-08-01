@@ -52,7 +52,7 @@ class AxiosUtil {
       Object.entries(id).map(([key, value]) => [key, (postgrest_operators[String(value).split('.')[0]]) ? value : `eq.${value}`]));
   }
 
-  async get(path: string, id: multiId, token: string) {
+  async get(path: string, id: multiId, token?: string) {
     const params = this.as_params(id);
     try {
       const response = await this.axios.get(path, { params, ... this.headers(token) });
@@ -63,7 +63,7 @@ class AxiosUtil {
     }
   }
 
-  async delete(path: string, id: multiId, token: string) {
+  async delete(path: string, id: multiId, token?: string) {
     const params = this.as_params(id);
     try {
       const headers = this.headers(token, { Prefer: 'return=representation' });
@@ -75,7 +75,7 @@ class AxiosUtil {
     }
   }
 
-  async create(path: string, data: any, token: string) {
+  async create(path: string, data: any, token?: string) {
     try {
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
@@ -92,7 +92,7 @@ class AxiosUtil {
     }
   }
 
-  async update(path: string, id: multiId, data: any, token: string) {
+  async update(path: string, id: multiId, data: any, token?: string) {
     try {
       const params = this.as_params(id);
       const headers = this.headers(token, { Prefer: 'return=representation' });
@@ -161,7 +161,6 @@ export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, 
   node_ids = node_ids || {};
   for (const nodeData of nodes) {
     const { id, creator_id, parent_id, guild_id, ...rest } = nodeData;
-    if (!id || !creator_id) continue;
     const parent_dbid = (parent_id)?node_ids[parent_id]:undefined;
     if (parent_id && !parent_dbid) {
       throw Error('missing parent');
@@ -172,10 +171,12 @@ export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, 
       quest_id,
       guild_id: (typeof(guild_id) == 'string') ? parseInt(guild_id): guild_id,
     };
-    const member_token = member_tokens[creator_id];
+
+    const member_token = creator_id ? member_tokens[creator_id] : undefined;
     console.log(node);
     const id_data = await axiosUtil.create('conversation_node', node, member_token);
-    node_ids[id] = parseInt(id_data.id);
+    if (id)
+      node_ids[id] = parseInt(id_data.id);
   }
   return node_ids;
 }
