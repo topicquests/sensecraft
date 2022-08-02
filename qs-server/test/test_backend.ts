@@ -48,6 +48,11 @@ async function frontendTeardown () {
   execSync('./scripts/db_updater.py -d test revert');
 }
 
+process.on('SIGHUP', () => {
+  console.log('SIGHUP');
+  execSync('./scripts/db_updater.py -d test truncate');
+});
+
 process.on('SIGTERM', async () => {
   console.log('SIGTERM');
   await frontendTeardown();
