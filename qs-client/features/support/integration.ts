@@ -1,5 +1,5 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
-import { Before, AfterAll } from "@cucumber/cucumber";
+import { Before, After, AfterAll } from "@cucumber/cucumber";
 import { cwd, chdir } from "node:process";
 import { Builder } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
@@ -76,6 +76,13 @@ async function killBackend() {
   }
 }
 
+async function resetDatabase() {
+  if (backend) {
+    const backendP = await backend;
+    backendP.kill('SIGHUP');
+  }
+}
+
 async function killFrontend() {
   if (frontend) {
     const frontendP = await frontend;
@@ -90,6 +97,10 @@ Before({ tags: '@integration', timeout: 25000 }, async function (scenario) {
   ensureSelenium();
   await Promise.all([backend, frontend, selenium]);
   console.log("Ready to run integration scenario")
+})
+
+After({ tags: '@integration'}, async function(scenario) {
+  await resetDatabase();
 })
 
 AfterAll({ timeout: 15000 }, async () => {
