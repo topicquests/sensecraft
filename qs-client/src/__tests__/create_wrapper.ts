@@ -18,7 +18,7 @@ import {
   QFooter,
 } from "quasar"; // <= cherry pick only the components you actually use
 import { createLocalVue, RouterLinkStub } from "@vue/test-utils";
-import merge from "lodash/merge"
+import merge from "lodash/merge";
 import { testStore, makeTestStore } from "./teststore";
 
 const localVue = createLocalVue();

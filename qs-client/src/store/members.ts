@@ -50,7 +50,8 @@ const MembersGetters = {
       .map((member: PublicMember) => member.handle)
       .sort(),
   getMembersOfGuild: (state: MembersState) => (guild: Guild) =>
-    guild?.guild_membership?.map((gm: GuildMembership) => state.members[gm.member_id])
+    guild?.guild_membership
+      ?.map((gm: GuildMembership) => state.members[gm.member_id])
       .filter((member: PublicMember) => member),
   getMembersOfQuest: (state: MembersState) => (quest: Quest) =>
     quest.quest_membership
@@ -60,11 +61,12 @@ const MembersGetters = {
     quest.casting
       .map((c: Casting) => state.members[c.member_id])
       .filter((member: PublicMember) => member),
-  getPlayersOfQuestGuild: (state: MembersState) => (quest: Quest, guild: Guild) =>
-  quest.casting
-    .filter((c: Casting) => c.guild_id == guild.id)
-    .map((c: Casting) => state.members[c.member_id])
-    .filter((member: PublicMember) => member),
+  getPlayersOfQuestGuild:
+    (state: MembersState) => (quest: Quest, guild: Guild) =>
+      quest.casting
+        .filter((c: Casting) => c.guild_id == guild.id)
+        .map((c: Casting) => state.members[c.member_id])
+        .filter((member: PublicMember) => member),
   getPlayersRoles: (state: MembersState) => (member_id: number) => {
     return state.members[member_id]?.casting_role;
   },
@@ -184,7 +186,7 @@ export const members = (axios: AxiosInstance) =>
           if (MyVapi.store.state.member.isAuthenticated) {
             select += ",guild_member_available_role!member_id(*)";
           }
-          Object.assign(params, {select});
+          Object.assign(params, { select });
         }
       },
       onSuccess: (

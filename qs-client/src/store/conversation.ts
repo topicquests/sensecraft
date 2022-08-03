@@ -134,11 +134,11 @@ export function depthFirst(tree: QTreeNode, seq: number[] = []): number[] {
   if (!tree) {
     return seq;
   }
-  seq.push(tree.id)
+  seq.push(tree.id);
   for (const child of tree.children || []) {
     depthFirst(child, seq);
   }
-  return seq
+  return seq;
 }
 
 export function makeTree(
@@ -177,7 +177,11 @@ export function makeTree(
   });
   // special case: if many roots, choose the one with highest pub status.
   if (roots.length > 1) {
-    const ordered_roots = roots.sort((e1, e2) => publication_state_list.indexOf(e2.status) - publication_state_list.indexOf(e1.status));
+    const ordered_roots = roots.sort(
+      (e1, e2) =>
+        publication_state_list.indexOf(e2.status) -
+        publication_state_list.indexOf(e1.status)
+    );
     roots.splice(0, roots.length, ordered_roots[0]);
   }
   return roots;
@@ -209,9 +213,9 @@ const ConversationGetters = {
       publication_state_enum.private_draft
     ),
   getTreeSequence: (state: ConversationState): number[] =>
-    depthFirst(makeTree(Object.values(
-        state.conversation || state.neighbourhood,
-      ))[0]),
+    depthFirst(
+      makeTree(Object.values(state.conversation || state.neighbourhood))[0]
+    ),
   getThreatMap: (state: ConversationState): ThreatMap => {
     const tree = MyVapi.store.getters["conversation/getConversationTree"];
     if (tree && tree.length > 0) {
@@ -255,7 +259,8 @@ const ConversationGetters = {
     return guildScoreMap;
   },
   getPrivateGuildScoreMap: (state: ConversationState): ScoreMap => {
-    const scoreMap = MyVapi.store.getters["conversation/getPrivateScoreMap"] || {};
+    const scoreMap =
+      MyVapi.store.getters["conversation/getPrivateScoreMap"] || {};
     const guildScoreMap: ScoreMap = {};
     Object.keys(scoreMap).forEach((key) => {
       const guild_id = state.conversation[key].guild_id;
@@ -272,12 +277,23 @@ const ConversationGetters = {
   canEdit: (state: ConversationState) => (node_id: number) => {
     const userId = MyVapi.store.getters["member/getUserId"];
     const node = state.conversation[node_id];
-    if (!(node.status == publication_state_enum.private_draft || node.status == publication_state_enum.role_draft || node.status == publication_state_enum.guild_draft)) {
-      return false
+    if (
+      !(
+        node.status == publication_state_enum.private_draft ||
+        node.status == publication_state_enum.role_draft ||
+        node.status == publication_state_enum.guild_draft
+      )
+    ) {
+      return false;
     }
     if (node && userId) {
       if (node.creator_id == userId) return true;
-      return MyVapi.store.getters['hasPermission']('editConversationNode', node.guild_id, node.quest_id, node.node_type);
+      return MyVapi.store.getters["hasPermission"](
+        "editConversationNode",
+        node.guild_id,
+        node.quest_id,
+        node.node_type
+      );
     }
     return false;
   },
@@ -420,8 +436,7 @@ export const conversation = (axios: AxiosInstance) =>
           state.neighbourhood = {};
           state.neighbourhoodRoot = null;
         }
-        if (res.data.length)
-          addToState(state, res.data[0]);
+        if (res.data.length) addToState(state, res.data[0]);
       },
     })
     .call({

@@ -17,8 +17,11 @@
               v-if="$store.state.member.member"
               style="margin-bottom: 4px"
               label="New Quest"
-              @click="$router.push({  
-              name: 'create_quest'})"
+              @click="
+                $router.push({
+                  name: 'create_quest',
+                })
+              "
             />
           </div>
         </div>
@@ -54,7 +57,7 @@ import { GuildsActionTypes } from "src/store/guilds";
 
 @Component<QuestListPage>({
   meta: {
-    title: 'Quests',
+    title: "Quests",
   },
   components: {
     scoreboard: scoreboard,

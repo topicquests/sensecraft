@@ -38,7 +38,9 @@ const RoleGetters = {
     state.role[id].role_node_constraint,
   getRoleNodeConstraintByType:
     (state: RoleState) => (id: number, node_type: string) => {
-      const roleNodeConstraint: RoleNodeConstraint[] = state.role[id].role_node_constraint.filter(
+      const roleNodeConstraint: RoleNodeConstraint[] = state.role[
+        id
+      ].role_node_constraint.filter(
         (node: RoleNodeConstraint) => node.node_type == node_type
       );
       return roleNodeConstraint;
@@ -195,7 +197,7 @@ export const role = (axios: AxiosInstance) =>
         const role = state.role[rnc.role_id];
         const role_node_constraint = role.role_node_constraint;
         role_node_constraint.push(rnc);
-        state.role[rnc.role_id] = {...role, role_node_constraint}
+        state.role[rnc.role_id] = { ...role, role_node_constraint };
       },
     })
     .patch({

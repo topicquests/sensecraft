@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+  <q-page class="bg-secondary">
     <div>
       <member></member>
     </div>
@@ -50,7 +50,7 @@ import { Role } from "../types";
     ...mapActions("role", ["ensureRole", "createRole"]),
   },
   meta: {
-    title: 'Create Role',
+    title: "Create Role",
   },
 })
 export default class RoleEditPage extends Vue {

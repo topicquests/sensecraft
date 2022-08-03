@@ -26,7 +26,10 @@ function find_guilds(node: MaybeRealNode, guilds: StringSet) {
     guilds[node.guild_id] = true;
   }
   for (const child of node.children || []) {
-    if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)
+    if (
+      (child.meta || meta_state_enum.conversation) ==
+      meta_state_enum.conversation
+    )
       find_guilds(child, guilds);
   }
 }
@@ -44,7 +47,10 @@ function base_scoring_internal(
     value_for[guild] = guild == String(node.guild_id) ? 0.0 : 1.0;
   }
   for (const child of node.children || []) {
-    if ((child.meta || meta_state_enum.conversation) != meta_state_enum.conversation)
+    if (
+      (child.meta || meta_state_enum.conversation) !=
+      meta_state_enum.conversation
+    )
       continue;
     if (
       threat_status[child.id] == ThreatStatus.threat &&

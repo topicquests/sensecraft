@@ -62,7 +62,7 @@ export interface GamePlay {
   created_at: string;
   updated_at: string;
   accepted_at?: string;
-  scores?: {[key: generic_id]: number};
+  scores?: { [key: generic_id]: number };
   focus_node_id?: number;
 }
 

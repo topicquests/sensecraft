@@ -9,11 +9,17 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentGuild.name }}</router-link>
+          }"
+          >{{ this.getCurrentGuild.name }}</router-link
+        >
       </h3>
     </div>
     <div class="col-3 q-md q-mb-md">
-      <channel-list v-bind:guild_id="guildId" :inPage="true" title="Guild Channels" />
+      <channel-list
+        v-bind:guild_id="guildId"
+        :inPage="true"
+        title="Guild Channels"
+      />
       <q-btn
         v-if="canAddChannel() && !creating"
         @click="createGuildChannel()"
@@ -47,14 +53,8 @@ import { mapGetters, mapActions } from "vuex";
 import member from "../components/member.vue";
 import ChannelList from "../components/ChannelListComponent.vue";
 import { userLoaded } from "../boot/userLoaded";
-import {
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
-import {
-  GuildsGetterTypes,
-  GuildsActionTypes,
-} from "../store/guilds";
+import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import {
   ibis_node_type_enum,
   meta_state_enum,
@@ -120,7 +120,7 @@ export default class GuildChannelList extends Vue {
     this.creating = false;
   }
   async confirmCreateGuildChannel() {
-    try{ 
+    try {
       let channel: Partial<ConversationNode> = {
         title: this.newChannelName,
         node_type: ibis_node_type_enum.channel,
@@ -133,8 +133,7 @@ export default class GuildChannelList extends Vue {
         message: `Added new conversation node`,
         color: "positive",
       });
-    }
-    catch (err) {
+    } catch (err) {
       console.log("there was an error in creating conversation node ", err);
       this.$q.notify({
         message: `There was an error creating new conversation node.`,
@@ -146,7 +145,7 @@ export default class GuildChannelList extends Vue {
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
-    this.setCurrentGuild(this.guildId)
+    this.setCurrentGuild(this.guildId);
     const promises = [
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureChannels(this.guildId),

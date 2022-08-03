@@ -1,5 +1,7 @@
 <template>
-  <q-page class="window-height window-width row justify-center items-center bg-secondary">
+  <q-page
+    class="window-height window-width row justify-center items-center bg-secondary"
+  >
     <div class="column">
       <div class="row">
         <q-card square class="shadow-24" style="width: 400px; height: 500px">

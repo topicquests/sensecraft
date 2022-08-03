@@ -9,7 +9,9 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentGuild.name }}</router-link>
+          }"
+          >{{ this.getCurrentGuild.name }}</router-link
+        >
         in quest
         <router-link
           :to="{
@@ -17,7 +19,9 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentQuest.name }}</router-link>
+          }"
+          >{{ this.getCurrentQuest.name }}</router-link
+        >
         (<router-link
           :to="{
             name: 'game_channel_list',
@@ -25,7 +29,9 @@
               guild_id: this.guildId,
               quest_id: this.questId,
             },
-          }">more</router-link>)
+          }"
+          >more</router-link
+        >)
       </h3>
       <h3 v-else>
         Channel of guild
@@ -35,14 +41,18 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentGuild.name }}</router-link>
+          }"
+          >{{ this.getCurrentGuild.name }}</router-link
+        >
         (<router-link
           :to="{
             name: 'guild_channel_list',
             params: {
               guild_id: this.guildId,
             },
-          }">more</router-link>)
+          }"
+          >more</router-link
+        >)
       </h3>
     </div>
     <div class="row justify-center q-mt-lg">
@@ -77,21 +87,10 @@ import {
   public_private_bool,
 } from "../enums";
 import { RoleGetterTypes, RoleActionTypes } from "../store/role";
-import {
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
-import {
-  QuestsActionTypes,
-  QuestsGetterTypes,
-} from "../store/quests";
-import {
-  GuildsGetterTypes,
-  GuildsActionTypes,
-} from "../store/guilds";
-import {
-  ConversationNode,
-} from "../types";
+import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
+import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
+import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
@@ -126,12 +125,14 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
   watch: {
     $route(to, from) {
       this.ready = false;
-      this.initialize()
-    }
+      this.initialize();
+    },
   },
   meta: (c) => ({
     // todo: not reactive because not computed
-    title: `${c.getCurrentQuest?'Game':'Guild'} Channel - ${c.getChannelById(c.channelId)?.title}`,
+    title: `${c.getCurrentQuest ? "Game" : "Guild"} Channel - ${
+      c.getChannelById(c.channelId)?.title
+    }`,
   }),
 })
 export default class ChannelPage extends Vue {

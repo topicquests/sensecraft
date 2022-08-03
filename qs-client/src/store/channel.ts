@@ -7,10 +7,7 @@ import {
 } from "./base";
 import type { AxiosResponse, AxiosInstance } from "axios";
 import { ConversationNode } from "../types";
-import {
-  publication_state_enum,
-  permission_enum,
-} from "../enums";
+import { publication_state_enum, permission_enum } from "../enums";
 import { makeTree, ConversationMap } from "./conversation";
 
 interface ChannelMap {
@@ -26,14 +23,14 @@ export interface ChannelState extends Object {
 function addToState(state: ChannelState, node: ConversationNode) {
   const channel_id = Number.parseInt(node.ancestry.split(".")[0]);
   if (!node.parent_id) {
-    state.channels = {...state.channels, [channel_id]: node};
+    state.channels = { ...state.channels, [channel_id]: node };
   }
   if (node.parent_id && state.channelData[channel_id] == undefined) {
     console.log("Missing channel");
     return;
   }
   const channelData = { ...state.channelData[channel_id], [node.id]: node };
-  state.channelData = {   
+  state.channelData = {
     ...state.channelData,
     [channel_id]: channelData,
   };

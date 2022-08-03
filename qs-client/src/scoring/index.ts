@@ -1,7 +1,4 @@
-import {
-  ibis_node_type_enum,
-  meta_state_enum,
-} from "../enums";
+import { ibis_node_type_enum, meta_state_enum } from "../enums";
 import { MaybeRealNode, generic_id } from "../types";
 
 export enum ThreatStatus {
@@ -19,7 +16,10 @@ export type ScoreMap = { [key: generic_id]: number };
 export function ensure_id(node: MaybeRealNode, counter = 0): number {
   node.id = node.id || `_lid_${++counter}`;
   for (const child of node.children || []) {
-    if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)
+    if (
+      (child.meta || meta_state_enum.conversation) ==
+      meta_state_enum.conversation
+    )
       counter = ensure_id(child, counter);
   }
   return counter;
@@ -42,7 +42,10 @@ export function calc_threat_status(
   let threats = 0;
   let supports = 0;
   for (const child of node.children || []) {
-    if ((child.meta || meta_state_enum.conversation) != meta_state_enum.conversation)
+    if (
+      (child.meta || meta_state_enum.conversation) !=
+      meta_state_enum.conversation
+    )
       continue;
     const child_status = calc_threat_status(child, map, no_req_reference);
     switch (child_status) {

@@ -49,7 +49,7 @@ export type RetypeGetterTypes<
 export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
 interface GetterMap {
-  [action: string]: Function;  //eslint-disable-line
+  [action: string]: Function; //eslint-disable-line
 }
 
 interface MyVapiStore extends VapiStore {

@@ -54,7 +54,9 @@ const QuestsGetters = {
   },
   getActiveQuests: (state: QuestsState) =>
     Object.values(state.quests).filter(
-      (quest) => ["ongoing", "paused", "registration"].indexOf(quest.status) >= 0),
+      (quest) =>
+        ["ongoing", "paused", "registration"].indexOf(quest.status) >= 0
+    ),
   getPlayingQuests: (state: QuestsState) => {
     const member_id = MyVapi.store.getters["member/getUserId"];
     return Object.values(state.quests).filter((quest: QuestData) =>
@@ -96,8 +98,7 @@ const QuestsGetters = {
       );
     },
   isPlayingQuestAsGuildId:
-    (state: QuestsState) =>
-    (quest_id?: number, member_id?: number) => {
+    (state: QuestsState) => (quest_id?: number, member_id?: number) => {
       member_id = member_id || MyVapi.store.getters["member/getUserId"];
       quest_id = quest_id || state.currentQuest;
       const casting = state.quests[quest_id]?.casting?.find(
@@ -112,7 +113,9 @@ const QuestsGetters = {
         (c: Casting) => c.guild_id == guild_id
       );
     },
-  getGamePlayForGuild: (state) => (guild_id: number): GamePlay => {
+  getGamePlayForGuild:
+    (state) =>
+    (guild_id: number): GamePlay => {
       if (state.currentQuest) {
         const quest = state.quests[state.currentQuest];
         return quest?.game_play?.find(
@@ -364,7 +367,7 @@ export const quests = (axios: AxiosInstance) =>
           my_confirmed_guild_count: 0,
           my_recruiting_guild_count: 0,
           is_quest_member: true,
-        })
+        });
         state.quests = { ...state.quests, [questData.id]: questData };
       },
     })
@@ -400,7 +403,11 @@ export const quests = (axios: AxiosInstance) =>
         const quest = res.data[0];
         // Update the QuestData with the Quest object;
         // assume other fields were not affected.
-        const questData: QuestData = Object.assign({}, state.quests[quest.id], quest);
+        const questData: QuestData = Object.assign(
+          {},
+          state.quests[quest.id],
+          quest
+        );
         state.quests = { ...state.quests, [quest.id]: questData };
         state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
       },

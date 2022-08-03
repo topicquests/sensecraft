@@ -8,76 +8,85 @@
       row-key="id"
     >
       <template v-slot:body-cell-time="props">
-        <td><quest-date-time-interval v-bind:quest="props.row"/></td>
+        <td><quest-date-time-interval v-bind:quest="props.row" /></td>
       </template>
       <template v-slot:body-cell-lastMove="props">
-        <td><span :title="lastMoveFull(props.row)">{{lastMoveRel(props.row)}}</span></td>
+        <td>
+          <span :title="lastMoveFull(props.row)">{{
+            lastMoveRel(props.row)
+          }}</span>
+        </td>
       </template>
       <template v-slot:body-cell-view="props">
         <td>
           <slot v-bind:quest="props.row">
-          <span v-if="props.row.is_quest_member">
-            <router-link
-              :to="{
-                name: 'quest_edit',
-                params: { quest_id: props.row.id },
-              }"
+            <span v-if="props.row.is_quest_member">
+              <router-link
+                :to="{
+                  name: 'quest_edit',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                Admin
+              </router-link>
+            </span>
+            <span v-else-if="props.row.status == 'finished'">
+              <router-link
+                :to="{
+                  name: 'quest_page',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                View
+              </router-link>
+            </span>
+            <span v-else-if="props.row.is_playing">
+              <router-link
+                :to="{
+                  name: 'quest_page',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                Play
+              </router-link>
+            </span>
+            <span
+              v-else-if="
+                props.row.my_confirmed_guild_count > 0 ||
+                props.row.my_recruiting_guild_count > 0
+              "
             >
-              Admin
-            </router-link>
-          </span>
-          <span v-else-if="props.row.status == 'finished'">
-            <router-link
-              :to="{
-                name: 'quest_page',
-                params: { quest_id: props.row.id },
-              }"
-            >
-              View
-            </router-link>
-          </span>
-          <span v-else-if="props.row.is_playing">
-            <router-link
-              :to="{
-                name: 'quest_page',
-                params: { quest_id: props.row.id },
-              }"
-            >
-              Play
-            </router-link>
-          </span>
-          <span v-else-if="props.row.my_confirmed_guild_count > 0 || props.row.my_recruiting_guild_count > 0">
-            <!-- TODO: Register in-place -->
-            <router-link
-              :to="{
-                name: 'quest_page',
-                params: { quest_id: props.row.id },
-              }"
-            >
-              Register to the game
-            </router-link>
-          </span>
-          <span v-else-if="canAdminGuilds()">
-            <!-- TODO: Register in-place -->
-            <router-link
-              :to="{
-                name: 'quest_teams',
-                params: { quest_id: props.row.id },
-              }"
-            >
-            Register your guilds
-            </router-link>
-          </span>
-          <span v-else>
-            <router-link
-              :to="{
-                name: 'quest_page',
-                params: { quest_id: props.row.id },
-              }"
-            >
-              View
-            </router-link>
-          </span>
+              <!-- TODO: Register in-place -->
+              <router-link
+                :to="{
+                  name: 'quest_page',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                Register to the game
+              </router-link>
+            </span>
+            <span v-else-if="canAdminGuilds()">
+              <!-- TODO: Register in-place -->
+              <router-link
+                :to="{
+                  name: 'quest_teams',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                Register your guilds
+              </router-link>
+            </span>
+            <span v-else>
+              <router-link
+                :to="{
+                  name: 'quest_page',
+                  params: { quest_id: props.row.id },
+                }"
+              >
+                View
+              </router-link>
+            </span>
           </slot>
         </td>
       </template>
@@ -103,8 +112,8 @@ function refInterval(row: QuestData) {
   const start: number = DateTime.fromISO(row.start).ts;
   const end: number = DateTime.fromISO(row.end).ts;
   const now = Date.now();
-  const refTime = (start > now) ? start : end;
-  return Math.abs(refTime - now)
+  const refTime = start > now ? start : end;
+  return Math.abs(refTime - now);
 }
 
 const QuestTableProps = Vue.extend({
@@ -190,9 +199,7 @@ const QuestTableProps = Vue.extend({
         ...extra,
       ];
     },
-    ...mapGetters("member", [
-      "getUser"
-    ]),
+    ...mapGetters("member", ["getUser"]),
     ...mapGetters(["hasPermission"]),
   },
 })
@@ -202,16 +209,29 @@ export default class QuestTable extends QuestTableProps {
   hasPermission!: BaseGetterTypes["hasPermission"];
 
   lastMoveRel(row: QuestData) {
-    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toRelative() : "";
+    return row.last_node_published_at
+      ? DateTime.fromISO(row.last_node_published_at).toRelative()
+      : "";
   }
-  lastMoveFull(row:QuestData) {
-    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toLocaleString(DateTime.DATETIME_FULL) : "";
+  lastMoveFull(row: QuestData) {
+    return row.last_node_published_at
+      ? DateTime.fromISO(row.last_node_published_at).toLocaleString(
+          DateTime.DATETIME_FULL
+        )
+      : "";
   }
   canAdminGuilds(): boolean {
-    return this.hasPermission(permission_enum.joinQuest) || (this.getUser?.guild_membership || []).find((gm: GuildMembership) => {
-      const permissions = gm.permissions || [];
-      return gm.status == 'confirmed' && permissions.includes(permission_enum.joinQuest)||permissions.includes(permission_enum.guildAdmin);
-    }) != undefined;
+    return (
+      this.hasPermission(permission_enum.joinQuest) ||
+      (this.getUser?.guild_membership || []).find((gm: GuildMembership) => {
+        const permissions = gm.permissions || [];
+        return (
+          (gm.status == "confirmed" &&
+            permissions.includes(permission_enum.joinQuest)) ||
+          permissions.includes(permission_enum.guildAdmin)
+        );
+      }) != undefined
+    );
   }
 }
 </script>

@@ -28,7 +28,7 @@
 <script lang="ts">
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
-import { mapActions} from "vuex";
+import { mapActions } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import QuestCard from "../components/quest-edit-card.vue";
@@ -44,11 +44,8 @@ import Vue from "vue";
     scoreboard: scoreboard,
     member: member,
     QuestCard: QuestCard,
-    
   },
-  computed: {
-
-  },
+  computed: {},
   methods: {
     ...mapActions("quests", ["createQuest", "findquests", "setCurrentQuest"]),
   },
@@ -70,7 +67,7 @@ export default class CreateQuestPage extends Vue {
     start: "",
     end: "",
   };
-  setCurrentQuest!: QuestsActionTypes["setCurrentQuest"]
+  setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
   createQuest!: QuestsActionTypes["createQuest"];
 
   validateStartEnd(quest) {
@@ -82,7 +79,7 @@ export default class CreateQuestPage extends Vue {
 
   async doSubmitQuest(quest) {
     try {
-      console.log("Entered in do update quest")
+      console.log("Entered in do update quest");
       if (!this.validateStartEnd(quest)) {
         throw "End date is before start date";
       }

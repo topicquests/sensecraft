@@ -11,19 +11,14 @@
           </div>
         </div>
         <div class="column items-center">
-          <div
-            v-if="getActiveQuests.length"
-            class="col-6"
-            style="width: 100%"
-          >
-            <quest-table v-bind:quests="getActiveQuests" title="Active Quests" />
+          <div v-if="getActiveQuests.length" class="col-6" style="width: 100%">
+            <quest-table
+              v-bind:quests="getActiveQuests"
+              title="Active Quests"
+            />
             <q-btn :to="{ name: 'quest_list' }">All Quests</q-btn>
           </div>
-          <div
-            v-else-if="getQuests.length"
-            class="col-6"
-            style="width: 100%"
-          >
+          <div v-else-if="getQuests.length" class="col-6" style="width: 100%">
             <quest-table v-bind:quests="getQuests" title="Quests" />
           </div>
           <div v-else class="column items-center q-mt-md">
@@ -46,13 +41,14 @@
               />
               <p v-if="getUserId">Consider joining one of these guilds!</p>
               <p v-else>Register and join one of these guilds!</p>
-              <q-btn v-if="getOpenGuilds.length < getGuilds.length" :to="{ name: 'guild_list' }">All Guilds</q-btn>
+              <q-btn
+                v-if="getOpenGuilds.length < getGuilds.length"
+                :to="{ name: 'guild_list' }"
+                >All Guilds</q-btn
+              >
             </div>
             <div v-else-if="getGuilds.length">
-              <guilds-table
-                v-bind:guilds="getGuilds"
-                v-bind:title="'Guilds'"
-              />
+              <guilds-table v-bind:guilds="getGuilds" v-bind:title="'Guilds'" />
               <p>No guild is recruiting right now</p>
             </div>
             <h4 v-else style="text-align: center">

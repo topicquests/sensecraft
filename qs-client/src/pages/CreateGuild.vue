@@ -85,10 +85,10 @@ import { MembersActionTypes } from "src/store/members";
   methods: {
     ...mapActions("guilds", ["createGuild"]),
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions('members', ['ensureAllMembers'])
+    ...mapActions("members", ["ensureAllMembers"]),
   },
   meta: {
-    title: 'Create Guild',
+    title: "Create Guild",
   },
 })
 export default class GuildFormPage extends Vue {
@@ -104,7 +104,7 @@ export default class GuildFormPage extends Vue {
 
   // declare the methods for Typescript
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
-  ensureAllMembers: MembersActionTypes['ensureAllMembers']
+  ensureAllMembers: MembersActionTypes["ensureAllMembers"];
 
   async doSubmit(guild) {
     try {

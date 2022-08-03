@@ -10,17 +10,14 @@
             <scoreboard></scoreboard>
           </div>
         </div>
-    <div class="column items-center">
-      <div class="col-4" style="width: 100%">
-        <div v-if="getGuilds.length">
-            <guilds-table
-              v-bind:guilds="getGuilds"
-              v-bind:title="'Guilds'"
-            />
+        <div class="column items-center">
+          <div class="col-4" style="width: 100%">
+            <div v-if="getGuilds.length">
+              <guilds-table v-bind:guilds="getGuilds" v-bind:title="'Guilds'" />
+            </div>
+            <h3 v-else>There currently are no guilds</h3>
+          </div>
         </div>
-        <h3 v-else>There currently are no guilds</h3>
-      </div>
-    </div>
       </q-card>
     </div>
   </q-page>
@@ -93,7 +90,7 @@ export default class GuildListPage extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
 
-async beforeMount() {
+  async beforeMount() {
     await userLoaded;
     await Promise.all([
       this.ensureAllGuilds(),

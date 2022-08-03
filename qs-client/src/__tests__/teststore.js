@@ -1,5 +1,5 @@
-import clone from 'lodash.clonedeep';
-import merge from 'lodash.merge';
+import clone from "lodash.clonedeep";
+import merge from "lodash.merge";
 import { Store } from "vuex-mock-store";
 import getStore from "../store";
 
@@ -10,29 +10,29 @@ const store = getStore(null);
 // The actions and mutators are still jest mocks.
 
 class StoreWithGetters extends Store {
-  constructor(store, extraState={}) {
+  constructor(store, extraState = {}) {
     let state = JSON.parse(JSON.stringify(store.state));
     state = merge(state, extraState);
     // placeholder so I can use this
     let getters = store.getters;
-    super({ state, getters })
-    getters = {}
+    super({ state, getters });
+    getters = {};
     for (const name in store.getters) {
-      const nspos = name.indexOf('/')
+      const nspos = name.indexOf("/");
       if (nspos > 0) {
-        const [moduleName, getterName] = name.split('/');
-        const module = store._modulesNamespaceMap[moduleName + '/']._rawModule;
+        const [moduleName, getterName] = name.split("/");
+        const module = store._modulesNamespaceMap[moduleName + "/"]._rawModule;
         const getter = module.getters[getterName];
         getters[name] = {
           get: () => getter(this.state[moduleName]),
-          enumerable: true
+          enumerable: true,
         };
       } else {
         const module = store._modules.root._rawModule;
         const getter = module.getters[name];
         getters[name] = {
           get: () => getter(this.state),
-          enumerable: true
+          enumerable: true,
         };
       }
     }
@@ -40,16 +40,15 @@ class StoreWithGetters extends Store {
     this.getters = this._initialGetters = getters;
   }
 
-  _initialize () {
+  _initialize() {
     // do not flatten getters, keep them live
-    this.state = clone(this._initialState)
-    this._mutationsHandlers = []
-    this._actionsHandlers = []
+    this.state = clone(this._initialState);
+    this._mutationsHandlers = [];
+    this._actionsHandlers = [];
   }
 }
 
-
-export function makeTestStore(baseState={}) {
+export function makeTestStore(baseState = {}) {
   return new StoreWithGetters(store, baseState);
 }
 

@@ -23,10 +23,12 @@ export class SeleniumSteps {
     await driver.findElement(By.name(name)).sendKeys(content);
   }
 
-  @when('User fills date {word} with {int} days')
+  @when("User fills date {word} with {int} days")
   public async whenFillFormFieldRelTime(name: string, days: number) {
     const driver = await ensureSelenium();
-    const date = new Date(Date.now() + 24 * 60 * 60 * 1000 * days).toISOString().substring(0, 10);
+    const date = new Date(Date.now() + 24 * 60 * 60 * 1000 * days)
+      .toISOString()
+      .substring(0, 10);
     await driver.findElement(By.name(name)).sendKeys(date);
   }
 
@@ -36,7 +38,7 @@ export class SeleniumSteps {
     await driver.findElement(By.id(name)).sendKeys(content);
   }
 
-  @when('User fills class {string} with {string}')
+  @when("User fills class {string} with {string}")
   public async whenFillFormFieldClass(name: string, content: string) {
     const driver = await ensureSelenium();
     await driver.findElement(By.className(name)).sendKeys(content);
@@ -67,17 +69,17 @@ export class SeleniumSteps {
     }
   }
 
-  @when('User opens leftdrawer')
+  @when("User opens leftdrawer")
   public async whenOpenLeftdrawer() {
-    return await this.whenClickSomething("leftdrawerBtn")
+    return await this.whenClickSomething("leftdrawerBtn");
   }
 
-  @when('User selects create quest from menu')
+  @when("User selects create quest from menu")
   public async whenOpenSelectCreateQuest() {
-    return await this.whenClickSomething("createQuestBtn")
+    return await this.whenClickSomething("createQuestBtn");
   }
 
-  @then('Page title is {string}')
+  @then("Page title is {string}")
   public async thenCreateQuestCurrentPage(title: string) {
     const driver = await ensureSelenium();
     assert.equal(await driver.getTitle(), title);
@@ -91,19 +93,22 @@ export class SeleniumSteps {
     await driver.sleep(1000);
   }
 
-  @then('User is editing quest {string}')
+  @then("User is editing quest {string}")
   public async thenQuestEditPage(questName: string) {
     const driver = await ensureSelenium();
-    assert.equal(await driver.getTitle(), `Quest edit - ${questName} - SenseCraft`);
+    assert.equal(
+      await driver.getTitle(),
+      `Quest edit - ${questName} - SenseCraft`
+    );
   }
 
-  @given('The registration page')
+  @given("The registration page")
   public async givenRegistrationPage() {
     const driver = await ensureSelenium();
     await driver.get("http://localhost:8080/register");
   }
 
-  @given('The logon Page')
+  @given("The logon Page")
   public async givenALogonPage() {
     const driver = await ensureSelenium();
     await driver.get("http://localhost:8080/signin");

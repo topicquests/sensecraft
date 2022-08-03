@@ -1,4 +1,8 @@
-import { registration_status_enum, permission_enum, ibis_node_type_enum } from "../enums";
+import {
+  registration_status_enum,
+  permission_enum,
+  ibis_node_type_enum,
+} from "../enums";
 import {
   Guild,
   Quest,
@@ -57,18 +61,23 @@ export const BaseGetters = {
       }
       if (guild && quest) {
         const casting = (member.casting || []).find(
-          (c: Casting) =>
-            c.guild_id == guild.id &&
-            c.quest_id == quest.id
+          (c: Casting) => c.guild_id == guild.id && c.quest_id == quest.id
         );
         if (casting?.permissions?.indexOf(permission) >= 0) return true;
-        const roles = (member.casting_role || []).filter((cr: CastingRole) =>
-          cr.guild_id == guild.id && cr.quest_id == quest.id
-        ).map((cr: CastingRole) => MyVapi.store.getters["role/getRoleById"](cr.role_id));
+        const roles = (member.casting_role || [])
+          .filter(
+            (cr: CastingRole) =>
+              cr.guild_id == guild.id && cr.quest_id == quest.id
+          )
+          .map((cr: CastingRole) =>
+            MyVapi.store.getters["role/getRoleById"](cr.role_id)
+          );
         for (const role of roles) {
           if (role?.permissions?.indexOf(permission) >= 0) return true;
           if (nodeType) {
-            const rnc = (role?.role_node_constraint || []).find(rnc => rnc.node_type == nodeType);
+            const rnc = (role?.role_node_constraint || []).find(
+              (rnc) => rnc.node_type == nodeType
+            );
             if (rnc?.permissions?.indexOf(permission) >= 0) return true;
           }
         }

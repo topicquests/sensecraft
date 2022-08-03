@@ -9,7 +9,9 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentGuild.name }}</router-link>
+          }"
+          >{{ this.getCurrentGuild.name }}</router-link
+        >
         in quest
         <router-link
           :to="{
@@ -17,40 +19,47 @@
             params: {
               guild_id: this.guildId,
             },
-          }">{{ this.getCurrentQuest.name }}</router-link>
+          }"
+          >{{ this.getCurrentQuest.name }}</router-link
+        >
       </h3>
     </div>
     <div class="column items-center q-mb-md">
       <div class="col-6">
-        <channel-list v-bind:guild_id="guildId" v-bind:quest_id="questId" :inPage="true" title="Game Channels" />
-        </div>
+        <channel-list
+          v-bind:guild_id="guildId"
+          v-bind:quest_id="questId"
+          :inPage="true"
+          title="Game Channels"
+        />
       </div>
-      <div class="column items-center q-mb-md">
+    </div>
+    <div class="column items-center q-mb-md">
       <div class="col-6">
-    <q-btn     
-      v-if="canAddGameChannel() && !creatingGameC"
-      @click="createGameChannel()"
-      label="Create Game Channel"
-    />
-    <!-- todo: create_guild_channel permission -->
-    <q-input
-      v-if="creatingGameC"
-      v-model="newGameChannelName"
-      label="Game channel name"
-      id="channel_name"
-    />
-    <q-btn
-      v-if="creatingGameC"
-      @click="cancelCreateGameChannel()"
-      label="Cancel"
-    />
-    <q-btn
-      v-if="creatingGameC"
-      @click="confirmCreateGameChannel()"
-      label="Confirm"
-    />
+        <q-btn
+          v-if="canAddGameChannel() && !creatingGameC"
+          @click="createGameChannel()"
+          label="Create Game Channel"
+        />
+        <!-- todo: create_guild_channel permission -->
+        <q-input
+          v-if="creatingGameC"
+          v-model="newGameChannelName"
+          label="Game channel name"
+          id="channel_name"
+        />
+        <q-btn
+          v-if="creatingGameC"
+          @click="cancelCreateGameChannel()"
+          label="Cancel"
+        />
+        <q-btn
+          v-if="creatingGameC"
+          @click="confirmCreateGameChannel()"
+          label="Confirm"
+        />
       </div>
-     </div>
+    </div>
   </q-page>
 </template>
 
@@ -77,9 +86,7 @@ import {
   QuestsActionTypes,
   QuestsGetterTypes,
 } from "../store/quests";
-import {
-  GuildsGetterTypes,
-} from "../store/guilds";
+import { GuildsGetterTypes } from "../store/guilds";
 import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -192,8 +199,8 @@ export default class GameChannelList extends Vue {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
-    this.setCurrentGuild(this.guildId)
-    this.setCurrentQuest(this.questId)
+    this.setCurrentGuild(this.guildId);
+    this.setCurrentQuest(this.questId);
     await Promise.all([
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureQuest({ quest_id: this.questId }),

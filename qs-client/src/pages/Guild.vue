@@ -104,36 +104,36 @@
             </div>
           </div>
         </div>
-          <div class="row justify-center q-mr-xl q-mt-md">
-            <div
-              v-if="
-                getCurrentQuest &&
-                !getCurrentQuest.start &&
-                isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
-              "
-              class="col"
-            >
-              <castingRoleEdit
-                class="q-ml-md"
-                v-if="availableRoles.length"
-                v-bind:availableRoles="availableRoles"
-                v-bind:castingRoles="castingRoles"
-                v-bind:guildId="guildId"
-                v-bind:questId="currentQuestId"
-                v-bind:memberId="memberId"
-                v-on:castingRoleAdd="castingRoleAdded"
-                v-on:castingRoleRemove="castingRoleRemoved"
-              ></castingRoleEdit>
-            </div>
+        <div class="row justify-center q-mr-xl q-mt-md">
+          <div
+            v-if="
+              getCurrentQuest &&
+              !getCurrentQuest.start &&
+              isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
+            "
+            class="col"
+          >
+            <castingRoleEdit
+              class="q-ml-md"
+              v-if="availableRoles.length"
+              v-bind:availableRoles="availableRoles"
+              v-bind:castingRoles="castingRoles"
+              v-bind:guildId="guildId"
+              v-bind:questId="currentQuestId"
+              v-bind:memberId="memberId"
+              v-on:castingRoleAdd="castingRoleAdded"
+              v-on:castingRoleRemove="castingRoleRemoved"
+            ></castingRoleEdit>
           </div>
-          <div class="col-8 items-center q-mb-md q-mt-md">
-            <guild-members
-              v-bind:guild="getCurrentGuild"
-              v-bind:quest="getCurrentQuest"
-              v-bind:members="getMembersOfGuild(getCurrentGuild)"
-            />
-          </div>
-        
+        </div>
+        <div class="col-8 items-center q-mb-md q-mt-md">
+          <guild-members
+            v-bind:guild="getCurrentGuild"
+            v-bind:quest="getCurrentQuest"
+            v-bind:members="getMembersOfGuild(getCurrentGuild)"
+          />
+        </div>
+
         <div class="column items-center" v-if="pastQuests.length > 0">
           <div class="col-10">
             <q-card>
@@ -202,23 +202,13 @@ import {
   GuildsGetterTypes,
   GuildsActionTypes,
 } from "../store/guilds";
-import {
-  MemberState,
-  MemberGetterTypes,
-} from "../store/member";
+import { MemberState, MemberGetterTypes } from "../store/member";
 import {
   registration_status_enum,
   quest_status_enum,
   permission_enum,
 } from "../enums";
-import {
-  Quest,
-  GamePlay,
-  Casting,
-  Member,
-  Role,
-  PublicMember,
-} from "../types";
+import { Quest, GamePlay, Casting, Member, Role, PublicMember } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
@@ -294,12 +284,14 @@ import "../css/app.scss";
     ...mapGetters(["hasPermission"]),
     castingRoles(): Role[] {
       const currentQuest = this.getCurrentQuest;
-      const castingRoles = this.castingRolesPerQuest(this.memberId, currentQuest.id) || [];
+      const castingRoles =
+        this.castingRolesPerQuest(this.memberId, currentQuest.id) || [];
       const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
     },
     availableRoles(): Role[] {
-      const availableRoles = this.getAvailableRolesMembersById(this.memberId) || [];
+      const availableRoles =
+        this.getAvailableRolesMembersById(this.memberId) || [];
       const roles = availableRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
     },
@@ -308,8 +300,8 @@ import "../css/app.scss";
     currentQuestId: "onCurrentQuestChange",
     $route(to, from) {
       this.ready = false;
-      this.initialize()
-    }
+      this.initialize();
+    },
   },
   methods: {
     ...mapActions("conversation", [
@@ -617,7 +609,7 @@ export default class GuildPage extends Vue {
     const gamePlay = this.getCurrentGamePlay;
     if (gamePlay) {
       gamePlay.focus_node_id = node_id;
-      await this.updateGamePlay({data: gamePlay});
+      await this.updateGamePlay({ data: gamePlay });
     }
   }
 
@@ -651,7 +643,7 @@ export default class GuildPage extends Vue {
   async initialize() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
-    this.setCurrentGuild(this.guildId)
+    this.setCurrentGuild(this.guildId);
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureGuild({ guild_id: this.guildId }),

@@ -1,4 +1,3 @@
-
 // TODO: This is clearly dead code
 export default async ({ router, store }) => {
   router.beforeEach((to, from, next) => {

@@ -1,14 +1,8 @@
 <template>
   <div>
-    <span v-if="isGuildMember(guild.id)">
-      Member
-    </span>
-    <span v-else-if="guild.open_for_applications">
-      Open
-    </span>
-    <span v-else>
-      Close
-    </span>
+    <span v-if="isGuildMember(guild.id)"> Member </span>
+    <span v-else-if="guild.open_for_applications"> Open </span>
+    <span v-else> Close </span>
   </div>
 </template>
 
@@ -36,5 +30,4 @@ export default class GuildsMembershipIndicator extends GuildsMembershipIndicator
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
 }
 </script>
-<style>
-</style>
+<style></style>

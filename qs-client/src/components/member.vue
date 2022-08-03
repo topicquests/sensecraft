@@ -6,36 +6,34 @@
   </div>
 </template>
 
-<script lang='ts'>
-import { MemberActionTypes, MemberGetterTypes } from 'src/store/member';
-import { MemberState } from 'src/store/member';
-import Vue from 'vue';
-import Component from 'vue-class-component';
+<script lang="ts">
+import { MemberActionTypes, MemberGetterTypes } from "src/store/member";
+import { MemberState } from "src/store/member";
+import Vue from "vue";
+import Component from "vue-class-component";
 import { mapState, mapActions, mapGetters } from "vuex";
 
-@Component<MemberComponent> ({
+@Component<MemberComponent>({
   name: "memberHandle",
-   computed: {
+  computed: {
     ...mapState("member", ["member"]),
-    ...mapGetters("member", ["getUser"])
+    ...mapGetters("member", ["getUser"]),
   },
   methods: {
-    ...mapActions('member', ["ensureLoginUser"])
-  }
+    ...mapActions("member", ["ensureLoginUser"]),
+  },
 })
-
 export default class MemberComponent extends Vue {
   member: MemberState;
   ready = false;
-  getUser!: MemberGetterTypes['getUser'];
+  getUser!: MemberGetterTypes["getUser"];
 
-  ensureLoginUser: MemberActionTypes["ensureLoginUser"]
-  async beforeMount(){
-    await this.ensureLoginUser
+  ensureLoginUser: MemberActionTypes["ensureLoginUser"];
+  async beforeMount() {
+    await this.ensureLoginUser;
     this.ready = true;
   }
- 
-};
+}
 </script>
 <style>
 .member {

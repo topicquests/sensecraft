@@ -8,35 +8,61 @@
         <div class="row justify-center q-mt-lg">
           <h3 class="q-mt-md">
             {{ getCurrentQuest.name }}
-          <q-btn v-if="getCurrentQuest.description" class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" >
-          <q-tooltip self="bottom middle" max-width="25rem">
-            <div v-html="getCurrentQuest.description"></div>
-          </q-tooltip>
-          </q-btn>
+            <q-btn
+              v-if="getCurrentQuest.description"
+              class="q-ml-xs q-mt-md"
+              size="md"
+              :flat="true"
+              icon="info"
+            >
+              <q-tooltip self="bottom middle" max-width="25rem">
+                <div v-html="getCurrentQuest.description"></div>
+              </q-tooltip>
+            </q-btn>
           </h3>
-          <router-link :to="{name: 'quest_teams', params:{ quest_id: getCurrentQuest.id }}" class="q-ml-sm q-mt-md"
-          >Teams</router-link>
+          <router-link
+            :to="{
+              name: 'quest_teams',
+              params: { quest_id: getCurrentQuest.id },
+            }"
+            class="q-ml-sm q-mt-md"
+            >Teams</router-link
+          >
         </div>
         <div class="row justify-center q-mt-lg">
           <span v-if="!memberId">
-            <router-link :to="{name: 'signin'}">Login to play</router-link>
+            <router-link :to="{ name: 'signin' }">Login to play</router-link>
           </span>
           <span v-else-if="isQuestMember(questId)">
-            You can <router-link :to="{name: 'quest_edit', params:{ quest_id: questId }}">administer</router-link> this quest.
+            You can
+            <router-link
+              :to="{ name: 'quest_edit', params: { quest_id: questId } }"
+              >administer</router-link
+            >
+            this quest.
           </span>
           <span v-else-if="guildId">
-            You're playing in guild 
-            <router-link 
-              :to="{name: 'guild', params:{ guild_id: guildId }}"
-              >{{ getCurrentGuild.name }}</router-link>
+            You're playing in guild
+            <router-link
+              :to="{ name: 'guild', params: { guild_id: guildId } }"
+              >{{ getCurrentGuild.name }}</router-link
+            >
           </span>
           <span v-else-if="getCurrentQuest.status != 'registration'">
             The game has started
           </span>
           <span v-else-if="myPlayingGuilds.length == 1">
-            Your guild <router-link :to="{name: 'guild', params:{
-              guild_id: myPlayingGuilds[0].id,
-            }}">{{ myPlayingGuilds[0].name }}</router-link> is playing!
+            Your guild
+            <router-link
+              :to="{
+                name: 'guild',
+                params: {
+                  guild_id: myPlayingGuilds[0].id,
+                },
+              }"
+              >{{ myPlayingGuilds[0].name }}</router-link
+            >
+            is playing!
             <q-btn
               label="Join the game"
               @click="registerMemberDialog = true"
@@ -48,33 +74,50 @@
             You are part of many guilds which are playing this quest. Pick one:
             <ul>
               <li v-for="guild in myPlayingGuilds" :key="guild.id">
-                <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
+                <router-link
+                  :to="{ name: 'guild', params: { guild_id: guild.id } }"
+                  >{{ guild.name }}</router-link
+                >
               </li>
             </ul>
           </span>
           <span v-else-if="myGuilds(true).length == 1">
-            You are a leader in {{myGuilds(true)[0].name}}.
-            Maybe you want to <router-link :to="{name: 'guild', params:{
-              guild_id: myGuilds(true)[0].id,
-            }}">join</router-link> this quest?
+            You are a leader in {{ myGuilds(true)[0].name }}. Maybe you want to
+            <router-link
+              :to="{
+                name: 'guild',
+                params: {
+                  guild_id: myGuilds(true)[0].id,
+                },
+              }"
+              >join</router-link
+            >
+            this quest?
           </span>
           <span v-else-if="myGuilds(true).length > 1">
             You are a leader in many guilds:
             <ul>
               <li v-for="guild in myGuilds(true)" :key="guild.id">
-                <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
+                <router-link
+                  :to="{ name: 'guild', params: { guild_id: guild.id } }"
+                  >{{ guild.name }}</router-link
+                >
               </li>
             </ul>
             Maybe you want one of them to join this quest?
           </span>
           <span v-else-if="myGuilds().length == 1">
-            You are a member in {{myGuilds()[0].name}}. You could tell the guild leader to join this quest!
+            You are a member in {{ myGuilds()[0].name }}. You could tell the
+            guild leader to join this quest!
           </span>
           <span v-else-if="myGuilds().length > 1">
-            You are a member in many guilds: 
+            You are a member in many guilds:
             <ul>
               <li v-for="guild in myGuilds()" :key="guild.id">
-                <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
+                <router-link
+                  :to="{ name: 'guild', params: { guild_id: guild.id } }"
+                  >{{ guild.name }}</router-link
+                >
               </li>
             </ul>
             You could tell the guild leader in one of them to join this quest!
@@ -82,13 +125,21 @@
           <span v-else-if="guildsPlayingGame(false, true).length > 1">
             Here are guilds playing the game which you could join:
             <ul>
-              <li v-for="guild in guildsPlayingGame(false, true)" :key="guild.id">
-                <router-link :to="{name: 'guild', params:{ guild_id: guild.id }}">{{ guild.name }}</router-link>
+              <li
+                v-for="guild in guildsPlayingGame(false, true)"
+                :key="guild.id"
+              >
+                <router-link
+                  :to="{ name: 'guild', params: { guild_id: guild.id } }"
+                  >{{ guild.name }}</router-link
+                >
               </li>
             </ul>
           </span>
           <span v-else>
-            Maybe try to join <router-link :to="{name: 'guild_list'}">a guild</router-link> which could be interested in this quest?
+            Maybe try to join
+            <router-link :to="{ name: 'guild_list' }">a guild</router-link>
+            which could be interested in this quest?
           </span>
         </div>
         <div class="row justify-center q-mt-lg">
@@ -128,25 +179,11 @@ import {
   permission_enum,
 } from "../enums";
 import { userLoaded } from "../boot/userLoaded";
-import {
-  QuestsActionTypes,
-  QuestsGetterTypes,
-} from "../store/quests";
-import {
-  GuildsGetterTypes,
-  GuildsActionTypes,
-} from "../store/guilds";
-import {
-  MemberState,
-  MemberGetterTypes,
-} from "../store/member";
+import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
+import { MemberState, MemberGetterTypes } from "../store/member";
 import { RoleState } from "../store/role";
-import {
-  Casting,
-  ConversationNode,
-  Member,
-  Guild,
-} from "../types";
+import { Casting, ConversationNode, Member, Guild } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes } from "../store/members";
@@ -168,33 +205,25 @@ import memberGameRegistration from "../components/member_game_registration.vue";
       member: (state: MemberState) => state.member,
       memberId: (state: MemberState) => state.member?.id,
     }),
-    ...mapGetters("member", [
-      "castingPerQuest",
-    ]),
+    ...mapGetters("member", ["castingPerQuest"]),
     ...mapGetters("quests", [
-      "getCurrentQuest", "isQuestMember", "getCurrentGamePlay"
+      "getCurrentQuest",
+      "isQuestMember",
+      "getCurrentGamePlay",
     ]),
-    ...mapGetters("guilds", [
-      "getCurrentGuild",
-      "getGuildById",
-    ]),
-    ...mapGetters("members", [
-      "getMemberById",
-    ]),
+    ...mapGetters("guilds", ["getCurrentGuild", "getGuildById"]),
+    ...mapGetters("members", ["getMemberById"]),
     ...mapGetters(["hasPermission"]),
     guildId() {
-      const quest_id = this.getCurrentQuest?.id
+      const quest_id = this.getCurrentQuest?.id;
       const casting: Casting = this.castingPerQuest[quest_id];
       if (casting) {
-        return casting.guild_id
+        return casting.guild_id;
       }
-    }
+    },
   },
   methods: {
-    ...mapActions("quests", [
-      "setCurrentQuest",
-      "ensureQuest",
-    ]),
+    ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("guilds", [
       "setCurrentGuild",
       "ensureGuild",
@@ -205,10 +234,10 @@ import memberGameRegistration from "../components/member_game_registration.vue";
     $route(to, from) {
       if (from.params.quest_id != to.params.quest_id) {
         this.ready = false;
-        this.initialize()
+        this.initialize();
       }
     },
-    guildId: "initializeGuild"
+    guildId: "initializeGuild",
   },
   meta: (c) => ({
     title: `Quest - ${c.getCurrentQuest?.name}`,
@@ -262,16 +291,20 @@ export default class QuestPlayPage extends Vue {
       name: id ? "quest_page_node" : "quest_page",
       params: {
         quest_id: String(this.questId),
-        node_id: id ? String(id) : undefined
+        node_id: id ? String(id) : undefined,
       },
     });
   }
 
-  guildsPlayingGame(only_mine=false, recruiting=false) {
-    let guild_ids = this.getCurrentQuest.game_play?.map((gp) => gp.guild_id) || [];
+  guildsPlayingGame(only_mine = false, recruiting = false) {
+    let guild_ids =
+      this.getCurrentQuest.game_play?.map((gp) => gp.guild_id) || [];
     if (only_mine) {
-      guild_ids = guild_ids.filter((g) => (
-        this.member.guild_membership || []).some((gm) => gm.guild_id === g && gm.status == 'confirmed'));
+      guild_ids = guild_ids.filter((g) =>
+        (this.member.guild_membership || []).some(
+          (gm) => gm.guild_id === g && gm.status == "confirmed"
+        )
+      );
     }
     let guilds = guild_ids.map((gid) => this.getGuildById(gid));
     if (recruiting) {
@@ -280,12 +313,14 @@ export default class QuestPlayPage extends Vue {
     return guilds;
   }
 
-  myGuilds(only_as_leader=false) {
+  myGuilds(only_as_leader = false) {
     let memberships = this.member.guild_membership || [];
-    memberships = memberships.filter((gm) => gm.status == 'confirmed');
+    memberships = memberships.filter((gm) => gm.status == "confirmed");
     let guild_ids = memberships.map((gm) => gm.guild_id);
     if (only_as_leader) {
-      guild_ids = guild_ids.filter((gid) => this.hasPermission(permission_enum.joinQuest, gid));
+      guild_ids = guild_ids.filter((gid) =>
+        this.hasPermission(permission_enum.joinQuest, gid)
+      );
     }
     return guild_ids.map((gid) => this.getGuildById(gid));
   }
@@ -301,20 +336,20 @@ export default class QuestPlayPage extends Vue {
       this.ensureQuest({ quest_id: this.questId }),
       this.ensureGuildsPlayingQuest({ quest_id: this.questId }),
     ];
-    await Promise.all(promises)
+    await Promise.all(promises);
     // after so we have game_play ready
-    await this.initializeGuildInner()
+    await this.initializeGuildInner();
     this.ready = true;
   }
   async initializeGuild() {
-    await this.initializeGuildInner()
-    this.ready = true
+    await this.initializeGuildInner();
+    this.ready = true;
   }
   async initializeGuildInner() {
     if (this.guildId) {
       this.ready = false;
       this.setCurrentGuild(this.guildId);
-      await this.ensureGuild({guild_id: this.guildId});
+      await this.ensureGuild({ guild_id: this.guildId });
       if (!this.selectedNodeId) {
         this.selectedNodeId = this.getCurrentGamePlay?.focus_node_id;
       }

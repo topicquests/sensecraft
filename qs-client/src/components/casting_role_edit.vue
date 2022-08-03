@@ -2,11 +2,11 @@
   <div>
     <q-card class="card">
       <section>
-      <div class="row justify-center">
-        <H2 class="q-ml-lg q-mr-lg">Change casting role </H2>
-      </div>
+        <div class="row justify-center">
+          <H2 class="q-ml-lg q-mr-lg">Change casting role </H2>
+        </div>
       </section>
-      <q-separator color="grey" class="q-mb-md" ></q-separator>
+      <q-separator color="grey" class="q-mb-md"></q-separator>
       <p class="note">Can only be changed prior to start of quest</p>
 
       <div class="row">
@@ -78,7 +78,7 @@ export default class CastingRoleEdit extends CastingRoleEditProps {
   }
 
   created() {
-    this.resetCastingRoles()
+    this.resetCastingRoles();
   }
 
   castingRoleAdd(role_id: number) {
@@ -101,11 +101,11 @@ H5 {
   padding-bottom: 2em;
 }
 .card {
-  background:white;
+  background: white;
 }
 .note {
   font-size: 15px;
-  background:white;
+  background: white;
   text-align: center;
   color: black;
   padding-left: 1em;

@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary" v-if="ready">
+  <q-page class="bg-secondary" v-if="ready">
     <div>
       <member></member>
     </div>

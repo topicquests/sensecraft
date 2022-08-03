@@ -16,7 +16,7 @@
     <div class="row justify-center">
       <div class="col-4">
         <guild-card
-          v-bind:currentGuild="{...getCurrentGuild}"
+          v-bind:currentGuild="{ ...getCurrentGuild }"
           :showDescription="true"
           class="q-ml-xl"
           style="width: 80%"
@@ -69,13 +69,13 @@ export default class GuildEdit extends Vue {
   hasPermission!: BaseGetterTypes["hasPermission"];
 
   ensureGuild: GuildsActionTypes["ensureGuild"];
-  setCurrentGuild: GuildsActionTypes["setCurrentGuild"]
+  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
 
   async beforeMount() {
     this.guild_id = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await this.ensureGuild({ guild_id: this.guild_id });
-    await this.setCurrentGuild(this.guild_id)
+    await this.setCurrentGuild(this.guild_id);
     this.isAdmin = this.hasPermission(
       permission_enum.guildAdmin,
       this.guild_id

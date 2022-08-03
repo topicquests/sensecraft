@@ -1,31 +1,46 @@
 <template>
   <div>
     <span v-if="playing">
-      Playing ({{getGamePlayForGuild(guild.id).game_status}})
+      Playing ({{ getGamePlayForGuild(guild.id).game_status }})
     </span>
-    <span v-else-if="open_play_status.indexOf(this.getGamePlayForGuild(guild.id).game_status)>=0">
-      <span v-if="guild.is_member">
-        Play in this Quest!
-      </span>
+    <span
+      v-else-if="
+        open_play_status.indexOf(
+          this.getGamePlayForGuild(guild.id).game_status
+        ) >= 0
+      "
+    >
+      <span v-if="guild.is_member"> Play in this Quest! </span>
       <span v-else-if="!quest.is_playing && guild.open_for_applications">
         Join this Guild!
-        <span v-if="getGamePlayForGuild(guild.id).game_status == game_play_status_enum.confirmed">
+        <span
+          v-if="
+            getGamePlayForGuild(guild.id).game_status ==
+            game_play_status_enum.confirmed
+          "
+        >
           (They are playing)
         </span>
-        <span v-else>
-          (They may play)
-        </span>
+        <span v-else> (They may play) </span>
       </span>
-      <span v-else-if="getGamePlayForGuild(guild.id).game_status == game_play_status_enum.confirmed">
+      <span
+        v-else-if="
+          getGamePlayForGuild(guild.id).game_status ==
+          game_play_status_enum.confirmed
+        "
+      >
         Opponent
       </span>
-      <span v-else-if="getGamePlayForGuild(guild.id).game_status == game_play_status_enum.interested">
+      <span
+        v-else-if="
+          getGamePlayForGuild(guild.id).game_status ==
+          game_play_status_enum.interested
+        "
+      >
         Potential Opponent
       </span>
     </span>
-    <span v-else>
-      Opponent
-    </span>
+    <span v-else> Opponent </span>
   </div>
 </template>
 <!-- TODO filter out cancelled game play in quest page -->
@@ -37,8 +52,6 @@ import Component from "vue-class-component";
 import { mapGetters } from "vuex";
 import { Guild, Quest } from "../types";
 import { game_play_status_enum, game_play_status_type } from "../enums";
-
-
 
 const GuildsPlayingIndicatorProp = Vue.extend({
   props: {
@@ -63,5 +76,4 @@ export default class GuildsPlayingIndicator extends GuildsPlayingIndicatorProp {
   game_play_status_enum = game_play_status_enum;
 }
 </script>
-<style>
-</style>
+<style></style>

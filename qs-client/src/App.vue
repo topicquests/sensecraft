@@ -29,7 +29,7 @@ const app = new Vue({
         this.$store.dispatch("quests/resetQuests");
         this.$store.dispatch("guilds/resetGuilds");
         this.$store.dispatch("conversation/resetConversation");
-         this.$store.dispatch("channel/resetChannel");
+        this.$store.dispatch("channel/resetChannel");
       }
       if (newUser === null) {
         //this.$router.push("/");

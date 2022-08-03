@@ -1,15 +1,15 @@
 <template>
   <q-card class="node-card q-pa-md">
     <section class="node-card-title">
-      <q-input v-model="node.title" label="Node title" ref="title"/>
+      <q-input v-model="node.title" label="Node title" ref="title" />
       <h3 class="q-ma-md">
         <IbisButton v-bind:node_type="node.node_type"></IbisButton>
         {{ node.title }}
       </h3>
     </section>
-    <section v-if="node.url || node.node_type=='reference'">
+    <section v-if="node.url || node.node_type == 'reference'">
       <template v-if="editing">
-        <q-input v-model="node.url" label="URL" ref="url"/>
+        <q-input v-model="node.url" label="URL" ref="url" />
       </template>
       <template v-else>
         <a v-bind:href="node.url" target="_blank">

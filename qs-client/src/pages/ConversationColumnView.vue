@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary" v-if="ready">
+  <q-page class="bg-secondary" v-if="ready">
     <div class="row">
       <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 1000px">

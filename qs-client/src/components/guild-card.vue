@@ -27,7 +27,7 @@
         <section class="q-pt-lg">
           <span class="q-pl-xl" style="font-weight: bold">Invitation</span>
           <q-option-group
-           v-if="guild"
+            v-if="guild"
             v-model="guild.open_for_applications"
             :options="invitation"
             color="primary"
@@ -59,10 +59,7 @@ import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 import { public_private_bool } from "../enums";
 import { Guild } from "../types";
-import {
-  GuildsGetterTypes,
-  GuildsActionTypes,
-} from "../store/guilds";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { Prop } from "vue/types/options";
 
 const GuildCardProps = Vue.extend({

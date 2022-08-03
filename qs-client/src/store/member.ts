@@ -50,13 +50,17 @@ const MemberGetters = {
     state.member?.id == id ? state.member : null,
   getCastingRoles: (state: MemberState) => state.member?.casting_role,
   castingPerQuest: (state: MemberState) =>
-    Object.fromEntries((state.member?.casting || []).map((c) => [c.quest_id, c])),
+    Object.fromEntries(
+      (state.member?.casting || []).map((c) => [c.quest_id, c])
+    ),
   guildPerQuest: (state: MemberState) =>
     Object.fromEntries(
       (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])
     ),
   castingRolesForQuest: (state: MemberState) => (questId: number) => {
-    return state.member?.casting_role.filter((role) => role.quest_id == questId);
+    return state.member?.casting_role.filter(
+      (role) => role.quest_id == questId
+    );
   },
   castingRolesPerQuest: (state: MemberState) => {
     const castingRolesPerQuest: { [id: number]: CastingRole[] } = {};
@@ -188,7 +192,7 @@ export const member = (axios: AxiosInstance) =>
         if (tokenExpiry) {
           state.tokenExpiry = Number.parseInt(tokenExpiry as string);
         }
-        getWSClient().login(state.member.id, state.token)
+        getWSClient().login(state.member.id, state.token);
         return state.member;
       },
       onError: (

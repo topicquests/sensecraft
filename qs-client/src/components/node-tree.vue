@@ -1,131 +1,156 @@
 <template>
-<div class="tree-container" v-if="ready">
-  <div class="row justify-end">
-    <q-btn
-      icon="menu"
-      :flat="true"
-      :dense="true"
-      >
-      <q-menu>
-        <q-list>
-          <q-item>
-            <q-input
-              label="Search"
-              type="text"
-              v-model="searchFilter"
+  <div class="tree-container" v-if="ready">
+    <div class="row justify-end">
+      <q-btn icon="menu" :flat="true" :dense="true">
+        <q-menu>
+          <q-list>
+            <q-item>
+              <q-input
+                label="Search"
+                type="text"
+                v-model="searchFilter"
               ></q-input>
-          </q-item>
-          <q-item v-if="currentGuildId && !channelId">
-            <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true"></q-checkbox>
-          </q-item>
-          <q-item  v-if="currentGuildId && !channelId">
-            <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true"></q-checkbox>
-          </q-item>
-          <q-item  v-if="currentGuildId && !channelId">
-            <q-checkbox v-model="showFocusNeighbourhood" label="Focus neighbourhood" :dense="true" v-on:input="changeNeighbourhood"></q-checkbox>
-          </q-item>
-          <q-item>
-            <q-checkbox v-model="showObsolete" :dense="true" label="Obsolete nodes"></q-checkbox>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </q-btn>
-  </div>
-  <q-tree
-    ref="tree"
-    :nodes="nodesTree"
-    node-key="id"
-    label-key="title"
-    default-expand-all
-    @update:selected="selectionChanged"
-    :selected.sync="selectedNodeId"
-    :filter-method="filterMethod"
-    :filter="searchFilter_"
-  >
-    <template v-slot:default-header="prop">
-      <div class="row items-center"
-          :ref="'node_' + prop.node.id">
-        <q-icon :name="prop.node.icon" class="q-mr-sm" />
-        <span
-          :class="
-            'node-title node-status-' + prop.node.status + ' node-meta-' + prop.node.meta
-          "
-        >
-          {{ prop.node.label  }}</span>
-          &nbsp;-&nbsp;<span class="node-creator">{{ getMemberHandle(prop.node.creator_id) }}</span>
-        <span class="threat-status" v-if="threats && threats[prop.node.id]"
-          >&nbsp;[<span
-          v-if="scores && scores[prop.node.id]"
-          :class="
-            'score' +
-            (currentGuildId == prop.node.guild_id
-              ? ' my-score'
-              : ' other-score') +
-            (scores[prop.node.id] < 0 ? ' score-neg' : ' score-pos')
-          "
-        >{{ scores[prop.node.id] }}</span>&nbsp;{{ threats[prop.node.id] }}]</span>
-        <q-btn
-          size="xs"
-          :flat="true"
-          v-if="
-            editable &&
-            canEdit(prop.node.id) &&
-            !editingNodeId &&
-            !addingChildToNodeId
-          "
-          icon="edit"
-          @click="editNode(prop.node.id)"
-        />
-        <q-btn
-          size="xs"
-          :flat="true"
-          v-if="editable && canAddTo(prop.node.id) && !editingNodeId && !addingChildToNodeId"
-          icon="add"
-          @click="addChildToNode(prop.node.id)"
-        />
-      </div>
-    </template>
-    <template v-slot:default-body="prop">
-      <div
-        v-if="prop.node.id != editingNodeId && !hideDescription"
-        class="row items-center"
-      >
-        <div v-if="prop.node.url">
-          <a v-bind:href="prop.node.url" target="_blank">
-            {{ prop.node.url }}
-          </a>
+            </q-item>
+            <q-item v-if="currentGuildId && !channelId">
+              <q-checkbox
+                v-model="showDraft"
+                label="Draft nodes"
+                :dense="true"
+              ></q-checkbox>
+            </q-item>
+            <q-item v-if="currentGuildId && !channelId">
+              <q-checkbox
+                v-model="showMeta"
+                label="Meta nodes"
+                :dense="true"
+              ></q-checkbox>
+            </q-item>
+            <q-item v-if="currentGuildId && !channelId">
+              <q-checkbox
+                v-model="showFocusNeighbourhood"
+                label="Focus neighbourhood"
+                :dense="true"
+                v-on:input="changeNeighbourhood"
+              ></q-checkbox>
+            </q-item>
+            <q-item>
+              <q-checkbox
+                v-model="showObsolete"
+                :dense="true"
+                label="Obsolete nodes"
+              ></q-checkbox>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </div>
+    <q-tree
+      ref="tree"
+      :nodes="nodesTree"
+      node-key="id"
+      label-key="title"
+      default-expand-all
+      @update:selected="selectionChanged"
+      :selected.sync="selectedNodeId"
+      :filter-method="filterMethod"
+      :filter="searchFilter_"
+    >
+      <template v-slot:default-header="prop">
+        <div class="row items-center" :ref="'node_' + prop.node.id">
+          <q-icon :name="prop.node.icon" class="q-mr-sm" />
+          <span
+            :class="
+              'node-title node-status-' +
+              prop.node.status +
+              ' node-meta-' +
+              prop.node.meta
+            "
+          >
+            {{ prop.node.label }}</span
+          >
+          &nbsp;-&nbsp;<span class="node-creator">{{
+            getMemberHandle(prop.node.creator_id)
+          }}</span>
+          <span class="threat-status" v-if="threats && threats[prop.node.id]"
+            >&nbsp;[<span
+              v-if="scores && scores[prop.node.id]"
+              :class="
+                'score' +
+                (currentGuildId == prop.node.guild_id
+                  ? ' my-score'
+                  : ' other-score') +
+                (scores[prop.node.id] < 0 ? ' score-neg' : ' score-pos')
+              "
+              >{{ scores[prop.node.id] }}</span
+            >&nbsp;{{ threats[prop.node.id] }}]</span
+          >
+          <q-btn
+            size="xs"
+            :flat="true"
+            v-if="
+              editable &&
+              canEdit(prop.node.id) &&
+              !editingNodeId &&
+              !addingChildToNodeId
+            "
+            icon="edit"
+            @click="editNode(prop.node.id)"
+          />
+          <q-btn
+            size="xs"
+            :flat="true"
+            v-if="
+              editable &&
+              canAddTo(prop.node.id) &&
+              !editingNodeId &&
+              !addingChildToNodeId
+            "
+            icon="add"
+            @click="addChildToNode(prop.node.id)"
+          />
         </div>
-        <div class="node-description" v-html="prop.node.description"></div>
-      </div>
-      <node-form
-        :ref="'editForm_' + prop.node.id"
-        v-if="editable && prop.node.id == editingNodeId"
-        :nodeInput="selectedNode(true)"
-        :allowAddChild="false"
-        :ibisTypes="selectedIbisTypes"
-        :editing="true"
-        :roles="getRoles"
-        :allowChangeMeta="allowChangeMeta"
-        :pubFn="calcSpecificPubConstraints"
-        v-on:action="confirmEdit"
-        v-on:cancel="cancel"
-      />
-      <node-form
-        :ref="'addChildForm_' + prop.node.id"
-        v-if="editable && prop.node.id == addingChildToNodeId"
-        :nodeInput="newNode"
-        :allowAddChild="false"
-        :ibisTypes="childIbisTypes"
-        :editing="true"
-        :roles="getRoles"
-        :allowChangeMeta="allowChangeMeta"
-        :pubFn="calcSpecificPubConstraints"
-        v-on:action="confirmAddChild"
-        v-on:cancel="cancel"
-      />
-    </template>
-  </q-tree>
-</div>
+      </template>
+      <template v-slot:default-body="prop">
+        <div
+          v-if="prop.node.id != editingNodeId && !hideDescription"
+          class="row items-center"
+        >
+          <div v-if="prop.node.url">
+            <a v-bind:href="prop.node.url" target="_blank">
+              {{ prop.node.url }}
+            </a>
+          </div>
+          <div class="node-description" v-html="prop.node.description"></div>
+        </div>
+        <node-form
+          :ref="'editForm_' + prop.node.id"
+          v-if="editable && prop.node.id == editingNodeId"
+          :nodeInput="selectedNode(true)"
+          :allowAddChild="false"
+          :ibisTypes="selectedIbisTypes"
+          :editing="true"
+          :roles="getRoles"
+          :allowChangeMeta="allowChangeMeta"
+          :pubFn="calcSpecificPubConstraints"
+          v-on:action="confirmEdit"
+          v-on:cancel="cancel"
+        />
+        <node-form
+          :ref="'addChildForm_' + prop.node.id"
+          v-if="editable && prop.node.id == addingChildToNodeId"
+          :nodeInput="newNode"
+          :allowAddChild="false"
+          :ibisTypes="childIbisTypes"
+          :editing="true"
+          :roles="getRoles"
+          :allowChangeMeta="allowChangeMeta"
+          :pubFn="calcSpecificPubConstraints"
+          v-on:action="confirmAddChild"
+          v-on:cancel="cancel"
+        />
+      </template>
+    </q-tree>
+  </div>
 </template>
 
 <script lang="ts">
@@ -140,15 +165,9 @@ import {
   ConversationActionTypes,
   ibis_child_types,
 } from "../store/conversation";
-import {QTree} from "quasar"
-import {
-  QuestsGetterTypes,
-  QuestsActionTypes,
-} from "../store/quests";
-import {
-  GuildsGetterTypes,
-  GuildsActionTypes,
-} from "../store/guilds";
+import { QTree } from "quasar";
+import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { RoleGetterTypes, RoleActionTypes } from "../store/role";
 import {
   ibis_node_type_type,
@@ -157,12 +176,9 @@ import {
   publication_state_type,
   publication_state_list,
 } from "../enums";
-import {
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
+import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
 import { ThreatMap, ScoreMap } from "../scoring";
-import { MembersGetterTypes, MembersActionTypes } from '../store/members'
+import { MembersGetterTypes, MembersActionTypes } from "../store/members";
 
 const NodeTreeProps = Vue.extend({
   props: {
@@ -179,7 +195,11 @@ const NodeTreeProps = Vue.extend({
   components: { NodeForm },
   name: "ConversationNodeTree",
   methods: {
-    ...mapActions("channel", ["createChannelNode", "updateChannelNode", "ensureChannelConversation"]),
+    ...mapActions("channel", [
+      "createChannelNode",
+      "updateChannelNode",
+      "ensureChannelConversation",
+    ]),
     ...mapActions("conversation", [
       "createConversationNode",
       "updateConversationNode",
@@ -217,45 +237,42 @@ const NodeTreeProps = Vue.extend({
       "getPrivateScoreMap",
       "getPrivateConversationTree",
     ]),
-    ...mapGetters("guilds", [
-      "getGuildById",
-      "getCurrentGuild",
-    ]),
+    ...mapGetters("guilds", ["getGuildById", "getCurrentGuild"]),
     ...mapGetters("quests", [
       "getMaxPubStateForNodeType",
       "getCurrentQuest",
       "getCurrentGamePlay",
     ]),
-    ...mapGetters('members', ['getMemberById']),
-    ...mapGetters('role', ['getRoles']),
-    searchFilter_: function() { return this.searchFilter+"_" },
-    nodeMap: function(): ConversationMap {
-      if (this.channelId)
-        return this.getChannelById(this.channelId);
-      if (this.showFocusNeighbourhood)
-        return this.neighbourhood;
-      if (this.currentGuildId)
-        return this.conversation;
-      const entries: [string, ConversationNode][] = Object.entries(this.conversation)
-      return Object.fromEntries(
-        entries.filter(([id, node]) => node.status == 'published')
-      )
+    ...mapGetters("members", ["getMemberById"]),
+    ...mapGetters("role", ["getRoles"]),
+    searchFilter_: function () {
+      return this.searchFilter + "_";
     },
-    nodesTree: function(): QTreeNode[] {
+    nodeMap: function (): ConversationMap {
+      if (this.channelId) return this.getChannelById(this.channelId);
+      if (this.showFocusNeighbourhood) return this.neighbourhood;
+      if (this.currentGuildId) return this.conversation;
+      const entries: [string, ConversationNode][] = Object.entries(
+        this.conversation
+      );
+      return Object.fromEntries(
+        entries.filter(([id, node]) => node.status == "published")
+      );
+    },
+    nodesTree: function (): QTreeNode[] {
       if (this.channelId)
         return this.getChannelConversationTree(this.channelId);
-      if (this.showFocusNeighbourhood)
-        return this.getNeighbourhoodTree;
-      if (this.currentGuildId)
-        return this.getPrivateConversationTree;
+      if (this.showFocusNeighbourhood) return this.getNeighbourhoodTree;
+      if (this.currentGuildId) return this.getPrivateConversationTree;
       return this.getConversationTree;
     },
-    threats: function(): ThreatMap {
+    threats: function (): ThreatMap {
       if (this.channelId) return null;
-      if (this.currentGuildId && this.showDraft) return this.getPrivateThreatMap;
+      if (this.currentGuildId && this.showDraft)
+        return this.getPrivateThreatMap;
       return this.getThreatMap;
     },
-    scores: function(): ScoreMap {
+    scores: function (): ScoreMap {
       if (this.channelId) return null;
       if (this.currentGuildId && this.showDraft) return this.getPrivateScoreMap;
       return this.getScoreMap;
@@ -279,7 +296,7 @@ export default class NodeTree extends NodeTreeProps {
   showObsolete = false;
   showDraft = true;
   showFocusNeighbourhood = false;
-  searchFilter = '';
+  searchFilter = "";
   ready = false;
   listenerInstalled = false;
 
@@ -304,11 +321,11 @@ export default class NodeTree extends NodeTreeProps {
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getGuildById: GuildsGetterTypes["getGuildById"];
   getCurrentGulid: GuildsGetterTypes["getCurrentGuild"];
-  getMemberById!: MembersGetterTypes['getMemberById']
+  getMemberById!: MembersGetterTypes["getMemberById"];
   getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
-  getRoles!: RoleGetterTypes['getRoles'];
+  getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
   nodeMap!: ConversationMap;
 
@@ -327,9 +344,7 @@ export default class NodeTree extends NodeTreeProps {
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
 
-  emits = [
-    "tree-selection"
-  ]
+  emits = ["tree-selection"];
 
   calcPublicationConstraints(node: Partial<ConversationNode>) {
     if (!this.currentGuildId) {
@@ -372,19 +387,19 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   getMemberHandle(id: number) {
-    const member = this.getMemberById(id)
+    const member = this.getMemberById(id);
     if (member) {
       if (this.getCurrentQuest && !this.channelId) {
         const castings = this.getCurrentQuest.casting || [];
-        const guild_id = castings.find(c => c.member_id == id)?.guild_id
+        const guild_id = castings.find((c) => c.member_id == id)?.guild_id;
         if (guild_id) {
-          const guild = this.getGuildById(guild_id)
-          return `${member.handle} of ${guild?.name}`
+          const guild = this.getGuildById(guild_id);
+          return `${member.handle} of ${guild?.name}`;
         }
       }
-      return member.handle
+      return member.handle;
     }
-    return ''
+    return "";
   }
 
   calcSpecificPubConstraints(node: Partial<ConversationNode>) {
@@ -419,17 +434,18 @@ export default class NodeTree extends NodeTreeProps {
     if (!this.showDraft && node.status != "published") return false;
     if (filter_string.length > 1) {
       const search_string = this.searchFilter.toLowerCase();
-      if (node.title.toLowerCase().indexOf(search_string) < 0 &&
-          (node.description || '').toLowerCase().indexOf(search_string) < 0
-       ) return false;
+      if (
+        node.title.toLowerCase().indexOf(search_string) < 0 &&
+        (node.description || "").toLowerCase().indexOf(search_string) < 0
+      )
+        return false;
     }
     return true;
   }
 
   canEdit(nodeId: number): boolean {
-    const quest = this.getCurrentQuest
-    if (!quest.is_playing || quest.status == "finished")
-      return false;
+    const quest = this.getCurrentQuest;
+    if (!quest.is_playing || quest.status == "finished") return false;
     if (this.channelId) {
       return this.canEditChannel(this.channelId, nodeId);
     } else {
@@ -437,7 +453,7 @@ export default class NodeTree extends NodeTreeProps {
     }
   }
   canAddTo(nodeId: number): boolean {
-    const quest = this.getCurrentQuest
+    const quest = this.getCurrentQuest;
     return quest.is_playing && quest.status != "finished";
   }
   getNode(nodeId: number): ConversationNode {
@@ -465,11 +481,10 @@ export default class NodeTree extends NodeTreeProps {
     }
     this.calcPublicationConstraints(selectedNode);
     this.editingNodeId = nodeId;
-    const refs = this.$refs
+    const refs = this.$refs;
     setTimeout(() => {
       const form = refs[`editForm_${nodeId}`] as NodeForm;
-      if (form)
-        form.setFocus();
+      if (form) form.setFocus();
     }, 0);
   }
   addChildToNode(nodeId: number) {
@@ -485,14 +500,13 @@ export default class NodeTree extends NodeTreeProps {
       quest_id: parent.quest_id,
       guild_id: parent.guild_id,
       meta: parent.meta,
-    }
+    };
     this.calcPublicationConstraints(this.newNode);
     this.addingChildToNodeId = nodeId;
-    const refs = this.$refs
+    const refs = this.$refs;
     setTimeout(() => {
       const form = refs[`addChildForm_${nodeId}`] as NodeForm;
-      if (form)
-        form.setFocus();
+      if (form) form.setFocus();
     }, 0);
   }
   cancel() {
@@ -568,8 +582,7 @@ export default class NodeTree extends NodeTreeProps {
         await this.ensureRootNode(this.currentQuestId);
         node_id = this.getRootNode?.id;
       }
-      if (!this.initialSelectedNodeId)
-        this.selectedNodeId = node_id;
+      if (!this.initialSelectedNodeId) this.selectedNodeId = node_id;
       return await this.ensureConversationNeighbourhood({
         node_id,
         guild: this.currentGuildId,
@@ -578,7 +591,8 @@ export default class NodeTree extends NodeTreeProps {
     if (this.channelId) {
       return await this.ensureChannelConversation({
         channel_id: this.channelId,
-        guild: this.currentGuildId});
+        guild: this.currentGuildId,
+      });
     }
     return await this.ensureConversation(this.currentQuestId);
   }
@@ -588,8 +602,10 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   async conversationChanged(after, before) {
-    const before_ids = new Set(Object.keys(before))
-    const added_ids = [...Object.keys(after)].filter(id => !before_ids.has(id))
+    const before_ids = new Set(Object.keys(before));
+    const added_ids = [...Object.keys(after)].filter(
+      (id) => !before_ids.has(id)
+    );
     if (added_ids.length == 1) {
       let node = after[added_ids[0]];
       const qtree = this.$refs.tree as QTree;
@@ -614,41 +630,41 @@ export default class NodeTree extends NodeTreeProps {
       if (evt.key == "Escape" || (evt.key == "Enter" && nodeName == "BODY")) {
         this.editingNodeId = null;
         this.addingChildToNodeId = null;
-        evt.preventDefault()
+        evt.preventDefault();
       }
-      return
+      return;
     }
     if (inField) return;
     switch (evt.key) {
       case "ArrowUp":
-        if (this.selectPrevious())
-          evt.preventDefault()
+        if (this.selectPrevious()) evt.preventDefault();
         break;
       case "ArrowDown":
-        if (this.selectNext())
-          evt.preventDefault()
+        if (this.selectNext()) evt.preventDefault();
         break;
       case "ArrowLeft":
         qtree.setExpanded(this.selectedNodeId, false);
-        evt.preventDefault()
+        evt.preventDefault();
         break;
       case "ArrowRight":
         qtree.setExpanded(this.selectedNodeId, true);
-        evt.preventDefault()
+        evt.preventDefault();
         break;
       case "Enter":
-        if (this.editable &&
-            this.canEdit(this.selectedNodeId) &&
-            !this.editingNodeId &&
-            !this.addingChildToNodeId) {
-          this.editNode(this.selectedNodeId)
-          evt.preventDefault()
+        if (
+          this.editable &&
+          this.canEdit(this.selectedNodeId) &&
+          !this.editingNodeId &&
+          !this.addingChildToNodeId
+        ) {
+          this.editNode(this.selectedNodeId);
+          evt.preventDefault();
         }
         break;
       case "+":
         if (this.editable && !this.editingNodeId && !this.addingChildToNodeId) {
-          this.addChildToNode(this.selectedNodeId)
-          evt.preventDefault()
+          this.addChildToNode(this.selectedNodeId);
+          evt.preventDefault();
         }
     }
   }
@@ -672,13 +688,12 @@ export default class NodeTree extends NodeTreeProps {
     return false;
   }
 
-  scrollToNode(id, later=null) {
+  scrollToNode(id, later = null) {
     if (later !== null) {
       setTimeout(() => this.scrollToNode(id, null), later);
     } else {
-      const vnode = this.$refs["node_" + id] as Element
-      if (vnode)
-        vnode.scrollIntoView({block:"center"})
+      const vnode = this.$refs["node_" + id] as Element;
+      if (vnode) vnode.scrollIntoView({ block: "center" });
     }
   }
 
@@ -689,7 +704,11 @@ export default class NodeTree extends NodeTreeProps {
     while (pos >= 0) {
       const node_id = sequence[pos--];
       const qnode = qtree.getNodeByKey(node_id) as QTreeNode;
-      if (qnode && this.filterMethod(qnode, "") && !this.hiddenByCollapse(qnode)) {
+      if (
+        qnode &&
+        this.filterMethod(qnode, "") &&
+        !this.hiddenByCollapse(qnode)
+      ) {
         if (this.searchFilter.length > 0 && !this.inSearchFilter(qnode)) {
           continue;
         }
@@ -707,7 +726,11 @@ export default class NodeTree extends NodeTreeProps {
     while (pos < sequence.length) {
       const node_id = sequence[pos++];
       const qnode = qtree.getNodeByKey(node_id) as QTreeNode;
-      if (qnode && this.filterMethod(qnode, "") && !this.hiddenByCollapse(qnode)) {
+      if (
+        qnode &&
+        this.filterMethod(qnode, "") &&
+        !this.hiddenByCollapse(qnode)
+      ) {
         if (this.searchFilter.length > 0 && !this.inSearchFilter(qnode)) {
           continue;
         }
@@ -729,30 +752,27 @@ export default class NodeTree extends NodeTreeProps {
       this.listenerInstalled = true;
     }
     this.selectedNodeId = this.initialSelectedNodeId;
-    let promises = [
-      this.ensureAllRoles(),
-    ];
+    let promises = [this.ensureAllRoles()];
     if (this.currentGuildId) {
       this.showDraft = true;
-      if (!this.channelId)
-        this.showFocusNeighbourhood = true;
+      if (!this.channelId) this.showFocusNeighbourhood = true;
     }
     if (this.currentQuestId) {
-      promises = [...promises,
+      promises = [
+        ...promises,
         this.ensureQuest({ quest_id: this.currentQuestId }),
         this.ensurePlayersOfQuest({ questId: this.currentQuestId }),
-      ]
+      ];
     }
     if (this.currentGuildId) {
-      promises = [ ...promises,
+      promises = [
+        ...promises,
         this.ensureGuild({ guild_id: this.currentGuildId }),
         this.ensureMembersOfGuild({ guildId: this.currentGuildId }),
       ];
     }
     await Promise.all(promises);
-    promises = [
-      this.treePromise(),
-    ];
+    promises = [this.treePromise()];
     if (this.currentQuestId)
       promises.push(
         this.ensureMemberById({ id: this.getCurrentQuest.creator })
@@ -765,19 +785,19 @@ export default class NodeTree extends NodeTreeProps {
 </script>
 <style>
 .node-title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   font-size: 1.2em;
 }
 .node-creator {
   color: black;
-  font-size: small
+  font-size: small;
 }
 .score {
-  font-size: small
+  font-size: small;
 }
 .threat-status {
   color: grey;
-  font-size: small
+  font-size: small;
 }
 .q-tree__node--selected {
   border: 1px dashed #bbb;

@@ -60,7 +60,10 @@ export function base_scoring(
 function flatten(node: MaybeRealNode, parent_map: ParentMap): NodeById {
   let map: NodeById = { [node.id]: node };
   for (const child of node.children || []) {
-    if ((child.meta || meta_state_enum.conversation) == meta_state_enum.conversation)
+    if (
+      (child.meta || meta_state_enum.conversation) ==
+      meta_state_enum.conversation
+    )
       map = { ...map, ...flatten(child, parent_map) };
   }
   return map;

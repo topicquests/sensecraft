@@ -53,19 +53,20 @@ const GuildsGetters = {
   },
   getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
     if (!quest) return [];
-    const guildId = quest.game_play?.map((gp: GamePlay) => (gp.game_status != game_play_status_enum.cancelled)? gp.guild_id : null);
+    const guildId = quest.game_play?.map((gp: GamePlay) =>
+      gp.game_status != game_play_status_enum.cancelled ? gp.guild_id : null
+    );
     if (guildId == undefined) return [];
     return Object.values(state.guilds).filter((guild: GuildData) =>
       guildId.includes(guild.id)
     );
   },
   getGuildMembershipById: (state: GuildsState) => (member_id: number) => {
-    const guildId: number = state.currentGuild
+    const guildId: number = state.currentGuild;
     return state.guilds[guildId]?.guild_membership?.find(
-      (m: GuildMembership) =>
-      m.member_id == member_id &&
-      m.guild_id == guildId);
-  } 
+      (m: GuildMembership) => m.member_id == member_id && m.guild_id == guildId
+    );
+  },
 };
 
 const GuildsActions = {
@@ -337,7 +338,10 @@ export const guilds = (axios: AxiosInstance) =>
         { data }
       ) => {
         const guild = res.data[0];
-        const guildData: GuildData = Object.assign(state.guilds[guild.id], guild);
+        const guildData: GuildData = Object.assign(
+          state.guilds[guild.id],
+          guild
+        );
         state.guilds = { ...state.guilds, [guild.id]: guildData };
       },
     })
@@ -362,7 +366,8 @@ export const guilds = (axios: AxiosInstance) =>
     })
     .patch({
       action: "doUpdateGuildMembership",
-      path: ({member_id, guild_id}) => `/guild_membership?member_id=eq.${member_id}&guild_id=eq.${guild_id}`,
+      path: ({ member_id, guild_id }) =>
+        `/guild_membership?member_id=eq.${member_id}&guild_id=eq.${guild_id}`,
       beforeRequest: (state: GuildsState, { params, data }) => {
         params.member_id = data.member_id;
         params.guild_id = data.guild_id;

@@ -1,5 +1,5 @@
 <template>
- <q-page class="bg-secondary">
+  <q-page class="bg-secondary">
     <h6>Topic Edit Form</h6>
     <h6 v-if="type">New Child Topic</h6>
     <div>

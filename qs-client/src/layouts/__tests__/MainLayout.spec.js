@@ -7,7 +7,7 @@ const mockRouter = {
 };
 
 describe("MainLayout.vue not logged in button", () => {
-  const wrapper = createWrapper('top', MainLayout, mockRouter);
+  const wrapper = createWrapper("top", MainLayout, mockRouter);
 
   //Home image button
   it("renders home image button", () => {
@@ -45,5 +45,3 @@ describe("MainLayout.vue not logged in button", () => {
     expect(button.exists()).toBe(false);
   });
 });
-
-

@@ -7,9 +7,9 @@
       :columns="columns"
       style="text-align: left"
       row-key="id"
-      :selection="selectable?'single':'none'"
-      :selected.sync = "selectedGuild"
-      :selected-rows-label="()=>''"
+      :selection="selectable ? 'single' : 'none'"
+      :selected.sync="selectedGuild"
+      :selected-rows-label="() => ''"
       v-on:selection="selectionChanged"
     >
       <template v-slot:body-cell-actions="props">
@@ -21,15 +21,18 @@
                 params: { guild_id: props.row.id },
               }"
             >
-              <span v-if="false"> <!-- my guild is playing at least a game with me -->
+              <span v-if="false">
+                <!-- my guild is playing at least a game with me -->
                 Playing
                 <!-- link to guild is already there. -->
               </span>
-              <span v-else-if="0"> <!-- my guild registering for a game -->
+              <span v-else-if="0">
+                <!-- my guild registering for a game -->
                 Recruiting
                 <!-- link to guild is already there. -->
               </span>
-              <span v-else-if="''"> <!-- a guild registering for a game, I'm not in any guild -->
+              <span v-else-if="''">
+                <!-- a guild registering for a game, I'm not in any guild -->
                 Joinable
                 <!-- link to guild is already there. -->
               </span>
@@ -53,15 +56,16 @@
             v-if="showPlayers"
             v-bind:quest="getCurrentQuest"
             v-bind:playing="isPlayingQuestAsGuildId() == props.row.id"
-            v-bind:guild="props.row"/>
-          <guilds-membership-indicator
-            v-else
-            v-bind:guild="props.row" />
+            v-bind:guild="props.row"
+          />
+          <guilds-membership-indicator v-else v-bind:guild="props.row" />
         </td>
       </template>
       <template v-slot:body-cell-lastMove="props">
         <td>
-          <span :title="lastMoveFull(props.row)">{{lastMoveRel(props.row)}}</span>
+          <span :title="lastMoveFull(props.row)">{{
+            lastMoveRel(props.row)
+          }}</span>
         </td>
       </template>
     </q-table>
@@ -87,9 +91,9 @@ import { ScoreMap } from "../scoring";
 type QTableColumns = QTable["columns"];
 
 interface GuildRow extends GuildData {
-  score?: number,
-  status_order?: number,
-  numPlayers?: number,
+  score?: number;
+  status_order?: number;
+  numPlayers?: number;
 }
 
 const GuildsTableProp = Vue.extend({
@@ -183,17 +187,21 @@ const GuildsTableProp = Vue.extend({
         ...extra,
       ];
     },
-    ...mapGetters("guilds", ["getCurrentGuild", "getGuildById", "isGuildMember"]),
+    ...mapGetters("guilds", [
+      "getCurrentGuild",
+      "getGuildById",
+      "isGuildMember",
+    ]),
     ...mapGetters("member", ["castingPerQuest"]),
     ...mapGetters("quests", ["getCurrentQuest", "isPlayingQuestAsGuildId"]),
     ...mapGetters(["hasPermission"]),
-    guildData: function(): GuildRow[] {
+    guildData: function (): GuildRow[] {
       return this.guilds.map((guild: GuildData) => this.guildRow(guild));
     },
   },
   methods: {
     ...mapActions("guilds", ["setCurrentGuild"]),
-  }
+  },
 })
 export default class GuildTable extends GuildsTableProp {
   selectedGuild = [];
@@ -234,17 +242,27 @@ export default class GuildTable extends GuildsTableProp {
   guildRow(guild: GuildData): GuildRow {
     return {
       ...guild,
-      status_order: this.isGuildMember(guild.id)? 0 : (guild.open_for_applications ? 1 : 2),
+      status_order: this.isGuildMember(guild.id)
+        ? 0
+        : guild.open_for_applications
+        ? 1
+        : 2,
       numPlayers: this.numPlayers(guild),
       score: this.scores ? this.scores[guild.id] : null,
-    }
+    };
   }
 
-lastMoveRel(row: GuildData) {
-    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toRelative() : "";
+  lastMoveRel(row: GuildData) {
+    return row.last_node_published_at
+      ? DateTime.fromISO(row.last_node_published_at).toRelative()
+      : "";
   }
   lastMoveFull(row: GuildData) {
-    return row.last_node_published_at ? DateTime.fromISO(row.last_node_published_at).toLocaleString(DateTime.DATETIME_FULL) : "";
+    return row.last_node_published_at
+      ? DateTime.fromISO(row.last_node_published_at).toLocaleString(
+          DateTime.DATETIME_FULL
+        )
+      : "";
   }
 
   async beforeMount() {
@@ -253,7 +271,7 @@ lastMoveRel(row: GuildData) {
       if (!guild && this.getCurrentQuest) {
         const guild_id = this.guildIfPlaying(this.getCurrentQuest.id);
         if (guild_id) {
-          guild = this.getGuildById(guild_id)
+          guild = this.getGuildById(guild_id);
         }
       }
       if (guild) {

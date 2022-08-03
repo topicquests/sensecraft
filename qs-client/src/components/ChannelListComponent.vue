@@ -1,11 +1,18 @@
 <template>
   <q-card v-if="ready">
-    <router-link v-if="!inPage && quest_id"
-      :to="{name: 'game_channel_list', params: {guild_id: guild_id, quest_id: quest_id}}"
-      >{{title}}</router-link>
-    <router-link v-else-if="!inPage"
-      :to="{name: 'guild_channel_list', params: {guild_id: guild_id}}"
-      >{{title}}</router-link>
+    <router-link
+      v-if="!inPage && quest_id"
+      :to="{
+        name: 'game_channel_list',
+        params: { guild_id: guild_id, quest_id: quest_id },
+      }"
+      >{{ title }}</router-link
+    >
+    <router-link
+      v-else-if="!inPage"
+      :to="{ name: 'guild_channel_list', params: { guild_id: guild_id } }"
+      >{{ title }}</router-link
+    >
     <p v-else>{{ title }}</p>
     <q-list
       style="color: darkgreen; background-color: lightblue"
@@ -23,7 +30,8 @@
               channel_id: channel.id,
             },
           }"
-          >{{ channel.title }}</router-link>
+          >{{ channel.title }}</router-link
+        >
         <router-link
           v-else
           :to="{
@@ -33,7 +41,8 @@
               channel_id: channel.id,
             },
           }"
-          >{{ channel.title }}</router-link>
+          >{{ channel.title }}</router-link
+        >
       </q-item>
     </q-list>
   </q-card>
@@ -46,10 +55,7 @@ import Component from "vue-class-component";
 
 import { ConversationNode } from "../types";
 import { userLoaded } from "../boot/userLoaded";
-import {
-  ChannelGetterTypes,
-  ChannelActionTypes,
-} from "../store/channel";
+import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
 
 const ChannelListProps = Vue.extend({
   props: {
@@ -66,8 +72,10 @@ const ChannelListProps = Vue.extend({
   computed: {
     ...mapGetters("channel", ["getGuildChannels", "getGameChannelsOfQuest"]),
     ...mapGetters(["hasPermission"]),
-    getChannels: function() {
-      return this.quest_id ? this.getGameChannelsOfQuest(this.quest_id) : this.getGuildChannels;
+    getChannels: function () {
+      return this.quest_id
+        ? this.getGameChannelsOfQuest(this.quest_id)
+        : this.getGuildChannels;
     },
   },
   methods: {
@@ -83,7 +91,6 @@ export default class ChannelList extends ChannelListProps {
   getGuildChannels!: ChannelGetterTypes["getGuildChannels"];
   getChannels!: ConversationNode[];
   ensureChannels!: ChannelActionTypes["ensureChannels"];
-
 
   async beforeMount() {
     await userLoaded;

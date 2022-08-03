@@ -86,11 +86,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     },
   },
   methods: {
-    ...mapActions("quests", [
-      "setCurrentQuest",
-      "updateQuest",
-      "ensureQuest",
-    ]),
+    ...mapActions("quests", ["setCurrentQuest", "updateQuest", "ensureQuest"]),
     ...mapActions("conversation", [
       "ensureConversation",
       "createConversationNode",
@@ -191,12 +187,12 @@ export default class QuestEditPage extends Vue {
         throw "End date is before start date";
       }
       await this.updateQuest({
-          data: quest,
+        data: quest,
       });
       this.$q.notify({
         message: "Quest was updated successfully",
         color: "positive",
-      });      
+      });
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({

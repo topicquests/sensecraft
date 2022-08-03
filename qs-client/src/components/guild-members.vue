@@ -4,11 +4,7 @@
       <h3 class="text-center">Team</h3>
     </div>
     <ul class="q-ml-md">
-      <li
-        v-for="member in members"
-        :key="member.id"
-        class="q-ml-lg q-mr-md"
-      >
+      <li v-for="member in members" :key="member.id" class="q-ml-lg q-mr-md">
         <div class="row">
           <div class="col-5">
             <span class="q-pr-md q-ml-md"> {{ member.handle }} </span>
@@ -21,8 +17,7 @@
               >
                 {{ getAllCastingRoleNames(member.id) }}
               </span>
-              <span
-                v-if="playingAsGuildId(member.id) != guild.id"
+              <span v-if="playingAsGuildId(member.id) != guild.id"
                 >Playing in
                 <router-link
                   :to="{
@@ -55,7 +50,7 @@ const GuildMembersProps = Vue.extend({
     guild: Object as Prop<Guild>,
     quest: Object as Prop<Quest>,
     members: Array as Prop<Member[]>,
-    playersOnly: Boolean
+    playersOnly: Boolean,
   },
 });
 
@@ -87,10 +82,7 @@ export default class GuildMembers extends GuildMembersProps {
     if (guild_id) return this.getGuildById(guild_id);
   }
   getCastingRoleNamesForQuest(memberId: number) {
-    const castingRoles = this.castingRolesPerQuest(
-      memberId,
-      this.quest.id
-    );
+    const castingRoles = this.castingRolesPerQuest(memberId, this.quest.id);
     const roles = castingRoles.map((cr) => this.allRoles[cr.role_id]);
     return roles;
   }
@@ -100,7 +92,6 @@ export default class GuildMembers extends GuildMembersProps {
     return rolesName;
   }
 }
-
 </script>
 <style>
 #team-card {

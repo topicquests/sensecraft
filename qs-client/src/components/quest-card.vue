@@ -9,58 +9,64 @@
           <h3 class="q-mt-md">
             {{ currentQuest.name }}
           </h3>
-          <q-btn class="q-ml-xs q-mt-md" size="md" :flat="true" icon="info" v-if="currentQuest.description">
-          <q-tooltip self="bottom middle" max-width="25rem">
-            <div v-html="currentQuest.description"></div>
-          </q-tooltip>
+          <q-btn
+            class="q-ml-xs q-mt-md"
+            size="md"
+            :flat="true"
+            icon="info"
+            v-if="currentQuest.description"
+          >
+            <q-tooltip self="bottom middle" max-width="25rem">
+              <div v-html="currentQuest.description"></div>
+            </q-tooltip>
           </q-btn>
-          <router-link :to="{name: 'quest_page', params:{ quest_id: currentQuest.id }}" class="q-ml-sm q-mt-md"
-          >Game</router-link>
+          <router-link
+            :to="{ name: 'quest_page', params: { quest_id: currentQuest.id } }"
+            class="q-ml-sm q-mt-md"
+            >Game</router-link
+          >
         </div>
       </q-card-section>
       <q-separator color="black"></q-separator>
-     
-        <q-card-section v-if="showQuestInfo" class="row">
-          <div class="col"></div>
-          <div class="col-6">
-            <p
-              v-if="currentQuest.casting && currentQuest.casting.length"
-              class="quest-card-data"
-            >
-              Players: {{ currentQuest.casting.length }}
-            </p>
-            <p v-else class="quest-card-data">Players: 0</p>
-            <p
-              v-if="currentQuest.game_play && currentQuest.game_play.length"
-              class="quest-card-data"
-            >
-              Guilds: {{ currentQuest.game_play.length }}
-            </p>
-            <p v-else class="quest-card-data">Guilds: 0</p>
-            <p
-              v-if="getNeighbourhood && getNeighbourhood.length"
-              class="quest-card-data"
-            >
-              Moves: {{ getNeighbourhood.length - 1 }}
-            </p>
-            <p v-else class="quest-card-data">Moves: 0</p>
 
-            <p class="quest-card-data">Status: {{ currentQuest.status }}</p>
-          </div>
+      <q-card-section v-if="showQuestInfo" class="row">
+        <div class="col"></div>
+        <div class="col-6">
+          <p
+            v-if="currentQuest.casting && currentQuest.casting.length"
+            class="quest-card-data"
+          >
+            Players: {{ currentQuest.casting.length }}
+          </p>
+          <p v-else class="quest-card-data">Players: 0</p>
+          <p
+            v-if="currentQuest.game_play && currentQuest.game_play.length"
+            class="quest-card-data"
+          >
+            Guilds: {{ currentQuest.game_play.length }}
+          </p>
+          <p v-else class="quest-card-data">Guilds: 0</p>
+          <p
+            v-if="getNeighbourhood && getNeighbourhood.length"
+            class="quest-card-data"
+          >
+            Moves: {{ getNeighbourhood.length - 1 }}
+          </p>
+          <p v-else class="quest-card-data">Moves: 0</p>
 
-          <div class="col-6">
-            <p class="quest-card-data">
-              Start Date: {{ getDate(currentQuest.start) }}
-            </p>
-            <p class="quest-card-data">
-              End Date: {{ getDate(currentQuest.end) }}
-            </p>
-            <p class="quest-card-data">
-              Last Activity: {{ getLastActivity() }}
-            </p>
-          </div>
-        </q-card-section>
-     
+          <p class="quest-card-data">Status: {{ currentQuest.status }}</p>
+        </div>
+
+        <div class="col-6">
+          <p class="quest-card-data">
+            Start Date: {{ getDate(currentQuest.start) }}
+          </p>
+          <p class="quest-card-data">
+            End Date: {{ getDate(currentQuest.end) }}
+          </p>
+          <p class="quest-card-data">Last Activity: {{ getLastActivity() }}</p>
+        </div>
+      </q-card-section>
     </q-card>
   </div>
 </template>
@@ -80,8 +86,8 @@ const QuestCardProps = Vue.extend({
     creator: Object as Prop<Member>,
     showQuestInfo: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 });
 

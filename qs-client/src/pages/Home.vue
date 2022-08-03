@@ -58,7 +58,7 @@ import { userLoaded } from "../boot/userLoaded";
 
 export default {
   meta: {
-    title: 'Home',
+    title: "Home",
   },
   name: "HomePage",
   data() {

@@ -124,18 +124,17 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-          <q-item 
-            clickable 
-            v-ripple 
+          <q-item
+            clickable
+            v-ripple
             id="createQuest"
-            v-show="hasPermission(permission_enum.createQuest)"      
+            v-show="hasPermission(permission_enum.createQuest)"
           >
             <q-item-section id="create_quest">
               <q-item-label>
-                <q-btn 
-                :to="{ name: 'create_quest' }"
-                name="createQuestBtn">
-                Create Quests</q-btn>
+                <q-btn :to="{ name: 'create_quest' }" name="createQuestBtn">
+                  Create Quests</q-btn
+                >
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -144,11 +143,11 @@
               <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
             </q-item-section>
           </q-item>
-          <q-item 
-            clickable 
-            v-ripple 
+          <q-item
+            clickable
+            v-ripple
             id="createGuild"
-             v-show="hasPermission(permission_enum.createGuild)"         
+            v-show="hasPermission(permission_enum.createGuild)"
           >
             <q-item-section id="guild_create">
               <q-item-label>

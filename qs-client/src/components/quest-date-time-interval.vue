@@ -19,23 +19,18 @@ const QuestDateTimeIntervalProps = Vue.extend({
   name: "QuestDateTimeInterval",
   computed: {
     refTime(): DateTime {
-      if (this.start > this.now)
-        return this.start
-      else
-        return this.end
+      if (this.start > this.now) return this.start;
+      else return this.end;
     },
-    refTimeFull (): string {
+    refTimeFull(): string {
       return this.refTime.toLocaleString(DateTime.DATETIME_FULL);
     },
     display(): string {
       let prefix: string;
-      if (this.now < this.start)
-        prefix = "starting "
-      else if (this.now > this.end)
-        prefix = "ended "
-      else
-        prefix = "ending "
-      return prefix + this.refTime.toRelative()
+      if (this.now < this.start) prefix = "starting ";
+      else if (this.now > this.end) prefix = "ended ";
+      else prefix = "ending ";
+      return prefix + this.refTime.toRelative();
     },
   },
 })
