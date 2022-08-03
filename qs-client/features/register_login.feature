@@ -1,16 +1,17 @@
 @integration
 Feature: Logon to Sensecraft
   Scenario: Register a new user into Sensecraft
-    Given A Registration page
-    When User fills out registration page email as "test@email.com"
-    And name as "test"
-    And handle as "test"
-    And password as "password"
-    And User clicks Get Started button
-    Then Goes to Signin page "Sign In - SenseCraft"
+    Given The registration page
+    When User fills email with "test@email.com"
+    And User fills name with "test"
+    And User fills handle with "test"
+    And User fills password with "password"
+    And User clicks registerButton
+    Then Page title is "Sign In - SenseCraft"
 
   Scenario: Log into sensecraft web site
-    Given A Logon Page
-    When user logged in using username as "test@email.com" and password as "password"
-    And User clicks login
-    Then Current page title "Dashboard - SenseCraft"
+    Given The logon Page
+    When User fills email with "test@email.com"
+    And User fills password with "password"
+    And User clicks loginBtn
+    Then Page title is "Dashboard - SenseCraft"

@@ -33,7 +33,7 @@ async function waitForOutput(
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
-    options.addArguments("--headless");
+    // options.addArguments("--headless");
     selenium = new Builder()
       .setChromeOptions(options)
       .forBrowser("chrome")
