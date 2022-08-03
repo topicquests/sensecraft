@@ -12,9 +12,10 @@ Feature: Create a new quest
         And User selects create quest from menu
         Then Page title is "New Quest - SenseCraft"
 
+    # TODO: unlink the scenarios
     Scenario: Submits filled out quest form
         When User fills name with "How to mitigate global climate change"
-        And User fills description with "Climate change is increasingly causing havoc around the world. There are areas that have seen record high temperatures. Fires are increasing around the world. Some places are expeiencing record droughts While others are experiencing flooding. If climate change cannot be controled then there will be dire circumstances"
+        And User fills class "q-editor__content" with "Climate change is increasingly causing havoc around the world. There are areas that have seen record high temperatures. Fires are increasing around the world. Some places are expeiencing record droughts While others are experiencing flooding. If climate change cannot be controled then there will be dire circumstances"
         And User fills handle with "climateChange"
         And User fills startDate with "2023-07-31 18:30"
         And User fills endDate with "2023-08-25 12:00"

@@ -14,12 +14,19 @@ export class SeleniumSteps {
     await driver.findElement(By.name("email")).sendKeys(email);
     await driver.findElement(By.name("password")).sendKeys(password);
     await driver.findElement(By.name("loginBtn")).click();
+    await driver.sleep(2000);
   }
 
   @when(/User fills (\w+) with "(.*)"/)
   public async whenFillFormField(name: string, content: string) {
     const driver = await ensureSelenium();
     await driver.findElement(By.name(name)).sendKeys(content);
+  }
+
+  @when('User fills class {string} with {string}')
+  public async whenFillFormFieldClass(name: string, content: string) {
+    const driver = await ensureSelenium();
+    await driver.findElement(By.className(name)).sendKeys(content);
   }
 
   @when(/User clicks (\w+)/)
