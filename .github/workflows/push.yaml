@@ -21,7 +21,7 @@ jobs:
         with:
           postgres_image_tag: 14.4-alpine-jwt
           postgres_image_name: conversence/postgres
-      - name: Install psql
+      - name: Install client components
         run: |
           sudo apt update
           sudo apt install -y postgresql-client wget chromium-driver

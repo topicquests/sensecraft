@@ -8,10 +8,6 @@ import {
   game_play_status_type,
 } from "./enums";
 
-import type { QTable } from "quasar";
-
-export type QTableColumns = QTable["columns"];
-
 export interface GuildMembership {
   guild_id: number;
   member_id: number;

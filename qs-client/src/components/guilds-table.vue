@@ -74,15 +74,17 @@ import { Prop } from "vue/types/options";
 import Component from "vue-class-component";
 import { mapActions, mapGetters } from "vuex";
 import { DateTime } from "luxon";
-import { QuestsGetterTypes } from "src/store/quests";
-import { GuildsGetterTypes, GuildsActionTypes } from "src/store/guilds";
-import GuildsMembershipIndicator from "./guilds-membership-indicator.vue";
-import GuildsPlayingIndicator from "./guilds-playing-indicator.vue";
+import { QTable } from "quasar";
+import { Guild, GuildData, Casting, QuestData } from "../types";
+import { QuestsGetterTypes } from "../store/quests";
+import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { MemberGetterTypes } from "../store/member";
 import { BaseGetterTypes } from "../store/baseStore";
-import { Guild, GuildData, Casting, QuestData } from "../types";
+import GuildsMembershipIndicator from "./guilds-membership-indicator.vue";
+import GuildsPlayingIndicator from "./guilds-playing-indicator.vue";
 import { ScoreMap } from "../scoring";
-import { QTableColumns } from "../types";
+
+type QTableColumns = QTable["columns"];
 
 interface GuildRow extends GuildData {
   score?: number,
