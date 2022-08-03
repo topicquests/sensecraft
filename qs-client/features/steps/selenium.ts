@@ -23,6 +23,13 @@ export class SeleniumSteps {
     await driver.findElement(By.name(name)).sendKeys(content);
   }
 
+  @when('User fills date {word} with {int} days')
+  public async whenFillFormFieldRelTime(name: string, days: number) {
+    const driver = await ensureSelenium();
+    const date = new Date(Date.now() + 24 * 60 * 60 * 1000 * days).toISOString().substring(0, 10);
+    await driver.findElement(By.name(name)).sendKeys(date);
+  }
+
   @when(/User fills id (\w+) with "(.*)"$/)
   public async whenFillFormFieldId(name: string, content: string) {
     const driver = await ensureSelenium();

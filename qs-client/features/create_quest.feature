@@ -23,7 +23,7 @@ Feature: Create a new quest
         When User fills name with "How to mitigate global climate change"
         And User fills class "q-editor__content" with "Climate change is increasingly causing havoc around the world. There are areas that have seen record high temperatures. Fires are increasing around the world. Some places are expeiencing record droughts While others are experiencing flooding. If climate change cannot be controled then there will be dire circumstances"
         And User fills handle with "climateChange"
-        And User fills startDate with "2023-07-31 18:30"
-        And User fills endDate with "2023-08-25 12:00"
+        And User fills date startDate with 1 days
+        And User fills date endDate with 10 days
         And User clicks updateQuestBtn
         Then User is editing quest "How to mitigate global climate change"
