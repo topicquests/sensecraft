@@ -150,7 +150,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       EXECUTE 'DROP ROLE ' || questrole;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
-      PERFORM pg_notify(current_database(), concat('D quests ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' Q'||NEW.id) END));
+      PERFORM pg_notify(current_database(), concat('D quests ' , OLD.id, ' ', OLD.creator, CASE WHEN OLD.public THEN '' ELSE (' Q'||OLD.id) END));
       RETURN NEW;
     END;
     $$;
