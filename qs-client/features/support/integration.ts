@@ -33,7 +33,8 @@ async function waitForOutput(
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
-    // options.addArguments("--headless");
+    if (!process.env.DEBUG_SELENIUM)
+      options.addArguments("--headless");
     selenium = new Builder()
       .setChromeOptions(options)
       .forBrowser("chrome")
@@ -100,7 +101,11 @@ Before({ tags: '@integration', timeout: 25000 }, async function (scenario) {
   console.log("Ready to run integration scenario")
 })
 
-After({ tags: '@integration'}, async function(scenario) {
+After({ tags: '@integration', timeout: 510000 }, async function (scenario) {
+  if (scenario.result.status == 'FAILED' && process.env.DEBUG_SELENIUM) {
+    const seleniumP = await selenium;
+    await seleniumP.sleep(500000)
+  }
   await resetDatabase();
 })
 

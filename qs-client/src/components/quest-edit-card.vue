@@ -119,6 +119,7 @@
         v-model="quest.name"
         label="Quest name"
         name="name"
+        id="name"
         style="width: 350px"
       />
     </div>
