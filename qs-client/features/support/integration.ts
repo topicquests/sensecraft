@@ -1,6 +1,5 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
 import { Before, After, AfterAll } from "@cucumber/cucumber";
-import { cwd, chdir } from "node:process";
 import { Builder } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 
@@ -45,7 +44,6 @@ export async function ensureSelenium(): Promise<Builder> {
 
 async function ensureBackend() {
   if (backend == null) {
-    const current = cwd();
     const backendProc = spawn('./node_modules/.bin/ts-node', ['test/test_backend.ts'], {
       cwd: '../qs-server'
     })
