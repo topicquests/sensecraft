@@ -45,17 +45,18 @@ export async function ensureSelenium(): Promise<Builder> {
 async function ensureBackend() {
   if (backend == null) {
     const current = cwd();
-    chdir('..');
-    chdir('qs-server');
-    const backendProc = spawn('./node_modules/.bin/ts-node', ['test/test_backend.ts'])
-    chdir(current);
+    const backendProc = spawn('./node_modules/.bin/ts-node', ['test/test_backend.ts'], {
+      cwd: '../qs-server'
+    })
     backend = waitForOutput(backendProc, 'Ready');
   }
 }
 
 async function ensureFrontend() {
   if (frontend == null) {
-    const frontendProc = spawn('./node_modules/.bin/quasar', ['dev'])
+    const frontendProc = spawn('./node_modules/.bin/quasar', ['dev'], {
+      env: {...process.env, SERVER_URL: 'http://localhost:3001'}
+    })
     frontend = waitForOutput(frontendProc, 'Project is running');
   }
 }
