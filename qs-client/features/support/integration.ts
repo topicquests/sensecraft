@@ -93,7 +93,7 @@ async function killFrontend() {
   }
 }
 
-Before({ tags: '@integration', timeout: 25000 }, async function (scenario) {
+Before({ tags: '@integration', timeout: 35000 }, async function (scenario) {
   ensureBackend();
   ensureFrontend();
   ensureSelenium();
@@ -109,7 +109,7 @@ After({ tags: '@integration', timeout: 510000 }, async function (scenario) {
   await resetDatabase();
 })
 
-AfterAll({ timeout: 15000 }, async () => {
+AfterAll({ timeout: 20000 }, async () => {
   console.log("AfterAll start")
   await Promise.all([
     killBackend(),
