@@ -29,6 +29,7 @@
     "pgst": "postgrest postgrest_development.conf",
     "socksrv": "node dist/qs-server/dispatcher/main.js",
     "dev": "(postgrest postgrest_development.conf &) && sleep 3 && node dist/qs-server/dispatcher/main.js",
+    "test_backend": "ts-node test/test_backend.ts",
     "test": "npm run lint && npm run mocha -- -r test/global.ts",
     "lint": "eslint test/. --config .eslintrc.json --fix",
     "mocha": "ts-mocha test/*.test.ts --recursive --exit"
@@ -53,6 +54,7 @@
     "eslint": "~8",
     "eslint-plugin-mocha": "~10.1",
     "ts-mocha": "~10.0",
+    "ts-node": "^10.9.1",
     "typescript": "~4.7"
   },
   "dependencies": {

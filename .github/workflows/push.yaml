@@ -21,10 +21,10 @@ jobs:
         with:
           postgres_image_tag: 14.4-alpine-jwt
           postgres_image_name: conversence/postgres
-      - name: Install psql
+      - name: Install client components
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget
+          sudo apt install -y postgresql-client wget chromium-driver
       - name: Initialize test DB
         working-directory: ./qs-server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
@@ -37,17 +37,26 @@ jobs:
       - name: Install server dependencies
         working-directory: ./qs-server
         run: npm ci
+      - name: Build dispatcher
+        working-directory: ./qs-server
+        run: npm run build
       - name: Run server tests
         working-directory: ./qs-server
         run: npm run test
+      - name: Install client dependencies
+        working-directory: ./qs-client
+        run: npm ci
+      - name: Run client unit tests
+        working-directory: ./qs-client
+        run: npm run test:unit
+      - name: Run scoring tests
+        working-directory: ./qs-client
+        run: npm run test:scoring
+      - name: Run integration tests
+        working-directory: ./qs-client
+        run: npm run test:integration
       - name: cleanup postgres container
         run: |
           export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.4-alpine-jwt`
           docker container stop $PGCONT
           docker container rm $PGCONT
-      - name: Install client dependencies
-        working-directory: ./qs-client
-        run: npm ci
-      - name: Run client tests
-        working-directory: ./qs-client
-        run: npm run test:unit

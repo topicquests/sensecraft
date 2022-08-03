@@ -89,12 +89,15 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { DateTime } from "luxon";
-import { permission_enum } from "../enums";
-import { GuildMembership, QuestData, QTableColumns, Member } from "../types";
 import { Prop } from "vue/types/options";
 import { mapGetters } from "vuex";
+import type { QTable } from "quasar";
+import { permission_enum } from "../enums";
+import { GuildMembership, QuestData, Member } from "../types";
 import { BaseGetterTypes } from "../store/baseStore";
 import QuestDateTimeInterval from "./quest-date-time-interval.vue";
+
+type QTableColumns = QTable["columns"];
 
 function refInterval(row: QuestData) {
   const start: number = DateTime.fromISO(row.start).ts;

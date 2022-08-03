@@ -1,0 +1,13 @@
+TRUNCATE TABLE public.casting_role CASCADE;
+TRUNCATE TABLE public.casting CASCADE;
+TRUNCATE TABLE public.game_play CASCADE;
+TRUNCATE TABLE public.conversation_node CASCADE;
+TRUNCATE TABLE public.guild_member_available_role CASCADE;
+DELETE FROM public.guild_membership;
+DELETE FROM public.guilds;
+DELETE FROM public.quest_membership;
+DELETE FROM public.quests;
+DELETE FROM public.role WHERE guild_id IS NOT NULL;
+-- TRUNCATE TABLE public.role_node_constraint CASCADE;
+-- TRUNCATE TABLE public.role CASCADE;
+-- TRUNCATE TABLE public.members CASCADE;

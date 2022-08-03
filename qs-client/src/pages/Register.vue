@@ -15,6 +15,7 @@
                 clearable
                 v-model="formdata.email"
                 type="email"
+                name="email"
                 label="Email"
                 tabindex="1"
               >
@@ -27,6 +28,7 @@
                 clearable
                 v-model="formdata.name"
                 label="Name"
+                name="name"
                 tabindex="2"
               >
                 <template v-slot:prepend>
@@ -37,6 +39,7 @@
                 square
                 clearable
                 v-model="formdata.handle"
+                name="handle"
                 label="Handle"
                 tabindex="3"
               >
@@ -50,6 +53,7 @@
                 v-model="formdata.password"
                 filled
                 :type="isPwd ? 'password' : 'text'"
+                name="password"
                 label="Password"
                 tabindex="4"
                 v-on:keyup.enter="doRegister"
@@ -76,6 +80,7 @@
                 class="text-white"
                 label="Get Started"
                 style="width: 100%"
+                name="registerButton"
                 @click="doRegister"
               />
             </q-card-actions>

@@ -14,23 +14,27 @@
     <div class="column items-center" v-if="getCurrentQuest">
       <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
         <quest-card
-          v-bind:thisQuest="{... getCurrentQuest}"
+          v-bind:thisQuest="{ ...getCurrentQuest }"
           :edit="true"
           v-on:doUpdateQuest="doSubmitQuest"
         ></quest-card>
       </div>
     </div>
-    <div class="col-4 q-ma-sm">
-      <h4 v-if="!node.id">New Conversation Node</h4>
-      <h4 v-if="node.id">Update Conversation Node</h4>
-    </div>
-    <div class="column items-center">
-      <node-form
-        :nodeInput="node"
-        :editing="true"
-        :ibisTypes="base_ibis_types"
-        v-on:action="editNode"
-      />
+    <div>
+      <div class="col-4 q-ma-sm">
+        <h4 v-if="!node.id">New Conversation Node</h4>
+        <h4 v-if="node.id">Update Conversation Node</h4>
+      </div>
+      <div class="column items-center" v-if="getCurrentQuest">
+        <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
+          <node-form
+            :nodeInput="node"
+            :editing="true"
+            :ibisTypes="base_ibis_types"
+            v-on:action="editNode"
+          />
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -40,7 +44,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import scoreboard from "../components/scoreboard.vue";
 import member from "../components/member.vue";
 import nodeForm from "../components/node-form.vue";
-import questCard from "../components/QuestCard.vue";
+import questCard from "../components/quest-edit-card.vue";
 import Component from "vue-class-component";
 import { userLoaded } from "../boot/userLoaded";
 import Vue from "vue";
@@ -82,7 +86,11 @@ import { BaseGetterTypes } from "../store/baseStore";
     },
   },
   methods: {
-    ...mapActions("quests", ["setCurrentQuest", "updateQuest", "ensureQuest"]),
+    ...mapActions("quests", [
+      "setCurrentQuest",
+      "updateQuest",
+      "ensureQuest",
+    ]),
     ...mapActions("conversation", [
       "ensureConversation",
       "createConversationNode",
@@ -170,8 +178,8 @@ export default class QuestEditPage extends Vue {
       });
     }
   }
-  validateStartEnd() {
-    if (this.quest.start < this.quest.end) {
+  validateStartEnd(quest) {
+    if (quest.start < quest.end) {
       return true;
     }
     return false;
@@ -179,19 +187,16 @@ export default class QuestEditPage extends Vue {
 
   async doSubmitQuest(quest) {
     try {
-      console.log("Entered in do update quest")
-      if (!this.validateStartEnd()) {
-        console.log(this.validateStartEnd());
+      if (!this.validateStartEnd(quest)) {
         throw "End date is before start date";
       }
-      console.log(this.validateStartEnd());
       await this.updateQuest({
-        data: quest,
+          data: quest,
       });
       this.$q.notify({
         message: "Quest was updated successfully",
         color: "positive",
-      });
+      });      
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
@@ -207,8 +212,6 @@ export default class QuestEditPage extends Vue {
     await this.setCurrentQuest(this.quest_id);
     await this.ensureQuest({ quest_id: this.quest_id });
     await this.ensureConversation(this.quest_id);
-    // const questMembership = this.isQuestMember(this.quest_id);
-
     if (this.getConversation.length > 0) {
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     }

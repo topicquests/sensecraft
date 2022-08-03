@@ -1,3 +1,4 @@
+@scoring
 Feature: Threat model
 
   Scenario: Con needs support

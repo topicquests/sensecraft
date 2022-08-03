@@ -1,3 +1,4 @@
+@scoring
 Feature: Threat model
   Scenario: Con is a threat
     Given A conversation with a con

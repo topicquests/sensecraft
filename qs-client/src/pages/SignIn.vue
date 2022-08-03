@@ -18,6 +18,7 @@
                   clearable
                   v-model="formData.signonEmail"
                   :tabindex="1"
+                  name="email"
                   type="email"
                   label="Email"
                 >
@@ -33,6 +34,7 @@
                 filled
                 :type="isPwdSignIn ? 'password' : 'text'"
                 v-on:keyup.enter="doLogin"
+                name="password"
                 label="Password"
               >
                 <template v-slot:append>
@@ -53,6 +55,7 @@
             <q-card-section>
               <q-card-actions>
                 <q-btn
+                  name="loginBtn"
                   size="lg"
                   color="purple-4"
                   class="text-white"
