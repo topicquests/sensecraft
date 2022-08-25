@@ -10,3 +10,7 @@ Established error_types and their params:
 * `permission [permission]:` lacking a specific permission to do something (When appropriate, it would be nice to say what role  would give the permission.)
 * `invalid [column_name] (options:[possible_value,...])?:` giving an invalid value to a column. `possible_value` (not used yet) would be an enumeration of values.
 * `missing [column_name] (options:[possible_value,...])?:` special case of above.
+
+Some messages come from the database security policy, and do not follow the syntax above. We will add to this list as we discover them.
+
+* `new row violates row-level security policy for table "..."`
