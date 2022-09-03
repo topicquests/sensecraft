@@ -1,9 +1,9 @@
 import assert from 'assert';
 import {
   axiosUtil, get_base_roles, get_system_role_by_name, add_members,
-  delete_members, add_nodes, delete_nodes } from './utils';
+  delete_members, add_nodes, delete_nodes, multiId } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, publicQuest2Info, question1Info, answer1Info, argument1Info } from './fixtures';
-import type { PseudoNode, GamePlay, GuildMemberAvailableRole, GuildMembership, Casting, CastingRole } from '../../qs-client/src/types';
+import type { PseudoNode, GuildMemberAvailableRole, GuildMembership, Casting, CastingRole } from '../../qs-client/src/types';
 //import { devNull } from 'os';
 
 function num_nodes_in_json(json) {
@@ -45,9 +45,9 @@ describe('\'conversation_node\' service', function() {
       leaderToken = memberTokens[leaderInfo.handle];
       sponsorToken = memberTokens[sponsorInfo.handle];
       roles = await get_base_roles(adminToken);
-      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
-      philosopherRoleId = get_system_role_by_name(roles, 'Philosopher').id;
-      gameLeaderRoleId = get_system_role_by_name(roles, 'Game leader').id;
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
+      philosopherRoleId = get_system_role_by_name(roles, 'Philosopher')?.id;
+      gameLeaderRoleId = get_system_role_by_name(roles, 'Game leader')?.id;
     });
 
     after(async function() {
@@ -63,12 +63,11 @@ describe('\'conversation_node\' service', function() {
       delete_members(memberIds, adminToken);
     });
 
-    describe('conversation_node tests', function() {
-      const game_play_id: Partial<GamePlay> = {};
+    describe('conversation_node tests', function () {
+      let game_play_id: multiId;
       it('creates two public quests', async function() {
         let publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        game_play_id.quest_id = publicQuestId;
         let quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 1);
         publicQuestModel = await axiosUtil.create('quests', publicQuest2Info, sponsorToken);
@@ -94,9 +93,12 @@ describe('\'conversation_node\' service', function() {
       it('creates public guild', async function() {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
-        game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
         assert.equal(guilds.length, 1);
+        game_play_id = {
+          guild_id: publicGuildId,
+          quest_id: publicQuestId
+        };
       });
       it('quidam can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
@@ -183,7 +185,7 @@ describe('\'conversation_node\' service', function() {
           });
         });
       });
-      it('leader and sponsor cannot see private draft', async function() {
+      it('leader and sponsor cannot see private draft', async function () {
         let node_model = await axiosUtil.get('conversation_node', { id: a1Id }, leaderToken);
         assert.equal(node_model.length, 0);
         node_model = await axiosUtil.get('conversation_node', { id: a1Id }, sponsorToken);

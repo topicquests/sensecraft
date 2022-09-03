@@ -1,7 +1,7 @@
 import assert from 'assert';
-import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
+import { axiosUtil, get_base_roles, get_system_role_by_name, multiId } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo, guildPlayerInfo } from './fixtures';
-import type { CastingRole, Casting, GuildMembership, GuildMemberAvailableRole, Role, GamePlay } from '../../qs-client/src/types';
+import type { CastingRole, Casting, GuildMembership, GuildMemberAvailableRole, Role } from '../../qs-client/src/types';
 
 describe('\'role\' service', function() {
   describe('guild creation', function() {
@@ -13,25 +13,25 @@ describe('\'role\' service', function() {
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
-      }, null, true);
+      }, undefined, true);
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       playerId = await axiosUtil.call('create_member', guildPlayerInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
         mail: quidamInfo.email, pass: quidamInfo.password
-      }, null, false);
+      }, undefined, false);
       leaderToken = await axiosUtil.call('get_token', {
         mail: leaderInfo.email, pass: leaderInfo.password
-      }, null, false);
+      }, undefined, false);
       playerToken = await axiosUtil.call('get_token', {
         mail: guildPlayerInfo.email, pass: guildPlayerInfo.password
-      }, null, false);
+      }, undefined, false);
       sponsorToken = await axiosUtil.call('get_token', {
         mail: sponsorInfo.email, pass: sponsorInfo.password
-      }, null, false);
+      }, undefined, false);
       roles = await get_base_roles(adminToken);
-      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });
 
     after(async function() {
@@ -52,20 +52,22 @@ describe('\'role\' service', function() {
     });
 
     describe('guild creation by authorized user', function() {
-      const game_play_id: Partial<GamePlay> = {};
+      let game_play_id: multiId;
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        game_play_id.quest_id = publicQuestId;
         const quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 1);
       });
       it('creates public guild', async function() {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
-        game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
         assert.equal(guilds.length, 1);
+        game_play_id = {
+          guild_id: publicGuildId,
+          quest_id: publicQuestId
+        };
       });
       it('guild leader can register guild to quest', async function() {
         const register = await axiosUtil.create('game_play', game_play_id, leaderToken);

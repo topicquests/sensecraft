@@ -3,7 +3,7 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import type { PseudoNode, ConversationNode, Member, Role } from '../../qs-client/src/types';
 
-function enhanceError(err0: any) {
+function enhanceError(err0) {
   if (axios.isAxiosError(err0)) {
     const err = err0 as AxiosError;
     const response: AxiosResponse | undefined = err.response;
@@ -15,11 +15,11 @@ function enhanceError(err0: any) {
 }
 
 export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promise<void> {
-  let resolve: (v: any)=>void;
+  let resolve: (v)=>void;
   const ready = new Promise<void>((rs) => {
     resolve = rs;
   });
-  function wakeup(data: any) {
+  function wakeup(data) {
     data = data.toString();
     console.log(data);
     if (data.indexOf('Listening on') > -1) {
@@ -34,7 +34,7 @@ export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promi
 
 const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
 
-type multiId = { [id: string]: number | string };
+export type multiId = { [id: string]: number | string };
 
 class AxiosUtil {
   axios: AxiosInstance;
@@ -75,23 +75,20 @@ class AxiosUtil {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async create(path: string, data: any, token?: string) {
     try {
       const headers = this.headers(token, { Prefer: 'return=representation' });
       const params = { select: '*' }; // TODO: identify pkeys to only ask for them
       const response = await this.axios.post(path, data, { params, ...headers });
-      const locationParts = response.headers.location.split('?')[1].split('&');
-      const location = Object.fromEntries(locationParts.map((p) => {
-        const [k, v] = p.split('=');
-        return [k, v.substring(3)];
-      }));
-      return location;
+      return response.data[0];
     } catch (error) {
       enhanceError(error);
       throw error;
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async update(path: string, id: multiId, data: any, token?: string) {
     try {
       const params = this.as_params(id);
@@ -109,6 +106,7 @@ class AxiosUtil {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async call(fn: string, params: any, token?: string, readonly=false) {
     try {
       if (readonly) {
@@ -173,7 +171,7 @@ export async function add_nodes(nodes: Partial<PseudoNode>[], quest_id: number, 
     };
 
     const member_token = creator_id ? member_tokens[creator_id] : undefined;
-    console.log(node);
+    // console.log(node);
     const id_data = await axiosUtil.create('conversation_node', node, member_token);
     if (id)
       node_ids[id] = parseInt(id_data.id);

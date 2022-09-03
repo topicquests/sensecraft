@@ -1,7 +1,6 @@
 import assert from 'assert';
-import { axiosUtil, get_base_roles, get_system_role_by_name } from './utils';
+import { axiosUtil, get_base_roles, get_system_role_by_name, multiId } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, draftPublicQuestInfo } from './fixtures';
-import type { GamePlay } from '../../qs-client/src/types';
 
 describe('\'game_play\' service', function() {
 
@@ -11,21 +10,21 @@ describe('\'game_play\' service', function() {
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
-      }, null, true);
+      }, undefined, true);
       leaderId = await axiosUtil.call('create_member', leaderInfo);
       sponsorId = await axiosUtil.call('create_member', sponsorInfo);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidamToken = await axiosUtil.call('get_token', {
         mail: quidamInfo.email, pass: quidamInfo.password
-      }, null, true);
+      }, undefined, true);
       leaderToken = await axiosUtil.call('get_token', {
         mail: leaderInfo.email, pass: leaderInfo.password
-      }, null, true);
+      }, undefined, true);
       sponsorToken = await axiosUtil.call('get_token', {
         mail: sponsorInfo.email, pass: sponsorInfo.password
-      }, null, true);
+      }, undefined, true);
       roles = await get_base_roles(adminToken);
-      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });
 
     after(async function() {
@@ -44,20 +43,22 @@ describe('\'game_play\' service', function() {
     });
 
     describe('guild creation by authorized user', function() {
-      const game_play_id: Partial<GamePlay> = {};
+      let game_play_id: multiId;
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', draftPublicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        game_play_id.quest_id = publicQuestId;
         const quests = await axiosUtil.get('quests', {}, leaderToken);
         assert.equal(quests.length, 1);
       });
       it('creates public guild', async function() {
         const publicGuildModel = await axiosUtil.create('guilds', publicGuildInfo(researcherRoleId), leaderToken);
         publicGuildId = publicGuildModel.id;
-        game_play_id.guild_id = publicGuildId;
         const guilds = await axiosUtil.get('guilds', {}, leaderToken);
         assert.equal(guilds.length, 1);
+        game_play_id = {
+          guild_id: publicGuildId,
+          quest_id: publicQuestId
+        };
       });
       it('quidam cannot register to quest', async function() {
         assert.rejects(async () => {

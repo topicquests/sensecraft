@@ -32,12 +32,12 @@ describe('\'guilds\' service', function() {
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
-      }, null, true);
+      }, undefined, true);
       quidamId = await axiosUtil.call('create_member', quidamInfo);
       quidam2Id = await axiosUtil.call('create_member', quidam2Info);
       sponsorId = await axiosUtil.call('create_member', leaderInfo);
       roles = await get_base_roles(adminToken);
-      researcherRoleId = get_system_role_by_name(roles, 'Researcher').id;
+      researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });
 
     after(async function() {
@@ -57,7 +57,7 @@ describe('\'guilds\' service', function() {
 
     it('fails to create guild without authentication', async function() {
       await assert.rejects(async () => {
-        await axiosUtil.create('guilds', privateGuildInfo, null);
+        await axiosUtil.create('guilds', privateGuildInfo);
       }, 'GeneralError');
     });
 
@@ -65,7 +65,7 @@ describe('\'guilds\' service', function() {
       it('authenticates quidam', async function() {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        }, null, true);
+        }, undefined, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('fails to create guild without authorization', async function() {
@@ -82,7 +82,7 @@ describe('\'guilds\' service', function() {
       it('authenticates sponsor and creates accessToken', async function() {
         accessToken = await axiosUtil.call('get_token', {
           mail: leaderInfo.email, pass: leaderInfo.password
-        }, null, true);
+        }, undefined, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('creates public guild', async function() {
@@ -111,14 +111,12 @@ describe('\'guilds\' service', function() {
       });
 
       it('sponsor can invite someone else', async function() {
-        const guild_membership_id = await axiosUtil.create('guild_membership', {
+        const guild_membership = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        } as Partial<GuildMembership>, accessToken);
-        const guild_membership = await axiosUtil.get('guild_membership', guild_membership_id, accessToken);
-        assert.equal(guild_membership.length, 1);
-        assert.equal(guild_membership[0].status, 'invitation');
+        }, accessToken);
+        assert.equal(guild_membership.status, 'invitation');
       });
       it('sponsor can delete invitation', async function() {
         const guild_membership = await axiosUtil.delete('guild_membership',
@@ -126,23 +124,21 @@ describe('\'guilds\' service', function() {
         assert.equal(guild_membership.length, 1);
       });
       it('sponsor can reinvite someone else', async function() {
-        const guild_membership_id = await axiosUtil.create('guild_membership', {
+        const guild_membership = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        } as Partial<GuildMembership>, accessToken);
-        const guild_membership = await axiosUtil.get('guild_membership', guild_membership_id, accessToken);
-        assert.equal(guild_membership.length, 1);
-        assert.equal(guild_membership[0].status, 'invitation');
+        }, accessToken);
+        assert.equal(guild_membership.status, 'invitation');
       });
       it('only public guild is visible w/o authentication', async function() {
-        const guilds = await axiosUtil.get('guilds', {}, null);
+        const guilds = await axiosUtil.get('guilds', {});
         assert.equal(guilds.length, 2);
       });
       it('authenticates quidam and creates accessToken', async function() {
         accessToken = await axiosUtil.call('get_token', {
           mail: quidamInfo.email, pass: quidamInfo.password
-        }, null, true);
+        }, undefined, true);
         assert.ok(accessToken, 'Created access token for user');
       });
       it('only public guild is visible w/o authorization', async function() {
@@ -178,24 +174,20 @@ describe('\'guilds\' service', function() {
         assert.equal(memberships.length, 0);
       });
       it('quidam can self-register', async function() {
-        const membership_id = await axiosUtil.create('guild_membership', {
+        const membership = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: publicGuildId,
           status: 'confirmed'
-        } as Partial<GuildMembership>, accessToken);
-        const membership = await axiosUtil.get('guild_membership', membership_id, accessToken);
-        assert.equal(membership.length, 1);
-        assert.equal(membership[0].status, 'confirmed');
+        }, accessToken);
+        assert.equal(membership.status, 'confirmed');
       });
       it('quidam cannot self-register in quasi-public guild', async function() {
-        const membership_id = await axiosUtil.create('guild_membership', {
+        const membership = await axiosUtil.create('guild_membership', {
           member_id: quidamId,
           guild_id: quasiPublicGuildId,
           status: 'confirmed'
         } as Partial<GuildMembership>, accessToken);
-        const membership = await axiosUtil.get('guild_membership', membership_id, accessToken);
-        assert.equal(membership.length, 1);
-        assert.equal(membership[0].status, 'request');
+        assert.equal(membership.status, 'request');
       });
       // TODO: Add private guild membership to quidam, check access
       // TODO: check update access
