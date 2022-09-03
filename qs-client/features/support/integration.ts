@@ -94,7 +94,7 @@ async function killFrontend() {
   }
 }
 
-Before({ tags: "@integration", timeout: 35000 }, async function (scenario) {
+Before({ tags: "@integration", timeout: 45000 }, async function (scenario) {
   ensureBackend();
   ensureFrontend();
   ensureSelenium();
