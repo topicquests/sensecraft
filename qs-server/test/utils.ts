@@ -3,7 +3,8 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import type { PseudoNode, ConversationNode, Member, Role } from '../../qs-client/src/types';
 
-function enhanceError(err0) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function enhanceError(err0: any) {
   if (axios.isAxiosError(err0)) {
     const err = err0 as AxiosError;
     const response: AxiosResponse | undefined = err.response;
@@ -15,11 +16,13 @@ function enhanceError(err0) {
 }
 
 export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promise<void> {
-  let resolve: (v)=>void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let resolve: (v: any)=>void;
   const ready = new Promise<void>((rs) => {
     resolve = rs;
   });
-  function wakeup(data) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function wakeup(data: any) {
     data = data.toString();
     console.log(data);
     if (data.indexOf('Listening on') > -1) {
