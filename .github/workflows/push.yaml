@@ -19,7 +19,7 @@ jobs:
       - name: use postgres
         uses: Daniel-Marynicz/postgresql-action@master
         with:
-          postgres_image_tag: 14.4-alpine-jwt
+          postgres_image_tag: 14.5-alpine-jwt
           postgres_image_name: conversence/postgres
       - name: Install client components
         run: |
