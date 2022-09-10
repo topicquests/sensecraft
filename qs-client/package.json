@@ -30,7 +30,7 @@
     "pg-hstore": "~2.3",
     "quasar": "legacy",
     "robust-websocket": "~1.0",
-    "uuid": "~8.3",
+    "uuid": "~9",
     "vue": "~2.7",
     "vue-class-component": "~7",
     "vuelidate": "^0.7.6",
