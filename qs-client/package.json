@@ -2,7 +2,7 @@
   "name": "SenseCraft",
   "version": "0.0.1",
   "private": true,
-  "description": "A Quasar Framework app",
+  "description": "A Collective Sensemaking Game",
   "author": "byroncoughlinsr <byroncoughlinsr@gmail.com>",
   "scripts": {
     "lint": "eslint --ext .js,.vue,.ts ./src ./features ./test",

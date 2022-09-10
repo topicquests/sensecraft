@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" />
+    <img alt="Sensecraft Logo" src="../statics/sensecraft_icon.png" />
   </q-page>
 </template>
 
