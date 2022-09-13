@@ -1,0 +1,2 @@
+FROM postgres:14.5-alpine
+RUN apk add curl tar make && curl -L  https://github.com/michelp/pgjwt/tarball/master -o pgjwt.tgz && tar zxf pgjwt.tgz && (cd michelp-pgjwt-* && make install) && rm -rf michelp-pgjwt-*
