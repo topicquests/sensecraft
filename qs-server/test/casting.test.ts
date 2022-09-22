@@ -1,29 +1,23 @@
 import assert from 'assert';
-import { axiosUtil, get_base_roles, get_system_role_by_name, multiId } from './utils';
+import { axiosUtil, get_base_roles, get_system_role_by_name, multiId, add_members, delete_members } from './utils';
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo, sponsorInfo, publicQuestInfo } from './fixtures';
 import type { GuildMembership, Casting } from '../../qs-client/src/types';
 
 describe('\'casting\' service', function() {
 
   describe('guild creation', function() {
-    let adminToken, quidamId, leaderId, sponsorId, publicGuildId, publicQuestId, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
+    let adminToken, quidamId, leaderId, publicGuildId, publicQuestId, memberIds, memberTokens, sponsorToken, leaderToken, quidamToken, roles, researcherRoleId;
 
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
-      leaderId = await axiosUtil.call('create_member', leaderInfo, adminToken);
-      sponsorId = await axiosUtil.call('create_member', sponsorInfo, adminToken);
-      quidamId = await axiosUtil.call('create_member', quidamInfo, adminToken);
-      quidamToken = await axiosUtil.call('get_token', {
-        mail: quidamInfo.email, pass: quidamInfo.password
-      }, undefined, false);
-      leaderToken = await axiosUtil.call('get_token', {
-        mail: leaderInfo.email, pass: leaderInfo.password
-      }, undefined, false);
-      sponsorToken = await axiosUtil.call('get_token', {
-        mail: sponsorInfo.email, pass: sponsorInfo.password
-      }, undefined, false);
+      ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo], adminToken));
+      quidamToken = memberTokens[quidamInfo.handle];
+      leaderToken = memberTokens[leaderInfo.handle];
+      sponsorToken = memberTokens[sponsorInfo.handle];
+      leaderId = memberIds[leaderInfo.handle];
+      quidamId = memberIds[quidamInfo.handle];
       roles = await get_base_roles(adminToken);
       researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });
@@ -34,13 +28,8 @@ describe('\'casting\' service', function() {
       if (publicGuildId)
         await axiosUtil.delete('guilds', {id: publicGuildId}, adminToken);
       if (publicQuestId)
-        await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
-      if (quidamId)
-        await axiosUtil.delete('members', {id: quidamId}, adminToken);
-      if (leaderId)
-        await axiosUtil.delete('members', {id: leaderId}, adminToken);
-      if (sponsorId)
-        await axiosUtil.delete('members', {id: sponsorId}, adminToken);
+        await axiosUtil.delete('quests', { id: publicQuestId }, adminToken);
+      await delete_members(memberIds, adminToken);
     });
 
     describe('guild creation by authorized user', function () {

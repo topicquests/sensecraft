@@ -1,28 +1,28 @@
 import assert from 'assert';
-import { axiosUtil } from './utils';
+import { axiosUtil, add_members, delete_members } from './utils';
 import { adminInfo, quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo } from './fixtures';
 
 describe('\'quests\' service', function() {
   describe('quest creation', function() {
-    let adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, accessToken;
+    let adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, quidamToken, sponsorToken, memberIds, memberTokens;
 
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       }, undefined, true);
-      sponsorId = await axiosUtil.call('create_member', sponsorInfo, adminToken);
-      quidamId = await axiosUtil.call('create_member', quidamInfo, adminToken);
+      ({memberIds, memberTokens} = await add_members([sponsorInfo, quidamInfo], adminToken));
+      quidamToken = memberTokens[quidamInfo.handle];
+      sponsorToken = memberTokens[sponsorInfo.handle];
+      quidamId = memberIds[quidamInfo.handle];
+      sponsorId = memberIds[sponsorInfo.handle];
     });
 
     after(async function() {
       if (publicQuestId)
         await axiosUtil.delete('quests', {id: publicQuestId}, adminToken);
       if (privateQuestId)
-        await axiosUtil.delete('quests', {id: privateQuestId}, adminToken);
-      if (quidamId)
-        await axiosUtil.delete('members', {id: quidamId}, adminToken);
-      if (sponsorId)
-        await axiosUtil.delete('members', {id: sponsorId}, adminToken);
+        await axiosUtil.delete('quests', { id: privateQuestId }, adminToken);
+      await delete_members(memberIds, adminToken);
     });
 
     it('fails to create quest without authentication', async function() {
@@ -32,15 +32,9 @@ describe('\'quests\' service', function() {
     });
 
     describe('quest creation by unauthorized user', function() {
-      it('authenticates quidam', async function() {
-        accessToken = await axiosUtil.call('get_token', {
-          mail: quidamInfo.email, pass: quidamInfo.password
-        }, undefined, true);
-        assert.ok(accessToken, 'Created access token for user');
-      });
       it('fails to create quest without authorization', async function() {
         await assert.rejects(async () => {
-          await axiosUtil.create('quests', privateQuestInfo, accessToken);
+          await axiosUtil.create('quests', privateQuestInfo, quidamToken);
         }, 'GeneralError');
         // TODO: Distinguish "permission denied for table quests" (currently) from
         // new row violates row - level security policy for table "quests"
@@ -49,36 +43,24 @@ describe('\'quests\' service', function() {
     });
 
     describe('quest creation by authorized user', function() {
-      it('authenticates sponsor and creates accessToken', async function() {
-        accessToken = await axiosUtil.call('get_token', {
-          mail: sponsorInfo.email, pass: sponsorInfo.password
-        }, undefined, true);
-        assert.ok(accessToken, 'Created access token for user');
-      });
       it('creates public quest', async function() {
-        const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, accessToken);
+        const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        const quests = await axiosUtil.get('quests', {}, accessToken);
+        const quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 1);
       });
       it('creates private quest', async function() {
-        const privateQuestModel = await axiosUtil.create('quests', privateQuestInfo, accessToken);
+        const privateQuestModel = await axiosUtil.create('quests', privateQuestInfo, sponsorToken);
         privateQuestId = privateQuestModel.id;
-        const quests = await axiosUtil.get('quests', {}, accessToken);
+        const quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 2);
       });
       it('only public quest is visible w/o authentication', async function() {
         const quests = await axiosUtil.get('quests', {});
         assert.equal(quests.length, 1);
       });
-      it('authenticates quidam and creates accessToken', async function() {
-        accessToken = await axiosUtil.call('get_token', {
-          mail: quidamInfo.email, pass: quidamInfo.password
-        }, undefined, true);
-        assert.ok(accessToken, 'Created access token for user');
-      });
       it('only public quest is visible w/o authorization', async function() {
-        const quests = await axiosUtil.get('quests', {});
+        const quests = await axiosUtil.get('quests', {}, quidamToken);
         assert.equal(quests.length, 1);
       });
       // TODO: Add private quest membership to quidam, check access
