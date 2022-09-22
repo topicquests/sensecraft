@@ -143,7 +143,7 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
     $$;
 
 DROP TRIGGER IF EXISTS after_create_member ON public.members;
-CREATE TRIGGER after_create_member BEFORE INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.after_create_member();
+CREATE TRIGGER after_create_member AFTER INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.after_create_member();
 
 --
 -- Name: before_update_member(); Type: FUNCTION
@@ -173,6 +173,28 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
 
 DROP TRIGGER IF EXISTS before_update_member ON public.members;
 CREATE TRIGGER before_update_member BEFORE UPDATE ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_update_member();
+
+
+CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE num_mem integer;
+    BEGIN
+      SELECT count(id) INTO STRICT num_mem FROM public_members;
+      IF num_mem = 0 THEN
+        -- give superadmin to first registered user
+        NEW.permissions = ARRAY['superadmin'::permission];
+      ELSE
+        IF NOT public.has_permission('superadmin') THEN
+          NEW.permissions = ARRAY[]::permission[];
+        END IF;
+      END IF;
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS before_create_member ON public.members;
+CREATE TRIGGER before_create_member BEFORE INSERT ON public.members FOR EACH ROW EXECUTE FUNCTION public.before_create_member();
 
 
 CREATE OR REPLACE FUNCTION create_member(

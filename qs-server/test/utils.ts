@@ -128,12 +128,12 @@ class AxiosUtil {
 
 export const axiosUtil = new AxiosUtil('http://localhost:3001');
 
-export async function add_members(members: Partial<Member>[]) {
+export async function add_members(members: Partial<Member>[], adminToken: string) {
   const memberIds: {[handle: string]: number} = {};
   const memberTokens: {[handle: string]: string} = {};
   for (const member of members) {
     try {
-      memberIds[member.handle as string] = await axiosUtil.call('create_member', member);
+      memberIds[member.handle as string] = await axiosUtil.call('create_member', member, adminToken);
       memberTokens[member.handle as string] = await axiosUtil.call('get_token', {
         mail: member.email, pass: member.password
       }, undefined, false);

@@ -38,7 +38,7 @@ describe('\'conversation_node\' service', function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
-      ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo]));
+      ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo], adminToken));
       if (Object.keys(memberIds).length != 3)
         throw Error();
       quidamToken = memberTokens[quidamInfo.handle];

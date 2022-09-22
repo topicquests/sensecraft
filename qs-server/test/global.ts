@@ -14,8 +14,8 @@ export async function mochaGlobalSetup() {
   execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
   await waitForListen(postgrest);
+  // first user will be admin
   await axiosUtil.call('create_member', adminInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u admin');
 }
 
 

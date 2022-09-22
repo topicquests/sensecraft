@@ -12,9 +12,9 @@ describe('\'casting\' service', function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       });
-      leaderId = await axiosUtil.call('create_member', leaderInfo);
-      sponsorId = await axiosUtil.call('create_member', sponsorInfo);
-      quidamId = await axiosUtil.call('create_member', quidamInfo);
+      leaderId = await axiosUtil.call('create_member', leaderInfo, adminToken);
+      sponsorId = await axiosUtil.call('create_member', sponsorInfo, adminToken);
+      quidamId = await axiosUtil.call('create_member', quidamInfo, adminToken);
       quidamToken = await axiosUtil.call('get_token', {
         mail: quidamInfo.email, pass: quidamInfo.password
       }, undefined, false);
