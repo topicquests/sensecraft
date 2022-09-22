@@ -4,17 +4,17 @@ import { adminInfo, quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo }
 
 describe('\'quests\' service', function() {
   describe('quest creation', function() {
-    let adminToken, quidamId, sponsorId, publicQuestId, privateQuestId, quidamToken, sponsorToken, memberIds, memberTokens;
+    let adminToken, publicQuestId, privateQuestId, quidamToken, sponsorToken, memberIds, memberTokens;
 
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       }, undefined, true);
       ({memberIds, memberTokens} = await add_members([sponsorInfo, quidamInfo], adminToken));
-      quidamToken = memberTokens[quidamInfo.handle];
-      sponsorToken = memberTokens[sponsorInfo.handle];
-      quidamId = memberIds[quidamInfo.handle];
-      sponsorId = memberIds[sponsorInfo.handle];
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      quidamToken = memberTokens[quidamInfo.handle!];
+      sponsorToken = memberTokens[sponsorInfo.handle!];
+      /* eslint-ensable @typescript-eslint/no-non-null-assertion */
     });
 
     after(async function() {

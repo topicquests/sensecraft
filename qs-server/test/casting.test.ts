@@ -13,11 +13,13 @@ describe('\'casting\' service', function() {
         mail: adminInfo.email, pass: adminInfo.password
       });
       ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo], adminToken));
-      quidamToken = memberTokens[quidamInfo.handle];
-      leaderToken = memberTokens[leaderInfo.handle];
-      sponsorToken = memberTokens[sponsorInfo.handle];
-      leaderId = memberIds[leaderInfo.handle];
-      quidamId = memberIds[quidamInfo.handle];
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      quidamToken = memberTokens[quidamInfo.handle!];
+      leaderToken = memberTokens[leaderInfo.handle!];
+      sponsorToken = memberTokens[sponsorInfo.handle!];
+      leaderId = memberIds[leaderInfo.handle!];
+      quidamId = memberIds[quidamInfo.handle!];
+      /* eslint-ensable @typescript-eslint/no-non-null-assertion */
       roles = await get_base_roles(adminToken);
       researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });

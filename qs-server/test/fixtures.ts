@@ -42,8 +42,8 @@ export const publicQuestInfo: Partial<Quest> = {
   handle: 'pubquest',
   status: 'registration',
   public: true,
-  start: new Date(),
-  end: new Date(Date.now() + 100000000000),
+  start: (new Date()).toISOString(),
+  end: (new Date(Date.now() + 100000000000)).toISOString(),
 };
 export const draftPublicQuestInfo: Partial<Quest> = {
   name: 'My great quest',

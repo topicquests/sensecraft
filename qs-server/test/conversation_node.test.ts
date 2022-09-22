@@ -21,7 +21,7 @@ function remove_ids(recNode) {
   }
 }
 
-
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 describe('\'conversation_node\' service', function() {
 
   describe('guild creation', function() {
@@ -41,9 +41,9 @@ describe('\'conversation_node\' service', function() {
       ({memberIds, memberTokens} = await add_members([leaderInfo, sponsorInfo, quidamInfo], adminToken));
       if (Object.keys(memberIds).length != 3)
         throw Error();
-      quidamToken = memberTokens[quidamInfo.handle];
-      leaderToken = memberTokens[leaderInfo.handle];
-      sponsorToken = memberTokens[sponsorInfo.handle];
+      quidamToken = memberTokens[quidamInfo.handle!];
+      leaderToken = memberTokens[leaderInfo.handle!];
+      sponsorToken = memberTokens[sponsorInfo.handle!];
       roles = await get_base_roles(adminToken);
       researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
       philosopherRoleId = get_system_role_by_name(roles, 'Philosopher')?.id;
@@ -77,7 +77,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('sponsor can ask first question', async function() {
         Object.assign(nodeIds, await my_add_node(question1Info));
-        q1Id = nodeIds[question1Info.id];
+        q1Id = nodeIds[question1Info.id!];
       });
       it('sponsor cannot create a second root', async function() {
         await assert.rejects(async () => {
@@ -102,7 +102,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('quidam can register to guild', async function() {
         const register = await axiosUtil.create('guild_membership', {
-          member_id: memberIds[quidamInfo.handle],
+          member_id: memberIds[quidamInfo.handle!],
           guild_id: publicGuildId,
         } as Partial<GuildMembership>, quidamToken);
         assert.ok(register);
@@ -116,7 +116,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('leader can self-register', async function() {
         const r = await axiosUtil.create('casting', {
-          member_id: memberIds[leaderInfo.handle],
+          member_id: memberIds[leaderInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
         } as Partial<Casting>, leaderToken);
@@ -124,7 +124,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('leader can make game leader role available for self', async function() {
         const r = await axiosUtil.create('guild_member_available_role', {
-          member_id: memberIds[leaderInfo.handle],
+          member_id: memberIds[leaderInfo.handle!],
           guild_id: publicGuildId,
           role_id: gameLeaderRoleId
         } as Partial<GuildMemberAvailableRole>, leaderToken);
@@ -132,7 +132,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('leader can self-assign game leader role', async function() {
         const r = await axiosUtil.create('casting_role', {
-          member_id: memberIds[leaderInfo.handle],
+          member_id: memberIds[leaderInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: gameLeaderRoleId
@@ -141,7 +141,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('quidam can self-register', async function() {
         const r = await axiosUtil.create('casting', {
-          member_id: memberIds[quidamInfo.handle],
+          member_id: memberIds[quidamInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
         } as Partial<Casting>, quidamToken);
@@ -149,7 +149,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('quidam can self-cast with default role', async function() {
         const r = await axiosUtil.create('casting_role', {
-          member_id: memberIds[quidamInfo.handle],
+          member_id: memberIds[quidamInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: researcherRoleId
@@ -158,7 +158,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('quidam can create private draft node', async function() {
         Object.assign(nodeIds, await my_add_node(answer1Info));
-        a1Id = nodeIds[answer1Info.id];
+        a1Id = nodeIds[answer1Info.id!];
       });
       it('leader cannot submit node before quest is ongoing', async function() {
         await assert.rejects(async () => {
@@ -208,7 +208,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('leader can make philosopher role available for self', async function() {
         const r = await axiosUtil.create('guild_member_available_role', {
-          member_id: memberIds[leaderInfo.handle],
+          member_id: memberIds[leaderInfo.handle!],
           guild_id: publicGuildId,
           role_id: philosopherRoleId
         } as Partial<GuildMemberAvailableRole>, leaderToken);
@@ -216,7 +216,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('leader can self-assign philosopher role', async function() {
         const r = await axiosUtil.create('casting_role', {
-          member_id: memberIds[leaderInfo.handle],
+          member_id: memberIds[leaderInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: philosopherRoleId
@@ -301,7 +301,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('guild leader can assign philosopher role to quidam', async function() {
         const r = await axiosUtil.create('guild_member_available_role', {
-          member_id: memberIds[quidamInfo.handle],
+          member_id: memberIds[quidamInfo.handle!],
           guild_id: publicGuildId,
           role_id: philosopherRoleId
         } as Partial<GuildMemberAvailableRole>, leaderToken);
@@ -309,7 +309,7 @@ describe('\'conversation_node\' service', function() {
       });
       it('quidam can self-cast', async function() {
         const r = await axiosUtil.create('casting_role', {
-          member_id: memberIds[quidamInfo.handle],
+          member_id: memberIds[quidamInfo.handle!],
           guild_id: publicGuildId,
           quest_id: publicQuestId,
           role_id: philosopherRoleId

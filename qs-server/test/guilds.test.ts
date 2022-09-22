@@ -33,11 +33,13 @@ describe('\'guilds\' service', function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
       }, undefined, true);
-      ({memberIds, memberTokens} = await add_members([quidam2Info, leaderInfo, quidamInfo], adminToken));
-      quidamToken = memberTokens[quidamInfo.handle];
-      sponsorToken = memberTokens[leaderInfo.handle];
-      quidam2Id = memberIds[quidam2Info.handle];
-      quidamId = memberIds[quidamInfo.handle];
+      ({ memberIds, memberTokens } = await add_members([quidam2Info, leaderInfo, quidamInfo], adminToken));
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      quidamToken = memberTokens[quidamInfo.handle!];
+      sponsorToken = memberTokens[leaderInfo.handle!];
+      quidam2Id = memberIds[quidam2Info.handle!];
+      quidamId = memberIds[quidamInfo.handle!];
+      /* eslint-ensable @typescript-eslint/no-non-null-assertion */
       roles = await get_base_roles(adminToken);
       researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
     });
