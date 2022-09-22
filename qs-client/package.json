@@ -24,7 +24,7 @@
   "dependencies": {
     "@quasar/extras": "~1.15",
     "axios": "~0.27",
-    "core-js": "^3.24",
+    "core-js": "^3.25",
     "grant": "~5.4",
     "luxon": "~3.0",
     "pg-hstore": "~2.3",
@@ -39,7 +39,7 @@
     "yaml": "~2.1"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "~8.5",
+    "@cucumber/cucumber": "~8.6",
     "@cucumber/pretty-formatter": "^1.0",
     "@quasar/app": "~2.4",
     "@quasar/quasar-app-extension-testing": "~1.0",
