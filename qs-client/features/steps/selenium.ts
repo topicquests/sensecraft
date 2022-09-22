@@ -14,7 +14,7 @@ export class SeleniumSteps {
     await driver.findElement(By.name("email")).sendKeys(email);
     await driver.findElement(By.name("password")).sendKeys(password);
     await driver.findElement(By.name("loginBtn")).click();
-    await driver.sleep(1000);
+    await driver.sleep(1500);
   }
 
   @when(/User fills (\w+) with "(.*)"$/)
@@ -48,14 +48,14 @@ export class SeleniumSteps {
   public async whenClickSomething(name: string) {
     const driver = await ensureSelenium();
     await driver.findElement(By.name(name)).click();
-    await driver.sleep(1000);
+    await driver.sleep(1500);
   }
 
   @when(/User clicks id (\w+)$/)
   public async whenClickSomethingId(name: string) {
     const driver = await ensureSelenium();
     await driver.findElement(By.id(name)).click();
-    await driver.sleep(1000);
+    await driver.sleep(1500);
   }
 
   @when(/User may click id (\w+)$/)
@@ -63,7 +63,7 @@ export class SeleniumSteps {
     const driver = await ensureSelenium();
     try {
       await driver.findElement(By.id(name)).click();
-      await driver.sleep(1000);
+      await driver.sleep(1500);
     } catch (e) {
       // pass
     }
@@ -90,7 +90,7 @@ export class SeleniumSteps {
     const driver = await ensureSelenium();
     // TODO: selenium by type?
     // await driver.findElement(By.type("submit")).click();
-    await driver.sleep(1000);
+    await driver.sleep(1500);
   }
 
   @then("User is editing quest {string}")
