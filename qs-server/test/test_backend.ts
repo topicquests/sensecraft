@@ -45,7 +45,8 @@ async function frontendSetup() {
 async function frontendTeardown () {
   postgrest.kill('SIGTERM');
   dispatcher.kill('SIGTERM');
-  execSync('./scripts/db_updater.py -d test revert');
+  if (!process.env.NOREVERT)
+    execSync('./scripts/db_updater.py -d test revert');
 }
 
 process.on('SIGHUP', () => {
