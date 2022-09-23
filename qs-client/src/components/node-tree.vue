@@ -454,7 +454,7 @@ export default class NodeTree extends NodeTreeProps {
   }
   canAddTo(nodeId: number): boolean {
     const quest = this.getCurrentQuest;
-    return quest.is_playing && quest.status != "finished";
+    return (quest.is_playing || quest.is_quest_member) && quest.status != "finished";
   }
   getNode(nodeId: number): ConversationNode {
     if (this.channelId) {
