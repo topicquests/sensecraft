@@ -3,7 +3,6 @@
 BEGIN;
 
 DROP TABLE IF EXISTS public.quest_membership;
-DROP VIEW IF EXISTS public.public_quests;
 DROP TABLE IF EXISTS public.quests;
 
 DO $$ DECLARE roles VARCHAR;

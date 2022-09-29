@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { axiosUtil, add_members, delete_members } from './utils';
-import { adminInfo, quidamInfo, sponsorInfo, publicQuestInfo, privateQuestInfo } from './fixtures';
+import { adminInfo, quidamInfo, sponsorInfo, draftPublicQuestInfo, privateQuestInfo } from './fixtures';
 
 describe('\'quests\' service', function() {
   describe('quest creation', function() {
@@ -43,8 +43,8 @@ describe('\'quests\' service', function() {
     });
 
     describe('quest creation by authorized user', function() {
-      it('creates public quest', async function() {
-        const publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
+      it('creates draft public quest', async function() {
+        const publicQuestModel = await axiosUtil.create('quests', draftPublicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
         const quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 1);
@@ -54,6 +54,17 @@ describe('\'quests\' service', function() {
         privateQuestId = privateQuestModel.id;
         const quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 2);
+      });
+      it('draft public quest is not visible w/o authentication', async function() {
+        const quests = await axiosUtil.get('quests', {});
+        assert.equal(quests.length, 0);
+      });
+      it('draft public quest is not visible w/o authorization', async function() {
+        const quests = await axiosUtil.get('quests', {}, quidamToken);
+        assert.equal(quests.length, 0);
+      });
+      it('changes the status of the public quest', async function () {
+        await axiosUtil.update('quests', publicQuestId, {status: 'registration'}, sponsorToken);
       });
       it('only public quest is visible w/o authentication', async function() {
         const quests = await axiosUtil.get('quests', {});

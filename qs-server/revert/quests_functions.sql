@@ -49,5 +49,6 @@ DROP FUNCTION IF EXISTS  public.after_delete_quest_membership();
 DROP FUNCTION IF EXISTS  public.after_delete_quest();
 DROP FUNCTION IF EXISTS  public.before_delete_quest();
 DROP FUNCTION IF EXISTS  public.after_create_quest();
+DROP VIEW IF EXISTS public.public_quests;
 
 COMMIT;

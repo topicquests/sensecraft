@@ -15,6 +15,27 @@ GRANT SELECT ON TABLE public.quests TO :dbc;
 GRANT USAGE ON SEQUENCE public.quests_id_seq TO :dbm;
 
 
+--
+-- Name: public_quests; Type: VIEW
+--
+
+CREATE OR REPLACE VIEW public.public_quests AS
+ SELECT quests.id,
+    quests.handle,
+    quests.name,
+    quests.description,
+    quests.creator,
+    quests.public,
+    quests.status,
+    quests.start,
+    quests."end",
+    quests.created_at,
+    quests.updated_at,
+    quests.slug
+   FROM public.quests
+  WHERE quests.public AND quests.status > 'draft';
+
+
 GRANT SELECT ON TABLE public.public_quests TO :dbm;
 GRANT SELECT ON TABLE public.public_quests TO :dbc;
 
@@ -312,7 +333,7 @@ CREATE POLICY quest_update_policy ON public.quests FOR UPDATE USING (public.is_q
 DROP POLICY IF EXISTS quests_insert_policy ON public.quests;
 CREATE POLICY quests_insert_policy ON public.quests FOR INSERT WITH CHECK (public.has_permission('createQuest'));
 DROP POLICY IF EXISTS quests_select_policy ON public.quests;
-CREATE POLICY quests_select_policy ON public.quests FOR SELECT USING ((public OR (creator = public.current_member_id()) OR (id IN ( SELECT my_quest_memberships.quest_id
+CREATE POLICY quests_select_policy ON public.quests FOR SELECT USING (((public AND status > 'draft') OR (creator = public.current_member_id()) OR (id IN ( SELECT my_quest_memberships.quest_id
    FROM public.my_quest_memberships
   WHERE my_quest_memberships.confirmed))));
 DROP POLICY IF EXISTS quests_delete_policy ON public.quests;

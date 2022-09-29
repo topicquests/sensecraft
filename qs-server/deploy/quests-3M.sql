@@ -1,0 +1,6 @@
+-- Deploy quests
+
+
+BEGIN;
+
+COMMIT;

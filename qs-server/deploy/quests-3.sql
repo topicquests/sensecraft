@@ -46,6 +46,27 @@ CREATE TABLE IF NOT EXISTS public.quests (
 ALTER SEQUENCE public.quests_id_seq OWNED BY public.quests.id;
 
 
+
+--
+-- Name: public_quests; Type: VIEW
+--
+
+CREATE OR REPLACE VIEW public.public_quests AS
+ SELECT quests.id,
+    quests.handle,
+    quests.name,
+    quests.description,
+    quests.creator,
+    quests.public,
+    quests.status,
+    quests.start,
+    quests."end",
+    quests.created_at,
+    quests.updated_at,
+    quests.slug
+   FROM public.quests
+  WHERE quests.public AND quests.status > 'draft';
+
 --
 -- Name: quest_membership; Type: TABLE
 --
