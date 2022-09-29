@@ -36,7 +36,7 @@ describe('\'game_play\' service', function() {
       it('creates public quest', async function() {
         const publicQuestModel = await axiosUtil.create('quests', draftPublicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        const quests = await axiosUtil.get('quests', {}, leaderToken);
+        const quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 1);
       });
       it('creates public guild', async function() {
