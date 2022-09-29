@@ -163,8 +163,8 @@ export interface GuildData extends Guild {
   is_admin: boolean;
   last_node_published_at: string;
   node_count: number;
-  ongoing_quest_count: number;
-  finished_quest_count: number;
+  ongoing_quests_count: number;
+  finished_quests_count: number;
   recruiting_for_quest_count: number;
 }
 

@@ -78,6 +78,7 @@ CREATE OR REPLACE VIEW public.guilds_data AS
     guilds.description AS description,
     guilds.creator AS creator,
     guilds.open_for_applications AS open_for_applications,
+    guilds.public AS public,
     guilds.application_needs_approval AS application_needs_approval,
     guilds.created_at AS created_at,
     guilds.updated_at AS updated_at,
