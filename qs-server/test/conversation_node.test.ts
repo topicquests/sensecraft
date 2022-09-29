@@ -68,7 +68,7 @@ describe('\'conversation_node\' service', function() {
       it('creates two public quests', async function() {
         let publicQuestModel = await axiosUtil.create('quests', publicQuestInfo, sponsorToken);
         publicQuestId = publicQuestModel.id;
-        let quests = await axiosUtil.get('quests', {}, leaderToken);
+        let quests = await axiosUtil.get('quests', {}, sponsorToken);
         assert.equal(quests.length, 1);
         publicQuestModel = await axiosUtil.create('quests', publicQuest2Info, sponsorToken);
         publicQuest2Id = publicQuestModel.id;
