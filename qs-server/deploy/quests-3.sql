@@ -65,7 +65,7 @@ CREATE OR REPLACE VIEW public.public_quests AS
     quests.updated_at,
     quests.slug
    FROM public.quests
-  WHERE quests.public AND quests.status > 'draft';
+  WHERE quests.public;
 
 --
 -- Name: quest_membership; Type: TABLE
