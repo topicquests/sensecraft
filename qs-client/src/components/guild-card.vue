@@ -89,7 +89,7 @@ const GuildCardProps = Vue.extend({
 })
 export default class GuildCard extends GuildCardProps {
   group: "public";
-  guild: Guild;
+  guild: Partial<Guild> = {};
   guild_id: null;
   isAdmin: false;
   invitation: boolean;

@@ -299,8 +299,8 @@ export const guilds = (axios: AxiosInstance) =>
           is_admin: true,
           last_node_published_at: null,
           node_count: 0,
-          ongoing_quest_count: 0,
-          finished_quest_count: 0,
+          ongoing_quests_count: 0,
+          finished_quests_count: 0,
           recruiting_for_quest_count: 0,
         });
         state.guilds = { ...state.guilds, [guildData.id]: guildData };
@@ -326,8 +326,8 @@ export const guilds = (axios: AxiosInstance) =>
           is_admin: undefined,
           last_node_published_at: undefined,
           node_count: undefined,
-          ongoing_quest_count: undefined,
-          finished_quest_count: undefined,
+          ongoing_quests_count: undefined,
+          finished_quests_count: undefined,
           recruiting_for_quest_count: undefined,
         });
       },

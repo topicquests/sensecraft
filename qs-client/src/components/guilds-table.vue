@@ -165,7 +165,7 @@ const GuildsTableProp = Vue.extend({
           required: false,
           label: "Ongoing Quests",
           align: "left",
-          field: "ongoing_quest_count",
+          field: "ongoing_quests_count",
           sortable: true,
         },
         {
@@ -173,7 +173,7 @@ const GuildsTableProp = Vue.extend({
           required: false,
           label: "Quests Completed",
           align: "left",
-          field: "finished_quest_count",
+          field: "finished_quests_count",
           sortable: true,
         },
         {
