@@ -83,7 +83,7 @@ AS $$
   SELECT (SELECT count(*) FROM quest_membership
       JOIN members ON members.id=member_id
       WHERE quest_id = questid
-      AND confirmed
+      AND quest_membership.confirmed
       AND member_id = current_member_id()
       AND (coalesce(quest_membership.permissions, ARRAY[]::permission[]) && ARRAY[perm]
         OR coalesce(members.permissions, ARRAY[]::permission[]) && ARRAY[perm, 'superadmin'::permission])
