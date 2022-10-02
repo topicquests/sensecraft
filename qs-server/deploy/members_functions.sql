@@ -105,12 +105,14 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       SELECT CONCAT(current_database() || '__m_', id), password INTO STRICT role, passh FROM members WHERE email = mail;
-      EXECUTE 'SET LOCAL ROLE ' || curuser;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
+        UPDATE members SET last_login = now() WHERE email=mail;
+        EXECUTE 'SET LOCAL ROLE ' || curuser;
         RETURN passh;
       ELSE
+        EXECUTE 'SET LOCAL ROLE ' || curuser;
         RETURN NULL;
       END IF;
     END;
@@ -127,6 +129,8 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
     DECLARE p json;
     DECLARE t varchar;
     DECLARE v boolean;
+    DECLARE curuser varchar;
+    DECLARE member_id integer;
     BEGIN
       SELECT payload, valid INTO STRICT p, v FROM verify(token, current_setting('app.jwt_secret'));
       IF NOT v THEN
@@ -135,9 +139,42 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
       IF (p ->> 'exp')::integer < extract(epoch from now())::integer THEN
         RETURN NULL;
       END IF;
+      SELECT role_to_id(p ->> 'role') INTO STRICT member_id;
+      IF member_id != (SELECT id FROM members WHERE id = member_id) THEN
+        RETURN NULL;
+      END IF;
       SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT t FROM (
         SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      UPDATE members SET last_login = now() WHERE id=member_id;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN t;
+    END;
+    $$;
+
+CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE p json;
+    DECLARE t varchar;
+    DECLARE v boolean;
+    BEGIN
+      -- check that no email was sent recently
+      -- create JWT token with user email and time of emission
+      -- send email, name and token will be sent to node server via NOTIFY
+      -- set the last_login_email_sent
+
+      -- SELECT payload, valid INTO STRICT p, v FROM verify(token, current_setting('app.jwt_secret'));
+      -- IF NOT v THEN
+      --   RETURN NULL;
+      -- END IF;
+      -- IF (p ->> 'exp')::integer < extract(epoch from now())::integer THEN
+      --   RETURN NULL;
+      -- END IF;
+      -- SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT t FROM (
+      --   SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
+      RETURN true;
     END;
     $$;
 

@@ -6,7 +6,7 @@ describe('authentication', function() {
   it('authenticates admin and creates accessToken', async function() {
     const accessToken = await axiosUtil.call('get_token', {
       mail: adminInfo.email, pass: adminInfo.password
-    }, undefined, true);
+    });
     assert.ok(accessToken, 'Created access token for user');
     const member = await axiosUtil.get(
       'members',

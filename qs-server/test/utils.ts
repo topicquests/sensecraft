@@ -136,7 +136,7 @@ export async function add_members(members: Partial<Member>[], adminToken: string
       memberIds[member.handle as string] = await axiosUtil.call('create_member', member, adminToken);
       memberTokens[member.handle as string] = await axiosUtil.call('get_token', {
         mail: member.email, pass: member.password
-      }, undefined, false);
+      });
     } catch (err) {
       break;
     }

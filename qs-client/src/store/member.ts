@@ -229,7 +229,6 @@ export const member = (axios: AxiosInstance) =>
     .call({
       action: "renewToken",
       path: ({ token }: { token: string }) => `/rpc/renew_token?token=${token}`,
-      readOnly: true,
       onError: (
         state: MemberState,
         error,
