@@ -11,8 +11,10 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 ### Dependencies on Mac
 
 1. NodeJS: `brew install node`
-2. PostgreSQL: `brew install postgres ; brew services start postgres`
+2. PostgreSQL: `brew install postgresql ; brew services start postgresql@14`
 3. Postgrest: `brew install postgrest`
+4. Core utils: `brew install coreutils`
+5. Chromedriver (for integration tests): `brew install chromedriver`
 
 ### Dependencies on Ubuntu
 
@@ -20,6 +22,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 2. PostgreSQL: `sudo apt install postgresql ; sudo systemctl enable postgresql`.
    * You may also want to install a newer version of postgres as described here [here](https://www.postgresql.org/download/linux/ubuntu/)
 3. Postgrest: Download and install the [latest](https://github.com/PostgREST/postgrest/releases/latest) binary (last tested with [10.0.0](https://github.com/PostgREST/postgrest/releases/tag/v10.0.0)), decompress it and put it in your path (e.g. `/usr/local/bin`)
+4. Chromedriver (for integration tests): `sudo apt install chromium-chromedriver`
 
 ### linux, generic alternatives
 
