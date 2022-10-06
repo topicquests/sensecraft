@@ -152,7 +152,7 @@ export function get_system_role_by_name(roles: Role[], name: string) {
   return roles.find((role) => role.name === name && role.guild_id === null);
 }
 
-export async function delete_members(memberIds: number, adminToken: string) {
+export async function delete_members(memberIds: {[handle: string]: number}, adminToken: string) {
   for (const memberId of Object.values(memberIds || {})) {
     await axiosUtil.delete('members', {id: memberId}, adminToken);
   }
