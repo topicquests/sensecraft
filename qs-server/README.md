@@ -18,9 +18,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 ### Testing dependencies on Mac
 
 1. Chromedriver: `brew install chromedriver`
-2. [MailHog](https://github.com/mailhog/MailHog):
-   * `sudo apt-get -y install golang-go`
-   * `go install github.com/mailhog/MailHog@latest`
+2. [MailHog](https://github.com/mailhog/MailHog): `brew install mailhog`
 
 ### Dependencies on Ubuntu
 
@@ -35,6 +33,7 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 2. [MailHog](https://github.com/mailhog/MailHog):
    * `sudo apt-get -y install golang-go`
    * `go install github.com/mailhog/MailHog@latest`
+   * Put `~/go/bin` in your `$PATH`
 
 ### linux, generic alternatives
 
