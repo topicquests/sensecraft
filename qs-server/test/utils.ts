@@ -15,9 +15,10 @@ function enhanceError(err0: any) {
   }
 }
 
-export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promise<void> {
+export async function waitForListen(proc: ChildProcessWithoutNullStreams, sentinel?: string): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let resolve: (v: any)=>void;
+  let resolve: (v: any) => void;
+  sentinel = sentinel || 'Listening on';
   const ready = new Promise<void>((rs) => {
     resolve = rs;
   });
@@ -25,7 +26,7 @@ export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promi
   function wakeup(data: any) {
     data = data.toString();
     console.log(data);
-    if (data.indexOf('Listening on') > -1) {
+    if (data.indexOf(sentinel) > -1) {
       setTimeout(resolve, 500);
     }
   }
