@@ -3,6 +3,7 @@ import { axiosUtil, waitForListen } from './utils';
 
 let postgrest: ChildProcessWithoutNullStreams;
 let mailhog: ChildProcessWithoutNullStreams;
+let dispatcher: ChildProcessWithoutNullStreams;
 
 
 export const adminInfo = {
@@ -15,7 +16,8 @@ export async function mochaGlobalSetup() {
   execSync('./scripts/db_updater.py -d test deploy');
   postgrest = spawn('postgrest', ['postgrest_test.conf']);
   mailhog = spawn('MailHog');
-  await Promise.all([waitForListen(postgrest), waitForListen(mailhog, 'Creating API v2')]);
+  dispatcher = spawn('node', ['dist/qs-server/dispatcher/main.js', 'test']);
+  await Promise.all([waitForListen(postgrest), waitForListen(mailhog, 'Creating API v2'), waitForListen(dispatcher)]);
   // first user will be admin
   await axiosUtil.call('create_member', adminInfo);
 }
@@ -24,6 +26,7 @@ export async function mochaGlobalSetup() {
 exports.mochaGlobalTeardown = async function () {
   postgrest.kill('SIGHUP');
   mailhog.kill('SIGHUP');
+  dispatcher.kill('SIGHUP');
   if (!process.env.NOREVERT)
     execSync('./scripts/db_updater.py -d test revert');
 };
