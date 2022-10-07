@@ -24,7 +24,9 @@ jobs:
       - name: Install client components
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget chromium-driver
+          sudo apt install -y postgresql-client wget chromium-driver golang-go
+          go get github.com/mailhog/MailHog
+          echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./qs-server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
