@@ -42,7 +42,7 @@ export const publicQuestInfo: Partial<Quest> = {
   handle: 'pubquest',
   status: 'registration',
   public: true,
-  start: (new Date()).toISOString(),
+  start: (new Date(Date.now() + 50000000000)).toISOString(),
   end: (new Date(Date.now() + 100000000000)).toISOString(),
 };
 export const draftPublicQuestInfo: Partial<Quest> = {
@@ -50,7 +50,7 @@ export const draftPublicQuestInfo: Partial<Quest> = {
   handle: 'dpubquest',
   status: 'draft',
   public: true,
-  start: new Date().toISOString(),
+  start: new Date(Date.now() + 50000000000).toISOString(),
   end: new Date(Date.now() + 100000000000).toISOString(),
 };
 export const privateQuestInfo: Partial<Quest> = {
@@ -58,7 +58,7 @@ export const privateQuestInfo: Partial<Quest> = {
   handle: 'privquest1',
   public: false,
   status: 'draft',
-  start: new Date().toISOString(),
+  start: new Date(Date.now() + 50000000000).toISOString(),
   end: new Date(Date.now() + 100000000000).toISOString(),
 };
 export const publicQuest2Info: Partial<Quest> = {
@@ -66,7 +66,7 @@ export const publicQuest2Info: Partial<Quest> = {
   handle: 'pubquest2',
   status: 'registration',
   public: true,
-  start: new Date().toISOString(),
+  start: new Date(Date.now() + 50000000000).toISOString(),
   end: new Date(Date.now() + 100000000000).toISOString(),
 };
 export const question1Info: Partial<PseudoNode> = {

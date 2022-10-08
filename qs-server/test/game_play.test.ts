@@ -50,14 +50,14 @@ describe('\'game_play\' service', function() {
         };
       });
       it('quidam cannot register to quest', async function() {
-        assert.rejects(async () => {
+        await assert.rejects(async () => {
           await axiosUtil.create('game_play', game_play_id, quidamToken);
-        }, 'GeneralError');
+        }, /AxiosError/);
       });
       it('guild leader cannot register to draft quest', async function() {
-        assert.rejects(async () => {
+        await assert.rejects(async () => {
           await axiosUtil.create('game_play', game_play_id, leaderToken);
-        }, 'GeneralError');
+        }, /AxiosError/);
       });
       it('sponsor can update quest', async function() {
         const update = await axiosUtil.update('quests', {

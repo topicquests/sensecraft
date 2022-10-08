@@ -28,14 +28,14 @@ describe('\'quests\' service', function() {
     it('fails to create quest without authentication', async function() {
       await assert.rejects(async () => {
         await axiosUtil.create('quests', privateQuestInfo);
-      }, 'GeneralError');
+      }, /AxiosError/);
     });
 
     describe('quest creation by unauthorized user', function() {
       it('fails to create quest without authorization', async function() {
         await assert.rejects(async () => {
           await axiosUtil.create('quests', privateQuestInfo, quidamToken);
-        }, 'GeneralError');
+        }, /AxiosError/);
         // TODO: Distinguish "permission denied for table quests" (currently) from
         // new row violates row - level security policy for table "quests"
         // which is what we'd want
