@@ -156,24 +156,26 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
 CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolean
     LANGUAGE plpgsql
     AS $$
-    DECLARE p json;
-    DECLARE t varchar;
-    DECLARE v boolean;
+    DECLARE curuser varchar;
+    DECLARE role varchar;
+    DECLARE name varchar;
+    DECLARE id integer;
+    DECLARE confirmed boolean;
+    DECLARE last_login_email_sent timestamp with time zone;
+    DECLARE passh varchar;
     BEGIN
-      -- check that no email was sent recently
-      -- create JWT token with user email and time of emission
-      -- send email, name and token will be sent to node server via NOTIFY
-      -- set the last_login_email_sent
-
-      -- SELECT payload, valid INTO STRICT p, v FROM verify(token, current_setting('app.jwt_secret'));
-      -- IF NOT v THEN
-      --   RETURN NULL;
-      -- END IF;
-      -- IF (p ->> 'exp')::integer < extract(epoch from now())::integer THEN
-      --   RETURN NULL;
-      -- END IF;
-      -- SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT t FROM (
-      --   SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', id)
+        INTO STRICT id, name, confirmed, last_login_email_sent, role
+        FROM members as m WHERE m.email = email;
+      IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent > 10000 THEN
+        RAISE EXCEPTION 'too soon';  -- TODO: ensure base format
+      END IF;
+      SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
+          SELECT role, extract(epoch from now())::integer + 10000 AS exp) r;
+      PERFORM pg_notify(current_database(), concat('E ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN true;
     END;
     $$;
