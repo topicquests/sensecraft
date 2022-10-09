@@ -26,11 +26,13 @@ export class WaitingProc {
     this.sentinel = sentinel || 'Listening on';
   }
   async ready(): Promise<void> {
-    let resolve: (v) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let resolve: (v: any) => void;
     const ready = new Promise<void>((rs) => {
       resolve = rs;
     });
-    const wakeup = (data) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const wakeup = (data: any) => {
       data = data.toString();
       console.log(this.procname, data);
       if (data.indexOf(this.sentinel) > -1) {
