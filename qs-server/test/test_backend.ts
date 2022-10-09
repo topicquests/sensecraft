@@ -1,9 +1,8 @@
-import { spawn, execSync, ChildProcessWithoutNullStreams } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import process from 'node:process';
-import { axiosUtil, waitForListen } from './utils';
+import { axiosUtil, WaitingProc } from './utils';
 
-let postgrest: ChildProcessWithoutNullStreams;
-let dispatcher: ChildProcessWithoutNullStreams;
+const processes: WaitingProc[] = [];
 
 export const adminInfo = {
   name: 'Admin',
@@ -30,9 +29,9 @@ export const guildCreatorInfo = {
 async function frontendSetup() {
   execSync('./scripts/db_updater.py -d test init');
   execSync('./scripts/db_updater.py -d test deploy');
-  postgrest = spawn('postgrest', ['postgrest_test.conf']);
-  dispatcher = spawn('node', ['dist/qs-server/dispatcher/main.js', 'test']);
-  await Promise.all([waitForListen(postgrest), waitForListen(dispatcher)]);
+  processes.push(new WaitingProc('postgrest', ['postgrest_test.conf']));
+  processes.push(new WaitingProc('node', ['dist/qs-server/dispatcher/main.js', 'test']));
+  await Promise.all(processes.map((wp) => wp.ready()));
   await axiosUtil.call('create_member', adminInfo);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
   await axiosUtil.call('create_member', questCreatorInfo);
@@ -43,8 +42,7 @@ async function frontendSetup() {
 }
 
 async function frontendTeardown () {
-  postgrest.kill('SIGTERM');
-  dispatcher.kill('SIGTERM');
+  await Promise.all(processes.map((wp) => wp.signal('SIGTERM')));
   if (!process.env.NOREVERT)
     execSync('./scripts/db_updater.py -d test revert');
 }
