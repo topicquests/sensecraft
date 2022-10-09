@@ -37,7 +37,7 @@ describe('authentication', function () {
     assert(quidamData[0].confirmed == false);
     memberId = quidamData[0].id;
   });
-  it('obtains a confirmation email', async function () {
+  it.skip('obtains a confirmation email', async function () {
     const axios = axiosUtil.axios;
     const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
       params: {
