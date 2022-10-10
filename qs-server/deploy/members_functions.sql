@@ -166,15 +166,15 @@ CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolea
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', id)
+      SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', m.id)
         INTO STRICT id, name, confirmed, last_login_email_sent, role
-        FROM members as m WHERE m.email = email;
-      IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent > 10000 THEN
+        FROM members as m WHERE m.email = send_login_email.email;
+      IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent < '@1M' THEN
         RAISE EXCEPTION 'too soon';  -- TODO: ensure base format
       END IF;
       SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 10000 AS exp) r;
-      PERFORM pg_notify(current_database(), concat('E ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
+      PERFORM pg_notify(current_database(), concat('E email ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN true;
     END;
@@ -190,6 +190,7 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
     AS $$
     DECLARE curuser varchar;
     DECLARE newmember varchar;
+    DECLARE temp boolean;
     BEGIN
       newmember := current_database() || '__m_' || NEW.id;
       curuser := current_user;
@@ -200,6 +201,7 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
         EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || newmember;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      SELECT send_login_email(NEW.email) INTO temp;
       RETURN NEW;
     END;
     $$;

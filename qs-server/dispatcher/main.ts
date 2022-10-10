@@ -38,7 +38,7 @@ const memberQueryString = '*,quest_membership!member_id(*),guild_membership!memb
 class Client {
   static clients = new Set<Client>();
   static constraintRe = /^([gqpm])(\d+)(:([pr])(\w+))?$/i;
-  static messageRe = /^([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*$/;
+  static messageRe = /^(([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*)|(E (\w+) (\d+ .*))$/;
   ws: WebSocket.WebSocket;
   status: ClientStatus;
   member?: PublicMember = undefined;
@@ -311,18 +311,27 @@ class Dispatcher {
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
     }
-    const [_, base, member_id_s, constraints_s] = parts
-    const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
-      const result = ((s != null) ? Client.constraintRe.exec(s) : null);
-      return (result !== null) ? result.slice(1, 6) : null;
-    }).filter(x => x !== null)) as string[][][];
-    const member_id = Number(member_id_s)
-    const [crud, type, id] = base.split(' ')
-    if (type == 'quests') {
-      this.automation();
-    }
-    for (const client of Client.clients) {
-      client.onReceive(base, member_id, constraints)
+    const [_, base, member_id_s, constraints_s, _1, _2, _3, _4, command, command_args] = parts
+    if (base) {
+      const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
+        const result = ((s != null) ? Client.constraintRe.exec(s) : null);
+        return (result !== null) ? result.slice(1, 6) : null;
+      }).filter(x => x !== null)) as string[][][];
+      const member_id = Number(member_id_s)
+      const [crud, type, id] = base.split(' ')
+      if (type == 'quests') {
+        this.automation();
+      }
+      for (const client of Client.clients) {
+        client.onReceive(base, member_id, constraints)
+      }
+    } else if (command == 'email') {
+      const args = command_args.split(' ', 5);
+      console.log(args);
+    } else if (command) {
+      console.error('unknown command: ', command);
+    } else {
+      console.error('neither base nor command', message);
     }
   }
   close() {
