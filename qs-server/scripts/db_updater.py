@@ -552,7 +552,9 @@ if __name__ == "__main__":
         port=ini_file["postgres"].get("port", 5432),
         debug=args.debug,
     )
-    admin_conn_data = conn_data | {"password": None} | dict(ini_file['postgres'])
+    admin_conn_data = conn_data.copy()
+    admin_conn_data.pop('password')
+    admin_conn_data.update(ini_file['postgres'])
     structures = read_structure()
     if args.command == "list":
         print("\n".join(calc_all_features(structures)))
