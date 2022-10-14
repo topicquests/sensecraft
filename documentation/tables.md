@@ -354,9 +354,11 @@ A singleton table with server data. In particular the elements of the nodemailer
 * smtp_password
 * server_url
   * The public URL of the sensecraft server, that will be used for confirmation links
+* confirm_account_mail_template_title
 * confirm_account_mail_template_text
 * confirm_account_mail_template_html
   * The templates of the letter that will be sent to new members to confirm their email
+* reset_password_mail_template_title
 * reset_password_mail_template_text
 * reset_password_mail_template_html
   * The templates of the letter that will be sent to new members to reset their password
