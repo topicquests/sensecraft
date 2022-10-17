@@ -39,7 +39,7 @@
     "yaml": "~2.1"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "~8.6",
+    "@cucumber/cucumber": "~8.7",
     "@cucumber/pretty-formatter": "^1.0",
     "@quasar/app": "~2.4",
     "@quasar/quasar-app-extension-testing": "~1.0",
