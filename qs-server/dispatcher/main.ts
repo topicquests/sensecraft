@@ -6,7 +6,9 @@ import express from 'express';
 import { createServer } from 'http';
 import axios from 'axios';
 import propertiesReader from 'properties-reader';
-
+import { createTransport } from 'nodemailer';
+import type { Transporter } from 'nodemailer';
+import type { SentMessageInfo, Options as SMTPOptions } from 'nodemailer/lib/smtp-transport';
 
 const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
@@ -35,19 +37,36 @@ const axiosClient = axios.create({ url: postgrestURL });
 
 const memberQueryString = '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
 
+type ServerData = {
+  smtp_server: string,
+  smtp_port: number,
+  smtp_auth_method: string,
+  smtp_secure: boolean,
+  smtp_username: string,
+  smtp_password: string,
+  server_url: string,
+  confirm_account_mail_template_title: string,
+  confirm_account_mail_template_text: string,
+  confirm_account_mail_template_html: string,
+  reset_password_mail_template_title: string,
+  reset_password_mail_template_text: string,
+  reset_password_mail_template_html: string
+}
+
 class Client {
+  // The member-specific websocket and member-focused information
   static clients = new Set<Client>();
   static constraintRe = /^([gqpm])(\d+)(:([pr])(\w+))?$/i;
   static messageRe = /^(([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*)|(E (\w+) (\d+ .*))$/;
+  static roles: Map<number, Role> = new Map();
+  static guildRolesLoaded: Set<number> = new Set();
+  static systemRolesLoaded = false;
   ws: WebSocket.WebSocket;
   status: ClientStatus;
   member?: PublicMember = undefined;
   currentGuild?: number;
   currentQuest?: number;
   token?: string;
-  static roles: Map<number, Role> = new Map();
-  static guildRolesLoaded: Set<number> = new Set();
-  static systemRolesLoaded = false;
   constructor(ws: WebSocket.WebSocket) {
     this.ws = ws
     this.status = ClientStatus.CONNECTED
@@ -251,10 +270,14 @@ class Client {
 }
 
 class Dispatcher {
+  // singleton
   channel: string;
   subscriber: Subscriber;
   pgClient: PGClient;
   next_automation: number | null = null;
+  serverData: ServerData | null = null;
+  mailer: Transporter<SentMessageInfo> | null = null;
+
   constructor(channel: string) {
     this.channel = channel;
     this.pgClient = new PGClient({ connectionString: databaseURL })
@@ -272,7 +295,20 @@ class Dispatcher {
     await this.subscriber.connect()
     await this.subscriber.listenTo(database)
     await this.pgClient.connect()
-    await this.automation();
+    await this.automation()
+    const r = await this.pgClient.query<ServerData>('SELECT * from server_data;')
+    const data = r.rows[0]
+    this.serverData = data
+    const options: SMTPOptions = {
+      port: data.smtp_port,
+      host: data.smtp_server,
+      auth: {
+        user: data.smtp_username,
+        pass: data.smtp_password,
+      },
+      secure: data.smtp_secure,
+    }
+    this.mailer = createTransport(options)
   }
 
   /*
@@ -306,7 +342,7 @@ class Dispatcher {
     process.exit(1)
   }
 
-  onReceive(message: string) {
+  async onReceive(message: string) {
     const parts = Client.messageRe.exec(message)
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
@@ -326,8 +362,25 @@ class Dispatcher {
         client.onReceive(base, member_id, constraints)
       }
     } else if (command == 'email') {
-      const args = command_args.split(' ', 5);
-      console.log(args);
+      const [member_id, email, confirmed, token, name] = command_args.split(' ', 5);
+      const link = `${this.serverData?.server_url}/mail_login?confirmed=${confirmed}&token=${token}`
+      console.log('confirmed', confirmed)
+      let mailTxt = (confirmed=='t') ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
+      let mailHtml = (confirmed=='t') ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
+      let mailTitle = (confirmed=='t') ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
+      for (const [k, v] of Object.entries({ name, link, email })) {
+        mailTxt = mailTxt?.replace(`{${k}}`, v)
+        mailHtml = mailHtml?.replace(`{${k}}`, v)
+        mailTitle = mailTitle?.replace(`{${k}}`, v)
+      }
+      await this.mailer?.sendMail({
+        from: `sensecraft@${this.serverData?.smtp_server}`,
+        to: `${name} <${email}>`,
+        subject: mailTitle,
+        text: mailTxt,
+        html: mailHtml,
+      })
+      this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
     } else if (command) {
       console.error('unknown command: ', command);
     } else {

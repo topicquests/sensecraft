@@ -46,6 +46,7 @@
     "@types/express": "~4.17",
     "@types/mocha": "~10",
     "@types/node": "~16",
+    "@types/nodemailer": "~6.4",
     "@types/pg": "~8.6",
     "@types/properties-reader": "^2.1.1",
     "@types/ws": "~8.5",
