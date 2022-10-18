@@ -20,10 +20,12 @@ export class WaitingProc {
   procname: string;
   proc: ChildProcessWithoutNullStreams;
   sentinel: string;
-  constructor(command: string, params?: string[], sentinel?: string) {
+  echo: boolean;
+  constructor(command: string, params?: string[], sentinel?: string, echo?: boolean) {
     this.procname = command;
     this.proc = spawn(command, params);
     this.sentinel = sentinel || 'Listening on';
+    this.echo = echo;
   }
   async ready(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +36,8 @@ export class WaitingProc {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const wakeup = (data: any) => {
       data = data.toString();
-      console.log(this.procname, data);
+      if (this.echo)
+        console.log(this.procname, data);
       if (data.indexOf(this.sentinel) > -1) {
         setTimeout(resolve, 500);
       }

@@ -18,7 +18,6 @@ const port = Number(process.env['DISPATCHER_PORT'] || '4000');
 const pgst_config = propertiesReader(`postgrest_${_env}.conf`)
 const postgrestURL = `http://localhost:${pgst_config.getRaw('server-port')}`
 
-
 const app: express.Express = express();
 
 const server = createServer(app);
@@ -364,7 +363,6 @@ class Dispatcher {
     } else if (command == 'email') {
       const [member_id, email, confirmed, token, name] = command_args.split(' ', 5);
       const link = `${this.serverData?.server_url}/mail_login?confirmed=${confirmed}&token=${token}`
-      console.log('confirmed', confirmed)
       let mailTxt = (confirmed=='t') ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
       let mailHtml = (confirmed=='t') ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
       let mailTitle = (confirmed=='t') ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;

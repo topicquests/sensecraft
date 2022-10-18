@@ -5,13 +5,11 @@ import { adminInfo, quidamInfo } from './fixtures';
 describe('authentication', function () {
   // eslint-disable-next-line prefer-const
   let memberId: number | null = null, adminToken;
+  const mailhog_auth = { 'Authorization': 'Basic dGVzdDp0ZXN0' }  // test:test
   before(async function () {
     adminToken = await axiosUtil.call('get_token', {
       mail: adminInfo.email, pass: adminInfo.password
     });
-    axiosUtil.update('server_data', {smtp_server: 'localhost'}, {
-      smtp_port: 1025, smtp_secure: false, smtp_username: 'test', smtp_password: 'test'
-    }, adminToken);
   });
   after(async function () { 
     if (memberId)
@@ -37,15 +35,21 @@ describe('authentication', function () {
     assert(quidamData[0].confirmed == false);
     memberId = quidamData[0].id;
   });
-  it.skip('obtains a confirmation email', async function () {
+  it('obtains a confirmation email', async function () {
     const axios = axiosUtil.axios;
-    const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
-      params: {
-        kind: 'to',
-        query: quidamInfo.email
-      }});
-    assert.notEqual(messageSearch.data.total, 0);
-    
+    try {
+      const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
+        params: {
+          kind: 'to',
+          query: quidamInfo.email
+        },
+        headers: mailhog_auth
+      });
+      console.log(messageSearch)
+      assert.notEqual(messageSearch.data.total, 0);
+    } catch (error) {
+      console.error(error)
+    }
     // TODO: Use a mock smtp server, probably https://github.com/mailhog/MailHog
   });
   it('uses the confirmation link', async function () {
