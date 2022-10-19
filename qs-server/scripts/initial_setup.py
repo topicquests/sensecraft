@@ -68,7 +68,7 @@ def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwa
     return dict(user=user, host=host, password=password, sudo=sudo, **kwargs)
 
 
-def create_database(data, conn_data, dropdb=False):
+def create_database(data, conn_data, dropdb=False, set_defaults=True):
     database = data["database"]
     member = database + "__member"
     if not test_user_exists(member, **conn_data):
@@ -103,8 +103,8 @@ def create_database(data, conn_data, dropdb=False):
     auth_secret = data.get("auth_secret", None) or token_urlsafe(32)
     data["auth_secret"] = auth_secret
     owner = data["owner"]
-    exists = test_db_exists(database, **conn_data)
-    if exists and dropdb:
+    db_exists = test_db_exists(database, **conn_data)
+    if db_exists and dropdb:
         extra_roles = psql_command(
             f"select string_agg(rolname, ', ') from pg_catalog.pg_roles where rolname like '{database}\_\__\_%'",
             **conn_data,
@@ -112,8 +112,8 @@ def create_database(data, conn_data, dropdb=False):
         psql_command(f"DROP DATABASE {database}", **conn_data)
         if extra_roles:
             psql_command(f"DROP ROLE {extra_roles}", **conn_data)
-        exists = False
-    if not exists:
+        db_exists = False
+    if not db_exists:
         psql_command(
             f"CREATE DATABASE {database} WITH OWNER {owner} ENCODING UTF8", **conn_data
         )
@@ -134,6 +134,20 @@ def create_database(data, conn_data, dropdb=False):
         f"ALTER DATABASE {database} SET \"app.jwt_secret\" TO '{auth_secret}'",
         **conn_data,
     )
+    if set_defaults:
+        defaults_file = f'{database}_defaults.json'
+        if exists(defaults_file):
+            with open(defaults_file) as f:
+                defaults = json.load(f)
+            for k, v in defaults.items():
+                if type(v) == str:
+                    v = "\'".join(v.split("'"))  # escape
+                    v = f"'{v}'"
+                elif type(v) == bool:
+                    v = str(v).lower()
+                psql_command(f"ALTER DATABASE {database} SET \"defaults.{k}\" TO {v}", **conn_data)
+        else:
+            print("Missing defaults file: ", defaults_file)
     conn_data = conn_data.copy()
     conn_data["db"] = database
     psql_command(f"ALTER SCHEMA public OWNER TO {owner}", **conn_data)
@@ -238,6 +252,18 @@ if __name__ == "__main__":
     argp.add_argument(
         "--dropdb", action="store_true", help="drop the database before creating it"
     )
+    argp.add_argument(
+        "--set-defaults",
+        default=True,
+        action="store_true",
+        help="Store the defaults in the database"
+    )
+    argp.add_argument(
+        "--no-set-defaults",
+        dest="set-defaults",
+        action="store_false",
+        help="Do not store the defaults",
+    )
     argp.add_argument("-d", "--debug", action="store_true", help="debug db commands")
     args = argp.parse_args()
     conn_data["host"] = args.host
@@ -264,7 +290,7 @@ if __name__ == "__main__":
                 data.update({k: ini_file.get(db, k) for k in ini_file.options(db)})
             else:
                 ini_file.add_section(db)
-            data = create_database(data, conn_data, args.dropdb)
+            data = create_database(data, conn_data, args.dropdb, args.set_defaults)
             for k, v in data.items():
                 ini_file.set(db, k, v)
             url = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}:{conn_data['port']}/{dbname}"
