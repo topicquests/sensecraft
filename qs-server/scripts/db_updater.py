@@ -13,7 +13,6 @@ import re
 from dataclasses import dataclass, field
 import difflib
 from shutil import copyfile
-from json import load
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
@@ -447,21 +446,6 @@ def test_feature(feature: str, structures, state, conn_data):
         return False
 
 
-def set_defaults(conn_data, default_file=None, reset=False):
-    if default_file:
-        with open(default_file) as f:
-            defaults = load(f)
-        for k, v in defaults.items():
-            if type(v) == str:
-                v = "\'".join(v.split("'"))  # escape
-                v = f"'{v}'"
-            elif type(v) == bool:
-                v = str(v).lower()
-            psql_command(f"ALTER DATABASE {conn_data['db']} SET \"defaults.{k}\" TO {v}", **conn_data)
-    if reset:
-        psql_command("SELECT reset_all_default_data()", **conn_data)
-
-
 if __name__ == "__main__":
     ini_file = ConfigParser()
     if exists(CONFIG_FILE):
@@ -514,9 +498,6 @@ if __name__ == "__main__":
         action="append",
         help="deploy only this feature (and dependencies)",
     )
-    setdefaultp = subp.add_parser("set_defaults", help="set database defaults")
-    setdefaultp.add_argument("-f", "--default_file")
-    setdefaultp.add_argument("-r", "--reset", action="store_true")
     truncatep = subp.add_parser("truncate", help="truncate tables")
     add_featurep = subp.add_parser("add_feature", help="create a new feature")
     add_featurep.add_argument("-f", "--feature", required=True)
@@ -560,16 +541,11 @@ if __name__ == "__main__":
         port=ini_file["postgres"].get("port", 5432),
         debug=args.debug,
     )
-    admin_conn_data = conn_data.copy()
-    admin_conn_data.pop('password')
-    admin_conn_data.update(ini_file['postgres'])
     structures = read_structure()
     if args.command == "list":
         print("\n".join(calc_all_features(structures)))
     elif args.command == "init":
         init_db(conn_data)
-    elif args.command == "set_defaults":
-        set_defaults(admin_conn_data, args.default_file, args.reset)
     elif args.command == "add_feature":
         add_feature(args.feature, args.requirement, args.idempotent)
     elif args.command == "add_version":
