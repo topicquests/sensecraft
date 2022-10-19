@@ -447,16 +447,17 @@ def test_feature(feature: str, structures, state, conn_data):
         return False
 
 
-def set_defaults(conn_data, default_file, reset=False):
-    with open(default_file) as f:
-        defaults = load(f)
-    for k, v in defaults.items():
-        if type(v) == str:
-            v = "\'".join(v.split("'"))  # escape
-            v = f"'{v}'"
-        elif type(v) == bool:
-            v = str(v).lower()
-        psql_command(f"ALTER DATABASE {conn_data['db']} SET \"defaults.{k}\" TO {v}", **conn_data)
+def set_defaults(conn_data, default_file=None, reset=False):
+    if default_file:
+        with open(default_file) as f:
+            defaults = load(f)
+        for k, v in defaults.items():
+            if type(v) == str:
+                v = "\'".join(v.split("'"))  # escape
+                v = f"'{v}'"
+            elif type(v) == bool:
+                v = str(v).lower()
+            psql_command(f"ALTER DATABASE {conn_data['db']} SET \"defaults.{k}\" TO {v}", **conn_data)
     if reset:
         psql_command("SELECT reset_all_default_data()", **conn_data)
 
@@ -514,7 +515,7 @@ if __name__ == "__main__":
         help="deploy only this feature (and dependencies)",
     )
     setdefaultp = subp.add_parser("set_defaults", help="set database defaults")
-    setdefaultp.add_argument("-f", "--default_file", default="db_defaults.json")
+    setdefaultp.add_argument("-f", "--default_file")
     setdefaultp.add_argument("-r", "--reset", action="store_true")
     truncatep = subp.add_parser("truncate", help="truncate tables")
     add_featurep = subp.add_parser("add_feature", help="create a new feature")

@@ -29,7 +29,9 @@ jobs:
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./qs-server
-        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
+        run: |
+          python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production
+          python ./scripts/db_updater.py -d test set_defaults -f test_db_defaults.json
       - name: install postgrest
         run: |
           wget https://github.com/PostgREST/postgrest/releases/download/v10.0.0/postgrest-v10.0.0-linux-static-x64.tar.xz
