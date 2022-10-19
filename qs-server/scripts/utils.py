@@ -9,7 +9,7 @@ def psql_command(
     sudo=False,
     port=5432,
     password=None,
-    host="127.0.0.1",
+    host="localhost",
     debug=False,
     variables=None,
     **kwargs,
@@ -25,7 +25,7 @@ def psql_command(
         else:
             conn = ["psql", "-U", user]
         conn.append(db)
-        if host != "localhost":
+        if not sudo and host != "localhost":
             conn.extend(["-h", host])
     conn.extend(["-q", "--csv", "-t", "-n"])
     if variables:
