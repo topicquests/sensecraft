@@ -1,10 +1,11 @@
 import assert from 'assert';
 import { axiosUtil, delete_members } from './utils';
 import { adminInfo, quidamInfo } from './fixtures';
+import { decode } from 'libqp';
 
 describe('authentication', function () {
   // eslint-disable-next-line prefer-const
-  let memberId: number | null = null, adminToken;
+  let memberId: number | null = null, adminToken, token;
   const mailhog_auth = { 'Authorization': 'Basic dGVzdDp0ZXN0' }  // test:test
   before(async function () {
     adminToken = await axiosUtil.call('get_token', {
@@ -45,8 +46,17 @@ describe('authentication', function () {
         },
         headers: mailhog_auth
       });
-      console.log(messageSearch)
       assert.notEqual(messageSearch.data.total, 0);
+      const email = messageSearch.data.items[0]
+      const textParts = email.MIME.Parts.filter(x => (((x.Headers || {})['Content-Type'] || [''])[0].indexOf('text/plain') >= 0))
+      assert.equal(textParts.length, 1)
+      let text: string = textParts[0].Body
+      if (textParts[0].Headers['Content-Transfer-Encoding'] == 'quoted-printable')
+        text = decode(text).toString()
+      const token_search = /token=(.*)/.exec(text)
+      assert(token_search)
+      const token = token_search[1]
+      console.log(token)
     } catch (error) {
       console.error(error)
     }
