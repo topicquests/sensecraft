@@ -36,6 +36,13 @@ describe('authentication', function () {
     assert(quidamData[0].confirmed == false);
     memberId = quidamData[0].id;
   });
+  it('cannot login yet', async function () {
+    await assert.rejects(async () => {
+      await axiosUtil.call('get_token', {
+        mail: quidamInfo.email, pass: quidamInfo.password
+      });
+    }, /invalid confirmed/);
+  });
   it('obtains a confirmation email', async function () {
     const axios = axiosUtil.axios;
     try {
@@ -55,16 +62,25 @@ describe('authentication', function () {
         text = decode(text).toString()
       const token_search = /token=(.*)/.exec(text)
       assert(token_search)
-      const token = token_search[1]
-      console.log(token)
+      token = token_search[1]
     } catch (error) {
       console.error(error)
     }
-    // TODO: Use a mock smtp server, probably https://github.com/mailhog/MailHog
   });
-  it('uses the confirmation link', async function () {
-    // TODO: use the confirmation link on postgres, call confirm_member_email with token
-    // check that the confirmed flag was set, and probably also last-login
+  it('uses the token to set confirmation', async function () {
+    await axiosUtil.call('renew_token', {token});
+    const quidamData = await axiosUtil.get(
+      'members',
+      { email: quidamInfo.email! },
+      adminToken
+    );
+    assert.equal(quidamData.length, 1);
+    assert(quidamData[0].confirmed);
+  });
+  it.skip('cannot login with old confirm token', async function () {
+    await assert.rejects(async () => {
+      await axiosUtil.call('renew_token', { token });
+    }, /invalid old_token/);
   });
   it('ask for a reset password', async function () {
     // TODO: ask for a password reset. We should get an email with token.

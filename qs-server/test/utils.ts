@@ -153,6 +153,9 @@ export async function add_members(members: Partial<Member>[], adminToken: string
   for (const member of members) {
     try {
       memberIds[member.handle as string] = await axiosUtil.call('create_member', member, adminToken);
+      if (adminToken) {
+        await axiosUtil.update('members', { email: member.email! }, { confirmed: true }, adminToken);
+      }
       memberTokens[member.handle as string] = await axiosUtil.call('get_token', {
         mail: member.email, pass: member.password
       });

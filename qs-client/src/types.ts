@@ -52,6 +52,9 @@ export interface Member extends PublicMember {
   created_at: string;
   updated_at: string;
   name: string;
+  confirmed: boolean;
+  last_login: string;
+  last_login_email_sent: string;
 }
 
 export interface GamePlay {

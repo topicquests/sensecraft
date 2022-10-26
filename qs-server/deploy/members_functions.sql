@@ -101,10 +101,14 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     DECLARE role varchar;
     DECLARE passh varchar;
     DECLARE curuser varchar;
+    DECLARE is_confirmed boolean;
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      SELECT CONCAT(current_database() || '__m_', id), password INTO STRICT role, passh FROM members WHERE email = mail;
+      SELECT CONCAT(current_database() || '__m_', id), password, confirmed INTO STRICT role, passh, is_confirmed FROM members WHERE email = mail;
+      IF NOT is_confirmed THEN
+        RAISE EXCEPTION 'invalid confirmed / Cannot login until confirmed';
+      END IF;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
@@ -147,7 +151,7 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
         SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      UPDATE members SET last_login = now() WHERE id=member_id;
+      UPDATE members SET last_login = now(), confirmed = true WHERE id=member_id;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN t;
     END;
@@ -248,9 +252,11 @@ CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
       IF num_mem = 0 THEN
         -- give superadmin to first registered user
         NEW.permissions = ARRAY['superadmin'::permission];
+        NEW.confirmed = true;
       ELSE
         IF NOT public.has_permission('superadmin') THEN
           NEW.permissions = ARRAY[]::permission[];
+          NEW.confirmed = false;
         END IF;
       END IF;
       RETURN NEW;
