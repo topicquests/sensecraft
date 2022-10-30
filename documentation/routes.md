@@ -27,7 +27,23 @@ Administration page. Sets global permissions
 
 ### register `/register`
 
+Create a new user.
+
 ### signin `/signin`
+
+Login to the system with a email/password combination.
+TODO: Allow username?
+TODO: provide an option to request a password reset.
+
+### confirm `/confirm`
+
+TODO: use the provided token to confirm the account, route to home and tell the user that their account is confirmed
+
+### reset_pass `/reset_pass`
+
+TODO: use the token to login the user, and provide a password reset form that does not require the old password.
+If no token/a bad token was provided, put people back on login page, where they can request a password reset.
+Open question: Do we request the old password otherwise? Do we want to distinguish the cases?
 
 ## Quest App pages
 
