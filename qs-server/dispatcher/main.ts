@@ -10,6 +10,8 @@ import { createTransport } from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import type { SentMessageInfo, Options as SMTPOptions } from 'nodemailer/lib/smtp-transport';
 
+import type { ServerData } from '../../qs-client/src/types';
+
 const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
 const database: string = config.getRaw(`${_env}.database`) || 'sensecraft'
@@ -35,22 +37,6 @@ enum ClientStatus {
 const axiosClient = axios.create({ url: postgrestURL });
 
 const memberQueryString = '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
-
-type ServerData = {
-  smtp_server: string,
-  smtp_port: number,
-  smtp_auth_method: string,
-  smtp_secure: boolean,
-  smtp_username: string,
-  smtp_password: string,
-  server_url: string,
-  confirm_account_mail_template_title: string,
-  confirm_account_mail_template_text: string,
-  confirm_account_mail_template_html: string,
-  reset_password_mail_template_title: string,
-  reset_password_mail_template_text: string,
-  reset_password_mail_template_html: string
-}
 
 class Client {
   // The member-specific websocket and member-focused information

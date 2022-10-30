@@ -200,3 +200,20 @@ export interface CastingRole {
   role_id: number;
   quest_id: number;
 }
+
+
+export type ServerData = {
+  smtp_server: string,
+  smtp_port: number,
+  smtp_auth_method: string,
+  smtp_secure: boolean,
+  smtp_username: string,
+  smtp_password: string,
+  server_url: string,
+  confirm_account_mail_template_title: string,
+  confirm_account_mail_template_text: string,
+  confirm_account_mail_template_html: string,
+  reset_password_mail_template_title: string,
+  reset_password_mail_template_text: string,
+  reset_password_mail_template_html: string
+}
