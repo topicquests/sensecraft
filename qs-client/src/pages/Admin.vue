@@ -75,11 +75,12 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import member from "../components/member.vue";
 import scoreboard from "../components/scoreboard.vue";
 import { mapActions, mapGetters } from "vuex";
 import roleTable from "../components/role-table.vue";
+import type { Member } from "../types";
 
 function ensure(array, value, present) {
   if (!array) return;
@@ -114,7 +115,7 @@ export default {
     ...mapGetters("members", ["getMembers", "getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
 
-    member: function () {
+    member: function (): Member | undefined {
       return this.getMemberById(this.member_id);
     },
     superAdmin: {
