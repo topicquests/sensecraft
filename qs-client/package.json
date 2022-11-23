@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@quasar/extras": "~1.15",
-    "axios": "~1.1",
+    "axios": "~1.2",
     "core-js": "^3.25",
     "grant": "~5.4",
     "luxon": "~3.1",
@@ -98,9 +98,9 @@
   },
   "productName": "SenseCraft",
   "resolutions": {
-    "axios": "~1.1"
+    "axios": "~1.2"
   },
   "overrides": {
-    "axios": "~1.1"
+    "axios": "~1.2"
   }
 }
