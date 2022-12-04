@@ -237,7 +237,7 @@ const NodeTreeProps = Vue.extend({
       "getPrivateScoreMap",
       "getPrivateConversationTree",
     ]),
-    ...mapGetters("guilds", ["getGuildById", "getCurrentGuild"]),
+    ...mapGetters("guilds", ["getGuildById", "getCurrentGuild", "isGuildMember"]),
     ...mapGetters("quests", [
       "getMaxPubStateForNodeType",
       "getCurrentQuest",
@@ -320,7 +320,7 @@ export default class NodeTree extends NodeTreeProps {
   getConversationTree!: ConversationGetterTypes["getConversationTree"];
   getNeighbourhoodTree!: ConversationGetterTypes["getNeighbourhoodTree"];
   getGuildById: GuildsGetterTypes["getGuildById"];
-  getCurrentGulid: GuildsGetterTypes["getCurrentGuild"];
+  getCurrentGuild: GuildsGetterTypes["getCurrentGuild"];
   getMemberById!: MembersGetterTypes["getMemberById"];
   getMaxPubStateForNodeType: QuestsGetterTypes["getMaxPubStateForNodeType"];
   getCurrentQuest: QuestsGetterTypes["getCurrentQuest"];
@@ -343,6 +343,7 @@ export default class NodeTree extends NodeTreeProps {
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  isGuildMember!: GuildsGetterTypes["isGuildMember"];
 
   emits = ["tree-selection"];
 
@@ -445,7 +446,7 @@ export default class NodeTree extends NodeTreeProps {
 
   canEdit(nodeId: number): boolean {
     const quest = this.getCurrentQuest;
-    if (!quest.is_playing || quest.status == "finished") return false;
+    if (quest && (!quest.is_playing || quest.status == "finished")) return false;
     if (this.channelId) {
       return this.canEditChannel(this.channelId, nodeId);
     } else {
@@ -454,7 +455,12 @@ export default class NodeTree extends NodeTreeProps {
   }
   canAddTo(nodeId: number): boolean {
     const quest = this.getCurrentQuest;
-    return (quest.is_playing || quest.is_quest_member) && quest.status != "finished";
+    if (quest) {
+      return (quest.is_playing || quest.is_quest_member) && quest.status != "finished";
+    } else if (this.channelId) {
+      return !!this.isGuildMember(this.currentGuildId)
+    }
+    return false;
   }
   getNode(nodeId: number): ConversationNode {
     if (this.channelId) {
