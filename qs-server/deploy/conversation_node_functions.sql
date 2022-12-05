@@ -245,7 +245,7 @@ BEGIN
       RAISE EXCEPTION 'invalid status / guild statuses require a guild';
     END IF;
   ELSE
-    IF NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
+    IF quest_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
       -- create a basic "playGame" permission, automatic on joining?
       RAISE EXCEPTION 'permission playGame / not playing game';
     END IF;
