@@ -51,27 +51,23 @@ describe('authentication', function () {
     // wait for MailHog
     await delay(500);
     const axios = axiosUtil.axios;
-    try {
-      const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
-        params: {
-          kind: 'to',
-          query: quidamInfo.email
-        },
-        headers: mailhog_auth
-      });
-      assert.notEqual(messageSearch.data.total, 0);
-      const email = messageSearch.data.items[0]
-      const textParts = email.MIME.Parts.filter(x => (((x.Headers || {})['Content-Type'] || [''])[0].indexOf('text/plain') >= 0))
-      assert.equal(textParts.length, 1)
-      let text: string = textParts[0].Body
-      if (textParts[0].Headers['Content-Transfer-Encoding'] == 'quoted-printable')
-        text = decode(text).toString()
-      const token_search = /token=(.*)/.exec(text)
-      assert(token_search)
-      token = token_search[1]
-    } catch (error) {
-      console.error(error)
-    }
+    const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
+      params: {
+        kind: 'to',
+        query: quidamInfo.email
+      },
+      headers: mailhog_auth
+    });
+    assert.notEqual(messageSearch.data.total, 0);
+    const email = messageSearch.data.items[0]
+    const textParts = email.MIME.Parts.filter(x => (((x.Headers || {})['Content-Type'] || [''])[0].indexOf('text/plain') >= 0))
+    assert.equal(textParts.length, 1)
+    let text: string = textParts[0].Body
+    if (textParts[0].Headers['Content-Transfer-Encoding'] == 'quoted-printable')
+      text = decode(text).toString()
+    const token_search = /token=(.*)/.exec(text)
+    assert(token_search)
+    token = token_search[1]
   });
   it('uses the token to set confirmation', async function () {
     await axiosUtil.call('renew_token', {token});
