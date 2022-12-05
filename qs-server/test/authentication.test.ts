@@ -3,6 +3,10 @@ import { axiosUtil, delete_members } from './utils';
 import { adminInfo, quidamInfo } from './fixtures';
 import { decode } from 'libqp';
 
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
 describe('authentication', function () {
   // eslint-disable-next-line prefer-const
   let memberId: number | null = null, adminToken, token;
@@ -44,6 +48,8 @@ describe('authentication', function () {
     }, /invalid confirmed/);
   });
   it('obtains a confirmation email', async function () {
+    // wait for MailHog
+    await delay(500);
     const axios = axiosUtil.axios;
     try {
       const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
