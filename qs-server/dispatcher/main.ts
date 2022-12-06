@@ -347,11 +347,12 @@ class Dispatcher {
         client.onReceive(base, member_id, constraints)
       }
     } else if (command == 'email') {
-      const [member_id, email, confirmed, token, name] = command_args.split(' ', 5);
+      const [member_id, email, confirmed_, token, name] = command_args.split(' ', 5);
+      const confirmed = confirmed_ == 't';
       const link = `${this.serverData?.server_url}/${confirmed?'reset_pass':'confirm'}?token=${token}`
-      let mailTxt = (confirmed=='t') ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
-      let mailHtml = (confirmed=='t') ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
-      let mailTitle = (confirmed=='t') ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
+      let mailTxt = confirmed ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
+      let mailHtml = confirmed ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
+      let mailTitle = confirmed ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
       for (const [k, v] of Object.entries({ name, link, email })) {
         mailTxt = mailTxt?.replace(`{${k}}`, v)
         mailHtml = mailHtml?.replace(`{${k}}`, v)
