@@ -457,6 +457,9 @@ if __name__ == "__main__":
     argp.add_argument(
         "-d", "--database", default="development", help="the database to use"
     )
+    argp.add_argument(
+        "--debug", action="store_true", help="add debugging information"
+    )
     subp = argp.add_subparsers(dest="command", required=True)
     initp = subp.add_parser("init", help="initialize the database table")
     deployp = subp.add_parser("deploy", help="deploy some or all features")
@@ -536,6 +539,7 @@ if __name__ == "__main__":
         db=ini_file[db]["database"],
         variables=dict(dbn=ini_file[db]["database"]),
         port=ini_file["postgres"].get("port", 5432),
+        debug=args.debug,
     )
     structures = read_structure()
     if args.command == "list":
