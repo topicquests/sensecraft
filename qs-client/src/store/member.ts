@@ -143,7 +143,7 @@ export const member = (axios: AxiosInstance) =>
         storage.setItem("tokenExpiry", state.tokenExpiry.toString());
         window.setTimeout(() => {
           MyVapi.store.dispatch("member/renewToken", {
-            params: { token: state.token },
+            data: { token: state.token },
           });
         }, TOKEN_RENEWAL);
         // Ideally, I should be able to chain another action as below.
@@ -228,7 +228,7 @@ export const member = (axios: AxiosInstance) =>
     })
     .call({
       action: "renewToken",
-      path: ({ token }: { token: string }) => `/rpc/renew_token?token=${token}`,
+      path: 'renew_token',
       onError: (
         state: MemberState,
         error,
@@ -255,7 +255,7 @@ export const member = (axios: AxiosInstance) =>
         storage.setItem("tokenExpiry", tokenExpiry.toString());
         window.setTimeout(() => {
           MyVapi.store.dispatch("member/renewToken", {
-            params: { token: state.token },
+            data: { token: state.token },
           });
         }, TOKEN_RENEWAL);
       },
@@ -368,7 +368,7 @@ type MemberRestActionTypes = {
   signin: RestParamActionType<{ email: string; password: string }, string>;
   fetchLoginUser: RestEmptyActionType<Member[]>;
   registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
-  renewToken: RestParamActionType<{ token: string }, string>;
+  renewToken: RestDataActionType<{ token: string }, string>;
 };
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
