@@ -68,3 +68,29 @@ The idea of shared credit is also important for similar ideas in a turn-based sy
 
 There was also a question from Byron about the balance between agency and team spirit, both within and between the guild.
 We could have internal scores for good play within a guild.
+
+
+## Scoring as learning
+
+I owe the initial idea to Alexandre Enkerli (https://scholar.social/@enkerli). Following [Epistemic Justice](https://en.wikipedia.org/wiki/Epistemic_injustice), the players should have a collective discussion about what matters in the conversation, and that would be a more full learning experience than scoring by an authority or an abstract mechanism. The advantage of this is that it turns SenseCraft even more explicitly into an epistemic research process.
+
+There are many ways to implement this, this is a strawman proposal, to be discussed collectively:
+
+1. The quest setup should include a definition of bounties, in the form of tokens that will be awarded throughout the quest.
+   1. External tokens tokens will be handed out to players, to be given (mandatory) to players with whom they do not share a playing guild.
+   2. Internal tokens will be handed out to players (or only to play leaders?) to be handed in-team (optional.)
+   3. Quest tokens will be awarded by quest sponsors (of few of which may be optional, such as for a proposal without identified major downsides, and costs within a preset boundary.)
+   4. Learning guilds (aka CoP) can co-sponsor the quest, and will also have quest tokens. (optional?)
+2. The play setup should have a list of epistemic patterns that it defines as worthy of reward. Such moves can be defined by the hub, the quest, playing guilds or learning guilds.
+   1. Eg of epistemic pattern: Convincing evidence, original position, synthetic position, etc.
+3. At any point in the game, token holders would spend tokens to indicate that someone's game move is exemplary according to one of the identified patterns.
+   1. Variant: allow participants (whether guild or quest) to identify new epistemic patterns during the game. (These should be limited in number, and should probably be made public on the moment.)
+   2. Option 1: Do so in secret, allow change throughout the game
+      1. Variant (Balderdash): reward game moves in quadratic proportion no the number of people spending tokens on it.
+   3. Option 2: Do so openly, and token spending can be argued. Allow re-spending a contested token.
+      1. Note: It makes spending tokens difficult, which can become an interesting game dynamic; but then allow an arbitration mechanism against spurious contestation.
+4. Unspent mandatory (external) tokens are held against the guild's total.
+5. Tokens earned against an epistemic pattern eventually earn you a badge for that pattern.
+   1. There should be alignment between those patterns and roles, to be developed. Maybe you need a certain level of badge for a pattern to earn a role.
+6. Guilds could make expertise with certain epistemic pattern a signature
+7. Learning guilds would mostly reward specific expertise, rather than an epistemic pattern.
