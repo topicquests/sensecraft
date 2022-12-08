@@ -19,7 +19,6 @@ import { getWSClient } from "../wsclient";
 
 export interface MemberState {
   member: Member;
-  email?: string;
   token?: string;
   tokenExpiry?: number;
   isAuthenticated: boolean;
@@ -32,7 +31,6 @@ const TOKEN_RENEWAL = (TOKEN_EXPIRATION * 9) / 10;
 
 const baseState: MemberState = {
   member: null,
-  email: null,
   token: null,
   tokenExpiry: null,
   isAuthenticated: false,
@@ -40,7 +38,6 @@ const baseState: MemberState = {
 
 const MemberGetters = {
   getUser: (state: MemberState) => state.member,
-  getUserEmail: (state: MemberState) => state.email,
   getUserId: (state: MemberState) => state.member?.id,
   getMembersAvailableRoles: (state: MemberState) =>
     state.member?.guild_member_available_role,
@@ -139,12 +136,10 @@ export const member = (axios: AxiosInstance) =>
       ) => {
         state.token = res.data;
         state.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
-        state.email = data.mail;
         state.isAuthenticated = true;
         const storage = window.localStorage;
         storage.setItem("token", state.token);
         storage.setItem("tokenExpiry", state.tokenExpiry.toString());
-        storage.setItem("email", state.email);
         window.setTimeout(() => {
           MyVapi.store.dispatch("member/renewToken", {
             params: { token: state.token },
@@ -152,14 +147,13 @@ export const member = (axios: AxiosInstance) =>
         }, TOKEN_RENEWAL);
         // Ideally, I should be able to chain another action as below.
         // But onSuccess is part of the mutator, not the action, so no async.
-        // return await MyVapi.store.dispatch('member/fetchLoginUser', {email: data.mail})
+        // return await MyVapi.store.dispatch('member/fetchLoginUser')
       },
     })
     .get({
       action: "fetchLoginUser",
       property: "member",
-      path: "/members",
-      queryParams: true,
+      path: "/rpc/current_member",
       beforeRequest: (state: MemberState, { params }) => {
         if (!state.token) {
           state.token = window.localStorage.getItem("token");
@@ -169,22 +163,14 @@ export const member = (axios: AxiosInstance) =>
             window.localStorage.getItem("tokenExpiry")
           );
         }
-        if (!state.email) {
-          state.email = window.localStorage.getItem("email");
-        }
-        if (state.token && state.email) {
-          params.email = `eq.${state.email}`;
-        }
-        params.select =
-          "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
       },
       onSuccess: (
         state: MemberState,
-        res: AxiosResponse<Member[]>,
+        res: AxiosResponse<Member>,
         axios: AxiosInstance,
         { params, data }
       ) => {
-        state.member = res.data[0];
+        state.member = res.data;
         state.isAuthenticated = true;
         state.token = state.token || window.localStorage.getItem("token");
         const tokenExpiry =
@@ -275,8 +261,9 @@ export const member = (axios: AxiosInstance) =>
       mutations: {
         LOGOUT: (state: MemberState) => {
           window.localStorage.removeItem("token");
-          window.localStorage.removeItem("email");
           window.localStorage.removeItem("tokenExpiry");
+          // legacy
+          window.localStorage.removeItem("email");
           return Object.assign(state, baseState);
         },
         ADD_CASTING: (state: MemberState, casting) => {

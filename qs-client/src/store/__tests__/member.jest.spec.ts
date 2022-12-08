@@ -62,7 +62,6 @@ describe("Member store", () => {
     const result = await promise;
     expect(result.data).toEqual(token);
     expect(store.state.member.token).toEqual(token);
-    expect(store.state.member.email).toEqual(mail);
     const expiry = new Date(store.state.member.tokenExpiry);
     const interval = expiry.getTime() - Date.now();
     expect(interval).toBeGreaterThan(0);
@@ -72,12 +71,7 @@ describe("Member store", () => {
     store.dispatch("member/ensureLoginUser");
     expect(mockAxios.request).toHaveBeenCalledWith(
       makeReq({
-        url: "/members",
-        params: {
-          email: `eq.${mail}`,
-          select:
-            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)",
-        },
+        url: "/rpc/current_member",
       })
     );
     expect(store.state.member.member).toBeDefined();

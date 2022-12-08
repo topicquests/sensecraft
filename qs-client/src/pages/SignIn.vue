@@ -97,7 +97,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("member", ["getUserId", "getUserEmail"]),
+    ...mapGetters("member", ["getUserId"]),
   },
   methods: {
     ...mapActions("member", ["signin", "ensureLoginUser"]),
