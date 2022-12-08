@@ -247,6 +247,8 @@ export const member = (axios: AxiosInstance) =>
         { params, data }
       ) => {
         state.token = res.data;
+        if (state.member)
+          getWSClient().login(state.member.id, state.token);
         const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         state.tokenExpiry = tokenExpiry;
         const storage = window.localStorage;
