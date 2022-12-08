@@ -55,6 +55,15 @@ AS $$
 $$ LANGUAGE SQL STABLE;
 
 
+--
+-- Name: current_member(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.current_member() RETURNS public.members
+AS $$
+  SELECT * from public.members WHERE id = public.current_member_id()
+$$ LANGUAGE SQL STABLE;
+
 
 --
 -- Name: has_permission(character varying); Type: FUNCTION
@@ -201,7 +210,9 @@ CREATE OR REPLACE FUNCTION create_member(
   name character varying, email character varying, password character varying, handle character varying,
   permissions permission[] DEFAULT ARRAY[]::permission[]
   ) RETURNS INTEGER VOLATILE AS $$
-  INSERT INTO members (name, email, password, handle, permissions) VALUES ($1, $2, crypt($3, gen_salt('bf')), $4, $5) RETURNING id;
+  INSERT INTO members (name, email, password, handle, permissions) VALUES ($1, $2, crypt($3, gen_salt('bf')), $4, $5);
+  -- cannot use RETURNING because of select permissions
+  SELECT id FROM public_members WHERE handle=$4;
 $$ LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION create_member(character varying, character varying, character varying, character varying, permissions permission[]) TO :dbc;
@@ -240,6 +251,6 @@ CREATE POLICY members_delete_policy ON public.members FOR DELETE USING (id = cur
 DROP POLICY IF EXISTS members_insert_policy ON public.members;
 CREATE POLICY members_insert_policy ON public.members FOR INSERT WITH CHECK (true);
 DROP POLICY IF EXISTS members_select_policy ON public.members;
-CREATE POLICY members_select_policy ON public.members FOR SELECT USING (true);
+CREATE POLICY members_select_policy ON public.members FOR SELECT USING (id = current_member_id() OR has_permission('superadmin'));
 
 COMMIT;
