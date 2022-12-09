@@ -71,9 +71,9 @@ $$ LANGUAGE SQL STABLE;
 
 CREATE OR REPLACE FUNCTION public.has_permission(permission character varying) RETURNS boolean
 AS $$
-  SELECT current_user = current_database()||'__owner' OR 
+  SELECT current_user = current_database()||'__owner' OR (current_member_id() IS NOT NULL AND
     COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
-      FROM members where id=current_member_id()), FALSE);
+      FROM members where id=current_member_id()), FALSE));
 $$ LANGUAGE SQL STABLE;
 
 
