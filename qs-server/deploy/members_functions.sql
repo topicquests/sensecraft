@@ -171,14 +171,16 @@ CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolea
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', m.id)
-        INTO STRICT id, name, confirmed, last_login_email_sent, role
+        INTO id, name, confirmed, last_login_email_sent, role
         FROM members as m WHERE m.email = send_login_email.email;
-      IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent < '@1M' THEN
-        RAISE EXCEPTION 'too soon';  -- TODO: ensure base format
+      IF id IS NOT NULL THEN
+        IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent < '@1M' THEN
+          RAISE EXCEPTION 'too soon';  -- TODO: ensure base format
+        END IF;
+        SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
+            SELECT role, extract(epoch from now())::integer + 10000 AS exp) r;
+        PERFORM pg_notify(current_database(), concat('E email ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
       END IF;
-      SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
-          SELECT role, extract(epoch from now())::integer + 10000 AS exp) r;
-      PERFORM pg_notify(current_database(), concat('E email ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN true;
     END;
