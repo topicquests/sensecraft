@@ -185,6 +185,8 @@ CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolea
     $$;
 
 
+GRANT EXECUTE ON FUNCTION send_login_email(character varying) TO :dbc;
+
 --
 -- Name: after_create_member(); Type: FUNCTION
 --
