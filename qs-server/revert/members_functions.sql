@@ -31,5 +31,6 @@ DROP FUNCTION IF EXISTS  public.has_permission(permission character varying);
 DROP FUNCTION IF EXISTS  public.current_member();
 DROP FUNCTION IF EXISTS  public.current_member_id();
 DROP FUNCTION IF EXISTS  public.create_member(name character varying, email character varying, password character varying, handle character varying, permissions permission[]);
+DROP FUNCTION IF EXISTS  public.is_superadmin();
 
 COMMIT;

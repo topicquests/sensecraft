@@ -288,7 +288,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
           IF NOT public.has_guild_permission(guild_id, 'guildAdmin') THEN
             RAISE EXCEPTION 'permission guildAdmin / change guild permissions';
           END IF;
-          IF 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT has_permission('superadmin') THEN
+          IF 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT is_superadmin() THEN
             IF NEW.member_id != current_member_id() THEN
               RAISE EXCEPTION 'permission guildAdmin / can remove another member''s guildAdmin permission';
             END IF;

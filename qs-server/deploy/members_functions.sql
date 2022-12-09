@@ -64,6 +64,20 @@ AS $$
   SELECT * from public.members WHERE id = public.current_member_id()
 $$ LANGUAGE SQL STABLE;
 
+--
+-- Name: is_superadmin(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.is_superadmin() RETURNS boolean
+AS $$
+  SELECT (current_user = current_database()||'__owner') OR count(*) > 0
+    FROM pg_catalog.pg_roles r JOIN pg_catalog.pg_auth_members m
+    ON (m.member = r.oid)
+    JOIN pg_roles r1 ON (m.roleid=r1.oid)
+    WHERE r1.rolname = current_database()||'__owner'
+    AND r.rolname=current_user
+$$ LANGUAGE SQL STABLE;
+
 
 --
 -- Name: has_permission(character varying); Type: FUNCTION
@@ -71,7 +85,7 @@ $$ LANGUAGE SQL STABLE;
 
 CREATE OR REPLACE FUNCTION public.has_permission(permission character varying) RETURNS boolean
 AS $$
-  SELECT current_user = current_database()||'__owner' OR (current_member_id() IS NOT NULL AND
+  SELECT public.is_superadmin() OR (current_member_id() IS NOT NULL AND
     COALESCE((SELECT permissions && CAST(ARRAY['superadmin', permission] AS permission[])
       FROM members where id=current_member_id()), FALSE));
 $$ LANGUAGE SQL STABLE;
@@ -165,7 +179,7 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     BEGIN
       curuser := current_user;
       NEW.updated_at := now();
-      IF NEW.permissions != OLD.permissions AND NOT public.has_permission('superadmin') THEN
+      IF NEW.permissions != OLD.permissions AND NOT public.is_superadmin() THEN
         RAISE EXCEPTION 'permission superadmin / change user permissions';
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -245,12 +259,12 @@ CREATE TRIGGER after_delete_member AFTER DELETE ON public.members FOR EACH ROW E
 
 ALTER TABLE public.members ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS members_update_policy ON public.members;
-CREATE POLICY members_update_policy ON public.members FOR UPDATE USING (id = current_member_id() OR has_permission('superadmin'));
+CREATE POLICY members_update_policy ON public.members FOR UPDATE USING (id = current_member_id() OR public.is_superadmin());
 DROP POLICY IF EXISTS members_delete_policy ON public.members;
-CREATE POLICY members_delete_policy ON public.members FOR DELETE USING (id = current_member_id() OR has_permission('superadmin'));
+CREATE POLICY members_delete_policy ON public.members FOR DELETE USING (id = current_member_id() OR public.is_superadmin());
 DROP POLICY IF EXISTS members_insert_policy ON public.members;
 CREATE POLICY members_insert_policy ON public.members FOR INSERT WITH CHECK (true);
 DROP POLICY IF EXISTS members_select_policy ON public.members;
-CREATE POLICY members_select_policy ON public.members FOR SELECT USING (id = current_member_id() OR has_permission('superadmin'));
+CREATE POLICY members_select_policy ON public.members FOR SELECT USING (id = current_member_id() OR public.is_superadmin());
 
 COMMIT;

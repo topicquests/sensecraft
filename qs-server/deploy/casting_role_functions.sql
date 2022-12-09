@@ -43,7 +43,7 @@ $$ LANGUAGE plpgsql STABLE;
 
 CREATE OR REPLACE FUNCTION has_play_permission(quest_id INTEGER, perm public.permission) RETURNS boolean AS $$
   SELECT bool_or(hasp) FROM (
-    SELECT has_permission('superadmin') AS hasp
+    SELECT is_superadmin() AS hasp
     UNION
     SELECT perm = ANY(coalesce(m.permissions, ARRAY[]::permission[]))
         AND (public.is_playing_quest_in_guild(quest_id) IS NOT NULL OR public.is_quest_id_member(quest_id)) AS hasp

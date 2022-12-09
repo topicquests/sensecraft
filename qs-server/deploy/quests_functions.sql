@@ -337,7 +337,7 @@ CREATE POLICY quests_select_policy ON public.quests FOR SELECT USING (((public A
    FROM public.my_quest_memberships
   WHERE my_quest_memberships.confirmed))));
 DROP POLICY IF EXISTS quests_delete_policy ON public.quests;
-CREATE POLICY quests_delete_policy ON public.quests FOR DELETE USING (public.has_permission('superadmin'));
+CREATE POLICY quests_delete_policy ON public.quests FOR DELETE USING (public.is_superadmin());
 
 
 --

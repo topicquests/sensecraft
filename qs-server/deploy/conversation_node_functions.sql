@@ -30,7 +30,7 @@ GRANT SELECT ON TABLE public.conversation_node TO :dbc;
 
 CREATE OR REPLACE FUNCTION has_node_permission(quest_id INTEGER, node_type public.ibis_node_type, perm public.permission) RETURNS boolean AS $$
   SELECT bool_or(hasp) FROM (
-    SELECT has_permission('superadmin') AS hasp
+    SELECT is_superadmin() AS hasp
     UNION
     SELECT perm = ANY(coalesce(m.permissions, ARRAY[]::permission[]))
         AND (public.is_playing_quest_in_guild(quest_id) IS NOT NULL OR public.is_quest_id_member(quest_id)) AS hasp
@@ -173,7 +173,7 @@ BEGIN
     FROM members
     WHERE members.handle = (data->>'creator_id')::varchar;
   IF creator_id != current_member_id() THEN
-    IF NOT has_permission('superadmin') THEN
+    IF NOT is_superadmin() THEN
       RAISE EXCEPTION 'permission superadmin / create nodes as other member';
     END IF;
     EXECUTE 'SET ROLE ' || current_database() || '__m_' || creator_id::text;
@@ -245,11 +245,11 @@ BEGIN
       RAISE EXCEPTION 'invalid status / guild statuses require a guild';
     END IF;
   ELSE
-    IF quest_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR has_permission('superadmin')) THEN
+    IF quest_id IS NOT NULL AND NOT (public.is_playing_quest_in_guild(quest_id) = guild_id OR is_superadmin()) THEN
       -- create a basic "playGame" permission, automatic on joining?
       RAISE EXCEPTION 'permission playGame / not playing game';
     END IF;
-    IF node_type != 'channel' AND NOT has_permission('superadmin') THEN
+    IF node_type != 'channel' AND NOT is_superadmin() THEN
       SELECT max(max_pub_state) INTO max_role_status FROM public.role_node_constraint
         JOIN casting_role ON casting_role.role_id = role_node_constraint.role_id
         WHERE casting_role.guild_id = check_node_status_rules.guild_id
@@ -267,7 +267,7 @@ BEGIN
   -- status cannot be higher than parent_status
   status := least(status, parent_status);
   IF status = 'submitted' THEN
-    IF NOT (is_guild_id_leader(guild_id) OR has_permission('superadmin'))  THEN
+    IF NOT (is_guild_id_leader(guild_id) OR is_superadmin())  THEN
       RAISE EXCEPTION 'permission guildAdmin,publishGameMove';
     END IF;
     -- TODO: The following should not happen if the quest is turn-based
@@ -371,7 +371,7 @@ BEGIN
       RAISE EXCEPTION 'invalid draft_for_role_id / Role must be a guild role';
     END IF;
   END IF;
-  IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' AND NOT has_permission('superadmin') THEN
+  IF NEW.guild_id IS NOT NULL AND NEW.status > 'proposed' AND (SELECT status FROM quests WHERE id = NEW.quest_id) != 'ongoing' AND NOT is_superadmin() THEN
     RAISE EXCEPTION 'invalid status / Do not submit nodes unless quest is ongoing';
   END IF;
   IF NEW.status = 'published' THEN
