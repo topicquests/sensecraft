@@ -16,6 +16,7 @@ import {
   GuildMemberAvailableRole,
 } from "../types";
 import { getWSClient } from "../wsclient";
+import { decode } from "jws";
 
 export interface MemberState {
   member: Member;
@@ -153,7 +154,8 @@ export const member = (axios: AxiosInstance) =>
     .get({
       action: "fetchLoginUser",
       property: "member",
-      path: "/rpc/current_member",
+      path: "/members",
+      queryParams: true,
       beforeRequest: (state: MemberState, { params }) => {
         if (!state.token) {
           state.token = window.localStorage.getItem("token");
@@ -163,6 +165,11 @@ export const member = (axios: AxiosInstance) =>
             window.localStorage.getItem("tokenExpiry")
           );
         }
+        const parts: string[] = decode(state.token).payload.role.split("_");
+        const role = parts[parts.length - 1];
+        params.id = `eq.${role}`
+        params.select =
+          "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
       },
       onSuccess: (
         state: MemberState,
@@ -170,7 +177,7 @@ export const member = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        state.member = res.data;
+        state.member = res.data[0];
         state.isAuthenticated = true;
         state.token = state.token || window.localStorage.getItem("token");
         const tokenExpiry =
