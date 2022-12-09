@@ -144,7 +144,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
     DECLARE guild_id integer;
     DECLARE member_id integer;
     BEGIN
-      SELECT id INTO member_id FROM members WHERE id=OLD.member_id;
+      SELECT id INTO member_id FROM public_members WHERE id=OLD.member_id;
       SELECT id INTO guild_id FROM guilds WHERE id=OLD.guild_id;
       IF member_id IS NOT NULL AND guild_id IS NOT NULL THEN
         curuser := current_user;
@@ -259,7 +259,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
     BEGIN
         -- RAISE WARNING 'before_createup %', row_to_json(NEW);
         SELECT id, open_for_applications, application_needs_approval INTO STRICT guild_id, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
-        SELECT id INTO member_id FROM members WHERE id=NEW.member_id;
+        SELECT id INTO member_id FROM public_members WHERE id=NEW.member_id;
         is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
         is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
         IF (NOT needs_approval) OR is_guild_id_member(NEW.guild_id) OR 1 = (SELECT COUNT(id) FROM guilds WHERE id = NEW.guild_id AND creator=NEW.member_id) THEN

@@ -103,11 +103,11 @@ BEGIN
   IF node.status < include_level THEN
     RETURN 'null'::jsonb;
   END IF;
-  SELECT quests.handle, guilds.handle, members.handle INTO quest_handle, guild_handle, creator_handle
+  SELECT quests.handle, guilds.handle, public_members.handle INTO quest_handle, guild_handle, creator_handle
     FROM conversation_node
     LEFT OUTER JOIN quests ON quests.id = conversation_node.quest_id
     LEFT OUTER JOIN guilds ON guilds.id = conversation_node.guild_id
-    LEFT OUTER JOIN members ON members.id = conversation_node.creator_id
+    LEFT OUTER JOIN public_members ON public_members.id = conversation_node.creator_id
     WHERE conversation_node.id = node_id;
   SELECT array_agg(nodes2json(n.id, include_level, include_meta)) INTO children_json
     FROM conversation_node n
@@ -170,8 +170,8 @@ BEGIN
     RAISE EXCEPTION 'missing creator_id';
   END IF;
   SELECT id INTO STRICT creator_id
-    FROM members
-    WHERE members.handle = (data->>'creator_id')::varchar;
+    FROM public_members
+    WHERE public_members.handle = (data->>'creator_id')::varchar;
   IF creator_id != current_member_id() THEN
     IF NOT is_superadmin() THEN
       RAISE EXCEPTION 'permission superadmin / create nodes as other member';

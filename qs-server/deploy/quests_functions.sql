@@ -277,7 +277,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest_membership() RETURNS trigge
     DECLARE questrole varchar;
     DECLARE memberrole varchar;
     BEGIN
-      SELECT slug INTO memberrole FROM members WHERE id=OLD.member_id;
+      SELECT slug INTO memberrole FROM public_members WHERE id=OLD.member_id;
       SELECT slug INTO questrole FROM quests WHERE id=OLD.quest_id;
       IF questrole IS NOT NULL AND memberrole IS NOT NULL THEN
         curuser := current_user;
@@ -307,7 +307,7 @@ CREATE OR REPLACE FUNCTION public.before_createup_quest_membership() RETURNS tri
         RAISE EXCEPTION 'permission createQuest / change casting permissions';
       END IF;
       SELECT id INTO quest_id FROM quests WHERE id=NEW.quest_id;
-      SELECT id INTO member_id FROM members WHERE id=NEW.member_id;
+      SELECT id INTO member_id FROM public_members WHERE id=NEW.member_id;
       IF quest_id IS NOT NULL AND member_id IS NOT NULL THEN
         PERFORM alter_quest_membership(quest_id, member_id, NEW.confirmed);
       END IF;
