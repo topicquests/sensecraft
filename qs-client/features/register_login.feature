@@ -13,12 +13,9 @@ Feature: Register a new user into Sensecraft
       Then Page title is "Sign In - SenseCraft"
       # Can we test for the flashing web message about having been sent email?
       And User test@email.com gets email with token
-
-    Scenario: Use the email token
       Given User has token
       When User clicks on token link
-      Then Page title is "Dashboard - Sensecraft"
-      And The user is logged in
+      Then The user is logged in
 
     Scenario: Logoff
       Given The logoff page
