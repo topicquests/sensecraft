@@ -82,6 +82,10 @@ const MemberActions = {
     // data = { ...data, password };
     return await context.dispatch("registerUserCrypted", { data });
   },
+  resendToken: async (context, data) => {
+    // data = {email}
+    return await context.dispatch("sendRenewToken",  {data: { email: data }})
+  },
   ensureLoginUser: async (context) => {
     // TODO: the case where the member is pending
     if (!context.state.member) {
@@ -217,18 +221,42 @@ export const member = (axios: AxiosInstance) =>
         res: AxiosResponse<number>,
         axios: AxiosInstance,
         { params, data }
+        
       ) => {
+        
         // TODO: Send email to user with activation link
         // TODO: Add to members state?
         MyVapi.store.dispatch("members/ensureMemberById", {
           id: res.data,
           full: false,
-        });
+       });
+      },
+    })
+    .call({
+      action: "sendRenewToken",
+      path: "send_login_email",
+      onError: (
+        state: MemberState,
+        error,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        if (data.code == 409) throw new Error("EXISTS");
+        else throw error;
+      },
+      onSuccess: (
+        state: MemberState,
+        res: AxiosResponse<number>,
+        axios: AxiosInstance,
+        { data }
+      ) => {
+        console.log("data ", data)
+        console.log("Res ", res)
       },
     })
     .call({
       action: "renewToken",
-      path: 'renew_token',
+      path: "renew_token",
       onError: (
         state: MemberState,
         error,
@@ -370,6 +398,8 @@ type MemberRestActionTypes = {
   fetchLoginUser: RestEmptyActionType<Member[]>;
   registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
   renewToken: RestDataActionType<{ token: string }, string>;
+  confirmToken: RestDataActionType<{ token: string }, string>;
+  resendToken: RestDataActionType<{ email: string }, string>;
 };
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
