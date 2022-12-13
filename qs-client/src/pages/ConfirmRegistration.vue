@@ -25,6 +25,7 @@
             name="email"
             label="Email"
             tabindex="1"
+            v-on:keyup.enter="resend"
           >
           </q-input>
         </div>
@@ -44,14 +45,14 @@ import { Notify } from "quasar";
   name: "confirm_registration",
 
   methods: {
-    ...mapActions("member", ["renewToken", "fetchLoginUser", "resendToken"]),
+    ...mapActions("member", ["renewToken", "fetchLoginUser", "sendConfirmEmail"]),
   },
 })
 export default class ConfirmRegistration extends Vue {
   email: string = null;
   renewToken!: MemberActionTypes["renewToken"];
   fetchLoginUser!: MemberActionTypes["fetchLoginUser"];
-  resendToken!: MemberActionTypes["resendToken"];
+  sendConfirmEmail!: MemberActionTypes["sendConfirmEmail"];
 
   resend() {
     let theEmail = this.email;
@@ -59,8 +60,7 @@ export default class ConfirmRegistration extends Vue {
       this.$q.notify({ type: "negative", message: "Missing Email" });
       return;
     }
-    theEmail = theEmail.toLowerCase();
-    this.resendToken(theEmail);
+    this.sendConfirmEmail({ data: { email: theEmail }});
   }
 
   async getNewToken(prevToken) {
