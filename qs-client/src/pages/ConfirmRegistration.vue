@@ -2,11 +2,14 @@
   <q-page class="bg-secondary">
     <div>
       <q-card  class="card fixed-center q-pl-md q-pt-md">
-        <span class="q-pb-md q-pl-md"
+        <span class="q-pb-md q-pl-md" v-if="token"
           >If this screen is being displayed it is due to an issue with email
           verification. Please click button below to resend email verification.
           If you have reached this screen after another attempt please contact
           SenseCraft administrator</span
+        >
+        <span class="q-pb-md q-pl-md" v-else
+          >Give your email if you want us to resend your confirmation email</span
         >
         <div class="row justify-center q-pt-lg q-pb-lg">
           <q-btn
@@ -50,6 +53,7 @@ import { Notify } from "quasar";
 })
 export default class ConfirmRegistration extends Vue {
   email: string = null;
+  token: string = null;
   renewToken!: MemberActionTypes["renewToken"];
   fetchLoginUser!: MemberActionTypes["fetchLoginUser"];
   sendConfirmEmail!: MemberActionTypes["sendConfirmEmail"];
@@ -82,8 +86,9 @@ export default class ConfirmRegistration extends Vue {
   }
 
   async beforeMount() {
-    const prevToken = this.$route.query.token;
-    await this.getNewToken(prevToken);
+    const tokenArg = this.$route.query.token;
+    this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
+    await this.getNewToken(this.token);
   }
 }
 </script>
