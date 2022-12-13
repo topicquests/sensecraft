@@ -54,7 +54,7 @@ const app = new Vue({
       const renewToken = this.renewToken;
       const interval = Math.max(0, prevTokenExpiry - Date.now() - 10000);
       window.setTimeout(function () {
-        renewToken({ params: { token: prevToken } });
+        renewToken({ data: { token: prevToken } });
       }, interval);
     }
   },

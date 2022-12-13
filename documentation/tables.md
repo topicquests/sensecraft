@@ -49,12 +49,11 @@ Under consideration or v2
 * mutateMetaToConv
 * moveChannelBranchToConv
 
-## scoring_criterion
+## TODO: scoring_criterion
 
 Represents a criterion which will be used to score a game move (mostly introducing conversation nodes). A given game mode can be scored along multiple axes (or criteria.)
 
 Will eventually be objects with computations (ScoringStrategies), but we need to start with an enum representing the axis of what is scored.
-TBD
 
 ## publication_state
 
@@ -88,13 +87,22 @@ Used when a link between a member and a group (guild or quest) needs to be confi
 * Pro
 * Con
 * Reference
-* Channel (later)
+* Channel
 
-## badge_type
+## meta_state
+
+* conversation
+  * A node in the quest conversation
+* meta
+  * A meta node about the quest conversation, attached to it
+* channel
+  * A node in a conversation channel, detached from the quest conversation
+
+## TODO: badge_type
 
 An enum of badges. TBD.
 
-## game_move_type (v2)
+## TODO: game_move_type
 
 * add_node
 
@@ -104,37 +112,62 @@ Eventually refactorings, etc.
 
 ## members
 
-* handle varchar (unique)
+* handle varchar
+* slug varchar (unique)
+  * Computed from handle
 * name varchar
 * email varchar (unique)
 * password
 * permissions Permission[]
+* created_at timestamp (now)
+* updated_at timestamp (now)
+* last_login timestamp
+  * When did the member last login (or renew login token)
+  * email login tokens will not be accepted after the last_login
+* last_login_email_sent
+  * When was the last password change request email sent
+  * Used to avoid spamming: do not allow very close password change request
+* confirmed boolean (false)
+  * Whether the email was verified
 
 ## guilds
 
+The teams playing the game
+
 * name varchar
-* handle varchar (unique)
-* public boolean
-* open_for_applications boolean : whether guilds can apply (default: true)
-* application_needs_approval boolean : whether guild application approval is manual (default: false)
+* handle varchar
+* slug varchar (unique)
+  * Computed from handle
+* public boolean (true)
+* description text
+* open_for_applications boolean (true)
+  * whether guilds can apply (default: true)
+* application_needs_approval boolean (false)
+  *  whether guild application approval is manual
 * creator fk(members)
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
+* default_role_id fk(roles)
+  * Which is the base allowed role you get when you join the guild
 
 public_guilds: view on guilds, with public=true
 
 ## quests
 
 * name varchar
-* handle varchar (unique)
+* handle varchar
+* slug varchar (unique)
+  * Computed from handle
 * description text
-* public boolean
+* public boolean (true)
 * status QuestStatus
-* start datetime : when should the quest start (1st turn)
-* end datetime : when should the quest end
+* start datetime (not null)
+  * when should the quest start (1st turn)
+* end datetime
+  * when should the quest end
 * creator fk(members)
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 
 later maybe
 
@@ -142,24 +175,44 @@ later maybe
 * turns TurnStrategy
 * admin User
 
-public_quests: view on quests, with public=true
+## public_quests
+
+view on quests, with public=true
+
+## quests_data
+
+view on quests, with aggregate information
+
+* last_node_published_at  timestamp
+* node_count  int
+* confirmed_guild_count  int
+* interested_guild_count  int
+* player_count  int
+* is_playing  boolean
+* my_confirmed_guild_count  int
+* my_recruiting_guild_count  int
+* is_quest_member  boolean
 
 ## role
 
 * name varchar
-* guild_id fk(guilds) : Null means system role, editable only by sysadmin
+* guild_id fk(guilds)
+  * Null means system role, editable only by sysadmin
 * permissions Permission[]
-* node_type_constraints ibis_node_type[]
-* node_state_constraints publication_state[]
-* next_role_constraint integer[] fk(roles) : when adding a role_draft, who can you address it to?
-* max_pub_state publication_state (TODO)
-
-## role_node_constraint (TODO)
-
-* role_id (pkey)
-* node_type (pkey)
 * max_pub_state publication_state
-* target_role_draft
+  * This role can give up to this status to conversation nodes (unless specified by a role_node_constraint)
+* role_draft_target_role_id fk(role)
+  * if that role puts a node in role_draft status, it has to be addressed to that other role
+
+## role_node_constraint
+
+This role can give up to this status to nodes of a given type
+
+* role_id fk(role)
+* node_type ibis_node_type
+* max_pub_state
+* role_draft_target_role_id
+  * if that role puts a node of this type in role_draft status, it has to be addressed to that other role
 
 ## casting_role
 
@@ -200,8 +253,8 @@ the member-quest join table. Only for quest creator and moderators.
 * member_id fk(members)
 * status: confirmation_status
 * permissions Permission[]
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 
 my_quest_memberships: view on quest_membership, with member_id=current_user()
 
@@ -214,8 +267,8 @@ the guild-quest join table. All guild members.
 * status: confirmation_status
 * permissions Permission[]
 * available_roles Role[]
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 
 my_guild_memberships: view on guild_membership, with member_id=current_user()
 
@@ -226,8 +279,8 @@ Join table for guilds that register to play a given quest.
 * guild_id fk(guilds)
 * quest_id fk(quests)
 * status registration_status
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 * accepted_at timestamp
 * scores jsonb
 
@@ -240,8 +293,8 @@ The member as playing in a given quest (through a guild.). 3-way join table.
 * member_id fk(members)
 * permissions Permission[]
 * roles Role[]
-* created_at timestamp
-* updated_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 
 eventually maybe:
 
@@ -256,12 +309,20 @@ A conversation node.
 * creator_id fk(members)
 * parent_id fk(conversation_node)
 * ancestry ltree
+  * Computed from parent_id
 * node_type ibis_node_type
 * status publication_state
-* created_at timestamp
+* created_at timestamp (now)
+* updated_at timestamp (now)
 * published_at timestamp
 * title String
 * description Text
+* meta meta_state
+* url varchar
+  * Mostly for reference nodes
+* draft_for_role_id
+  * If the status is role_draft, which role can see it?
+
 
 Note: Making the temporary choice to go with tree vs graph. May be refactored.
 The author is given by the backlinks from the game_moves.
@@ -269,7 +330,6 @@ JP and MAP are having a deep conversation about transclusion vs reference: This 
 
 Near future:
 
-* meta_conversation boolean
 * next_actor_role Role
 * next_actor Member
 
@@ -280,6 +340,30 @@ Medium future:
 * node_id integer
 * state_history <publication_state, timestamp>[]
 * previous_version fk(conversation_node)
+
+## server_data
+
+A singleton table with server data. In particular the elements of the nodemailer server information.
+
+
+* smtp_server varchar
+* smtp_port int
+* smtp_auth_method varchar
+* smtp_secure boolean (true)
+* smtp_username
+* smtp_password
+* server_url
+  * The public URL of the sensecraft server, that will be used for confirmation links
+* confirm_account_mail_template_title
+* confirm_account_mail_template_text
+* confirm_account_mail_template_html
+  * The templates of the letter that will be sent to new members to confirm their email
+* reset_password_mail_template_title
+* reset_password_mail_template_text
+* reset_password_mail_template_html
+  * The templates of the letter that will be sent to new members to reset their password
+
+(The templates will probably have a default in a file, that can be overridden here. It should not be necessary to populate this table.)
 
 # Coming soon (V1)
 

@@ -1,9 +1,15 @@
 import { binding, given, then, when } from "cucumber-tsflow";
+import axios from "axios";
+import { decode } from "libqp";
 
 import { By } from "selenium-webdriver";
+import { NoSuchElementError } from "selenium-webdriver/lib/error";
 import { assert } from "chai";
 import { ensureSelenium } from "../support/integration";
 
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
 @binding()
 export class SeleniumSteps {
   @given("User logs in with {string} \\/ {string}")
@@ -113,4 +119,64 @@ export class SeleniumSteps {
     const driver = await ensureSelenium();
     await driver.get("http://localhost:8080/signin");
   }
+
+  @given("The logoff page")
+  public async givenALogoffPage() {
+    const driver = await ensureSelenium();
+    await driver.get("http://localhost:8080/signoff");
+  }
+
+  @then(/The user is (not )?logged in/)
+  public async thenLoggedInStatus(negation: string) {
+    const expected = !(negation?.length > 0);
+    const driver = await ensureSelenium();
+    try {
+      await driver.findElement(By.className('member'));
+      assert.isTrue(expected);
+    } catch (e) {
+      if (e instanceof NoSuchElementError)
+        assert.isFalse(expected);
+      else
+        throw e;
+    }
+  }
+
+  @then(/User (\S+) gets email with token/)
+  public async getEmailWithToken(member_email: string) {
+    await delay(500);
+    const mailhog_auth = { 'Authorization': 'Basic dGVzdDp0ZXN0' }  // test:test
+    const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
+      params: {
+        kind: 'to',
+        query: member_email
+      },
+      headers: mailhog_auth
+    });
+    assert.notEqual(messageSearch.data.total, 0);
+    const email = messageSearch.data.items[0]
+    const textParts = email.MIME.Parts.filter(x => (((x.Headers || {})['Content-Type'] || [''])[0].indexOf('text/plain') >= 0))
+    assert.equal(textParts.length, 1)
+    let text: string = textParts[0].Body
+    if (textParts[0].Headers['Content-Transfer-Encoding'] == 'quoted-printable')
+      text = decode(text).toString()
+    const token_search = /(http:.*)/.exec(text)
+    assert(token_search)
+    const token = token_search[1];
+    (this as any).emailTokenLink = token;
+  }
+
+  @given("User has token")
+  public hasToken() {
+    assert.isDefined((this as any).emailTokenLink);
+  }
+
+  @when("User clicks on token link")
+  public async useTokenLink() {
+    const driver = await ensureSelenium();
+    const url: string = (this as any).emailTokenLink;
+    await driver.get(url);
+    // wait for the forwarding
+    await delay(300);
+  }
+
 }

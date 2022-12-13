@@ -27,6 +27,9 @@ if __name__ == "__main__":
         "-u", "--user", required=True, help="the handle or email of a user"
     )
     argp.add_argument(
+        "-c", "--confirm", action="store_true", help="Also confirm the user"
+    )
+    argp.add_argument(
         "-p",
         "--permissions",
         default=[],
@@ -63,3 +66,8 @@ if __name__ == "__main__":
             **conn_data,
         )
         print("new permissions: ", permissions)
+    if args.confirm:
+        psql_command(
+            f"UPDATE members SET confirmed=true {selector}",
+            **conn_data,
+        )

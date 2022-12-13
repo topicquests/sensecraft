@@ -143,7 +143,7 @@ export const member = (axios: AxiosInstance) =>
         storage.setItem("tokenExpiry", state.tokenExpiry.toString());
         window.setTimeout(() => {
           MyVapi.store.dispatch("member/renewToken", {
-            params: { token: state.token },
+            data: { token: state.token },
           });
         }, TOKEN_RENEWAL);
         // Ideally, I should be able to chain another action as below.
@@ -165,7 +165,9 @@ export const member = (axios: AxiosInstance) =>
             window.localStorage.getItem("tokenExpiry")
           );
         }
-        const parts: string[] = decode(state.token).payload.role.split("_");
+        const token_payload = decode(state.token).payload;
+        const payload = (typeof(token_payload) == 'string') ? JSON.parse(token_payload) : token_payload;
+        const parts: string[] = payload.role.split("_");
         const role = parts[parts.length - 1];
         params.id = `eq.${role}`
         params.select =
@@ -223,13 +225,16 @@ export const member = (axios: AxiosInstance) =>
         MyVapi.store.dispatch("members/ensureMemberById", {
           id: res.data,
           full: false,
-        });
+       });
       },
     })
     .call({
+      action: "sendConfirmEmail",
+      path: "send_login_email",
+    })
+    .call({
       action: "renewToken",
-      path: ({ token }: { token: string }) => `/rpc/renew_token?token=${token}`,
-      readOnly: true,
+      path: "renew_token",
       onError: (
         state: MemberState,
         error,
@@ -248,7 +253,8 @@ export const member = (axios: AxiosInstance) =>
         { params, data }
       ) => {
         state.token = res.data;
-        getWSClient().login(state.member.id, state.token);
+        if (state.member)
+          getWSClient().login(state.member.id, state.token);
         const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         state.tokenExpiry = tokenExpiry;
         const storage = window.localStorage;
@@ -256,7 +262,7 @@ export const member = (axios: AxiosInstance) =>
         storage.setItem("tokenExpiry", tokenExpiry.toString());
         window.setTimeout(() => {
           MyVapi.store.dispatch("member/renewToken", {
-            params: { token: state.token },
+            data: { token: state.token },
           });
         }, TOKEN_RENEWAL);
       },
@@ -369,7 +375,9 @@ type MemberRestActionTypes = {
   signin: RestParamActionType<{ email: string; password: string }, string>;
   fetchLoginUser: RestEmptyActionType<Member[]>;
   registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
-  renewToken: RestParamActionType<{ token: string }, string>;
+  renewToken: RestDataActionType<{ token: string }, string>;
+  confirmToken: RestDataActionType<{ token: string }, string>;
+  sendConfirmEmail: RestDataActionType<{ email: string }, boolean>;
 };
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &

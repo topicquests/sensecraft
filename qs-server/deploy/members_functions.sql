@@ -101,16 +101,22 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     DECLARE role varchar;
     DECLARE passh varchar;
     DECLARE curuser varchar;
+    DECLARE is_confirmed boolean;
     BEGIN
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
-      SELECT CONCAT(current_database() || '__m_', id), password INTO STRICT role, passh FROM members WHERE email = mail;
-      EXECUTE 'SET LOCAL ROLE ' || curuser;
+      SELECT CONCAT(current_database() || '__m_', id), password, confirmed INTO STRICT role, passh, is_confirmed FROM members WHERE email = mail;
+      IF NOT is_confirmed THEN
+        RAISE EXCEPTION 'invalid confirmed / Cannot login until confirmed';
+      END IF;
       IF passh = crypt(pass, passh) THEN
         SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
           SELECT role, extract(epoch from now())::integer + 1000 AS exp) r;
+        UPDATE members SET last_login = now() WHERE email=mail;
+        EXECUTE 'SET LOCAL ROLE ' || curuser;
         RETURN passh;
       ELSE
+        EXECUTE 'SET LOCAL ROLE ' || curuser;
         RETURN NULL;
       END IF;
     END;
@@ -127,6 +133,8 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
     DECLARE p json;
     DECLARE t varchar;
     DECLARE v boolean;
+    DECLARE curuser varchar;
+    DECLARE member_id integer;
     BEGIN
       SELECT payload, valid INTO STRICT p, v FROM verify(token, current_setting('app.jwt_secret'));
       IF NOT v THEN
@@ -135,12 +143,51 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
       IF (p ->> 'exp')::integer < extract(epoch from now())::integer THEN
         RETURN NULL;
       END IF;
+      SELECT role_to_id(p ->> 'role') INTO STRICT member_id;
+      IF member_id != (SELECT id FROM members WHERE id = member_id) THEN
+        RETURN NULL;
+      END IF;
       SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT t FROM (
         SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      UPDATE members SET last_login = now(), confirmed = true WHERE id=member_id;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN t;
     END;
     $$;
 
+CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE curuser varchar;
+    DECLARE role varchar;
+    DECLARE name varchar;
+    DECLARE id integer;
+    DECLARE confirmed boolean;
+    DECLARE last_login_email_sent timestamp with time zone;
+    DECLARE passh varchar;
+    BEGIN
+      curuser := current_user;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', m.id)
+        INTO id, name, confirmed, last_login_email_sent, role
+        FROM members as m WHERE m.email = send_login_email.email;
+      IF id IS NOT NULL THEN
+        IF last_login_email_sent IS NOT NULL AND now() - last_login_email_sent < '@1M' THEN
+          RAISE EXCEPTION 'too soon';  -- TODO: ensure base format
+        END IF;
+        SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT passh FROM (
+            SELECT role, extract(epoch from now())::integer + 10000 AS exp) r;
+        PERFORM pg_notify(current_database(), concat('E email ', id, ' ', email, ' ',confirmed, ' ',passh, ' ',name));
+      END IF;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
+      RETURN true;
+    END;
+    $$;
+
+
+GRANT EXECUTE ON FUNCTION send_login_email(character varying) TO :dbc;
 
 --
 -- Name: after_create_member(); Type: FUNCTION
@@ -151,6 +198,7 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
     AS $$
     DECLARE curuser varchar;
     DECLARE newmember varchar;
+    DECLARE temp boolean;
     BEGIN
       newmember := current_database() || '__m_' || NEW.id;
       curuser := current_user;
@@ -161,6 +209,7 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
         EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || newmember;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      SELECT send_login_email(NEW.email) INTO temp;
       RETURN NEW;
     END;
     $$;
@@ -207,9 +256,11 @@ CREATE OR REPLACE FUNCTION public.before_create_member() RETURNS trigger
       IF num_mem = 0 THEN
         -- give superadmin to first registered user
         NEW.permissions = ARRAY['superadmin'::permission];
+        NEW.confirmed = true;
       ELSE
         IF NOT public.has_permission('superadmin') THEN
           NEW.permissions = ARRAY[]::permission[];
+          NEW.confirmed = false;
         END IF;
       END IF;
       RETURN NEW;

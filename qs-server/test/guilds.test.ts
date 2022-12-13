@@ -32,7 +32,7 @@ describe('\'guilds\' service', function() {
     before(async function() {
       adminToken = await axiosUtil.call('get_token', {
         mail: adminInfo.email, pass: adminInfo.password
-      }, undefined, true);
+      });
       ({ memberIds, memberTokens } = await add_members([quidam2Info, leaderInfo, quidamInfo], adminToken));
       /* eslint-disable @typescript-eslint/no-non-null-assertion */
       quidamToken = memberTokens[quidamInfo.handle!];

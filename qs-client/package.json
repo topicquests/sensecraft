@@ -65,6 +65,7 @@
     "jest-environment-jsdom": "~29",
     "jest-matcher-vue-test-utils": "~2.0",
     "jest-mock-axios": "^4.6",
+    "libqp": "~1.1",
     "lint-staged": "~13.0",
     "prettier": "~2.8",
     "selenium-webdriver": "~4.6",

@@ -6,7 +6,11 @@ import express from 'express';
 import { createServer } from 'http';
 import axios from 'axios';
 import propertiesReader from 'properties-reader';
+import { createTransport } from 'nodemailer';
+import type { Transporter } from 'nodemailer';
+import type { SentMessageInfo, Options as SMTPOptions } from 'nodemailer/lib/smtp-transport';
 
+import type { ServerData } from '../../qs-client/src/types';
 
 const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
@@ -15,7 +19,6 @@ const databaseURL = `postgres://${config.getRaw(`${_env}.owner`)}:${config.getRa
 const port = Number(process.env['DISPATCHER_PORT'] || '4000');
 const pgst_config = propertiesReader(`postgrest_${_env}.conf`)
 const postgrestURL = `http://localhost:${pgst_config.getRaw('server-port')}`
-
 
 const app: express.Express = express();
 
@@ -36,18 +39,19 @@ const axiosClient = axios.create({ url: postgrestURL });
 const memberQueryString = '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
 
 class Client {
+  // The member-specific websocket and member-focused information
   static clients = new Set<Client>();
   static constraintRe = /^([gqpm])(\d+)(:([pr])(\w+))?$/i;
-  static messageRe = /^([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*$/;
+  static messageRe = /^(([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*)|(E (\w+) (\d+ .*))$/;
+  static roles: Map<number, Role> = new Map();
+  static guildRolesLoaded: Set<number> = new Set();
+  static systemRolesLoaded = false;
   ws: WebSocket.WebSocket;
   status: ClientStatus;
   member?: PublicMember = undefined;
   currentGuild?: number;
   currentQuest?: number;
   token?: string;
-  static roles: Map<number, Role> = new Map();
-  static guildRolesLoaded: Set<number> = new Set();
-  static systemRolesLoaded = false;
   constructor(ws: WebSocket.WebSocket) {
     this.ws = ws
     this.status = ClientStatus.CONNECTED
@@ -251,10 +255,14 @@ class Client {
 }
 
 class Dispatcher {
+  // singleton
   channel: string;
   subscriber: Subscriber;
   pgClient: PGClient;
   next_automation: number | null = null;
+  serverData: ServerData | null = null;
+  mailer: Transporter<SentMessageInfo> | null = null;
+
   constructor(channel: string) {
     this.channel = channel;
     this.pgClient = new PGClient({ connectionString: databaseURL })
@@ -272,7 +280,20 @@ class Dispatcher {
     await this.subscriber.connect()
     await this.subscriber.listenTo(database)
     await this.pgClient.connect()
-    await this.automation();
+    await this.automation()
+    const r = await this.pgClient.query<ServerData>('SELECT * from server_data;')
+    const data = r.rows[0]
+    this.serverData = data
+    const options: SMTPOptions = {
+      port: data.smtp_port,
+      host: data.smtp_server,
+      auth: {
+        user: data.smtp_username,
+        pass: data.smtp_password,
+      },
+      secure: data.smtp_secure,
+    }
+    this.mailer = createTransport(options)
   }
 
   /*
@@ -306,23 +327,49 @@ class Dispatcher {
     process.exit(1)
   }
 
-  onReceive(message: string) {
+  async onReceive(message: string) {
     const parts = Client.messageRe.exec(message)
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
     }
-    const [_, base, member_id_s, constraints_s] = parts
-    const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
-      const result = ((s != null) ? Client.constraintRe.exec(s) : null);
-      return (result !== null) ? result.slice(1, 6) : null;
-    }).filter(x => x !== null)) as string[][][];
-    const member_id = Number(member_id_s)
-    const [crud, type, id] = base.split(' ')
-    if (type == 'quests') {
-      this.automation();
-    }
-    for (const client of Client.clients) {
-      client.onReceive(base, member_id, constraints)
+    const [_, base, member_id_s, constraints_s, _1, _2, _3, _4, command, command_args] = parts
+    if (base) {
+      const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
+        const result = ((s != null) ? Client.constraintRe.exec(s) : null);
+        return (result !== null) ? result.slice(1, 6) : null;
+      }).filter(x => x !== null)) as string[][][];
+      const member_id = Number(member_id_s)
+      const [crud, type, id] = base.split(' ')
+      if (type == 'quests') {
+        this.automation();
+      }
+      for (const client of Client.clients) {
+        client.onReceive(base, member_id, constraints)
+      }
+    } else if (command == 'email') {
+      const [member_id, email, confirmed_, token, name] = command_args.split(' ', 5);
+      const confirmed = confirmed_ == 't';
+      const link = `${this.serverData?.server_url}/${confirmed?'reset_pass':'confirm'}?token=${token}`
+      let mailTxt = confirmed ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
+      let mailHtml = confirmed ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
+      let mailTitle = confirmed ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
+      for (const [k, v] of Object.entries({ name, link, email })) {
+        mailTxt = mailTxt?.replace(`{${k}}`, v)
+        mailHtml = mailHtml?.replace(`{${k}}`, v)
+        mailTitle = mailTitle?.replace(`{${k}}`, v)
+      }
+      await this.mailer?.sendMail({
+        from: `sensecraft@${this.serverData?.smtp_server}`,
+        to: `${name} <${email}>`,
+        subject: mailTitle,
+        text: mailTxt,
+        html: mailHtml,
+      })
+      this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
+    } else if (command) {
+      console.error('unknown command: ', command);
+    } else {
+      console.error('neither base nor command', message);
     }
   }
   close() {

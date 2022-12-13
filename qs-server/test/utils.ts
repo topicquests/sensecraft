@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { spawn } from 'child_process';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import type { PseudoNode, ConversationNode, Member, Role } from '../../qs-client/src/types';
@@ -15,25 +16,43 @@ function enhanceError(err0: any) {
   }
 }
 
-export async function waitForListen(proc: ChildProcessWithoutNullStreams): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let resolve: (v: any)=>void;
-  const ready = new Promise<void>((rs) => {
-    resolve = rs;
-  });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function wakeup(data: any) {
-    data = data.toString();
-    console.log(data);
-    if (data.indexOf('Listening on') > -1) {
-      setTimeout(resolve, 500);
-    }
+export class WaitingProc {
+  procname: string;
+  proc: ChildProcessWithoutNullStreams;
+  sentinel: string;
+  echo: boolean;
+  constructor(command: string, params?: string[], sentinel?: string, echo?: boolean) {
+    this.procname = command;
+    this.proc = spawn(command, params);
+    this.sentinel = sentinel || 'Listening on';
+    this.echo = echo;
   }
-  proc.stderr.on('data', wakeup);
-  proc.stdout.on('data', wakeup);
-  return ready;
+  async ready(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let resolve: (v: any) => void;
+    const ready = new Promise<void>((rs) => {
+      resolve = rs;
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const wakeup = (data: any) => {
+      data = data.toString();
+      if (this.echo)
+        console.log(this.procname, data);
+      if (data.indexOf(this.sentinel) > -1) {
+        setTimeout(resolve, 500);
+      }
+    }
+    this.proc.stderr.on('data', wakeup);
+    this.proc.stdout.on('data', wakeup);
+    return ready;
+  }
+  signal(sig: NodeJS.Signals) {
+    this.proc.kill(sig);
+  }
+  terminate() {
+    this.signal('SIGHUP');
+  }
 }
-
 
 const postgrest_operators = Object.fromEntries(['eq', 'gt', 'gte', 'lt', 'lte', 'neq', 'like', 'ilike', 'is', 'fts', 'plfts', 'phfts', 'wfts', 'cs', 'cd', 'ov', 'sl', 'sr', 'nxr', 'nxl', 'adj', 'not'].map(x=>[x, true]));
 
@@ -134,9 +153,12 @@ export async function add_members(members: Partial<Member>[], adminToken: string
   for (const member of members) {
     try {
       memberIds[member.handle as string] = await axiosUtil.call('create_member', member, adminToken);
+      if (adminToken) {
+        await axiosUtil.update('members', { email: member.email! }, { confirmed: true }, adminToken);
+      }
       memberTokens[member.handle as string] = await axiosUtil.call('get_token', {
         mail: member.email, pass: member.password
-      }, undefined, false);
+      });
     } catch (err) {
       break;
     }

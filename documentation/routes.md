@@ -27,7 +27,34 @@ Administration page. Sets global permissions
 
 ### register `/register`
 
+Create a new user.
+TODO now: tell the user that they have received a new email.
+  Failure path: internal error... not much to say.
+
 ### signin `/signin`
+
+Login to the system with a email/password combination.
+TODO: Allow username?
+TODO: Give a link to reset_pass page
+TODO (now?): If user unconfirmed... we should tell them to look in their mailbox, and provide the link to send_mail in case they did not get it the first time.
+
+### confirm `/confirm`
+
+TODO now: use the provided token to call member.renewToken, then if all is well, route to home and tell the user (in an alert) that their account is confirmed
+Failure path: maybe their token is obsolete? Redirect them to send_email with email pre-filled. Give an error message explaining what happened. Less sure what to do with an invalid token besides an error message.
+
+## send_email
+
+TODO now: Ask the user for their email, and send them a new confirmation email through BE function send_login_email. Tell them it's sent _IF_ the email exists in the system.
+Failure paths: notably, will fail if there are too many consecutive queries for the same email. Tell the user to wait? That may be an info leak. Telling the user that the email is absent is clearly an info leak.
+
+TODO: this page should have a parameter that allows to ask for a password reset.
+
+### reset_pass `/reset_pass`
+
+TODO: use the token to login the user, and provide a password reset form that does not require the old password.
+If no token/a bad token was provided, put people back on login page, where they can request a password reset.
+Open question: Do we request the old password otherwise? Do we want to distinguish the cases?
 
 ## Quest App pages
 

@@ -117,6 +117,11 @@ const routes = [
         name: "create_guild_role",
         component: () => import("pages/CreateRole.vue"),
       },
+      {
+        path: "/confirm",
+        name: "confirm_registration",
+        component: () => import("pages/ConfirmRegistration.vue"),
+      },
       // {
       //   path: "/node/:quest_id",
       //   name: "conversation_column",

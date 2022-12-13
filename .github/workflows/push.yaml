@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 16.x
@@ -24,7 +24,9 @@ jobs:
       - name: Install client components
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget chromium-driver
+          sudo apt install -y postgresql-client wget chromium-driver golang-go
+          go install github.com/mailhog/MailHog@latest
+          echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./qs-server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production

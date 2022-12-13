@@ -1,9 +1,8 @@
-import { spawn, execSync, ChildProcessWithoutNullStreams } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import process from 'node:process';
-import { axiosUtil, waitForListen } from './utils';
+import { axiosUtil, WaitingProc } from './utils';
 
-let postgrest: ChildProcessWithoutNullStreams;
-let dispatcher: ChildProcessWithoutNullStreams;
+const processes: WaitingProc[] = [];
 
 export const adminInfo = {
   name: 'Admin',
@@ -30,21 +29,21 @@ export const guildCreatorInfo = {
 async function frontendSetup() {
   execSync('./scripts/db_updater.py -d test init');
   execSync('./scripts/db_updater.py -d test deploy');
-  postgrest = spawn('postgrest', ['postgrest_test.conf']);
-  dispatcher = spawn('node', ['dist/qs-server/dispatcher/main.js', 'test']);
-  await Promise.all([waitForListen(postgrest), waitForListen(dispatcher)]);
+  processes.push(new WaitingProc('postgrest', ['postgrest_test.conf']));
+  processes.push(new WaitingProc('node', ['dist/qs-server/dispatcher/main.js', 'test']));
+  processes.push(new WaitingProc('MailHog', ['-auth-file', 'mailhog_test_auth'], 'Creating API v2'));
+  await Promise.all(processes.map((wp) => wp.ready()));
   await axiosUtil.call('create_member', adminInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u admin');
+  // auto confirmed and admin because first member
   await axiosUtil.call('create_member', questCreatorInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u questCreator -p createQuest');
+  execSync('python3 scripts/add_permissions.py -d test -c -u questCreator -p createQuest');
   await axiosUtil.call('create_member', guildCreatorInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u guildCreator -p createGuild');
+  execSync('python3 scripts/add_permissions.py -d test -c -u guildCreator -p createGuild');
   console.log('Ready');
 }
 
 async function frontendTeardown () {
-  postgrest.kill('SIGTERM');
-  dispatcher.kill('SIGTERM');
+  await Promise.all(processes.map((wp) => wp.signal('SIGTERM')));
   if (!process.env.NOREVERT)
     execSync('./scripts/db_updater.py -d test revert');
 }
@@ -52,6 +51,7 @@ async function frontendTeardown () {
 process.on('SIGHUP', () => {
   console.log('SIGHUP');
   execSync('./scripts/db_updater.py -d test truncate');
+  // TODO: Empty mailhog messages
 });
 
 process.on('SIGTERM', async () => {

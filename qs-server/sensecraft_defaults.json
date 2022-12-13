@@ -1,0 +1,8 @@
+{
+  "confirm_account_mail_template_title": "Welcome to SenseCraft",
+  "confirm_account_mail_template_text": "Welcome to SenseCraft, {name}!\nPlease confirm your email by visiting this link:\n{link}",
+  "confirm_account_mail_template_html": "<p>Welcome to SenseCraft, {name}!</p><p>Please confirm your email by clicking <a href=\"{link}\">here</a>.</p>",
+  "reset_password_mail_template_title": "Reset your SenseCraft password",
+  "reset_password_mail_template_text": "Please reset your SenseCraft password by visiting this link:\n{link}\n",
+  "reset_password_mail_template_html": "<p>Please reset your password by clicking <a href=\"{link}\">here</a>.</p>"
+}
