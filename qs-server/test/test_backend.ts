@@ -34,11 +34,11 @@ async function frontendSetup() {
   processes.push(new WaitingProc('MailHog', ['-auth-file', 'mailhog_test_auth'], 'Creating API v2'));
   await Promise.all(processes.map((wp) => wp.ready()));
   await axiosUtil.call('create_member', adminInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u admin');
+  // auto confirmed and admin because first member
   await axiosUtil.call('create_member', questCreatorInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u questCreator -p createQuest');
+  execSync('python3 scripts/add_permissions.py -d test -c -u questCreator -p createQuest');
   await axiosUtil.call('create_member', guildCreatorInfo);
-  execSync('python3 scripts/add_permissions.py -d test -u guildCreator -p createGuild');
+  execSync('python3 scripts/add_permissions.py -d test -c -u guildCreator -p createGuild');
   console.log('Ready');
 }
 

@@ -1,6 +1,7 @@
 import { binding, given, then, when } from "cucumber-tsflow";
 
 import { By } from "selenium-webdriver";
+import { NoSuchElementError } from "selenium-webdriver/lib/error";
 import { assert } from "chai";
 import { ensureSelenium } from "../support/integration";
 
@@ -113,4 +114,45 @@ export class SeleniumSteps {
     const driver = await ensureSelenium();
     await driver.get("http://localhost:8080/signin");
   }
+
+  @given("The logoff page")
+  public async givenALogoffPage() {
+    const driver = await ensureSelenium();
+    await driver.get("http://localhost:8080/signoff");
+  }
+
+  @then(/The user is (not )?logged in/)
+  public async thenLoggedInStatus(negation: string) {
+    const expected = !(negation?.length > 0);
+    const driver = await ensureSelenium();
+    try {
+      await driver.findElement(By.className('member'));
+      assert.isTrue(expected);
+    } catch (e) {
+      if (e instanceof NoSuchElementError)
+        assert.isFalse(expected);
+      else
+        throw e;
+    }
+  }
+
+  @then(/User (\S+) gets email with token/)
+  public async getEmailWithToken(email: string) {
+    // TODO
+    (this as any).emailTokenLink = "http://localhost:8080/confirm?token=abc";
+  }
+
+  @given("User has token")
+  public hasToken() {
+    assert.isDefined((this as any).emailTokenLink);
+  }
+
+  @when("User clicks on token link")
+  public async useTokenLink() {
+    const driver = await ensureSelenium();
+    const url: string = (this as any).emailTokenLink;
+    console.log(url)
+    await driver.get(url);
+  }
+
 }
