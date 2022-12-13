@@ -31,6 +31,7 @@ async function frontendSetup() {
   execSync('./scripts/db_updater.py -d test deploy');
   processes.push(new WaitingProc('postgrest', ['postgrest_test.conf']));
   processes.push(new WaitingProc('node', ['dist/qs-server/dispatcher/main.js', 'test']));
+  processes.push(new WaitingProc('MailHog', ['-auth-file', 'mailhog_test_auth'], 'Creating API v2'));
   await Promise.all(processes.map((wp) => wp.ready()));
   await axiosUtil.call('create_member', adminInfo);
   execSync('python3 scripts/add_permissions.py -d test -u admin');
@@ -50,6 +51,7 @@ async function frontendTeardown () {
 process.on('SIGHUP', () => {
   console.log('SIGHUP');
   execSync('./scripts/db_updater.py -d test truncate');
+  // TODO: Empty mailhog messages
 });
 
 process.on('SIGTERM', async () => {
