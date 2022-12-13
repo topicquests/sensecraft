@@ -235,24 +235,6 @@ export const member = (axios: AxiosInstance) =>
     .call({
       action: "sendRenewToken",
       path: "send_login_email",
-      onError: (
-        state: MemberState,
-        error,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        if (data.code == 409) throw new Error("EXISTS");
-        else throw error;
-      },
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<number>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
-        console.log("data ", data)
-        console.log("Res ", res)
-      },
     })
     .call({
       action: "renewToken",
