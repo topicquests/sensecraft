@@ -1,4 +1,5 @@
 import mockAxios from "jest-mock-axios";
+import { sign } from "jws";
 import getStore from "..";
 import { TOKEN_EXPIRATION } from "../member";
 
@@ -35,7 +36,11 @@ function makeReq({
 describe("Member store", () => {
   afterEach(() => mockAxios.reset());
   const mail = "test@example.com";
-  const token = "some_login_token";
+  const token = sign({
+    header: { alg: 'HS256' },
+    payload: {role: 'database_1'},
+    secret: 'secret',
+  });
 
   it("gets a token", async () => {
     // using the component, which should make a server response
@@ -68,10 +73,16 @@ describe("Member store", () => {
     expect(interval).toBeLessThanOrEqual(TOKEN_EXPIRATION);
   });
   it("fetches the login user", async () => {
-    store.dispatch("member/ensureLoginUser");
+    store.dispatch("member/fetchLoginUser");
     expect(mockAxios.request).toHaveBeenCalledWith(
       makeReq({
-        url: "/rpc/current_member",
+        url: "/members",
+        params: {
+          id: 'eq.1',
+          select:
+            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)"
+        },
+        method: "get",
       })
     );
     expect(store.state.member.member).toBeDefined();
