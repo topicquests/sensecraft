@@ -165,7 +165,9 @@ export const member = (axios: AxiosInstance) =>
             window.localStorage.getItem("tokenExpiry")
           );
         }
-        const parts: string[] = decode(state.token).payload.role.split("_");
+        const token_payload = decode(state.token).payload;
+        const payload = (typeof(token_payload) == 'string') ? JSON.parse(token_payload) : token_payload;
+        const parts: string[] = payload.role.split("_");
         const role = parts[parts.length - 1];
         params.id = `eq.${role}`
         params.select =
