@@ -118,9 +118,9 @@ export class MyVapi<S> extends Vapi {
     return super.add(
       Object.assign(options, {
         headers: (params: any) => {
-          const token = MyVapi.store?.state.member.token;
-          const tokenExpiry = MyVapi.store?.state.member.tokenExpiry;
-          if (token && tokenExpiry && Date.now() < tokenExpiry) {
+          const token: string = MyVapi.store?.state.member.token;
+          const tokenExpiry: number = MyVapi.store?.state.member.tokenExpiry;
+          if (token && tokenExpiry && (Date.now() < tokenExpiry)) {
             return Object.assign(baseHeaders, {
               Authorization: `Bearer ${token}`,
             });
