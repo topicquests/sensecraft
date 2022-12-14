@@ -87,8 +87,10 @@ export default class ConfirmRegistration extends Vue {
 
   async beforeMount() {
     const tokenArg = this.$route.query.token;
-    this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
-    await this.getNewToken(this.token);
+    if (tokenArg) {
+      this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
+      await this.getNewToken(this.token);
+    }
   }
 }
 </script>
