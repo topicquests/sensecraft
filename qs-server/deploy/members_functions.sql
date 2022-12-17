@@ -227,6 +227,12 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
     DECLARE curuser varchar;
     BEGIN
       curuser := current_user;
+      IF NEW.password != OLD.password THEN
+        IF NEW.id != current_member_id() THEN
+          RAISE EXCEPTION 'permission / change user password';
+        END IF;
+        NEW.password = crypt(NEW.password, gen_salt('bf'));
+      END IF;
       NEW.updated_at := now();
       IF NEW.permissions != OLD.permissions AND NOT public.is_superadmin() THEN
         RAISE EXCEPTION 'permission superadmin / change user permissions';

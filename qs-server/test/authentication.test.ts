@@ -9,7 +9,7 @@ function delay(time) {
 
 describe('authentication', function () {
   // eslint-disable-next-line prefer-const
-  let memberId: number | null = null, adminToken, token;
+  let memberId: number, adminToken, token;
   const mailhog_auth = { 'Authorization': 'Basic dGVzdDp0ZXN0' }  // test:test
   before(async function () {
     adminToken = await axiosUtil.call('get_token', {
@@ -95,10 +95,16 @@ describe('authentication', function () {
     // obtain a normal (header) token back.
   });
   it('change password', async function () {
-    // TODO: change password. try logging in with new password
+    quidamInfo.password = 'newPassword';
+    await axiosUtil.update('members', {id: memberId}, quidamInfo, token);
   });
   it('cannot login with old email token', async function () {
     // TODO: try to login using the old token obtained from password reset
     // expect fail
+  });
+  it('can login with new password', async function () {
+    token = await axiosUtil.call('get_token', {
+      mail: quidamInfo.email, pass: quidamInfo.password
+    }, token);
   });
 });
