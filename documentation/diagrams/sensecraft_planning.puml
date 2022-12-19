@@ -1,10 +1,5 @@
 @startuml sensecraft_planning
 
-  class ScoringCriterion #line.dotted:blue {
-    name String
-    description Text
-  }
-
   enum NodeType {
     Issue
     Proposal
@@ -14,11 +9,23 @@
   }
 
 enum MarkerType {
-  token,
-  flag,
-  evaluation,
-  tag,
+  token
+  flag
+  evaluation
+  tag
+  comment
 }
+
+enum TokenAllocationType {
+  personal
+  playing_guild
+  learning_guild
+}
+
+  class ScoringCriterion #line.dotted:blue {
+    name String
+    description Text
+  }
 
   class Marker #line.dotted:blue {
     id int<ConversationNodeSeq>
@@ -31,16 +38,26 @@ enum MarkerType {
     criterion ScoringCriterion
     computedValue float
     'What when many players contributed to that move?'
-    stringValue varchar  ' Costly... tag ref?'
-    state PublicationState  'Do we need this? Yes.'
+    stringValue varchar
+    ' Costly... tag ref?'
+    state PublicationState 
   }
 
+Marker "*" --> "1" ConversationNode  :> target
+Marker "1" -> "*" GamePlay
+Marker *--> "1" MarkerType
 
   class ScoringAllocation #line.dotted:blue {
     quest Quest
     criterion ScoringCriterion
-    allocationType AllocationType  'personal, playing_guild, learning_guild'
+    per_turn boolean
+    allocationType TokenAllocationType
   }
+
+ScoringAllocation --> "*" Marker :> generates_token
+ScoringAllocation *--> "1" ScoringCriterion
+ScoringAllocation *--> "1" TokenAllocationType
+Quest "1" *--> "*" ScoringAllocation
 
   class AccountService #line.dotted:blue {
     name String
@@ -95,10 +112,12 @@ enum MarkerType {
 
   ' Note: attach permissions to roles'
 
-  class TurnStrategy #line.dotted:blue {
-    synchronous boolean
-    turnLength interval
+  class TurnBoundary #line.dotted:blue {
+    quest Quest
+    when dateTime
   }
+
+  Quest "1" *-> "*" TurnBoundary
 
   enum PublicationState {
     obsolete
@@ -112,20 +131,13 @@ enum MarkerType {
     published
     ' published: visible to all.'
     ' published and submitted are the same for v1; eventually we'll allow turn-based visibility ''
+    ' flag = private plus quest moderators? '
   }
 
   enum MetaState {
     conversation
     meta
     channel
-  }
-
-  enum Metric #line.dotted:blue {
-
-  }
-
-  enum BadgeType #line.dotted:blue {
-
   }
 
   enum NodeActionType #line.dotted:blue {
@@ -178,7 +190,6 @@ enum MarkerType {
     start timestamp
     end timestamp
     ' scoring ScoringStrategy '
-    ' turns TurnStrategy '
     ' server ExternalServer '
     ' scoreMove(ConversationNode): GameMoveScore[] '
     register(Guild): GamePlay
@@ -213,10 +224,10 @@ enum MarkerType {
 
   GuildMembership *--> RegistrationStatus
 
-  class ExternalServer #line.dotted:blue {
-    server_api URL
-    name String
-  }
+  'class ExternalServer #line.dotted:blue {'
+  '  server_api URL'
+  '  name String'
+  '}'
 
 
   class ConversationNode {
@@ -281,29 +292,31 @@ class ConversationNodeV2 #line.dotted:blue {
   Quest "1" o--> "*" ConversationNode
   Quest *--> QuestStatus
 
-  class GameMoveScore #line.dotted:blue {
-    guild Guild
-    moves ConversationNode[]
-    metric Metric
-    value float
-    strategy ScoringStrategy
-    quest_signature crypto
-    badge BadgeType
-  }
-  ConversationNode "1..*" <.. "*" GameMoveScore
-  Quest *..> "*" GameMoveScore
-  class ScoreAssignment #line.dotted:blue {
-    from_score GameMoveScore
-    casting Casting
-    value float
-    ' Should I put all values in one assignment? Easier to check the total constraint.'
-    badge BadgeType
-    guild_signature crypto
-  }
+  '  class GameMoveScore #line.dotted:blue {'
+  ' guild Guild'
+  '  moves ConversationNode[]'
+  '  metric Metric'
+  '  value float'
+  '  strategy ScoringStrategy'
+  '  quest_signature crypto'
+  '  badge BadgeType'
+  '}'
 
-  (Casting, GameMoveScore) .. ScoreAssignment
+  'ConversationNode "1..*" <.. "*" GameMoveScore'
+  'Quest *..> "*" GameMoveScore'
 
-  Member "1" ..> "*" ScoreAssignment
+  'class ScoreAssignment #line.dotted:blue {'
+  '  from_score GameMoveScore'
+  '  casting Casting'
+  '  value float'
+  '  Should I put all values in one assignment? Easier to check the total constraint.'
+  '  badge BadgeType'
+  '  guild_signature crypto'
+  '}'
+
+  '(Casting, GameMoveScore) .. ScoreAssignment'
+
+  'Member "1" ..> "*" ScoreAssignment'
 
   ' GameMoveScore --> "1" ScoringStrategy '
   ' NOTE: GameMoveScore given by Quest, distribution of points to contributors is decided by guild'
@@ -401,15 +414,5 @@ class ConversationNodeV2 #line.dotted:blue {
 
   Role *--> "*" RoleNodeConstraint
   (Casting, Role) .. CastingRole
-
-  class GamePhase  #line.dotted:blue {
-    quest Quest
-    start timestamp
-    end timestamp
-    synchronous boolean
-    singlePlayer Guild
-  }
-
-  Quest "1" o..> "*" GamePhase
 
 @enduml
