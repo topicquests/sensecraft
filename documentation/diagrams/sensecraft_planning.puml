@@ -25,7 +25,17 @@ enum TokenAllocationType {
   class ScoringCriterion #line.dotted:blue {
     name String
     description Text
+    badgeLevels float[]
   }
+
+  class RecordedScores #line.dotted:blue {
+    'Could be a view, but a bit costly to compute'
+    member Member
+    criterion ScoringCriterion
+    score float
+  }
+  Member "1" o--> "*" RecordedScores
+  ScoringCriterion "1" <--* RecordedScores
 
   class Marker #line.dotted:blue {
     id int<ConversationNodeSeq>
@@ -46,6 +56,7 @@ enum TokenAllocationType {
 Marker "*" --> "1" ConversationNode  :> target
 Marker "1" -> "*" GamePlay
 Marker *--> "1" MarkerType
+Marker *--> "0..1" ScoringCriterion :> tag_criterion
 
   class ScoringAllocation #line.dotted:blue {
     quest Quest
@@ -255,20 +266,15 @@ ConversationNode --> "?" Role
 ConversationNode <|-- ConversationNodeV2
 
 class ConversationNodeV2 #line.dotted:blue {
-    boolean meta_conversation;
-    next_actor Member;
-    next_actor_role Role;
-    contributors Casting[]
     node_action_type NodeActionType
-    node_id integer
-    state_history <PublicationState, timestamp>[]
-    ' GamePhase inferred from history? '
-    ' allow more history than PublicationState? '
-    previous_version ConversationNode
-    history() ConversationNode[]
-    ' may materialize in a ltree '
+    aims_to_replace ConversationNode
+    history ConversationNode[]
+    obsolete boolean
   }
-
+ConversationNodeV2 *--> "1" NodeActionType
+'When a node replaces another, the other node gets obsolete status (not to be confused with pubstate),'
+'and the children are redirected to the new node'
+'Maybe remove obsolete PubState, only keep the flag. We need obsolete version of each pubstate'
 
   class NodeReplacement #line.dotted:blue {
     new_node ConversationNode
