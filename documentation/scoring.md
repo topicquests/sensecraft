@@ -85,10 +85,22 @@ There are many ways to implement this, this is a strawman proposal, to be discus
    1. Eg of epistemic pattern: Convincing evidence, original position, synthetic position, etc.
 3. At any point in the game, token holders would spend tokens to indicate that someone's game move is exemplary according to one of the identified patterns.
    1. Variant: allow participants (whether guild or quest) to identify new epistemic patterns during the game. (These should be limited in number, and should probably be made public on the moment.)
-   2. Option 1: Do so in secret, allow change throughout the game
+   2. Option 1: Do so openly, and token spending can be argued. Allow re-spending a contested token.
+      1. Note: It makes spending tokens difficult, which can become an interesting game dynamic; but then allow an arbitration mechanism against spurious contestation. I think that arguing about evaluations is a necessary part of the dynamic.
+   3. Option 2: Do so in secret, allow change throughout the game.
       1. Variant (Balderdash): reward game moves in quadratic proportion no the number of people spending tokens on it.
-   3. Option 2: Do so openly, and token spending can be argued. Allow re-spending a contested token.
-      1. Note: It makes spending tokens difficult, which can become an interesting game dynamic; but then allow an arbitration mechanism against spurious contestation.
+      2. I think that secret evaluation at the end of the game would lose much proposal value, but would make a lot of sense in a turn-based game, much the same way that I was considering turn-based publication. People could then have per-turn un-changeable tokens.
+   4. Implementation:
+      1. If token allocation can be contested, they could become a kind of conversation move... Question: Should each token allocation be justified upon creation or only if contested?
+      2. Are tokens instead a kind of conversation move marker? (Eg flagging abuse, support/contest, censorship...)
+         1. Tokens are consumed by usage, unlike markers.
+         2. It makes sense to contest some markers, not all. Similarly, some markers are subject to review against abuse.
+         3. Markers and tokens have visibility cycle, like conversation moves. Visibility may not be linear.
+         4. Query patterns for markers and tokens are aggregates, really unlike those of conversation moves. (AND not postgrest-friendly... view?)
+         5. Some markers are temporary (eg approve a revision; consumed when revision is integrated.)
+         6. Markers don't have a title? (ie. the marker type is the title.)
+         7. Do markers have a quantitative value? I like the idea of using markers as criterion evaluation votes.
+      3. Tentative: Markers as a separate table, but option to create a conversation node that's bound to a marker. It could then share the marker's Id. You could reply to an un-materialized marker? That's obviously more difficult. Token allocation... same table or joined? Marker have a non-nullable target, whereas tokens start with null target. OTH, same table means less joins. Ok, do that.
 4. Unspent mandatory (external) tokens are held against the guild's total.
 5. Tokens earned against an epistemic pattern eventually earn you a badge for that pattern.
    1. There should be alignment between those patterns and roles, to be developed. Maybe you need a certain level of badge for a pattern to earn a role.

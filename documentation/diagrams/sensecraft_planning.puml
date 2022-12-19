@@ -1,7 +1,8 @@
 @startuml sensecraft_planning
 
-  enum ScoringCriterion #line.dotted:blue {
-    
+  class ScoringCriterion #line.dotted:blue {
+    name String
+    description Text
   }
 
   enum NodeType {
@@ -12,11 +13,33 @@
     Reference
   }
 
-  class ScoringStrategy #line.dotted:blue {
-    name String
+enum MarkerType {
+  token,
+  flag,
+  evaluation,
+  tag,
+}
+
+  class Marker #line.dotted:blue {
+    id int<ConversationNodeSeq>
+    owner Member
+    quest Quest
+    guild Guild
+    'FK to play'
+    target ConversationNode
+    markerType MarkerTypes
     criterion ScoringCriterion
-    evalMove(ConversationNode): float
-    evalQuest(GamePlay, GamePlay): Badge[]
+    computedValue float
+    'What when many players contributed to that move?'
+    stringValue varchar  ' Costly... tag ref?'
+    state PublicationState  'Do we need this? Yes.'
+  }
+
+
+  class ScoringAllocation #line.dotted:blue {
+    quest Quest
+    criterion ScoringCriterion
+    allocationType AllocationType  'personal, playing_guild, learning_guild'
   }
 
   class AccountService #line.dotted:blue {
@@ -52,7 +75,7 @@
     viewQuest
     createQuest
     createGuild
-    ' Guild permissions
+    ' Guild permissions'
     acceptGuildMembership
     revokeGuildMembership
     inviteMember
@@ -61,16 +84,16 @@
     joinQuest
     guildAdmin
     - setGameFocus
-    ' within term time
-    ' Quest permissions
+    ' within term time'
+    ' Quest permissions'
     acceptQuestMembership
     revokeQuestMembership
     rejectGameMove
-    ' extraCreditForMove may have issues with favoritism
-    
+    ' extraCreditForMove may have issues with favoritism'
+
   }
 
-  ' Note: attach permissions to roles
+  ' Note: attach permissions to roles'
 
   class TurnStrategy #line.dotted:blue {
     synchronous boolean
@@ -83,12 +106,12 @@
     guild_draft
     role_draft
     proposed
-    ' proposed: the node authors think it's ready
+    ' proposed: the node authors think it's ready''
     submitted
-    ' submitted: the guild leaders think it's ready, quest moderators aware of it.
+    ' submitted: the guild leaders think it's ready, quest moderators aware of it. ''
     published
-    ' published: visible to all.
-    ' published and submitted are the same for v1; eventually we'll allow turn-based visibility
+    ' published: visible to all.'
+    ' published and submitted are the same for v1; eventually we'll allow turn-based visibility ''
   }
 
   enum MetaState {
@@ -107,11 +130,11 @@
 
   enum NodeActionType #line.dotted:blue {
     add_node
-    ' Eventually refactorings
+    ' Eventually refactorings'
   }
 
   class Member {
-    ' server ExternalServer
+    ' server ExternalServer'
     handle String
     name String
     email String
@@ -137,12 +160,12 @@
     created_at timestamp
     updated_at timestamp
     default_role Role
-    ' server ExternalServer
+    ' server ExternalServer '
     accept(GamePlay)
   }
-  ' Guild --> "0..1" ExternalServer
-  ' Quest --> "0..1" ExternalServer
-  ' Member --> "0..1" ExternalServer
+  ' Guild --> "0..1" ExternalServer '
+  ' Quest --> "0..1" ExternalServer '
+  ' Member --> "0..1" ExternalServer '
   class Quest {
     name String
     description String
@@ -154,10 +177,10 @@
     updated_at timestamp
     start timestamp
     end timestamp
-    ' scoring ScoringStrategy
-    ' turns TurnStrategy
-    ' server ExternalServer
-    ' scoreMove(ConversationNode): GameMoveScore[]
+    ' scoring ScoringStrategy '
+    ' turns TurnStrategy '
+    ' server ExternalServer '
+    ' scoreMove(ConversationNode): GameMoveScore[] '
     register(Guild): GamePlay
   }
   Quest o--> "1" Member : > creator
@@ -168,7 +191,7 @@
   class QuestMembership {
     quest Quest
     member Member
-    ' status RegistrationStatus
+    ' status RegistrationStatus '
     confirmed boolean
     created_at timestamp
     updated_at timestamp
@@ -179,7 +202,7 @@
 
   (Member , Guild) .. GuildMembership
 
-  class GuildMembership { 
+  class GuildMembership {
     guild Guild
     member Member
     status RegistrationStatus
@@ -228,11 +251,11 @@ class ConversationNodeV2 #line.dotted:blue {
     node_action_type NodeActionType
     node_id integer
     state_history <PublicationState, timestamp>[]
-    ' GamePhase inferred from history?
-    ' allow more history than PublicationState?
+    ' GamePhase inferred from history? '
+    ' allow more history than PublicationState? '
     previous_version ConversationNode
     history() ConversationNode[]
-    ' may materialize in a ltree
+    ' may materialize in a ltree '
   }
 
 
@@ -250,8 +273,8 @@ class ConversationNodeV2 #line.dotted:blue {
 
   NodeReplacement ..> "*" Casting : > approvals
 
-  'ConversationNodeV2 "*" o..> "1..*" Casting
-  ' Quest o--> ScoringStrategy
+  'ConversationNodeV2 "*" o..> "1..*" Casting'
+  ' Quest o--> ScoringStrategy'
 
   Member "1" <-- "*" ConversationNode : < creator
   ConversationNode "1" o-> "0..1" ConversationNode : > parent
@@ -273,7 +296,7 @@ class ConversationNodeV2 #line.dotted:blue {
     from_score GameMoveScore
     casting Casting
     value float
-    ' Should I put all values in one assignment? Easier to check the total constraint.
+    ' Should I put all values in one assignment? Easier to check the total constraint.'
     badge BadgeType
     guild_signature crypto
   }
@@ -282,50 +305,50 @@ class ConversationNodeV2 #line.dotted:blue {
 
   Member "1" ..> "*" ScoreAssignment
 
-  ' GameMoveScore --> "1" ScoringStrategy
-  ' NOTE: GameMoveScore given by Quest, distribution of points to contributors is decided by guild
-  ' TODO: Score for a set of related game moves.
-  ' Q: are badges automated based on score? Possibly.
-  ' Are all points given by quest? Cross-guild scoring?
-  ' Maybe pre-announce number of points given by quest? Success criteria?
+  ' GameMoveScore --> "1" ScoringStrategy '
+  ' NOTE: GameMoveScore given by Quest, distribution of points to contributors is decided by guild'
+  ' TODO: Score for a set of related game moves.'
+  ' Q: are badges automated based on score? Possibly.'
+  ' Are all points given by quest? Cross-guild scoring?'
+  ' Maybe pre-announce number of points given by quest? Success criteria?'
 
-  ' Question: Should I allow multiple avatars in a guild, reusable between quests?
-  ' Vs the Casting which is a way to play a game under a quest-specific identity...
-  ' That creates the question: Do the points/badges belong to the Avatar or the Member?
+  ' Question: Should I allow multiple avatars in a guild, reusable between quests?'
+  ' Vs the Casting which is a way to play a game under a quest-specific identity...'
+  ' That creates the question: Do the points/badges belong to the Avatar or the Member?'
 
   class Avatar #line.dotted:blue {
-    ' Note: for v1, a single avatar.
+    ' Note: for v1, a single avatar.'
     member Member
     server Server
     badges BadgeType[]
     scores {Metric->float}
     name String
-    ' defaults to member's handle
-    ' (server+name unique)
+    ' defaults to member's handle'
+    ' (server+name unique)'
 
-    ' v2
+    ' v2'
     roles Role[]
   }
 
   Member "1" o..> "*" Avatar
 
   class Casting {
-    ' note: denormalized for uniqueness constraints
+    ' note: denormalized for uniqueness constraints'
     quest Quest
     member Member
-    ' (quest+member unique)
+    ' (quest+member unique)'
     guild Guild
-    ' Constrain that the member be in playing guild
+    ' Constrain that the member be in playing guild'
 
     permissions Permission[]
 
-    ' v2:
-    'avatar Avatar
-    ' Constrain avatar having same member
-    ' some permissions would be inherent in avatar's roles
-    'alias String
-    ' alias defaults to avatar handle
-    ' (quest+alias unique)
+    ' v2:'
+    'avatar Avatar'
+    ' Constrain avatar having same member'
+    ' some permissions would be inherent in avatar's roles'
+    'alias String'
+    ' alias defaults to avatar handle'
+    ' (quest+alias unique)'
   }
 
   class GamePlay {
@@ -387,6 +410,6 @@ class ConversationNodeV2 #line.dotted:blue {
     singlePlayer Guild
   }
 
-  Quest "1" o..> "*" GamePhase 
+  Quest "1" o..> "*" GamePhase
 
 @enduml
