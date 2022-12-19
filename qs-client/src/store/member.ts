@@ -111,6 +111,10 @@ export const member = (axios: AxiosInstance) =>
       action: "updateUser",
       property: "member",
       path: ({ id }) => `/members?id=eq.${id}`,
+      beforeRequest: (state: MemberState, { params, data }) => {
+        params.id = data.id;
+        data.slug = undefined;
+      },
       onSuccess: (
         state: MemberState,
         res: AxiosResponse<Member[]>,

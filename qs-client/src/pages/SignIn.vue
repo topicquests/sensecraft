@@ -68,6 +68,11 @@
                 <router-link to="/register" class="text-grey-6"
                   >New user?</router-link
                 >
+                <div>
+                <router-link to="/confirmPassword" class="text-grey-6"
+                  >Forgot password?</router-link
+                >
+                </div>
               </q-card-section>
             </q-card-section>
           </div>

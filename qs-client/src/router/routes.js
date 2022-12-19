@@ -122,6 +122,16 @@ const routes = [
         name: "confirm_registration",
         component: () => import("pages/ConfirmRegistration.vue"),
       },
+      {
+        path: "/confirmPassword",
+        name: "confirm_password",
+        component: () => import("pages/ConfirmPassword.vue"),
+      },
+      {
+        path: "/reset_pass",
+        name: "reset_pass",
+        component: () => import("pages/ResetPassword.vue"),
+      },
       // {
       //   path: "/node/:quest_id",
       //   name: "conversation_column",
