@@ -33,7 +33,8 @@ CREATE OR REPLACE VIEW public.quests_data AS
     count(my_casting) > 0 AS is_playing,
     count(DISTINCT my_confirmed_guild_membership.guild_id) AS my_confirmed_guild_count,
     count(DISTINCT my_recruiting_guild_membership.guild_id) AS my_recruiting_guild_count,
-    count(my_quest_memberships) > 0 OR quests.creator = public.current_member_id() AS is_quest_member
+    count(my_quest_memberships) > 0 OR quests.creator = public.current_member_id() AS is_quest_member,
+    quests.turn_based
   FROM public.quests
   LEFT JOIN public.my_quest_memberships
     ON (quests.id = my_quest_memberships.quest_id
@@ -61,7 +62,7 @@ CREATE OR REPLACE VIEW public.quests_data AS
   LEFT JOIN public.conversation_node
     ON (conversation_node.quest_id = quests.id
         AND conversation_node.status = 'published')
-  WHERE quests.public 
+  WHERE quests.public
     OR (quests.creator = public.current_member_id())
     OR public.my_quest_memberships.quest_id IS NOT NULL
   GROUP BY quests.id;
@@ -122,7 +123,7 @@ CREATE OR REPLACE VIEW public.guilds_data AS
   LEFT JOIN public.conversation_node
     ON (conversation_node.guild_id = guilds.id
         AND conversation_node.status = 'published')
-  WHERE guilds.public 
+  WHERE guilds.public
     OR (guilds.creator = public.current_member_id())
     OR public.my_guild_memberships.guild_id IS NOT NULL
   GROUP BY guilds.id;

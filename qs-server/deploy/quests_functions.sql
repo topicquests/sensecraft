@@ -31,7 +31,8 @@ CREATE OR REPLACE VIEW public.public_quests AS
     quests."end",
     quests.created_at,
     quests.updated_at,
-    quests.slug
+    quests.slug,
+    quests.turn_based
    FROM public.quests
   WHERE quests.public AND quests.status > 'draft';
 
@@ -246,6 +247,18 @@ CREATE OR REPLACE FUNCTION public.before_update_quest() RETURNS trigger
       END IF;
       if NEW."end" < NEW.start THEN
         NEW."end" := NEW.start;
+      END IF;
+      -- do not change quest after it's public
+      IF NEW.status >= 'ongoing' THEN
+        IF NEW.handle != OLD.handle THEN
+          RAISE EXCEPTION 'immutable handle';
+        END IF;
+        IF NEW.public != OLD.public THEN
+          RAISE EXCEPTION 'immutable public';
+        END IF;
+        IF NEW.turn_based != OLD.turn_based THEN
+          RAISE EXCEPTION 'immutable turn_based';
+        END IF;
       END IF;
       RETURN NEW;
     END;

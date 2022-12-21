@@ -616,7 +616,11 @@ export const quests = (axios: AxiosInstance) =>
         MyVapi.store.commit("members/REMOVE_CASTING_ROLE", actionParams);
       },
     })
-    // Step 4
+    .call({
+        action: "endTurn",
+        path: "end_turn",
+    })
+  // Step 4
     .getVuexStore({
       getters: QuestsGetters,
       actions: QuestsActions,
@@ -660,6 +664,7 @@ type QuestsRestActionTypes = {
   addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
   updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
   deleteCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
+  endTurn: RestDataActionType<{ quest_id: number }, void>;
 };
 
 export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &

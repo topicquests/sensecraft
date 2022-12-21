@@ -243,6 +243,17 @@
         </template>
       </div>
     </div>
+    <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
+      <q-option-group
+        v-model="quest.turn_based"
+        :options="turn_based_bool"
+        color="primary"
+        inline
+      />
+    </div>
+    <div  class="row justify-start q-pa-lg q-ml-lg q-gutter-sm" v-if="quest.turn_based && quest.status == 'ongoing'">
+      <q-btn @click="doEndTurn" label="End Turn" />
+    </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
         class="field-name"
@@ -275,6 +286,17 @@ import { quest_status_list, public_private_bool } from "../enums";
 import { QuestsActionTypes } from "../store/quests";
 import { DateTime } from "luxon";
 
+const turn_based_bool = [
+  {
+    label: "Continuous",
+    value: false,
+  },
+  {
+    label: "Turn-based",
+    value: true,
+  }
+];
+
 const QuestCardProps = Vue.extend({
   props: {
     thisQuest: Object as Prop<Quest>,
@@ -302,11 +324,14 @@ const QuestCardProps = Vue.extend({
     },
   },
   methods: {
-    ...mapActions("quests", ["upDateQuest"]),
+    ...mapActions("quests", ["updateQuest", "endTurn"]),
   },
 })
 export default class QuestCard extends QuestCardProps {
+  updateQuest!: QuestsActionTypes["updateQuest"];
+  endTurn!: QuestsActionTypes["endTurn"];
   public_private_bool = public_private_bool;
+  turn_based_bool = turn_based_bool;
   quest_status_list = quest_status_list;
   publication_state_list;
   quest: Partial<Quest> = {};
@@ -325,7 +350,20 @@ export default class QuestCard extends QuestCardProps {
   descriptionChange(value: string) {
     this.quest.description = value;
   }
-  updateQuest: QuestsActionTypes["updateQuest"];
+  async doEndTurn() {
+    try {
+      await this.endTurn({data: {quest_id: this.quest.id}})
+      this.$q.notify({
+        type: "positive",
+        message: "Turn ended"
+      });
+    } catch (e) {
+      this.$q.notify({
+        type: "negative",
+        message: "Could not end turn"
+      });
+    }
+  }
 
   updateStatus(value) {
     const dt = DateTime.now();
