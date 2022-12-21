@@ -234,6 +234,7 @@ CREATE OR REPLACE FUNCTION public.check_node_status_rules(
   AS $$
 DECLARE
   max_role_status public.publication_state;
+  turn_based_quest boolean;
 BEGIN
   IF status = 'published' THEN
     IF NOT (is_quest_id_member(quest_id) OR has_permission('publishGameMove')) THEN
@@ -270,11 +271,23 @@ BEGIN
     IF NOT (is_guild_id_leader(guild_id) OR is_superadmin())  THEN
       RAISE EXCEPTION 'permission guildAdmin,publishGameMove';
     END IF;
-    -- TODO: The following should not happen if the quest is turn-based
-    status := 'published';
+    SELECT turn_based INTO turn_based_quest STRICT FROM public.quests WHERE id = quest_id;
+    IF NOT turn_based_quest THEN
+      status := 'published';
+    END IF;
   END IF;
   RETURN status;
 END$$;
+
+
+CREATE OR REPLACE FUNCTION public.end_turn(quest_id integer) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  IF NOT is_quest_id_member(quest_id) THEN
+    RAISE EXCEPTION 'permission questAdmin';
+  END IF;
+  UPDATE conversation_node cn SET status = 'published' WHERE cn.quest_id = end_turn.quest_id AND status = 'submitted';
+END$$;
+
 
 CREATE OR REPLACE FUNCTION public.check_node_type_rules(child_type public.ibis_node_type, parent_type public.ibis_node_type) RETURNS void
   LANGUAGE plpgsql IMMUTABLE

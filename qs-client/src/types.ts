@@ -77,6 +77,7 @@ export interface Quest {
   description?: string;
   creator: number;
   public: boolean;
+  turn_based: boolean;
   status: quest_status_type;
   start?: string;
   end?: string;

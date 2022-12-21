@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS public.quests (
     description text,
     creator integer,
     public boolean default true,
-    turn_based boolean default false,
     status public.quest_status default 'draft',
     start timestamp with time zone NOT NULL,
     "end" timestamp with time zone NOT NULL,
