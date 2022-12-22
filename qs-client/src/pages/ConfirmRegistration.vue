@@ -58,13 +58,13 @@ export default class ConfirmRegistration extends Vue {
   fetchLoginUser!: MemberActionTypes["fetchLoginUser"];
   sendConfirmEmail!: MemberActionTypes["sendConfirmEmail"];
 
-  resend() {
+  async resend() {
     let theEmail = this.email;
     if (!theEmail) {
       this.$q.notify({ type: "negative", message: "Missing Email" });
       return;
     }
-    this.sendConfirmEmail({ data: { email: theEmail }});
+    await this.sendConfirmEmail({ data: { email: theEmail }});
   }
 
   async getNewToken(prevToken) {
