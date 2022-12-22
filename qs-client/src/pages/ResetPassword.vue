@@ -103,14 +103,8 @@ export default class PasswordResset extends Vue {
     } else {
       try {
         await this.updateUser({data: {
-          ...this.member,
+          id: this.memberId,
           password: this.password,
-          // TODO: Automate this.
-          guild_membership: undefined,
-          quest_membership: undefined,
-          casting: undefined,
-          casting_role: undefined,
-          guild_member_available_role: undefined,
         }});
       } catch (e) {
         this.$q.notify({ type: "negative", message: "Could not reset the password" });
