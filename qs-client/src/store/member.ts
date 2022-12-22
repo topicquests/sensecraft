@@ -252,20 +252,27 @@ export const member = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        state.token = res.data;
-        if (state.member)
-          getWSClient().login(state.member.id, state.token);
-        const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
-        state.tokenExpiry = tokenExpiry;
-        const storage = window.localStorage;
-        storage.setItem("token", state.token);
-        storage.setItem("tokenExpiry", tokenExpiry.toString());
-        window.setTimeout(() => {
-          MyVapi.store.dispatch("member/renewToken", {
-            data: { token: state.token },
-          });
-        }, TOKEN_RENEWAL);
-      },
+        if (res.data) {
+          state.token = res.data;
+          if (state.member)
+            getWSClient().login(state.member.id, state.token);
+          const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
+          state.tokenExpiry = tokenExpiry;
+          const storage = window.localStorage;
+          storage.setItem("token", state.token);
+          storage.setItem("tokenExpiry", tokenExpiry.toString());
+          window.setTimeout(() => {
+            MyVapi.store.dispatch("member/renewToken", {
+              data: { token: state.token },
+            });
+          }, TOKEN_RENEWAL);
+        } else {
+          Object.assign(state, baseState);
+          window.localStorage.removeItem("token");
+          window.localStorage.removeItem("tokenExpiry");
+          console.log("Renewal failed.")
+        }
+    },
     })
     // Step 4
     .getVuexStore({
