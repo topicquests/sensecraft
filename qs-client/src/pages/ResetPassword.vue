@@ -101,7 +101,22 @@ export default class PasswordResset extends Vue {
     if (this.password !== this.confirm_password) {
       this.$q.notify({ type: "negative", message: "Passwords do not match" })
     } else {
-      await this.updateUser({data: {id: this.memberId}});
+      try {
+        await this.updateUser({data: {
+          ...this.member,
+          password: this.password,
+          // TODO: Automate this.
+          guild_membership: undefined,
+          quest_membership: undefined,
+          casting: undefined,
+          casting_role: undefined,
+          guild_member_available_role: undefined,
+        }});
+      } catch (e) {
+        this.$q.notify({ type: "negative", message: "Could not reset the password" });
+        console.error(e);
+        return;
+      }
       this.$q.notify({ type: "positive", message: "Password updated" })
       this.$router.push({ name: "lobby" });
     }
