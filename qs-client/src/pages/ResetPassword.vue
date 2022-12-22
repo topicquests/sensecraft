@@ -94,14 +94,13 @@ export default class PasswordResset extends Vue {
   updateUser!: MemberActionTypes["updateUser"];
 
   async updatePassword() {
-     if (!this.password) {
-          this.$q.notify({ type: "negative", message: "Missing Password" });
-          return;
-        }
+    if (!this.password) {
+      this.$q.notify({ type: "negative", message: "Missing Password" });
+      return;
+    }
     if (this.password !== this.confirm_password) {
       this.$q.notify({ type: "negative", message: "Passwords do not match" })
-    } 
-    else {            
+    } else {
       await this.updateUser({data: {id: this.memberId}});
       this.$q.notify({ type: "positive", message: "Password updated" })
       this.$router.push({ name: "lobby" });
@@ -109,7 +108,7 @@ export default class PasswordResset extends Vue {
   }
   async verifyToken() {
     try {
-      await this.renewToken({ data: { token: this.token } }); 
+      await this.renewToken({ data: { token: this.token } });
       await this.fetchLoginUser();
     } catch(err) {
       this.$q.notify({ type: "negative", message: "Issue with verification. Retry verifying"})
@@ -121,7 +120,7 @@ export default class PasswordResset extends Vue {
     if (tokenArg) {
       this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
     }
-    this.verifyToken()
+    await this.verifyToken()
   }
 }
 </script>
