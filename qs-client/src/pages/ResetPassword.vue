@@ -1,11 +1,11 @@
 <template>
-  <q-page>
-    <q-card border: true class="card fixed-center q-pl-md q-pt-md">
+  <q-page class="bg-secondary">
+    <q-card border: true class="card fixed-center q-pa-md">
       <q-form>
       <h2>Reset Password</h2>
         <q-input
           class="q-mb-md"
-          square
+          outlined
           clearable
           v-model="password"
           :type="isPwdReset ? 'password' : 'text'"
@@ -23,7 +23,7 @@
         </template>
         </q-input>
         <q-input
-          square
+          outlined
           clearable
           v-model="confirm_password"
           :type="isPwdConfirmed ? 'password' : 'text'"
@@ -101,12 +101,19 @@ export default class PasswordResset extends Vue {
     if (this.password !== this.confirm_password) {
       this.$q.notify({ type: "negative", message: "Passwords do not match" })
     } 
-    else {      
-      await this.renewToken({ data: { token: this.token } });
-      await this.fetchLoginUser();
+    else {            
       await this.updateUser({data: {id: this.memberId}});
       this.$q.notify({ type: "positive", message: "Password updated" })
       this.$router.push({ name: "lobby" });
+    }
+  }
+  async verifyToken() {
+    try {
+      await this.renewToken({ data: { token: this.token } }); 
+      await this.fetchLoginUser();
+    } catch(err) {
+      this.$q.notify({ type: "negative", message: "Issue with verification. Retry verifying"})
+      this.$router.push({name: "confirm_password"})
     }
   }
   async beforeMount() {
@@ -114,6 +121,7 @@ export default class PasswordResset extends Vue {
     if (tokenArg) {
       this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
     }
+    this.verifyToken()
   }
 }
 </script>
