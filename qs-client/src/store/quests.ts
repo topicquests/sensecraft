@@ -4,6 +4,7 @@ import {
   RestEmptyActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
@@ -15,6 +16,7 @@ import {
   GamePlay,
   CastingRole,
   Role,
+  questPatchKeys,
 } from "../types";
 import {
   quest_status_enum,
@@ -375,25 +377,10 @@ export const quests = (axios: AxiosInstance) =>
     .patch({
       action: "updateQuest",
       path: ({ id }) => `/quests?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, { params, data }) => {
+      beforeRequest: (state: QuestsState, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.slug = undefined;
-        Object.assign(data, {
-          casting: undefined,
-          quest_membership: undefined,
-          game_play: undefined,
-          updated_at: undefined,
-          // and all QuestData Fields. Not DRY, alas.
-          last_node_published_at: undefined,
-          node_count: undefined,
-          confirmed_guild_count: undefined,
-          interested_guild_count: undefined,
-          player_count: undefined,
-          is_playing: undefined,
-          my_confirmed_guild_count: undefined,
-          my_recruiting_guild_count: undefined,
-          is_quest_member: undefined,
-        });
+        actionParams.data = filterKeys(data, questPatchKeys);
       },
       onSuccess: (
         state: QuestsState,

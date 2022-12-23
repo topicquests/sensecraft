@@ -4,9 +4,10 @@ import {
   RestDataActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { ConversationNode, QTreeNode } from "../types";
+import { ConversationNode, QTreeNode, conversationNodePatchKeys } from "../types";
 import {
   ibis_node_type_enum,
   ibis_node_type_type,
@@ -521,9 +522,10 @@ export const conversation = (axios: AxiosInstance) =>
     .patch({
       action: "updateConversationNode",
       path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-      beforeRequest: (state, { params, data }) => {
+      beforeRequest: (state, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.updated_at = undefined;
+        actionParams.data = filterKeys(data, conversationNodePatchKeys);
       },
       onSuccess: (
         state: ConversationState,

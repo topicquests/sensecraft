@@ -4,9 +4,10 @@ import {
   RestDataActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import type { AxiosResponse, AxiosInstance } from "axios";
-import { ConversationNode } from "../types";
+import { ConversationNode, conversationNodePatchKeys } from "../types";
 import { publication_state_enum, permission_enum } from "../enums";
 import { makeTree, ConversationMap } from "./conversation";
 
@@ -189,9 +190,10 @@ export const channel = (axios: AxiosInstance) =>
     .patch({
       action: "updateChannelNode",
       path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-      beforeRequest: (state, { params, data }) => {
+      beforeRequest: (state, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.updated_at = undefined;
+        actionParams.data = filterKeys(data, conversationNodePatchKeys);
       },
       onSuccess: (
         state: ChannelState,

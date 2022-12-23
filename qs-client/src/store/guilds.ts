@@ -5,6 +5,7 @@ import {
   RestEmptyActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import {
   Guild,
@@ -13,6 +14,7 @@ import {
   GamePlay,
   Quest,
   GuildMemberAvailableRole,
+  guildPatchKeys,
 } from "../types";
 import { registration_status_enum, game_play_status_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
@@ -311,25 +313,10 @@ export const guilds = (axios: AxiosInstance) =>
     .patch({
       action: "updateGuild",
       path: ({ id }) => `/guilds?id=eq.${id}`,
-      beforeRequest: (state: GuildsState, { params, data }) => {
+      beforeRequest: (state: GuildsState, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.slug = undefined;
-        Object.assign(data, {
-          casting: undefined,
-          guild_membership: undefined,
-          game_play: undefined,
-          updated_at: undefined,
-          // And all GuildData fields. Not DRY, alas.
-          member_count: undefined,
-          member_request_count: undefined,
-          is_member: undefined,
-          is_admin: undefined,
-          last_node_published_at: undefined,
-          node_count: undefined,
-          ongoing_quests_count: undefined,
-          finished_quests_count: undefined,
-          recruiting_for_quest_count: undefined,
-        });
+        actionParams.data = filterKeys(data, guildPatchKeys);
       },
       onSuccess: (
         state: GuildsState,

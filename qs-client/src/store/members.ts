@@ -4,6 +4,7 @@ import {
   RestEmptyActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
@@ -15,6 +16,7 @@ import {
   Guild,
   GuildMemberAvailableRole,
   CastingRole,
+  memberPatchKeys,
 } from "../types";
 
 interface MemberMap {
@@ -243,9 +245,10 @@ export const members = (axios: AxiosInstance) =>
       action: "updateMember",
       path: ({ id }) => `/public_members?id=eq.${id}`,
       property: "members",
-      beforeRequest: (state: MembersState, { params, data }) => {
+      beforeRequest: (state: MembersState, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.slug = undefined;
+        actionParams.data = filterKeys(data, memberPatchKeys);
       },
       onSuccess: (
         state: MembersState,

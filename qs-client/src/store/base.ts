@@ -11,6 +11,7 @@ import {
   ResourceActionOptions,
 } from "vuex-rest-api/dist/Resource";
 import { AxiosResponse } from "axios";
+import type { KeyArray } from "../types";
 
 export type RestActionType<P, D, R> = ({
   params,
@@ -63,6 +64,10 @@ interface StoreOptions extends VapiStoreOptions {
 
 interface CallResourceActionOptions extends ShorthandResourceActionOptions {
   readOnly?: boolean;
+}
+
+export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
+  return Object.fromEntries(keys.filter(k => data[k] !== undefined).map(k => [k, data[k]])) as Partial<T>;
 }
 
 export class MyVapi<S> extends Vapi {

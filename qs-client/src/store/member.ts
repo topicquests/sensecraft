@@ -5,10 +5,12 @@ import {
   RestEmptyActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import {
   Member,
+  memberPatchKeys,
   GuildMembership,
   QuestMembership,
   Casting,
@@ -111,9 +113,10 @@ export const member = (axios: AxiosInstance) =>
       action: "updateUser",
       property: "member",
       path: ({ id }) => `/members?id=eq.${id}`,
-      beforeRequest: (state: MemberState, { params, data }) => {
+      beforeRequest: (state: MemberState, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.slug = undefined;
+        actionParams.data = filterKeys(data, memberPatchKeys);
       },
       onSuccess: (
         state: MemberState,

@@ -4,9 +4,10 @@ import {
   RestEmptyActionType,
   RetypeActionTypes,
   RetypeGetterTypes,
+  filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { Role, RoleNodeConstraint } from "../types";
+import { Role, RoleNodeConstraint, rolePatchKeys } from "../types";
 
 interface RoleMap {
   [key: number]: Role;
@@ -160,13 +161,10 @@ export const role = (axios: AxiosInstance) =>
     .patch({
       action: "updateRole",
       path: ({ id }) => `/role?id=eq.${id}`,
-      beforeRequest: (state: RoleState, { params, data }) => {
+      beforeRequest: (state: RoleState, actionParams) => {
+        const { params, data } = actionParams;
         params.id = data.id;
-        data.slug = undefined;
-        Object.assign(data, {
-          updated_at: undefined,
-          role_node_constraint: undefined,
-        });
+        actionParams.data = filterKeys(data, rolePatchKeys);
       },
       onSuccess: (
         state: RoleState,

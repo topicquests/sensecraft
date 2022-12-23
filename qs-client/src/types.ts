@@ -8,6 +8,8 @@ import {
   game_play_status_type,
 } from "./enums";
 
+export type KeyArray<T> = Array<keyof T>;
+
 export interface GuildMembership {
   guild_id: number;
   member_id: number;
@@ -57,6 +59,9 @@ export interface Member extends PublicMember {
   last_login_email_sent: string;
 }
 
+export const memberPatchKeys: KeyArray<Member> = [
+  'id', 'email', 'handle', 'permissions', 'password', 'name', 'confirmed'];
+
 export interface GamePlay {
   quest_id: number;
   guild_id: number;
@@ -87,6 +92,9 @@ export interface Quest {
   casting?: Casting[];
   game_play?: GamePlay[];
 }
+
+export const questPatchKeys: KeyArray<Quest> = [
+  'id', 'handle', 'name', 'description', 'public', 'turn_based', 'status', 'start', 'end'];
 
 export interface QuestData extends Quest {
   last_node_published_at: string;
@@ -121,6 +129,11 @@ export interface ConversationNode extends BaseConversationNode {
   parent_id?: number;
   ancestry: string;
 }
+
+export const conversationNodePatchKeys: KeyArray<ConversationNode> = [
+  'id', 'quest_id', 'guild_id', 'creator_id', 'parent_id', 'node_type',
+  'status', 'title', 'description', 'url', 'meta', 'draft_for_role_id'];
+
 export interface QTreeNode extends ConversationNode {
   // id: number | string;
   children?: QTreeNode[];
@@ -160,6 +173,10 @@ export interface Guild {
   casting?: Casting[];
 }
 
+export const guildPatchKeys: KeyArray<Guild> = [
+  'id', 'handle', 'name', 'description', 'creator', 'public', 'open_for_applications',
+  'application_needs_approval', 'default_role_id'];
+
 export interface GuildData extends Guild {
   member_count: number;
   member_request_count: number;
@@ -188,6 +205,9 @@ export interface Role {
   role_draft_target_role_id?: number;
   role_node_constraint?: RoleNodeConstraint[];
 }
+
+export const rolePatchKeys: KeyArray<Role> = [
+  'id', 'name', 'guild_id', 'permissions', 'max_pub_state', "role_draft_target_role_id"];
 
 export interface GuildMemberAvailableRole {
   guild_id: number;
