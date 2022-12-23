@@ -59,6 +59,7 @@ import Vue from "vue";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { MemberActionTypes, MemberGetterTypes, MemberState } from "src/store/member";
 import {Member} from "../types"
+import { userLoaded } from "../boot/userLoaded";
 
 @Component<PasswordResset>({
   name: "reset-password",
@@ -76,7 +77,7 @@ import {Member} from "../types"
     ...mapGetters("member", ["getUserId"]),
   },
   methods: {
-    ...mapActions("member", ["renewToken", "fetchLoginUser", "updateUser"]),
+    ...mapActions("member", ["renewToken", "ensureLoginUser", "updateUser"]),
   },
 })
 export default class PasswordResset extends Vue {
@@ -90,7 +91,7 @@ export default class PasswordResset extends Vue {
   getUserId!: MemberGetterTypes["getUserId"];
 
   renewToken!: MemberActionTypes["renewToken"];
-  fetchLoginUser!: MemberActionTypes["fetchLoginUser"];
+  ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
   updateUser!: MemberActionTypes["updateUser"];
 
   async updatePassword() {
@@ -118,7 +119,7 @@ export default class PasswordResset extends Vue {
   async verifyToken() {
     try {
       await this.renewToken({ data: { token: this.token } });
-      await this.fetchLoginUser();
+      await this.ensureLoginUser();
     } catch(err) {
       this.$q.notify({ type: "negative", message: "Issue with verification. Retry verifying"})
       this.$router.push({name: "confirm_password"})
@@ -128,8 +129,14 @@ export default class PasswordResset extends Vue {
     const tokenArg = this.$route.query.token;
     if (tokenArg) {
       this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
+      await this.verifyToken()
+    } else {
+      await userLoaded;
+      if (!this.member) {
+        this.$q.notify({ type: "negative", message: "Ask to reset password"});
+        this.$router.push({name: "confirm_password"});
+      }
     }
-    await this.verifyToken()
   }
 }
 </script>
