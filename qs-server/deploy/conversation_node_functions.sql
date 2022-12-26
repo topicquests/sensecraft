@@ -271,7 +271,7 @@ BEGIN
     IF NOT (is_guild_id_leader(guild_id) OR is_superadmin())  THEN
       RAISE EXCEPTION 'permission guildAdmin,publishGameMove';
     END IF;
-    SELECT turn_based INTO turn_based_quest STRICT FROM public.quests WHERE id = quest_id;
+    SELECT turn_based INTO STRICT turn_based_quest FROM public.quests WHERE id = quest_id;
     IF NOT turn_based_quest THEN
       status := 'published';
     END IF;
