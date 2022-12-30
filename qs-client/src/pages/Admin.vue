@@ -72,6 +72,9 @@
         <role-table v-bind:roles="getRoles"></role-table>
       </div>
     </div>
+    <div class="column items-center">
+      <server-data-card></server-data-card>
+    </div>
   </q-page>
 </template>
 
@@ -80,6 +83,7 @@ import member from "../components/member.vue";
 import scoreboard from "../components/scoreboard.vue";
 import { mapActions, mapGetters } from "vuex";
 import roleTable from "../components/role-table.vue";
+import serverDataCard from "../components/server-data-card.vue";
 import type { Member } from "../types";
 
 function ensure(array, value, present) {
@@ -100,13 +104,13 @@ export default {
   props: {},
   meta: {
     // sets document title
-    title: "Administration",
+    title: "Administration"
   },
   data() {
     return {
       ready: false,
       userIsSuperAdmin: false,
-      member_id: null,
+      member_id: null
     };
   },
   computed: {
@@ -124,7 +128,7 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "superadmin", value);
-      },
+      }
     },
     createQuest: {
       get() {
@@ -132,7 +136,7 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "createQuest", value);
-      },
+      }
     },
     createGuild: {
       get() {
@@ -140,13 +144,14 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "createGuild", value);
-      },
-    },
+      }
+    }
   },
   components: {
     member: member,
     scoreboard: scoreboard,
     roleTable: roleTable,
+    serverDataCard: serverDataCard
   },
   methods: {
     ...mapActions("members", ["updateMember", "ensureAllMembers"]),
@@ -154,9 +159,9 @@ export default {
     async updatePermissions() {
       const member = this.member;
       await this.updateMember({
-        data: { id: member.id, permissions: member.permissions },
+        data: { id: member.id, permissions: member.permissions }
       });
-    },
+    }
   },
   async beforeMount() {
     await this.ensureAllMembers();
@@ -164,7 +169,7 @@ export default {
     this.member_id = this.getUserId;
     this.userIsSuperAdmin = this.hasPermission("superadmin");
     this.ready = true;
-  },
+  }
 };
 </script>
 <style>
