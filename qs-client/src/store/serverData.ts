@@ -2,13 +2,20 @@ import { MyVapi, RestEmptyActionType } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { ServerData } from "src/types";
 
-export interface ServerDataState {
-  serverData: ServerData;
+interface ServerDataMap {
+  [key: number]: ServerData;
 }
+export interface ServerDataState {
+  serverData: ServerDataMap;
+}
+const baseState: ServerDataState = {
+  serverData: [],
+};
 
 export const serverData = (axios: AxiosInstance) =>
   new MyVapi<ServerDataState>({
     axios,
+    state: baseState,
   })
     // Step 3
     .get({
