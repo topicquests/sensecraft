@@ -95,7 +95,7 @@
           label="Update server data"
           color="primary"
           :tabindex="14"
-          @click="updateServerData"
+          @click="doUpdateServerData"
         />
       </div>
     </q-card>
@@ -103,27 +103,32 @@
 </template>
 
 <script lang="ts">
-import { ServerData } from "src/types";
+import type { ServerData } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import { ServerDataActionTypes } from "../store/serverData";
 
 @Component<ServerDataCard>({
   name: "serverDataCard",
+  computed: {
+    ...mapState("serverData", ["serverData"]),
+  },
 
   methods: {
-    ...mapActions("serverData", ["fetchServerData"])
+    ...mapActions("serverData", ["ensureServerData", "updateServerData"])
   }
 })
 export default class ServerDataCard extends Vue {
-  serverData: Partial<ServerData> = {};
+  serverData!: Partial<ServerData>;
 
   // declare the methods for Typescript ensureGuildsPlayingQuest!:
-  fetchServerData!: ServerDataActionTypes["fetchServerData"];
+  ensureServerData!: ServerDataActionTypes["ensureServerData"];
+  updateServerData!: ServerDataActionTypes["updateServerData"];
 
-  updateServerData() {
+  async doUpdateServerData() {
     try {
+      await this.updateServerData({data: this.serverData});
       this.$q.notify({ type: "positive", message: "Server data updated" });
     } catch (err) {
       this.$q.notify({
@@ -133,8 +138,8 @@ export default class ServerDataCard extends Vue {
     }
   }
 
-  beforeMount() {
-    this.fetchServerData();
+  async beforeMount() {
+    await this.ensureServerData();
   }
 }
 </script>
