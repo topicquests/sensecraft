@@ -58,6 +58,31 @@ export const serverData = (axios: AxiosInstance) =>
         state.serverData = Object.assign({}, state.serverData, res.data[0]);
       },
     })
+    .call({
+      action: "resetDefaultSingle",
+      property: "varname",
+      path: "reset_default_data",
+      onSuccess: (
+        state: ServerDataState,
+        res: AxiosResponse<string>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        MyVapi.store.dispatch("stateData/fetchServerData");
+      },
+    })
+    .call({
+      action: "resetDefaultAll",
+      path: "reset_all_default_data",
+      onSuccess: (
+        state: ServerDataState,
+        res: AxiosResponse<string>,
+        axios: AxiosInstance,
+        { params, data }
+      ) => {
+        MyVapi.store.dispatch("stateData/fetchServerData");
+      },
+    })
     // Step 4
     .getVuexStore({
       getters: serverDataGetters,
@@ -68,6 +93,8 @@ export const serverData = (axios: AxiosInstance) =>
 type serverDataRestActionTypes = {
   fetchServerData: RestEmptyActionType<ServerData[]>,
   updateServerData: RestDataActionType<Partial<ServerData>, ServerData[]>,
+  resetDefaultSingle: RestEmptyActionType<string>,
+  resetDefaultAll: RestEmptyActionType<void>,
 };
 
 export type ServerDataActionTypes = RetypeActionTypes<typeof serverDataActions> &

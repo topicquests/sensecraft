@@ -116,7 +116,7 @@ import { ServerDataActionTypes } from "../store/serverData";
   },
 
   methods: {
-    ...mapActions("serverData", ["ensureServerData", "updateServerData"])
+    ...mapActions("serverData", ["ensureServerData", "updateServerData", "resetDefaultSingle", "resetDefaultAll"])
   }
 })
 export default class ServerDataCard extends Vue {
@@ -125,6 +125,8 @@ export default class ServerDataCard extends Vue {
   // declare the methods for Typescript ensureGuildsPlayingQuest!:
   ensureServerData!: ServerDataActionTypes["ensureServerData"];
   updateServerData!: ServerDataActionTypes["updateServerData"];
+  resetDefaultSingle!: ServerDataActionTypes["resetDefaultSingle"];
+  resetDefaultAll!: ServerDataActionTypes["resetDefaultAll"];
 
   async doUpdateServerData() {
     try {
