@@ -11,66 +11,79 @@
             </h4>
           </q-card-section>
           <q-card-section>
-            <q-form class="">
-              <q-input
-                square
-                clearable
-                v-model="formdata.email"
-                type="email"
-                name="email"
-                label="Email"
-                tabindex="1"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" tabindex="-1" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                clearable
-                v-model="formdata.name"
-                label="Name"
-                name="name"
-                tabindex="2"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" tabindex="-1" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                clearable
-                v-model="formdata.handle"
-                name="handle"
-                label="Handle"
-                tabindex="3"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" tabindex="-1" />
-                </template>
-              </q-input>
-              <q-input
-                sqaure
-                clearable
-                v-model="formdata.password"
-                filled
-                :type="isPwd ? 'password' : 'text'"
-                name="password"
-                label="Password"
-                tabindex="4"
-                v-on:keyup.enter="doRegister"
-              >
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwd ? 'visibility_off' : 'visibility'"
-                    @click="isPwd = !isPwd"
-                    tabindex="-1"
-                  />
-                </template>
-                <template v-slot:prepend>
-                  <q-icon name="lock" tabindex="-1" />
-                </template>
-              </q-input>
+            <q-form>
+              <div class="q-mb-sm">
+                <q-input
+                  square
+                  clearable
+                  filled
+                  v-model="formdata.email"
+                  type="email"
+                  name="email"
+                  label="Email"
+                  tabindex="1"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="email" tabindex="-1" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="q-mb-sm">
+                <q-input
+                  square
+                  clearable
+                  filled
+                  v-model="formdata.name"
+                  type="text"
+                  label="Name"
+                  name="name"
+                  tabindex="2"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="person" tabindex="-1" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="q-mb-sm">
+                <q-input
+                  square
+                  clearable
+                  filled
+                  v-model="formdata.handle"
+                  type="text"
+                  name="handle"
+                  label="Handle"
+                  tabindex="3"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="person" tabindex="-1" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="q-mb-sm">
+                <q-input
+                  sqaure
+                  clearable
+                  v-model="formdata.password"
+                  filled
+                  :type="isPwd ? 'password' : 'text'"
+                  name="password"
+                  label="Password"
+                  tabindex="4"
+                  v-on:keyup.enter="doRegister"
+                >
+                  <template v-slot:append>
+                    <q-icon
+                      :name="isPwd ? 'visibility_off' : 'visibility'"
+                      @click="isPwd = !isPwd"
+                      tabindex="-1"
+                    />
+                  </template>
+                  <template v-slot:prepend>
+                    <q-icon name="lock" tabindex="-1" />
+                  </template>
+                </q-input>
+              </div>
             </q-form>
           </q-card-section>
           <q-card-section>
@@ -106,7 +119,7 @@ export default {
   name: "RegisterPage",
   meta: {
     // sets document title
-    title: "Register",
+    title: "Register"
   },
   data() {
     return {
@@ -115,12 +128,12 @@ export default {
         email: null,
         handle: null,
         name: null,
-        password: null,
+        password: null
       },
       isPwd: true,
       isPwdSignIn: true,
       showDialog: true,
-      title: "Register",
+      title: "Register"
     };
   },
 
@@ -153,7 +166,7 @@ export default {
         Notify.create({
           message:
             "Account created successfully. Please check your email for a confirmation link.",
-          color: "positive",
+          color: "positive"
         });
         this.$router.push({ name: "signin" });
       } catch (error) {
@@ -161,13 +174,13 @@ export default {
           Notify.create({
             message:
               "This account already exists. Try resetting your password or contact support.",
-            color: "negative",
+            color: "negative"
           });
         } else {
           Notify.create({
             message:
               "There was an error creating your account. If this issue persists, contact support.",
-            color: "negative",
+            color: "negative"
           });
         }
         console.log("There was an error registering ", error);
@@ -183,13 +196,32 @@ export default {
       setTimeout(() => {
         this.goHome();
       }, 50);
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style>
-input:focus {
-  background-color: rgb(204, 208, 212);
+input[type="email"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: none;
+
+  width: 100%;
+}
+input[type="password"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: none;
+  width: 100%;
+}
+input[type="text"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: none;
+  width: 100%;
 }
 </style>

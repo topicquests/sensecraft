@@ -1,5 +1,9 @@
 import {
-  MyVapi, RestDataActionType, RestEmptyActionType, RetypeActionTypes, RetypeGetterTypes,
+  MyVapi,
+  RestDataActionType,
+  RestEmptyActionType,
+  RetypeActionTypes,
+  RetypeGetterTypes,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { ServerData } from "src/types";
@@ -10,7 +14,6 @@ export interface ServerDataState {
 const baseState: ServerDataState = {
   serverData: null,
 };
-
 
 const serverDataGetters = {
   getServerData: (state: ServerDataState) => state.serverData,
@@ -23,8 +26,13 @@ const serverDataActions = {
       return context.state.serverData;
     }
   },
-
-}
+  resetServerData: async (context) => {
+    if (context.state.serverData) {
+      await context.dispatch("fetchServerData");
+      return context.state.serverData;
+    }
+  },
+};
 
 export const serverData = (axios: AxiosInstance) =>
   new MyVapi<ServerDataState>({
@@ -68,7 +76,7 @@ export const serverData = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        MyVapi.store.dispatch("stateData/fetchServerData");
+        MyVapi.store.dispatch("serverData/fetchServerData");
       },
     })
     .call({
@@ -80,7 +88,7 @@ export const serverData = (axios: AxiosInstance) =>
         axios: AxiosInstance,
         { params, data }
       ) => {
-        MyVapi.store.dispatch("stateData/fetchServerData");
+        MyVapi.store.dispatch("serverData/fetchServerData");
       },
     })
     // Step 4
@@ -91,12 +99,14 @@ export const serverData = (axios: AxiosInstance) =>
     });
 
 type serverDataRestActionTypes = {
-  fetchServerData: RestEmptyActionType<ServerData[]>,
-  updateServerData: RestDataActionType<Partial<ServerData>, ServerData[]>,
-  resetDefaultSingle: RestEmptyActionType<string>,
-  resetDefaultAll: RestEmptyActionType<void>,
+  fetchServerData: RestEmptyActionType<ServerData[]>;
+  updateServerData: RestDataActionType<Partial<ServerData>, ServerData[]>;
+  resetDefaultSingle: RestEmptyActionType<string>;
+  resetDefaultAll: RestEmptyActionType<void>;
 };
 
-export type ServerDataActionTypes = RetypeActionTypes<typeof serverDataActions> &
+export type ServerDataActionTypes = RetypeActionTypes<
+  typeof serverDataActions
+> &
   serverDataRestActionTypes;
 export type ServerDataGetterTypes = RetypeGetterTypes<typeof serverDataGetters>;

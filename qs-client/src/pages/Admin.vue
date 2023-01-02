@@ -68,7 +68,7 @@
           @click="$router.push({ name: 'create_role' })"
         />
       </div>
-      <div id="roles" style="width: 55%" class="q-mb-xl">
+      <div id="roles" style="width: 48%" class="q-mb-xl">
         <role-table v-bind:roles="getRoles"></role-table>
       </div>
     </div>
