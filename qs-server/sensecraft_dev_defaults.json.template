@@ -1,4 +1,9 @@
 {
+  "smtp_server": "mail.example.org",
+  "smtp_port": 465,
+  "smtp_secure": "false",
+  "smtp_username": "sensecraft_dev",
+  "smtp_password": "my_dev_password",
   "confirm_account_mail_template_title": "Welcome to SenseCraft",
   "confirm_account_mail_template_text": "Welcome to SenseCraft, {name}!\nPlease confirm your email by visiting this link:\n{link}",
   "confirm_account_mail_template_html": "<p>Welcome to SenseCraft, {name}!</p><p>Please confirm your email by clicking <a href=\"{link}\">here</a>.</p>",

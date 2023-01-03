@@ -136,6 +136,9 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
     )
     if set_defaults:
         defaults_file = f'{database}_defaults.json'
+        if not exists(defaults_file) and exists(f"{defaults_file}.template"):
+            print(f'Missing defaults file: {defaults_file}. Please copy the {defaults_file}.template and set the mailing parameters.')
+            defaults_file += '.template'
         if exists(defaults_file):
             with open(defaults_file) as f:
                 defaults = json.load(f)
@@ -147,7 +150,7 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
                     v = str(v).lower()
                 psql_command(f"ALTER DATABASE {database} SET \"defaults.{k}\" TO {v}", **conn_data)
         else:
-            print("Missing defaults file: ", defaults_file)
+            print("Defaults file and template missing: ", defaults_file)
     conn_data = conn_data.copy()
     conn_data["db"] = database
     psql_command(f"ALTER SCHEMA public OWNER TO {owner}", **conn_data)
