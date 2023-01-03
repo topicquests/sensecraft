@@ -123,7 +123,7 @@
           clearable
           tabindex="10"
           v-model="serverData.confirm_account_mail_template_html"
-          type="text"
+          type="textarea"
           label="confirm account html"
           style="width: 90%"
         />
@@ -147,7 +147,7 @@
           clearable
           tabindex="12"
           v-model="serverData.reset_password_mail_template_text"
-          type="text"
+          type="textarea"
           label="reset password text"
           style="width: 90%"
         />
