@@ -12,10 +12,11 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm">
-              <div>
+              <div class="q-mb-sm">
                 <q-input
-                  square
                   clearable
+                  filled
+                  square
                   v-model="formData.signonEmail"
                   :tabindex="1"
                   name="email"
@@ -69,9 +70,9 @@
                   >New user?</router-link
                 >
                 <div>
-                <router-link to="/confirmPassword" class="text-grey-6"
-                  >Forgot password?</router-link
-                >
+                  <router-link to="/confirmPassword" class="text-grey-6"
+                    >Forgot password?</router-link
+                  >
                 </div>
               </q-card-section>
             </q-card-section>
@@ -88,7 +89,7 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   meta: {
     // sets document title
-    title: "Sign In",
+    title: "Sign In"
   },
   data() {
     return {
@@ -97,12 +98,12 @@ export default {
       showDialog: true,
       formData: {
         signonEmail: null,
-        password: null,
-      },
+        password: null
+      }
     };
   },
   computed: {
-    ...mapGetters("member", ["getUserId"]),
+    ...mapGetters("member", ["getUserId"])
   },
   methods: {
     ...mapActions("member", ["signin", "ensureLoginUser"]),
@@ -121,7 +122,7 @@ export default {
         console.log("Error with sign in ", error);
         this.$q.notify({
           type: "negative",
-          message: "Issue with sign in. Verify your email and password",
+          message: "Issue with sign in. Verify your email and password"
         });
       }
     },
@@ -146,9 +147,25 @@ export default {
       setTimeout(() => {
         this.goHome();
       }, 50);
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style></style>
+<style>
+input[type="email"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  box-sizing: border-box;
+  border: none;
+
+  width: 100%;
+}
+input[type="password"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  box-sizing: border-box;
+  border: none;
+  width: 100%;
+}
+</style>

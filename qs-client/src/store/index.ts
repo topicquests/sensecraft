@@ -8,6 +8,7 @@ import { guilds } from "./guilds";
 import { conversation } from "./conversation";
 import { channel } from "./channel";
 import { role } from "./role";
+import { serverData } from "./serverData";
 import { MyVapi } from "./base";
 import { BaseGetters, BaseActions } from "./baseStore";
 import type { AxiosInstance } from "axios";
@@ -28,6 +29,7 @@ export default function getStore(axios: AxiosInstance) {
         guilds: guilds(axios),
         role: role(axios),
         channel: channel(axios),
+        serverData: serverData(axios),
       },
       getters: BaseGetters,
       actions: BaseActions,

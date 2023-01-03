@@ -5,7 +5,7 @@
       <h2>Reset Password</h2>
         <q-input
           class="q-mb-md"
-          outlined
+          filled
           clearable
           v-model="password"
           :type="isPwdReset ? 'password' : 'text'"
@@ -23,7 +23,7 @@
         </template>
         </q-input>
         <q-input
-          outlined
+          filled
           clearable
           v-model="confirm_password"
           :type="isPwdConfirmed ? 'password' : 'text'"
@@ -151,6 +151,6 @@ input[type="isPwdReset"] {
 }
 .card {
   width: 40%;
-  background-color: whitesmoke);
+  background-color: whitesmoke;
 }
 </style>
