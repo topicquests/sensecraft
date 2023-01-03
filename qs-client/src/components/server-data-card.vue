@@ -37,14 +37,10 @@
             class="q-mr-md"
             style="width: 45%"
           />
-          <q-input
-            square
-            filled
-            clearable
+          <q-checkbox
             tabindex="4"
             v-model="serverData.smtp_secure"
             label="smtp secure"
-            style="width: 45%"
           />
         </q-card-section>
       </div>
@@ -115,7 +111,7 @@
           clearable
           tabindex="9"
           v-model="serverData.confirm_account_mail_template_text"
-          type="text"
+          type="textarea"
           label="confirm account text"
           style="width: 90%"
         />
@@ -162,7 +158,7 @@
         clearable
         tabindex="13"
         v-model="serverData.reset_password_mail_template_html"
-        type="text"
+        type="textarea"
         label="reset password html"
         style="width: 90%"
       />
@@ -288,6 +284,11 @@ input[type="text"] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
+input[type="textaerea"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
 input[type="password"] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
