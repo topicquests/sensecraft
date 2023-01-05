@@ -1,25 +1,20 @@
 <template>
   <q-page class="bg-secondary">
     <div>
-      <q-card  class="card fixed-center q-pl-md q-pt-md">
+      <q-card class="card fixed-center q-pa-md item text-center">
         <span class="q-pb-md q-pl-md" v-if="token"
           >If this screen is being displayed it is due to an issue with email
           verification. Please click button below to resend email verification.
           If you have reached this screen after another attempt please contact
           SenseCraft administrator</span
         >
-        <span class="q-pb-md q-pl-md" v-else
-          >Give your email if you want us to resend your confirmation email</span
+
+        <span class="q-pl-md q-pr-md q-pb-md" v-else
+          >Give your email if you want us to resend your confirmation
+          email</span
         >
-        <div class="row justify-center q-pt-lg q-pb-lg">
-          <q-btn
-            class="align-center"
-            label="Resend email Verification"
-            color="primary"
-            @click="resend"
-          />
-        </div>
-        <div>
+
+        <div class="q-mt-md row justify-center">
           <q-input
             square
             clearable
@@ -29,8 +24,17 @@
             label="Email"
             tabindex="1"
             v-on:keyup.enter="resend"
+            style="width: 80%"
           >
           </q-input>
+        </div>
+        <div class="row justify-center q-pt-lg q-pb-lg">
+          <q-btn
+            class="align-center"
+            label="Resend email Verification"
+            color="primary"
+            @click="resend"
+          />
         </div>
       </q-card>
     </div>
@@ -48,8 +52,12 @@ import { Notify } from "quasar";
   name: "confirm_registration",
 
   methods: {
-    ...mapActions("member", ["renewToken", "fetchLoginUser", "sendConfirmEmail"]),
-  },
+    ...mapActions("member", [
+      "renewToken",
+      "fetchLoginUser",
+      "sendConfirmEmail"
+    ])
+  }
 })
 export default class ConfirmRegistration extends Vue {
   email: string = null;
@@ -64,7 +72,7 @@ export default class ConfirmRegistration extends Vue {
       this.$q.notify({ type: "negative", message: "Missing Email" });
       return;
     }
-    await this.sendConfirmEmail({ data: { email: theEmail }});
+    await this.sendConfirmEmail({ data: { email: theEmail } });
   }
 
   async getNewToken(prevToken) {
@@ -73,14 +81,14 @@ export default class ConfirmRegistration extends Vue {
       await this.fetchLoginUser();
       Notify.create({
         message: "Email Verified. You are now signed in",
-        color: "positive",
+        color: "positive"
       });
       this.$router.push({ name: "lobby" });
     } catch (err) {
       this.$q.notify({
         message:
           "There was an error renewing token. Please resend email verification.",
-        color: "negative",
+        color: "negative"
       });
     }
   }
@@ -88,7 +96,7 @@ export default class ConfirmRegistration extends Vue {
   async beforeMount() {
     const tokenArg = this.$route.query.token;
     if (tokenArg) {
-      this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
+      this.token = Array.isArray(tokenArg) ? tokenArg[0] : tokenArg;
       await this.getNewToken(this.token);
     }
   }

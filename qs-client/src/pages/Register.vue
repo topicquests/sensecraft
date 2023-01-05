@@ -4,7 +4,7 @@
   >
     <div class="column">
       <div class="row">
-        <q-card square class="shadow-24" style="width: 400px; height: 500px">
+        <q-card square class="shadow-24" style="width: 400px; height: 520px">
           <q-card-section class="bg-deep-purple-7">
             <h4 style="text-align: center" class="text-h5 text-white q-my-md">
               Sign Up

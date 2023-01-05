@@ -10,7 +10,7 @@
     </div>
     <div class="col">
       <div class="row justify-center">
-        <h3>Create Role</h3>
+        <h2>Create Role</h2>
       </div>
       <div class="col">
         <div class="row justify-center">
@@ -41,17 +41,17 @@ import { Role } from "../types";
   components: {
     scoreboard: scoreboard,
     member: member,
-    roleCard: roleCard,
+    roleCard: roleCard
   },
   computed: {
-    ...mapGetters("role", ["getRoleById"]),
+    ...mapGetters("role", ["getRoleById"])
   },
   methods: {
-    ...mapActions("role", ["ensureRole", "createRole"]),
+    ...mapActions("role", ["ensureRole", "createRole"])
   },
   meta: {
-    title: "Create Role",
-  },
+    title: "Create Role"
+  }
 })
 export default class RoleEditPage extends Vue {
   name: "RoleEdit";
@@ -62,7 +62,7 @@ export default class RoleEditPage extends Vue {
     name: "",
     permissions: [],
     max_pub_state: null,
-    guild_id: null,
+    guild_id: null
   };
 
   // Declare computed attributes for typescript
@@ -76,14 +76,14 @@ export default class RoleEditPage extends Vue {
       const res = await this.createRole({ data: newRole });
       this.$q.notify({
         message: `Added new role`,
-        color: "positive",
+        color: "positive"
       });
       this.$router.push({ name: "role_edit", params: { role_id: res.id } });
     } catch (err) {
       console.log("there was an error in creating role ", err);
       this.$q.notify({
         message: `There was an error creating new role.`,
-        color: "negative",
+        color: "negative"
       });
     }
   }

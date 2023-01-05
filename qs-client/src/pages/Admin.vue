@@ -60,10 +60,11 @@
       </div>
     </div>
     <div class="column items-center">
-      <div class="col-6 q-pt-lg q-pb-sm" style="width: 55%">
+      <div class="col-6 q-pt-lg q-pb-sm" style="width: 48%">
         <q-btn
           v-if="$store.state.member.member"
           id="newRoleBtn"
+          color="primary"
           label="New Role"
           @click="$router.push({ name: 'create_role' })"
         />
@@ -190,7 +191,5 @@ export default {
 }
 #newRoleBtn {
   margin-bottom: 4px;
-  background-color: lightblue;
-  color: blue;
 }
 </style>

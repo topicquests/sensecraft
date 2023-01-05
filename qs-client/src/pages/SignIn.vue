@@ -46,6 +46,7 @@
                     @click="isPwdSignIn = !isPwdSignIn"
                   />
                 </template>
+
                 <template v-slot:prepend>
                   <q-icon name="lock" />
                 </template>
@@ -118,12 +119,22 @@ export default {
         }
         await this.ensureLoginUser();
         this.goNext();
-      } catch (error) {
-        console.log("Error with sign in ", error);
-        this.$q.notify({
-          type: "negative",
-          message: "Issue with sign in. Verify your email and password"
-        });
+      } catch (AxiosError) {
+        const errorString = AxiosError.response.data.message;
+        console.log("Error with sign in ", errorString);
+        if (errorString == "invalid confirmed / Cannot login until confirmed") {
+          this.$q.notify({
+            type: "negative",
+            message:
+              "You have not been confirmed. Check your email for confirmation link"
+          });
+        } else {
+          this.$q.notify({
+            type: "negative",
+            message:
+              "Problem signing in verify you have entered correct email and password "
+          });
+        }
       }
     },
     async goNext() {
@@ -158,9 +169,9 @@ input[type="email"] {
   font-size: 15px;
   box-sizing: border-box;
   border: none;
-
   width: 100%;
 }
+
 input[type="password"] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;

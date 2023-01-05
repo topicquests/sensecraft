@@ -1,5 +1,5 @@
 <template>
-  <q-table :title="title" :data="roles" :columns="columns">
+  <q-table :title="title" :data="roles" :columns="columns" class="q-pb-md">
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td key="name" :props="props"> {{ props.row.name }}</q-td>
@@ -28,11 +28,11 @@ import { Role } from "../types";
 import { Prop } from "vue/types/options";
 
 const RoleTableProps = Vue.extend({
-  props: { title: String, roles: Array as Prop<Role[]> },
+  props: { title: String, roles: Array as Prop<Role[]> }
 });
 
 @Component<RoleTable>({
-  name: "RoleTable",
+  name: "RoleTable"
 })
 export default class RoleTable extends RoleTableProps {
   columns = [
@@ -42,7 +42,7 @@ export default class RoleTable extends RoleTableProps {
       label: "Name",
       align: "left",
       field: "name",
-      sortable: true,
+      sortable: true
     },
     {
       name: "guild",
@@ -50,7 +50,7 @@ export default class RoleTable extends RoleTableProps {
       label: "Guild",
       align: "left",
       field: "guild_id",
-      sortable: true,
+      sortable: true
     },
     {
       name: "permissions",
@@ -58,7 +58,7 @@ export default class RoleTable extends RoleTableProps {
       label: "Permissions",
       align: "left",
       field: "permissions",
-      sortable: true,
+      sortable: true
     },
     {
       name: "publish_state",
@@ -66,7 +66,7 @@ export default class RoleTable extends RoleTableProps {
       label: "Max Publish State",
       align: "left",
       field: "max_pub_state",
-      sortable: true,
+      sortable: true
     },
     {
       name: "roleId",
@@ -74,8 +74,8 @@ export default class RoleTable extends RoleTableProps {
       label: "Action",
       align: "left",
       field: "id",
-      sortable: true,
-    },
+      sortable: true
+    }
   ];
 }
 </script>

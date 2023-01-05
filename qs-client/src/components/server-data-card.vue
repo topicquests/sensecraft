@@ -162,7 +162,6 @@
         label="reset password html"
         style="width: 90%"
       />
-
       <q-card-section>
         <div class="q-pa-md q-gutter-sm">
           <div class="row justify-center q-pb-lg">
