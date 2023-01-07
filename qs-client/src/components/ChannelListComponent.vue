@@ -92,9 +92,17 @@ export default class ChannelList extends ChannelListProps {
   getChannels!: ConversationNode[];
   ensureChannels!: ChannelActionTypes["ensureChannels"];
 
+  async ensureData() {
+    await this.ensureChannels(this.guild_id, this.quest_id);
+  }
+
+  async beforeUpdate() {
+    await this.ensureData();
+  }
+
   async beforeMount() {
     await userLoaded;
-    await this.ensureChannels(this.guild_id, this.quest_id);
+    this.ensureData();
     this.ready = true;
   }
 }

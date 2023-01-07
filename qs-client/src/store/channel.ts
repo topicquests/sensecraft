@@ -90,9 +90,6 @@ const ChannelGetters = {
 };
 
 const ChannelActions = {
-  reset: (context) => {
-    context.commit("CLEAR_STATE");
-  },
   ensureChannels: async (context, guild_id: number) => {
     if (guild_id != context.state.currentGuild) {
       await context.dispatch("fetchChannels", { params: { guild_id } });

@@ -332,7 +332,7 @@ import "../css/app.scss";
       "ensureGuildsPlayingQuest"
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions("channel", ["ensureChannels"]),
+    ...mapActions("channel", ["ensureChannels", "resetChannel"]),
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
         return this.getMembersOfGuild(this.getCurrentGuild);
@@ -459,6 +459,7 @@ export default class GuildPage extends Vue {
   ensureGuild!: GuildsActionTypes["ensureGuild"];
   ensureQuest!: QuestsActionTypes["ensureQuest"];
   ensureChannels!: ChannelActionTypes["ensureChannels"];
+  resetChannel!: ChannelActionTypes["resetChannel"];
   fetchQuestById!: QuestsActionTypes["fetchQuestById"];
   updateQuest!: QuestsActionTypes["updateQuest"];
   updateGamePlay!: QuestsActionTypes["updateGamePlay"];
@@ -557,6 +558,7 @@ export default class GuildPage extends Vue {
       member_id: this.memberId
     });
     this.isMember = true;
+    await this.resetChannel();
     this.$q.notify({
       type: "positive",
       message: "You are joining guild " + this.currentGuildId
