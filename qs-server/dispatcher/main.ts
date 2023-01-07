@@ -349,7 +349,9 @@ class Dispatcher {
     } else if (command == 'email') {
       const [member_id, email, confirmed_, token, name] = command_args.split(' ', 5);
       const confirmed = confirmed_ == 't';
-      const link = `${this.serverData?.server_url}/${confirmed?'reset_pass':'confirm'}?token=${token}`
+      const link = `${this.serverData?.server_url}/${confirmed ? 'reset_pass' : 'confirm'}?token=${token}`
+      if (_env == 'development')
+        console.log(link);
       let mailTxt = confirmed ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
       let mailHtml = confirmed ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
       let mailTitle = confirmed ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
@@ -358,14 +360,18 @@ class Dispatcher {
         mailHtml = mailHtml?.replace(`{${k}}`, v)
         mailTitle = mailTitle?.replace(`{${k}}`, v)
       }
-      await this.mailer?.sendMail({
-        from: `sensecraft@${this.serverData?.smtp_server}`,
-        to: `${name} <${email}>`,
-        subject: mailTitle,
-        text: mailTxt,
-        html: mailHtml,
-      })
-      this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
+      try {
+        await this.mailer?.sendMail({
+          from: `sensecraft@${this.serverData?.smtp_server}`,
+          to: `${name} <${email}>`,
+          subject: mailTitle,
+          text: mailTxt,
+          html: mailHtml,
+        })
+        this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
+      } catch (e) {
+        console.error(`Error sending mail to ${email}: ${e}`);
+      }
     } else if (command) {
       console.error('unknown command: ', command);
     } else {
