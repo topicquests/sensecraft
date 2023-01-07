@@ -89,6 +89,7 @@ import { mapActions, mapGetters } from "vuex";
 import roleTable from "../components/role-table.vue";
 import serverDataCard from "../components/server-data-card.vue";
 import type { Member } from "../types";
+import { userLoaded } from "../boot/userLoaded";
 
 function ensure(array, value, present) {
   if (!array) return;
@@ -167,11 +168,15 @@ export default {
       });
     }
   },
-  async beforeMount() {
+  async ensureData() {
     await this.ensureAllMembers();
     await this.ensureAllRoles();
+  },
+  async beforeMount() {
+    await userLoaded;
     this.member_id = this.getUserId;
     this.userIsSuperAdmin = this.hasPermission("superadmin");
+    await this.ensureData();
     this.ready = true;
   }
 };
