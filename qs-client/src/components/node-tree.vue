@@ -752,17 +752,9 @@ export default class NodeTree extends NodeTreeProps {
       document.removeEventListener("keyup", this.keyResponder);
   }
 
-  async beforeMount() {
-    if (!this.listenerInstalled) {
-      document.addEventListener("keyup", this.keyResponder);
-      this.listenerInstalled = true;
-    }
-    this.selectedNodeId = this.initialSelectedNodeId;
+  async ensureData() {
+    // not sure I want this much before each update
     let promises = [this.ensureAllRoles()];
-    if (this.currentGuildId) {
-      this.showDraft = true;
-      if (!this.channelId) this.showFocusNeighbourhood = true;
-    }
     if (this.currentQuestId) {
       promises = [
         ...promises,
@@ -784,6 +776,19 @@ export default class NodeTree extends NodeTreeProps {
         this.ensureMemberById({ id: this.getCurrentQuest.creator })
       );
     await Promise.all(promises);
+  }
+
+  async beforeMount() {
+    if (!this.listenerInstalled) {
+      document.addEventListener("keyup", this.keyResponder);
+      this.listenerInstalled = true;
+    }
+    this.selectedNodeId = this.initialSelectedNodeId;
+    if (this.currentGuildId) {
+      this.showDraft = true;
+      if (!this.channelId) this.showFocusNeighbourhood = true;
+    }
+    await this.ensureData();
     this.scrollToNode(this.selectedNodeId, 100);
     this.ready = true;
   }

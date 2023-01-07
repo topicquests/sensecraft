@@ -101,11 +101,19 @@ export default class MemberGameRegistration extends MemberGameRegistrationProp {
     });
   }
 
-  async beforeMount() {
+  async ensureData() {
     await Promise.all([
       this.ensureAllRoles(),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
+  }
+
+  async beforeUpdate() {
+    await this.ensureData();
+  }
+
+  async beforeMount() {
+    await this.ensureData();
     this.ready = true;
   }
 }
