@@ -32,6 +32,11 @@ async function waitForOutput(
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
+    options.addArguments("start-maximized"); // open Browser in maximized mode
+    options.addArguments("disable-infobars"); // disabling infobars
+    options.addArguments("--disable-extensions"); // disabling extensions
+    options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+    options.addArguments("--no-sandbox"); // Bypass OS security model
     if (!process.env.DEBUG_SELENIUM) options.addArguments("--headless");
     selenium = new Builder()
       .setChromeOptions(options)
