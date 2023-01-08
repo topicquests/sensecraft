@@ -457,9 +457,7 @@ if __name__ == "__main__":
     argp.add_argument(
         "-d", "--database", default="development", help="the database to use"
     )
-    argp.add_argument(
-        "--debug", action="store_true", help="add debugging information"
-    )
+    argp.add_argument("--debug", action="store_true", help="add debugging information")
     subp = argp.add_subparsers(dest="command", required=True)
     initp = subp.add_parser("init", help="initialize the database table")
     deployp = subp.add_parser("deploy", help="deploy some or all features")

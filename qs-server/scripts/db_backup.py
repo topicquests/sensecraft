@@ -16,6 +16,7 @@ DATABASES = ("development", "test", "production")
 def rotate_database_dumps(dbdumps_dir, db):
     """Rotate database backups for real"""
     import re
+
     try:
         from rotate_backups import RotateBackups, Location
         from executor.contexts import LocalContext
@@ -26,16 +27,19 @@ def rotate_database_dumps(dbdumps_dir, db):
         exit(1)
 
     rotate_backups.TIMESTAMP_PATTERN = re.compile(
-        r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})')
+        r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})"
+    )
     coloredlogs.increase_verbosity()
     rotation_scheme = {
         # same as doc/borg_backup_script/assembl_borg_backup.sh
-        'daily':7, 'weekly':4, 'monthly':6,
+        "daily": 7,
+        "weekly": 4,
+        "monthly": 6,
         # Plus yearly for good conscience
-        'yearly': 'always'
+        "yearly": "always",
     }
     location = Location(context=LocalContext(), directory=dbdumps_dir)
-    backup = RotateBackups(rotation_scheme, include_list=[f'db-{db}-*.sql.pgdump'])
+    backup = RotateBackups(rotation_scheme, include_list=[f"db-{db}-*.sql.pgdump"])
     backup.rotate_backups(location, False)
 
 
@@ -44,13 +48,26 @@ def database_dump(dbdumps_dir, password, host, user, db, **kwargs):
     Dumps the database
     """
     if not exists(dbdumps_dir):
-        run(['mkdir', '-m700', dbdumps_dir])
+        run(["mkdir", "-m700", dbdumps_dir])
 
     filename = f"db-{db}-{strftime('%Y%m%d')}.sql.pgdump"
     absolute_path = join(dbdumps_dir, filename)
 
     # Dump
-    run(['env', f'PGPASSWORD={password}', 'pg_dump', f'--host={host}', f'-U{user}', '--format=custom', '-b', db, '-f', absolute_path])
+    run(
+        [
+            "env",
+            f"PGPASSWORD={password}",
+            "pg_dump",
+            f"--host={host}",
+            f"-U{user}",
+            "--format=custom",
+            "-b",
+            db,
+            "-f",
+            absolute_path,
+        ]
+    )
 
 
 if __name__ == "__main__":
@@ -64,15 +81,13 @@ if __name__ == "__main__":
     argp.add_argument(
         "-d", "--database", default="development", help="the database to use"
     )
-    argp.add_argument(
-        "-r", "--rotate", action="store_true", help="rotate the dumps"
-    )
+    argp.add_argument("-r", "--rotate", action="store_true", help="rotate the dumps")
     argp.add_argument(
         "--directory", default="db_dumps", help="directory where dumps will be kept"
     )
     args = argp.parse_args()
     db_v = args.database
-    db=ini_file[db_v]["database"]
+    db = ini_file[db_v]["database"]
     conn_data = dict(
         host="localhost",
         user=ini_file[db_v]["owner"],
