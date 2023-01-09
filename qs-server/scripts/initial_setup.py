@@ -15,6 +15,7 @@ from utils import psql_command
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
+DB_SUFFIXES = ("_dev", "_test", "")
 POSTGREST_PORT = 3000
 
 
@@ -181,7 +182,13 @@ if __name__ == "__main__":
         conn_data["sudo"] = ini_file.getboolean("postgres", "sudo", fallback=None)
     else:
         ini_file.add_section("postgres")
-    argp = argparse.ArgumentParser("Create the base databases for SenseCraft")
+    app_name = "SenseCraft"
+    if ini_file.has_section("base"):
+        app_name = ini_file.get("base", "app_name", fallback=app_name)
+    else:
+        ini_file.add_section("base")
+    argp = argparse.ArgumentParser(f"Create the base databases for {app_name}")
+    argp.add_argument("--app_name", default=app_name, help="The application name")
     argp.add_argument("--host", default=conn_data["host"], help="the database host")
     argp.add_argument("--port", default=conn_data["port"], help="the database port")
     argp.add_argument(
@@ -207,17 +214,17 @@ if __name__ == "__main__":
     )
     argp.add_argument(
         "--development",
-        default=ini_file.get("development", "database", fallback="sensecraft_dev"),
+        default=ini_file.get("development", "database", fallback=None),
         help="The name of the development database",
     )
     argp.add_argument(
         "--production",
-        default=ini_file.get("production", "database", fallback="sensecraft"),
+        default=ini_file.get("production", "database", fallback=None),
         help="The name of the production database",
     )
     argp.add_argument(
         "--test",
-        default=ini_file.get("test", "database", fallback="sensecraft_test"),
+        default=ini_file.get("test", "database", fallback=None),
         help="The name of the test database",
     )
     argp.add_argument(
@@ -273,6 +280,8 @@ if __name__ == "__main__":
     )
     argp.add_argument("-d", "--debug", action="store_true", help="debug db commands")
     args = argp.parse_args()
+    app_name = args.app_name
+    base_app_name = "_".join(app_name.lower().split())
     conn_data["host"] = args.host
     conn_data["port"] = args.port
     if args.user:
@@ -285,11 +294,12 @@ if __name__ == "__main__":
     ini_file.set("postgres", "port", str(conn_data["port"]))
     ini_file.set("postgres", "user", conn_data["user"])
     ini_file.set("postgres", "sudo", str(conn_data["sudo"]).lower())
+    ini_file.set("base", "app_name", app_name)
     # Do not store the master password
     postgrest_port = POSTGREST_PORT
     for index, db in enumerate(DATABASES):
         if getattr(args, "create_" + db):
-            dbname = getattr(args, db)
+            dbname = getattr(args, db) or (base_app_name + DB_SUFFIXES[index])
             data = dict(
                 database=dbname, owner=dbname + "__owner", client=dbname + "__client"
             )
