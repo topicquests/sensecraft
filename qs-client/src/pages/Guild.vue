@@ -559,6 +559,7 @@ export default class GuildPage extends Vue {
     });
     this.isMember = true;
     await this.resetChannel();
+    await this.ensureMembersOfGuild({ guildId: this.guildId });
     this.$q.notify({
       type: "positive",
       message: "You are joining guild " + this.currentGuildId
