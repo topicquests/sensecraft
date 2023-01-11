@@ -333,6 +333,22 @@ import "../css/app.scss";
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions("channel", ["ensureChannels", "resetChannel"]),
+
+    async joinToGuild() {
+      await this.addGuildMembership({
+        guild_id: this.currentGuildId,
+        member_id: this.memberId
+      });
+      this.isMember = true;
+      await this.resetChannel();
+
+      this.$q.notify({
+        type: "positive",
+        message: "You are joining guild " + this.currentGuildId
+      });
+      return;
+    },
+
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
         return this.getMembersOfGuild(this.getCurrentGuild);
@@ -552,20 +568,6 @@ export default class GuildPage extends Vue {
     return "success";
   }
 
-  async joinToGuild() {
-    await this.addGuildMembership({
-      guild_id: this.currentGuildId,
-      member_id: this.memberId
-    });
-    this.isMember = true;
-    await this.resetChannel();
-    await this.ensureMembersOfGuild({ guildId: this.guildId });
-    this.$q.notify({
-      type: "positive",
-      message: "You are joining guild " + this.currentGuildId
-    });
-    return;
-  }
   async registerAllMembersToQuest() {
     // This was a temporary fix, let's not do this too often.
     const guildId = this.currentGuildId;

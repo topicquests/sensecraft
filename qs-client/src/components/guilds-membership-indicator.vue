@@ -24,9 +24,6 @@ const GuildsMembershipIndicatorProp = Vue.extend({
 
 @Component<GuildsMembershipIndicator>({
   name: "GuildsMembershipIndicator",
-  renderTracked({ key, target, type }) {
-    console.log({ key, target, type });
-  },
 
   computed: {
     ...mapGetters("guilds", ["isGuildMember"])
