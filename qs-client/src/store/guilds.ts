@@ -152,6 +152,7 @@ const GuildsActions = {
         await MyVapi.store.dispatch("member/fetchLoginUser");
       }
     }
+    await context.dispatch("fetchGuilds");
   },
   updateGuildMembership: async (
     context,
@@ -344,7 +345,6 @@ export const guilds = (axios: AxiosInstance) =>
         const membership = res.data[0];
         const guild = state.guilds[membership.guild_id];
         if (guild) {
-          guild.member_count++;
           const memberships = guild.guild_membership || [];
           memberships.push(membership);
           guild.guild_membership = memberships;
