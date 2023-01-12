@@ -133,7 +133,7 @@
           <guild-members
             v-bind:guild="getCurrentGuild"
             v-bind:quest="getCurrentQuest"
-            v-bind:members="getMembersOfGuild(getCurrentGuild)"
+            v-bind:members="getMembersOfGuildId(currentGuildId)"
           />
         </div>
 
@@ -269,7 +269,6 @@ import "../css/app.scss";
     ]),
     ...mapGetters("members", [
       "getMemberById",
-      "getMembersOfGuild",
       "castingRolesPerQuest",
       "getAvailableRolesMembersById"
     ]),
@@ -284,7 +283,7 @@ import "../css/app.scss";
       rootNode: (state: ConversationState) => state.conversationRoot
     }),
     ...mapGetters("conversation", ["getFocusNode", "getConversationNodeById"]),
-    ...mapGetters(["hasPermission"]),
+    ...mapGetters(["hasPermission", "getMembersOfGuildId"]),
     castingRoles(): Role[] {
       const currentQuest = this.getCurrentQuest;
       const castingRoles =
@@ -351,7 +350,7 @@ import "../css/app.scss";
 
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
-        return this.getMembersOfGuild(this.getCurrentGuild);
+        return this.getMembersOfGuildId(this.currentGuildId);
       }
       return [];
     }
@@ -441,13 +440,13 @@ export default class GuildPage extends Vue {
   getFocusNode!: ConversationGetterTypes["getFocusNode"];
   getGuildById!: GuildsGetterTypes["getGuildById"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
-  getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
   getMemberById!: MembersGetterTypes["getMemberById"];
   getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   getCastingRolesForQuest!: QuestsGetterTypes["getCastingRolesForQuest"];
   getCastingRoles!: QuestsGetterTypes["getCastingRoles"];
   hasPermission!: BaseGetterTypes["hasPermission"];
+  getMembersOfGuildId!: BaseGetterTypes["getMembersOfGuildId"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
   getParentNode!: ConversationGetterTypes["getConversationNodeById"];
   getConversationNodeById!: ConversationGetterTypes["getConversationNodeById"];

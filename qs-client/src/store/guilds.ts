@@ -345,9 +345,14 @@ export const guilds = (axios: AxiosInstance) =>
         const membership = res.data[0];
         const guild = state.guilds[membership.guild_id];
         if (guild) {
-          const memberships = guild.guild_membership || [];
+          const memberships = [...(guild.guild_membership || [])];
           memberships.push(membership);
-          guild.guild_membership = memberships;
+          const newGuild = { ...guild, guild_membership: memberships };
+          if (membership.status == 'request')
+            newGuild.member_request_count++;
+          else
+          newGuild.member_count++;
+          state.guilds[guild.id] = newGuild;
         }
         MyVapi.store.commit("member/ADD_GUILD_MEMBERSHIP", membership);
       },

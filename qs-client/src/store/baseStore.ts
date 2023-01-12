@@ -10,6 +10,7 @@ import {
   GuildMembership,
   Casting,
   CastingRole,
+  PublicMember,
 } from "../types";
 import { MyVapi, RetypeGetterTypes, RetypeActionTypes } from "./base";
 
@@ -83,7 +84,15 @@ export const BaseGetters = {
         }
       }
       return false;
-    },
+      },
+  getMembersOfGuildId: (state) => (guildId: number) => {
+    const guild = MyVapi.store.state["guilds"]["guilds"][guildId]; //getters["guilds/getGuildById"](guildId);
+    const members = MyVapi.store.state["members"]["members"]
+    return guild?.guild_membership
+      ?.map((gm: GuildMembership) => members[gm.member_id])
+      .filter((member: PublicMember) => member);
+  },
+
 };
 
 export const BaseActions = {
