@@ -133,7 +133,7 @@
           <guild-members
             v-bind:guild="getCurrentGuild"
             v-bind:quest="getCurrentQuest"
-            v-bind:members="getMembersOfGuild(getCurrentGuild)"
+            v-bind:members="getMembersOfCurrentGuild"
           />
         </div>
 
@@ -269,14 +269,14 @@ import "../css/app.scss";
     ]),
     ...mapGetters("members", [
       "getMemberById",
-      "getMembersOfGuild",
       "castingRolesPerQuest",
       "getAvailableRolesMembersById"
     ]),
     ...mapGetters("guilds", [
       "isGuildMember",
       "getGuildById",
-      "getCurrentGuild"
+      "getCurrentGuild",
+      "getMembersOfCurrentGuild",
     ]),
     ...mapGetters("role", ["getRoleById"]),
     ...mapGetters("member", ["getMembersAvailableRoles", "guildPerQuest"]),
@@ -335,7 +335,7 @@ import "../css/app.scss";
     ...mapActions("channel", ["ensureChannels", "resetChannel"]),
     getGuildMembers(): PublicMember[] {
       if (this.getCurrentGuild) {
-        return this.getMembersOfGuild(this.getCurrentGuild);
+        return this.getMembersOfCurrentGuild;
       }
       return [];
     }
@@ -424,8 +424,8 @@ export default class GuildPage extends Vue {
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
   getFocusNode!: ConversationGetterTypes["getFocusNode"];
   getGuildById!: GuildsGetterTypes["getGuildById"];
+  getMembersOfCurrentGuild!: GuildsGetterTypes["getMembersOfCurrentGuild"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
-  getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
   getMemberById!: MembersGetterTypes["getMemberById"];
   getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
   getRoleById!: RoleGetterTypes["getRoleById"];

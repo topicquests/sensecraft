@@ -17,9 +17,9 @@
           </div>
         </div>
         <div class="row justify-center">
-          <div v-if="getGuildsPlayingQuest(getCurrentQuest).length">
+          <div v-if="getGuildsPlayingCurrentQuest.length">
             <guilds-table
-              v-bind:guilds="getGuildsPlayingQuest(getCurrentQuest)"
+              v-bind:guilds="getGuildsPlayingCurrentQuest"
               v-bind:scores="getGuildScoreMap"
               v-bind:showPlayers="true"
               v-bind:selectable="true"
@@ -69,9 +69,7 @@
           <guild-members
             v-bind:guild="getCurrentGuild"
             v-bind:quest="getCurrentQuest"
-            v-bind:members="
-              getPlayersOfQuestGuild(getCurrentQuest, getCurrentGuild)
-            "
+            v-bind:members="getPlayersOfCurrentQuestGuild"
             v-bind:playersOnly="true"
             style="width: 70%"
             class="q-mt-md q-mb-md"
@@ -92,7 +90,6 @@ import GuildsTable from "../components/guilds-table.vue";
 import GuildsPlayingIndicator from "../components/guilds-playing-indicator.vue";
 import { mapActions, mapGetters } from "vuex";
 import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
-import { MembersGetterTypes } from "../store/members";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import {
   ConversationGetterTypes,
@@ -120,10 +117,11 @@ import GuildMembers from "../components/guild-members.vue";
       "getCurrentGamePlay",
       "castingInQuest",
       "isPlayingQuestAsGuildId",
+      "getPlayersOfCurrentQuest",
+      "getPlayersOfCurrentQuestGuild",
     ]),
     ...mapGetters("conversation", ["getScoreMap", "getGuildScoreMap"]),
-    ...mapGetters("guilds", ["getGuildsPlayingQuest", "getCurrentGuild"]),
-    ...mapGetters("members", ["getPlayersOfQuestGuild"]),
+    ...mapGetters("guilds", ["getGuildsPlayingCurrentQuest", "getCurrentGuild"]),
   },
   methods: {
     ...mapActions("quests", [
@@ -155,10 +153,11 @@ export default class QuestTeamPage extends Vue {
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
   isPlayingQuestAsGuildId!: QuestsGetterTypes["isPlayingQuestAsGuildId"];
-  getGuildsPlayingQuest!: GuildsGetterTypes["getGuildsPlayingQuest"];
+  getPlayersOfCurrentQuest!: QuestsGetterTypes["getPlayersOfCurrentQuest"];
+  getPlayersOfCurrentQuestGuild!: QuestsGetterTypes["getPlayersOfCurrentQuestGuild"];
+  getGuildsPlayingCurrentQuest!: GuildsGetterTypes["getGuildsPlayingCurrentQuest"];
   getScoreMap!: ConversationGetterTypes["getScoreMap"];
   getGuildScoreMap!: ConversationGetterTypes["getGuildScoreMap"];
-  getPlayersOfQuestGuild!: MembersGetterTypes["getPlayersOfQuestGuild"];
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
 
   // declare the methods for Typescript

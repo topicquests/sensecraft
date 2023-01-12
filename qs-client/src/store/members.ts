@@ -11,9 +11,7 @@ import {
   PublicMember,
   GuildMembership,
   QuestMembership,
-  Quest,
   Casting,
-  Guild,
   GuildMemberAvailableRole,
   CastingRole,
   memberPatchKeys,
@@ -35,7 +33,13 @@ const MembersGetters = {
     Object.values(state.members).sort((a, b) =>
       a.handle.localeCompare(b.handle)
     ),
-  getMemberById: (state: MembersState) => (id: number) => state.members[id],
+  getMemberById: (state: MembersState) => (id: number) => {
+    const member = state.members[id];
+    if (member) return member;
+    // may also be in member
+    const loggedIn = MyVapi.store.state["member"]["member"];
+    if (loggedIn?.id == id) return loggedIn;
+  },
   getMemberByHandle: (state: MembersState) => (handle: string) =>
     Object.values(state.members).find(
       (member: PublicMember) => member.handle == handle
@@ -51,24 +55,6 @@ const MembersGetters = {
     Object.values(state.members)
       .map((member: PublicMember) => member.handle)
       .sort(),
-  getMembersOfGuild: (state: MembersState) => (guild: Guild) =>
-    guild?.guild_membership
-      ?.map((gm: GuildMembership) => state.members[gm.member_id])
-      .filter((member: PublicMember) => member),
-  getMembersOfQuest: (state: MembersState) => (quest: Quest) =>
-    quest.quest_membership
-      .map((qm: QuestMembership) => state.members[qm.member_id])
-      .filter((member: PublicMember) => member),
-  getPlayersOfQuest: (state: MembersState) => (quest: Quest) =>
-    quest.casting
-      .map((c: Casting) => state.members[c.member_id])
-      .filter((member: PublicMember) => member),
-  getPlayersOfQuestGuild:
-    (state: MembersState) => (quest: Quest, guild: Guild) =>
-      quest.casting
-        .filter((c: Casting) => c.guild_id == guild.id)
-        .map((c: Casting) => state.members[c.member_id])
-        .filter((member: PublicMember) => member),
   getPlayersRoles: (state: MembersState) => (member_id: number) => {
     return state.members[member_id]?.casting_role;
   },

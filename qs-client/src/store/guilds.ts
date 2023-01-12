@@ -15,6 +15,7 @@ import {
   Quest,
   GuildMemberAvailableRole,
   guildPatchKeys,
+  PublicMember,
 } from "../types";
 import { registration_status_enum, game_play_status_enum } from "../enums";
 import { AxiosResponse, AxiosInstance } from "axios";
@@ -53,7 +54,8 @@ const GuildsGetters = {
         m.status == registration_status_enum.confirmed
     );
   },
-  getGuildsPlayingQuest: (state: GuildsState) => (quest: Quest) => {
+  getGuildsPlayingCurrentQuest: (state: GuildsState) => {
+    const quest: Quest = MyVapi.store.getters["quests/getCurrentQuest"];
     if (!quest) return [];
     const guildId = quest.game_play?.map((gp: GamePlay) =>
       gp.game_status != game_play_status_enum.cancelled ? gp.guild_id : null
@@ -68,6 +70,13 @@ const GuildsGetters = {
     return state.guilds[guildId]?.guild_membership?.find(
       (m: GuildMembership) => m.member_id == member_id && m.guild_id == guildId
     );
+  },
+  getMembersOfCurrentGuild: (state: GuildsState) => {
+    const guild = state.guilds[state.currentGuild];
+    const members = MyVapi.store.state["members"]["members"];
+    return guild?.guild_membership
+      ?.map((gm: GuildMembership) => members[gm.member_id])
+      .filter((member: PublicMember) => member);
   },
 };
 
@@ -147,7 +156,7 @@ const GuildsActions = {
       (c: GuildMembership) => c.member_id == membership.member_id
     );
     if (gMembership.status == "confirmed") {
-      await MyVapi.store.dispatch("members/reloadIfFull", membership.member_id);
+      await MyVapi.store.dispatch("members/fetchMemberById", { full: true, params: { id: membership.member_id } });
       if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
         await MyVapi.store.dispatch("member/fetchLoginUser");
       }

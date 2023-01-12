@@ -371,7 +371,7 @@ import QuestTable from "../components/quest-table.vue";
     getGuildMembers: {
       get: function () {
         if (this.getCurrentGuild) {
-          return this.getMembersOfGuild(this.getCurrentGuild);
+          return this.getMembersOfCurrentGuild;
         }
         return [];
       }
@@ -391,10 +391,9 @@ import QuestTable from "../components/quest-table.vue";
       "castingInQuest",
       "getCastingRolesById"
     ]),
-    ...mapGetters("guilds", ["getCurrentGuild", "getGuildMembershipById"]),
+    ...mapGetters("guilds", ["getCurrentGuild", "getGuildMembershipById", "getMembersOfCurrentGuild"]),
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", [
-      "getMembersOfGuild",
       "castingRolesPerQuest",
       "getAvailableRolesMembersById"
     ]),
@@ -448,8 +447,8 @@ export default class GuildAdminPage extends Vue {
   getQuests!: QuestsGetterTypes["getQuests"];
   getQuestById!: QuestsGetterTypes["getQuestById"];
   getCurrentGuild!: GuildsGetterTypes["getCurrentGuild"];
+  getMembersOfCurrentGuild!: GuildsGetterTypes["getMembersOfCurrentGuild"];
   hasPermission!: BaseGetterTypes["hasPermission"];
-  getMembersOfGuild!: MembersGetterTypes["getMembersOfGuild"];
   castingInQuest!: QuestsGetterTypes["castingInQuest"];
   getRoles!: RoleGetterTypes["getRoles"];
   getRoleById!: RoleGetterTypes["getRoleById"];
