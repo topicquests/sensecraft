@@ -125,6 +125,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild() RETURNS trigger
       EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.id;
       EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.id;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
+      PERFORM pg_notify(current_database(), concat('D guilds ' , OLD.id, ' ', OLD.creator, CASE WHEN OLD.public THEN '' ELSE (' G'||OLD.id) END));
       RETURN NEW;
     END;
     $$;
@@ -143,9 +144,10 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
     DECLARE curuser varchar;
     DECLARE guild_id integer;
     DECLARE member_id integer;
+    DECLARE is_public BOOLEAN;
     BEGIN
       SELECT id INTO member_id FROM public_members WHERE id=OLD.member_id;
-      SELECT id INTO guild_id FROM guilds WHERE id=OLD.guild_id;
+      SELECT id, public INTO guild_id, is_public FROM guilds WHERE id=OLD.guild_id;
       IF member_id IS NOT NULL AND guild_id IS NOT NULL THEN
         curuser := current_user;
         EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
@@ -153,6 +155,8 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
         EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || OLD.guild_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'SET LOCAL ROLE ' || curuser;
       END IF;
+      PERFORM pg_notify(current_database(), concat('U guild_membership ' , OLD.guild_id, ' ', OLD.member_id, CASE WHEN is_public THEN '' ELSE (' G'||OLD.guild_id) END));
+      PERFORM pg_notify(current_database(), concat('U members ' , OLD.member_id, ' 0', CASE WHEN is_public THEN '' ELSE (' G'||OLD.guild_id) END));
       RETURN OLD;
     END;
     $$;
@@ -235,6 +239,7 @@ CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
       EXECUTE 'ALTER GROUP ' || guildleadrole || ' ADD USER ' || current_database() || '__client';
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       INSERT INTO guild_membership (guild_id, member_id, status, permissions) VALUES (NEW.id, NEW.creator, 'confirmed', ARRAY['guildAdmin'::public.permission]);
+      PERFORM pg_notify(current_database(), concat('C guilds ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' G'||NEW.id) END));
       RETURN NEW;
     END;
     $$;
@@ -317,10 +322,17 @@ CREATE TRIGGER before_create_guild_membership BEFORE INSERT ON public.guild_memb
 CREATE OR REPLACE FUNCTION public.after_createup_guild_membership() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+    DECLARE is_public BOOLEAN;
     BEGIN
         IF (NEW.status = 'confirmed') != (OLD IS NOT NULL AND OLD.status = 'confirmed') AND NEW.member_id IS NOT NULL AND NEW.guild_id IS NOT NULL THEN
           PERFORM alter_guild_membership(NEW.guild_id, NEW.member_id, NEW.status = 'confirmed',
             coalesce(NEW.permissions @> ARRAY['guildAdmin'::permission], false));
+        END IF;
+        IF (NEW.status != coalesce(OLD.status, 'request'::public.registration_status)) THEN
+          SELECT public INTO STRICT is_public FROM guilds WHERE id = NEW.guild_id;
+          -- Should we make it dependent on focus? No because aggregates.
+          PERFORM pg_notify(current_database(), concat('U guild_membership ' , NEW.guild_id, ' ', NEW.member_id, CASE WHEN is_public THEN '' ELSE (' G'||NEW.guild_id) END));
+          PERFORM pg_notify(current_database(), concat('U members ' , NEW.member_id, ' 0', CASE WHEN is_public THEN '' ELSE (' G'||NEW.guild_id) END));
         END IF;
         RETURN NEW;
     END;
@@ -348,6 +360,19 @@ CREATE OR REPLACE FUNCTION public.before_update_guild() RETURNS trigger
 
 DROP TRIGGER IF EXISTS before_update_guild ON public.guilds;
 CREATE TRIGGER before_update_guild BEFORE UPDATE ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.before_update_guild();
+
+
+CREATE OR REPLACE FUNCTION public.after_update_guild() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      PERFORM pg_notify(current_database(), concat('U guilds ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' G'||NEW.id) END));
+      RETURN NEW;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS after_update_guild ON public.guilds;
+CREATE TRIGGER after_update_guild after UPDATE ON public.guilds FOR EACH ROW EXECUTE FUNCTION public.after_update_guild();
 
 
 --

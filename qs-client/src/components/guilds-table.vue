@@ -276,7 +276,10 @@ export default class GuildTable extends GuildsTableProp {
       }
       if (guild) {
         this.selectedGuild = [this.guildRow(guild)];
+        // does this mean we won't get update on other rows?
         await this.setCurrentGuild(guild.id);
+      } else {
+        await this.setCurrentGuild(true);
       }
     }
   }

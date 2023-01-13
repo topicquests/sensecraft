@@ -49,8 +49,9 @@ class Client {
   ws: WebSocket.WebSocket;
   status: ClientStatus;
   member?: PublicMember = undefined;
-  currentGuild?: number;
-  currentQuest?: number;
+  // What guild/quest is the frontend displaying? "*" for all of them (dashboard)
+  currentGuild: number|boolean = false;
+  currentQuest: number|boolean = false;
   token?: string;
   constructor(ws: WebSocket.WebSocket) {
     this.ws = ws
@@ -153,9 +154,21 @@ class Client {
           throw new Error(`invalid message: ${message}`)
         }
         if (parts[0] == 'GUILD') {
-          this.currentGuild = (parts.length > 0) ? Number(parts[1]) : undefined
+          if (parts.length > 1) {
+            if (parts[1] == '*')
+              this.currentGuild = true
+            else
+              this.currentGuild = Number(parts[1])
+          } else
+            this.currentGuild = false;
         } else if (parts[0] == 'QUEST') {
-          this.currentQuest = (parts.length > 0) ? Number(parts[1]) : undefined
+          if (parts.length > 1) {
+            if (parts[1] == '*')
+              this.currentQuest = true
+            else
+              this.currentQuest = Number(parts[1])
+          } else
+            this.currentQuest = false;
         } else {
           throw new Error(`invalid message: ${message}`)
         }
@@ -194,11 +207,12 @@ class Client {
     let casting: Casting | undefined;
     switch (type) {
     case 'g':
-      return id_num == this.currentGuild;
+      return this.currentGuild == true || id_num == this.currentGuild;
     case 'q':
-      return id_num == this.currentQuest;
+      return this.currentQuest == true || id_num == this.currentQuest;
     case 'p':
-      if (id_num != this.currentQuest) return false;
+      if (!(this.currentQuest == true || id_num == this.currentQuest)) return false;
+      if (this.currentGuild === true) return true;
       casting = this.member?.casting?.find(c => c.quest_id == id_num)
       return casting?.guild_id == this.currentGuild;
     case 'M':
@@ -235,20 +249,22 @@ class Client {
     if (type == 'role') {
       // update roles
     } else if (this.member?.id == member_id &&
-      ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership'].includes(type)) {
+      ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership', 'members'].includes(type)) {
       // heavy-handed but works
       await this.loadMember(member_id)
     }
     for (const constraint_dis of constraints_conj_disj) {
-      let disjunction = false
-      for (const constraint of constraint_dis) {
-        const [type, id, _, subtype, subname] = constraint
-        if (this.checkConstraint(constraint)) {
-          disjunction = true;
-          break;  // inner
+      if (constraint_dis.length) {
+        let disjunction = false
+        for (const constraint of constraint_dis) {
+          const [type, id, _, subtype, subname] = constraint
+          if (this.checkConstraint(constraint)) {
+            disjunction = true;
+            break;  // inner
+          }
         }
+        if (!disjunction) return;
       }
-      if (!disjunction) return;
     }
     await this.ws.send(base);
   }
@@ -332,7 +348,8 @@ class Dispatcher {
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
     }
-    const [_, base, member_id_s, constraints_s, _1, _2, _3, _4, command, command_args] = parts
+    // /^(([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*)|(E (\w+) (\d+ .*))$/;
+    const [_, _0, base, member_id_s, constraints_s, _1, _2, _3, command, command_args] = parts
     if (base) {
       const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
         const result = ((s != null) ? Client.constraintRe.exec(s) : null);

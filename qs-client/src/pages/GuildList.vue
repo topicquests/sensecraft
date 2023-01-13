@@ -95,8 +95,8 @@ export default class GuildListPage extends Vue {
     await Promise.all([
       this.ensureAllGuilds(),
       await this.ensureAllRoles(),
-      this.setCurrentGuild(null),
-      this.setCurrentQuest(null),
+      this.setCurrentGuild(true),
+      this.setCurrentQuest(false),
     ]);
     this.ready = true;
   }

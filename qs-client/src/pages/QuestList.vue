@@ -69,8 +69,8 @@ import { GuildsActionTypes } from "src/store/guilds";
     ...mapGetters("guilds", ["getGuilds"]),
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests"]),
-    ...mapActions("guilds", ["ensureAllGuilds"]),
+    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
   },
 })
 export default class QuestListPage extends Vue {
@@ -83,11 +83,17 @@ export default class QuestListPage extends Vue {
 
   ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
   ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
+  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
 
   async beforeMount() {
     await userLoaded;
     // not using those yet?
-    await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
+    await Promise.all([
+      this.ensureAllQuests(),
+      this.setCurrentGuild(false),
+      this.setCurrentQuest(true),
+    ]);
     this.ready = true;
   }
 }

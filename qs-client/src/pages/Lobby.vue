@@ -135,8 +135,9 @@ export default class LobbyPage extends Vue {
 
   async beforeMount() {
     await userLoaded;
-    await this.setCurrentGuild(null);
-    await this.setCurrentQuest(null);
+    // all guilds and quests
+    await this.setCurrentGuild(true);
+    await this.setCurrentQuest(true);
     await Promise.all([this.ensureAllQuests(), this.ensureAllGuilds()]);
     this.ready = true;
   }

@@ -6,8 +6,8 @@ export class WSClient {
   connected = false;
   login_message: string = null;
   store: Store<any>;
-  guild_id: number = null;
-  quest_id: number = null;
+  guild_id: number|boolean = false;
+  quest_id: number|boolean = false;
   constructor(store, url) {
     this.store = store;
     function shouldReconnect(event, ws) {
@@ -32,12 +32,8 @@ export class WSClient {
       } else if (this.login_message) {
         this.ws.send(this.login_message);
       }
-      if (this.quest_id) {
-        this.ws.send(`QUEST ${this.quest_id}`);
-      }
-      if (this.guild_id) {
-        this.ws.send(`GUILD ${this.guild_id}`);
-      }
+      this.setDefaultQuest(this.quest_id);
+      this.setDefaultGuild(this.guild_id);
     });
     this.ws.addEventListener("message", (event: Event) => {
       this.onMessage(event);
@@ -59,17 +55,19 @@ export class WSClient {
     if (!this.connected) return;
     this.ws.send(`LOGOUT`);
   }
-  setDefaultGuild(id: number) {
+  setDefaultGuild(id: number|boolean) {
     this.guild_id = id;
     if (!this.connected) return;
-    if (id) this.ws.send(`GUILD ${id}`);
-    else this.ws.send("GUILD");
+    if (id === true) this.ws.send('GUILD *')
+    else if (id === false) this.ws.send('GUILD')
+    else this.ws.send(`GUILD ${id}`);
   }
-  setDefaultQuest(id: number) {
+  setDefaultQuest(id: number|boolean) {
     this.quest_id = id;
     if (!this.connected) return;
-    if (id) this.ws.send(`QUEST ${id}`);
-    else this.ws.send("QUEST");
+    if (id === true) this.ws.send('QUEST *')
+    else if (id === false) this.ws.send('QUEST')
+    else this.ws.send(`QUEST ${id}`);
   }
   async onMessage(event) {
     const parts = /^([CUD]) (\w+) (\d+)$/.exec(event.data);
@@ -100,7 +98,26 @@ export class WSClient {
           });
         }
         break;
-      default:
+      case "guilds":
+      case "guild_membership":
+          if (crud == "D") {
+            // TODO
+          } else {
+            await this.store.dispatch("guilds/fetchGuildById", {
+              full: true,
+              params: { id },
+            });
+          }
+        break;
+        case "members":
+          await this.store.dispatch("members/fetchMemberById", {
+            full: true,
+            params: { id },
+          });
+          if (this.store.state.member.member.id == id)
+            await this.store.dispatch("member/fetchLoginUser");
+        break;
+        default:
         console.warn(`Unhandled ws event: ${event}`);
     }
   }
