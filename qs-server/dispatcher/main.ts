@@ -16,9 +16,9 @@ const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
 const database: string = config.getRaw(`${_env}.database`) || 'sensecraft'
 const databaseURL = `postgres://${config.getRaw(`${_env}.owner`)}:${config.getRaw(`${_env}.owner_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port') || 5432}/${database}`
-const port = Number(process.env['DISPATCHER_PORT'] || '4000');
-const pgst_config = propertiesReader(`postgrest_${_env}.conf`)
-const postgrestURL = `http://localhost:${pgst_config.getRaw('server-port')}`
+const port = Number(process.env.DISPATCHER_PORT || '4000');
+const pgstConfig = propertiesReader(`postgrest_${_env}.conf`)
+const postgrestURL = `http://localhost:${pgstConfig.getRaw('server-port')}`
 
 const app: express.Express = express();
 
@@ -27,6 +27,8 @@ const wss = new WebSocket.Server({ server })
 
 import { registration_status_enum } from '../../qs-client/src/enums'
 import { PublicMember, Casting, Role } from '../../qs-client/src/types'
+
+// tslint:disable: no-console
 
 enum ClientStatus {
   CONNECTED,
@@ -64,27 +66,27 @@ class Client {
     Client.clients.delete(this)
     this.status = ClientStatus.CLOSED
   }
-  hasPermission(permission: string, quest_id?: number, guild_id?: number) {
+  hasPermission(permission: string, questId?: number, guildId?: number) {
     const member = this.member
     if (!member) return false
     if (member?.permissions?.find(p => p === permission)) return true
-    if (guild_id) {
-      const guild_membership = member?.guild_membership?.find(
-        gm => gm.guild_id === guild_id && gm.status == registration_status_enum.confirmed)
-      if (guild_membership) {
-        if (guild_membership.permissions?.find(p => p === permission)) return true
+    if (guildId) {
+      const guildMembership = member?.guild_membership?.find(
+        gm => gm.guild_id === guildId && gm.status === registration_status_enum.confirmed)
+      if (guildMembership) {
+        if (guildMembership.permissions?.find(p => p === permission)) return true
       }
     }
-    if (quest_id) {
-      const quest_membership = member?.quest_membership?.find(qm => qm.quest_id === quest_id && qm.confirmed)
-      if (quest_membership) {
-        if (quest_membership.permissions?.find(p => p === permission)) return true
+    if (questId) {
+      const questMembership = member?.quest_membership?.find(qm => qm.quest_id === questId && qm.confirmed)
+      if (questMembership) {
+        if (questMembership.permissions?.find(p => p === permission)) return true
       }
-      const casting = member?.casting?.find(gp => gp.quest_id === quest_id)
+      const casting = member?.casting?.find(gp => gp.quest_id === questId)
       if (casting) {
         if (casting.permissions?.find(p => p === permission)) return true
       }
-      const castingRoles = member?.casting_role?.filter(cr => cr.quest_id === quest_id) || []
+      const castingRoles = member?.casting_role?.filter(cr => cr.quest_id === questId) || []
       for (const castingRole of castingRoles) {
         const role = Client.roles.get(castingRole.role_id)
         if (role?.permissions?.find(p => p === permission)) return true
@@ -92,13 +94,13 @@ class Client {
     }
     return false
   }
-  hasRole(role_id: number, quest_id?: number, guild_id?: number) {
+  hasRole(roleId: number, questId?: number, guildId?: number) {
     const member = this.member
     if (!member) return false
-    if (quest_id) {
-      return !!(member?.casting_role?.find(cr => cr.quest_id === quest_id && cr.role_id == role_id))
-    } else if (guild_id) {
-      return !!(member?.guild_member_available_role?.find(ar => ar.guild_id === guild_id && ar.role_id == role_id))
+    if (questId) {
+      return !!(member?.casting_role?.find(cr => cr.quest_id === questId && cr.role_id === roleId))
+    } else if (guildId) {
+      return !!(member?.guild_member_available_role?.find(ar => ar.guild_id === guildId && ar.role_id === roleId))
     }
     return false
   }
@@ -111,7 +113,7 @@ class Client {
       this.member = r.data[0]
       this.status = ClientStatus.IDENTIFIED
       const guilds = (this.member?.guild_membership?.filter(
-        gm => gm.status == registration_status_enum.confirmed) || []).map(
+        gm => gm.status === registration_status_enum.confirmed) || []).map(
         gm => gm.guild_id);
       await Client.loadRoles(token, guilds)
     } else {
@@ -140,7 +142,7 @@ class Client {
         const [_, id_s, token] = parts
         const id = Number(id_s)
         this.token = token
-        if (id != this.member?.id) {
+        if (id !== this.member?.id) {
           // we may just be renewing the token
           await this.loadMember(id)
         }
@@ -153,17 +155,17 @@ class Client {
         if (parts.length > 2) {
           throw new Error(`invalid message: ${message}`)
         }
-        if (parts[0] == 'GUILD') {
+        if (parts[0] === 'GUILD') {
           if (parts.length > 1) {
-            if (parts[1] == '*')
+            if (parts[1] === '*')
               this.currentGuild = true
             else
               this.currentGuild = Number(parts[1])
           } else
             this.currentGuild = false;
-        } else if (parts[0] == 'QUEST') {
+        } else if (parts[0] === 'QUEST') {
           if (parts.length > 1) {
-            if (parts[1] == '*')
+            if (parts[1] === '*')
               this.currentQuest = true
             else
               this.currentQuest = Number(parts[1])
@@ -207,37 +209,37 @@ class Client {
     let casting: Casting | undefined;
     switch (type) {
     case 'g':
-      return this.currentGuild == true || id_num == this.currentGuild;
+      return this.currentGuild === true || id_num === this.currentGuild;
     case 'q':
-      return this.currentQuest == true || id_num == this.currentQuest;
+      return this.currentQuest === true || id_num === this.currentQuest;
     case 'p':
-      if (!(this.currentQuest == true || id_num == this.currentQuest)) return false;
+      if (!(this.currentQuest === true || id_num === this.currentQuest)) return false;
       if (this.currentGuild === true) return true;
-      casting = this.member?.casting?.find(c => c.quest_id == id_num)
-      return casting?.guild_id == this.currentGuild;
+      casting = this.member?.casting?.find(c => c.quest_id === id_num)
+      return casting?.guild_id === this.currentGuild;
     case 'M':
-      return this.member?.id == id_num;
+      return this.member?.id === id_num;
     case 'G':
       if (!(this.member?.guild_membership?.some(
-        gm => gm.guild_id === id_num && gm.status == registration_status_enum.confirmed)))
+        gm => gm.guild_id === id_num && gm.status === registration_status_enum.confirmed)))
         return false;
-      if (subtype == 'r')
-        return this.hasRole(Number.parseInt(subname), undefined, id_num);
-      else if (subtype == 'p')
+      if (subtype === 'r')
+        return this.hasRole(Number(subname), undefined, id_num);
+      else if (subtype === 'p')
         return this.hasPermission(subname, undefined, id_num);
       return true;
     case 'Q':
       if (!(this.member?.quest_membership?.some(qm => qm.quest_id === id_num && qm.confirmed)))
         return false;
-      if (subtype == 'p')
+      if (subtype === 'p')
         return this.hasPermission(subname, id_num)
       break;
     case 'P':
-      casting = this.member?.casting?.find(c => c.quest_id == id_num);
+      casting = this.member?.casting?.find(c => c.quest_id === id_num);
       if (!casting) return false;
-      if (subtype == 'r')
-        return this.hasRole(Number.parseInt(subname), id_num, casting.guild_id);
-      else if (subtype == 'p')
+      if (subtype === 'r')
+        return this.hasRole(Number(subname), id_num, casting.guild_id);
+      else if (subtype === 'p')
         return this.hasPermission(subname, id_num, casting.guild_id);
       return true;
     }
@@ -246,9 +248,9 @@ class Client {
   async onReceive(base: string, member_id: number, constraints_conj_disj: string[][][]) {
     // constraints is a conjunction of disjunctions of constraints
     const [crud, type, id] = base.split(' ')
-    if (type == 'role') {
+    if (type === 'role') {
       // update roles
-    } else if (this.member?.id == member_id &&
+    } else if (this.member?.id === member_id &&
       ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership', 'members'].includes(type)) {
       // heavy-handed but works
       await this.loadMember(member_id)
@@ -270,12 +272,13 @@ class Client {
   }
 }
 
+// tslint:disable-next-line: max-classes-per-file
 class Dispatcher {
   // singleton
   channel: string;
   subscriber: Subscriber;
   pgClient: PGClient;
-  next_automation: number | null = null;
+  nextAutomation: number | null = null;
   serverData: ServerData | null = null;
   mailer: Transporter<SentMessageInfo> | null = null;
 
@@ -315,25 +318,25 @@ class Dispatcher {
   /*
   Call the automation function and schedule the next call.
   Cases:
-  1. First call: timer == next_automation == null => schedule
-  2. Called by timer, no other call happened: timer == next_automation != null => schedule
-  3. Called because of a quest change: timer = null, next_automation != null
-    -> schedule only if next_automation changed.
-  4. Called by timer, but another call happened: timer != next_automation != null => don't schedule
+  1. First call: timer == nextAutomation == null => schedule
+  2. Called by timer, no other call happened: timer == nextAutomation != null => schedule
+  3. Called because of a quest change: timer = null, nextAutomation != null
+    -> schedule only if nextAutomation changed.
+  4. Called by timer, but another call happened: timer != nextAutomation != null => don't schedule
   */
   async automation(timer: number | null = null) {
     const r = await this.pgClient.query('SELECT quests_automation()');
-    const new_date = r.rows[0].quests_automation as Date;
-    if (new_date != null) {
-      const new_time = new_date.getTime()
-      if (new_time != this.next_automation
+    const newDate = r.rows[0].quests_automation as Date;
+    if (newDate != null) {
+      const newTime = newDate.getTime()
+      if (newTime !== this.nextAutomation
         && !(
           timer != null &&
-          timer != this.next_automation &&
-          this.next_automation == new_time)) {
-        console.log(`next automation: ${new_time}`)
-        setTimeout(this.automation.bind(this, new_time), new_time - Date.now())
-        this.next_automation = new_time
+          timer !== this.nextAutomation &&
+          this.nextAutomation === newTime)) {
+        console.log(`next automation: ${newTime}`)
+        setTimeout(this.automation.bind(this, newTime), newTime - Date.now())
+        this.nextAutomation = newTime
       }
     }
   }
@@ -349,7 +352,7 @@ class Dispatcher {
       throw new Error(`invalid message: ${message}`)
     }
     // /^(([CUD] \w+ \d+) (\d+)([ |][gqpGPQM]\d+(:(p\w+|r\d+))?)*)|(E (\w+) (\d+ .*))$/;
-    const [_, _0, base, member_id_s, constraints_s, _1, _2, _3, command, command_args] = parts
+    const [_, _0, base, member_id_s, constraints_s, _1, _2, _3, command, commandArgs] = parts
     if (base) {
       const constraints = (constraints_s || '').trim().split(' ').map(c => c.split('|').map(s => {
         const result = ((s != null) ? Client.constraintRe.exec(s) : null);
@@ -357,17 +360,17 @@ class Dispatcher {
       }).filter(x => x !== null)) as string[][][];
       const member_id = Number(member_id_s)
       const [crud, type, id] = base.split(' ')
-      if (type == 'quests') {
+      if (type === 'quests') {
         this.automation();
       }
       for (const client of Client.clients) {
         client.onReceive(base, member_id, constraints)
       }
     } else if (command == 'email') {
-      const [member_id, email, confirmed_, token, name] = command_args.split(' ', 5);
-      const confirmed = confirmed_ == 't';
+      const [member_id, email, confirmed_, token, name] = commandArgs.split(' ', 5);
+      const confirmed = confirmed_ === 't';
       const link = `${this.serverData?.server_url}/${confirmed ? 'reset_pass' : 'confirm'}?token=${token}`
-      if (_env == 'development')
+      if (_env === 'development')
         console.log(link);
       let mailTxt = confirmed ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
       let mailHtml = confirmed ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
@@ -400,9 +403,7 @@ class Dispatcher {
   }
 }
 
-wss.on('connection', function (ws) {
-  new Client(ws)
-});
+wss.on('connection', (ws) => new Client(ws));
 
 const dispatcher = new Dispatcher(database);
 
@@ -412,7 +413,7 @@ process.on('exit', () => {
 
 async function main() {
   await dispatcher.connect();
-  server.listen(port, '127.0.0.1', function () {
+  server.listen(port, '127.0.0.1', () => {
     console.log(`Listening on http://localhost:${port}`);
   });
 }
