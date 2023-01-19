@@ -2,7 +2,7 @@
 
 ## Threat model
 
-logic: 
+logic:
 References are self-supporting, and (unless actively threatened) support their parent argument or answer.
 An argument or answer with a threatening child is threatened.
 A con argument is threatening if it's supported and not threatened.
@@ -96,7 +96,7 @@ There are many ways to implement this, this is a strawman proposal, to be discus
          1. Tokens are consumed by usage, unlike markers.
          2. It makes sense to contest some markers, not all. Similarly, some markers are subject to review against abuse.
          3. Markers and tokens have visibility cycle, like conversation moves. Visibility may not be linear.
-         4. Query patterns for markers and tokens are aggregates, really unlike those of conversation moves. (AND not postgrest-friendly... view?)
+         4. Query patterns for markers and tokens are aggregates, really unlike those of conversation moves. (AND not postgrest-friendly... view? Also note recursive scores... DB side? lua?)
          5. Some markers are temporary (eg approve a revision; consumed when revision is integrated.)
          6. Markers don't have a title? (ie. the marker type is the title.)
          7. Do markers have a quantitative value? I like the idea of using markers as criterion evaluation votes.
