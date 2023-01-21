@@ -95,6 +95,7 @@ export const BaseActions = {
       context.dispatch("guilds/resetGuilds"),
       context.dispatch("role/resetRole"),
       context.dispatch("channel/resetChannel"),
+      context.dispatch("serverData/resetServerData"),
     ]);
   },
 };
