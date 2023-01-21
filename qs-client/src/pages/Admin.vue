@@ -73,11 +73,11 @@
         <role-table v-bind:roles="getRoles"></role-table>
       </div>
     </div>
-    <div>
+    <div v-if="superAdmin">
       <h2 style="text-align: center">Server Data</h2>
-    </div>
-    <div class="column items-center" style="width: 100%">
-      <server-data-card></server-data-card>
+      <div class="column items-center" style="width: 100%">
+        <server-data-card></server-data-card>
+      </div>
     </div>
   </q-page>
 </template>
@@ -161,6 +161,7 @@ export default {
   methods: {
     ...mapActions("members", ["updateMember", "ensureAllMembers"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("serverData", ["ensureServerData"]),
     async updatePermissions() {
       const member = this.member;
       await this.updateMember({
@@ -168,8 +169,14 @@ export default {
       });
     },
     async ensureData() {
-      await this.ensureAllMembers();
-      await this.ensureAllRoles();
+      const promises = [
+        this.ensureAllMembers(),
+        this.ensureAllRoles(),
+      ]
+      if (this.superAdmin) {
+        promises.push(this.ensureServerData());
+      }
+      await Promise.all(promises);
     },
   },
   async beforeMount() {
