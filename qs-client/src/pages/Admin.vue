@@ -166,11 +166,11 @@ export default {
       await this.updateMember({
         data: { id: member.id, permissions: member.permissions }
       });
-    }
-  },
-  async ensureData() {
-    await this.ensureAllMembers();
-    await this.ensureAllRoles();
+    },
+    async ensureData() {
+      await this.ensureAllMembers();
+      await this.ensureAllRoles();
+    },
   },
   async beforeMount() {
     await userLoaded;
