@@ -2,19 +2,41 @@
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
-        <div class="row guildAdmin-header">
-          <h4 v-if="getCurrentGuild">
-            <router-link
-              :to="{
-                name: 'guild',
-                params: { guild_id: String(getCurrentGuild.id) }
-              }"
-            >
-              {{ getCurrentGuild.name }}</router-link
-            >
-          </h4>
-        </div>
-        <q-tooltip>Click link to goto guild</q-tooltip>
+        <div>
+      <member></member>
+    </div>
+    <div class="column items-center">
+      <div class="col-4 q-pb-xs q-mt-md" style="width: 100%">
+        <scoreboard></scoreboard>
+      </div>
+    </div>
+        <q-select>
+          <div class="col-2"></div>
+          <div class="col-8">
+            <h4 v-if="getCurrentGuild" >
+              <router-link
+                :to="{
+                  name: 'guild',
+                  params: { guild_id: String(getCurrentGuild.id) }
+                }"
+              >{{ getCurrentGuild.name }}
+              </router-link>
+            </h4>
+            <div class="col-4"></div>
+          </div>
+          <q-tooltip>Click link to goto guild</q-tooltip>
+        </q-select>
+        <div class="row justify-start q-pb-sm">
+          <div class="col-2"></div>
+          <div class="col-8">
+        <q-card>
+            <q-editor v-model="getCurrentGuild.description" id="guild-editor-description"> </q-editor>
+
+          <q-btn id="update-button" label="Update" @click="doSubmit"></q-btn>
+        </q-card>
+          </div>
+    </div>
+    <div class="col-2"></div>
         <section class="quest-section">
           <div
             class="column items-center q-mt-md"
@@ -279,6 +301,8 @@ import CastingRoleEdit from "../components/casting_role_edit.vue";
 import roleTable from "../components/role-table.vue";
 import guildCard from "../components/guild-card.vue";
 import QuestTable from "../components/quest-table.vue";
+import scoreboard from "../components/scoreboard.vue";
+import member from "../components/member.vue";
 
 @Component<GuildAdminPage>({
   name: "guild_admin",
@@ -289,7 +313,9 @@ import QuestTable from "../components/quest-table.vue";
     CastingRoleEdit,
     roleTable,
     guildCard,
-    QuestTable
+    QuestTable,
+    scoreboard: scoreboard,
+    member: member,
   },
   computed: {
     ...mapState("member", {
@@ -413,7 +439,8 @@ import QuestTable from "../components/quest-table.vue";
       "setCurrentGuild",
       "addGuildMemberAvailableRole",
       "deleteGuildMemberAvailableRole",
-      "updateGuildMembership"
+      "updateGuildMembership",
+      "updateGuild"
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions("members", ["ensureMembersOfGuild", "ensureAllMembers"])
@@ -477,6 +504,7 @@ export default class GuildAdminPage extends Vue {
   ensureAllMembers!: MembersActionTypes["ensureAllMembers"];
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
   updateGuildMembership!: GuildsActionTypes["updateGuildMembership"];
+  updateGuild!: GuildsActionTypes["updateGuild"];
 
   getCastingRole(memberId: number, questId: number) {
     const roles: CastingRole[] = this.castingRolesPerQuest(memberId, questId);
@@ -633,6 +661,22 @@ export default class GuildAdminPage extends Vue {
       ])
     );
   }
+  async doSubmit() {
+    try {
+      await this.updateGuild({ data: this.getCurrentGuild });
+      this.$q.notify({
+        message: "Guild was updated successfully",
+        color: "positive",
+      });
+    } catch (err) {
+      console.log("there was an error in updating guild ", err);
+      this.$q.notify({
+        message:
+          "There was an error updating guild. If this issue persists, contact support.",
+        color: "negative",
+      });
+    }
+  }
 
   async beforeMount() {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
@@ -698,7 +742,7 @@ export default class GuildAdminPage extends Vue {
 .guildAdmin-header {
   background-color: azure;
   padding: 0.5em;
-  align-items: flex-start;
+  align-items:center;
 }
 
 .channel {
@@ -738,5 +782,18 @@ export default class GuildAdminPage extends Vue {
 }
 #members-handle {
   font-size: 13pt;
+}
+#guild-editor-description {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-top: .5em;
+  border: 1px solid black;
+}
+#update-button {
+  background-color: #02a7e3;
+  color:white;
+  margin-bottom: 1em;
+  margin-top: .5em;
+  margin-left: 1em;
+  font-family: Arial, Helvetica, sans-serif;
 }
 </style>
