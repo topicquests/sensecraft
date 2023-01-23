@@ -21,6 +21,7 @@
               >>>go to admin page</router-link
             >
           </div>
+        </div>
           <div class="col-12" v-if="getCurrentGuild">
             <h1 class="text-center">
               {{ getCurrentGuild.name }}
@@ -41,7 +42,14 @@
               login or register to join</span
             >
           </div>
+          <div class="row justify-center q-pb-sm items-center">
+            <div class="col-6">
+              <q-card style="width=200px">
+                <div v-html="getCurrentGuild.description" id="guild-description" ></div>
+              </q-card>
         </div>
+            </div>
+
         <div class="row">
           <div class="col-12 items-center">
             <div style="width: 100%">
@@ -698,4 +706,11 @@ export default class GuildPage extends Vue {
   height: 400px;
   background-color: #caf0f8;
 }
+#guild-description {
+  padding: 1em;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 12pt;
+   box-shadow: 0 60px 20px 0 red;
+}
+
 </style>

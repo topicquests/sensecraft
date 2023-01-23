@@ -221,7 +221,6 @@ import {
 
   methods: {
     ...mapActions("serverData", [
-      "ensureServerData",
       "updateServerData",
       "resetDefaultSingle",
       "resetDefaultAll",
@@ -235,7 +234,6 @@ export default class ServerDataCard extends Vue {
   getServerData!: ServerDataGetterTypes["getServerData"];
 
   // declare the methods for Typescript ensureGuildsPlayingQuest!:
-  ensureServerData!: ServerDataActionTypes["ensureServerData"];
   updateServerData!: ServerDataActionTypes["updateServerData"];
   resetDefaultSingle!: ServerDataActionTypes["resetDefaultSingle"];
   resetDefaultAll!: ServerDataActionTypes["resetDefaultAll"];
@@ -268,10 +266,6 @@ export default class ServerDataCard extends Vue {
         message: "Error in resetting server data"
       });
     }
-  }
-
-  async beforeMount() {
-    await this.ensureServerData();
   }
 }
 </script>
