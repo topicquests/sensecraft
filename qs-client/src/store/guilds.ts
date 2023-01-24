@@ -120,7 +120,7 @@ const GuildsActions = {
       await context.dispatch("fetchGuilds");
     }
   },
-  ensureCurrentGuild: async (context, { guild_id, full = true }) => {
+  ensureCurrentGuild: async (context, { guild_id, full = true }: {guild_id: number, full: boolean}) => {
     await context.dispatch("ensureGuild", { guild_id, full });
     await context.dispatch("setCurrentGuild", guild_id);
   },

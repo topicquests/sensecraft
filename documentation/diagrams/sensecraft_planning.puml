@@ -50,7 +50,7 @@ enum TokenAllocationType {
     'What when many players contributed to that move?'
     stringValue varchar
     ' Costly... tag ref?'
-    state PublicationState 
+    state PublicationState
   }
 
 Marker "*" --> "1" ConversationNode  :> target
@@ -125,6 +125,7 @@ Quest "1" *--> "*" ScoringAllocation
 
   class TurnBoundary #line.dotted:blue {
     quest Quest
+    completed boolean
     when dateTime
   }
 

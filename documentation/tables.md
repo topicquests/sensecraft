@@ -193,6 +193,8 @@ view on quests, with aggregate information
 * my_recruiting_guild_count  int
 * is_quest_member  boolean
 
+Note on turn-based: I'll need to note which turn was actually ended.
+
 ## role
 
 * name varchar
