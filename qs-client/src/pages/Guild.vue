@@ -6,7 +6,7 @@
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-4" style="width: 100%">
+          <div class="col-12" style="width: 75%">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -22,33 +22,36 @@
             >
           </div>
         </div>
-          <div class="col-12" v-if="getCurrentGuild">
-            <h1 class="text-center">
-              {{ getCurrentGuild.name }}
-              <q-btn
-                v-if="
-                  member && !isMember && getCurrentGuild.open_for_applications
-                "
-                label="Join Guild"
-                @click="joinToGuild()"
-                style="margin-right: 1em"
-                class="bg-dark-blue"
-              />
-            </h1>
-            <span v-if="!getCurrentGuild.open_for_applications">
-              guild closed</span
-            >
-            <span v-if="!member && getCurrentGuild.open_for_applications">
-              login or register to join</span
-            >
-          </div>
-          <div class="row justify-center q-pb-sm items-center">
-            <div class="col-6">
-              <q-card style="width=200px">
-                <div v-html="getCurrentGuild.description" id="guild-description" ></div>
-              </q-card>
+        <div class="col-12" v-if="getCurrentGuild">
+          <h1 class="text-center">
+            {{ getCurrentGuild.name }}
+            <q-btn
+              v-if="
+                member && !isMember && getCurrentGuild.open_for_applications
+              "
+              label="Join Guild"
+              @click="joinToGuild()"
+              style="margin-right: 1em"
+              class="bg-dark-blue"
+            />
+          </h1>
+          <span v-if="!getCurrentGuild.open_for_applications">
+            guild closed</span
+          >
+          <span v-if="!member && getCurrentGuild.open_for_applications">
+            login or register to join</span
+          >
         </div>
-            </div>
+        <div class="row justify-center q-pb-sm items-center">
+          <div class="col-6">
+            <q-card style="width=200px">
+              <div
+                v-html="getCurrentGuild.description"
+                id="guild-description"
+              ></div>
+            </q-card>
+          </div>
+        </div>
 
         <div class="row">
           <div class="col-12 items-center">
@@ -284,7 +287,7 @@ import "../css/app.scss";
       "isGuildMember",
       "getGuildById",
       "getCurrentGuild",
-      "getMembersOfCurrentGuild",
+      "getMembersOfCurrentGuild"
     ]),
     ...mapGetters("role", ["getRoleById"]),
     ...mapGetters("member", ["getMembersAvailableRoles", "guildPerQuest"]),
@@ -708,9 +711,8 @@ export default class GuildPage extends Vue {
 }
 #guild-description {
   padding: 1em;
-   font-family: Arial, Helvetica, sans-serif;
-   font-size: 12pt;
-   box-shadow: 0 60px 20px 0 red;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  box-shadow: 0 60px 20px 0 red;
 }
-
 </style>
