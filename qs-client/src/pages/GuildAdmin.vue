@@ -3,40 +3,46 @@
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pb-xs q-mt-md" style="width: 100%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-        <q-select>
-          <div class="col-2"></div>
-          <div class="col-8">
-            <h4 v-if="getCurrentGuild" >
-              <router-link
-                :to="{
-                  name: 'guild',
-                  params: { guild_id: String(getCurrentGuild.id) }
-                }"
-              >{{ getCurrentGuild.name }}
-              </router-link>
-            </h4>
-            <div class="col-4"></div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-12" style="width: 75%">
+            <scoreboard></scoreboard>
           </div>
-          <q-tooltip>Click link to goto guild</q-tooltip>
-        </q-select>
+        </div>
+
+        <div class="column items-center">
+          <h4 v-if="getCurrentGuild">
+            <router-link
+              :to="{
+                name: 'guild',
+                params: { guild_id: String(getCurrentGuild.id) }
+              }"
+              >{{ getCurrentGuild.name }}
+            </router-link>
+          </h4>
+        </div>
+        <q-tooltip>Click link to goto guild</q-tooltip>
+
         <div class="row justify-start q-pb-sm">
           <div class="col-2"></div>
           <div class="col-8">
-        <q-card>
-            <q-editor v-model="getCurrentGuild.description" id="guild-editor-description"> </q-editor>
+            <q-card>
+              <q-editor
+                v-model="getCurrentGuild.description"
+                id="guild-editor-description"
+              >
+              </q-editor>
 
-          <q-btn id="update-button" label="Update" @click="doSubmit"></q-btn>
-        </q-card>
+              <q-btn
+                id="update-button"
+                label="Update"
+                @click="doSubmit"
+              ></q-btn>
+            </q-card>
           </div>
-    </div>
-    <div class="col-2"></div>
+        </div>
+        <div class="col-2"></div>
         <section class="quest-section">
           <div
             class="column items-center q-mt-md"
@@ -315,7 +321,7 @@ import member from "../components/member.vue";
     guildCard,
     QuestTable,
     scoreboard: scoreboard,
-    member: member,
+    member: member
   },
   computed: {
     ...mapState("member", {
@@ -417,7 +423,11 @@ import member from "../components/member.vue";
       "castingInQuest",
       "getCastingRolesById"
     ]),
-    ...mapGetters("guilds", ["getCurrentGuild", "getGuildMembershipById", "getMembersOfCurrentGuild"]),
+    ...mapGetters("guilds", [
+      "getCurrentGuild",
+      "getGuildMembershipById",
+      "getMembersOfCurrentGuild"
+    ]),
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", [
       "castingRolesPerQuest",
@@ -666,14 +676,14 @@ export default class GuildAdminPage extends Vue {
       await this.updateGuild({ data: this.getCurrentGuild });
       this.$q.notify({
         message: "Guild was updated successfully",
-        color: "positive",
+        color: "positive"
       });
     } catch (err) {
       console.log("there was an error in updating guild ", err);
       this.$q.notify({
         message:
           "There was an error updating guild. If this issue persists, contact support.",
-        color: "negative",
+        color: "negative"
       });
     }
   }
@@ -742,7 +752,7 @@ export default class GuildAdminPage extends Vue {
 .guildAdmin-header {
   background-color: azure;
   padding: 0.5em;
-  align-items:center;
+  align-items: center;
 }
 
 .channel {
@@ -785,14 +795,14 @@ export default class GuildAdminPage extends Vue {
 }
 #guild-editor-description {
   font-family: Arial, Helvetica, sans-serif;
-  margin-top: .5em;
+  margin-top: 0.5em;
   border: 1px solid black;
 }
 #update-button {
   background-color: #02a7e3;
-  color:white;
+  color: white;
   margin-bottom: 1em;
-  margin-top: .5em;
+  margin-top: 0.5em;
   margin-left: 1em;
   font-family: Arial, Helvetica, sans-serif;
 }
