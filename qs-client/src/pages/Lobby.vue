@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 80%" class="q-mt-md">
+      <q-card style="width: 60%" class="q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-4" style="width: 100%">
+          <div class="col-12 q-mb-md" style="width: 75%">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -79,14 +79,14 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 @Component<LobbyPage>({
   name: "LobbyPage",
   meta: {
-    title: "Dashboard",
+    title: "Dashboard"
   },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,
     member: member,
     GuildsTable: GuildsTable,
-    GuildsMembershipIndicator: GuildsMembershipIndicator,
+    GuildsMembershipIndicator: GuildsMembershipIndicator
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
@@ -99,7 +99,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
           (guild) =>
             guild.open_for_applications && !this.isGuildMember(guild.id)
         );
-      },
+      }
     },
     getClosedGuilds: {
       get() {
@@ -107,13 +107,13 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
           (guild) =>
             !guild.open_for_applications && !this.isGuildMember(guild.id)
         );
-      },
-    },
+      }
+    }
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
-  },
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"])
+  }
 })
 export default class LobbyPage extends Vue {
   ready = false;

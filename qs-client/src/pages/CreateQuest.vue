@@ -1,26 +1,30 @@
 <template>
   <q-page class="bg-secondary">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pb-xs q-mt-md" style="width: 55%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center q-ma-sm q-pa-xs">
-      <div class="col-4 q-ma-sm q-pa-sm" style="width: 55%">
-        <h4 id="h4" class="q-pa-xs q-ma-xs">Create New Quest</h4>
-      </div>
-    </div>
-    <div class="column items-center" v-if="newQuest">
-      <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
-        <quest-card
-          v-bind:thisQuest="newQuest"
-          :create="true"
-          v-on:doUpdateQuest="doSubmitQuest"
-        ></quest-card>
-      </div>
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-12 q-mb-md" style="width: 75%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="column items-center q-ma-sm q-pa-xs">
+          <div class="col-4 q-ma-sm q-pa-sm" style="width: 55%">
+            <h4 id="h4" class="q-pa-xs q-ma-xs">Create New Quest</h4>
+          </div>
+        </div>
+        <div class="column items-center" v-if="newQuest">
+          <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
+            <quest-card
+              v-bind:thisQuest="newQuest"
+              :create="true"
+              v-on:doUpdateQuest="doSubmitQuest"
+            ></quest-card>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -38,17 +42,17 @@ import Vue from "vue";
 
 @Component<CreateQuestPage>({
   meta: {
-    title: "New Quest",
+    title: "New Quest"
   },
   components: {
     scoreboard: scoreboard,
     member: member,
-    QuestCard: QuestCard,
+    QuestCard: QuestCard
   },
   computed: {},
   methods: {
-    ...mapActions("quests", ["createQuest", "findquests", "setCurrentQuest"]),
-  },
+    ...mapActions("quests", ["createQuest", "findquests", "setCurrentQuest"])
+  }
 })
 export default class CreateQuestPage extends Vue {
   group: "public";
@@ -65,7 +69,7 @@ export default class CreateQuestPage extends Vue {
     public: true,
     description: "",
     start: "",
-    end: "",
+    end: ""
   };
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
   createQuest!: QuestsActionTypes["createQuest"];
@@ -86,14 +90,14 @@ export default class CreateQuestPage extends Vue {
       const res = await this.createQuest({ data: quest });
       this.$q.notify({
         message: "Quest was updated successfully",
-        color: "positive",
+        color: "positive"
       });
       this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
         message: `There was an error updating quest. If this issue persists, contact support.`,
-        color: "negative",
+        color: "negative"
       });
     }
   }

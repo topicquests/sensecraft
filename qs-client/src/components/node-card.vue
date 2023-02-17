@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 col-md q-pa-md">
+  <div>
     <q-card id="node-card">
       <section id="node-card-title">
         <h3 class="q-ma-md">
@@ -32,8 +32,8 @@ import { Prop } from "vue/types/options";
 
 const NodeCardProps = Vue.extend({
   props: {
-    node: Object as Prop<ConversationNode>,
-  },
+    node: Object as Prop<ConversationNode>
+  }
 });
 
 @Component<NodeCard>({
@@ -42,8 +42,8 @@ const NodeCardProps = Vue.extend({
   computed: {
     description() {
       return this.node.description || "";
-    },
-  },
+    }
+  }
 })
 export default class NodeCard extends NodeCardProps {}
 </script>

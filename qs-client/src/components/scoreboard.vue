@@ -23,13 +23,13 @@
         </div>
         <div class="col-2 b1 q-ml-sm">
           <div>
-            <span class="labels">{{ questCountNotStarted() }} </span>
+            <span class="labels">{{ questCount(status.registration) }} </span>
           </div>
           <div>
-            <span class="labels">{{ questCountStarted() }} </span>
+            <span class="labels">{{ questCount(status.ongoing) }} </span>
           </div>
           <div>
-            <span class="labels">{{ questCountFinished() }} </span>
+            <span class="labels">{{ questCount(status.finished) }} </span>
           </div>
         </div>
         <div class="col-1.5 q-ml-sm">
@@ -86,6 +86,11 @@ import { quest_status_enum } from "../enums";
 
 @Component<Scoreboard>({
   name: "Scoreboard",
+  data() {
+    return {
+      status: quest_status_enum
+    };
+  },
   computed: {
     ...mapGetters("guilds", ["getGuilds"]),
     ...mapGetters("quests", ["getQuestsByStatus"]),
@@ -102,21 +107,9 @@ export default class Scoreboard extends Vue {
   getQuestsByStatus!: QuestsGetterTypes["getQuestsByStatus"];
   getMembers!: MembersGetterTypes["getMembers"];
 
-  questCountNotStarted() {
-    if (this.getQuestsByStatus(quest_status_enum.registration)) {
-      return this.getQuestsByStatus(quest_status_enum.registration).length;
-    }
-    return 0;
-  }
-  questCountStarted() {
-    if (this.getQuestsByStatus(quest_status_enum.ongoing)) {
-      return this.getQuestsByStatus(quest_status_enum.ongoing).length;
-    }
-    return 0;
-  }
-  questCountFinished() {
-    if (this.getQuestsByStatus(quest_status_enum.finished)) {
-      return this.getQuestsByStatus(quest_status_enum.finished).length;
+  questCount(st: quest_status_enum) {
+    if (this.getQuestsByStatus(st)) {
+      return this.getQuestsByStatus(st).length;
     }
     return 0;
   }

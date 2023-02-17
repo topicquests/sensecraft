@@ -86,8 +86,10 @@
             </div>
           </div>
           <div v-else>
-            <div class="column items-center q-mt-md">
-              <h4>No quest you can join</h4>
+            <div class="row justify-center">
+              <div class="column">
+                <h4>No quest you can join</h4>
+              </div>
             </div>
           </div>
 
