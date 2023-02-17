@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 60%" class="q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
@@ -147,16 +147,20 @@
             v-bind:members="getMembersOfCurrentGuild"
           />
         </div>
-
-        <div class="column items-center" v-if="pastQuests.length > 0">
-          <div class="col-10">
-            <q-card>
+        <div class="row justify-centetr">
+          <div
+            class="column items-center"
+            style="width: 100%"
+            v-if="pastQuests.length > 0"
+          >
+            <q-card style="width: 100%">
               <q-table
                 title="Past Quests"
                 :data="pastQuests"
                 :columns="columns1"
                 row-key="desc"
                 id="quest_table"
+                style="width: 100%"
               >
                 <template v-slot:body="props">
                   <q-tr :props="props">

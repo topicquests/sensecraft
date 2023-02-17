@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 60%" class="q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-4" style="width: 100%">
+          <div class="col-12 q-mb-md" style="width: 75%">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -40,17 +40,17 @@ import { QuestsActionTypes } from "../store/quests";
 
 @Component<GuildListPage>({
   meta: {
-    title: "Guilds",
+    title: "Guilds"
   },
   components: {
     scoreboard: scoreboard,
     member: member,
-    GuildsTable: GuildsTable,
+    GuildsTable: GuildsTable
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
     ...mapGetters("member", ["getUserId"]),
-    ...mapGetters(["hasPermission"]),
+    ...mapGetters(["hasPermission"])
     /*
     getOpenGuilds: {
       get() {
@@ -73,8 +73,8 @@ import { QuestsActionTypes } from "../store/quests";
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
     ...mapActions("quests", ["setCurrentQuest"]),
-    ...mapActions("role", ["ensureAllRoles"]),
-  },
+    ...mapActions("role", ["ensureAllRoles"])
+  }
 })
 export default class GuildListPage extends Vue {
   ready = false;
@@ -96,7 +96,7 @@ export default class GuildListPage extends Vue {
       this.ensureAllGuilds(),
       await this.ensureAllRoles(),
       this.setCurrentGuild(true),
-      this.setCurrentQuest(false),
+      this.setCurrentQuest(false)
     ]);
     this.ready = true;
   }

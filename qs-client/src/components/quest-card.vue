@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card v-if="currentQuest" class="quest_card" style="width: 100%">
+    <q-card v-if="currentQuest" class="quest_card">
       <q-card-section class="q-pb-none">
         <q-avatar size="45px" class="q-ma-sm">
           <img :src="ibis_node_icon('quest', false)" />
@@ -86,20 +86,20 @@ const QuestCardProps = Vue.extend({
     creator: Object as Prop<Member>,
     showQuestInfo: {
       type: Boolean,
-      default: true,
-    },
-  },
+      default: true
+    }
+  }
 });
 
 @Component<QuestCard>({
   name: "questCard",
   computed: {
     ...mapGetters("conversation", ["getNeighbourhood"]),
-    ...mapGetters("quests", ["getCurrentQuest"]),
+    ...mapGetters("quests", ["getCurrentQuest"])
   },
   methods: {
-    ibis_node_icon,
-  },
+    ibis_node_icon
+  }
 })
 export default class QuestCard extends QuestCardProps {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];

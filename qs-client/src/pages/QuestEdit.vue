@@ -1,40 +1,63 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center">
-      <div class="col-4 q-pb-xs q-mt-md" style="width: 75%">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="col-12" style="width: 100%">
-      <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
-    </div>
-    <div class="column items-center" v-if="getCurrentQuest">
-      <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
-        <quest-card
-          v-bind:thisQuest="{ ...getCurrentQuest }"
-          :edit="true"
-          v-on:doUpdateQuest="doSubmitQuest"
-        ></quest-card>
-      </div>
-    </div>
-    <div>
-      <div class="col-4 q-ma-sm">
-        <h4 v-if="!node.id">New Conversation Node</h4>
-        <h4 v-if="node.id">Update Conversation Node</h4>
-      </div>
-      <div class="column items-center" v-if="getCurrentQuest">
-        <div class="col-6 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
-          <node-form
-            :nodeInput="node"
-            :editing="true"
-            :ibisTypes="base_ibis_types"
-            v-on:action="editNode"
-          />
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md">
+        <div>
+          <member></member>
         </div>
-      </div>
+        <div class="column items-center">
+          <div class="col-12 q-mb-md" style="width: 75%">
+            <scoreboard></scoreboard>
+          </div>
+        </div>
+        <div class="row justify-center">
+          <div class="column items-center">
+            <div class="col-12" style="width: 100%">
+              <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-center">
+          <div
+            class="column items-center"
+            style="width: 80%"
+            v-if="getCurrentQuest"
+          >
+            <quest-card
+              v-bind:thisQuest="{ ...getCurrentQuest }"
+              :edit="true"
+              v-on:doUpdateQuest="doSubmitQuest"
+              style="width: 100%"
+            ></quest-card>
+          </div>
+        </div>
+
+        <div>
+          <div class="row justify-center">
+            <div class="column items-center">
+              <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 100%">
+                <h4 v-if="!node.id">New Conversation Node</h4>
+                <h4 v-if="node.id">Update Conversation Node</h4>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-center">
+            <div
+              class="column items-center"
+              style="width: 100%"
+              v-if="getCurrentQuest"
+            >
+              <node-form
+                :nodeInput="node"
+                :editing="true"
+                :ibisTypes="base_ibis_types"
+                v-on:action="editNode"
+                style="width: 80%"
+              />
+            </div>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -52,26 +75,26 @@ import Vue from "vue";
 import {
   quest_status_list,
   public_private_bool,
-  ibis_node_type_enum,
+  ibis_node_type_enum
 } from "../enums";
 import { Quest, ConversationNode } from "../types";
 import { MemberState, MemberActionTypes } from "../store/member";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import {
   ConversationGetterTypes,
-  ConversationActionTypes,
+  ConversationActionTypes
 } from "../store/conversation";
 import { BaseGetterTypes } from "../store/baseStore";
 
 @Component<QuestEditPage>({
   meta: (c) => ({
-    title: `Quest edit - ${c.getCurrentQuest?.name}`,
+    title: `Quest edit - ${c.getCurrentQuest?.name}`
   }),
   components: {
     scoreboard: scoreboard,
     member: member,
     nodeForm: nodeForm,
-    questCard: questCard,
+    questCard: questCard
   },
   computed: {
     ...mapState("member", ["member"]),
@@ -83,7 +106,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     },
     quest: function (): Quest {
       return this.getCurrentQuest;
-    },
+    }
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "updateQuest", "ensureQuest"]),
@@ -92,9 +115,9 @@ import { BaseGetterTypes } from "../store/baseStore";
       "createConversationNode",
       "updateConversationNode",
       "fetchConversationNeighbourhood",
-      "fetchRootNode",
-    ]),
-  },
+      "fetchRootNode"
+    ])
+  }
 })
 export default class QuestEditPage extends Vue {
   ready = false;
@@ -128,7 +151,7 @@ export default class QuestEditPage extends Vue {
     title: "",
     description: "",
     status: "private_draft",
-    node_type: "question",
+    node_type: "question"
   };
   base_ibis_types = [ibis_node_type_enum.question];
 
@@ -146,14 +169,14 @@ export default class QuestEditPage extends Vue {
       await this.createConversationNode({ data });
       this.$q.notify({
         message: `Added node to conversation`,
-        color: "positive",
+        color: "positive"
       });
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     } catch (err) {
       console.log("there was an error in adding node ", err);
       this.$q.notify({
         message: `There was an error adding new node.`,
-        color: "negative",
+        color: "negative"
       });
     }
   }
@@ -164,13 +187,13 @@ export default class QuestEditPage extends Vue {
       await this.updateConversationNode({ data });
       this.$q.notify({
         message: `Root node updated`,
-        color: "positive",
+        color: "positive"
       });
     } catch (err) {
       console.log("there was an error in adding node ", err);
       this.$q.notify({
         message: `There was an error adding root node.`,
-        color: "negative",
+        color: "negative"
       });
     }
   }
@@ -187,17 +210,17 @@ export default class QuestEditPage extends Vue {
         throw "End date is before start date";
       }
       await this.updateQuest({
-        data: quest,
+        data: quest
       });
       this.$q.notify({
         message: "Quest was updated successfully",
-        color: "positive",
+        color: "positive"
       });
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
         message: `There was an error updating quest. If this issue persists, contact support.`,
-        color: "negative",
+        color: "negative"
       });
     }
   }

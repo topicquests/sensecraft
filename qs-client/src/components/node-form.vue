@@ -122,7 +122,7 @@ import {
   ibis_node_type_list,
   ibis_node_type_type,
   publication_state_list,
-  publication_state_type,
+  publication_state_type
 } from "../enums";
 
 import { Prop } from "vue/types/options";
@@ -136,8 +136,8 @@ const NodeFormProps = Vue.extend({
     roles: Array as Prop<Role[]>,
     pubFn: Function as Prop<
       (node: Partial<ConversationNode>) => publication_state_type[]
-    >,
-  },
+    >
+  }
 });
 
 @Component<NodeForm>({
@@ -150,15 +150,15 @@ const NodeFormProps = Vue.extend({
       },
       set(value) {
         this.node.description = value;
-      },
-    },
+      }
+    }
   },
   watch: {
     nodeInput(newNode: Partial<ConversationNode>) {
       // TODO: watch if data is dirty
       this.node = { ...this.nodeInput };
-    },
-  },
+    }
+  }
 })
 export default class NodeForm extends NodeFormProps {
   node: Partial<ConversationNode> = {};
@@ -197,7 +197,6 @@ export default class NodeForm extends NodeFormProps {
 </script>
 <style>
 #node-card {
-  max-width: 50%;
   text-align: center;
   border: 3px solid black;
   font-size: 1.2em;

@@ -1,83 +1,87 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
-    <div>
-      <member></member>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div class="col-4" id="scoreboard">
-        <scoreboard></scoreboard>
-      </div>
-    </div>
-    <div class="column items-center q-mb-md">
-      <div class="col-6" id="permissions">
-        <div class="row q-mt-xl">
-          <div class="col-2 q-ml-xl q-mr-xl">
-            <q-select
-              v-model="member_id"
-              :options="getMembers"
-              option-label="handle"
-              option-value="id"
-              label="Handle"
-              emit-value
-              map-options
-              id="qselect"
-            >
-            </q-select>
-          </div>
-          <div class="col-2">
-            <q-checkbox
-              v-model="superAdmin"
-              label="superAdmin"
-              left-label
-              name="superadmin"
-            />
-          </div>
-          <div class="col-2">
-            <q-checkbox
-              v-model="createQuest"
-              label="createQuest"
-              left-label
-              name="create-quest"
-            />
-          </div>
-          <div class="col-2">
-            <q-checkbox
-              v-model="createGuild"
-              label="createGuild"
-              left-label
-              name="create-guild"
-            />
-          </div>
-          <div class="col-2">
-            <q-btn
-              color="primary"
-              label="Update"
-              v-bind:disabled="!userIsSuperAdmin"
-              @click="updatePermissions"
-            />
+    <div class="row justify-center">
+      <q-card style="width: 60%" class="q-mt-md q-pa-md">
+        <div>
+          <member></member>
+        </div>
+        <div class="column items-center">
+          <div class="col-12 q-mb-md" style="width: 75%">
+            <scoreboard></scoreboard>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="column items-center">
-      <div class="col-6 q-pt-lg q-pb-sm" style="width: 48%">
-        <q-btn
-          v-if="$store.state.member.member"
-          id="newRoleBtn"
-          color="primary"
-          label="New Role"
-          @click="$router.push({ name: 'create_role' })"
-        />
-      </div>
-      <div id="roles" style="width: 48%" class="q-mb-xl">
-        <role-table v-bind:roles="getRoles"></role-table>
-      </div>
-    </div>
-    <div v-if="superAdmin">
-      <h2 style="text-align: center">Server Data</h2>
-      <div class="column items-center" style="width: 100%">
-        <server-data-card></server-data-card>
-      </div>
+        <div class="column items-center q-mb-md">
+          <div class="col-6" id="permissions">
+            <div class="row q-mt-xl">
+              <div class="col-2 q-ml-xl q-mr-xl">
+                <q-select
+                  v-model="member_id"
+                  :options="getMembers"
+                  option-label="handle"
+                  option-value="id"
+                  label="Handle"
+                  emit-value
+                  map-options
+                  id="qselect"
+                >
+                </q-select>
+              </div>
+              <div class="col-2">
+                <q-checkbox
+                  v-model="superAdmin"
+                  label="superAdmin"
+                  left-label
+                  name="superadmin"
+                />
+              </div>
+              <div class="col-2">
+                <q-checkbox
+                  v-model="createQuest"
+                  label="createQuest"
+                  left-label
+                  name="create-quest"
+                />
+              </div>
+              <div class="col-2">
+                <q-checkbox
+                  v-model="createGuild"
+                  label="createGuild"
+                  left-label
+                  name="create-guild"
+                />
+              </div>
+              <div class="col-2">
+                <q-btn
+                  color="primary"
+                  label="Update"
+                  v-bind:disabled="!userIsSuperAdmin"
+                  @click="updatePermissions"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="col-6 q-pt-lg q-pb-sm">
+            <q-btn
+              v-if="$store.state.member.member"
+              id="newRoleBtn"
+              color="primary"
+              label="New Role"
+              @click="$router.push({ name: 'create_role' })"
+            />
+          </div>
+          <div id="roles" class="q-mb-xl">
+            <role-table v-bind:roles="getRoles"></role-table>
+          </div>
+        </div>
+        <div v-if="superAdmin">
+          <h2 style="text-align: center">Server Data</h2>
+          <div class="column items-center" style="width: 100%">
+            <server-data-card></server-data-card>
+          </div>
+        </div>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -169,15 +173,12 @@ export default {
       });
     },
     async ensureData() {
-      const promises = [
-        this.ensureAllMembers(),
-        this.ensureAllRoles(),
-      ]
+      const promises = [this.ensureAllMembers(), this.ensureAllRoles()];
       if (this.superAdmin) {
         promises.push(this.ensureServerData());
       }
       await Promise.all(promises);
-    },
+    }
   },
   async beforeMount() {
     await userLoaded;
