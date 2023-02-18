@@ -34,7 +34,7 @@ export async function ensureSelenium(): Promise<Builder> {
     const options = new chrome.Options();
     options.addArguments("start-maximized"); // open Browser in maximized mode
     options.addArguments("disable-infobars"); // disabling infobars
-    options.addArguments("--window-size=1920,1080");
+    options.addArguments("--window-size=1920,1280");
     options.addArguments("--disable-extensions"); // disabling extensions
     options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
     options.addArguments("--no-sandbox"); // Bypass OS security model
