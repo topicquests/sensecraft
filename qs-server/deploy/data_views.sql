@@ -131,4 +131,27 @@ CREATE OR REPLACE VIEW public.guilds_data AS
 GRANT SELECT ON public.guilds_data TO :dbc;
 GRANT SELECT ON public.guilds_data TO :dbm;
 
+CREATE OR REPLACE VIEW public.quest_aggregates AS
+  SELECT quests.status,
+    c.member_id IS NOT NULL AS is_member,
+    count(quests.id) AS num_quests
+  FROM quests
+  LEFT OUTER JOIN casting AS c ON (quests.id=c.quest_id and c.member_id=current_member_id())
+  GROUP BY quests.status, c.member_id;
+
+GRANT SELECT ON public.quest_aggregates TO :dbc;
+GRANT SELECT ON public.quest_aggregates TO :dbm;
+
+CREATE OR REPLACE VIEW public.guild_aggregates AS
+  SELECT guilds.open_for_applications,
+    gm.member_id IS NOT NULL AS is_member,
+    count(guilds.id) AS num_guilds
+  FROM guilds
+  LEFT OUTER JOIN guild_membership AS gm ON (guilds.id=gm.guild_id and gm.member_id=current_member_id())
+  GROUP BY guilds.open_for_applications, gm.member_id;
+
+GRANT SELECT ON public.guild_aggregates TO :dbc;
+GRANT SELECT ON public.guild_aggregates TO :dbm;
+
+
 COMMIT;
