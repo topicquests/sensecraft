@@ -1,5 +1,5 @@
 <template>
-  <q-card square class="shadow-24" style="width: 400px; height: 380px">
+  <q-card class="signon-card">
     <q-card-section class="bg-deep-purple-7">
       <h3 style="text-align: center" class="text-h5 text-white q-my-md">
         Welcome back!
@@ -155,3 +155,11 @@ export default class SigninCard extends Vue {
   }
 }
 </script>
+<style>
+.signon-card {
+  border: 0.5em;
+  border-radius: 8px;
+  width: 350px;
+  height: 380px;
+}
+</style>
