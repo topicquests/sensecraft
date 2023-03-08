@@ -12,6 +12,7 @@
         </q-select>
       </div>
     </div>
+
     <q-table
       class="quest-table"
       :title="title"
@@ -19,9 +20,20 @@
       :columns="columns"
       row-key="id"
     >
-      <template v-slot:body-cell-time="props">
-        <td><quest-date-time-interval v-bind:quest="props.row" /></td>
+      <template v-slot:body-cell-name="props">
+        <td key="name" :props="props">
+          {{ props.row.name }}
+          <q-tooltip max-width="25rem"
+            ><div v-html="props.row.description" class="tooltip"></div>
+          </q-tooltip>
+        </td>
       </template>
+      <template v-slot:body-cell-time="props">
+        <td>
+          <quest-date-time-interval v-bind:quest="props.row" />
+        </td>
+      </template>
+
       <template v-slot:body-cell-lastMove="props">
         <td>
           <span :title="lastMoveFull(props.row)">{{
@@ -29,6 +41,7 @@
           }}</span>
         </td>
       </template>
+
       <template v-slot:body-cell-view="props">
         <td>
           <slot v-bind:quest="props.row">
@@ -146,7 +159,7 @@ const QuestTableProps = Vue.extend({
   name: "quest_table",
   data() {
     return {
-      questStatus: null
+      questStatus: "All"
     };
   },
 
@@ -225,10 +238,12 @@ const QuestTableProps = Vue.extend({
     ...mapGetters(["hasPermission"]),
     ...mapGetters("quests", ["getQuestsByStatus"]),
     getFilteredQuests() {
-      if (this.questStatus) {
+      if (this.questStatus && this.questStatus != "All") {
         return this.getQuestsByStatus(this.questStatus);
+      } else {
+        this.questStatus = "All";
+        return this.quests;
       }
-      return this.quests;
     }
   }
 })
@@ -288,5 +303,12 @@ q-td {
   padding-left: 1em;
   margin-bottom: 1em;
   margin-top: 1em;
+}
+.tooltip {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+  color: white;
+  background-color: blue;
+  padding: 1em;
 }
 </style>
