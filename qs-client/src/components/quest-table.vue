@@ -20,13 +20,16 @@
       :columns="columns"
       row-key="id"
     >
-      <template v-slot:body-cell-name="props">
-        <td key="name" :props="props">
-          {{ props.row.name }}
-          <q-tooltip max-width="25rem"
-            ><div v-html="props.row.description" class="tooltip"></div>
-          </q-tooltip>
-        </td>
+      <template v-slot:body-cell-info="props">
+        <q-td :props="props">
+          <div>
+            <q-btn icon="info" dense flat size="sm"
+              ><q-tooltip max-width="25rem"
+                ><div v-html="props.row.description" class="tooltip"></div>
+              </q-tooltip>
+            </q-btn>
+          </div>
+        </q-td>
       </template>
       <template v-slot:body-cell-time="props">
         <td>
@@ -167,6 +170,12 @@ const QuestTableProps = Vue.extend({
     columns: function (): QTableColumns {
       const extra = this.extra_columns || [];
       return [
+        {
+          name: "info",
+          required: true,
+          label: "description",
+          align: "left"
+        },
         {
           name: "name",
           required: true,
