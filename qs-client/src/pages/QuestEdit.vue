@@ -10,9 +10,22 @@
             <scoreboard></scoreboard>
           </div>
         </div>
+        <div class="row justify-end" style="width: 89%">
+          <div class="col-4 text-right q-pr-md">
+            <router-link
+              class="quest-link"
+              :to="{
+                name: 'quest_page',
+                params: { questId: String(questId) }
+              }"
+              >>>go to quest page</router-link
+            >
+          </div>
+        </div>
+
         <div class="row justify-center">
           <div class="column items-center">
-            <div class="col-12" style="width: 100%">
+            <div class="col-12">
               <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
             </div>
           </div>
@@ -20,7 +33,7 @@
         <div class="row justify-center">
           <div
             class="column items-center"
-            style="width: 80%"
+            style="width: 75%"
             v-if="getCurrentQuest"
           >
             <quest-card
@@ -52,7 +65,7 @@
                 :editing="true"
                 :ibisTypes="base_ibis_types"
                 v-on:action="editNode"
-                style="width: 80%"
+                style="width: 75%"
               />
             </div>
           </div>
@@ -257,5 +270,9 @@ h4 {
 .q-editor {
   width: 80%;
   border: 1px solid black;
+}
+.quest-link {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
 }
 </style>

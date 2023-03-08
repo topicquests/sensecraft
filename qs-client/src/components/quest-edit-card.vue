@@ -251,7 +251,10 @@
         inline
       />
     </div>
-    <div  class="row justify-start q-pa-lg q-ml-lg q-gutter-sm" v-if="quest.turn_based && quest.status == 'ongoing'">
+    <div
+      class="row justify-start q-pa-lg q-ml-lg q-gutter-sm"
+      v-if="quest.turn_based && quest.status == 'ongoing'"
+    >
       <q-btn @click="doEndTurn" label="End Turn" />
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
@@ -265,7 +268,7 @@
     </div>
     <div class="row justify-center q-pb-lg">
       <q-btn
-        label="Submit"
+        label="Update"
         name="updateQuestBtn"
         @click="doUpdateQuest"
         color="primary"
@@ -289,11 +292,11 @@ import { DateTime } from "luxon";
 const turn_based_bool = [
   {
     label: "Continuous",
-    value: false,
+    value: false
   },
   {
     label: "Turn-based",
-    value: true,
+    value: true
   }
 ];
 
@@ -302,13 +305,13 @@ const QuestCardProps = Vue.extend({
     thisQuest: Object as Prop<Quest>,
     edit: {
       type: Boolean,
-      default: false,
+      default: false
     },
     create: {
       type: Boolean,
-      default: false,
-    },
-  },
+      default: false
+    }
+  }
 });
 
 @Component<QuestCard>({
@@ -320,12 +323,12 @@ const QuestCardProps = Vue.extend({
       },
       set(value) {
         this.quest.description = value;
-      },
-    },
+      }
+    }
   },
   methods: {
-    ...mapActions("quests", ["updateQuest", "endTurn"]),
-  },
+    ...mapActions("quests", ["updateQuest", "endTurn"])
+  }
 })
 export default class QuestCard extends QuestCardProps {
   updateQuest!: QuestsActionTypes["updateQuest"];
@@ -352,7 +355,7 @@ export default class QuestCard extends QuestCardProps {
   }
   async doEndTurn() {
     try {
-      await this.endTurn({data: {quest_id: this.quest.id}})
+      await this.endTurn({ data: { quest_id: this.quest.id } });
       this.$q.notify({
         type: "positive",
         message: "Turn ended"
@@ -370,7 +373,7 @@ export default class QuestCard extends QuestCardProps {
     if (value == "registration") {
       this.$q.notify({
         message: "Don't forget to create first conversation node",
-        color: "positive",
+        color: "positive"
       });
     }
     if (value == "ongoing") {

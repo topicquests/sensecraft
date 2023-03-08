@@ -22,7 +22,7 @@
             </router-link>
           </h4>
         </div>
-        <q-tooltip>Click link to goto guild</q-tooltip>
+        <q-tooltip>Click on guild name to goto guild</q-tooltip>
 
         <div class="row justify-start q-pb-sm">
           <div class="col-2"></div>
