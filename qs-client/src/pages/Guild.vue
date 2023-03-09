@@ -1,18 +1,20 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
-    <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md q-pa-md">
-        <div>
+    <div class="row justify-center" style="width:100%">
+      <div class="col-8 justify-center">
+      <q-card class="q-mt-md q-pa-md">
+        <div class="row justify-end" style="width:92%">
           <member></member>
         </div>
-        <div class="column items-center">
-          <div class="col-12" style="width: 75%">
+        <div class="row justify-center" style="width:100%">
+          <div class="col-10 justify-center">
             <scoreboard></scoreboard>
-          </div>
+        </div>
         </div>
         <div class="row justify-end guild-header">
           <div class="col-4 text-right q-pr-md">
             <router-link
+              class="guild-header"
               v-if="canRegisterToQuest"
               :to="{
                 name: 'guild_admin',
@@ -61,21 +63,23 @@
                   <div class="col-12">
                     <h2 class="q-mt-md q-mb-md">Registered Quests</h2>
                   </div>
+                </div>
+                <div class="row justify-start">
                   <div v-if="activeQuests.length > 0">
                     <div v-for="quest in activeQuests" :key="quest.id">
                       <q-radio
                         v-model="currentQuestIdS"
                         color="black"
-                        style="font-size: 20px"
                         :val="quest.id"
                         :label="quest.name"
+
                         class="q-ml-xl"
                       >
                         <q-btn
                           v-if="isMember && !guildPerQuest[quest.id]"
                           label="Play"
                           @click="prompt = true"
-                          style="margin-right: 1em"
+                          id="radio-btn"
                           class="bg-primary q-ml-md"
                         />
                         <q-btn
@@ -85,7 +89,7 @@
                           "
                           class="q-ml-md bg-primary"
                           label="Go To Quest"
-                          style="margin-right: 1em"
+                          id="radio-btn"
                           @click="
                             $router.push({
                               name: 'quest_page',
@@ -120,9 +124,7 @@
         </div>
         <div class="row justify-center q-mr-xl q-mt-md">
           <div
-            v-if="
-              getCurrentQuest &&
-              !getCurrentQuest.start &&
+            v-if="getCurrentQuest &&
               isPlayingQuestInGuild(getCurrentQuest.id, getCurrentGuild.id)
             "
             class="col"
@@ -194,6 +196,7 @@
           />
         </q-dialog>
       </q-card>
+      </div>
     </div>
   </q-page>
 </template>
@@ -688,7 +691,9 @@ export default class GuildPage extends Vue {
 }
 .guild-header {
   background-color: azure;
-  width: 100%;
+  width: 92%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
 }
 .guild-name {
   text-align: center;
@@ -705,6 +710,15 @@ export default class GuildPage extends Vue {
   text-decoration: underline;
   font-size: 20px;
   padding-bottom: sm;
+}
+#radio {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+  width: 100%;
+}
+#radio-btn {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
 }
 #node_card {
   border: 3px solid black;

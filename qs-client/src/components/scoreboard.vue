@@ -78,9 +78,9 @@
 <script lang="ts">
 import Component from "vue-class-component";
 import Vue from "vue";
-import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
-import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
-import { MembersActionTypes, MembersGetterTypes } from "src/store/members";
+import { GuildsActionTypes, GuildsGetterTypes } from "../store/guilds";
+import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
+import { MembersActionTypes, MembersGetterTypes } from "../store/members";
 import { mapActions, mapGetters } from "vuex";
 import { quest_status_enum } from "../enums";
 
