@@ -127,9 +127,8 @@
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-editor
         v-model="quest.description"
-        class="q-editor"
-        style="width: 80%"
         name="description"
+        id="q-editor"
       ></q-editor>
     </div>
     <div class="row">
@@ -390,3 +389,9 @@ export default class QuestCard extends QuestCardProps {
   }
 }
 </script>
+<style>
+#q-editor {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+}
+</style>

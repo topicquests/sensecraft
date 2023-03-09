@@ -12,6 +12,18 @@
       :selected-rows-label="() => ''"
       v-on:selection="selectionChanged"
     >
+      <template v-slot:body-cell-info="props">
+        <q-td :props="props">
+          <div>
+            <q-btn icon="info" dense flat size="sm"
+              ><q-tooltip max-width="25rem"
+                ><div v-html="props.row.description" class="tooltip"></div>
+              </q-tooltip>
+            </q-btn>
+          </div>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-actions="props">
         <td>
           <slot v-bind:guild="props.row">
@@ -128,6 +140,8 @@ const GuildsTableProp = Vue.extend({
         });
       }
       return [
+        { name: "info", required: true, label: "description", align: "left" },
+
         {
           name: "name",
           required: true,
@@ -290,5 +304,10 @@ export default class GuildTable extends GuildsTableProp {
   text-align: center;
   font-size: 1em;
   background-color: ivory;
+}
+.tooltip {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+  padding: 1em;
 }
 </style>

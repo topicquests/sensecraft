@@ -316,8 +316,6 @@ q-td {
 .tooltip {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
-  color: white;
-  background-color: blue;
   padding: 1em;
 }
 </style>
