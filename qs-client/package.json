@@ -93,7 +93,7 @@
     "npm": ">= 8"
   },
   "lint-staged": {
-    "**/js": [
+    "**/*": [
       "eslint",
       "prettier --write --ignore-unknown"
     ]

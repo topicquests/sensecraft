@@ -60,7 +60,14 @@ export interface Member extends PublicMember {
 }
 
 export const memberPatchKeys: KeyArray<Member> = [
-  'id', 'email', 'handle', 'permissions', 'password', 'name', 'confirmed'];
+  "id",
+  "email",
+  "handle",
+  "permissions",
+  "password",
+  "name",
+  "confirmed",
+];
 
 export interface GamePlay {
   quest_id: number;
@@ -94,7 +101,16 @@ export interface Quest {
 }
 
 export const questPatchKeys: KeyArray<Quest> = [
-  'id', 'handle', 'name', 'description', 'public', 'turn_based', 'status', 'start', 'end'];
+  "id",
+  "handle",
+  "name",
+  "description",
+  "public",
+  "turn_based",
+  "status",
+  "start",
+  "end",
+];
 
 export interface QuestData extends Quest {
   last_node_published_at: string;
@@ -131,8 +147,19 @@ export interface ConversationNode extends BaseConversationNode {
 }
 
 export const conversationNodePatchKeys: KeyArray<ConversationNode> = [
-  'id', 'quest_id', 'guild_id', 'creator_id', 'parent_id', 'node_type',
-  'status', 'title', 'description', 'url', 'meta', 'draft_for_role_id'];
+  "id",
+  "quest_id",
+  "guild_id",
+  "creator_id",
+  "parent_id",
+  "node_type",
+  "status",
+  "title",
+  "description",
+  "url",
+  "meta",
+  "draft_for_role_id",
+];
 
 export interface QTreeNode extends ConversationNode {
   // id: number | string;
@@ -174,8 +201,16 @@ export interface Guild {
 }
 
 export const guildPatchKeys: KeyArray<Guild> = [
-  'id', 'handle', 'name', 'description', 'creator', 'public', 'open_for_applications',
-  'application_needs_approval', 'default_role_id'];
+  "id",
+  "handle",
+  "name",
+  "description",
+  "creator",
+  "public",
+  "open_for_applications",
+  "application_needs_approval",
+  "default_role_id",
+];
 
 export interface GuildData extends Guild {
   member_count: number;
@@ -207,7 +242,13 @@ export interface Role {
 }
 
 export const rolePatchKeys: KeyArray<Role> = [
-  'id', 'name', 'guild_id', 'permissions', 'max_pub_state', "role_draft_target_role_id"];
+  "id",
+  "name",
+  "guild_id",
+  "permissions",
+  "max_pub_state",
+  "role_draft_target_role_id",
+];
 
 export interface GuildMemberAvailableRole {
   guild_id: number;
@@ -222,19 +263,18 @@ export interface CastingRole {
   quest_id: number;
 }
 
-
 export type ServerData = {
-  smtp_server: string,
-  smtp_port: number,
-  smtp_auth_method: string,
-  smtp_secure: boolean,
-  smtp_username: string,
-  smtp_password: string,
-  server_url: string,
-  confirm_account_mail_template_title: string,
-  confirm_account_mail_template_text: string,
-  confirm_account_mail_template_html: string,
-  reset_password_mail_template_title: string,
-  reset_password_mail_template_text: string,
-  reset_password_mail_template_html: string
-}
+  smtp_server: string;
+  smtp_port: number;
+  smtp_auth_method: string;
+  smtp_secure: boolean;
+  smtp_username: string;
+  smtp_password: string;
+  server_url: string;
+  confirm_account_mail_template_title: string;
+  confirm_account_mail_template_text: string;
+  confirm_account_mail_template_html: string;
+  reset_password_mail_template_title: string;
+  reset_password_mail_template_text: string;
+  reset_password_mail_template_html: string;
+};

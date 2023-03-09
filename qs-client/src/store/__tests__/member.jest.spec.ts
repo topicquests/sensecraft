@@ -37,9 +37,9 @@ describe("Member store", () => {
   afterEach(() => mockAxios.reset());
   const mail = "test@example.com";
   const token = sign({
-    header: { alg: 'HS256' },
-    payload: {role: 'database_1'},
-    secret: 'secret',
+    header: { alg: "HS256" },
+    payload: { role: "database_1" },
+    secret: "secret",
   });
 
   it("gets a token", async () => {
@@ -78,9 +78,9 @@ describe("Member store", () => {
       makeReq({
         url: "/members",
         params: {
-          id: 'eq.1',
+          id: "eq.1",
           select:
-            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)"
+            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)",
         },
         method: "get",
       })

@@ -120,7 +120,10 @@ const GuildsActions = {
       await context.dispatch("fetchGuilds");
     }
   },
-  ensureCurrentGuild: async (context, { guild_id, full = true }: {guild_id: number, full: boolean}) => {
+  ensureCurrentGuild: async (
+    context,
+    { guild_id, full = true }: { guild_id: number; full: boolean }
+  ) => {
     await context.dispatch("ensureGuild", { guild_id, full });
     await context.dispatch("setCurrentGuild", guild_id);
   },
@@ -156,7 +159,10 @@ const GuildsActions = {
       (c: GuildMembership) => c.member_id == membership.member_id
     );
     if (gMembership.status == "confirmed") {
-      await MyVapi.store.dispatch("members/fetchMemberById", { full: true, params: { id: membership.member_id } });
+      await MyVapi.store.dispatch("members/fetchMemberById", {
+        full: true,
+        params: { id: membership.member_id },
+      });
       if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
         await MyVapi.store.dispatch("member/fetchLoginUser");
       }

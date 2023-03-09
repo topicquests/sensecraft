@@ -121,7 +121,10 @@ import GuildMembers from "../components/guild-members.vue";
       "getPlayersOfCurrentQuestGuild",
     ]),
     ...mapGetters("conversation", ["getScoreMap", "getGuildScoreMap"]),
-    ...mapGetters("guilds", ["getGuildsPlayingCurrentQuest", "getCurrentGuild"]),
+    ...mapGetters("guilds", [
+      "getGuildsPlayingCurrentQuest",
+      "getCurrentGuild",
+    ]),
   },
   methods: {
     ...mapActions("quests", [

@@ -119,7 +119,7 @@ export default {
   name: "RegisterPage",
   meta: {
     // sets document title
-    title: "Register"
+    title: "Register",
   },
   data() {
     return {
@@ -128,12 +128,12 @@ export default {
         email: null,
         handle: null,
         name: null,
-        password: null
+        password: null,
       },
       isPwd: true,
       isPwdSignIn: true,
       showDialog: true,
-      title: "Register"
+      title: "Register",
     };
   },
 
@@ -166,7 +166,7 @@ export default {
         Notify.create({
           message:
             "Account created successfully. Please check your email for a confirmation link.",
-          color: "positive"
+          color: "positive",
         });
         this.$router.push({ name: "signin" });
       } catch (error) {
@@ -174,13 +174,13 @@ export default {
           Notify.create({
             message:
               "This account already exists. Try resetting your password or contact support.",
-            color: "negative"
+            color: "negative",
           });
         } else {
           Notify.create({
             message:
               "There was an error creating your account. If this issue persists, contact support.",
-            color: "negative"
+            color: "negative",
           });
         }
         console.log("There was an error registering ", error);
@@ -196,8 +196,8 @@ export default {
       setTimeout(() => {
         this.goHome();
       }, 50);
-    }
-  }
+    },
+  },
 };
 </script>
 

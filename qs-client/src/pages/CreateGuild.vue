@@ -84,21 +84,21 @@ import { MembersActionTypes } from "src/store/members";
 @Component<GuildFormPage>({
   components: {
     scoreboard: scoreboard,
-    member: member
+    member: member,
   },
 
   computed: {
-    ...mapGetters("role", ["getRoles"])
+    ...mapGetters("role", ["getRoles"]),
   },
 
   methods: {
     ...mapActions("guilds", ["createGuild"]),
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions("members", ["ensureAllMembers"])
+    ...mapActions("members", ["ensureAllMembers"]),
   },
   meta: {
-    title: "Create Guild"
-  }
+    title: "Create Guild",
+  },
 })
 export default class GuildFormPage extends Vue {
   public_private_bool = public_private_bool;
@@ -108,7 +108,7 @@ export default class GuildFormPage extends Vue {
   // declare the computed attributes for Typescript
   getRoles!: RoleGetterTypes["getRoles"];
   role: Partial<Role> = {
-    name: ""
+    name: "",
   };
 
   // declare the methods for Typescript
@@ -121,14 +121,14 @@ export default class GuildFormPage extends Vue {
       const res = await this.createGuild({ data: guild });
       this.$q.notify({
         message: `Added new guild`,
-        color: "positive"
+        color: "positive",
       });
       this.$router.push({ name: "guild_admin", params: { guild_id: res.id } });
     } catch (err) {
       console.log("there was an error in creating guild ", err);
       this.$q.notify({
         message: `There was an error creating new guild.`,
-        color: "negative"
+        color: "negative",
       });
     }
   }
@@ -146,8 +146,8 @@ export default class GuildFormPage extends Vue {
         handle: "",
         public: false,
         description: "",
-        default_role_id: null
-      }
+        default_role_id: null,
+      },
     };
   }
 }

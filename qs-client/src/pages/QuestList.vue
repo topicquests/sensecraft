@@ -18,7 +18,7 @@
               label="New Quest"
               @click="
                 $router.push({
-                  name: 'create_quest'
+                  name: 'create_quest',
                 })
               "
             />
@@ -56,21 +56,21 @@ import { GuildsActionTypes } from "src/store/guilds";
 
 @Component<QuestListPage>({
   meta: {
-    title: "Quests"
+    title: "Quests",
   },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,
-    member: member
+    member: member,
   },
   computed: {
     ...mapGetters("quests", ["getQuests"]),
-    ...mapGetters("guilds", ["getGuilds"])
+    ...mapGetters("guilds", ["getGuilds"]),
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"])
-  }
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
+  },
 })
 export default class QuestListPage extends Vue {
   ready = false;
@@ -91,7 +91,7 @@ export default class QuestListPage extends Vue {
     await Promise.all([
       this.ensureAllQuests(),
       this.setCurrentGuild(false),
-      this.setCurrentQuest(true)
+      this.setCurrentQuest(true),
     ]);
     this.ready = true;
   }

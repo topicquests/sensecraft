@@ -42,17 +42,17 @@ import Vue from "vue";
 
 @Component<CreateQuestPage>({
   meta: {
-    title: "New Quest"
+    title: "New Quest",
   },
   components: {
     scoreboard: scoreboard,
     member: member,
-    QuestCard: QuestCard
+    QuestCard: QuestCard,
   },
   computed: {},
   methods: {
-    ...mapActions("quests", ["createQuest", "findquests", "setCurrentQuest"])
-  }
+    ...mapActions("quests", ["createQuest", "findquests", "setCurrentQuest"]),
+  },
 })
 export default class CreateQuestPage extends Vue {
   group: "public";
@@ -69,7 +69,7 @@ export default class CreateQuestPage extends Vue {
     public: true,
     description: "",
     start: "",
-    end: ""
+    end: "",
   };
   setCurrentQuest!: QuestsActionTypes["setCurrentQuest"];
   createQuest!: QuestsActionTypes["createQuest"];
@@ -90,14 +90,14 @@ export default class CreateQuestPage extends Vue {
       const res = await this.createQuest({ data: quest });
       this.$q.notify({
         message: "Quest was updated successfully",
-        color: "positive"
+        color: "positive",
       });
       this.$router.push({ name: "quest_edit", params: { quest_id: res.id } });
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
         message: `There was an error updating quest. If this issue persists, contact support.`,
-        color: "negative"
+        color: "negative",
       });
     }
   }

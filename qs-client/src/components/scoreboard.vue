@@ -88,19 +88,19 @@ import { quest_status_enum } from "../enums";
   name: "Scoreboard",
   data() {
     return {
-      status: quest_status_enum
+      status: quest_status_enum,
     };
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds"]),
     ...mapGetters("quests", ["getQuestsByStatus"]),
-    ...mapGetters("members", ["getMembers"])
+    ...mapGetters("members", ["getMembers"]),
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests"]),
     ...mapActions("guilds", ["ensureAllGuilds"]),
-    ...mapActions("members", ["ensureAllMembers"])
-  }
+    ...mapActions("members", ["ensureAllMembers"]),
+  },
 })
 export default class Scoreboard extends Vue {
   getGuilds!: GuildsGetterTypes["getGuilds"];
@@ -122,7 +122,7 @@ export default class Scoreboard extends Vue {
     await Promise.all([
       this.ensureAllQuests(),
       this.ensureAllGuilds(),
-      this.ensureAllMembers()
+      this.ensureAllMembers(),
     ]);
   }
 }

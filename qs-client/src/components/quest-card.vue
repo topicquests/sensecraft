@@ -86,20 +86,20 @@ const QuestCardProps = Vue.extend({
     creator: Object as Prop<Member>,
     showQuestInfo: {
       type: Boolean,
-      default: true
-    }
-  }
+      default: true,
+    },
+  },
 });
 
 @Component<QuestCard>({
   name: "questCard",
   computed: {
     ...mapGetters("conversation", ["getNeighbourhood"]),
-    ...mapGetters("quests", ["getCurrentQuest"])
+    ...mapGetters("quests", ["getCurrentQuest"]),
   },
   methods: {
-    ibis_node_icon
-  }
+    ibis_node_icon,
+  },
 })
 export default class QuestCard extends QuestCardProps {
   getCurrentQuest!: QuestsGetterTypes["getCurrentQuest"];

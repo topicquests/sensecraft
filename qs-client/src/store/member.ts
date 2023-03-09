@@ -173,10 +173,13 @@ export const member = (axios: AxiosInstance) =>
           );
         }
         const token_payload = decode(state.token).payload;
-        const payload = (typeof(token_payload) == 'string') ? JSON.parse(token_payload) : token_payload;
+        const payload =
+          typeof token_payload == "string"
+            ? JSON.parse(token_payload)
+            : token_payload;
         const parts: string[] = payload.role.split("_");
         const role = parts[parts.length - 1];
-        params.id = `eq.${role}`
+        params.id = `eq.${role}`;
         params.select =
           "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
       },
@@ -232,7 +235,7 @@ export const member = (axios: AxiosInstance) =>
         MyVapi.store.dispatch("members/ensureMemberById", {
           id: res.data,
           full: false,
-       });
+        });
       },
     })
     .call({
@@ -261,8 +264,7 @@ export const member = (axios: AxiosInstance) =>
       ) => {
         if (res.data) {
           state.token = res.data;
-          if (state.member)
-            getWSClient().login(state.member.id, state.token);
+          if (state.member) getWSClient().login(state.member.id, state.token);
           const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
           state.tokenExpiry = tokenExpiry;
           const storage = window.localStorage;
@@ -277,9 +279,9 @@ export const member = (axios: AxiosInstance) =>
           Object.assign(state, baseState);
           window.localStorage.removeItem("token");
           window.localStorage.removeItem("tokenExpiry");
-          console.log("Renewal failed.")
+          console.log("Renewal failed.");
         }
-    },
+      },
     })
     // Step 4
     .getVuexStore({

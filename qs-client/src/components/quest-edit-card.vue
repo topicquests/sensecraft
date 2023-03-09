@@ -292,12 +292,12 @@ import { DateTime } from "luxon";
 const turn_based_bool = [
   {
     label: "Continuous",
-    value: false
+    value: false,
   },
   {
     label: "Turn-based",
-    value: true
-  }
+    value: true,
+  },
 ];
 
 const QuestCardProps = Vue.extend({
@@ -305,13 +305,13 @@ const QuestCardProps = Vue.extend({
     thisQuest: Object as Prop<Quest>,
     edit: {
       type: Boolean,
-      default: false
+      default: false,
     },
     create: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 @Component<QuestCard>({
@@ -323,12 +323,12 @@ const QuestCardProps = Vue.extend({
       },
       set(value) {
         this.quest.description = value;
-      }
-    }
+      },
+    },
   },
   methods: {
-    ...mapActions("quests", ["updateQuest", "endTurn"])
-  }
+    ...mapActions("quests", ["updateQuest", "endTurn"]),
+  },
 })
 export default class QuestCard extends QuestCardProps {
   updateQuest!: QuestsActionTypes["updateQuest"];
@@ -358,12 +358,12 @@ export default class QuestCard extends QuestCardProps {
       await this.endTurn({ data: { quest_id: this.quest.id } });
       this.$q.notify({
         type: "positive",
-        message: "Turn ended"
+        message: "Turn ended",
       });
     } catch (e) {
       this.$q.notify({
         type: "negative",
-        message: "Could not end turn"
+        message: "Could not end turn",
       });
     }
   }
@@ -373,7 +373,7 @@ export default class QuestCard extends QuestCardProps {
     if (value == "registration") {
       this.$q.notify({
         message: "Don't forget to create first conversation node",
-        color: "positive"
+        color: "positive",
       });
     }
     if (value == "ongoing") {

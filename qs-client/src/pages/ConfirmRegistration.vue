@@ -55,9 +55,9 @@ import { Notify } from "quasar";
     ...mapActions("member", [
       "renewToken",
       "fetchLoginUser",
-      "sendConfirmEmail"
-    ])
-  }
+      "sendConfirmEmail",
+    ]),
+  },
 })
 export default class ConfirmRegistration extends Vue {
   email: string = null;
@@ -81,14 +81,14 @@ export default class ConfirmRegistration extends Vue {
       await this.fetchLoginUser();
       Notify.create({
         message: "Email Verified. You are now signed in",
-        color: "positive"
+        color: "positive",
       });
       this.$router.push({ name: "lobby" });
     } catch (err) {
       this.$q.notify({
         message:
           "There was an error renewing token. Please resend email verification.",
-        color: "negative"
+        color: "negative",
       });
     }
   }

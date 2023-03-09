@@ -40,17 +40,17 @@ import { QuestsActionTypes } from "../store/quests";
 
 @Component<GuildListPage>({
   meta: {
-    title: "Guilds"
+    title: "Guilds",
   },
   components: {
     scoreboard: scoreboard,
     member: member,
-    GuildsTable: GuildsTable
+    GuildsTable: GuildsTable,
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
     ...mapGetters("member", ["getUserId"]),
-    ...mapGetters(["hasPermission"])
+    ...mapGetters(["hasPermission"]),
     /*
     getOpenGuilds: {
       get() {
@@ -73,8 +73,8 @@ import { QuestsActionTypes } from "../store/quests";
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
     ...mapActions("quests", ["setCurrentQuest"]),
-    ...mapActions("role", ["ensureAllRoles"])
-  }
+    ...mapActions("role", ["ensureAllRoles"]),
+  },
 })
 export default class GuildListPage extends Vue {
   ready = false;
@@ -96,7 +96,7 @@ export default class GuildListPage extends Vue {
       this.ensureAllGuilds(),
       await this.ensureAllRoles(),
       this.setCurrentGuild(true),
-      this.setCurrentQuest(false)
+      this.setCurrentQuest(false),
     ]);
     this.ready = true;
   }

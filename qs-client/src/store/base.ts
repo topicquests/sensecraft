@@ -67,7 +67,9 @@ interface CallResourceActionOptions extends ShorthandResourceActionOptions {
 }
 
 export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
-  return Object.fromEntries(keys.filter(k => data[k] !== undefined).map(k => [k, data[k]])) as Partial<T>;
+  return Object.fromEntries(
+    keys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]])
+  ) as Partial<T>;
 }
 
 export class MyVapi<S> extends Vapi {
@@ -125,7 +127,7 @@ export class MyVapi<S> extends Vapi {
         headers: (params: any) => {
           const token: string = MyVapi.store?.state.member.token;
           const tokenExpiry: number = MyVapi.store?.state.member.tokenExpiry;
-          if (token && tokenExpiry && (Date.now() < tokenExpiry)) {
+          if (token && tokenExpiry && Date.now() < tokenExpiry) {
             return Object.assign(baseHeaders, {
               Authorization: `Bearer ${token}`,
             });

@@ -16,7 +16,7 @@
               class="quest-link"
               :to="{
                 name: 'quest_page',
-                params: { questId: String(questId) }
+                params: { questId: String(questId) },
               }"
               >>>go to quest page</router-link
             >
@@ -88,26 +88,26 @@ import Vue from "vue";
 import {
   quest_status_list,
   public_private_bool,
-  ibis_node_type_enum
+  ibis_node_type_enum,
 } from "../enums";
 import { Quest, ConversationNode } from "../types";
 import { MemberState, MemberActionTypes } from "../store/member";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import {
   ConversationGetterTypes,
-  ConversationActionTypes
+  ConversationActionTypes,
 } from "../store/conversation";
 import { BaseGetterTypes } from "../store/baseStore";
 
 @Component<QuestEditPage>({
   meta: (c) => ({
-    title: `Quest edit - ${c.getCurrentQuest?.name}`
+    title: `Quest edit - ${c.getCurrentQuest?.name}`,
   }),
   components: {
     scoreboard: scoreboard,
     member: member,
     nodeForm: nodeForm,
-    questCard: questCard
+    questCard: questCard,
   },
   computed: {
     ...mapState("member", ["member"]),
@@ -119,7 +119,7 @@ import { BaseGetterTypes } from "../store/baseStore";
     },
     quest: function (): Quest {
       return this.getCurrentQuest;
-    }
+    },
   },
   methods: {
     ...mapActions("quests", ["setCurrentQuest", "updateQuest", "ensureQuest"]),
@@ -128,9 +128,9 @@ import { BaseGetterTypes } from "../store/baseStore";
       "createConversationNode",
       "updateConversationNode",
       "fetchConversationNeighbourhood",
-      "fetchRootNode"
-    ])
-  }
+      "fetchRootNode",
+    ]),
+  },
 })
 export default class QuestEditPage extends Vue {
   ready = false;
@@ -164,7 +164,7 @@ export default class QuestEditPage extends Vue {
     title: "",
     description: "",
     status: "private_draft",
-    node_type: "question"
+    node_type: "question",
   };
   base_ibis_types = [ibis_node_type_enum.question];
 
@@ -182,14 +182,14 @@ export default class QuestEditPage extends Vue {
       await this.createConversationNode({ data });
       this.$q.notify({
         message: `Added node to conversation`,
-        color: "positive"
+        color: "positive",
       });
       await this.fetchRootNode({ params: { quest_id: this.quest_id } });
     } catch (err) {
       console.log("there was an error in adding node ", err);
       this.$q.notify({
         message: `There was an error adding new node.`,
-        color: "negative"
+        color: "negative",
       });
     }
   }
@@ -200,13 +200,13 @@ export default class QuestEditPage extends Vue {
       await this.updateConversationNode({ data });
       this.$q.notify({
         message: `Root node updated`,
-        color: "positive"
+        color: "positive",
       });
     } catch (err) {
       console.log("there was an error in adding node ", err);
       this.$q.notify({
         message: `There was an error adding root node.`,
-        color: "negative"
+        color: "negative",
       });
     }
   }
@@ -223,17 +223,17 @@ export default class QuestEditPage extends Vue {
         throw "End date is before start date";
       }
       await this.updateQuest({
-        data: quest
+        data: quest,
       });
       this.$q.notify({
         message: "Quest was updated successfully",
-        color: "positive"
+        color: "positive",
       });
     } catch (err) {
       console.log("there was an error in updating quest ", err);
       this.$q.notify({
         message: `There was an error updating quest. If this issue persists, contact support.`,
-        color: "negative"
+        color: "negative",
       });
     }
   }

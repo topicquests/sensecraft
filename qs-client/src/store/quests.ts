@@ -93,13 +93,13 @@ const QuestsGetters = {
     },
   isPlayingQuestInGuild:
     (state: QuestsState) =>
-      (quest_id?: number, guild_id?: number, member_id?: number) => {
-        member_id = member_id || MyVapi.store.getters["member/getUserId"];
-        quest_id = quest_id || state.currentQuest;
-        return state.quests[quest_id]?.casting?.find(
-          (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
-        );
-      },
+    (quest_id?: number, guild_id?: number, member_id?: number) => {
+      member_id = member_id || MyVapi.store.getters["member/getUserId"];
+      quest_id = quest_id || state.currentQuest;
+      return state.quests[quest_id]?.casting?.find(
+        (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
+      );
+    },
   isPlayingQuestAsGuildId:
     (state: QuestsState) => (quest_id?: number, member_id?: number) => {
       member_id = member_id || MyVapi.store.getters["member/getUserId"];
@@ -118,14 +118,14 @@ const QuestsGetters = {
     },
   getGamePlayForGuild:
     (state) =>
-      (guild_id: number): GamePlay => {
-        if (state.currentQuest) {
-          const quest = state.quests[state.currentQuest];
-          return quest?.game_play?.find(
-            (gp: GamePlay) => gp.guild_id == guild_id
-          );
-        }
-      },
+    (guild_id: number): GamePlay => {
+      if (state.currentQuest) {
+        const quest = state.quests[state.currentQuest];
+        return quest?.game_play?.find(
+          (gp: GamePlay) => gp.guild_id == guild_id
+        );
+      }
+    },
   getCurrentGamePlay: (state: QuestsState) => {
     if (state.currentQuest) {
       const quest = state.quests[state.currentQuest];
@@ -140,69 +140,69 @@ const QuestsGetters = {
   },
   getCastingRoles:
     (state) =>
-      (member_id: number): Role[] => {
-        const castingRoles =
-          MyVapi.store.getters["members/getPlayersRoles"](member_id);
-        const roles = castingRoles.map((pr) =>
-          MyVapi.store.getters["role/getRoleById"](pr.role_id)
-        );
-        return roles;
-      },
+    (member_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const roles = castingRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
   getCastingRolesForQuest:
     (state) =>
-      (member_id: number, quest_id: number): Role[] => {
-        const castingRoles =
-          MyVapi.store.getters["members/getPlayersRoles"](member_id);
-        const playerRoles = castingRoles.filter(
-          (role) => role.quest_id == quest_id
-        );
-        const roles = playerRoles.map((pr) =>
-          MyVapi.store.getters["role/getRoleById"](pr.role_id)
-        );
-        return roles;
-      },
+    (member_id: number, quest_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const playerRoles = castingRoles.filter(
+        (role) => role.quest_id == quest_id
+      );
+      const roles = playerRoles.map((pr) =>
+        MyVapi.store.getters["role/getRoleById"](pr.role_id)
+      );
+      return roles;
+    },
   getMaxPubStateForNodeType:
     (state) =>
-      (
-        quest_id: number,
-        node_type: ibis_node_type_type
-      ): publication_state_type => {
-        const roleCastings: CastingRole[] =
-          MyVapi.store.getters["member/castingRolesForQuest"](quest_id);
-        const roles: Role[] = roleCastings.map((rc) =>
-          MyVapi.store.getters["role/getRoleById"](rc.role_id)
+    (
+      quest_id: number,
+      node_type: ibis_node_type_type
+    ): publication_state_type => {
+      const roleCastings: CastingRole[] =
+        MyVapi.store.getters["member/castingRolesForQuest"](quest_id);
+      const roles: Role[] = roleCastings.map((rc) =>
+        MyVapi.store.getters["role/getRoleById"](rc.role_id)
+      );
+      let maxPubStates = roles.map((role) => role.max_pub_state);
+      maxPubStates = maxPubStates.concat(
+        roles.map(
+          (role) =>
+            role.role_node_constraint.find((x) => x.node_type == node_type)
+              ?.max_pub_state
+        )
+      );
+      maxPubStates = maxPubStates.filter((x) => x != undefined);
+      if (maxPubStates.length > 0) {
+        // maximum for all roles
+        maxPubStates.sort(
+          (a, b) =>
+            publication_state_list.indexOf(b) -
+            publication_state_list.indexOf(a)
         );
-        let maxPubStates = roles.map((role) => role.max_pub_state);
-        maxPubStates = maxPubStates.concat(
-          roles.map(
-            (role) =>
-              role.role_node_constraint.find((x) => x.node_type == node_type)
-                ?.max_pub_state
-          )
-        );
-        maxPubStates = maxPubStates.filter((x) => x != undefined);
-        if (maxPubStates.length > 0) {
-          // maximum for all roles
-          maxPubStates.sort(
-            (a, b) =>
-              publication_state_list.indexOf(b) -
-              publication_state_list.indexOf(a)
-          );
-          return maxPubStates[0];
-        }
-        // no constraint
-        return publication_state_enum.submitted;
-      },
+        return maxPubStates[0];
+      }
+      // no constraint
+      return publication_state_enum.submitted;
+    },
   getCastingRolesById:
     (state) =>
-      (member_id: number, quest_id: number): Role[] => {
-        const castingRoles =
-          MyVapi.store.getters["members/getPlayersRoles"](member_id);
-        const playerRoles = castingRoles?.filter(
-          (role) => role.quest_id == quest_id
-        );
-        return playerRoles;
-      },
+    (member_id: number, quest_id: number): Role[] => {
+      const castingRoles =
+        MyVapi.store.getters["members/getPlayersRoles"](member_id);
+      const playerRoles = castingRoles?.filter(
+        (role) => role.quest_id == quest_id
+      );
+      return playerRoles;
+    },
   getMembersOfCurrentQuest: (state: QuestsState) => {
     const quest = state.quests[state.currentQuest];
     const members = MyVapi.store.state["members"]["members"];
@@ -217,17 +217,16 @@ const QuestsGetters = {
       .map((c: Casting) => members[c.member_id])
       .filter((member: PublicMember) => member);
   },
-  getPlayersOfCurrentQuestGuild:
-    (state: QuestsState) => {
-      const quest = state.quests[state.currentQuest];
-      const members = MyVapi.store.state["members"]["members"];
-      const currentGuildId = MyVapi.store.state['guilds']['currentGuild'];
-      if (!currentGuildId) return [];
-      return quest.casting
-        .filter((c: Casting) => c.guild_id == currentGuildId)
-        .map((c: Casting) => members[c.member_id])
-        .filter((member: PublicMember) => member);
-    }
+  getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
+    const quest = state.quests[state.currentQuest];
+    const members = MyVapi.store.state["members"]["members"];
+    const currentGuildId = MyVapi.store.state["guilds"]["currentGuild"];
+    if (!currentGuildId) return [];
+    return quest.casting
+      .filter((c: Casting) => c.guild_id == currentGuildId)
+      .map((c: Casting) => members[c.member_id])
+      .filter((member: PublicMember) => member);
+  },
 };
 
 export const QuestsActions = {
@@ -630,10 +629,10 @@ export const quests = (axios: AxiosInstance) =>
       },
     })
     .call({
-        action: "endTurn",
-        path: "end_turn",
+      action: "endTurn",
+      path: "end_turn",
     })
-  // Step 4
+    // Step 4
     .getVuexStore({
       getters: QuestsGetters,
       actions: QuestsActions,

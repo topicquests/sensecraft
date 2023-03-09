@@ -16,7 +16,7 @@
               v-if="canRegisterToQuest"
               :to="{
                 name: 'guild_admin',
-                params: { guild_id: String(currentGuildId) }
+                params: { guild_id: String(currentGuildId) },
               }"
               >>>go to admin page</router-link
             >
@@ -89,7 +89,7 @@
                           @click="
                             $router.push({
                               name: 'quest_page',
-                              params: { quest_id: String(quest.id) }
+                              params: { quest_id: String(quest.id) },
                             })
                           "
                         />
@@ -100,7 +100,7 @@
                           "
                           :to="{
                             name: 'guild',
-                            params: { guild_id: guildPerQuest[quest.id] }
+                            params: { guild_id: guildPerQuest[quest.id] },
                           }"
                           >Playing in guild</router-link
                         >
@@ -176,7 +176,7 @@
                       <router-link
                         :to="{
                           name: 'quest_page',
-                          params: { quest_id: props.row.id }
+                          params: { quest_id: props.row.id },
                         }"
                         >Enter</router-link
                       >
@@ -208,23 +208,23 @@ import { userLoaded } from "../boot/userLoaded";
 import {
   ConversationState,
   ConversationGetterTypes,
-  ConversationActionTypes
+  ConversationActionTypes,
 } from "../store/conversation";
 import {
   QuestsState,
   QuestsActionTypes,
-  QuestsGetterTypes
+  QuestsGetterTypes,
 } from "../store/quests";
 import {
   GuildsState,
   GuildsGetterTypes,
-  GuildsActionTypes
+  GuildsActionTypes,
 } from "../store/guilds";
 import { MemberState, MemberGetterTypes } from "../store/member";
 import {
   registration_status_enum,
   quest_status_enum,
-  permission_enum
+  permission_enum,
 } from "../enums";
 import { Quest, GamePlay, Casting, Member, Role, PublicMember } from "../types";
 import Vue from "vue";
@@ -240,7 +240,7 @@ import "../css/app.scss";
 
 @Component<GuildPage>({
   meta: (c) => ({
-    title: `Guild - ${c.getCurrentGuild?.name}`
+    title: `Guild - ${c.getCurrentGuild?.name}`,
   }),
   components: {
     scoreboard: scoreboard,
@@ -249,21 +249,21 @@ import "../css/app.scss";
     nodeForm: nodeForm,
     castingRoleEdit: castingRoleEdit,
     guildMembers: guildMembers,
-    memberGameRegistration: memberGameRegistration
+    memberGameRegistration: memberGameRegistration,
   },
   computed: {
     ...mapState("quests", {
-      currentQuestId: (state: QuestsState) => state.currentQuest
+      currentQuestId: (state: QuestsState) => state.currentQuest,
     }),
     ...mapState("role", {
-      allRoles: (state: RoleState) => state.role
+      allRoles: (state: RoleState) => state.role,
     }),
     ...mapState("member", {
       member: (state: MemberState) => state.member,
-      memberId: (state: MemberState) => state.member?.id
+      memberId: (state: MemberState) => state.member?.id,
     }),
     ...mapState("guilds", {
-      currentGuildId: (state: GuildsState) => state.currentGuild
+      currentGuildId: (state: GuildsState) => state.currentGuild,
     }),
     currentQuestIdS: {
       get: function () {
@@ -271,7 +271,7 @@ import "../css/app.scss";
       },
       set: function (value) {
         this.setCurrentQuest(value);
-      }
+      },
     },
     ...mapGetters("quests", [
       "getQuestById",
@@ -280,23 +280,23 @@ import "../css/app.scss";
       "getCurrentGamePlay",
       "getCastingRoles",
       "getCastingRolesForQuest",
-      "isPlayingQuestInGuild"
+      "isPlayingQuestInGuild",
     ]),
     ...mapGetters("members", [
       "getMemberById",
       "castingRolesPerQuest",
-      "getAvailableRolesMembersById"
+      "getAvailableRolesMembersById",
     ]),
     ...mapGetters("guilds", [
       "isGuildMember",
       "getGuildById",
       "getCurrentGuild",
-      "getMembersOfCurrentGuild"
+      "getMembersOfCurrentGuild",
     ]),
     ...mapGetters("role", ["getRoleById"]),
     ...mapGetters("member", ["getMembersAvailableRoles", "guildPerQuest"]),
     ...mapState("conversation", {
-      rootNode: (state: ConversationState) => state.conversationRoot
+      rootNode: (state: ConversationState) => state.conversationRoot,
     }),
     ...mapGetters("conversation", ["getFocusNode", "getConversationNodeById"]),
     ...mapGetters(["hasPermission"]),
@@ -312,20 +312,20 @@ import "../css/app.scss";
         this.getAvailableRolesMembersById(this.memberId) || [];
       const roles = availableRoles.map((cr) => this.allRoles[cr.role_id]);
       return roles;
-    }
+    },
   },
   watch: {
     currentQuestId: "onCurrentQuestChange",
     $route(to, from) {
       this.ready = false;
       this.initialize();
-    }
+    },
   },
   methods: {
     ...mapActions("conversation", [
       "ensureConversationNeighbourhood",
       "ensureRootNode",
-      "resetConversation"
+      "resetConversation",
     ]),
     ...mapActions("quests", [
       "ensureAllQuests",
@@ -333,7 +333,7 @@ import "../css/app.scss";
       "setCastingRole",
       "addCastingRole",
       "deleteCastingRole",
-      "updateGamePlay"
+      "updateGamePlay",
     ]),
     ...mapActions("members", ["ensureMembersOfGuild", "ensureMemberById"]),
     ...mapActions("guilds", [
@@ -344,7 +344,7 @@ import "../css/app.scss";
       "joinGuild",
       "setCurrentGuild",
       "addGuildMembership",
-      "ensureGuildsPlayingQuest"
+      "ensureGuildsPlayingQuest",
     ]),
     ...mapActions("role", ["ensureAllRoles"]),
     ...mapActions("channel", ["ensureChannels", "resetChannel"]),
@@ -353,8 +353,8 @@ import "../css/app.scss";
         return this.getMembersOfCurrentGuild;
       }
       return [];
-    }
-  }
+    },
+  },
 })
 export default class GuildPage extends Vue {
   // data
@@ -366,7 +366,7 @@ export default class GuildPage extends Vue {
       label: "Quest",
       align: "left",
       field: "name",
-      sortable: true
+      sortable: true,
     },
     {
       name: "status",
@@ -374,7 +374,7 @@ export default class GuildPage extends Vue {
       label: "Handle",
       align: "left",
       field: "status",
-      sortable: true
+      sortable: true,
     },
     {
       name: "handle",
@@ -382,7 +382,7 @@ export default class GuildPage extends Vue {
       label: "Status",
       align: "left",
       field: "handle",
-      sortable: true
+      sortable: true,
     },
     {
       name: "start",
@@ -390,7 +390,7 @@ export default class GuildPage extends Vue {
       label: "Start Date",
       align: "left",
       field: "start",
-      sortable: true
+      sortable: true,
     },
     {
       name: "questNodeId",
@@ -398,8 +398,8 @@ export default class GuildPage extends Vue {
       label: "Action",
       align: "left",
       field: "id",
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
   guildId: number;
   memberPlaysQuestSomewhere?: number;
@@ -570,13 +570,13 @@ export default class GuildPage extends Vue {
   async joinToGuild() {
     await this.addGuildMembership({
       guild_id: this.currentGuildId,
-      member_id: this.memberId
+      member_id: this.memberId,
     });
     this.isMember = true;
     await this.resetChannel();
     this.$q.notify({
       type: "positive",
-      message: "You are joining guild " + this.currentGuildId
+      message: "You are joining guild " + this.currentGuildId,
     });
     return;
   }
@@ -643,7 +643,7 @@ export default class GuildPage extends Vue {
     const guild_id = this.guildId;
     const quest_id: number = this.currentQuestId;
     await this.addCastingRole({
-      data: { member_id: this.memberId, role_id, guild_id, quest_id }
+      data: { member_id: this.memberId, role_id, guild_id, quest_id },
     });
   }
 
@@ -655,9 +655,9 @@ export default class GuildPage extends Vue {
         member_id: this.memberId,
         role_id,
         guild_id,
-        quest_id
+        quest_id,
       },
-      data: {}
+      data: {},
     });
   }
   async initialize() {
@@ -669,7 +669,7 @@ export default class GuildPage extends Vue {
       this.ensureGuild({ guild_id: this.guildId }),
       this.ensureAllRoles(),
       this.ensureChannels(this.guildId),
-      this.ensureMembersOfGuild({ guildId: this.guildId })
+      this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
     await this.initializeStage2();
     this.ready = true;

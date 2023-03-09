@@ -113,13 +113,13 @@ export default {
   props: {},
   meta: {
     // sets document title
-    title: "Administration"
+    title: "Administration",
   },
   data() {
     return {
       ready: false,
       userIsSuperAdmin: false,
-      member_id: null
+      member_id: null,
     };
   },
   computed: {
@@ -137,7 +137,7 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "superadmin", value);
-      }
+      },
     },
     createQuest: {
       get() {
@@ -145,7 +145,7 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "createQuest", value);
-      }
+      },
     },
     createGuild: {
       get() {
@@ -153,14 +153,14 @@ export default {
       },
       set(value) {
         ensure(this.member?.permissions, "createGuild", value);
-      }
-    }
+      },
+    },
   },
   components: {
     member: member,
     scoreboard: scoreboard,
     roleTable: roleTable,
-    serverDataCard: serverDataCard
+    serverDataCard: serverDataCard,
   },
   methods: {
     ...mapActions("members", ["updateMember", "ensureAllMembers"]),
@@ -169,7 +169,7 @@ export default {
     async updatePermissions() {
       const member = this.member;
       await this.updateMember({
-        data: { id: member.id, permissions: member.permissions }
+        data: { id: member.id, permissions: member.permissions },
       });
     },
     async ensureData() {
@@ -178,7 +178,7 @@ export default {
         promises.push(this.ensureServerData());
       }
       await Promise.all(promises);
-    }
+    },
   },
   async beforeMount() {
     await userLoaded;
@@ -186,7 +186,7 @@ export default {
     this.userIsSuperAdmin = this.hasPermission("superadmin");
     await this.ensureData();
     this.ready = true;
-  }
+  },
 };
 </script>
 <style>

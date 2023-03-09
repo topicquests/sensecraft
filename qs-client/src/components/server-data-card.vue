@@ -202,7 +202,7 @@ import Component from "vue-class-component";
 import { mapActions, mapState, mapGetters } from "vuex";
 import {
   ServerDataActionTypes,
-  ServerDataGetterTypes
+  ServerDataGetterTypes,
 } from "../store/serverData";
 
 @Component<ServerDataCard>({
@@ -210,13 +210,13 @@ import {
 
   data() {
     return {
-      isPwdSignIn: true
+      isPwdSignIn: true,
     };
   },
 
   computed: {
     ...mapState("serverData", ["serverData"]),
-    ...mapGetters("serverData", ["getServerData"])
+    ...mapGetters("serverData", ["getServerData"]),
   },
 
   methods: {
@@ -224,9 +224,9 @@ import {
       "updateServerData",
       "resetDefaultSingle",
       "resetDefaultAll",
-      "resetServerData"
-    ])
-  }
+      "resetServerData",
+    ]),
+  },
 })
 export default class ServerDataCard extends Vue {
   serverData!: Partial<ServerData>;
@@ -246,7 +246,7 @@ export default class ServerDataCard extends Vue {
     } catch (err) {
       this.$q.notify({
         type: "negative",
-        message: "Error in updating server data"
+        message: "Error in updating server data",
       });
     }
   }
@@ -258,12 +258,12 @@ export default class ServerDataCard extends Vue {
       await this.resetDefaultAll();
       this.$q.notify({
         type: "positive",
-        message: "Server data reset to default values"
+        message: "Server data reset to default values",
       });
     } catch (err) {
       this.$q.notify({
         type: "negative",
-        message: "Error in resetting server data"
+        message: "Error in resetting server data",
       });
     }
   }

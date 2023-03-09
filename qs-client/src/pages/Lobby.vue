@@ -79,14 +79,14 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
 @Component<LobbyPage>({
   name: "LobbyPage",
   meta: {
-    title: "Dashboard"
+    title: "Dashboard",
   },
   components: {
     scoreboard: scoreboard,
     questTable: questTable,
     member: member,
     GuildsTable: GuildsTable,
-    GuildsMembershipIndicator: GuildsMembershipIndicator
+    GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
   computed: {
     ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
@@ -99,7 +99,7 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
           (guild) =>
             guild.open_for_applications && !this.isGuildMember(guild.id)
         );
-      }
+      },
     },
     getClosedGuilds: {
       get() {
@@ -107,13 +107,13 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
           (guild) =>
             !guild.open_for_applications && !this.isGuildMember(guild.id)
         );
-      }
-    }
+      },
+    },
   },
   methods: {
     ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"])
-  }
+    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
+  },
 })
 export default class LobbyPage extends Vue {
   ready = false;

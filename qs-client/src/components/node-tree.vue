@@ -237,7 +237,11 @@ const NodeTreeProps = Vue.extend({
       "getPrivateScoreMap",
       "getPrivateConversationTree",
     ]),
-    ...mapGetters("guilds", ["getGuildById", "getCurrentGuild", "isGuildMember"]),
+    ...mapGetters("guilds", [
+      "getGuildById",
+      "getCurrentGuild",
+      "isGuildMember",
+    ]),
     ...mapGetters("quests", [
       "getMaxPubStateForNodeType",
       "getCurrentQuest",
@@ -446,7 +450,8 @@ export default class NodeTree extends NodeTreeProps {
 
   canEdit(nodeId: number): boolean {
     const quest = this.getCurrentQuest;
-    if (quest && (!quest.is_playing || quest.status == "finished")) return false;
+    if (quest && (!quest.is_playing || quest.status == "finished"))
+      return false;
     if (this.channelId) {
       return this.canEditChannel(this.channelId, nodeId);
     } else {
@@ -456,9 +461,12 @@ export default class NodeTree extends NodeTreeProps {
   canAddTo(nodeId: number): boolean {
     const quest = this.getCurrentQuest;
     if (quest) {
-      return (quest.is_playing || quest.is_quest_member) && quest.status != "finished";
+      return (
+        (quest.is_playing || quest.is_quest_member) &&
+        quest.status != "finished"
+      );
     } else if (this.channelId) {
-      return !!this.isGuildMember(this.currentGuildId)
+      return !!this.isGuildMember(this.currentGuildId);
     }
     return false;
   }

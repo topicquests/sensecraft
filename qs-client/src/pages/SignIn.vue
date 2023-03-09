@@ -90,7 +90,7 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   meta: {
     // sets document title
-    title: "Sign In"
+    title: "Sign In",
   },
   data() {
     return {
@@ -99,12 +99,12 @@ export default {
       showDialog: true,
       formData: {
         signonEmail: null,
-        password: null
-      }
+        password: null,
+      },
     };
   },
   computed: {
-    ...mapGetters("member", ["getUserId"])
+    ...mapGetters("member", ["getUserId"]),
   },
   methods: {
     ...mapActions("member", ["signin", "ensureLoginUser"]),
@@ -126,13 +126,13 @@ export default {
           this.$q.notify({
             type: "negative",
             message:
-              "You have not been confirmed. Check your email for confirmation link"
+              "You have not been confirmed. Check your email for confirmation link",
           });
         } else {
           this.$q.notify({
             type: "negative",
             message:
-              "Problem signing in verify you have entered correct email and password "
+              "Problem signing in verify you have entered correct email and password ",
           });
         }
       }
@@ -158,8 +158,8 @@ export default {
       setTimeout(() => {
         this.goHome();
       }, 50);
-    }
-  }
+    },
+  },
 };
 </script>
 

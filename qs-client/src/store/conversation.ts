@@ -7,7 +7,11 @@ import {
   filterKeys,
 } from "./base";
 import { AxiosResponse, AxiosInstance } from "axios";
-import { ConversationNode, QTreeNode, conversationNodePatchKeys } from "../types";
+import {
+  ConversationNode,
+  QTreeNode,
+  conversationNodePatchKeys,
+} from "../types";
 import {
   ibis_node_type_enum,
   ibis_node_type_type,

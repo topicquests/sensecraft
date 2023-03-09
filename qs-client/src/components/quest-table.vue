@@ -52,7 +52,7 @@
               <router-link
                 :to="{
                   name: 'quest_edit',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 Admin
@@ -62,7 +62,7 @@
               <router-link
                 :to="{
                   name: 'quest_page',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 View
@@ -72,7 +72,7 @@
               <router-link
                 :to="{
                   name: 'quest_page',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 Play
@@ -88,7 +88,7 @@
               <router-link
                 :to="{
                   name: 'quest_page',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 Register to the game
@@ -99,7 +99,7 @@
               <router-link
                 :to="{
                   name: 'quest_teams',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 Register your guilds
@@ -109,7 +109,7 @@
               <router-link
                 :to="{
                   name: 'quest_page',
-                  params: { quest_id: props.row.id }
+                  params: { quest_id: props.row.id },
                 }"
               >
                 View
@@ -132,7 +132,7 @@ import type { QTable } from "quasar";
 import {
   permission_enum,
   quest_status_type,
-  quest_status_enum
+  quest_status_enum,
 } from "../enums";
 import { GuildMembership, QuestData, Member } from "../types";
 import { BaseGetterTypes } from "../store/baseStore";
@@ -151,18 +151,18 @@ function refInterval(row: QuestData) {
 const QuestTableProps = Vue.extend({
   props: {
     quests: Array as Prop<QuestData[]>,
-    title: String
+    title: String,
   },
   components: {
-    QuestDateTimeInterval
-  }
+    QuestDateTimeInterval,
+  },
 });
 
 @Component<QuestTable>({
   name: "quest_table",
   data() {
     return {
-      questStatus: "All"
+      questStatus: "All",
     };
   },
 
@@ -174,7 +174,7 @@ const QuestTableProps = Vue.extend({
           name: "info",
           required: true,
           label: "description",
-          align: "left"
+          align: "left",
         },
         {
           name: "name",
@@ -182,7 +182,7 @@ const QuestTableProps = Vue.extend({
           label: "title",
           align: "left",
           field: "name",
-          sortable: true
+          sortable: true,
         },
         {
           name: "status",
@@ -190,7 +190,7 @@ const QuestTableProps = Vue.extend({
           label: "status",
           align: "left",
           field: "status",
-          sortable: true
+          sortable: true,
         },
         {
           name: "time",
@@ -198,7 +198,7 @@ const QuestTableProps = Vue.extend({
           label: "Time",
           align: "left",
           field: (row) => refInterval(row),
-          sortable: true
+          sortable: true,
         },
         {
           name: "view",
@@ -206,7 +206,7 @@ const QuestTableProps = Vue.extend({
           label: "Action",
           align: "left",
           field: "actions",
-          sortable: true
+          sortable: true,
         },
         {
           name: "numGuilds",
@@ -214,7 +214,7 @@ const QuestTableProps = Vue.extend({
           label: "#Guilds",
           align: "left",
           field: "confirmed_guild_count",
-          sortable: true
+          sortable: true,
         },
         {
           name: "numPlayers",
@@ -222,7 +222,7 @@ const QuestTableProps = Vue.extend({
           label: "#Players",
           align: "left",
           field: "player_count",
-          sortable: true
+          sortable: true,
         },
         {
           name: "numMoves",
@@ -230,7 +230,7 @@ const QuestTableProps = Vue.extend({
           label: "#Moves",
           align: "left",
           field: "node_count",
-          sortable: true
+          sortable: true,
         },
         {
           name: "lastMove",
@@ -238,9 +238,9 @@ const QuestTableProps = Vue.extend({
           label: "last move",
           align: "left",
           field: "last_node_published_at",
-          sortable: true
+          sortable: true,
         },
-        ...extra
+        ...extra,
       ];
     },
     ...mapGetters("member", ["getUser"]),
@@ -253,8 +253,8 @@ const QuestTableProps = Vue.extend({
         this.questStatus = "All";
         return this.quests;
       }
-    }
-  }
+    },
+  },
 })
 export default class QuestTable extends QuestTableProps {
   columns!: QTableColumns;

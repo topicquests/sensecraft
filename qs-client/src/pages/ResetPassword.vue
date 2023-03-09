@@ -1,8 +1,8 @@
 <template>
   <q-page class="bg-secondary">
-    <q-card border: true class="card fixed-center q-pa-md">
+    <q-card border-true class="card fixed-center q-pa-md">
       <q-form>
-      <h2>Reset Password</h2>
+        <h2>Reset Password</h2>
         <q-input
           class="q-mb-md"
           filled
@@ -13,14 +13,14 @@
           label="New password"
           tabindex="1"
         >
-        <template v-slot:append>
-          <q-icon
+          <template v-slot:append>
+            <q-icon
               :tabindex="-1"
               :name="isPwdReset ? 'visibility_off' : 'visibility'"
               class="cursor-pointer"
               @click="isPwdReset = !isPwdReset"
             />
-        </template>
+          </template>
         </q-input>
         <q-input
           filled
@@ -31,17 +31,17 @@
           label="Confirm Password"
           tabindex="2"
         >
-        <template v-slot:append>
-          <q-icon
-            :tabindex="-1"
-            :name="isPwdConfirmed ? 'visibility_off' : 'visibility'"
-            class="cursor-pointer"
-            @click="isPwdConfirmed = !isPwdConfirmed"
+          <template v-slot:append>
+            <q-icon
+              :tabindex="-1"
+              :name="isPwdConfirmed ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="isPwdConfirmed = !isPwdConfirmed"
             />
-        </template>
+          </template>
         </q-input>
         <div class="row justify-center q-pt-lg q-pb-lg">
-        <q-btn
+          <q-btn
             class="align-center"
             label="Reset Password"
             color="primary"
@@ -57,8 +57,12 @@
 import Component from "vue-class-component";
 import Vue from "vue";
 import { mapActions, mapGetters, mapState } from "vuex";
-import { MemberActionTypes, MemberGetterTypes, MemberState } from "src/store/member";
-import {Member} from "../types"
+import {
+  MemberActionTypes,
+  MemberGetterTypes,
+  MemberState,
+} from "src/store/member";
+import { Member } from "../types";
 import { userLoaded } from "../boot/userLoaded";
 
 @Component<PasswordResset>({
@@ -66,8 +70,8 @@ import { userLoaded } from "../boot/userLoaded";
   data() {
     return {
       isPwdReset: true,
-      isPwdConfirmed: true
-      }
+      isPwdConfirmed: true,
+    };
   },
   computed: {
     ...mapState("member", {
@@ -83,10 +87,10 @@ import { userLoaded } from "../boot/userLoaded";
 export default class PasswordResset extends Vue {
   password: string = null;
   confirm_password: string = null;
-  isPwdReset: true
+  isPwdReset: true;
   token: string = null;
   memberId: number;
-  member: Partial<Member>
+  member: Partial<Member>;
 
   getUserId!: MemberGetterTypes["getUserId"];
 
@@ -100,19 +104,24 @@ export default class PasswordResset extends Vue {
       return;
     }
     if (this.password !== this.confirm_password) {
-      this.$q.notify({ type: "negative", message: "Passwords do not match" })
+      this.$q.notify({ type: "negative", message: "Passwords do not match" });
     } else {
       try {
-        await this.updateUser({data: {
-          id: this.memberId,
-          password: this.password,
-        }});
+        await this.updateUser({
+          data: {
+            id: this.memberId,
+            password: this.password,
+          },
+        });
       } catch (e) {
-        this.$q.notify({ type: "negative", message: "Could not reset the password" });
+        this.$q.notify({
+          type: "negative",
+          message: "Could not reset the password",
+        });
         console.error(e);
         return;
       }
-      this.$q.notify({ type: "positive", message: "Password updated" })
+      this.$q.notify({ type: "positive", message: "Password updated" });
       this.$router.push({ name: "lobby" });
     }
   }
@@ -120,21 +129,24 @@ export default class PasswordResset extends Vue {
     try {
       await this.renewToken({ data: { token: this.token } });
       await this.ensureLoginUser();
-    } catch(err) {
-      this.$q.notify({ type: "negative", message: "Issue with verification. Retry verifying"})
-      this.$router.push({name: "confirm_password"})
+    } catch (err) {
+      this.$q.notify({
+        type: "negative",
+        message: "Issue with verification. Retry verifying",
+      });
+      this.$router.push({ name: "confirm_password" });
     }
   }
   async beforeMount() {
     const tokenArg = this.$route.query.token;
     if (tokenArg) {
-      this.token = (Array.isArray(tokenArg)) ? tokenArg[0] : tokenArg;
-      await this.verifyToken()
+      this.token = Array.isArray(tokenArg) ? tokenArg[0] : tokenArg;
+      await this.verifyToken();
     } else {
       await userLoaded;
       if (!this.member) {
-        this.$q.notify({ type: "negative", message: "Ask to reset password"});
-        this.$router.push({name: "confirm_password"});
+        this.$q.notify({ type: "negative", message: "Ask to reset password" });
+        this.$router.push({ name: "confirm_password" });
       }
     }
   }
