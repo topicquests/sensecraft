@@ -12,7 +12,7 @@
             clearable
             filled
             square
-            v-model="formData.signonEmail"
+            v-model="formData.mail"
             :tabindex="1"
             name="email"
             type="email"
@@ -25,12 +25,12 @@
         </div>
         <q-input
           square
-          v-model="formData.password"
+          v-model="formData.pass"
           tabindex="2"
           filled
           :type="isPwdSignIn ? 'password' : 'text'"
           v-on:keyup.enter="doLogin"
-          name="password"
+          name="pass"
           label="Password"
         >
           <template v-slot:append>
@@ -88,16 +88,16 @@ import { MemberActionTypes } from "../store/member";
   computed: { ...mapGetters("member", ["getUserId"]) },
 
   methods: {
-    ...mapActions("member", ["signin", "ensureLoginUser"])
-  }
+    ...mapActions("member", ["signin", "ensureLoginUser"]),
+  },
 })
 export default class SigninCard extends Vue {
   isPwd = true;
   isPwdSignIn = true;
   showDialog = true;
   formData = {
-    signonEmail: null,
-    password: null
+    mail: null,
+    pass: null,
   };
 
   ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
@@ -105,15 +105,8 @@ export default class SigninCard extends Vue {
 
   async doLogin() {
     try {
-      this.formData.signonEmail = this.formData.signonEmail
-        .toString()
-        .toLowerCase();
-      const signInResp = await this.signin({
-        params: {
-          password: this.formData.password,
-          email: this.formData.signonEmail
-        }
-      });
+      this.formData.mail = this.formData.mail.toString().toLowerCase();
+      const signInResp = await this.signin({ data: this.formData });
       if (!signInResp) {
         throw "login failed";
       }
@@ -126,13 +119,13 @@ export default class SigninCard extends Vue {
         this.$q.notify({
           type: "negative",
           message:
-            "You have notbeenconfirmed. Check your email for confirmation link"
+            "You have notbeenconfirmed. Check your email for confirmation link",
         });
       } else {
         this.$q.notify({
           type: "negative",
           message:
-            "Problem signing in verify you have entered correctemail and password "
+            "Problem signing in verify you have entered correctemail and password ",
         });
       }
     }
