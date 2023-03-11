@@ -109,11 +109,13 @@ const MembersActions = {
     const guild = MyVapi.store.getters["guilds/getGuildById"](guildId);
     let membersId: number[] =
       guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) || [];
-    membersId = membersId.filter((id: number) => !context.state.members[id]);
-    if (full)
+    if (full) {
       membersId = membersId.filter(
         (id: number) => !context.state.fullMembers[id]
       );
+    } else {
+      membersId = membersId.filter((id: number) => !context.state.members[id]);
+    }
     if (membersId.length > 0) {
       await context.dispatch("fetchMemberById", {
         full,
