@@ -7,14 +7,7 @@
           Where teams co-construct structured conversation
         </h3>
       </div>
-      <div class="wrapper gradient">
-        <div class="signin-card" v-if="!getUserId">
-          <signinCard></signinCard>
-        </div>
-        <div v-else class="signin-card">
-          <q-card style="width: 20em"> </q-card>
-        </div>
-
+      <div class="wrapper gradient justify-center">
         <div class="earth-image q-ma-md">
           <img
             src="../statics/earthrise2.png"
@@ -45,29 +38,25 @@
 <script lang="ts">
 import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
-import SigninCard from "../components/signin-card.vue";
 
 export default {
   meta: {
-    title: "Home"
+    title: "Home",
   },
   name: "HomePage",
-  components: {
-    signinCard: SigninCard
-  },
 
   computed: {
-    ...mapGetters("member", ["getUserId"])
+    ...mapGetters("member", ["getUserId"]),
   },
   data() {
     return {
       ready: false,
-      payload: 100
+      payload: 100,
     };
   },
   methods: {
     ...mapActions("guilds", ["ensureAllGuilds"]),
-    ...mapActions("quests", ["ensureAllQuests"])
+    ...mapActions("quests", ["ensureAllQuests"]),
   },
 
   async beforeMount() {
@@ -78,7 +67,7 @@ export default {
     //   this.ensureAllGuilds(),
     // ])
     this.ready = true;
-  }
+  },
 };
 </script>
 

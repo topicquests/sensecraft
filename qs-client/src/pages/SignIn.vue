@@ -98,8 +98,8 @@ export default {
       isPwdSignIn: true,
       showDialog: true,
       formData: {
-        signonEmail: null,
-        password: null,
+        mail: null,
+        pass: null,
       },
     };
   },
