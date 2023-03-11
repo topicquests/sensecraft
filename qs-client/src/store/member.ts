@@ -75,9 +75,10 @@ const MemberGetters = {
 };
 
 const MemberActions = {
-  logout: (context) => {
+  logout: async (context) => {
     context.commit("LOGOUT");
     getWSClient().logout();
+    await MyVapi.store.dispatch("reset");
   },
   registerUser: async (context, data) => {
     // const password = await hash(data.password, 10);
