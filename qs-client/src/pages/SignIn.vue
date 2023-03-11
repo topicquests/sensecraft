@@ -17,7 +17,7 @@
                   clearable
                   filled
                   square
-                  v-model="formData.signonEmail"
+                  v-model="formData.mail"
                   :tabindex="1"
                   name="email"
                   type="email"
@@ -30,12 +30,12 @@
               </div>
               <q-input
                 square
-                v-model="formData.password"
+                v-model="formData.pass"
                 tabindex="2"
                 filled
                 :type="isPwdSignIn ? 'password' : 'text'"
                 v-on:keyup.enter="doLogin"
-                name="password"
+                name="pass"
                 label="Password"
               >
                 <template v-slot:append>
@@ -98,8 +98,8 @@ export default {
       isPwdSignIn: true,
       showDialog: true,
       formData: {
-        signonEmail: null,
-        password: null,
+        mail: null,
+        pass: null,
       },
     };
   },
@@ -110,10 +110,8 @@ export default {
     ...mapActions("member", ["signin", "ensureLoginUser"]),
     async doLogin() {
       try {
-        this.formData.signonEmail = this.formData.signonEmail
-          .toString()
-          .toLowerCase();
-        const signInResp = await this.signin(this.formData);
+        this.formData.mail = this.formData.mail.toString().toLowerCase();
+        const signInResp = await this.signin({ data: this.formData });
         if (!signInResp) {
           throw "login failed";
         }

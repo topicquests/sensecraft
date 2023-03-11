@@ -1,59 +1,42 @@
 <template>
-  <q-page class="bg-secondary">
-    <div class="row justify-center text-center">
-      <h1 class="text-h1 q-pt-lg">SenseCraft</h1>
-      <h3 class="text-h3 q-pt-lg q-pb-lg">
-        Where teams co-construct structured conversation
-      </h3>
-    </div>
-    <div class="row justify-center">
-      <img
-        class="q-pt-xl q-pb-lb"
-        src="../statics/earthrise2.png"
-        style="margin-left: auto; margin-right: auto"
-      />
-    </div>
-    <div class="row q-pb-sm q-pt-xl q-md-lg">
-      <div class="text-h5 text-bold q-px-sm q-pt-md">
-        Videos to improve your communication skills
+  <div>
+    <q-page class=".page1">
+      <div class="row justify-center text-center">
+        <h1 class="text-h1 q-pt-lg">SenseCraft</h1>
+        <h3 class="text-h3 q-pt-lg">
+          Where teams co-construct structured conversation
+        </h3>
       </div>
-    </div>
-
-    <div class="row q-pt-xs">
-      <div class="col-12 col-md q-pa-md">
-        <q-card class="my-card">
-          <q-video
-            src="https://www.youtube.com/embed/WPF64UXFER0"
-            style="height: 300px"
+      <div class="wrapper gradient justify-center">
+        <div class="earth-image q-ma-md">
+          <img
+            src="../statics/earthrise2.png"
+            style="margin-left: auto; margin-right: auto"
           />
-        </q-card>
-      </div>
+          <div class="text-h5 text-bold q-pt-md" style="margin-left: 17%">
+            Videos to improve your communication skills
+          </div>
 
-      <div class="col-12 col-md q-pa-md">
-        <q-card class="my-card">
-          <q-video
-            src="https://www.youtube.com/embed/WPF64UXFER0"
-            style="height: 300px"
-          />
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md">
-        <div class="q-pa-md">
-          <q-card class="my-card">
-            <q-video
-              src="https://www.youtube.com/embed/WPF64UXFER0"
-              style="height: 300px"
-            />
-          </q-card>
+          <div class="youtube">
+            <q-card class="my-card">
+              <q-video
+                src="https://www.youtube.com/embed/WPF64UXFER0"
+                style="height: 300px"
+              />
+            </q-card>
+          </div>
         </div>
       </div>
-    </div>
-  </q-page>
+
+      <div class="row justify-end" style="width: 100%">
+        <div class="col-4"></div>
+      </div>
+    </q-page>
+  </div>
 </template>
 
 <script lang="ts">
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { userLoaded } from "../boot/userLoaded";
 
 export default {
@@ -61,6 +44,10 @@ export default {
     title: "Home",
   },
   name: "HomePage",
+
+  computed: {
+    ...mapGetters("member", ["getUserId"]),
+  },
   data() {
     return {
       ready: false,
@@ -87,5 +74,34 @@ export default {
 <style lang="scss" scoped>
 .p1 {
   font: italic 20px Arial, sans-serif;
+}
+.wrapper {
+  display: flex;
+  padding-bottom: 5em;
+}
+.signin-card {
+  align-items: flex-end;
+  padding-left: 2em;
+  padding-top: 2em;
+}
+.earth-image {
+  align-self: flex-start;
+  align-items: center;
+  padding-left: 5em;
+}
+.youtube {
+  width: 50%;
+  height: 50%;
+  margin-left: 20%;
+}
+.gradient {
+  background: rgb(2, 0, 36);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 212, 255, 1) 35%,
+
+    rgba(9, 9, 121, 1) 100%
+  );
+  height: 100%;
 }
 </style>

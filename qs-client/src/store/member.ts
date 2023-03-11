@@ -1,6 +1,5 @@
 import {
   MyVapi,
-  RestParamActionType,
   RestDataActionType,
   RestEmptyActionType,
   RetypeActionTypes,
@@ -132,11 +131,6 @@ export const member = (axios: AxiosInstance) =>
       action: "signin",
       property: "token",
       path: "get_token",
-      beforeRequest: (state: MemberState, actionParams) => {
-        const { data, password, signonEmail } = actionParams;
-        data.pass = password;
-        data.mail = signonEmail;
-      },
       onSuccess: (
         state: MemberState,
         res: AxiosResponse<string>,
@@ -389,7 +383,7 @@ export const member = (axios: AxiosInstance) =>
 
 type MemberRestActionTypes = {
   updateUser: RestDataActionType<Partial<Member>, Member[]>;
-  signin: RestParamActionType<{ email: string; password: string }, string>;
+  signin: RestDataActionType<{ mail: string; pass: string }, string>;
   fetchLoginUser: RestEmptyActionType<Member[]>;
   registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
   renewToken: RestDataActionType<{ token: string }, string>;
