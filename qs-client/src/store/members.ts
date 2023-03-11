@@ -110,6 +110,10 @@ const MembersActions = {
     let membersId: number[] =
       guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) || [];
     membersId = membersId.filter((id: number) => !context.state.members[id]);
+    if (full)
+      membersId = membersId.filter(
+        (id: number) => !context.state.fullMembers[id]
+      );
     if (membersId.length > 0) {
       await context.dispatch("fetchMemberById", {
         full,
