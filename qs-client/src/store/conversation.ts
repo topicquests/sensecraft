@@ -286,7 +286,14 @@ const ConversationGetters = {
       !(
         node.status == publication_state_enum.private_draft ||
         node.status == publication_state_enum.role_draft ||
-        node.status == publication_state_enum.guild_draft
+        node.status == publication_state_enum.guild_draft ||
+        (node.status == publication_state_enum.proposed &&
+          MyVapi.store.getters["hasPermission"](
+            "publishGameMove",
+            node.guild_id,
+            node.quest_id,
+            node.node_type
+          ))
       )
     ) {
       return false;
