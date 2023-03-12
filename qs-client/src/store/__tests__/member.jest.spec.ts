@@ -44,17 +44,18 @@ describe("Member store", () => {
 
   it("gets a token", async () => {
     // using the component, which should make a server response
-    const clientMessage = {
-      signonEmail: mail,
-      password: "password",
-    };
-    const promise = store.dispatch("member/signin", clientMessage);
+    const promise = store.dispatch("member/signin", {
+      data: {
+        mail: mail,
+        pass: "password",
+      },
+    });
 
     expect(mockAxios.request).toHaveBeenCalledWith(
       makeReq({
         url: "/rpc/get_token",
         data: {
-          mail,
+          mail: mail,
           pass: "password",
         },
         method: "post",
