@@ -512,7 +512,7 @@ export default class NodeTree extends NodeTreeProps {
       node_type: this.childIbisTypes[0],
       parent_id: nodeId,
       quest_id: parent.quest_id,
-      guild_id: parent.guild_id,
+      guild_id: this.getCurrentGuild.id,
       meta: parent.meta,
     };
     this.calcPublicationConstraints(this.newNode);
