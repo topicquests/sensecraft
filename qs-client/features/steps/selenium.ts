@@ -8,7 +8,7 @@ import { assert } from "chai";
 import { ensureSelenium } from "../support/integration";
 
 function delay(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
 @binding()
 export class SeleniumSteps {
@@ -18,7 +18,7 @@ export class SeleniumSteps {
     await driver.get("http://localhost:8080/signin");
     await driver.findElement(By.name("signinBtn")).click();
     await driver.findElement(By.name("email")).sendKeys(email);
-    await driver.findElement(By.name("password")).sendKeys(password);
+    await driver.findElement(By.name("pass")).sendKeys(password);
     await driver.findElement(By.name("loginBtn")).click();
     await driver.sleep(1500);
   }
@@ -131,36 +131,41 @@ export class SeleniumSteps {
     const expected = !(negation?.length > 0);
     const driver = await ensureSelenium();
     try {
-      await driver.findElement(By.className('member'));
+      await driver.findElement(By.className("member"));
       assert.isTrue(expected);
     } catch (e) {
-      if (e instanceof NoSuchElementError)
-        assert.isFalse(expected);
-      else
-        throw e;
+      if (e instanceof NoSuchElementError) assert.isFalse(expected);
+      else throw e;
     }
   }
 
   @then(/User (\S+) gets email with token/)
   public async getEmailWithToken(member_email: string) {
     await delay(500);
-    const mailhog_auth = { 'Authorization': 'Basic dGVzdDp0ZXN0' }  // test:test
-    const messageSearch = await axios.get('http://localhost:8025/api/v2/search', {
-      params: {
-        kind: 'to',
-        query: member_email
-      },
-      headers: mailhog_auth
-    });
+    const mailhog_auth = { Authorization: "Basic dGVzdDp0ZXN0" }; // test:test
+    const messageSearch = await axios.get(
+      "http://localhost:8025/api/v2/search",
+      {
+        params: {
+          kind: "to",
+          query: member_email,
+        },
+        headers: mailhog_auth,
+      }
+    );
     assert.notEqual(messageSearch.data.total, 0);
-    const email = messageSearch.data.items[0]
-    const textParts = email.MIME.Parts.filter(x => (((x.Headers || {})['Content-Type'] || [''])[0].indexOf('text/plain') >= 0))
-    assert.equal(textParts.length, 1)
-    let text: string = textParts[0].Body
-    if (textParts[0].Headers['Content-Transfer-Encoding'] == 'quoted-printable')
-      text = decode(text).toString()
-    const token_search = /(http:.*)/.exec(text)
-    assert(token_search)
+    const email = messageSearch.data.items[0];
+    const textParts = email.MIME.Parts.filter(
+      (x) =>
+        ((x.Headers || {})["Content-Type"] || [""])[0].indexOf("text/plain") >=
+        0
+    );
+    assert.equal(textParts.length, 1);
+    let text: string = textParts[0].Body;
+    if (textParts[0].Headers["Content-Transfer-Encoding"] == "quoted-printable")
+      text = decode(text).toString();
+    const token_search = /(http:.*)/.exec(text);
+    assert(token_search);
     const token = token_search[1];
     (this as any).emailTokenLink = token;
   }
@@ -178,5 +183,4 @@ export class SeleniumSteps {
     // wait for the forwarding
     await delay(300);
   }
-
 }

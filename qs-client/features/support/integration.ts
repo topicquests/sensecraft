@@ -78,8 +78,9 @@ async function killSelenium() {
 }
 
 async function killProcess(
-    process: Promise<ChildProcessWithoutNullStreams>,
-    signal: NodeJS.Signals = "SIGTERM") {
+  process: Promise<ChildProcessWithoutNullStreams>,
+  signal: NodeJS.Signals = "SIGTERM"
+) {
   if (process) {
     const processP = await process;
     processP.kill(signal);
@@ -91,7 +92,7 @@ async function resetDatabase() {
   await killProcess(backend, "SIGHUP");
 }
 
-Before({ tags: "@integration", timeout: 45000 }, async function (scenario) {
+Before({ tags: "@integration", timeout: 65000 }, async function (scenario) {
   ensureBackend();
   ensureFrontend();
   ensureSelenium();
@@ -109,6 +110,10 @@ After({ tags: "@integration", timeout: 510000 }, async function (scenario) {
 
 AfterAll({ timeout: 20000 }, async () => {
   console.log("AfterAll start");
-  await Promise.all([killProcess(backend), killProcess(frontend), killSelenium()]);
+  await Promise.all([
+    killProcess(backend),
+    killProcess(frontend),
+    killSelenium(),
+  ]);
   console.log("AfterAll end");
 });

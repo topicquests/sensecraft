@@ -24,6 +24,6 @@ Feature: Register a new user into Sensecraft
     Scenario: Log into sensecraft web site
       Given The logon Page
       When User fills email with "test@email.com"
-      And User fills password with "password"
+      And User fills pass with "password"
       And User clicks loginBtn
       Then The user is logged in
