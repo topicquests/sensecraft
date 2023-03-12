@@ -794,7 +794,7 @@ export default class NodeTree extends NodeTreeProps {
     this.selectedNodeId = this.initialSelectedNodeId;
     if (this.currentGuildId) {
       this.showDraft = true;
-      if (!this.channelId) this.showFocusNeighbourhood = true;
+      if (!this.channelId) this.showFocusNeighbourhood = false;
     }
     await this.ensureData();
     this.scrollToNode(this.selectedNodeId, 100);
