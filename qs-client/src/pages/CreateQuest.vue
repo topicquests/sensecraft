@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-secondary">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card style="width: 70%">
         <div>
           <member></member>
         </div>
@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="column items-center" v-if="newQuest">
-          <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 55%">
+          <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 80%">
             <quest-card
               v-bind:thisQuest="newQuest"
               :create="true"
@@ -115,7 +115,6 @@ export default class CreateQuestPage extends Vue {
   overflow-wrap: normal;
 }
 #h4 {
-  color: blue;
   font-family: Arial, Helvetica, sans-serif;
   text-decoration: underline;
   text-align: center;

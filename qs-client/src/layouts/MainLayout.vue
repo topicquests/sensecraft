@@ -1,6 +1,7 @@
 <template>
   <q-layout view="hHh LpR fFf">
     <q-header elevated>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <q-toolbar>
         <q-btn
           id="leftDrawer"

@@ -2,76 +2,71 @@
   <q-card class="flat bordered q-pa-md bg-black">
     <div class="row">
       <div class="col-12 col-md">
-        <p id="scoreboard-title">Gameboard</p>
+        <p class="text">Gameboard</p>
       </div>
     </div>
-    <div class="row">
-      <div class="col-3 text-center">
+    <div class="row justify-center q-gutter-md">
+      <q-card class="score-card">
         <span class="scoreboard-header">Quests</span>
-      </div>
-      <div class="col-4 text-center">
+        <div class="row">
+          <div class="col-4" style="width: 50%">
+            <div class="labels">Not started:</div>
+            <div class="labels">Playing</div>
+            <div class="labels">Finished</div>
+          </div>
+          <div class="col-4">
+            <div>
+              <span class="labels">{{ questCount(status.registration) }} </span>
+            </div>
+            <div>
+              <span class="labels">{{ questCount(status.ongoing) }} </span>
+            </div>
+            <div>
+              <span class="labels">{{ questCount(status.finished) }} </span>
+            </div>
+          </div>
+        </div>
+      </q-card>
+      <q-card class="score-card">
         <span class="scoreboard-header">Guilds</span>
-      </div>
-      <div class="col-4 text-center">
+        <div class="row">
+          <div class="col-4" style="width: 70%">
+            <div class="labels">Number of Guilds:</div>
+            <div class="labels">Most Quests:</div>
+            <div class="labels">Highest Score:</div>
+          </div>
+          <div class="col-3">
+            <div>
+              <span class="labels">{{ getGuilds.length }}</span>
+            </div>
+            <div>
+              <span class="labels">0</span>
+            </div>
+            <span class="labels">0</span>
+          </div>
+        </div>
+      </q-card>
+      <q-card class="score-card">
         <span class="scoreboard-header">Players</span>
-      </div>
-      <div class="row items-center" style="width: 100%">
-        <div class="col-1.5 q-ml-xl">
-          <div class="labels">Not started:</div>
-          <div class="labels">Playing</div>
-          <div class="labels">Finished</div>
-        </div>
-        <div class="col-2 b1 q-ml-sm">
-          <div>
-            <span class="labels">{{ questCount(status.registration) }} </span>
+        <div class="row">
+          <div class="col-4" style="width: 70%">
+            <div class="labels">Number of players:</div>
+            <div class="labels">Most Quests:</div>
+            <div class="labels">Highest Score:</div>
           </div>
-          <div>
-            <span class="labels">{{ questCount(status.ongoing) }} </span>
-          </div>
-          <div>
-            <span class="labels">{{ questCount(status.finished) }} </span>
-          </div>
-        </div>
-        <div class="col-1.5 q-ml-sm">
-          <div class="labels">
-            <span>Number of Guilds:</span>
-          </div>
-          <div class="labels">
-            <span>Most Quests: </span>
-          </div>
-          <div class="labels">
-            <span>Highest Score: </span>
+          <div class="col-3">
+            <div>
+              <span class="labels">{{ getMembers.length }}</span>
+            </div>
+            <div>
+              <span class="labels">0</span>
+            </div>
+            <div>
+              <span class="labels">0</span>
+            </div>
           </div>
         </div>
-        <div class="col-2 b1 q-ml-sm">
-          <div>
-            <span class="labels">{{ getGuilds.length }}</span>
-          </div>
-          <div>
-            <span class="labels">0</span>
-          </div>
-          <div>
-            <span class="labels">0</span>
-          </div>
-        </div>
-
-        <div class="col-1.5 q-ml-sm">
-          <div class="labels"><span>Number of players: </span></div>
-          <div class="labels"><span>Most Quests: </span></div>
-          <div class="labels"><span>Highest Score: </span></div>
-        </div>
-        <div class="col-1.5 q-ml-sm">
-          <div>
-            <span class="labels">{{ getMembers.length }}</span>
-          </div>
-          <div>
-            <span class="labels">0</span>
-          </div>
-          <div>
-            <span class="labels">0</span>
-          </div>
-        </div>
-      </div>
+      </q-card>
     </div>
   </q-card>
 </template>
@@ -106,6 +101,7 @@ export default class Scoreboard extends Vue {
   getGuilds!: GuildsGetterTypes["getGuilds"];
   getQuestsByStatus!: QuestsGetterTypes["getQuestsByStatus"];
   getMembers!: MembersGetterTypes["getMembers"];
+  status: quest_status_enum;
 
   questCount(st: quest_status_enum) {
     if (this.getQuestsByStatus(st)) {
@@ -137,6 +133,7 @@ export default class Scoreboard extends Vue {
   font-size: 110%;
   text-align: left;
   font-family: Arial, Helvetica, sans-serif;
+  width: 25em;
 }
 .scoreboard-header {
   color: yellow;
@@ -146,7 +143,13 @@ export default class Scoreboard extends Vue {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#scoreboard-title {
+.score-card {
+  background-color: black;
+  width: 100%;
+  max-width: 200px;
+}
+
+p.text {
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 30px;
@@ -156,5 +159,11 @@ export default class Scoreboard extends Vue {
 #scoreboard {
   width: 900px;
   border: 1px solid blue;
+}
+
+@media only screen and (max-width: 600px) {
+  p.text {
+    font-size: 20px;
+  }
 }
 </style>

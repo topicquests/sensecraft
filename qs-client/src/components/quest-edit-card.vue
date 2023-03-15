@@ -115,11 +115,12 @@
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
-        class="field-name"
+        class="field-name q-pt-md"
         v-model="quest.name"
-        label="Quest name"
+        label="Quest title"
         name="name"
         id="name"
+        filled
         style="width: 350px"
       />
     </div>
@@ -129,6 +130,7 @@
         v-model="quest.description"
         name="description"
         id="q-editor"
+        style="background-color: lightgrey"
       ></q-editor>
     </div>
     <div class="row">
@@ -263,11 +265,12 @@
         v-model="quest.handle"
         label="Quest handle"
         style="width: 350px"
+        filled
       />
     </div>
     <div class="row justify-center q-pb-lg">
       <q-btn
-        label="Update"
+        label="Create"
         name="updateQuestBtn"
         @click="doUpdateQuest"
         color="primary"
@@ -291,11 +294,11 @@ import { DateTime } from "luxon";
 const turn_based_bool = [
   {
     label: "Continuous",
-    value: false,
+    value: true,
   },
   {
     label: "Turn-based",
-    value: true,
+    value: false,
   },
 ];
 
@@ -393,5 +396,11 @@ export default class QuestCard extends QuestCardProps {
 #q-editor {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
+  width: 90%;
+}
+
+#quest-card {
+  width: 90%;
+  background-color: ;
 }
 </style>
