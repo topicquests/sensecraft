@@ -210,7 +210,7 @@
                       style="width: 50%"
                       class="q-pl-md q-mb-md"
                       :multiple="true"
-                      v-model="rolesByMember[member.id]"
+                      v-model="availableRolesByMember[member.id]"
                       @add="
                         (details) => {
                           roleAdded(member.id, details.value);
@@ -469,8 +469,7 @@ export default class GuildAdminPage extends Vue {
   selectedNode: ConversationNode = null;
   focusNode: ConversationNode = null;
   guildId: number = null;
-  rolesByMember: { [key: number]: number[] } = {};
-  castingRolesByMember: { [key: number]: number[] } = {};
+  availableRolesByMember: { [key: number]: number[] } = {};
   availableRoles: GuildMemberAvailableRole[] = [];
 
   // declare state bindings for TypeScript
@@ -663,16 +662,6 @@ export default class GuildAdminPage extends Vue {
       data: {},
     });
   }
-  getMembersRole(memberId) {
-    this.castingRolesByMember = Object.fromEntries(
-      this.getGuildMembers.map((m: Member) => [
-        m.id,
-        m.guild_member_available_role?.map(
-          (r: GuildMemberAvailableRole) => r.role_id
-        ),
-      ])
-    );
-  }
   async doSubmit() {
     try {
       await this.updateGuild({ data: this.getCurrentGuild });
@@ -701,20 +690,12 @@ export default class GuildAdminPage extends Vue {
     ]);
     this.member_id = this.memberId;
     await this.setCurrentGuild(this.guildId);
-    this.rolesByMember = Object.fromEntries(
+    this.availableRolesByMember = Object.fromEntries(
       this.getGuildMembers.map((m: Member) => [
         m.id,
-        m.guild_member_available_role?.map(
-          (r: GuildMemberAvailableRole) => r.role_id
-        ),
-      ])
-    );
-    this.castingRolesByMember = Object.fromEntries(
-      this.getGuildMembers.map((m: Member) => [
-        m.id,
-        m.guild_member_available_role?.map(
-          (r: GuildMemberAvailableRole) => r.role_id
-        ),
+        m.guild_member_available_role
+          ?.filter((r: GuildMemberAvailableRole) => r.guild_id == this.guildId)
+          .map((r: GuildMemberAvailableRole) => r.role_id),
       ])
     );
     this.isAdmin = this.hasPermission(
