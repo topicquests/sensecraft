@@ -58,9 +58,14 @@ const MembersGetters = {
   getPlayersRoles: (state: MembersState) => (member_id: number) => {
     return state.members[member_id]?.casting_role;
   },
-  getAvailableRolesMembersById:
-    (state: MembersState) => (member_id: number) => {
-      return state.members[member_id]?.guild_member_available_role;
+  getAvailableRolesByMemberId: (state: MembersState) => (member_id: number) => {
+    return state.members[member_id]?.guild_member_available_role;
+  },
+
+  getAvailableRolesForMemberAndGuild:
+    (state: MembersState) => (member_id: number, guild_id: number) => {
+      const roles = state.members[member_id]?.guild_member_available_role || [];
+      return roles.filter((cr) => cr.guild_id == guild_id);
     },
 
   castingRolesPerQuest:

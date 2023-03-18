@@ -52,14 +52,13 @@ const MemberGameRegistrationProp = Vue.extend({
       member: (state: MemberState) => state.member,
       memberId: (state: MemberState) => state.member?.id,
     }),
-    ...mapGetters("members", ["getAvailableRolesMembersById"]),
+    ...mapGetters("members", ["getAvailableRolesForMemberAndGuild"]),
     availableRoles(): Role[] {
       const memberId = this.memberId;
-      const availableRoles = this.getAvailableRolesMembersById(memberId) || [];
-      const roles = availableRoles
-        .filter((cr: GuildMemberAvailableRole) => cr.guild_id == this.guildId)
-        .map((cr: GuildMemberAvailableRole) => this.getRoleById(cr.role_id));
-      return roles;
+      return this.getAvailableRolesForMemberAndGuild(
+        memberId,
+        this.guildId
+      ).map((cr: GuildMemberAvailableRole) => this.getRoleById(cr.role_id));
     },
   },
   methods: {
@@ -69,7 +68,7 @@ const MemberGameRegistrationProp = Vue.extend({
   },
 })
 export default class MemberGameRegistration extends MemberGameRegistrationProp {
-  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
+  getAvailableRolesForMemberAndGuild!: MembersGetterTypes["getAvailableRolesForMemberAndGuild"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   addCasting!: QuestsActionTypes["addCasting"];
   ensureAllRoles!: RoleActionTypes["ensureAllRoles"];

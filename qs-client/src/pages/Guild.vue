@@ -231,15 +231,7 @@ import {
   quest_status_enum,
   permission_enum,
 } from "../enums";
-import {
-  Quest,
-  GamePlay,
-  Casting,
-  Member,
-  Role,
-  PublicMember,
-  GuildMemberAvailableRole,
-} from "../types";
+import { Quest, GamePlay, Casting, Member, Role, PublicMember } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
@@ -298,7 +290,7 @@ import "../css/app.scss";
     ...mapGetters("members", [
       "getMemberById",
       "castingRolesPerQuest",
-      "getAvailableRolesMembersById",
+      "getAvailableRolesForMemberAndGuild",
     ]),
     ...mapGetters("guilds", [
       "isGuildMember",
@@ -321,12 +313,10 @@ import "../css/app.scss";
       return roles;
     },
     availableRoles(): Role[] {
-      const availableRoles =
-        this.getAvailableRolesMembersById(this.memberId) || [];
-      const roles = availableRoles
-        .filter((cr: GuildMemberAvailableRole) => cr.guild_id == this.guildId)
-        .map((cr) => this.allRoles[cr.role_id]);
-      return roles;
+      return this.getAvailableRolesForMemberAndGuild(
+        this.memberId,
+        this.guildId
+      ).map((cr) => this.allRoles[cr.role_id]);
     },
   },
   watch: {
@@ -457,7 +447,7 @@ export default class GuildPage extends Vue {
   getMembersOfCurrentGuild!: GuildsGetterTypes["getMembersOfCurrentGuild"];
   isPlayingQuestInGuild!: QuestsGetterTypes["isPlayingQuestInGuild"];
   getMemberById!: MembersGetterTypes["getMemberById"];
-  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
+  getAvailableRolesForMemberAndGuild!: MembersGetterTypes["getAvailableRolesForMemberAndGuild"];
   getRoleById!: RoleGetterTypes["getRoleById"];
   getCastingRolesForQuest!: QuestsGetterTypes["getCastingRolesForQuest"];
   getCastingRoles!: QuestsGetterTypes["getCastingRoles"];

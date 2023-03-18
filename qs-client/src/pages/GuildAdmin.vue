@@ -433,7 +433,7 @@ import member from "../components/member.vue";
     ...mapGetters(["hasPermission"]),
     ...mapGetters("members", [
       "castingRolesPerQuest",
-      "getAvailableRolesMembersById",
+      "getAvailableRolesForMemberAndGuild",
     ]),
     ...mapGetters("role", ["getRoles", "getRoleById"]),
   },
@@ -492,7 +492,7 @@ export default class GuildAdminPage extends Vue {
   getRoleById!: RoleGetterTypes["getRoleById"];
   castingRolesPerQuest!: MembersGetterTypes["castingRolesPerQuest"];
   getCastingRolesById!: QuestsGetterTypes["getCastingRolesById"];
-  getAvailableRolesMembersById!: MembersGetterTypes["getAvailableRolesMembersById"];
+  getAvailableRolesForMemberAndGuild!: MembersGetterTypes["getAvailableRolesForMemberAndGuild"];
   getGuildMembershipById!: GuildsGetterTypes["getGuildMembershipById"];
   getUserById!: MemberGetterTypes["getUserById"];
   getMemberById!: MembersGetterTypes["getMemberById"];
@@ -523,11 +523,6 @@ export default class GuildAdminPage extends Vue {
     return rolesName;
   }
 
-  getAvailableRolesById(memberId: number) {
-    const roles = this.getAvailableRolesMembersById(memberId);
-    const roleName = roles.map((cr) => this.getRoleById(cr.role_id));
-    return roleName;
-  }
   async addGuildAdmin(id) {
     if (!this.isGuildAdmin(id)) {
       const guildMembership = this.getGuildMembershipById(id);
