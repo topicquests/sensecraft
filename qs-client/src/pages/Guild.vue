@@ -231,7 +231,15 @@ import {
   quest_status_enum,
   permission_enum,
 } from "../enums";
-import { Quest, GamePlay, Casting, Member, Role, PublicMember } from "../types";
+import {
+  Quest,
+  GamePlay,
+  Casting,
+  Member,
+  Role,
+  PublicMember,
+  GuildMemberAvailableRole,
+} from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { MembersGetterTypes, MembersActionTypes } from "../store/members";
@@ -315,7 +323,9 @@ import "../css/app.scss";
     availableRoles(): Role[] {
       const availableRoles =
         this.getAvailableRolesMembersById(this.memberId) || [];
-      const roles = availableRoles.map((cr) => this.allRoles[cr.role_id]);
+      const roles = availableRoles
+        .filter((cr: GuildMemberAvailableRole) => cr.guild_id == this.guildId)
+        .map((cr) => this.allRoles[cr.role_id]);
       return roles;
     },
   },

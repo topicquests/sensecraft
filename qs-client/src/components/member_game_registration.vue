@@ -32,7 +32,7 @@ import { QuestsActionTypes } from "../store/quests";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { mapActions, mapGetters, mapState } from "vuex";
-import { Role } from "../types";
+import { Role, GuildMemberAvailableRole } from "../types";
 
 // This component is obsolete, but may contain useful code
 
@@ -55,8 +55,10 @@ const MemberGameRegistrationProp = Vue.extend({
     ...mapGetters("members", ["getAvailableRolesMembersById"]),
     availableRoles(): Role[] {
       const memberId = this.memberId;
-      const roleCastings = this.getAvailableRolesMembersById(memberId) || [];
-      const roles = roleCastings.map((cr) => this.getRoleById(cr.role_id));
+      const availableRoles = this.getAvailableRolesMembersById(memberId) || [];
+      const roles = availableRoles
+        .filter((cr: GuildMemberAvailableRole) => cr.guild_id == this.guildId)
+        .map((cr: GuildMemberAvailableRole) => this.getRoleById(cr.role_id));
       return roles;
     },
   },
