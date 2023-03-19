@@ -1,17 +1,15 @@
 <template>
   <q-page class="bg-secondary">
     <div>
-      <q-card class="card fixed-center q-pa-md item text-center">
-        <span class="q-pb-md q-pl-md" v-if="token"
-          >If this screen is being displayed it is due to an issue with email
-          verification. Please click button below to resend email verification.
-          If you have reached this screen after another attempt please contact
-          SenseCraft administrator</span
-        >
+      <q-card class="card fixed-center q-pa-md item">
+        <span class="q-pb-md q-pl-md" v-if="token"> Email verified </span>
 
-        <span class="q-pl-md q-pr-md q-pb-md" v-else
-          >Give your email if you want us to resend your confirmation
-          email</span
+        <span class="q-pl-md q-pr-md q-pb-md text-start" v-else
+          >A confirmation email has been seent to your registered email account.
+          Please click on link in email to confirm registration. You may also
+          need to check in your spam for request. You can request a new
+          confirmation below. Please click button below to resend email
+          verification.</span
         >
 
         <div class="q-mt-md row justify-center">
@@ -21,9 +19,10 @@
             v-model="email"
             type="email"
             name="email"
-            label="Email"
+            label="  Email"
             tabindex="1"
             v-on:keyup.enter="resend"
+            class="reg-email-input"
             style="width: 80%"
           >
           </q-input>
@@ -108,12 +107,10 @@ export default class ConfirmRegistration extends Vue {
   background-color: rgb(211, 256, 238);
 }
 
-input[type="email"] {
-  padding: 10px;
+.reg-email-input {
   background-color: rgb(235, 247, 238);
   border-radius: 5px;
-  font-size: 14px;
-  width: 100%;
+  font-size: 12px;
   box-shadow: 0 0 15px 4px;
 }
 </style>

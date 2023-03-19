@@ -168,7 +168,7 @@ export default {
             "Account created successfully. Please check your email for a confirmation link.",
           color: "positive",
         });
-        this.$router.push({ name: "signin" });
+        this.$router.push({ name: "confirm_registration" });
       } catch (error) {
         if (error.message === "EXISTS") {
           Notify.create({
