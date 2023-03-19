@@ -79,79 +79,18 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { mapActions, mapGetters } from "vuex";
-import { MemberActionTypes } from "../store/member";
 
 @Component<SigninCard>({
   name: "signinCard",
-
-  computed: { ...mapGetters("member", ["getUserId"]) },
-
-  methods: {
-    ...mapActions("member", ["signin", "ensureLoginUser"]),
-  },
 })
 export default class SigninCard extends Vue {
   isPwd = true;
   isPwdSignIn = true;
   showDialog = true;
-  formData = {
-    mail: null,
-    pass: null,
-  };
+  formData = { mail: null, pass: null };
 
-  ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
-  signin!: MemberActionTypes["signin"];
-
-  async doLogin() {
-    try {
-      this.formData.mail = this.formData.mail.toString().toLowerCase();
-      const signInResp = await this.signin({ data: this.formData });
-      if (!signInResp) {
-        throw "login failed";
-      }
-      await this.ensureLoginUser();
-      this.goNext();
-    } catch (AxiosError) {
-      const errorString = AxiosError.response.data.message;
-      console.log("Error with sign in ", errorString);
-      if (errorString == "invalid confirmed / Cannot login untilconfirmed") {
-        this.$q.notify({
-          type: "negative",
-          message:
-            "You have notbeenconfirmed. Check your email for confirmation link",
-        });
-      } else {
-        this.$q.notify({
-          type: "negative",
-          message:
-            "Problem signing in verify you have entered correctemail and password ",
-        });
-      }
-    }
-  }
-  async goNext() {
-    try {
-      this.goLobby();
-    } catch (error) {
-      console.log("Error ingoing to next page", error);
-    }
-  }
-  goHome() {
-    this.$router.push({ name: "home" });
-  }
-  goLanding() {
-    this.$router.push({ name: "landingPage" });
-  }
-
-  goLobby() {
-    this.$router.push({ name: "lobby" });
-  }
-  onHide() {
-    // Workaround needed because of timing issues (sequencing of 'hide'and 'ok' events) ...
-    setTimeout(() => {
-      this.goHome();
-    }, 50);
+  doLogin() {
+    this.$emit("doLogin", this.formData);
   }
 }
 </script>
@@ -161,5 +100,19 @@ export default class SigninCard extends Vue {
   border-radius: 8px;
   width: 350px;
   height: 380px;
+}
+input[type="email"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  box-sizing: border-box;
+  border: none;
+  width: 100%;
+}
+input[type="password"] {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  box-sizing: border-box;
+  border: none;
+  width: 100%;
 }
 </style>

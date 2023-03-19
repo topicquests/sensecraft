@@ -34,13 +34,13 @@
             label="sign in"
             id="signin"
             name="signinBtn"
-            class="q-mr-sm bg-deep-purple-7"
+            class="q-mr-sm bg-deep-purple-7 gt-sm"
           >
           </q-btn>
           <q-btn
             v-show="!isAuthenticated"
             @click="goTo('register')"
-            class="bg-deep-purple-7"
+            class="bg-deep-purple-7 gt-sm"
             name="registerBtn"
             roundeded
             label="Register"
@@ -166,6 +166,29 @@
             <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
               Administration
             </q-btn>
+          </q-item>
+          <q-item>
+            <q-btn
+              v-show="!isAuthenticated"
+              @click="goTo('signin')"
+              roundeded
+              label="sign in"
+              id="signin"
+              name="signinBtn"
+              class="q-mr-sm bg-deep-purple-7 lt-md"
+            >
+            </q-btn>
+          </q-item>
+          <q-item>
+            <q-btn
+              v-show="!isAuthenticated"
+              @click="goTo('register')"
+              class="bg-deep-purple-7 lt-md"
+              name="registerBtn"
+              roundeded
+              label="Register"
+              id="register"
+            ></q-btn>
           </q-item>
         </q-list>
       </q-scroll-area>

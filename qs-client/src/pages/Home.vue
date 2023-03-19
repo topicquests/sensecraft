@@ -1,30 +1,31 @@
 <template>
   <div>
-    <q-page class=".page1">
+    <q-page>
       <div class="row justify-center text-center">
         <h1 class="text-h1 q-pt-lg">SenseCraft</h1>
         <h3 class="text-h3 q-pt-lg">
           Where teams co-construct structured conversation
         </h3>
       </div>
-      <div class="wrapper gradient justify-center">
-        <div class="earth-image q-ma-md">
-          <img
-            src="../statics/earthrise2.png"
-            style="margin-left: auto; margin-right: auto"
-          />
-          <div class="text-h5 text-bold q-pt-md" style="margin-left: 17%">
-            Videos to improve your communication skills
-          </div>
 
-          <div class="youtube">
-            <q-card class="my-card">
+      <div class="container">
+        <q-card style="width: 100%">
+          <div class="row earth-image">
+            <img src="../statics/earthrise2.png" style="width: 100%" />
+          </div>
+        </q-card>
+        <div class="row wrapper gradient justify-center">
+          <q-card class="youtube q-mt-lg gt-sm" style="width: 35%">
+            <div class="row justify-center text-h5 text-bold q-pt-md q-mb-md">
+              Videos to improve your communication skills
+            </div>
+            <div class="row justify-center q-mb-sm">
               <q-video
                 src="https://www.youtube.com/embed/WPF64UXFER0"
-                style="height: 300px"
+                style="width: 75%; height: 350px"
               />
-            </q-card>
-          </div>
+            </div>
+          </q-card>
         </div>
       </div>
 
@@ -85,14 +86,12 @@ export default {
   padding-top: 2em;
 }
 .earth-image {
-  align-self: flex-start;
   align-items: center;
-  padding-left: 5em;
+  width: 100%;
 }
 .youtube {
   width: 50%;
   height: 50%;
-  margin-left: 20%;
 }
 .gradient {
   background: rgb(2, 0, 36);
