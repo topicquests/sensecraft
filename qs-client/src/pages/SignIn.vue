@@ -20,6 +20,9 @@ import { mapGetters, mapActions } from "vuex";
 import { MemberActionTypes } from "../store/member";
 
 @Component<SigninPage>({
+  meta: {
+    title: "Sign in",
+  },
   components: {
     signinCard: signinCard,
   },
