@@ -21,7 +21,7 @@ import { MemberActionTypes } from "../store/member";
 
 @Component<SigninPage>({
   meta: {
-    title: "Sign in",
+    title: "Sign In",
   },
   components: {
     signinCard: signinCard,
