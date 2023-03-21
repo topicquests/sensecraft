@@ -111,94 +111,96 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions } from "vuex";
 import { Notify } from "quasar";
+import Component from "vue-class-component";
+import Vue from "vue";
+import { MemberActionTypes } from "src/store/member";
 
-export default {
-  name: "RegisterPage",
+@Component<RegistrationPage>({
   meta: {
     // sets document title
     title: "Register",
   },
-  data() {
-    return {
-      ready: false,
-      formdata: {
-        email: null,
-        handle: null,
-        name: null,
-        password: null,
-      },
-      isPwd: true,
-      isPwdSignIn: true,
-      showDialog: true,
-      title: "Register",
-    };
-  },
 
   methods: {
     ...mapActions("member", ["registerUser"]),
-    async doRegister() {
-      try {
-        const theEmail = this.formdata.email;
-        const theHandle = this.formdata.handle;
-        const theName = this.formdata.name;
-        if (!theEmail) {
-          this.$q.notify({ type: "negative", message: "Missing Email" });
-          return;
-        }
-        if (!theHandle) {
-          this.$q.notify({ type: "negative", message: "Missing Handle" });
-          return;
-        }
-        if (!theName) {
-          this.$q.notify({ type: "negative", message: "Missing name field" });
-          return;
-        }
-        if (!this.formdata.password) {
-          this.$q.notify({ type: "negative", message: "Missing Password" });
-          return;
-        }
-        // TODO: the domain can be normalized to LC, but case can be significant in the handle
-        this.formdata.email = theEmail.toLowerCase();
-        await this.registerUser(this.formdata);
+  },
+})
+export default class RegistrationPage extends Vue {
+  ready: false;
+  formdata = {
+    email: null,
+    handle: null,
+    name: null,
+    password: null,
+  };
+  isPwd = true;
+  isPwdSignIn = true;
+  showDialog = true;
+  title = "Register";
+
+  registerUser!: MemberActionTypes["registerUser"];
+
+  async doRegister() {
+    try {
+      const theEmail = this.formdata.email;
+      const theHandle = this.formdata.handle;
+      const theName = this.formdata.name;
+      if (!theEmail) {
+        this.$q.notify({ type: "negative", message: "Missing Email" });
+        return;
+      }
+      if (!theHandle) {
+        this.$q.notify({ type: "negative", message: "Missing Handle" });
+        return;
+      }
+      if (!theName) {
+        this.$q.notify({ type: "negative", message: "Missingname field" });
+        return;
+      }
+      if (!this.formdata.password) {
+        this.$q.notify({ type: "negative", message: "Missing Password" });
+        return;
+      }
+      // TODO: the domain can benormalized to LC, but case can be significant in the handle
+      this.formdata.email = theEmail.toLowerCase();
+      await this.registerUser(this.formdata);
+      Notify.create({
+        message:
+          "Account created successfully. Please check your email for a confirmation link.",
+        color: "positive",
+      });
+      this.$router.push({ name: "confirm_registration" });
+    } catch (error) {
+      if (error.message === "EXISTS") {
         Notify.create({
           message:
-            "Account created successfully. Please check your email for a confirmation link.",
-          color: "positive",
+            "This account already exists. Try resetting your password or contact support.",
+          color: "negative",
         });
-        this.$router.push({ name: "confirm_registration" });
-      } catch (error) {
-        if (error.message === "EXISTS") {
-          Notify.create({
-            message:
-              "This account already exists. Try resetting your password or contact support.",
-            color: "negative",
-          });
-        } else {
-          Notify.create({
-            message:
-              "There was an error creating your account. If this issue persists, contact support.",
-            color: "negative",
-          });
-        }
-        console.log("There was an error registering ", error);
+      } else {
+        Notify.create({
+          message:
+            "There was an error creating your account. If this issue persists, contact support.",
+          color: "negative",
+        });
       }
-    },
+      console.log("There was an errorregistering ", error);
+    }
+  }
 
-    goHome() {
-      this.$router.push({ name: "home" });
-    },
-
-    onHide() {
-      // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-      setTimeout(() => {
-        this.goHome();
-      }, 50);
-    },
-  },
-};
+  goHome() {
+    this.$router.push({ name: "home" });
+  }
+  onHide() {
+    // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
+    setTimeout(() => {
+      this.goHome();
+    }, 50);
+  }
+}
 </script>
 
 <style>

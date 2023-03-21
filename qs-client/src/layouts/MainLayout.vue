@@ -49,6 +49,7 @@
         </div>
         <div v-if="isAuthenticated">
           <q-btn
+            class="gt-sm"
             @click="onLogout()"
             outline
             roundeded
@@ -175,7 +176,7 @@
               label="sign in"
               id="signin"
               name="signinBtn"
-              class="q-mr-sm bg-deep-purple-7 lt-md"
+              class="q-mr-sm lt-md"
             >
             </q-btn>
           </q-item>
@@ -183,13 +184,27 @@
             <q-btn
               v-show="!isAuthenticated"
               @click="goTo('register')"
-              class="bg-deep-purple-7 lt-md"
+              class="lt-md"
               name="registerBtn"
               roundeded
               label="Register"
               id="register"
             ></q-btn>
           </q-item>
+          <div v-if="isAuthenticated">
+            <q-item>
+              <q-btn
+                class="lt-md"
+                @click="onLogout()"
+                outline
+                roundeded
+                label="log off"
+                id="logoff"
+                name="logoffBtn"
+              >
+              </q-btn>
+            </q-item>
+          </div>
         </q-list>
       </q-scroll-area>
     </q-drawer>
