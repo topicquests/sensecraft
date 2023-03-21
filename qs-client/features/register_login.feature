@@ -10,7 +10,7 @@ Feature: Register a new user into Sensecraft
       And User fills handle with "test"
       And User fills password with "password"
       And User clicks registerButton
-      Then Page title is "Sign In - SenseCraft"
+      Then Page title is "Confirm - SenseCraft"
       # Can we test for the flashing web message about having been sent email?
       And User test@email.com gets email with token
       Given User has token

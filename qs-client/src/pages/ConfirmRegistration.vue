@@ -49,6 +49,7 @@ import { Notify } from "quasar";
 
 @Component<ConfirmRegistration>({
   name: "confirm_registration",
+  meta: { title: "Confirm" },
 
   methods: {
     ...mapActions("member", [
