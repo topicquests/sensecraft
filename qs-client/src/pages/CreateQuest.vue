@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="row justify-center">
-          <div class="column" v-if="newQuest" style="width: 100%">
+          <div class="column quest-card-1" v-if="newQuest">
             <quest-card
               v-bind:thisQuest="newQuest"
               :create="true"
@@ -111,6 +111,9 @@ export default class CreateQuestPage extends Vue {
 .create-quest-card {
   width: 75%;
 }
+.quest-card-1 {
+  width: 60%;
+}
 .details {
   max-width: 960px;
   min-height: 800px;
@@ -128,10 +131,16 @@ export default class CreateQuestPage extends Vue {
   }
 }
 @media only screen and (max-width: 800px) {
-  .create-quest-card-card {
+  .create-quest-card {
     width: 98%;
   }
 }
+@media only screen and (max-width: 1200px) {
+  .quest-card-1 {
+    width: 98%;
+  }
+}
+
 @media only screen and (max-width: 1000px) {
   .scoreboard {
     width: 98%;
