@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card class="quest-edit-card q-mt-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-12 q-mb-md" style="width: 75%">
+          <div class="col-12 q-mb-md scoreboard">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -16,13 +16,12 @@
               class="quest-link"
               :to="{
                 name: 'quest_page',
-                params: { questId: String(questId) },
+                params: { questId: quest_id },
               }"
               >>>go to quest page</router-link
             >
           </div>
         </div>
-
         <div class="row justify-center">
           <div class="column items-center">
             <div class="col-12">
@@ -253,6 +252,10 @@ export default class QuestEditPage extends Vue {
 </script>
 
 <style>
+.quest-edit-card {
+  width: 60%;
+}
+
 .name-field {
   transition: width 0.36s;
   width: 1500px;
@@ -274,5 +277,15 @@ h4 {
 .quest-link {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12pt;
+}
+@media only screen and (max-width: 1300px) {
+  .quest-edit-card {
+    width: 80%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .quest-edit-card {
+    width: 98%;
+  }
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary">
     <div class="row justify-center">
-      <q-card style="width: 70%">
+      <q-card class="create-quest-card q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-12 q-mb-md" style="width: 75%">
+          <div class="col-12 q-mb-md scoreboard">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -15,8 +15,8 @@
             <h4 id="h4" class="q-pa-xs q-ma-xs">Create New Quest</h4>
           </div>
         </div>
-        <div class="column items-center" v-if="newQuest">
-          <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 80%">
+        <div class="row justify-center">
+          <div class="column" v-if="newQuest" style="width: 100%">
             <quest-card
               v-bind:thisQuest="newQuest"
               :create="true"
@@ -108,6 +108,9 @@ export default class CreateQuestPage extends Vue {
 </script>
 
 <style>
+.create-quest-card {
+  width: 75%;
+}
 .details {
   max-width: 960px;
   min-height: 800px;
@@ -118,5 +121,20 @@ export default class CreateQuestPage extends Vue {
   font-family: Arial, Helvetica, sans-serif;
   text-decoration: underline;
   text-align: center;
+}
+@media only screen and (max-width: 1300px) {
+  .create-quest-card {
+    width: 80%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .create-quest-card-card {
+    width: 98%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  .scoreboard {
+    width: 98%;
+  }
 }
 </style>

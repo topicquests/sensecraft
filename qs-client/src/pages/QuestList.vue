@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card class="q-mt-md quest-card">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-12 q-mb-md" style="width: 75%">
+          <div class="col-12 q-mb-md">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -98,4 +98,18 @@ export default class QuestListPage extends Vue {
 }
 </script>
 
-<style></style>
+<style>
+.quest-card {
+  width: 75%;
+}
+@media only screen and (max-width: 1300px) {
+  .quest-card {
+    width: 80%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .quest-card {
+    width: 98%;
+  }
+}
+</style>
