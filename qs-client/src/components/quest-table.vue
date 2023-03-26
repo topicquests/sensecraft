@@ -31,12 +31,15 @@
           </div>
         </q-td>
       </template>
+      <template v-slot:body-cell-name="props">
+        <q-td :props="props">{{ props.row.name }}</q-td>
+      </template>
+
       <template v-slot:body-cell-time="props">
         <td>
           <quest-date-time-interval v-bind:quest="props.row" />
         </td>
       </template>
-
       <template v-slot:body-cell-lastMove="props">
         <td>
           <span :title="lastMoveFull(props.row)">{{
@@ -44,7 +47,6 @@
           }}</span>
         </td>
       </template>
-
       <template v-slot:body-cell-view="props">
         <td>
           <slot v-bind:quest="props.row">
@@ -172,17 +174,22 @@ const QuestTableProps = Vue.extend({
       return [
         {
           name: "info",
+          align: "left",
           required: true,
           label: "description",
-          align: "left",
+          classes: "gt-md",
+          headerClasses: "gt-md",
         },
         {
           name: "name",
           required: true,
           label: "title",
           align: "left",
-          field: "name",
+          field: (row) => row.name,
+          format: (val) => `${val}`,
           sortable: true,
+          classes: "bg-grey-2 ellipsis",
+          headerClasses: "bg-grey-3",
         },
         {
           name: "status",
@@ -303,9 +310,12 @@ export default class QuestTable extends QuestTableProps {
 q-td {
   font-size: 30%;
 }
+
 .quest-table {
   background-color: ivory;
+  border: 0.5em solid;
 }
+
 .quest-status {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12pt;
@@ -313,9 +323,39 @@ q-td {
   margin-bottom: 1em;
   margin-top: 1em;
 }
+
 .tooltip {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
   padding: 1em;
+}
+
+.quest-table thead tr:first-child th:first-child {
+  /* bg color is important for th; just specify one */
+  background-color: ivory;
+}
+
+.quest-table td:nth-child(1) {
+  max-width: 5px;
+}
+
+.quest-table th:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+.quest-table td:nth-child(2) {
+  background-color: #f5f5dc;
+  max-width: 300px;
+
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+@media only screen and (max-width: 800px) {
+  .quest-table td:nth-child(2) {
+    max-width: 200px;
+  }
 }
 </style>

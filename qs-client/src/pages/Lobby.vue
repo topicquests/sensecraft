@@ -1,12 +1,12 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md q-pa-md">
+      <q-card class="lobby-card q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-12 q-mb-md" style="width: 75%">
+          <div class="col-12 q-mb-md scoreboard">
             <scoreboard></scoreboard>
           </div>
         </div>
@@ -147,5 +147,31 @@ export default class LobbyPage extends Vue {
 p {
   background-color: lightgrey;
   font-size: 15pt;
+}
+
+.lobby-card {
+  width: 60%;
+}
+
+.scoreboard {
+  width: 75%;
+}
+
+@media only screen and (max-width: 1300px) {
+  .lobby-card {
+    width: 80%;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .lobby-card {
+    width: 98%;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .scoreboard {
+    width: 98%;
+  }
 }
 </style>

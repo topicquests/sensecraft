@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card class="q-pa-md q-mb-xl" id="card" bordered style="width: 900px">
+    <q-card class="q-pa-md q-mb-xl" id="card" bordered>
       <div class="q-mb-sm">
         <q-card-section horizontal>
           <q-input

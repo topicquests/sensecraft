@@ -335,6 +335,7 @@ export default class MainLayout extends Vue {
   text-align: center;
   font-size: 15pt;
   color: #333;
+  width: 100%;
 }
 
 .sidenav {
