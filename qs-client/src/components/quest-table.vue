@@ -1,7 +1,7 @@
 <template>
   <q-card>
     <div class="row" v-if="title == 'Quests'">
-      <div class="col-2">
+      <div class="col-4">
         <q-select
           class="quest-status"
           v-model="questStatus"

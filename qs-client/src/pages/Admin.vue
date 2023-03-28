@@ -40,7 +40,7 @@
               name="create-quest"
             />
           </div>
-          <div class="col-2">
+          <div class="col-3">
             <q-checkbox
               v-model="createGuild"
               label="createGuild"

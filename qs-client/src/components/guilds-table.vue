@@ -1,86 +1,88 @@
 <template>
   <div>
-    <q-table
-      class="guilds-table"
-      :title="title"
-      :data="guildData"
-      :columns="columns"
-      style="text-align: left"
-      row-key="id"
-      :selection="selectable ? 'single' : 'none'"
-      :selected.sync="selectedGuild"
-      :selected-rows-label="() => ''"
-      v-on:selection="selectionChanged"
-    >
-      <template v-slot:body-cell-info="props">
-        <q-td :props="props">
-          <div>
-            <q-btn icon="info" dense flat size="sm"
-              ><q-tooltip max-width="25rem"
-                ><div v-html="props.row.description" class="tooltip"></div>
-              </q-tooltip>
-            </q-btn>
-          </div>
-        </q-td>
-      </template>
+    <q-card>
+      <q-table
+        class="guilds-table"
+        :title="title"
+        :data="guildData"
+        :columns="columns"
+        style="text-align: left"
+        row-key="id"
+        :selection="selectable ? 'single' : 'none'"
+        :selected.sync="selectedGuild"
+        :selected-rows-label="() => ''"
+        v-on:selection="selectionChanged"
+      >
+        <template v-slot:body-cell-info="props">
+          <q-td :props="props">
+            <div>
+              <q-btn icon="info" dense flat size="sm"
+                ><q-tooltip max-width="25rem"
+                  ><div v-html="props.row.description" class="tooltip"></div>
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </q-td>
+        </template>
 
-      <template v-slot:body-cell-actions="props">
-        <td>
-          <slot v-bind:guild="props.row">
-            <router-link
-              :to="{
-                name: 'guild',
-                params: { guild_id: props.row.id },
-              }"
-            >
-              <span v-if="false">
-                <!-- my guild is playing at least a game with me -->
-                Playing
-                <!-- link to guild is already there. -->
-              </span>
-              <span v-else-if="0">
-                <!-- my guild registering for a game -->
-                Recruiting
-                <!-- link to guild is already there. -->
-              </span>
-              <span v-else-if="''">
-                <!-- a guild registering for a game, I'm not in any guild -->
-                Joinable
-                <!-- link to guild is already there. -->
-              </span>
-              <span v-else>View</span>
-            </router-link>
-            <router-link
-              v-if="hasPermission('guildAdmin', props.row.id)"
-              :to="{
-                name: 'guild_admin',
-                params: { guild_id: props.row.id },
-              }"
-            >
-              / Admin
-            </router-link>
-          </slot>
-        </td>
-      </template>
-      <template v-slot:body-cell-status="props">
-        <td>
-          <guilds-playing-indicator
-            v-if="showPlayers"
-            v-bind:quest="getCurrentQuest"
-            v-bind:playing="isPlayingQuestAsGuildId() == props.row.id"
-            v-bind:guild="props.row"
-          />
-          <guilds-membership-indicator v-else v-bind:guild="props.row" />
-        </td>
-      </template>
-      <template v-slot:body-cell-lastMove="props">
-        <td>
-          <span :title="lastMoveFull(props.row)">{{
-            lastMoveRel(props.row)
-          }}</span>
-        </td>
-      </template>
-    </q-table>
+        <template v-slot:body-cell-actions="props">
+          <td>
+            <slot v-bind:guild="props.row">
+              <router-link
+                :to="{
+                  name: 'guild',
+                  params: { guild_id: props.row.id },
+                }"
+              >
+                <span v-if="false">
+                  <!-- my guild is playing at least a game with me -->
+                  Playing
+                  <!-- link to guild is already there. -->
+                </span>
+                <span v-else-if="0">
+                  <!-- my guild registering for a game -->
+                  Recruiting
+                  <!-- link to guild is already there. -->
+                </span>
+                <span v-else-if="''">
+                  <!-- a guild registering for a game, I'm not in any guild -->
+                  Joinable
+                  <!-- link to guild is already there. -->
+                </span>
+                <span v-else>View</span>
+              </router-link>
+              <router-link
+                v-if="hasPermission('guildAdmin', props.row.id)"
+                :to="{
+                  name: 'guild_admin',
+                  params: { guild_id: props.row.id },
+                }"
+              >
+                / Admin
+              </router-link>
+            </slot>
+          </td>
+        </template>
+        <template v-slot:body-cell-status="props">
+          <td>
+            <guilds-playing-indicator
+              v-if="showPlayers"
+              v-bind:quest="getCurrentQuest"
+              v-bind:playing="isPlayingQuestAsGuildId() == props.row.id"
+              v-bind:guild="props.row"
+            />
+            <guilds-membership-indicator v-else v-bind:guild="props.row" />
+          </td>
+        </template>
+        <template v-slot:body-cell-lastMove="props">
+          <td>
+            <span :title="lastMoveFull(props.row)">{{
+              lastMoveRel(props.row)
+            }}</span>
+          </td>
+        </template>
+      </q-table>
+    </q-card>
   </div>
 </template>
 

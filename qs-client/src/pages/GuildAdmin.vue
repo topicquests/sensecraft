@@ -25,7 +25,7 @@
         <q-tooltip>Click on guild name to goto guild</q-tooltip>
 
         <div class="row justify-start q-pb-sm">
-          <div class="col-2"></div>
+          <div class="col-3"></div>
           <div class="col-8">
             <q-card>
               <q-editor
@@ -42,7 +42,7 @@
             </q-card>
           </div>
         </div>
-        <div class="col-2"></div>
+        <div class="col-3"></div>
         <section class="quest-section">
           <div
             class="column items-center q-mt-md"
