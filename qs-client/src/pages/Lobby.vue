@@ -11,7 +11,7 @@
           </div>
         </div>
         <div class="column items-center">
-          <div v-if="getActiveQuests.length" class="col-6" style="width: 100%">
+          <div v-if="getActiveQuests.length" style="width: 100%">
             <quest-table
               v-bind:quests="getActiveQuests"
               title="Active Quests"

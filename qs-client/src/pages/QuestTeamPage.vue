@@ -1,30 +1,36 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%">
+      <q-card class="quest-team">
         <div>
           <member></member>
         </div>
-        <div class="column items-center">
-          <div class="col-4 q-pa-lg" style="width: 100%">
-            <scoreboard></scoreboard>
-          </div>
-        </div>
-
-        <div class="row justify-center q-pb-md">
-          <div class="col-6">
-            <questCard v-bind:currentQuest="getCurrentQuest"> </questCard>
+        <div class="row justify-center">
+          <div class="column scoreboard">
+            <div class="col-12 q-mb-md">
+              <scoreboard></scoreboard>
+            </div>
           </div>
         </div>
         <div class="row justify-center">
-          <div v-if="getGuildsPlayingCurrentQuest.length">
+          <div class="column quest-card-col">
+            <div class="col-12 q-mb-md">
+              <questCard v-bind:currentQuest="getCurrentQuest"> </questCard>
+            </div>
+          </div>
+        </div>
+
+        <div class="column items-center">
+          <div
+            class="q-ma-sm guilds-table-col"
+            v-if="getGuildsPlayingCurrentQuest.length"
+          >
             <guilds-table
               v-bind:guilds="getGuildsPlayingCurrentQuest"
               v-bind:scores="getGuildScoreMap"
               v-bind:showPlayers="true"
               v-bind:selectable="true"
               v-bind:quest="getCurrentQuest"
-              style="width: 100%"
             >
               <template v-slot:default="slotProps">
                 <router-link
@@ -65,15 +71,17 @@
             <h3>There are no guilds playing quest</h3>
           </div>
         </div>
+
         <div class="row justify-center" v-if="getCurrentGuild">
-          <guild-members
-            v-bind:guild="getCurrentGuild"
-            v-bind:quest="getCurrentQuest"
-            v-bind:members="getPlayersOfCurrentQuestGuild"
-            v-bind:playersOnly="true"
-            style="width: 70%"
-            class="q-mt-md q-mb-md"
-          />
+          <div class="column guild-member-col">
+            <guild-members
+              v-bind:guild="getCurrentGuild"
+              v-bind:quest="getCurrentQuest"
+              v-bind:members="getPlayersOfCurrentQuestGuild"
+              v-bind:playersOnly="true"
+              class="q-mt-md q-mb-md"
+            />
+          </div>
         </div>
       </q-card>
     </div>
@@ -188,4 +196,53 @@ export default class QuestTeamPage extends Vue {
   }
 }
 </script>
-<style></style>
+<style>
+.guild-member-col {
+  width: 70%;
+}
+.guilds-table-col {
+  width: 70%;
+}
+
+.quest-team {
+  width: 70%;
+}
+.quest-card-col {
+  width: 70%;
+}
+
+.scoreboard {
+  width: 70%;
+}
+
+@media only screen and (max-width: 1300px) {
+  .quest-team {
+    width: 70%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .quest-team {
+    width: 95%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  .scoreboard {
+    width: 95%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  .quest-card-col {
+    width: 95%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .guild-member-col {
+    width: 95%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .guilds-table-col {
+    width: 96%;
+  }
+}
+</style>
