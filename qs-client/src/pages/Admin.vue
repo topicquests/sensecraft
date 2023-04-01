@@ -79,7 +79,7 @@
             </div>
           </div>
         </div>
-        <div v-if="superadmin">
+        <div v-if="userIsSuperAdmin">
           <div class="row">
             <div class="col-12">
               <h2 style="text-align: center">Server Data</h2>
@@ -181,6 +181,10 @@ export default class AdminPage extends Vue {
   userIsSuperAdmin = false;
   member_id: number = null;
   member: Partial<Member>;
+  superAdmin!: string;
+  createQuest!: string;
+  createGuild!: string;
+  superadmin!: boolean;
 
   hasPermission!: BaseGetterTypes["hasPermission"];
   getMemberById!: MembersGetterTypes["getMemberById"];
