@@ -10,8 +10,8 @@
             <scoreboard></scoreboard>
           </div>
         </div>
-        <div class="row q-mt-xl q-gutter-sm">
-          <div class="col-3 q-mr-sm">
+        <div class="row q-mt-xl q-gutter-xl q-ml-md" id="permissions">
+          <div class="col-md-auto col-sm-6">
             <q-select
               v-model="member_id"
               :options="getMembers"
@@ -24,7 +24,7 @@
             >
             </q-select>
           </div>
-          <div class="col-3">
+          <div class="col-md-auto col-sm-6">
             <q-checkbox
               v-model="superAdmin"
               label="superAdmin"
@@ -32,7 +32,7 @@
               name="superadmin"
             />
           </div>
-          <div class="col-3">
+          <div class="col-md-auto col-sm-6">
             <q-checkbox
               v-model="createQuest"
               label="createQuest"
@@ -40,7 +40,7 @@
               name="create-quest"
             />
           </div>
-          <div class="col-3">
+          <div class="col-md-auto col-sm-6">
             <q-checkbox
               v-model="createGuild"
               label="createGuild"
@@ -79,11 +79,10 @@
             </div>
           </div>
         </div>
-        <div v-if="superAdmin">
+        <div v-if="superadmin">
           <div class="row">
             <div class="col-12">
               <h2 style="text-align: center">Server Data</h2>
-
               <server-data-card></server-data-card>
             </div>
           </div>
@@ -238,7 +237,6 @@ export default class AdminPage extends Vue {
   width: 10%;
 }
 #permissions {
-  width: 900px;
   border: 1px solid blue;
   background-color: lightyellow;
 }

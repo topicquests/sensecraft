@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-card class="q-pl-md">
-      <div v-if="guild" class="row justify-start q-pb-lg">
+      <div v-if="guild" class="row justify-center q-pb-lg">
         <q-input v-model="guild.name" />
       </div>
       <span class="q-ml-xl" style="font-weight: bold">Type of Guild</span>

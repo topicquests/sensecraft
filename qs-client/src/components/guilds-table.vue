@@ -142,7 +142,14 @@ const GuildsTableProp = Vue.extend({
         });
       }
       return [
-        { name: "info", required: true, label: "description", align: "left" },
+        {
+          name: "info",
+          required: true,
+          label: "description",
+          align: "left",
+          classes: "gt-md",
+          headerClasses: "gt-md",
+        },
 
         {
           name: "name",
@@ -311,5 +318,25 @@ export default class GuildTable extends GuildsTableProp {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
   padding: 1em;
+}
+.guilds-table thead tr:first-child th:first-child {
+  /* bg color is important for
+th; just specify one */
+  background-color: ivory;
+}
+.guilds-table td:nth-child(1) {
+  max-width: 5px;
+}
+.guilds-table td:nth-child(2) {
+  max-width: 300px;
+}
+@media only screen and (max-width: 1000px) {
+  .guilds-table td:nth-child(2) {
+    max-width: 200px;
+    background-color: #f5f5dc;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
 }
 </style>

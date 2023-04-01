@@ -1,13 +1,13 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md">
+      <q-card class="guild-admin-card q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
           <div class="col-12" style="width: 75%">
-            <scoreboard></scoreboard>
+            <scoreboard class="scoreboard"></scoreboard>
           </div>
         </div>
 
@@ -24,13 +24,12 @@
         </div>
         <q-tooltip>Click on guild name to goto guild</q-tooltip>
 
-        <div class="row justify-start q-pb-sm">
-          <div class="col-3"></div>
-          <div class="col-8">
+        <div class="row justify-center">
+          <div class="column guild-description-col">
             <q-card>
               <q-editor
                 v-model="getCurrentGuild.description"
-                id="guild-editor-description"
+                class="guild-editor-description"
               >
               </q-editor>
 
@@ -88,7 +87,8 @@
           <div v-else>
             <div class="row justify-center">
               <div class="column">
-                <h4>No quest you can join</h4>
+                <h4 class="gt-md">No quest you can join</h4>
+                <h2 class="lt-md">No quest you can join</h2>
               </div>
             </div>
           </div>
@@ -104,9 +104,12 @@
                 <div
                   v-for="quest in activeQuests"
                   :key="quest.id"
-                  class="row justify-center"
+                  class="row justify-start"
                 >
-                  <h2>{{ quest.name }}</h2>
+                  <h2 class="gt-md">{{ quest.name }}</h2>
+                  <br />
+                  <h6 class="lt-md">{{ quest.name }}</h6>
+
                   <q-tooltip max-width="25rem">{{
                     quest.description
                   }}</q-tooltip>
@@ -130,7 +133,7 @@
             >
             </q-btn>
           </div>
-          <div class="row justify-left">
+          <div class="row justify-start">
             <q-card class="guildAdmin-card">
               <div class="row justify-center">
                 <div>
@@ -179,8 +182,9 @@
                 </div>
               </div>
             </q-card>
+
             <guild-card
-              class="guild-card"
+              class="guilds-card"
               v-bind:currentGuild="{ ...getCurrentGuild }"
               :showDescription="false"
             ></guild-card>
@@ -712,6 +716,10 @@ export default class GuildAdminPage extends Vue {
 }
 </script>
 <style>
+.guild-admin-card {
+  width: 60%;
+}
+
 .quest-section {
   background-color: gainsboro;
   padding-bottom: 5em;
@@ -741,15 +749,16 @@ export default class GuildAdminPage extends Vue {
 }
 .guildAdmin-card {
   background-color: white;
-  width: 40%;
-  margin-left: 10%;
+  width: 50%;
+
+  margin-left: 1em;
 }
 .guildAdmin-card-header {
   font-family: Arial, Helvetica, sans-serif;
 }
-.guild-card {
+.guilds-card {
   margin-bottom: 2em;
-  margin-left: 2em;
+  margin-left: 1em;
   width: 40%;
 }
 .available-roles-card-header {
@@ -764,6 +773,7 @@ export default class GuildAdminPage extends Vue {
 .roles-card {
   background-color: white;
   width: 80%;
+  margin-bottom: 1em;
 }
 .roles-card-header {
   font-family: Arial, Helvetica, sans-serif;
@@ -771,7 +781,7 @@ export default class GuildAdminPage extends Vue {
 #members-handle {
   font-size: 13pt;
 }
-#guild-editor-description {
+.guild-editor-description {
   font-family: Arial, Helvetica, sans-serif;
   margin-top: 0.5em;
   border: 1px solid black;
@@ -783,5 +793,60 @@ export default class GuildAdminPage extends Vue {
   margin-top: 0.5em;
   margin-left: 1em;
   font-family: Arial, Helvetica, sans-serif;
+}
+.guild-description-col {
+  width: 60%;
+  margin-bottom: 1em;
+}
+
+@media only screen and (max-width: 1300px) {
+  .guild-admin-card {
+    width: 70%;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .guild-admin-card {
+    width: 98%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  .guild-editor-description {
+    width: 98%;
+  }
+  @media only screen and (max-width: 800px) {
+    .guild-description-col {
+      width: 98%;
+    }
+  }
+
+  @media only screen and (max-width: 1000px) {
+    .scoreboard {
+      width: 98%;
+    }
+  }
+  @media only screen and (max-width: 1000px) {
+    .guildAdmin-card {
+      width: 98%;
+      margin-right: 1em;
+    }
+  }
+  @media only screen and (max-width: 1000px) {
+    .guilds-card {
+      margin-bottom: 2em;
+      width: 98%;
+      margin-top: 1em;
+      margin-right: 1em;
+    }
+  }
+  @media only screen and (max-width: 1000px) {
+    .roles-card {
+      width: 95%;
+    }
+  }
+  @media only screen and (max-width: 1000px) {
+    .available-roles-card {
+      width: 95%;
+    }
+  }
 }
 </style>
