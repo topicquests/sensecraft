@@ -188,8 +188,7 @@ const QuestTableProps = Vue.extend({
           field: (row) => row.name,
           format: (val) => `${val}`,
           sortable: true,
-          classes: "bg-grey-2 ellipsis",
-          headerClasses: "bg-grey-3",
+          classes: "ellipsis",
         },
         {
           name: "status",
@@ -339,23 +338,17 @@ q-td {
   max-width: 5px;
 }
 
-.quest-table th:nth-child(2) {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-}
 .quest-table td:nth-child(2) {
-  background-color: #f5f5dc;
   max-width: 300px;
-
-  position: sticky;
-  left: 0;
-  z-index: 1;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 1000px) {
   .quest-table td:nth-child(2) {
     max-width: 200px;
+    background-color: #f5f5dc;
+    position: sticky;
+    left: 0;
+    z-index: 1;
   }
 }
 </style>

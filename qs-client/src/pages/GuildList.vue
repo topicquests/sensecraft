@@ -1,17 +1,18 @@
 <template>
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
-      <q-card style="width: 60%" class="q-mt-md q-pa-md">
+      <q-card class="guildlist-card q-mt-md q-pa-md">
         <div>
           <member></member>
         </div>
         <div class="column items-center">
-          <div class="col-12 q-mb-md" style="width: 75%">
+          <div class="col-12 q-mb-md scoreboard">
             <scoreboard></scoreboard>
           </div>
         </div>
+
         <div class="column items-center">
-          <div class="col-4" style="width: 100%">
+          <div class="col-6" style="width: 100%">
             <div v-if="getGuilds.length">
               <guilds-table v-bind:guilds="getGuilds" v-bind:title="'Guilds'" />
             </div>
@@ -102,3 +103,23 @@ export default class GuildListPage extends Vue {
   }
 }
 </script>
+<style>
+.guildlist-card {
+  width: 60%;
+}
+
+.scoreboard {
+  width: 75%;
+}
+
+@media only screen and (max-width: 800px) {
+  .guildlist-card {
+    width: 95%;
+  }
+}
+@media only screen and (max-width: 1000px) {
+  .scoreboard {
+    width: 98%;
+  }
+}
+</style>
