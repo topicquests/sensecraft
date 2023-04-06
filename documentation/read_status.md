@@ -34,7 +34,7 @@ last_read is just storage between sessions, the DB won't infer anything from it.
 
 ## Frontend:
 
-There is some way in JS to know how long something has been displayed. (Research)
+We want to know when the elements are actually displayed, using the [Intersection observer api](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 The FE could send node_display_time when the page unloads instead of regularly?
 
 ## UX:
