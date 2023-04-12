@@ -9,26 +9,32 @@ last_read -> datetime
 seconds_shown -> interval
 force_unread -> boolean default
 
-probably a view on nodes that includes the join with this
-function: node N was shown for K seconds (more?) (through websocket?) (only call for unread node.)
-OR: nodes N1, N2, ... N_k were shown in the last second. (do all increments)
+probably a view on nodes that includes the join with this. Or a separate table function?
 
+functions:
 
-When creating/updating a node, set the last_read to now (same time as create/modify date.)
+node_shown_time(node_id integer, seconds float) returns float
+Indicate that the (unread) node was on display for N seconds more. Returns the current total for threshold calculations.
+
+node_set_read_status(node_id integer, status boolean)
+Set the node to fully read or to sticky unread
+
+I thought of a bulk node time update, but it's actually more trouble to find which nodes have the same read time (scrolling introduces variation)
+
+Maybe introduce a websocket shortcut for those function calls? Or just use postgrest?
+
+Is it worth sending the changes of status to the websocket? Most of the time the change of status will be known to the frontend, and private. Only need is if the user has two screens showing the same nodes.
+
+When creating/updating a node, set the last_read to same time as node create/modify date.
+
 A node is unread if last_read is smaller than the nodes's modification date
-When seconds_shown is greater than threshold (depends on text length), set last_read to now.
+When seconds_shown is greater than threshold (depends on text length), set last_read to now. This should be computed on frontend.
 
 
 ## Store
 
 Question: Do we get read_status as a join in Postgrest, or create a custom view?
 
-What matters are the operations:
-node_read(node, sticky: boolean)
-node_unread(node)
-node_display_time(node, time_delta)
-
-Those could be called from postgrest or the websocket.
 The threshold calculation, depending on text length, should be on FE.
 last_read is just storage between sessions, the DB won't infer anything from it.
 
