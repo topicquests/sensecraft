@@ -19,7 +19,7 @@ jobs:
       - name: use postgres
         uses: Daniel-Marynicz/postgresql-action@master
         with:
-          postgres_image_tag: 14.5-alpine-jwt
+          postgres_image_tag: 15.2-alpine-jwt
           postgres_image_name: conversence/postgres
       - name: Install client components
         run: |
@@ -59,6 +59,6 @@ jobs:
         run: npm run test:integration
       - name: cleanup postgres container
         run: |
-          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:14.5-alpine-jwt`
+          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:15.2-alpine-jwt`
           docker container stop $PGCONT
           docker container rm $PGCONT
