@@ -1,5 +1,5 @@
 BEGIN;
 
-DROP TABLE IF EXISTS public.read_status;
+DROP TABLE IF EXISTS public.read_status CASCADE;
 
 COMMIT;
