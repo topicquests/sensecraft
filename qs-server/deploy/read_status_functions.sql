@@ -4,6 +4,15 @@
 
 BEGIN;
 
+\set dbo :dbn '__owner';
+\set dbm :dbn '__member';
+\set dbc :dbn '__client';
+
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.read_status TO :dbm;
+GRANT SELECT ON TABLE public.read_status TO :dbc;
+
+
 CREATE OR REPLACE FUNCTION public.unread_status_list(rootid integer)
 RETURNS TABLE (
     node_id integer,
@@ -37,5 +46,39 @@ CREATE OR REPLACE FUNCTION public.node_set_read_status(node_id integer, new_stat
         seconds_shown = NULL
     RETURNING status;
 $$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION public.reset_read_status() RETURNS TRIGGER AS $$
+DECLARE curuser varchar;
+DECLARE curuser_id integer;
+BEGIN
+    IF OLD.title != NEW.title OR OLD.description != NEW.description THEN
+        curuser := current_user;
+        curuser_id := COALESCE(current_member_id(), -1);
+        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+        UPDATE read_status
+            SET status = NULL
+            WHERE node_id = NEW.id
+            AND member_id != curuser_id
+            AND status = true;
+        EXECUTE 'SET LOCAL ROLE ' || curuser;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS after_update_node_clear_read_status ON public.conversation_node;
+CREATE TRIGGER after_update_node_clear_read_status AFTER UPDATE ON public.conversation_node FOR EACH ROW EXECUTE FUNCTION public.reset_read_status();
+
+
+ALTER TABLE public.read_status ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS read_status_update_policy ON public.read_status;
+CREATE POLICY read_status_update_policy ON public.read_status FOR UPDATE USING (public.is_superadmin() OR member_id = public.current_member_id());
+DROP POLICY IF EXISTS read_status_insert_policy ON public.read_status;
+CREATE POLICY read_status_insert_policy ON public.read_status FOR INSERT WITH CHECK (member_id = public.current_member_id());
+DROP POLICY IF EXISTS read_status_select_policy ON public.read_status;
+CREATE POLICY read_status_select_policy ON public.read_status FOR SELECT USING (public.is_superadmin() OR member_id = public.current_member_id());
+DROP POLICY IF EXISTS read_status_delete_policy ON public.read_status;
+CREATE POLICY read_status_delete_policy ON public.read_status FOR DELETE USING (public.is_superadmin() OR member_id = public.current_member_id());
 
 COMMIT;
