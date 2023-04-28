@@ -181,6 +181,7 @@ import {
 import { userLoaded } from "../boot/userLoaded";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
+import { ReadStatusActionTypes } from "../store/readStatus";
 import { MemberState, MemberGetterTypes } from "../store/member";
 import { RoleState } from "../store/role";
 import { Casting, ConversationNode, Member, Guild } from "../types";
@@ -229,6 +230,7 @@ import memberGameRegistration from "../components/member_game_registration.vue";
       "ensureGuild",
       "ensureGuildsPlayingQuest",
     ]),
+    ...mapActions("readStatus", ["ensureAllQuestsReadStatus"]),
   },
   watch: {
     $route(to, from) {
@@ -281,6 +283,7 @@ export default class QuestPlayPage extends Vue {
   ensureGuildsPlayingQuest: GuildsActionTypes["ensureGuildsPlayingQuest"];
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   getQuestCreator() {
     return this.getMemberById(this.getCurrentQuest.creator);
@@ -335,6 +338,7 @@ export default class QuestPlayPage extends Vue {
     const promises: Promise<any>[] = [
       this.ensureQuest({ quest_id: this.questId }),
       this.ensureGuildsPlayingQuest({ quest_id: this.questId }),
+      this.ensureAllQuestsReadStatus(),
     ];
     await Promise.all(promises);
     // after so we have game_play ready

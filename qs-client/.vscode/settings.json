@@ -1,4 +1,5 @@
 {
+  "editor.formatOnSave": true,
   "vetur.validation.template": false,
   "vetur.format.enable": false,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
@@ -7,5 +8,12 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  },
+  "sqltools.formatter": {
+    "indent": "    ", // change to your preferred indentation
+    "newLineAfterSemicolon": true // add a new line after each semicolon
   }
 }

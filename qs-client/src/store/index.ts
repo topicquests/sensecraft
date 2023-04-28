@@ -5,6 +5,7 @@ import { quests } from "./quests";
 import { members } from "./members";
 import { member } from "./member";
 import { guilds } from "./guilds";
+import { readStatus } from "./readStatus";
 import { conversation } from "./conversation";
 import { channel } from "./channel";
 import { role } from "./role";
@@ -30,6 +31,7 @@ export default function getStore(axios: AxiosInstance) {
         role: role(axios),
         channel: channel(axios),
         serverData: serverData(axios),
+        readStatus: readStatus(axios),
       },
       getters: BaseGetters,
       actions: BaseActions,

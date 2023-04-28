@@ -170,6 +170,13 @@ export interface QTreeNode extends ConversationNode {
   parent?: QTreeNode;
 }
 
+export interface ReadStatus {
+  node_id: number;
+  member_id: number;
+  seconds_shown: number;
+  status: boolean;
+}
+
 export type generic_id = number | string;
 export interface PseudoNode extends BaseConversationNode {
   id: generic_id;
