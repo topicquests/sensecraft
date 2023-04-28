@@ -1,10 +1,10 @@
 import { MyVapi, RestParamActionType, RetypeActionTypes } from "./base";
-import { ReadStatus } from "../types";
+import { ReadStatusData } from "../types";
 
 import { AxiosInstance, AxiosResponse } from "axios";
 
 export interface ReadStatusMap {
-  [key: number]: ReadStatus;
+  [key: number]: ReadStatusData;
 }
 export interface ReadStatusState {
   fullFetch: false;
@@ -39,11 +39,13 @@ export const readStatus = (axios: AxiosInstance) =>
       readOnly: true,
       onSuccess: (
         state: ReadStatusState,
-        res: AxiosResponse<ReadStatus[]>,
+        res: AxiosResponse<ReadStatusData[]>,
         axios: AxiosInstance,
         actionParams
       ) => {
-        console.log("read status response: ", res.data);
+        state["readStatus"] = Object.fromEntries(
+          res.data.map((x) => [x.node_id, x])
+        );
       },
     })
     .getVuexStore({
@@ -51,7 +53,7 @@ export const readStatus = (axios: AxiosInstance) =>
       mutations: {},
     });
 type ReadStatusRestActionTypes = {
-  fetchReadStatus: RestParamActionType<{ questid: number }, ReadStatus[]>;
+  fetchReadStatus: RestParamActionType<{ questid: number }, ReadStatusData[]>;
 };
 export type ReadStatusActionTypes = RetypeActionTypes<
   typeof ReadStatusActions & ReadStatusRestActionTypes

@@ -177,6 +177,11 @@ export interface ReadStatus {
   status: boolean;
 }
 
+export interface ReadStatusData extends ReadStatus {
+  node_count: number;
+  read_count: number;
+}
+
 export type generic_id = number | string;
 export interface PseudoNode extends BaseConversationNode {
   id: generic_id;
