@@ -408,6 +408,5 @@ export default class QuestCard extends QuestCardProps {
 
 #quest-card {
   width: 90%;
-  background-color: ;
 }
 </style>

@@ -26,7 +26,7 @@ FROM conversation_node AS cn
 JOIN conversation_node AS ds on (ds.ancestry <@ cn.ancestry)
 LEFT OUTER JOIN read_status AS rs on (rs.node_id = cn.id AND rs.member_id = current_member_id())
 LEFT OUTER JOIN read_status AS rsd on (rsd.node_id = ds.id AND rsd.member_id = current_member_id() AND rsd.status = true)
-WHERE rootid::varchar::ltree @> cn.ancestry
+WHERE rootid::varchar::ltree @> cn.ancestry AND rsd.status IS NULL OR rsd.status = false
 GROUP BY cn.id, rs.status;
 $$ LANGUAGE SQL;
 

@@ -108,6 +108,10 @@
             icon="add"
             @click="addChildToNode(prop.node.id)"
           />
+          <read-status-button
+            :node_id="prop.node.id"
+            :isRead="getNodeReadStatus(prop.node.id)"
+          ></read-status-button>
         </div>
       </template>
       <template v-slot:default-body="prop">
@@ -159,6 +163,7 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
 import { ConversationNode, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
+import ReadStatusButton from "./read-status-button.vue";
 import {
   ConversationMap,
   ConversationGetterTypes,
@@ -169,6 +174,7 @@ import { QTree } from "quasar";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { RoleGetterTypes, RoleActionTypes } from "../store/role";
+import { ReadStatusGetterTypes } from "src/store/readStatus";
 import {
   ibis_node_type_type,
   ibis_node_type_list,
@@ -192,7 +198,7 @@ const NodeTreeProps = Vue.extend({
 });
 
 @Component<NodeTree>({
-  components: { NodeForm },
+  components: { NodeForm, ReadStatusButton },
   name: "ConversationNodeTree",
   methods: {
     ...mapActions("channel", [
@@ -249,6 +255,7 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
+    ...mapGetters("readStatus", ["getNodeReadStatus", "setNodeReadStatus"]),
     searchFilter_: function () {
       return this.searchFilter + "_";
     },
@@ -303,6 +310,7 @@ export default class NodeTree extends NodeTreeProps {
   searchFilter = "";
   ready = false;
   listenerInstalled = false;
+  localRead = true;
 
   searchFilter_!: string;
   threats!: ThreatMap;
@@ -331,6 +339,9 @@ export default class NodeTree extends NodeTreeProps {
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
+  getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
+  setNodeReadStatus!: ReadStatusGetterTypes["setNodeReadStatus"];
+
   nodeMap!: ConversationMap;
 
   createChannelNode: ChannelActionTypes["createChannelNode"];
@@ -681,6 +692,10 @@ export default class NodeTree extends NodeTreeProps {
           evt.preventDefault();
         }
     }
+  }
+
+  toggleReadStatus() {
+    this.$emit("update-read-status", this.localRead);
   }
 
   hiddenByCollapse(qnode: QTreeNode) {
