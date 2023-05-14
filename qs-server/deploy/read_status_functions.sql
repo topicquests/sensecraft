@@ -8,11 +8,8 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
-
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.read_status TO :dbm;
-GRANT SELECT ON TABLE public.read_status TO :dbc;
-
-
+GRANT SELECT, INSERT ON TABLE public.read_status TO :dbc;
 CREATE OR REPLACE FUNCTION public.unread_status_list(rootid integer)
 RETURNS TABLE (
     node_id integer,
@@ -37,15 +34,26 @@ CREATE OR REPLACE FUNCTION public.node_shown_time(node_id integer, seconds float
     RETURNING seconds_shown;
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION public.node_set_read_status(node_id integer, new_status boolean, override boolean) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION public.node_set_read_status(
+    nodeid integer, 
+    new_status boolean, 
+    override boolean
+) RETURNS TABLE (new_node_id integer, new_member_id integer, status_new boolean) AS $$
+BEGIN
     INSERT INTO read_status (node_id, member_id, status)
-    VALUES (node_set_read_status.node_id, current_member_id(),
+    VALUES (nodeid, current_member_id(),
             CASE WHEN NOT override AND NOT new_status THEN NULL ELSE new_status END)
     ON CONFLICT (node_id, member_id) DO UPDATE SET
-        status = CASE WHEN override=true THEN new_status WHEN new_status = false THEN new_status ELSE false END,
+        status = CASE WHEN override=true THEN new_status 
+                      WHEN new_status = false THEN new_status 
+                      ELSE false END,
         seconds_shown = NULL
-    RETURNING status;
-$$ LANGUAGE sql;
+    RETURNING read_status.node_id, read_status.member_id, read_status.status 
+    INTO STRICT new_node_id, new_member_id, status_new;
+    RETURN NEXT;
+END;
+$$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION public.reset_read_status() RETURNS TRIGGER AS $$
 DECLARE curuser varchar;

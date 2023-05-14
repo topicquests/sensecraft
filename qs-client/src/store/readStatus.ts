@@ -19,28 +19,14 @@ export interface ReadStatusState {
 
 const ReadStatusGetter = {
   getNodeReadStatus: (state: ReadStatusState) => (node_id: number) => {
+    const memberId = MyVapi.store.getters["member/getUserId"];
     const read = Object.values(state.readStatus).filter(
-      (isRead: ReadStatusData) => isRead.node_id == node_id
+      (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
     );
     if (read.length > 0) {
       console.log("status: ", read);
-      return false;
+      return state.readStatus[node_id].status;
     } else return true;
-  },
-  setNodeReadStatus: (state: ReadStatusState) => (node_id: number) => {
-    const read = Object.values(state.readStatus).filter(
-      (isRead: ReadStatusData) => isRead.node_id == node_id
-    );
-    if (read.length > 0) {
-      if (
-        state.readStatus[node_id].status == null ||
-        state.readStatus[node_id].status == false
-      ) {
-        state.readStatus[node_id].status = true;
-      } else {
-        state.readStatus[node_id].status = false;
-      }
-    }
   },
 };
 
@@ -119,6 +105,45 @@ export const readStatus = (axios: AxiosInstance) =>
         );
       },
     })
+    .call({
+      action: "CreateOrUpdateReadStatus",
+      path: "node_set_read_status",
+      property: "readStatus",
+      queryParams: true,
+      onSuccess: (
+        state: ReadStatusState,
+        res: AxiosResponse<{
+          new_node_id: number;
+          new_member_id: number;
+          status_new: boolean;
+        }>,
+        axios: AxiosInstance,
+        actionParams
+      ) => {
+        const memberId = MyVapi.store.getters["member/getUserId"];
+        const node_id = res.data[0].new_node_id;
+        const newReadStatus: ReadStatusData = {
+          node_id,
+          member_id: res.data[0].new_member_id,
+          seconds_shown: 0,
+          status: res.data[0].status_new,
+          node_count: 0,
+          read_count: 0,
+        };
+        const read = Object.values(state.readStatus).filter(
+          (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
+        );
+        if (read.length > 0) {
+          state.readStatus[node_id].status = res.data[0].status_new;
+        } else {
+          state.readStatus = {
+            ...state.readStatus,
+            [node_id]: newReadStatus,
+          };
+        }
+        console.log("create_read_status", res.data[0].new_node_id);
+      },
+    })
     .getVuexStore({
       getters: ReadStatusGetter,
       actions: ReadStatusActions,
@@ -126,6 +151,10 @@ export const readStatus = (axios: AxiosInstance) =>
     });
 type ReadStatusRestActionTypes = {
   fetchReadStatus: RestParamActionType<{ rootid: number }, ReadStatusData[]>;
+  CreateOrUpdateReadStatus: RestParamActionType<
+    { nodeid: number; new_status: boolean; override: boolean },
+    ReadStatusData[]
+  >;
 
   createReadStatus: RestDataActionType<
     Partial<ReadStatusData>,

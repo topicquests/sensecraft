@@ -255,7 +255,7 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
-    ...mapGetters("readStatus", ["getNodeReadStatus", "setNodeReadStatus"]),
+    ...mapGetters("readStatus", ["getNodeReadStatus"]),
     searchFilter_: function () {
       return this.searchFilter + "_";
     },
@@ -310,7 +310,6 @@ export default class NodeTree extends NodeTreeProps {
   searchFilter = "";
   ready = false;
   listenerInstalled = false;
-  localRead = true;
 
   searchFilter_!: string;
   threats!: ThreatMap;
@@ -340,7 +339,6 @@ export default class NodeTree extends NodeTreeProps {
   getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
   getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
-  setNodeReadStatus!: ReadStatusGetterTypes["setNodeReadStatus"];
 
   nodeMap!: ConversationMap;
 
@@ -693,11 +691,6 @@ export default class NodeTree extends NodeTreeProps {
         }
     }
   }
-
-  toggleReadStatus() {
-    this.$emit("update-read-status", this.localRead);
-  }
-
   hiddenByCollapse(qnode: QTreeNode) {
     const qtree = this.$refs.tree as QTree;
     while (qnode) {
