@@ -96,6 +96,7 @@ export const BaseActions = {
       context.dispatch("role/resetRole"),
       context.dispatch("channel/resetChannel"),
       context.dispatch("serverData/resetServerData"),
+      context.dispatch("readStatus/resetReadStatus"),
     ]);
   },
 };

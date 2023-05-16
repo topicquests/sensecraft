@@ -24,7 +24,6 @@ const ReadStatusGetter = {
       (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
     );
     if (read.length > 0) {
-      console.log("status: ", read);
       return state.readStatus[node_id].status;
     } else return true;
   },
@@ -34,6 +33,9 @@ const ReadStatusActions = {
   ensureAllQuestsReadStatus: async (context) => {
     const rootid = MyVapi.store.state["conversation"]["neighbourhoodRoot"];
     await context.dispatch("fetchReadStatus", { params: { rootid } });
+  },
+  resetReadStatus: (context) => {
+    context.commit("CLEAR_STATE");
   },
 };
 const baseState: ReadStatusState = {
@@ -147,7 +149,11 @@ export const readStatus = (axios: AxiosInstance) =>
     .getVuexStore({
       getters: ReadStatusGetter,
       actions: ReadStatusActions,
-      mutations: {},
+      mutations: {
+        CLEAR_STATE: (state: ReadStatusState) => {
+          Object.assign(state, baseState);
+        },
+      },
     });
 type ReadStatusRestActionTypes = {
   fetchReadStatus: RestParamActionType<{ rootid: number }, ReadStatusData[]>;
