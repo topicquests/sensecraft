@@ -90,6 +90,7 @@ import { RoleGetterTypes, RoleActionTypes } from "../store/role";
 import { ChannelGetterTypes, ChannelActionTypes } from "../store/channel";
 import { QuestsActionTypes, QuestsGetterTypes } from "../store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
+import { ReadStatusActionTypes } from "../store/readStatus";
 import { ConversationNode } from "../types";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -121,6 +122,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
     ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("readStatus", ["ensureAllQuestsReadStatus"]),
   },
   watch: {
     $route(to, from) {
@@ -171,6 +173,7 @@ export default class ChannelPage extends Vue {
   ensureChannelConversation: ChannelActionTypes["ensureChannelConversation"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   getRoles: RoleGetterTypes["getRoles"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   selectionChanged(id) {
     this.selectedNodeId = id;
@@ -197,6 +200,8 @@ export default class ChannelPage extends Vue {
         guild: this.guildId,
       })
     );
+    promises.push(this.ensureAllQuestsReadStatus());
+
     await Promise.all(promises);
     this.ready = true;
   }
