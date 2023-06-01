@@ -7,5 +7,8 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "types": ["jest", "quasar"]
+  },
+  "vueCompilerOptions": {
+    "target": 2.7
   }
 }
