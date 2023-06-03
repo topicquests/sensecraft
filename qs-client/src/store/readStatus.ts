@@ -34,6 +34,9 @@ const ReadStatusActions = {
     const rootid = MyVapi.store.state["conversation"]["neighbourhoodRoot"];
     await context.dispatch("fetchReadStatus", { params: { rootid } });
   },
+  ensureAllChannelReadStatus: async (context, rootid: number) => {
+    await context.dispatch("fetchReadStatus", { params: { rootid } });
+  },
   resetReadStatus: (context) => {
     context.commit("CLEAR_STATE");
   },

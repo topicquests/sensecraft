@@ -109,6 +109,7 @@
             @click="addChildToNode(prop.node.id)"
           />
           <read-status-button
+            class="q-ml-md"
             :node_id="prop.node.id"
             :isRead="getNodeReadStatus(prop.node.id)"
           ></read-status-button>

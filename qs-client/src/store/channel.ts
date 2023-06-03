@@ -19,6 +19,7 @@ export interface ChannelState extends Object {
   channels: ConversationMap;
   channelData: ChannelMap;
   currentGuild: number;
+  currentChannel: number;
 }
 
 function addToState(state: ChannelState, node: ConversationNode) {
@@ -35,6 +36,7 @@ function addToState(state: ChannelState, node: ConversationNode) {
     ...state.channelData,
     [channel_id]: channelData,
   };
+  state.currentChannel = channel_id;
 }
 
 const ChannelGetters = {
@@ -62,6 +64,7 @@ const ChannelGetters = {
     if (channel) return makeTree(Object.values(channel));
     return [];
   },
+  getCurrentChannel: (state: ChannelState) => state.currentChannel,
   getChannelNode:
     (state: ChannelState) => (channel_id: number, node_id: number) =>
       state.channelData[channel_id]?.[node_id],
@@ -90,6 +93,9 @@ const ChannelGetters = {
 };
 
 const ChannelActions = {
+  setCurrentChannel: (context, channel_id: number) => {
+    context.commit("SET_CURRENT_CHANNEL", channel_id);
+  },
   ensureChannels: async (context, guild_id: number) => {
     if (guild_id != context.state.currentGuild) {
       await context.dispatch("fetchChannels", { params: { guild_id } });
@@ -117,6 +123,7 @@ const baseState: ChannelState = {
   currentGuild: null,
   channels: {},
   channelData: {},
+  currentChannel: null,
 };
 
 export const channel = (axios: AxiosInstance) =>
@@ -169,6 +176,7 @@ export const channel = (axios: AxiosInstance) =>
         if (channel.meta != "channel" || channel.parent_id != null)
           throw Error("not a channel");
         state.channelData = { ...state.channelData, [channel_id]: nodes };
+        state.currentChannel = channel_id;
       },
     })
     .post({
@@ -207,6 +215,9 @@ export const channel = (axios: AxiosInstance) =>
       getters: ChannelGetters,
       actions: ChannelActions,
       mutations: {
+        SET_CURRENT_CHANNEL: (state: ChannelState, channel_id: number) => {
+          state.currentChannel = channel_id;
+        },
         CLEAR_STATE: (state: ChannelState) => {
           Object.assign(state, baseState);
         },

@@ -112,6 +112,7 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
       "getChannelById",
       "getChannelConversation",
       "getChannelNode",
+      "getCurrentChannel",
       "canEdit",
     ]),
     ...mapGetters("role", ["getRoles"]),
@@ -120,9 +121,13 @@ import { MembersGetterTypes, MembersActionTypes } from "../store/members";
     ...mapActions("quests", ["setCurrentQuest", "ensureQuest"]),
     ...mapActions("guilds", ["setCurrentGuild", "ensureGuild"]),
     ...mapActions("members", ["fetchMemberById", "ensureMemberById"]),
-    ...mapActions("channel", ["ensureChannelConversation", "ensureChannels"]),
+    ...mapActions("channel", [
+      "ensureChannelConversation",
+      "ensureChannels",
+      "setCurrentChannel",
+    ]),
     ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions("readStatus", ["ensureAllQuestsReadStatus"]),
+    ...mapActions("readStatus", ["ensureAllChannelReadStatus"]),
   },
   watch: {
     $route(to, from) {
@@ -161,9 +166,11 @@ export default class ChannelPage extends Vue {
   getChannelById: ChannelGetterTypes["getChannelById"];
   getChannelConversation: ChannelGetterTypes["getChannelConversation"];
   getChannelNode: ChannelGetterTypes["getChannelNode"];
+  getCurrentChannel: ChannelGetterTypes["getCurrentChannel"];
   canEdit: ChannelGetterTypes["canEdit"];
   // declare the action attributes for Typescript
   setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  setCurrentChannel: ChannelActionTypes["setCurrentChannel"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
   ensureGuild: GuildsActionTypes["ensureGuild"];
@@ -173,7 +180,7 @@ export default class ChannelPage extends Vue {
   ensureChannelConversation: ChannelActionTypes["ensureChannelConversation"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   getRoles: RoleGetterTypes["getRoles"];
-  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   selectionChanged(id) {
     this.selectedNodeId = id;
@@ -183,6 +190,7 @@ export default class ChannelPage extends Vue {
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     this.questId = Number.parseInt(this.$route.params.quest_id);
     this.channelId = Number.parseInt(this.$route.params.channel_id);
+    this.setCurrentChannel(this.channelId);
     await userLoaded;
     const promises = [];
     this.setCurrentGuild(this.guildId);
@@ -200,7 +208,7 @@ export default class ChannelPage extends Vue {
         guild: this.guildId,
       })
     );
-    promises.push(this.ensureAllQuestsReadStatus());
+    await this.ensureAllChannelReadStatus(this.getCurrentChannel);
 
     await Promise.all(promises);
     this.ready = true;
