@@ -34,7 +34,8 @@ const ReadStatusActions = {
     const rootid = MyVapi.store.state["conversation"]["neighbourhoodRoot"];
     await context.dispatch("fetchReadStatus", { params: { rootid } });
   },
-  ensureAllChannelReadStatus: async (context, rootid: number) => {
+  ensureAllChannelReadStatus: async (context) => {
+    const rootid = MyVapi.store.getters["channel/getCurrentChannel"];
     await context.dispatch("fetchReadStatus", { params: { rootid } });
   },
   resetReadStatus: (context) => {
@@ -146,7 +147,6 @@ export const readStatus = (axios: AxiosInstance) =>
             [node_id]: newReadStatus,
           };
         }
-        console.log("create_read_status", res.data[0].new_node_id);
       },
     })
     .getVuexStore({

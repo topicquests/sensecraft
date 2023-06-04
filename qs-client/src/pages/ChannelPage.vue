@@ -208,7 +208,7 @@ export default class ChannelPage extends Vue {
         guild: this.guildId,
       })
     );
-    await this.ensureAllChannelReadStatus(this.getCurrentChannel);
+    await this.ensureAllChannelReadStatus();
 
     await Promise.all(promises);
     this.ready = true;
