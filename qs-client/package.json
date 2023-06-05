@@ -36,7 +36,7 @@
     "vuelidate": "^0.7.6",
     "vuex": "~3.6",
     "vuex-rest-api": "^2.15",
-    "yaml": "~2.2"
+    "yaml": "~2.3"
   },
   "devDependencies": {
     "@cucumber/cucumber": "~9.1",
@@ -68,15 +68,15 @@
     "libqp": "~2.0",
     "lint-staged": "~13.2",
     "prettier": "~2.8",
-    "selenium-webdriver": "~4.8",
+    "selenium-webdriver": "~4.9",
     "ts-jest": "~29",
     "ts-node": "~10.9",
-    "typescript": "~5.0",
+    "typescript": "~5.1",
     "vue-cli-plugin-component": "~1.12.2",
     "vue-cli-plugin-components": "~0.0.0",
     "vue-cli-plugin-store": "~0.0.7",
     "vue-jest": "^3.0.7",
-    "vuex-mock-store": "^0.0.8"
+    "vuex-mock-store": "^0.1.0"
   },
   "browserslist": [
     "last 10 Chrome versions",
