@@ -4,7 +4,8 @@
     size="5px"
     :color="localRead ? 'transparent' : 'grey'"
     @click="toggleReadStatus()"
-  ></q-btn>
+    ><q-tooltip class="bg-red text-red">{{ buttonTooltip() }}</q-tooltip>
+  </q-btn>
 </template>
 
 <script lang="ts">
@@ -37,6 +38,13 @@ export default class ReadStatusButton extends ReadStatusButtonProps {
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
 
+  buttonTooltip() {
+    return this.localRead ? "Read" : "Unread";
+  }
+  buttonLabel() {
+    return this.localRead ? "Read" : "Unread";
+  }
+
   async toggleReadStatus() {
     this.localRead = !this.localRead;
     await this.CreateOrUpdateReadStatus({
@@ -49,3 +57,4 @@ export default class ReadStatusButton extends ReadStatusButtonProps {
   }
 }
 </script>
+<style scoped></style>
