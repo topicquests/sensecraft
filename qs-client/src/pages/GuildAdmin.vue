@@ -2,15 +2,14 @@
   <q-page class="bg-secondary" v-if="ready">
     <div class="row justify-center">
       <q-card class="guild-admin-card q-mt-md q-pa-md">
-        <div>
+        <div class="row justify-end" style="width: 92%">
           <member></member>
         </div>
-        <div class="column items-center">
-          <div class="col-12" style="width: 75%">
-            <scoreboard class="scoreboard"></scoreboard>
+        <div class="row justify-center" style="width: 100%">
+          <div class="col-10 justify-center">
+            <scoreboard></scoreboard>
           </div>
         </div>
-
         <div class="column items-center">
           <h4 v-if="getCurrentGuild">
             <router-link

@@ -115,6 +115,7 @@
       <q-input
         class="field-name q-pt-md"
         v-model="quest.name"
+        :style="{ width: '400px' }"
         label="Quest title"
         name="name"
         id="name"
@@ -258,6 +259,7 @@
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
         class="field-name"
+        style="width: 300px"
         name="handle"
         v-model="quest.handle"
         label="Quest handle"
