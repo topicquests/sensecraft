@@ -19,6 +19,12 @@ const routes = [
         name: "landingPage",
         component: () => import("src/pages/LandingPage.vue"),
       },
+
+      {
+        path: "/testcol",
+        name: "testcol",
+        component: () => import("src/pages/ConversationColumnView.vue"),
+      },
       {
         path: "/lobby",
         name: "lobby",
