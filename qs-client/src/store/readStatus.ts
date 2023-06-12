@@ -31,7 +31,7 @@ const ReadStatusGetter = {
 
 const ReadStatusActions = {
   ensureAllQuestsReadStatus: async (context) => {
-    const rootid = MyVapi.store.state["conversation"]["neighbourhoodRoot"];
+    const rootid = MyVapi.store.state["conversation"]["conversationRoot"];
     await context.dispatch("fetchReadStatus", { params: { rootid } });
   },
   ensureAllChannelReadStatus: async (context) => {
