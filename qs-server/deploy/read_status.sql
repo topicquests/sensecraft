@@ -1,5 +1,5 @@
 -- Deploy sensecraft:read_status to pg
--- requers conversation_node
+-- requires: conversation_node
 
 BEGIN;
 

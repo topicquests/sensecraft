@@ -1,5 +1,6 @@
 -- deploy: read_status_functions
 -- requires: read_status
+-- requires: members_functions
 -- idempotent
 
 BEGIN;
@@ -19,12 +20,12 @@ RETURNS TABLE (
     read_count integer
 ) AS $$
     SELECT cn.id, COUNT(ds.id) AS node_count, MAX(rs.seconds_shown) AS seconds_shown, rs.status, COUNT(rsd.node_id) AS read_count
-FROM conversation_node AS cn
-JOIN conversation_node AS ds on (ds.ancestry <@ cn.ancestry)
-LEFT OUTER JOIN read_status AS rs on (rs.node_id = cn.id AND rs.member_id = current_member_id())
-LEFT OUTER JOIN read_status AS rsd on (rsd.node_id = ds.id AND rsd.member_id = current_member_id() AND rsd.status = true)
-WHERE rootid::varchar::ltree @> cn.ancestry AND rsd.status IS NULL OR rsd.status = false
-GROUP BY cn.id, rs.status;
+    FROM conversation_node AS cn
+    JOIN conversation_node AS ds on (ds.ancestry <@ cn.ancestry)
+    LEFT OUTER JOIN read_status AS rs on (rs.node_id = cn.id AND rs.member_id = current_member_id())
+    LEFT OUTER JOIN read_status AS rsd on (rsd.node_id = ds.id AND rsd.member_id = current_member_id() AND rsd.status = true)
+    WHERE rootid::varchar::ltree @> cn.ancestry AND rsd.status IS NULL OR rsd.status = false
+    GROUP BY cn.id, rs.status;
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION public.node_shown_time(node_id integer, seconds float) RETURNS interval AS $$
@@ -35,8 +36,8 @@ CREATE OR REPLACE FUNCTION public.node_shown_time(node_id integer, seconds float
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION public.node_set_read_status(
-    nodeid integer, 
-    new_status boolean, 
+    nodeid integer,
+    new_status boolean,
     override boolean
 ) RETURNS TABLE (new_node_id integer, new_member_id integer, status_new boolean) AS $$
 BEGIN
@@ -44,11 +45,11 @@ BEGIN
     VALUES (nodeid, current_member_id(),
             CASE WHEN NOT override AND NOT new_status THEN NULL ELSE new_status END)
     ON CONFLICT (node_id, member_id) DO UPDATE SET
-        status = CASE WHEN override=true THEN new_status 
-                      WHEN new_status = false THEN new_status 
+        status = CASE WHEN override=true THEN new_status
+                      WHEN new_status = false THEN new_status
                       ELSE false END,
         seconds_shown = NULL
-    RETURNING read_status.node_id, read_status.member_id, read_status.status 
+    RETURNING read_status.node_id, read_status.member_id, read_status.status
     INTO STRICT new_node_id, new_member_id, status_new;
     RETURN NEXT;
 END;

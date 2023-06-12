@@ -2,8 +2,6 @@
 
 BEGIN;
 
-ALTER TABLE read_status DROP CONSTRAINT read_status_member_id_fkey;
-
 DROP VIEW IF EXISTS public.public_members;
 
 DROP TABLE IF EXISTS public.members;
