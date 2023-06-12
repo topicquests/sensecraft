@@ -114,3 +114,7 @@ config/*.json
 postgrest_*.conf
 sqitch.conf
 __pycache__
+
+# Personal configuration files
+sensecraft_dev_defaults.json
+sensecraft_defaults.json
