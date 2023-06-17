@@ -5,7 +5,7 @@ import {
   RetypeActionTypes,
   RetypeGetterTypes,
 } from "./base";
-import { ReadStatusData } from "../types";
+import { ConversationNode, ReadStatusData } from "../types";
 
 import { AxiosInstance, AxiosResponse } from "axios";
 
@@ -31,7 +31,9 @@ const ReadStatusGetter = {
 
 const ReadStatusActions = {
   ensureAllQuestsReadStatus: async (context) => {
-    const rootid = MyVapi.store.state["conversation"]["conversationRoot"];
+    const cn: ConversationNode =
+      MyVapi.store.state["conversation"]["conversationRoot"];
+    const rootid: number = cn.id;
     await context.dispatch("fetchReadStatus", { params: { rootid } });
   },
   ensureAllChannelReadStatus: async (context) => {
