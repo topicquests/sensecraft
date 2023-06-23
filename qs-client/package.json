@@ -39,7 +39,7 @@
     "yaml": "~2.3"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "~9.1",
+    "@cucumber/cucumber": "~9.2",
     "@cucumber/pretty-formatter": "^1.0",
     "@quasar/app": "~2.4",
     "@quasar/quasar-app-extension-testing": "~1.0",
@@ -68,10 +68,10 @@
     "libqp": "~2.0",
     "lint-staged": "~13.2",
     "prettier": "~2.8",
-    "selenium-webdriver": "~4.9",
+    "selenium-webdriver": "~4.10",
     "ts-jest": "~29",
     "ts-node": "~10.9",
-    "typescript": "~5.1",
+    "typescript": "~5.0",
     "vue-cli-plugin-component": "~1.12.2",
     "vue-cli-plugin-components": "~0.0.0",
     "vue-cli-plugin-store": "~0.0.7",
