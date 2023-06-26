@@ -176,6 +176,7 @@ import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { RoleGetterTypes, RoleActionTypes } from "../store/role";
 import { ReadStatusGetterTypes } from "src/store/readStatus";
+import { ReadStatusActionTypes } from "../store/readStatus";
 import {
   ibis_node_type_type,
   ibis_node_type_list,
@@ -222,6 +223,10 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapActions("quests", ["ensureQuest"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("readStatus", [
+      "ensureAllQuestsReadStatus",
+      "ensureAllChannelReadStatus",
+    ]),
   },
   computed: {
     ...mapState("conversation", ["neighbourhood", "conversation"]),
@@ -357,6 +362,8 @@ export default class NodeTree extends NodeTreeProps {
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
 
   emits = ["tree-selection"];
@@ -806,6 +813,12 @@ export default class NodeTree extends NodeTreeProps {
       if (!this.channelId) this.showFocusNeighbourhood = false;
     }
     await this.ensureData();
+    if (this.getRootNode) {
+      await this.ensureAllQuestsReadStatus();
+    }
+    if (this.channelId) {
+      await this.ensureAllChannelReadStatus();
+    }
     this.scrollToNode(this.selectedNodeId, 100);
     this.ready = true;
   }
