@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 16.x
+      - name: Use Node.js 16.20.0
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 16.20.0
       - name: use postgres
         uses: Daniel-Marynicz/postgresql-action@master
         with:
