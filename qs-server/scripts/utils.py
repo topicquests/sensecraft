@@ -1,4 +1,43 @@
 from subprocess import run
+"""
+Copyright Conversence 2021-2023
+License: MIT
+"""
+
+
+def as_bool(value):
+    if type(value) == bool:
+        return value
+    return str(value).lower() in {'true', 'yes', 'on', '1', 'checked'}
+
+
+def get_connection_data(ini_file, db, debug=False, admin_password=None):
+    conn_data = dict(
+        user=ini_file[db]["owner"],
+        superuser=ini_file["postgres"]["user"],
+        password=ini_file[db]["owner_password"],
+        db=ini_file[db]["database"],
+        variables=dict(dbn=ini_file[db]["database"]),
+        port=ini_file["postgres"].get("port", 5432),
+        debug=debug,
+    )
+    if admin_password:
+        if admin_password is True:
+            # Send true to request admin connection data if you don't have the password
+            if needs_password := as_bool(
+                ini_file['postgres'].get('needs_password', True)
+            ):
+                admin_password = ini_file['postgres'].get('password', None)
+                if not admin_password:
+                    return None
+            else:
+                admin_password = None
+        conn_data |= dict(
+            user=ini_file['postgres']['user'],
+            sudo=as_bool(ini_file['postgres'].get('sudo', True)),
+            password = admin_password
+        )
+    return conn_data
 
 
 def psql_command(

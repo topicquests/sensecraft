@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Copyright Conversence 2021-2023
+License: MIT
+"""
 
 import os
 from os.path import exists
@@ -187,7 +191,7 @@ if __name__ == "__main__":
         app_name = ini_file.get("base", "app_name", fallback=app_name)
     else:
         ini_file.add_section("base")
-    argp = argparse.ArgumentParser(f"Create the base databases for {app_name}")
+    argp = argparse.ArgumentParser("Create the base databases for an application")
     argp.add_argument("--app_name", default=app_name, help="The application name")
     argp.add_argument("--host", default=conn_data["host"], help="the database host")
     argp.add_argument("--port", default=conn_data["port"], help="the database port")
@@ -199,6 +203,10 @@ if __name__ == "__main__":
     )
     argp.add_argument(
         "-p", "--password", default=None, help="the password of the postgres role."
+    )
+    argp.add_argument(
+        "--store-password", action="store_true",
+        help="Record the password of the postgres role"
     )
     argp.add_argument(
         "--sudo",
@@ -280,6 +288,8 @@ if __name__ == "__main__":
     )
     argp.add_argument("-d", "--debug", action="store_true", help="debug db commands")
     args = argp.parse_args()
+    if args.app_name == "MISSING":
+        raise RuntimeError("You must specify an app_name")
     app_name = args.app_name
     base_app_name = "_".join(app_name.lower().split())
     conn_data["host"] = args.host
@@ -294,8 +304,12 @@ if __name__ == "__main__":
     ini_file.set("postgres", "port", str(conn_data["port"]))
     ini_file.set("postgres", "user", conn_data["user"])
     ini_file.set("postgres", "sudo", str(conn_data["sudo"]).lower())
+    if (args.store_password):
+        ini_file.set("postgres", "password", str(conn_data["password"]))
+    else:
+        # Do not store the master password, but record whether there was one
+        ini_file.set("postgres", "needs_password", str(bool(args.password)).lower())
     ini_file.set("base", "app_name", app_name)
-    # Do not store the master password
     postgrest_port = POSTGREST_PORT
     for index, db in enumerate(DATABASES):
         if getattr(args, "create_" + db):

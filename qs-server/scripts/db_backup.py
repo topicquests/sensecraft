@@ -1,5 +1,9 @@
 #!/bin/env python3
 # -*- coding:utf-8 -*-
+"""
+Copyright Conversence 2022-2023
+License: MIT
+"""
 
 from os.path import exists, join, abspath
 from time import strftime
@@ -31,10 +35,10 @@ def rotate_database_dumps(dbdumps_dir, db):
     )
     coloredlogs.increase_verbosity()
     rotation_scheme = {
-        # same as doc/borg_backup_script/assembl_borg_backup.sh
-        "daily": 7,
+        # They're big, not too much
+        "daily": 4,
         "weekly": 4,
-        "monthly": 6,
+        "monthly": 4,
         # Plus yearly for good conscience
         "yearly": "always",
     }
