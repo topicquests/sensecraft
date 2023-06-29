@@ -29,7 +29,8 @@ old status, status input, override, result status
 null, true, ? => true   # setting to read from normal unread
 false, true, false => false   # setting to read, but no override so sticky false stays
 false, true, true => true   # setting to read with override
-true, true, false, & obsolete: -> false
+
+CASE override=true THEN new_status, new_status = false THEN new_status, status=false
 
 
 Rows are created explicitly by the above functions (from FE), or by node create/update.
@@ -74,3 +75,6 @@ N is the total number of descendants.
 (Hide on unfold.)
 If U is 0, just show N.
 
+When node is unread (folded or not): full blue circle
+When node is unread, folded with unread children: full blue circle with # unread children in white
+Otherwise (when node is read, unfolded; or read, no unread child): white circle with pale shadow
