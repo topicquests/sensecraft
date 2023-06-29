@@ -53,11 +53,19 @@
     "@typescript-eslint/eslint-plugin": "~5",
     "@typescript-eslint/parser": "~5",
     "eslint": "~8",
+    "eslint-config-prettier": "~8.8",
     "eslint-plugin-mocha": "~10.1",
     "libqp": "~2.0",
+    "prettier": "~2.8",
     "ts-mocha": "~10.0",
     "ts-node": "^10.9.1",
     "typescript": "~5.0"
+  },
+  "lint-staged": {
+    "**/*": [
+      "eslint",
+      "prettier --write --ignore-unknown"
+    ]
   },
   "dependencies": {
     "axios": "~1.4",

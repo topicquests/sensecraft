@@ -1,34 +1,22 @@
 {
+  "root": true,
   "env": {
     "es6": true,
     "node": true,
     "mocha": true
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2020
   },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:mocha/recommended"
+    "plugin:mocha/recommended",
+    "prettier"
   ],
   "plugins": [
     "@typescript-eslint",
     "mocha"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "rules": {
-    "indent": [
-      "error",
-      2
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ]
-  }
+  ]
 }
