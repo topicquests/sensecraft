@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from "assert";
 import {
   add_members,
   axiosUtil,
@@ -6,7 +6,7 @@ import {
   get_base_roles,
   get_system_role_by_name,
   multiId,
-} from './utils';
+} from "./utils";
 import {
   adminInfo,
   quidamInfo,
@@ -15,17 +15,17 @@ import {
   sponsorInfo,
   publicQuestInfo,
   guildPlayerInfo,
-} from './fixtures';
+} from "./fixtures";
 import type {
   CastingRole,
   Casting,
   GuildMembership,
   GuildMemberAvailableRole,
   Role,
-} from '../../qs-client/src/types';
+} from "../../qs-client/src/types";
 
-describe('\'role\' service', function () {
-  describe('guild creation', function () {
+describe("'role' service", function () {
+  describe("guild creation", function () {
     let adminToken,
       quidamId,
       leaderId,
@@ -44,7 +44,7 @@ describe('\'role\' service', function () {
       memberTokens;
 
     before(async function () {
-      adminToken = await axiosUtil.call('get_token', {
+      adminToken = await axiosUtil.call("get_token", {
         mail: adminInfo.email,
         pass: adminInfo.password,
       });
@@ -62,62 +62,62 @@ describe('\'role\' service', function () {
       quidamId = memberIds[quidamInfo.handle!];
       /* eslint-ensable @typescript-eslint/no-non-null-assertion */
       roles = await get_base_roles(adminToken);
-      researcherRoleId = get_system_role_by_name(roles, 'Researcher')?.id;
+      researcherRoleId = get_system_role_by_name(roles, "Researcher")?.id;
     });
 
     after(async function () {
       if (process.env.NOREVERT) return;
       if (publicGuildId)
-        await axiosUtil.delete('guilds', { id: publicGuildId }, adminToken);
+        await axiosUtil.delete("guilds", { id: publicGuildId }, adminToken);
       if (publicQuestId)
-        await axiosUtil.delete('quests', { id: publicQuestId }, adminToken);
+        await axiosUtil.delete("quests", { id: publicQuestId }, adminToken);
       await delete_members(memberIds, adminToken);
     });
 
-    describe('guild creation by authorized user', function () {
+    describe("guild creation by authorized user", function () {
       let game_play_id: multiId;
-      it('creates public quest', async function () {
+      it("creates public quest", async function () {
         const publicQuestModel = await axiosUtil.create(
-          'quests',
+          "quests",
           publicQuestInfo,
           sponsorToken
         );
         publicQuestId = publicQuestModel.id;
-        const quests = await axiosUtil.get('quests', {}, sponsorToken);
+        const quests = await axiosUtil.get("quests", {}, sponsorToken);
         assert.equal(quests.length, 1);
       });
-      it('creates public guild', async function () {
+      it("creates public guild", async function () {
         const publicGuildModel = await axiosUtil.create(
-          'guilds',
+          "guilds",
           publicGuildInfo(researcherRoleId),
           leaderToken
         );
         publicGuildId = publicGuildModel.id;
-        const guilds = await axiosUtil.get('guilds', {}, leaderToken);
+        const guilds = await axiosUtil.get("guilds", {}, leaderToken);
         assert.equal(guilds.length, 1);
         game_play_id = {
           guild_id: publicGuildId,
           quest_id: publicQuestId,
         };
       });
-      it('guild leader can register guild to quest', async function () {
+      it("guild leader can register guild to quest", async function () {
         const register = await axiosUtil.create(
-          'game_play',
+          "game_play",
           game_play_id,
           leaderToken
         );
         assert.ok(register);
         const game_play = await axiosUtil.get(
-          'game_play',
+          "game_play",
           game_play_id,
           leaderToken
         );
         assert.equal(game_play.length, 1);
-        assert.equal(game_play[0].status, 'confirmed');
+        assert.equal(game_play[0].status, "confirmed");
       });
-      it('guild leader can then self-register to quest', async function () {
+      it("guild leader can then self-register to quest", async function () {
         const register = await axiosUtil.create(
-          'casting',
+          "casting",
           {
             member_id: leaderId,
             ...game_play_id,
@@ -126,9 +126,9 @@ describe('\'role\' service', function () {
         );
         assert.ok(register);
       });
-      it('quidam can register to guild', async function () {
+      it("quidam can register to guild", async function () {
         const register = await axiosUtil.create(
-          'guild_membership',
+          "guild_membership",
           {
             member_id: quidamId,
             guild_id: publicGuildId,
@@ -137,9 +137,9 @@ describe('\'role\' service', function () {
         );
         assert.ok(register);
       });
-      it('player can register to guild', async function () {
+      it("player can register to guild", async function () {
         const register = await axiosUtil.create(
-          'guild_membership',
+          "guild_membership",
           {
             member_id: playerId,
             guild_id: publicGuildId,
@@ -148,9 +148,9 @@ describe('\'role\' service', function () {
         );
         assert.ok(register);
       });
-      it('guild leader can call global registration', async function () {
+      it("guild leader can call global registration", async function () {
         await axiosUtil.call(
-          'register_all_members',
+          "register_all_members",
           {
             guildid: publicGuildId,
             questid: publicQuestId,
@@ -159,9 +159,9 @@ describe('\'role\' service', function () {
         );
       });
       // TODO: Should we prevent others from calling this function?
-      it('global registration registered quidam', async function () {
+      it("global registration registered quidam", async function () {
         const registers = await axiosUtil.get(
-          'casting',
+          "casting",
           game_play_id,
           leaderToken
         );
@@ -172,54 +172,54 @@ describe('\'role\' service', function () {
       });
       //Role tests
       //GuildAdm create new role
-      it('guild admin create new role', async function () {
+      it("guild admin create new role", async function () {
         const newRole = {
           guild_id: publicGuildId,
-          name: 'test_role',
+          name: "test_role",
         };
-        const guildRole = await axiosUtil.create('role', newRole, leaderToken);
+        const guildRole = await axiosUtil.create("role", newRole, leaderToken);
         guildRoleId = guildRole.id;
       });
       //Superadmin create new role
-      it('superadmin create new role', async function () {
+      it("superadmin create new role", async function () {
         const sysRole = await axiosUtil.create(
-          'role',
+          "role",
           {
-            name: 'super_role',
+            name: "super_role",
           } as Partial<Role>,
           adminToken
         );
         sysRoleId = sysRole.id;
       });
       //player cannot create new role
-      it('player cannot create new role', async function () {
+      it("player cannot create new role", async function () {
         await assert.rejects(async () => {
           await axiosUtil.create(
-            'role',
+            "role",
             {
-              name: 'player_role',
+              name: "player_role",
             } as Partial<Role>,
             playerToken
           );
-        }, 'GeneralError');
+        }, "GeneralError");
       });
       //guildadmin cannot create new role without guildId
-      it('guildadmin cannot create new role without guildId', async function () {
+      it("guildadmin cannot create new role without guildId", async function () {
         await assert.rejects(async () => {
           await axiosUtil.create(
-            'role',
+            "role",
             {
-              name: 'guild_role',
+              name: "guild_role",
             } as Partial<Role>,
             leaderToken
           );
-        }, 'GeneralError');
+        }, "GeneralError");
       });
       //Player attempts to select casting role before guild admin creates
-      it('Cannot select casting role before guildadmin allows', async function () {
+      it("Cannot select casting role before guildadmin allows", async function () {
         await assert.rejects(async () => {
           await axiosUtil.create(
-            'casting_role',
+            "casting_role",
             {
               member_id: playerId,
               quest_id: publicQuestId,
@@ -228,12 +228,12 @@ describe('\'role\' service', function () {
             } as Partial<CastingRole>,
             playerToken
           );
-        }, 'GeneralError');
+        }, "GeneralError");
       });
       //GuildAdmin select sys roles for player
-      it('guildadmin select sys roles for player', async function () {
+      it("guildadmin select sys roles for player", async function () {
         const sysRole = await axiosUtil.create(
-          'guild_member_available_role',
+          "guild_member_available_role",
           {
             member_id: playerId,
             role_id: sysRoleId,
@@ -244,9 +244,9 @@ describe('\'role\' service', function () {
         assert.ok(sysRole);
       });
       //GuildAdmin select roles for player
-      it('guildadmin select guild roles for player', async function () {
+      it("guildadmin select guild roles for player", async function () {
         const guildRole = await axiosUtil.create(
-          'guild_member_available_role',
+          "guild_member_available_role",
           {
             member_id: playerId,
             guild_id: publicGuildId,
@@ -257,9 +257,9 @@ describe('\'role\' service', function () {
         assert.ok(guildRole);
       });
       //Player selects casting role after guild admin creates
-      it('Player select casting role', async function () {
+      it("Player select casting role", async function () {
         await axiosUtil.create(
-          'casting_role',
+          "casting_role",
           {
             member_id: playerId,
             quest_id: publicQuestId,
@@ -270,9 +270,9 @@ describe('\'role\' service', function () {
         );
       });
       //Player selects second casting role after guild admin creates
-      it('Player select second casting role', async function () {
+      it("Player select second casting role", async function () {
         await axiosUtil.create(
-          'casting_role',
+          "casting_role",
           {
             member_id: playerId,
             quest_id: publicQuestId,
@@ -282,10 +282,10 @@ describe('\'role\' service', function () {
           playerToken
         );
       });
-      it('Leader cannot delete an available role in use', async function () {
+      it("Leader cannot delete an available role in use", async function () {
         await assert.rejects(async () => {
           await axiosUtil.delete(
-            'guild_member_available_role',
+            "guild_member_available_role",
             {
               member_id: playerId,
               guild_id: publicGuildId,
@@ -295,10 +295,10 @@ describe('\'role\' service', function () {
           );
         }, /casting_role_available_role_fkey/);
       });
-      it('Leader cannot delete a role in use', async function () {
+      it("Leader cannot delete a role in use", async function () {
         await assert.rejects(async () => {
           await axiosUtil.delete(
-            'role',
+            "role",
             {
               id: guildRoleId,
             },
