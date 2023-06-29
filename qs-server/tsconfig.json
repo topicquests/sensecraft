@@ -6,10 +6,9 @@
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "types": ["mocha"],
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "include": ["dispatcher/**/*.ts", "test/**/*.ts"]
+  "include": ["dispatcher/**/*.ts"]
 }
