@@ -590,6 +590,7 @@ CREATE OR REPLACE FUNCTION public.after_insert_node() RETURNS trigger
   LANGUAGE plpgsql
   AS $$
 BEGIN
+  INSERT INTO read_status (node_id, member_id, status) VALUES(NEW.id, current_member_id(), TRUE);
   PERFORM pg_notify(current_database(), concat('C conversation_node ' , NEW.id, ' 0 ', node_notification_constraints(NEW)));
   RETURN NEW;
 END$$;

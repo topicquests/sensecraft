@@ -108,6 +108,11 @@
             icon="add"
             @click="addChildToNode(prop.node.id)"
           />
+          <read-status-button
+            class="q-ml-md"
+            :node_id="prop.node.id"
+            :isRead="getNodeReadStatus(prop.node.id)"
+          ></read-status-button>
         </div>
       </template>
       <template v-slot:default-body="prop">
@@ -159,6 +164,7 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
 import { ConversationNode, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
+import ReadStatusButton from "./read-status-button.vue";
 import {
   ConversationMap,
   ConversationGetterTypes,
@@ -169,6 +175,8 @@ import { QTree } from "quasar";
 import { QuestsGetterTypes, QuestsActionTypes } from "../store/quests";
 import { GuildsGetterTypes, GuildsActionTypes } from "../store/guilds";
 import { RoleGetterTypes, RoleActionTypes } from "../store/role";
+import { ReadStatusGetterTypes } from "src/store/readStatus";
+import { ReadStatusActionTypes } from "../store/readStatus";
 import {
   ibis_node_type_type,
   ibis_node_type_list,
@@ -192,7 +200,7 @@ const NodeTreeProps = Vue.extend({
 });
 
 @Component<NodeTree>({
-  components: { NodeForm },
+  components: { NodeForm, ReadStatusButton },
   name: "ConversationNodeTree",
   methods: {
     ...mapActions("channel", [
@@ -215,6 +223,10 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapActions("quests", ["ensureQuest"]),
     ...mapActions("role", ["ensureAllRoles"]),
+    ...mapActions("readStatus", [
+      "ensureAllQuestsReadStatus",
+      "ensureAllChannelReadStatus",
+    ]),
   },
   computed: {
     ...mapState("conversation", ["neighbourhood", "conversation"]),
@@ -249,6 +261,7 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
+    ...mapGetters("readStatus", ["getNodeReadStatus"]),
     searchFilter_: function () {
       return this.searchFilter + "_";
     },
@@ -331,6 +344,8 @@ export default class NodeTree extends NodeTreeProps {
   getCurrentGamePlay!: QuestsGetterTypes["getCurrentGamePlay"];
   getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
+  getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
+
   nodeMap!: ConversationMap;
 
   createChannelNode: ChannelActionTypes["createChannelNode"];
@@ -347,6 +362,8 @@ export default class NodeTree extends NodeTreeProps {
   ensureMembersOfGuild!: MembersActionTypes["ensureMembersOfGuild"];
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
 
   emits = ["tree-selection"];
@@ -682,7 +699,6 @@ export default class NodeTree extends NodeTreeProps {
         }
     }
   }
-
   hiddenByCollapse(qnode: QTreeNode) {
     const qtree = this.$refs.tree as QTree;
     while (qnode) {
@@ -797,6 +813,12 @@ export default class NodeTree extends NodeTreeProps {
       if (!this.channelId) this.showFocusNeighbourhood = false;
     }
     await this.ensureData();
+    if (this.getRootNode) {
+      await this.ensureAllQuestsReadStatus();
+    }
+    if (this.channelId) {
+      await this.ensureAllChannelReadStatus();
+    }
     this.scrollToNode(this.selectedNodeId, 100);
     this.ready = true;
   }
