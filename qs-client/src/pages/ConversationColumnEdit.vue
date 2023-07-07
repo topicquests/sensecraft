@@ -19,7 +19,7 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 //Called by two routes from TopicView.vue:
 //  topicedit no params for a new topic
 //  topicchild/:id/:type  where id is parentId, and type is oneOf 'subclass' or 'instance'
@@ -28,11 +28,11 @@
 
 //import api from 'src/api'
 import { mapState } from "vuex";
-const api = null;
+//const api = null;
 //TODO we may use another method for node ID
 //const uuidv4 = require('uuid/v4')
-const conversation = api.service("conversation");
-var router;
+//const conversation = api.service("conversation");
+//var router;
 
 export default {
   // parentId required on new nodes
@@ -56,7 +56,7 @@ export default {
       // alert(this.label);
       // alert(this.details);
       // alert(this.type);
-      var mytype = this.type;
+      /* var mytype = this.type;
       //console.log('TopicEditDid', mytype)
       var json = {};
       // json.nodeId = uuidv4()
@@ -84,13 +84,13 @@ export default {
       conversation.create(json).then((response) => {
         router.push("/topics");
         // parents, if any, set in server
-      });
+      });*/
     },
   },
   beforeMount() {
     console.info("MMOWGLIEdit", "mounted", this.type, this.id, this.isDetails);
 
-    router = this.$router;
+    //router = this.$router;
     //TODO set is_details from isDetails
 
     //this.$store.commit('questView', false)

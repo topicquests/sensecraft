@@ -153,23 +153,25 @@
   </q-page>
 </template>
 
-<script>
-import { mapState, mapGetters, mapActions } from "vuex";
-import { userLoaded } from "../boot/userLoaded";
-import { QuestsState } from "../store/quests";
+<script lang="ts">
+//import { mapState, mapGetters, mapActions } from "vuex";
+//import { userLoaded } from "../boot/userLoaded";
+//import { QuestsState } from "../store/quests";
 
 export default {
   props: ["id", "context"],
   data() {
     return {
       label: "",
-      q: "",
+      q: {},
+      currentQuest: null,
       quest: null,
       nodeId: null,
       ready: false,
+      isAuthenticated: true,
     };
   },
-  computed: {
+  /* computed: {
     ...mapState("quests", {
       currentQuest: (state: QuestsState) => state.currentQuest,
     }),
@@ -179,22 +181,9 @@ export default {
     },
     ...mapGetters("quests", ["getQuestById", "getQuests"]),
     ...mapGetters("conversation", ["canEdit", "getConversationById"]),
-  },
+  },*/
   methods: {
-    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds"]),
-    async initialize(id = null) {
-      //this.$store.commit('questView', true)
-      const nodeId = id || Number.parseInt(this.$route.params.id);
-      console.info("Initialize", "ensureing data for ", nodeId);
-      //this.q = this.mock(); //this.$store.quest.getters.getNode(); //('foo')
-      console.info("node", this.q);
-      if (this.q !== null) {
-        this.getImage();
-      } else {
-        this.label = "Bad";
-      }
-    },
+    /*
 
     getImage() {
       const type = this.q.type;
@@ -211,12 +200,12 @@ export default {
     await userLoaded;
     await Promise.all([
       this.setCurrentQuest(this.questId),
-      this.ensurQuest(this.questId),
+      this.ensureQuest(this.questId),
       // TODO: Maybe only guilds playing the quest?
       // should we also get corresponding members?
       this.ensureAllGuilds(),
     ]);
-    this.ready = true;
+    this.ready = true;*/
   },
 };
 </script>
