@@ -164,10 +164,10 @@ export default {
     return {
       label: "",
       q: {},
-      currentQuest: null,
-      quest: null,
-      nodeId: null,
-      ready: false,
+      currentQuest: {},
+      quest: {},
+      nodeId: 1,
+      ready: true,
       isAuthenticated: true,
     };
   },
@@ -190,12 +190,13 @@ export default {
       const rslt = "icons/ibis/issue.png";
       console.log("ICON", type, rslt);
       //this.q.img = rslt;
-    },
+    },*/
   },
   mounted() {
-    this.initialize(this.nodeId);
+    //this.initialize(this.nodeId);
+    console.log("CCV mounted");
   },
-  async beforeMount() {
+  /* async beforeMount() {
     this.questId = Number.parseInt(this.$route.params.quest_id);
     await userLoaded;
     await Promise.all([
@@ -205,8 +206,8 @@ export default {
       // should we also get corresponding members?
       this.ensureAllGuilds(),
     ]);
-    this.ready = true;*/
-  },
+    this.ready = true;
+  },*/
 };
 </script>
 <style>
