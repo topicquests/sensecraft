@@ -328,10 +328,13 @@ def deploy(
         for feature in reversions:
             struct = structures[feature]
             assert struct.head
+            if feature not in state:
+                continue
             print(struct.revert)
             if not dry_run:
                 f_conn = admin_conn_data if struct.head.admin else conn_data
                 psql_command(None, struct.revert, **f_conn)
+                declare_revert(state, feature, **conn_data)
             if feature in state:
                 del state[feature]
             features.append(feature)
