@@ -163,8 +163,13 @@ export default {
   data() {
     return {
       label: "",
-      q: {},
-      currentQuest: {},
+      q: {
+        img: "icons/ibis/challenge.png",
+      },
+      currentQuest: {
+        name: "First Quest",
+        description: "Looking for grand ideas",
+      },
       quest: {},
       nodeId: 1,
       ready: true,
@@ -221,9 +226,10 @@ export default {
 }
 
 .headerimage {
-  float: left;
-  vertical-align: middle;
-  margin-right: 4px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }
 
 .node {
@@ -268,11 +274,11 @@ export default {
 * The formula seems to be column width * num colums + 100px 2500
 */
 .columncontainer {
-  width: 800px;
+  width: 100%;
   height: 200px;
 }
 .datacontainer {
-  width: 1200px;
+  width: 100%;
 }
 
 .headerimage {
@@ -293,10 +299,10 @@ export default {
   white-space: normal;
 }
 .column {
-  height: 134px;
+  height: 200px;
   float: left;
   white-space: normal;
-  width: 260px;
+  width: 180px;
   border: 0px solid black;
   border-radius: 3px;
   margin-left: 1px;
