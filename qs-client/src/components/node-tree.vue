@@ -113,6 +113,12 @@
             :node_id="prop.node.id"
             :isRead="getNodeReadStatus(prop.node.id)"
           ></read-status-button>
+          <q-chip v-if="getUnreadCount(prop.node.id) > 0">
+            <q-avatar color="red" text-color="white"
+              >{{ getUnreadCount(prop.node.id) }}
+            </q-avatar>
+            Unread
+          </q-chip>
         </div>
       </template>
       <template v-slot:default-body="prop">
@@ -406,6 +412,34 @@ export default class NodeTree extends NodeTreeProps {
       if (pos >= 0) pub_states.splice(pos);
     }
     this.baseNodePubStateConstraints = pub_states;
+  }
+
+  getUnreadCount(nodeId: number) {
+    let count = 0;
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      if (
+        this.getNodeReadStatus(nodeId) == null ||
+        this.getNodeReadStatus(nodeId) == false
+      ) {
+        count++;
+      }
+
+      if (this.getChildrenOf(nodeId).length > 0) {
+        this.getChildrenOf(nodeId).forEach((element) => {
+          if (
+            this.getNodeReadStatus(element.id) == null ||
+            this.getNodeReadStatus(element.id) == false
+          ) {
+            count++;
+          }
+        });
+      }
+      return count;
+    }
+    return 0;
   }
 
   getMemberHandle(id: number) {
