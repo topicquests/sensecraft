@@ -69,12 +69,10 @@ The FE could send node_display_time when the page unloads instead of regularly?
 
 ## UX:
 
-When node is folded, show *U*/N
-where U is the number of unread descendants (bolded)
-N is the total number of descendants.
-(Hide on unfold.)
-If U is 0, just show N.
+If node is read, unfolded: White circle with pale shadow
+If node is read, folded, with U unread descendants and N descendants: White circle with pale shadow, containing *U*/N (U bolded)
+If node is read, folded, with 0 unread descendants and N descendants: White circle with pale shadow, containing N
 
-When node is unread (folded or not): full blue circle
-When node is unread, folded with unread children: full blue circle with # unread children in white
-Otherwise (when node is read, unfolded; or read, no unread child): white circle with pale shadow
+If node is unread, unfolded: Blue circle
+If node is unread, folded, with U unread descendants and N descendants: Blue, with *U*/N in white (U bolded)
+If node is unread, folded, with 0 unread descendants and N descendants: White circle with pale shadow, containing N in white
