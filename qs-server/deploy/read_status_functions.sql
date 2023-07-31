@@ -11,6 +11,7 @@ BEGIN;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.read_status TO :dbm;
 GRANT SELECT, INSERT ON TABLE public.read_status TO :dbc;
+
 CREATE OR REPLACE FUNCTION public.unread_status_list(rootid integer)
 RETURNS TABLE (
     node_id integer,
@@ -24,7 +25,7 @@ RETURNS TABLE (
     JOIN conversation_node AS ds on (ds.ancestry <@ cn.ancestry)
     LEFT OUTER JOIN read_status AS rs on (rs.node_id = cn.id AND rs.member_id = current_member_id())
     LEFT OUTER JOIN read_status AS rsd on (rsd.node_id = ds.id AND rsd.member_id = current_member_id() AND rsd.status = true)
-    WHERE rootid::varchar::ltree @> cn.ancestry AND rsd.status IS NULL OR rsd.status = false
+    WHERE rootid::varchar::ltree @> cn.ancestry
     GROUP BY cn.id, rs.status;
 $$ LANGUAGE SQL;
 
