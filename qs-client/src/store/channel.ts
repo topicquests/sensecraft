@@ -15,7 +15,7 @@ interface ChannelMap {
   [key: number]: ConversationMap;
 }
 
-export interface ChannelState extends Object {
+export interface ChannelState {
   channels: ConversationMap;
   channelData: ChannelMap;
   currentGuild: number;

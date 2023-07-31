@@ -67,7 +67,7 @@ export interface ConversationMap {
   [key: number]: ConversationNode;
 }
 
-export interface ConversationState extends Object {
+export interface ConversationState {
   full: boolean;
   node?: ConversationNode;
   currentQuest?: number;
