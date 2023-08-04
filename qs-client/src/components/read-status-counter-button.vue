@@ -1,0 +1,107 @@
+<template>
+  <q-btn
+    round
+    v-if="getUnreadCount(node_id) > 0"
+    size="15px"
+    :color="localRead ? 'transparent' : 'blue'"
+    text-color="black"
+    @click="toggleReadStatus()"
+  >
+    <strong>{{ getUnreadCount(node_id) }}</strong> /
+    {{ getNodeCount(node_id) }}
+  </q-btn>
+  <q-btn
+    round
+    v-else-if="getChildrenOf(node_id).length > 0"
+    size="12px"
+    text-color="black"
+    :color="localRead ? 'transparent' : 'blue'"
+    @click="toggleReadStatus()"
+  >
+    {{ getNodeCount(node_id) }}
+  </q-btn>
+  <q-btn
+    round
+    v-else
+    size="7px"
+    :color="localRead ? 'transparent' : 'blue'"
+    text-color="black"
+    @click="toggleReadStatus()"
+  >
+  </q-btn>
+</template>
+
+<script lang="ts">
+import Component from "vue-class-component";
+import Vue from "vue";
+import { mapGetters, mapActions } from "vuex";
+import { ReadStatusGetterTypes } from "src/store/readStatus";
+import { ConversationGetterTypes } from "../store/conversation";
+import { ReadStatusActionTypes } from "src/store/readStatus";
+
+const ReadStatusCounterButtonProps = Vue.extend({
+  props: {
+    node_id: {
+      type: Number,
+      required: true,
+    },
+    isRead: { type: Boolean },
+  },
+});
+
+@Component<ReadStatusCounterButton>({
+  name: "read-status-counter",
+  computed: {
+    ...mapGetters("conversation", ["getConversationNodeById", "getChildrenOf"]),
+    ...mapGetters("readStatus", ["getUnreadStatusCount", "getNodeStatusCount"]),
+  },
+  methods: {
+    ...mapActions("readStatus", [
+      "CreateOrUpdateReadStatus",
+      "ensureAllQuestsReadStatus",
+    ]),
+  },
+})
+export default class ReadStatusCounterButton extends ReadStatusCounterButtonProps {
+  localRead: boolean = this.isRead;
+
+  getConversationNodeById: ConversationGetterTypes["getConversationNodeById"];
+  getChildrenOf: ConversationGetterTypes["getChildrenOf"];
+  getUnreadStatusCount!: ReadStatusGetterTypes["getUnreadStatusCount"];
+  getNodeStatusCount!: ReadStatusGetterTypes["getNodeStatusCount"];
+
+  CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+
+  getUnreadCount(nodeId: number) {
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      return this.getUnreadStatusCount(nodeId);
+    }
+    return 0;
+  }
+  getNodeCount(nodeId: number) {
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      return this.getNodeStatusCount(nodeId);
+    }
+    return 0;
+  }
+  async toggleReadStatus() {
+    this.localRead = !this.localRead;
+    await this.CreateOrUpdateReadStatus({
+      data: {
+        nodeid: this.node_id,
+        new_status: this.localRead,
+        override: true,
+      },
+    });
+    this.ensureAllQuestsReadStatus();
+  }
+}
+</script>
+<style scoped></style>

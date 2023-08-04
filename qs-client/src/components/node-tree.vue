@@ -108,18 +108,11 @@
             icon="add"
             @click="addChildToNode(prop.node.id)"
           />
-          <read-status-button
+          <read-status-counter-button
             class="q-ml-md"
             :node_id="prop.node.id"
             :isRead="getNodeReadStatus(prop.node.id)"
-          ></read-status-button>
-          <q-chip v-if="getUnreadCount(prop.node.id) > 0">
-            <q-avatar color="white" text-color="black"
-              >{{ getUnreadCount(prop.node.id) }} /
-              {{ getNodeCount(prop.node.id) }}
-            </q-avatar>
-            Unread
-          </q-chip>
+          ></read-status-counter-button>
         </div>
       </template>
       <template v-slot:default-body="prop">
@@ -172,6 +165,7 @@ import Component from "vue-class-component";
 import { ConversationNode, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
 import ReadStatusButton from "./read-status-button.vue";
+import ReadStatusCounterButton from "./read-status-counter-button.vue";
 import {
   ConversationMap,
   ConversationGetterTypes,
@@ -207,7 +201,7 @@ const NodeTreeProps = Vue.extend({
 });
 
 @Component<NodeTree>({
-  components: { NodeForm, ReadStatusButton },
+  components: { NodeForm, ReadStatusButton, ReadStatusCounterButton },
   name: "ConversationNodeTree",
   methods: {
     ...mapActions("channel", [
