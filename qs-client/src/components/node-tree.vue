@@ -114,8 +114,9 @@
             :isRead="getNodeReadStatus(prop.node.id)"
           ></read-status-button>
           <q-chip v-if="getUnreadCount(prop.node.id) > 0">
-            <q-avatar color="red" text-color="white"
-              >{{ getUnreadCount(prop.node.id) }}
+            <q-avatar color="white" text-color="black"
+              >{{ getUnreadCount(prop.node.id) }} /
+              {{ getNodeCount(prop.node.id) }}
             </q-avatar>
             Unread
           </q-chip>
@@ -267,7 +268,11 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
-    ...mapGetters("readStatus", ["getNodeReadStatus"]),
+    ...mapGetters("readStatus", [
+      "getNodeReadStatus",
+      "getUnreadStatusCount",
+      "getNodeStatusCount",
+    ]),
     searchFilter_: function () {
       return this.searchFilter + "_";
     },
@@ -351,6 +356,8 @@ export default class NodeTree extends NodeTreeProps {
   getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
   getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
+  getUnreadStatusCount!: ReadStatusGetterTypes["getUnreadStatusCount"];
+  getNodeStatusCount!: ReadStatusGetterTypes["getNodeStatusCount"];
 
   nodeMap!: ConversationMap;
 
@@ -415,29 +422,20 @@ export default class NodeTree extends NodeTreeProps {
   }
 
   getUnreadCount(nodeId: number) {
-    let count = 0;
     if (
       this.getConversationNodeById(nodeId) &&
       this.getChildrenOf(nodeId).length > 0
     ) {
-      if (
-        this.getNodeReadStatus(nodeId) == null ||
-        this.getNodeReadStatus(nodeId) == false
-      ) {
-        count++;
-      }
-
-      if (this.getChildrenOf(nodeId).length > 0) {
-        this.getChildrenOf(nodeId).forEach((element) => {
-          if (
-            this.getNodeReadStatus(element.id) == null ||
-            this.getNodeReadStatus(element.id) == false
-          ) {
-            count++;
-          }
-        });
-      }
-      return count;
+      return this.getUnreadStatusCount(nodeId);
+    }
+    return 0;
+  }
+  getNodeCount(nodeId: number) {
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      return this.getNodeStatusCount(nodeId);
     }
     return 0;
   }

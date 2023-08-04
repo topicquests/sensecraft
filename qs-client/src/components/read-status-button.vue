@@ -2,7 +2,7 @@
   <q-btn
     round
     size="5px"
-    :color="localRead ? 'transparent' : 'grey'"
+    :color="localRead ? 'transparent' : 'blue'"
     @click="toggleReadStatus()"
     ><q-tooltip class="bg-red text-red">{{ buttonTooltip() }}</q-tooltip>
   </q-btn>
@@ -30,13 +30,17 @@ const ReadStatusButtonProps = Vue.extend({
   name: "read-status-toggle",
   computed: {},
   methods: {
-    ...mapActions("readStatus", ["CreateOrUpdateReadStatus"]),
+    ...mapActions("readStatus", [
+      "CreateOrUpdateReadStatus",
+      "ensureAllQuestsReadStatus",
+    ]),
   },
 })
 export default class ReadStatusButton extends ReadStatusButtonProps {
   localRead: boolean = this.isRead;
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   buttonTooltip() {
     return this.localRead ? "Read" : "Unread";
@@ -54,6 +58,7 @@ export default class ReadStatusButton extends ReadStatusButtonProps {
         override: true,
       },
     });
+    this.ensureAllQuestsReadStatus();
   }
 }
 </script>
