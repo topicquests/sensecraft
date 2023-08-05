@@ -47,11 +47,13 @@
             </div>
             <div class="row justify-center">
               <div class="column guild-description-col">
-                <q-card>
-                  <div
-                    v-html="getCurrentGuild.description"
-                    id="guild-description"
-                  ></div>
+                <q-card class="q-mb-md">
+                  <div class="content-container">
+                    <div
+                      class="content"
+                      v-html="getCurrentGuild.description"
+                    ></div>
+                  </div>
                 </q-card>
               </div>
             </div>
@@ -699,7 +701,7 @@ export default class GuildPage extends Vue {
 
 <style lang="scss">
 .guild-description-col {
-  width: 60%;
+  width: 100%;
 }
 
 .guild-card {
@@ -781,5 +783,26 @@ export default class GuildPage extends Vue {
   .scoreboard {
     width: 98%;
   }
+}
+.content-container {
+  padding: 1em;
+  margin-bottom: 1em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  width: 100%;
+  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
+
+  border: 50px solid #ccc;
+  max-height: 300px; /*
+Set the maximum height you desire */
+  overflow-y: auto;
+}
+.content {
+  padding: 1em;
+  margin-bottom: 1em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  width: 100%;
+  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
 }
 </style>
