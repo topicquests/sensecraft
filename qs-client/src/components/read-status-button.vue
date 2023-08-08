@@ -32,7 +32,7 @@ const ReadStatusButtonProps = Vue.extend({
   methods: {
     ...mapActions("readStatus", [
       "CreateOrUpdateReadStatus",
-      "ensureAllQuestsReadStatus",
+      "fetchReadStatus",
     ]),
   },
 })
@@ -40,7 +40,7 @@ export default class ReadStatusButton extends ReadStatusButtonProps {
   localRead: boolean = this.isRead;
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
-  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  fetchReadStatus: ReadStatusActionTypes["fetchReadStatus"];
 
   buttonTooltip() {
     return this.localRead ? "Read" : "Unread";
@@ -58,7 +58,7 @@ export default class ReadStatusButton extends ReadStatusButtonProps {
         override: true,
       },
     });
-    this.ensureAllQuestsReadStatus();
+    this.fetchReadStatus();
   }
 }
 </script>

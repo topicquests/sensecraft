@@ -370,7 +370,7 @@ export default class NodeTree extends NodeTreeProps {
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
-  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllChannelReadStatus"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
 
   emits = ["tree-selection"];
