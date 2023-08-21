@@ -59,7 +59,9 @@ jobs:
         run: npm run test:integration
       - name: cleanup postgres container
         run: |
-          docker ps
           export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:15.4-alpine-jwt`
-          docker container stop $PGCONT
-          docker container rm $PGCONT
+          if [[-n $PGCONT]]
+          then
+            docker container stop $PGCONT
+            docker container rm $PGCONT
+          fi
