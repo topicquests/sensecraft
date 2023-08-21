@@ -75,7 +75,7 @@ AS $$
     ON (m.member = r.oid)
     JOIN pg_roles r1 ON (m.roleid=r1.oid)
     WHERE r1.rolname = current_database()||'__owner'
-    AND r.rolname=current_user
+    AND r.rolname=current_user AND r.rolinherit;
 $$ LANGUAGE SQL STABLE;
 
 
