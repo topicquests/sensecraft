@@ -10,7 +10,7 @@ let frontend: Promise<ChildProcessWithoutNullStreams> = null;
 // todo: refactor rather than copy
 async function waitForOutput(
   proc: ChildProcessWithoutNullStreams,
-  trigger: string
+  trigger: string,
 ): Promise<ChildProcessWithoutNullStreams> {
   let resolve: (v: any) => void;
   const ready = new Promise<void>((rs) => {
@@ -32,6 +32,7 @@ async function waitForOutput(
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
+    if (process.env.CHROME_BINARY) options.setBinary(process.env.CHROME_BINARY);
     options.addArguments("start-maximized"); // open Browser in maximized mode
     options.addArguments("disable-infobars"); // disabling infobars
     options.addArguments("--window-size=1920,1280");
@@ -54,7 +55,7 @@ async function ensureBackend() {
       ["test/test_backend.ts"],
       {
         cwd: "../qs-server",
-      }
+      },
     );
     backend = waitForOutput(backendProc, "Ready");
   }
@@ -79,7 +80,7 @@ async function killSelenium() {
 
 async function killProcess(
   process: Promise<ChildProcessWithoutNullStreams>,
-  signal: NodeJS.Signals = "SIGTERM"
+  signal: NodeJS.Signals = "SIGTERM",
 ) {
   if (process) {
     const processP = await process;

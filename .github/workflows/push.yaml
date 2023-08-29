@@ -56,7 +56,7 @@ jobs:
         run: npm run test:scoring
       - name: Run integration tests
         working-directory: ./qs-client
-        run: npm run test:integration
+        run: env CHROME_BINARY=/snap/bin/chromium npm run test:integration
       - name: cleanup postgres container
         run: |
           export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:15.4-alpine-jwt`
