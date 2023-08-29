@@ -58,8 +58,8 @@
     "libqp": "~2.0",
     "prettier": "~3.0",
     "ts-mocha": "~10.0",
-    "ts-node": "^10.9.1",
-    "typescript": "~5.0"
+    "ts-node": "TypeStrong/ts-node#main",
+    "typescript": "~5.2"
   },
   "lint-staged": {
     "**/*": [
