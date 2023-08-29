@@ -2,6 +2,7 @@ import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import { Before, After, AfterAll } from "@cucumber/cucumber";
 import { Builder } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
+import chromium from "selenium-webdriver/chromium";
 
 let selenium: Promise<Builder> = null;
 let backend: Promise<ChildProcessWithoutNullStreams> = null;
@@ -31,20 +32,35 @@ async function waitForOutput(
 
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
-    const options = new chrome.Options();
-    if (process.env.CHROME_BINARY)
-      options.setChromeBinary(process.env.CHROME_BINARY);
+    let options = null;
+    let browser = "chrome";
+    if (process.env.CHROME_BINARY) {
+      const path = process.env.CHROME_BINARY;
+      if (path.includes("chromium")) {
+        browser = "chromium";
+        options = new chromium.Options().setBinaryPath(path);
+      } else {
+        options = new chrome.Options().setBinaryPath(path);
+      }
+    } else {
+      options = new chrome.Options();
+    }
     options.addArguments("start-maximized"); // open Browser in maximized mode
     options.addArguments("disable-infobars"); // disabling infobars
     options.addArguments("--window-size=1920,1280");
     options.addArguments("--disable-extensions"); // disabling extensions
     options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
     options.addArguments("--no-sandbox"); // Bypass OS security model
-    if (!process.env.DEBUG_SELENIUM) options.addArguments("--headless");
-    selenium = new Builder()
-      .setChromeOptions(options)
-      .forBrowser("chrome")
-      .build();
+    if (!process.env.DEBUG_SELENIUM) {
+      options.addArguments("--headless");
+    }
+    let selenium = new Builder();
+    if (browser === "chromium") {
+      selenium = selenium.setChromiumOptions(options);
+    } else {
+      selenium = selenium.setChromeOptions(options);
+    }
+    selenium.forBrowser(browser).build();
   }
   return selenium;
 }
