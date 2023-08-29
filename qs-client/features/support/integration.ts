@@ -32,7 +32,8 @@ async function waitForOutput(
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
     const options = new chrome.Options();
-    if (process.env.CHROME_BINARY) options.setBinary(process.env.CHROME_BINARY);
+    if (process.env.CHROME_BINARY)
+      options.setChromeBinary(process.env.CHROME_BINARY);
     options.addArguments("start-maximized"); // open Browser in maximized mode
     options.addArguments("disable-infobars"); // disabling infobars
     options.addArguments("--window-size=1920,1280");
