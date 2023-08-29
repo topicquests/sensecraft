@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "@quasar/extras": "~1.16",
-    "axios": "~1.4",
+    "axios": "~1.5",
     "core-js": "^3",
     "jws": "~4.0",
-    "luxon": "~3.3",
+    "luxon": "~3.4",
     "pg-hstore": "~2.3",
     "quasar": "legacy",
     "robust-websocket": "~1.0",
@@ -39,7 +39,7 @@
     "yaml": "~2.3"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "~9.3",
+    "@cucumber/cucumber": "~9.4",
     "@cucumber/pretty-formatter": "^1.0",
     "@quasar/app": "~2.4",
     "@quasar/quasar-app-extension-testing": "~1.0",
@@ -55,7 +55,7 @@
     "chai": "~4.3",
     "cucumber-tsflow": "~4.0",
     "eslint": "~8",
-    "eslint-config-prettier": "~8.9",
+    "eslint-config-prettier": "~9.0",
     "eslint-plugin-cucumber": "~2.0",
     "eslint-plugin-jest": "~27",
     "eslint-plugin-markdown": "~3",
@@ -66,9 +66,9 @@
     "jest-matcher-vue-test-utils": "~2.0",
     "jest-mock-axios": "^4.7",
     "libqp": "~2.0",
-    "lint-staged": "~13.2",
+    "lint-staged": "~14.0",
     "prettier": "~2.8",
-    "selenium-webdriver": "~4.10",
+    "selenium-webdriver": "~4.11",
     "ts-jest": "~29",
     "ts-node": "~10.9",
     "typescript": "~5.0",
@@ -101,9 +101,9 @@
   },
   "productName": "SenseCraft",
   "resolutions": {
-    "axios": "~1.4"
+    "axios": "~1.5"
   },
   "overrides": {
-    "axios": "~1.4"
+    "axios": "~1.5"
   }
 }
