@@ -2,7 +2,8 @@ import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import { Before, After, AfterAll } from "@cucumber/cucumber";
 import { Builder } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
-import chromium from "selenium-webdriver/chromium";
+import fg from "fast-glob";
+import os from "os";
 
 let selenium: Promise<Builder> = null;
 let backend: Promise<ChildProcessWithoutNullStreams> = null;
@@ -32,18 +33,20 @@ async function waitForOutput(
 
 export async function ensureSelenium(): Promise<Builder> {
   if (selenium == null) {
-    let options = null;
-    let browser = "chrome";
+    const options = new chrome.Options();
     if (process.env.CHROME_BINARY) {
-      const path = process.env.CHROME_BINARY;
-      if (path.includes("chromium")) {
-        browser = "chromium";
-        options = new chromium.Options().setBinaryPath(path);
-      } else {
-        options = new chrome.Options().setBinaryPath(path);
-      }
+      options.setBinaryPath(process.env.CHROME_BINARY);
     } else {
-      options = new chrome.Options();
+      // look for locally installed binaries
+      let local_chrome: string[];
+      if (os.platform() == "darwin") {
+        local_chrome = await fg("./chrome/*/*/*.app/Contents/MacOS/*");
+      } else if (os.platform() == "linux") {
+        local_chrome = await fg("./chrome/*/*/chrome");
+      }
+      if (local_chrome && local_chrome.length > 0) {
+        options.setBinaryPath(local_chrome[0]);
+      }
     }
     options.addArguments("start-maximized"); // open Browser in maximized mode
     options.addArguments("disable-infobars"); // disabling infobars
@@ -54,13 +57,19 @@ export async function ensureSelenium(): Promise<Builder> {
     if (!process.env.DEBUG_SELENIUM) {
       options.addArguments("--headless");
     }
-    let selenium = new Builder();
-    if (browser === "chromium") {
-      selenium = selenium.setChromiumOptions(options);
-    } else {
-      selenium = selenium.setChromeOptions(options);
+    // driver = chrome.Driver.createSession(options, service);
+    const builder = new Builder()
+      .setChromeOptions(options)
+      .forBrowser("chrome");
+    const local_chromedrivers: string[] = await fg(
+      "./chromedriver/*/*/chromedriver",
+    );
+    if (local_chromedrivers.length > 0) {
+      builder.setChromeService(
+        new chrome.ServiceBuilder(local_chromedrivers[0]),
+      );
     }
-    selenium.forBrowser(browser).build();
+    selenium = builder.build();
   }
   return selenium;
 }

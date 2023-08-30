@@ -24,7 +24,7 @@ jobs:
       - name: Install client components
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget chromium-driver golang-go
+          sudo apt install -y postgresql-client wget golang-go
           go install github.com/mailhog/MailHog@latest
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
@@ -47,7 +47,10 @@ jobs:
         run: npm run test
       - name: Install client dependencies
         working-directory: ./qs-client
-        run: npm ci
+        run: |
+          npm ci
+          npx @puppeteer/browsers install chrome@stable
+          npx @puppeteer/browsers install chromedriver@stable
       - name: Run client unit tests
         working-directory: ./qs-client
         run: npm run test:unit
@@ -56,7 +59,7 @@ jobs:
         run: npm run test:scoring
       - name: Run integration tests
         working-directory: ./qs-client
-        run: env CHROME_BINARY=/snap/bin/chromium npm run test:integration
+        run: npm run test:integration
       - name: cleanup postgres container
         run: |
           export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:15.4-alpine-jwt`
