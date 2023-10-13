@@ -62,6 +62,7 @@
           :currentGuildId="guildId"
           :currentQuestId="questId"
           :channelId="channelId"
+          :isChannel="true"
           :roles="getRoles"
           :editable="true"
         >

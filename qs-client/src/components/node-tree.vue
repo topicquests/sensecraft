@@ -111,6 +111,7 @@
           <read-status-counter-button
             class="q-ml-md"
             :node_id="prop.node.id"
+            :isChannel="isChannel"
             :isRead="getNodeReadStatus(prop.node.id)"
           ></read-status-counter-button>
         </div>
@@ -194,6 +195,7 @@ const NodeTreeProps = Vue.extend({
     currentQuestId: Number || null,
     currentGuildId: Number || null,
     channelId: Number || null,
+    isChannel: { type: Boolean, default: false },
     editable: Boolean,
     hideDescription: Boolean,
     initialSelectedNodeId: Number || null,

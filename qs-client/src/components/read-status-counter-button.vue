@@ -1,34 +1,68 @@
 <template>
-  <q-btn
-    round
-    v-if="getUnreadCount(node_id) > 0"
-    size="15px"
-    :color="localRead ? 'transparent' : 'blue'"
-    text-color="black"
-    @click="toggleReadStatus()"
-  >
-    <strong>{{ getUnreadCount(node_id) }}</strong> /
-    {{ getNodeCount(node_id) }}
-  </q-btn>
-  <q-btn
-    round
-    v-else-if="getChildrenOf(node_id).length > 0"
-    size="12px"
-    text-color="black"
-    :color="localRead ? 'transparent' : 'blue'"
-    @click="toggleReadStatus()"
-  >
-    {{ getNodeCount(node_id) }}
-  </q-btn>
-  <q-btn
-    round
-    v-else
-    size="7px"
-    :color="localRead ? 'transparent' : 'blue'"
-    text-color="black"
-    @click="toggleReadStatus()"
-  >
-  </q-btn>
+  <div v-if="isChannel">
+    <q-btn
+      round
+      v-if="getChannelUnreadCount(node_id) > 0"
+      size="15px"
+      :color="localRead ? 'transparent' : 'blue'"
+      text-color="black"
+      @click="toggleReadStatus()"
+    >
+      <strong>{{ getChannelUnreadCount(node_id) }}</strong> /
+      {{ getNodeCount(node_id) }}
+    </q-btn>
+    <q-btn
+      round
+      v-else-if="getChildrenOf(node_id).length > 0"
+      size="12px"
+      text-color="black"
+      :color="localRead ? 'transparent' : 'blue'"
+      @click="toggleReadStatus()"
+    >
+      {{ getNodeCount(node_id) }}
+    </q-btn>
+    <q-btn
+      round
+      v-else
+      size="7px"
+      :color="localRead ? 'transparent' : 'blue'"
+      text-color="black"
+      @click="toggleReadStatus()"
+    >
+    </q-btn>
+  </div>
+  <div v-else>
+    <q-btn
+      round
+      v-if="getUnreadCount(node_id) > 0"
+      size="15px"
+      :color="localRead ? 'transparent' : 'blue'"
+      text-color="black"
+      @click="toggleReadStatus()"
+    >
+      <strong>{{ getUnreadCount(node_id) }}</strong> /
+      {{ getNodeCount(node_id) }}
+    </q-btn>
+    <q-btn
+      round
+      v-else-if="getChildrenOf(node_id).length > 0"
+      size="12px"
+      text-color="black"
+      :color="localRead ? 'transparent' : 'blue'"
+      @click="toggleReadStatus()"
+    >
+      {{ getNodeCount(node_id) }}
+    </q-btn>
+    <q-btn
+      round
+      v-else
+      size="7px"
+      :color="localRead ? 'transparent' : 'blue'"
+      text-color="black"
+      @click="toggleReadStatus()"
+    >
+    </q-btn>
+  </div>
 </template>
 
 <script lang="ts">
@@ -38,6 +72,7 @@ import { mapGetters, mapActions } from "vuex";
 import { ReadStatusGetterTypes } from "src/store/readStatus";
 import { ConversationGetterTypes } from "../store/conversation";
 import { ReadStatusActionTypes } from "src/store/readStatus";
+import { ChannelGetterTypes } from "src/store/channel";
 
 const ReadStatusCounterButtonProps = Vue.extend({
   props: {
@@ -46,6 +81,10 @@ const ReadStatusCounterButtonProps = Vue.extend({
       required: true,
     },
     isRead: { type: Boolean },
+    isChannel: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 
@@ -54,6 +93,7 @@ const ReadStatusCounterButtonProps = Vue.extend({
   computed: {
     ...mapGetters("conversation", ["getConversationNodeById", "getChildrenOf"]),
     ...mapGetters("readStatus", ["getUnreadStatusCount", "getNodeStatusCount"]),
+    ...mapGetters("channel", ["getChannelById, getChannelChildrenOf"]),
   },
   methods: {
     ...mapActions("readStatus", [
@@ -69,11 +109,27 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   getChildrenOf: ConversationGetterTypes["getChildrenOf"];
   getUnreadStatusCount!: ReadStatusGetterTypes["getUnreadStatusCount"];
   getNodeStatusCount!: ReadStatusGetterTypes["getNodeStatusCount"];
+  getChannelById!: ChannelGetterTypes["getChannelById"];
+  getChannelChildrenOf!: ChannelGetterTypes["getChannelChildrenOf"];
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
+  getChannelUnreadCount(nodeId: number) {
+    console.log("isChannel", this.isChannel);
+    console.log("Channel id:", nodeId);
+    if (
+      this.getChannelById(nodeId) &&
+      this.getChannelChildrenOf(nodeId).length > 0
+    ) {
+      return this.getUnreadStatusCount(nodeId);
+    }
+    return 0;
+  }
+
   getUnreadCount(nodeId: number) {
+    console.log("Node id: ", nodeId);
+    console.log("isChannel", this.isChannel);
     if (
       this.getConversationNodeById(nodeId) &&
       this.getChildrenOf(nodeId).length > 0
@@ -82,6 +138,7 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
     }
     return 0;
   }
+
   getNodeCount(nodeId: number) {
     if (
       this.getConversationNodeById(nodeId) &&
