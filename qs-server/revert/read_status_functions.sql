@@ -7,6 +7,7 @@ BEGIN;
 \set dbc :dbn '__client';
 
 DROP FUNCTION IF EXISTS public.unread_status_list();
+DROP FUNCTION IF EXISTS public.unread_status_list(integer);
 DROP FUNCTION IF EXISTS public.node_shown_time(node_id integer, seconds float);
 DROP FUNCTION IF EXISTS public.node_set_read_status(node_id integer, new_status boolean, override boolean);
 

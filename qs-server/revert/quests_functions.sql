@@ -45,6 +45,7 @@ DROP FUNCTION IF EXISTS  public.after_update_quest();
 DROP FUNCTION IF EXISTS  public.before_createup_quest_membership();
 DROP FUNCTION IF EXISTS  public.before_create_quest();
 DROP FUNCTION IF EXISTS  public.alter_quest_membership(quest character varying, member character varying, adding boolean);
+DROP FUNCTION IF EXISTS  public.alter_quest_membership(quest_id integer, member_id integer, adding boolean);
 DROP FUNCTION IF EXISTS  public.after_delete_quest_membership();
 DROP FUNCTION IF EXISTS  public.after_delete_quest();
 DROP FUNCTION IF EXISTS  public.before_delete_quest();

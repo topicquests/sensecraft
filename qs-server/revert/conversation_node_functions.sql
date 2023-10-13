@@ -21,7 +21,7 @@ DROP FUNCTION IF EXISTS public.before_update_node();
 DROP FUNCTION IF EXISTS public.after_update_node();
 DROP FUNCTION IF EXISTS public.after_insert_node();
 DROP FUNCTION IF EXISTS public.after_delete_node();
-DROP FUNCTION IF EXISTS public.end_turn(quest_id number);
+DROP FUNCTION IF EXISTS public.end_turn(quest_id integer);
 DROP FUNCTION IF EXISTS public.node_notification_constraints(node public.conversation_node);
 DROP FUNCTION IF EXISTS public.check_node_type_rules(child_type public.ibis_node_type, parent_type public.ibis_node_type);
 DROP FUNCTION IF EXISTS public.check_node_status_rules(status public.publication_state, parent_status public.publication_state, guild_id integer, quest_id integer, node_type public.ibis_node_type);

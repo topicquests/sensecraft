@@ -176,7 +176,7 @@ BEGIN
     IF NOT is_superadmin() THEN
       RAISE EXCEPTION 'permission superadmin / create nodes as other member';
     END IF;
-    EXECUTE 'SET ROLE ' || current_database() || '__m_' || creator_id::text;
+    EXECUTE 'SET LOCAL ROLE ' || current_database() || '__m_' || creator_id::text;
   END IF;
   IF data->>'quest_id' IS NOT NULL THEN
     SELECT id INTO STRICT quest_id
@@ -211,7 +211,7 @@ BEGIN
   IF data->'lid' IS NOT NULL THEN
     id_map = jsonb_set(id_map, data->>'lid', to_jsonb(node_id));
   END IF;
-  EXECUTE 'SET ROLE ' || curuser;
+  EXECUTE 'SET LOCAL ROLE ' || curuser;
   UPDATE conversation_node SET "status" = COALESCE(data->>'status', 'private_draft')::public.publication_state
     WHERE id = node_id;
   IF data->'children' IS NOT NULL THEN
