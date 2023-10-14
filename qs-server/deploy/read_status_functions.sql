@@ -64,7 +64,7 @@ BEGIN
     IF OLD.title != NEW.title OR OLD.description != NEW.description THEN
         curuser := current_user;
         curuser_id := COALESCE(current_member_id(), -1);
-        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
         UPDATE read_status
             SET status = NULL
             WHERE node_id = NEW.id

@@ -333,7 +333,7 @@ def deploy(
             print(struct.revert)
             if not dry_run:
                 f_conn = admin_conn_data if struct.head.admin else conn_data
-                psql_command(None, struct.revert, **f_conn)
+                psql_command(None, struct.revert, set_role_owner=not struct.head.admin, **f_conn)
                 declare_revert(state, feature, **conn_data)
             if feature in state:
                 del state[feature]
@@ -353,7 +353,7 @@ def deploy(
             if not dry_run:
                 if not simulation:
                     f_conn = admin_conn_data if struct.head.admin else conn_data
-                    psql_command(None, path, **f_conn)
+                    psql_command(None, path, set_role_owner=not struct.head.admin, **f_conn)
                 if not struct.head.idempotent:
                     # Forbid writing to both main file and migration after successful deploy.
                     Path(path).chmod(0o440)
@@ -489,7 +489,7 @@ def revert(
         if not dry_run:
             if not simulation:
                 f_conn = admin_conn_data if struct.head.admin else conn_data
-                psql_command(None, struct.revert, **f_conn)
+                psql_command(None, struct.revert, set_role_owner=not struct.head.admin, **f_conn)
             declare_revert(state, feature, **conn_data)
 
 
@@ -674,8 +674,8 @@ if __name__ == "__main__":
 
     args = argp.parse_args()
     db = args.database
-    conn_data = get_connection_data(ini_file, db, args.debug,)
-    admin_conn_data = get_connection_data(ini_file, db, args.debug, args.admin_password or True)
+    conn_data = get_connection_data(ini_file, db, debug=args.debug)
+    admin_conn_data = get_connection_data(ini_file, db, admin_password=args.admin_password or True, debug=args.debug)
     structures = read_structure()
     if args.command == "list":
         print("\n".join(calc_all_features(structures)))
@@ -735,7 +735,7 @@ if __name__ == "__main__":
         elif args.command == "status":
             show_status(state, structures)
         elif args.command == "truncate":
-            psql_command("", cmdfile="truncate.sql", **conn_data)
+            psql_command(None, cmdfile="truncate.sql", **conn_data)
         else:
             print("Not implemented")
             exit(1)

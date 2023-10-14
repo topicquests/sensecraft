@@ -121,7 +121,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild() RETURNS trigger
     DECLARE curuser varchar;
     BEGIN
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'DROP ROLE ' || current_database() || '__g_' || OLD.id;
       EXECUTE 'DROP ROLE ' || current_database() || '__l_' || OLD.id;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
@@ -150,7 +150,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_guild_membership() RETURNS trigge
       SELECT id, public INTO guild_id, is_public FROM guilds WHERE id=OLD.guild_id;
       IF member_id IS NOT NULL AND guild_id IS NOT NULL THEN
         curuser := current_user;
-        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
         EXECUTE 'ALTER GROUP ' || current_database() || '__g_' || OLD.guild_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'ALTER GROUP ' || current_database() || '__l_' || OLD.guild_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'SET LOCAL ROLE ' || curuser;
@@ -177,7 +177,7 @@ CREATE OR REPLACE FUNCTION public.alter_guild_membership(guild integer, member i
     DECLARE default_role integer;
     BEGIN
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       IF adding THEN
         -- TODO: check if member is already a member of group
         EXECUTE 'ALTER GROUP ' || current_database() || '__g_' || guild || ' ADD USER ' || current_database() || '__m_' || member;
@@ -232,7 +232,7 @@ CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
       guildrole := current_database() || '__g_' || NEW.id;
       guildleadrole := current_database() || '__l_' || NEW.id;
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'CREATE ROLE ' || guildrole;
       EXECUTE 'CREATE ROLE ' || guildleadrole;
       EXECUTE 'ALTER GROUP ' || guildrole || ' ADD USER ' || current_database() || '__client';

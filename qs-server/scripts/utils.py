@@ -11,11 +11,12 @@ def as_bool(value):
     return str(value).lower() in {'true', 'yes', 'on', '1', 'checked'}
 
 
-def get_connection_data(ini_file, db, debug=False, admin_password=None):
+def get_connection_data(ini_file, db, role='client', admin_password=False, debug=False):
     conn_data = dict(
-        user=ini_file[db]["owner"],
+        user=ini_file[db].get(role),
+        owner=ini_file[db].get('owner'),
         superuser=ini_file["postgres"]["user"],
-        password=ini_file[db]["owner_password"],
+        password=ini_file[db].get(f"{role}_password"),
         db=ini_file[db]["database"],
         variables=dict(dbn=ini_file[db]["database"]),
         host=ini_file["postgres"].get("host", "localhost"),
@@ -52,6 +53,8 @@ def psql_command(
     host="localhost",
     debug=False,
     variables=None,
+    set_role_owner=True,
+    owner=None,
     **kwargs,
 ):
     if debug:
@@ -73,10 +76,16 @@ def psql_command(
             conn.extend(["-v", f"{k}={v}"])
     if port != 5432:
         conn.extend(["-p", str(port)])
+    if set_role_owner:
+        owner = owner or f"{db}__owner"
+        if command:
+            command = f"SET ROLE {owner} ; {command}"
+        else:
+            command = f"SET ROLE {owner}"
+    if command:
+        conn.extend(["-c", command])
     if cmdfile:
         conn.extend(["-f", cmdfile])
-    else:
-        conn.extend(["-c", command])
     r = run(conn, capture_output=True, encoding="utf-8")
     if debug:
         print(r.returncode, r.stdout, r.stderr)

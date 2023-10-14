@@ -115,7 +115,7 @@ CREATE OR REPLACE FUNCTION public.alter_quest_membership(quest integer, member i
     DECLARE curuser varchar;
     BEGIN
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       IF adding THEN
         EXECUTE 'ALTER GROUP ' || current_database() || '__q_' || quest || ' ADD USER ' || current_database() || '__m_' || member;
       ELSE
@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest() RETURNS trigger
     BEGIN
       questrole := current_database() || '__q_' || OLD.id;
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'DROP ROLE ' || questrole;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       PERFORM pg_notify(current_database(), concat('D quests ' , OLD.id, ' ', OLD.creator, CASE WHEN OLD.public THEN '' ELSE (' Q'||OLD.id) END));
@@ -214,7 +214,7 @@ CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
       member_id := current_member_id();
       questrole := current_database() || '__q_' || NEW.id;
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'CREATE ROLE ' || questrole;
       EXECUTE 'ALTER GROUP ' || questrole || ' ADD USER ' || current_database() || '__client';
       IF member_id IS NOT NULL THEN
@@ -294,7 +294,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_quest_membership() RETURNS trigge
       SELECT slug INTO questrole FROM quests WHERE id=OLD.quest_id;
       IF questrole IS NOT NULL AND memberrole IS NOT NULL THEN
         curuser := current_user;
-        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+        EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
         EXECUTE 'ALTER GROUP ' || current_database() || '__q_' || OLD.quest_id || ' DROP USER ' || current_database() || '__m_' || OLD.member_id;
         EXECUTE 'SET LOCAL ROLE ' || curuser;
       END IF;

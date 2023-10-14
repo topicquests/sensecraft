@@ -15,14 +15,57 @@ from configparser import ConfigParser
 from secrets import token_urlsafe
 import json
 import stat
+from functools import partial
+from dataclasses import dataclass
+from typing import List
 
-from utils import psql_command
+from utils import psql_command as psql_command_utils
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
 DB_SUFFIXES = ("_dev", "_test", "")
 POSTGREST_PORT = 3000
 PERMISSIONS = stat.S_IREAD | stat.S_IWRITE | stat.S_IRGRP | stat.S_IWGRP
+psql_command = partial(psql_command_utils, set_role_owner=False)
+
+@dataclass
+class RoleData:
+    role: str
+    inherit: bool = True
+    login: bool = False
+    createrole: bool = False
+    partof: List[str] = None
+    admin_partof: bool = False
+    name: str = None
+    password: str = None
+
+    def options(self) -> str:
+        base = ' '.join(f"{'' if getattr(self, k) else 'no'}{k}" for k in ('createrole', 'inherit', 'login'))
+        if self.login:
+            base += f" encrypted password '{self.password}'"
+        else:
+            base += " password null"
+        return base
+
+    def set_name_pass(self, database, name=None, password=None):
+        self.name = name or f"{database}__{self.role}"
+        if self.login:
+            self.password = password or token_urlsafe(16)
+
+    def grants(self, rolenames) -> List[str]:
+        return [
+            f"grant {rolenames[r]} to {rolenames[self.role]}{' with admin option' if self.admin_partof else ''};"
+            for r in (self.partof or [])
+        ]
+
+
+base_roles = [
+    RoleData('owner', login=True),
+    RoleData('member'),
+    RoleData('admin', partof=["owner"]),
+    RoleData('rolemaster', createrole=True, admin_partof=True, partof=["member", "admin"]),
+    RoleData('client', inherit=False, login=True, partof=["owner", "rolemaster"]),
+]
 
 def test_db_exists(test, **kwargs):
     return (
@@ -79,31 +122,30 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
     member = database + "__member"
     if not test_user_exists(member, **conn_data):
         psql_command(f"CREATE ROLE {member}", **conn_data)
-    for usert in ("owner", "client"):
-        user = data[usert]
-        has_pass = data.get(usert + "_password", None)
-        password = has_pass or token_urlsafe(16)
-        user_conn = conn_data.copy()
-        user_conn.update(dict(user=user, password=password))
-        if has_pass:
-            # check connection
-            try:
-                test_user_exists(user, **user_conn)
-                # assume permissions are ok
-                continue
-            except AssertionError:
-                pass
-        else:
-            data[usert + "_password"] = password
-        extra_perms = "CREATEROLE" if usert == "owner" else "NOINHERIT"
+    for role in base_roles:
+        existing_pass = data.get(f"{role.role}_password")
+        role.set_name_pass(database, data.get(role.role), existing_pass)
+        user = role.name
+        if role.login:
+            user_conn = conn_data.copy()
+            user_conn.update(dict(user=user, password=role.password))
+            data.update({role.role: user, f"{role.role}_password": role.password})
+            if existing_pass:
+                # check connection
+                try:
+                    test_user_exists(user, **user_conn)
+                    # assume permissions are ok
+                    # continue
+                except AssertionError:
+                    pass
         if test_user_exists(user, **conn_data):
             psql_command(
-                f"ALTER ROLE {user} WITH LOGIN {extra_perms} ENCRYPTED PASSWORD '{password}'",
+                f"ALTER ROLE {user} WITH {role.options()}",
                 **conn_data,
             )
         else:
             psql_command(
-                f"CREATE USER {user} WITH LOGIN {extra_perms} ENCRYPTED PASSWORD '{password}'",
+                f"CREATE USER {user} WITH {role.options()}",
                 **conn_data,
             )
     auth_secret = data.get("auth_secret", None) or token_urlsafe(32)
@@ -134,8 +176,10 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
             psql_command(f"ALTER {database} SET OWNER TO {owner}", **conn_data)
 
     # TODO: this may already be the case
-    psql_command(f"ALTER GROUP {owner} ADD USER {data['client']}", **conn_data)
-    psql_command(f"ALTER GROUP {member} ADD USER {data['client']}", **conn_data)
+    rolenames = {r.role: r.name for r in base_roles}
+    for role in base_roles:
+        for grant in role.grants(rolenames):
+            psql_command(grant, **conn_data)
     psql_command(
         f"ALTER DATABASE {database} SET \"app.jwt_secret\" TO '{auth_secret}'",
         **conn_data,
@@ -299,8 +343,8 @@ if __name__ == "__main__":
         conn_data["user"] = args.user
     conn_data["password"] = args.password
     conn_data["sudo"] = args.sudo
-    conn_data = get_conn_params(**conn_data)
     conn_data["debug"] = args.debug
+    conn_data = get_conn_params(**conn_data)
     ini_file.set("postgres", "host", conn_data["host"])
     ini_file.set("postgres", "port", str(conn_data["port"]))
     ini_file.set("postgres", "user", conn_data["user"])

@@ -74,7 +74,7 @@ AS $$
     FROM pg_catalog.pg_roles r JOIN pg_catalog.pg_auth_members m
     ON (m.member = r.oid)
     JOIN pg_roles r1 ON (m.roleid=r1.oid)
-    WHERE r1.rolname = current_database()||'__owner'
+    WHERE r1.rolname = current_database()||'__admin'
     AND r.rolname=current_user AND r.rolinherit;
 $$ LANGUAGE SQL STABLE;
 
@@ -104,7 +104,7 @@ CREATE OR REPLACE FUNCTION public.get_token(mail character varying, pass charact
     DECLARE is_confirmed boolean;
     BEGIN
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       SELECT CONCAT(current_database() || '__m_', id), password, confirmed INTO STRICT role, passh, is_confirmed FROM members WHERE email = mail;
       IF NOT is_confirmed THEN
         RAISE EXCEPTION 'invalid confirmed / Cannot login until confirmed';
@@ -150,7 +150,7 @@ CREATE OR REPLACE FUNCTION public.renew_token(token character varying) RETURNS c
       SELECT sign(row_to_json(r), current_setting('app.jwt_secret')) INTO STRICT t FROM (
         SELECT (p ->> 'role') as role, extract(epoch from now())::integer + 1000 AS exp) r;
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       UPDATE members SET last_login = now(), confirmed = true WHERE id=member_id;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN t;
@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION public.send_login_email(email varchar) RETURNS boolea
     DECLARE passh varchar;
     BEGIN
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       SELECT m.id, m.name, m.confirmed, m.last_login_email_sent, CONCAT(current_database() || '__m_', m.id)
         INTO id, name, confirmed, last_login_email_sent, role
         FROM members as m WHERE m.email = send_login_email.email;
@@ -202,11 +202,11 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
     BEGIN
       newmember := current_database() || '__m_' || NEW.id;
       curuser := current_user;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'CREATE ROLE ' || newmember || ' INHERIT IN GROUP ' || current_database() || '__member';
       EXECUTE 'ALTER GROUP ' || newmember || ' ADD USER ' || current_database() || '__client';
       IF 'superadmin' = ANY(NEW.permissions) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || newmember;
+        EXECUTE 'ALTER GROUP '||current_database()||'__admin ADD USER ' || newmember;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       SELECT send_login_email(NEW.email) INTO temp;
@@ -237,12 +237,12 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
       IF NEW.permissions != OLD.permissions AND NOT public.is_superadmin() THEN
         RAISE EXCEPTION 'permission superadmin / change user permissions';
       END IF;
-      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       IF ('superadmin' = ANY(NEW.permissions)) AND NOT ('superadmin' = ANY(OLD.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.id;
+        EXECUTE 'ALTER GROUP '||current_database()||'__admin ADD USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       IF ('superadmin' = ANY(OLD.permissions)) AND NOT ('superadmin' = ANY(NEW.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || NEW.id;
+        EXECUTE 'ALTER GROUP '||current_database()||'__admin DROP USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
@@ -297,13 +297,14 @@ CREATE OR REPLACE FUNCTION public.after_delete_member() RETURNS trigger
     AS $$
     DECLARE database varchar;
     DECLARE oldmember varchar;
-    DECLARE owner varchar;
+    DECLARE curuser varchar;
     BEGIN
       database := current_database();
+      curuser := current_user;
       oldmember := database || '__m_' || OLD.id;
-      owner := database || '__owner';
-      EXECUTE 'SET LOCAL ROLE ' || owner;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'DROP ROLE ' || oldmember;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
     END;
     $$;
