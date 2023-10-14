@@ -216,7 +216,7 @@ CREATE OR REPLACE FUNCTION public.after_create_quest() RETURNS trigger
       curuser := current_user;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'CREATE ROLE ' || questrole;
-      EXECUTE 'ALTER GROUP ' || questrole || ' ADD USER ' || current_database() || '__client';
+      EXECUTE 'GRANT ' || questrole || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
       IF member_id IS NOT NULL THEN
         INSERT INTO quest_membership (quest_id, member_id, confirmed) VALUES (NEW.id, member_id, true);
       END IF;

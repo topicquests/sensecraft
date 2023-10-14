@@ -32,6 +32,7 @@ BEGIN
     SELECT id FROM public.quests
   LOOP
     EXECUTE 'CREATE ROLE ' || current_database() || '__q_' || entity_id;
+    EXECUTE 'GRANT ' || current_database() || '__q_' || entity_id || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
   END LOOP;
   FOR entity_id, member_id_ IN
     SELECT quest_id, member_id FROM public.quest_membership WHERE confirmed
@@ -44,6 +45,8 @@ BEGIN
   LOOP
     EXECUTE 'CREATE ROLE ' || current_database() || '__g_' || entity_id;
     EXECUTE 'CREATE ROLE ' || current_database() || '__l_' || entity_id;
+    EXECUTE 'GRANT ' || current_database() || '__g_' || entity_id || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
+    EXECUTE 'GRANT ' || current_database() || '__l_' || entity_id || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
   END LOOP;
   FOR entity_id, member_id_, temp IN
     SELECT guild_id, member_id, 'guildAdmin' = ANY(permissions) FROM public.guild_membership WHERE status = 'confirmed'
