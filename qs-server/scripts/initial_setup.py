@@ -231,13 +231,16 @@ if __name__ == "__main__":
         conn_data["sudo"] = ini_file.getboolean("postgres", "sudo", fallback=None)
     else:
         ini_file.add_section("postgres")
-    app_name = "SenseCraft"
+    app_name = None
     if ini_file.has_section("base"):
-        app_name = ini_file.get("base", "app_name", fallback=app_name)
+        app_name = ini_file.get("base", "app_name", fallback=None)
     else:
         ini_file.add_section("base")
     argp = argparse.ArgumentParser("Create the base databases for an application")
-    argp.add_argument("--app_name", default=app_name, help="The application name")
+    if app_name:
+        argp.add_argument("--app_name", default=app_name, help="The application name")
+    else:
+        argp.add_argument("--app_name", required=True, help="The application name")
     argp.add_argument("--host", default=conn_data["host"], help="the database host")
     argp.add_argument("--port", default=conn_data["port"], help="the database port")
     argp.add_argument(

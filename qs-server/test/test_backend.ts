@@ -60,7 +60,7 @@ async function frontendTeardown() {
 
 process.on("SIGHUP", () => {
   console.log("SIGHUP");
-  execSync("./scripts/db_updater.py -d test truncate");
+  execSync("./scripts/db_updater.py -d test run_sql -f scripts/truncate.sql");
   // TODO: Empty mailhog messages
 });
 

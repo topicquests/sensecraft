@@ -56,7 +56,7 @@ In `qs-server`:
 First, set the mailing variables (See the section below.)
 Then, initialize the three databases for production, development and testing. By default, these will be called `sensecraft`, `sensecraft_dev` and `sensecraft_test` respectively. This can be controlled by parameters to the following script.
 
-`./scripts/initial_setup.py`
+`./scripts/initial_setup.py --app_name sensecraft`
 
 There are many optional parameters but the default setting should run. You will have to sudo on linux.
 This should be done only once, but may be done many times without harm.
