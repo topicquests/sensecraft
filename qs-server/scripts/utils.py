@@ -18,6 +18,7 @@ def get_connection_data(ini_file, db, debug=False, admin_password=None):
         password=ini_file[db]["owner_password"],
         db=ini_file[db]["database"],
         variables=dict(dbn=ini_file[db]["database"]),
+        host=ini_file["postgres"].get("host", "localhost"),
         port=ini_file["postgres"].get("port", 5432),
         debug=debug,
     )

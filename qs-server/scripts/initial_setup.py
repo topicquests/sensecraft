@@ -14,14 +14,15 @@ import argparse
 from configparser import ConfigParser
 from secrets import token_urlsafe
 import json
-from utils import psql_command
+import stat
 
+from utils import psql_command
 
 CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
 DB_SUFFIXES = ("_dev", "_test", "")
 POSTGREST_PORT = 3000
-
+PERMISSIONS = stat.S_IREAD | stat.S_IWRITE | stat.S_IRGRP | stat.S_IWGRP
 
 def test_db_exists(test, **kwargs):
     return (
@@ -50,7 +51,7 @@ def get_conn_params(host="localhost", user=None, password=None, sudo=None, **kwa
         user = user or "postgres"
         sudo = True if sudo is None and password is None else sudo or False
     try:
-        # try without passwordord
+        # try without password
         test_db_exists(
             "postgres", user=user, host=host, password=password, sudo=sudo, **kwargs
         )
@@ -325,7 +326,8 @@ if __name__ == "__main__":
             for k, v in data.items():
                 ini_file.set(db, k, v)
             url = f"postgres://{data['client']}:{data['client_password']}@{conn_data['host']}:{conn_data['port']}/{dbname}"
-            with open(f"postgrest_{db}.conf", "w") as f:
+            fname = f"postgrest_{db}.conf"
+            with open(fname, "w") as f:
                 f.write(
                     postgrest_config.format(
                         url=url,
@@ -334,6 +336,8 @@ if __name__ == "__main__":
                         jwt=data["auth_secret"],
                     )
                 )
+            os.chmod(fname, PERMISSIONS)
 
     with open(CONFIG_FILE, "w") as f:
         ini_file.write(f)
+    os.chmod(CONFIG_FILE, PERMISSIONS)
