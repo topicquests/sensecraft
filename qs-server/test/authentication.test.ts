@@ -49,19 +49,26 @@ describe("authentication", function () {
     }, /invalid confirmed/);
   });
   it("obtains a confirmation email", async function () {
+    const num_trials = 10;
+    this.timeout(300*(num_trials+1));
     // wait for MailHog
-    await delay(500);
     const axios = axiosUtil.axios;
-    const messageSearch = await axios.get(
-      "http://localhost:8025/api/v2/search",
-      {
-        params: {
-          kind: "to",
-          query: quidamInfo.email,
-        },
-        headers: mailhog_auth,
-      }
-    );
+    let messageSearch;
+    for (let i = 0; i < num_trials; i++) {
+      messageSearch = await axios.get(
+        "http://localhost:8025/api/v2/search",
+        {
+          params: {
+            kind: "to",
+            query: quidamInfo.email,
+          },
+          headers: mailhog_auth,
+        }
+      );
+      if (messageSearch.data.total > 0)
+        break;
+      await delay(250);
+    }
     assert.notEqual(messageSearch.data.total, 0);
     const email = messageSearch.data.items[0];
     const textParts = email.MIME.Parts.filter(
@@ -74,10 +81,11 @@ describe("authentication", function () {
     if (textParts[0].Headers["Content-Transfer-Encoding"] == "quoted-printable")
       text = decode(text).toString();
     const token_search = /token=(.*)/.exec(text);
-    assert(token_search);
+    assert.ok(token_search);
     token = token_search[1];
   });
   it("uses the token to set confirmation", async function () {
+    assert.notEqual(token, undefined);
     await axiosUtil.call("renew_token", { token });
     const quidamData = await axiosUtil.get(
       "members",
