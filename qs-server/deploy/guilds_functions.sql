@@ -235,8 +235,6 @@ CREATE OR REPLACE FUNCTION public.after_create_guild() RETURNS trigger
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       EXECUTE 'CREATE ROLE ' || guildrole;
       EXECUTE 'CREATE ROLE ' || guildleadrole;
-      EXECUTE 'GRANT ' || guildrole || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
-      EXECUTE 'GRANT ' || guildleadrole || ' TO ' || current_database() || '__rolemaster WITH ADMIN OPTION';
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       INSERT INTO guild_membership (guild_id, member_id, status, permissions) VALUES (NEW.id, NEW.creator, 'confirmed', ARRAY['guildAdmin'::public.permission]);
       PERFORM pg_notify(current_database(), concat('C guilds ' , NEW.id, ' ', NEW.creator, CASE WHEN NEW.public THEN '' ELSE (' G'||NEW.id) END));

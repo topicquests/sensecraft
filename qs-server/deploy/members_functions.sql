@@ -74,7 +74,7 @@ AS $$
     FROM pg_catalog.pg_roles r JOIN pg_catalog.pg_auth_members m
     ON (m.member = r.oid)
     JOIN pg_roles r1 ON (m.roleid=r1.oid)
-    WHERE r1.rolname = current_database()||'__admin'
+    WHERE r1.rolname = current_database()||'__owner'
     AND r.rolname=current_user AND r.rolinherit;
 $$ LANGUAGE SQL STABLE;
 
@@ -206,10 +206,11 @@ CREATE OR REPLACE FUNCTION public.after_create_member() RETURNS trigger
       EXECUTE 'CREATE ROLE ' || newmember || ' INHERIT IN GROUP ' || current_database() || '__member';
       EXECUTE 'ALTER GROUP ' || newmember || ' ADD USER ' || current_database() || '__client';
       IF 'superadmin' = ANY(NEW.permissions) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__admin ADD USER ' || newmember;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || newmember;
       END IF;
-      EXECUTE 'SET LOCAL ROLE ' || curuser;
+      EXECUTE 'SET LOCAL ROLE ' || current_database() || '__owner';
       SELECT send_login_email(NEW.email) INTO temp;
+      EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
     END;
     $$;
@@ -239,10 +240,10 @@ CREATE OR REPLACE FUNCTION public.before_update_member() RETURNS trigger
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || current_database() || '__rolemaster';
       IF ('superadmin' = ANY(NEW.permissions)) AND NOT ('superadmin' = ANY(OLD.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__admin ADD USER ' || current_database() || '__m_' || NEW.id;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner ADD USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       IF ('superadmin' = ANY(OLD.permissions)) AND NOT ('superadmin' = ANY(NEW.permissions)) THEN
-        EXECUTE 'ALTER GROUP '||current_database()||'__admin DROP USER ' || current_database() || '__m_' || NEW.id;
+        EXECUTE 'ALTER GROUP '||current_database()||'__owner DROP USER ' || current_database() || '__m_' || NEW.id;
       END IF;
       EXECUTE 'SET LOCAL ROLE ' || curuser;
       RETURN NEW;
