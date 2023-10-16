@@ -48,8 +48,8 @@ if __name__ == "__main__":
     db = args.database
     user = args.user
     conn_data = dict(
-        user=ini_file[db]["owner"],
-        password=ini_file[db]["owner_password"],
+        user=ini_file[db]["client"],
+        password=ini_file[db]["client_password"],
         port=ini_file["postgres"].get("port", 5432),
         db=ini_file[db]["database"],
     )
