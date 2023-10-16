@@ -63,6 +63,11 @@ Note that, until recently, rolemaster was rolled into owner. They had to be dist
 2. ``./script/db_updater.py run_sql -f scripts/rebuild_roles.sql``
 3. ``./script/db_updater.py deploy``
 
+Steps 2 and 3 should also be applied to production if appropriate:
+
+2. ``./script/db_updater.py -d production run_sql -f scripts/rebuild_roles.sql``
+3. ``./script/db_updater.py -d production deploy``
+
 If and when you actually migrate to Postgres 16, you should re-run step 1.
 
 .. _sqitch: https://sqitch.org
