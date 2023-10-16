@@ -29,7 +29,7 @@ jobs:
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./qs-server
-        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
+        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft --debug
       - name: install postgrest
         run: |
           wget https://github.com/PostgREST/postgrest/releases/download/v11.2.0/postgrest-v11.2.0-linux-static-x64.tar.xz
