@@ -29,12 +29,12 @@ jobs:
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./qs-server
-        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft --debug
+        run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
       - name: install postgrest
         run: |
-          wget https://github.com/PostgREST/postgrest/releases/download/v11.2.0/postgrest-v11.2.0-linux-static-x64.tar.xz
-          tar -Jxf postgrest-v11.2.0-linux-static-x64.tar.xz
-          rm postgrest-v11.2.0-linux-static-x64.tar.xz
+          wget https://github.com/PostgREST/postgrest/releases/download/v11.2.1/postgrest-v11.2.1-linux-static-x64.tar.xz
+          tar -Jxf postgrest-v11.2.1-linux-static-x64.tar.xz
+          rm postgrest-v11.2.1-linux-static-x64.tar.xz
           sudo mv postgrest /usr/bin/
       - name: Install server dependencies
         working-directory: ./qs-server
@@ -62,7 +62,7 @@ jobs:
         run: npm run test:integration
       - name: cleanup postgres container
         run: |
-          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:15.4-alpine-jwt`
+          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:16.0-alpine-jwt`
           if [[-n $PGCONT]]
           then
             docker container stop $PGCONT
