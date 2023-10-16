@@ -55,15 +55,14 @@ class RoleData:
         if self.login:
             self.password = password or token_urlsafe(16)
 
-    def grants(self, rolenames, psql_version) -> List[str]:
-        for r in self.partof or []:
-            base = f"grant {rolenames[r]} to {rolenames[self.role]}"
-            if not self.admin_partof:
-                yield base
-            elif psql_version < 16:
-                yield f"{base} WITH ADMIN OPTION"
-            else:
-                yield f"{base} WITH ADMIN true, INHERIT {r in self.inherits_of}, SET {r in self.inherits_of}"
+    def grant_for(self, role, psql_version) -> List[str]:
+        base = f"grant {role.name} to {self.name}"
+        if not self.admin_partof:
+            return base
+        elif psql_version < 16:
+            return f"{base} WITH ADMIN OPTION"
+        else:
+            return f"{base} WITH ADMIN true, INHERIT {role.role in self.inherits_of}, SET {role.role in self.inherits_of}"
 
 base_roles = [
     RoleData('owner', login=True),
@@ -129,8 +128,10 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
     for role in base_roles:
         existing_pass = data.get(f"{role.role}_password") if role.login else None
         role.set_name_pass(database, data.get(role.role), existing_pass)
-    roles_by_name = {r.role: r for r in base_roles}
+    roles_by_id = {r.role: r for r in base_roles}
     rolenames = {r.role: r.name for r in base_roles}
+    created_roles = set()
+    delayed_grants = []
     for role in base_roles:
         user = role.name
         if role.login:
@@ -153,8 +154,15 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
                 command = f"SET ROLE {rolenames[role.creator]}; {command}"
         command = f"{command} ROLE {user} WITH {role.options()}"
         psql_command(command, **conn_data)
-        for grant in role.grants(rolenames, psql_version):
-            psql_command(grant, **conn_data)
+        created_roles.add(role.role)
+        for role_id in (role.partof or []):
+            grant = role.grant_for(roles_by_id[role_id], psql_version)
+            if role_id in created_roles:
+                psql_command(grant, **conn_data)
+            else:
+                delayed_grants.append(grant)
+    for grant in delayed_grants:
+        psql_command(grant, **conn_data)
 
     auth_secret = data.get("auth_secret", None) or token_urlsafe(32)
     data["auth_secret"] = auth_secret
