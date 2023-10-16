@@ -43,4 +43,26 @@ Before running a deployment, it is a good idea to run it with the ``--dry-run`` 
 
 While developing, one often runs the commands of the migration file in ``psql`` to test them; you would not want to deploy them on your development server. You can run the deployment of that feature with the ``--simulation`` flag so the database table is updated as if the new version had been deployed.
 
+Postgres roles
+--------------
+
+For each database in an application called AppName, the following postgres users will be created:
+
+1. `appname__owner`: The database owner. Can login.
+2. `appname__rolemaster`: Can create roles. Has admin permissions on member, owner, and each group role. Is also a member of owner.
+3. `appname__client`: Can login. Is a member of rolemaster, owner and each user role, and can set role to any of them. Client applications should login using this role and set the appropriate role. Does not inherit any permissions from the roles it's a member of, and should have just enough permissions to login or create a user.
+4. `appname__member`: The group for all (non-admin) users. Has appropriate permissions.
+5. `appname__m_<id>`: A user (member) role for each user registered with the system. Will be part of member, maybe owner if it has superadmin rights, and various groups. The id is numeric, and the primary key of some user table. The first user created will have superadmin rights.
+6. `appname__<group_type_letter>_<id>`: A group registered with the system. Each group type will have an appropriate letter. The id will be numeric and th primary key of the appropriate group table. Users will be members of those groups as appropriate.
+
+Sensecraft uses group types `g` for guild membership, `l` for guild leadership and `q` for quest administration.
+
+Note that, until recently, rolemaster was rolled into owner. They had to be distinguished to allow compatibility with Postgres 16, so if your database does not yet have this role, there are unusual migration steps:
+
+1. `./script/initial_setup.py`
+2. `./script/db_updater.py run_sql -f scripts/rebuild_roles.sql`
+3. `./script/db_updater.py deploy`
+
+If and when you actually migrate to Postgres 16, you should re-run step 1.
+
 .. _sqitch: https://sqitch.org
