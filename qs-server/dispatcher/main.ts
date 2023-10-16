@@ -15,7 +15,8 @@ import type { ServerData } from '../../qs-client/src/types';
 const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
 const database: string = config.getRaw(`${_env}.database`) || 'sensecraft'
-const databaseURL = `postgres://${config.getRaw(`${_env}.owner`)}:${config.getRaw(`${_env}.owner_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port') || 5432}/${database}`
+const databaseURL = `postgres://${config.getRaw(`${_env}.client`)}:${config.getRaw(`${_env}.client_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port') || 5432}/${database}`
+const owner_role = config.getRaw(`${_env}.owner`);
 const port = Number(process.env.DISPATCHER_PORT || '4000');
 const pgstConfig = propertiesReader(`postgrest_${_env}.conf`)
 const postgrestURL = `http://localhost:${pgstConfig.getRaw('server-port')}`
@@ -299,6 +300,7 @@ class Dispatcher {
     await this.subscriber.connect()
     await this.subscriber.listenTo(database)
     await this.pgClient.connect()
+    await this.pgClient.query(`SET ROLE ${owner_role};`)
     await this.automation()
     const r = await this.pgClient.query<ServerData>('SELECT * from server_data;')
     const data = r.rows[0]
@@ -388,7 +390,7 @@ class Dispatcher {
           text: mailTxt,
           html: mailHtml,
         })
-        this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
+        await this.pgClient.query(`UPDATE members SET last_login_email_sent=now() WHERE id=${member_id}`)
       } catch (e) {
         console.error(`Error sending mail to ${email}: ${e}`);
       }
