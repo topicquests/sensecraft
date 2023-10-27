@@ -20,8 +20,8 @@
     "config": "config/"
   },
   "engines": {
-    "node": "~16",
-    "npm": "~8"
+    "node": "~18",
+    "npm": "~9"
   },
   "scripts": {
     "init": "tsc && ./scripts/initial_setup.py && ./scripts/db_updater.py init && ./scripts/db_updater.py deploy",
