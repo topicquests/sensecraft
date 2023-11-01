@@ -4,6 +4,8 @@ This is the front-end of the SenseCraft project. It uses the Quasar/Vue ecosyste
 
 ## Install the dependencies
 
+We assume node 18 is installed. We set `.nvmrc` to use `lts/hydrogen`.
+
 ```bash
 npm install
 ```
@@ -13,6 +15,8 @@ npm install
 ```bash
 npm run dev
 ```
+
+Note: If your build complains about `ERR_OSSL_EVP_UNSUPPORTED`, you may have to set a `NODE_OPTIONS=--openssl-legacy-provider` environment variable.
 
 ### Lint the files
 
