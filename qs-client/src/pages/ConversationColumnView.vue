@@ -4,7 +4,7 @@
       <div class="column items-center">
         <div class="col-4 q-pa-lg" style="width: 1000px">
           <h4>
-            <img style="margin-right: 4px" :src="q.img" />{{
+            <img style="margin-right: 4px" src="icons/quest.png" />{{
               currentQuest.name
             }}
           </h4>
@@ -32,7 +32,7 @@
                   <a
                     v-if="isAuthenticated"
                     title="Respond"
-                    :href="'/conversation/newquestion/' + q.nodeId"
+                    :href="'/conversation/newquestion/' + this.node_id"
                     ><img class="respond" src="icons/respond_sm.png"
                   /></a>
                 </div>
@@ -43,7 +43,7 @@
                   />Answer
                   <a
                     v-if="isAuthenticated"
-                    :href="'/conversation/newanswer/' + q.nodeId"
+                    :href="'/conversation/newanswer/' + this.node_id"
                     ><img class="respond" src="icons/respond_sm.png"
                   /></a>
                 </div>
@@ -51,7 +51,7 @@
                   <img class="headerimage" src="icons/ibis/plus_sm.png" />Pro
                   <a
                     v-if="isAuthenticated"
-                    :href="'/conversation/newpro/' + q.nodeId"
+                    :href="'/conversation/newpro/' + this.node_id"
                     ><img class="respond" src="icons/respond_sm.png"
                   /></a>
                 </div>
@@ -59,7 +59,7 @@
                   <img class="headerimage" src="icons/ibis/minus_sm.png" />Con
                   <a
                     v-if="isAuthenticated"
-                    :href="'/conversation/newcon/' + q.nodeId"
+                    :href="'/conversation/newcon/' + this.node_id"
                     ><img class="respond" src="icons/respond_sm.png"
                   /></a>
                 </div>
@@ -70,7 +70,7 @@
                   />Refs
                   <a
                     v-if="isAuthenticated"
-                    :href="'/conversation/newref/' + q.nodeId"
+                    :href="'/conversation/newref/' + this.node_id"
                     ><img class="respond" src="icons/respond_sm.png"
                   /></a>
                 </div>
@@ -80,67 +80,67 @@
                 <!-- start column data -->
                 <div
                   class="datacolumn node"
-                  v-for="question in q.questions"
-                  :key="question.nodeId"
+                  v-for="question in this.questions"
+                  :key="question.id"
                 >
                   <router-link
                     :to="{
                       name: 'node',
-                      params: { id: question.nodeId, context: '' },
+                      params: { id: question.id, context: '' },
                     }"
-                    >{{ question.label }}</router-link
+                    >{{ question.title }}</router-link
                   >
                 </div>
                 <div
                   class="datacolum node"
-                  v-for="answer in q.answers"
-                  :key="answer.nodeId"
+                  v-for="answer in this.answers"
+                  :key="answer.id"
                 >
                   <router-link
                     :to="{
                       name: 'node',
-                      params: { id: answer.nodeId, context: '' },
+                      params: { id: answer.id, context: '' },
                     }"
-                    >{{ answer.label }}</router-link
+                    >{{ answer.title }}</router-link
                   >
                 </div>
                 <div
                   class="datacolumn node"
-                  v-for="pro in q.pros"
-                  :key="pro.nodeId"
+                  v-for="pro in this.pros"
+                  :key="pro.id"
                 >
                   <router-link
                     :to="{
                       name: 'node',
-                      params: { id: pro.nodeId, context: '' },
+                      params: { id: pro.id, context: '' },
                     }"
-                    >{{ pro.label }}</router-link
+                    >{{ pro.title }}</router-link
                   >
                 </div>
                 <div
                   class="datacolumn node"
-                  v-for="con in q.cons"
-                  :key="con.nodeId"
+                  v-for="con in this.cons"
+                  :key="con.id"
                 >
                   <router-link
                     :to="{
                       name: 'node',
-                      params: { id: con.nodeId, context: '' },
+                      params: { id: con.id, context: '' },
                     }"
-                    >{{ con.label }}</router-link
+                    >{{ con.title }}</router-link
                   >
                 </div>
                 <div
                   class="datacolumn node"
-                  v-for="ref in q.refs"
-                  :key="ref.nodeId"
+                  v-for="ref in this.refs"
+                  :key="ref.id"
                 >
                   <router-link
                     :to="{
                       name: 'node',
-                      params: { id: ref.nodeId, context: '' },
+                      params: { id: ref.id, context: '' },
                     }"
-                    >{{ ref.label }}</router-link
+                    >{{ ref.title }}</router-link
                   >
                 </div>
               </div>
@@ -154,40 +154,102 @@
 </template>
 
 <script lang="ts">
-//import { mapState, mapGetters, mapActions } from "vuex";
-//import { userLoaded } from "../boot/userLoaded";
-//import { QuestsState } from "../store/quests";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { ConversationNode, Quest, Guild, Role } from "../types";
+import { mapState, mapGetters, mapActions } from "vuex";
+import {
+  QuestsState,
+  QuestsActionTypes,
+  QuestsGetterTypes,
+} from "../store/quests";
+import {
+  GuildsState,
+  GuildsGetterTypes,
+  GuildsActionTypes,
+} from "../store/guilds";
+import {
+  ConversationState,
+  ConversationGetterTypes,
+  ConversationActionTypes,
+} from "src/store/conversation";
+import { MemberState, MemberGetterTypes } from "../store/member";
+import { RoleState } from "../store/role";
+import { userLoaded } from "../boot/userLoaded";
+import { ibis_node_type_enum } from "../enums";
 
-export default {
-  props: ["id", "context"],
-  data() {
-    return {
-      label: "",
-      q: {
-        img: "icons/ibis/challenge.png",
-      },
-      currentQuest: {
-        name: "First Quest",
-        description: "Looking for grand ideas",
-      },
-      quest: {},
-      nodeId: 1,
-      ready: true,
-      isAuthenticated: true,
-    };
+const ConversationColumnProps = Vue.extend({
+  props: {
+    node_id: Number,
+    currentQuestId: Number,
+    currentGuildId: Number || null,
   },
-  /* computed: {
-    ...mapState("quests", {
-      currentQuest: (state: QuestsState) => state.currentQuest,
-    }),
+});
+
+@Component<ConversationColumnView>({
+  computed: {
+    ...mapState("quests", ["currentQuest"]),
     ...mapState("member", ["member"]),
-    isAuthenticated() {
-      return this.member != null;
-    },
+    ...mapState("conversation", ["neighbourhood", "node"]),
+
     ...mapGetters("quests", ["getQuestById", "getQuests"]),
-    ...mapGetters("conversation", ["canEdit", "getConversationById"]),
-  },*/
+    ...mapGetters("conversation", [
+      "getConversationNodeById",
+      "canMakeMeta",
+      "getNeighbourhoodTree",
+      "getChildrenOf",
+    ]),
+    parent_node: function (): ConversationNode {
+      return this.neighbourhood[this.node.parent_id];
+    },
+    children: function (): ConversationNode[] {
+      const target_id = this.node_id;
+      return Object.values(this.neighbourhood).filter(
+        (n: ConversationNode) => n.parent_id == target_id
+      ) as ConversationNode[];
+    },
+    questions: function (): ConversationNode[] {
+      return this.children().filter(
+        (n: ConversationNode) => n.node_type == ibis_node_type_enum.question
+      );
+    },
+    pros: function (): ConversationNode[] {
+      return this.children().filter(
+        (n: ConversationNode) => n.node_type == ibis_node_type_enum.pro
+      );
+    },
+    cons: function (): ConversationNode[] {
+      return this.children().filter(
+        (n: ConversationNode) => n.node_type == ibis_node_type_enum.con
+      );
+    },
+    refs: function (): ConversationNode[] {
+      return this.children().filter(
+        (n: ConversationNode) => n.node_type == ibis_node_type_enum.reference
+      );
+    },
+    answers: function (): ConversationNode[] {
+      return this.children().filter(
+        (n: ConversationNode) =>
+          n.node_type == ibis_node_type_enum.answer ||
+          n.node_type == ibis_node_type_enum.con_answer
+      );
+    },
+  },
   methods: {
+    ...mapActions("conversation", [
+      "createConversationNode",
+      "updateConversationNode",
+      "ensureConversationNeighbourhood",
+    ]),
+    ...mapActions("guilds", ["ensureCurrentGuild"]),
+    ...mapActions("members", [
+      "ensureMemberById",
+      "ensurePlayersOfQuest",
+      "ensureMembersOfGuild",
+    ]),
+    ...mapActions("quests", ["ensureCurrentQuest"]),
+    ...mapActions("role", ["ensureAllRoles"]),
     /*
 
     getImage() {
@@ -197,23 +259,44 @@ export default {
       //this.q.img = rslt;
     },*/
   },
+})
+export default class ConversationColumnView extends ConversationColumnProps {
+  currentQuest!: Quest;
+  currentGuild!: Guild;
+  ensureCurrentGuild: GuildsActionTypes["ensureCurrentGuild"];
+  ensureCurrentQuest: QuestsActionTypes["ensureCurrentQuest"];
+  ensureConversationNeighbourhood: ConversationActionTypes["ensureConversationNeighbourhood"];
+  getNeighbourhoodTree: ConversationGetterTypes["getNeighbourhoodTree"];
+  node: ConversationState["node"];
+  parent_node: ConversationNode;
+  children: ConversationNode[];
+  questions: ConversationNode[];
+  refs: ConversationNode[];
+  pros: ConversationNode[];
+  cons: ConversationNode[];
+  answers: ConversationNode[];
+
+  ready = false;
+  isAuthenticated = true;
+
   mounted() {
     //this.initialize(this.nodeId);
     console.log("CCV mounted");
-  },
-  /* async beforeMount() {
-    this.questId = Number.parseInt(this.$route.params.quest_id);
-    await userLoaded;
-    await Promise.all([
-      this.setCurrentQuest(this.questId),
-      this.ensureQuest(this.questId),
-      // TODO: Maybe only guilds playing the quest?
-      // should we also get corresponding members?
-      this.ensureAllGuilds(),
-    ]);
+  }
+
+  async beforeMount() {
+    var node_id = (this.node_id = Number.parseInt(this.$route.params.id));
+    if (this.currentGuildId) {
+      await this.ensureCurrentGuild(this.currentGuildId);
+    }
+    await this.ensureConversationNeighbourhood({
+      node_id,
+      guild_id: null,
+    });
+    await this.ensureCurrentQuest(this.node.quest_id);
     this.ready = true;
-  },*/
-};
+  }
+}
 </script>
 <style>
 .q-item-image {

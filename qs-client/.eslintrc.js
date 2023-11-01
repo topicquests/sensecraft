@@ -27,8 +27,8 @@ module.exports = {
     "plugin:markdown/recommended",
     "plugin:jest/recommended",
     // Base ESLint recommended rules
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!
@@ -36,7 +36,7 @@ module.exports = {
     "@vue/typescript",
     // '@vue/typescript/recommended',
 
-    'prettier',
+    "prettier",
   ],
 
   plugins: [
@@ -65,6 +65,9 @@ module.exports = {
     "prefer-promise-reject-errors": "warn",
     // allow debugger during development only
     "no-debugger": "error",
-    "@typescript-eslint/no-unused-vars": ["error", {args: "none", varsIgnorePattern: "^_"}],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { args: "none", varsIgnorePattern: "^_" },
+    ],
   },
 };

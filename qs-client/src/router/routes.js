@@ -21,7 +21,7 @@ const routes = [
       },
 
       {
-        path: "/testcol/:id/:context",
+        path: "/testcol/:id",
         name: "testcol",
         component: () => import("src/pages/ConversationColumnView.vue"),
       },
