@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 """
 Copyright Conversence 2022-2023
-License: MIT
+License: Apache 2.0
 """
 
 from os.path import exists, join, abspath
@@ -17,7 +17,14 @@ CONFIG_FILE = "config.ini"
 DATABASES = ("development", "test", "production")
 
 
-def rotate_database_dumps(dbdumps_dir, db):
+def maybe_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return s
+
+
+def rotate_database_dumps(dbdumps_dir, db, daily=4, weekly=4, monthly=4, yearly='always'):
     """Rotate database backups for real"""
     import re
 
@@ -34,20 +41,13 @@ def rotate_database_dumps(dbdumps_dir, db):
         r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})"
     )
     coloredlogs.increase_verbosity()
-    rotation_scheme = {
-        # They're big, not too much
-        "daily": 4,
-        "weekly": 4,
-        "monthly": 4,
-        # Plus yearly for good conscience
-        "yearly": "always",
-    }
+    rotation_scheme = dict(daily=daily, weekly=weekly, monthly=monthly, yearly=yearly)
     location = Location(context=LocalContext(), directory=dbdumps_dir)
-    backup = RotateBackups(rotation_scheme, include_list=[f"db-{db}-*.sql.pgdump"])
+    backup = RotateBackups(rotation_scheme, include_list=[f"db-{db}-*.sql.pgdump*"])
     backup.rotate_backups(location, False)
 
 
-def database_dump(dbdumps_dir, password, host, user, db, **kwargs):
+def database_dump(dbdumps_dir, password, host, user, db, dump_format='custom', **kwargs):
     """
     Dumps the database
     """
@@ -65,7 +65,8 @@ def database_dump(dbdumps_dir, password, host, user, db, **kwargs):
             "pg_dump",
             f"--host={host}",
             f"-U{user}",
-            "--format=custom",
+            f"--format={dump_format}",
+            "--compress=gzip",
             "-b",
             db,
             "-f",
@@ -101,7 +102,14 @@ if __name__ == "__main__":
         variables=dict(dbn=ini_file[db_v]["database"]),
         port=ini_file["postgres"].get("port", 5432),
     )
+    backup_section = ini_file['backups'] if ini_file.has_section('backups') else {}
+    daily = maybe_int(backup_section.get('daily', 4))
+    weekly = maybe_int(backup_section.get('weekly', 4))
+    monthly = maybe_int(backup_section.get('monthly', 4))
+    yearly = maybe_int(backup_section.get('yearly', 'always'))
+    dump_format = backup_section.get('format', 'custom')
+
     db_dumps_dir = abspath(args.directory)
-    database_dump(db_dumps_dir, **conn_data)
+    database_dump(db_dumps_dir, dump_format=dump_format, **conn_data)
     if args.rotate:
-        rotate_database_dumps(db_dumps_dir, db)
+        rotate_database_dumps(db_dumps_dir, db, daily, weekly, monthly, yearly)
