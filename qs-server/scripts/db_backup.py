@@ -66,6 +66,7 @@ def database_dump(dbdumps_dir, password, host, user, db, dump_format='custom', *
             f"--host={host}",
             f"-U{user}",
             f"--format={dump_format}",
+            "--clean",
             "--compress=gzip",
             "-b",
             db,
