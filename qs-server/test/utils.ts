@@ -201,7 +201,7 @@ class AxiosUtil {
   }
 }
 
-export const axiosUtil = new AxiosUtil("http://localhost:3001");
+export const axiosUtil = new AxiosUtil("http://127.0.0.1:3001");
 
 export async function add_members(
   members: Partial<Member>[],
