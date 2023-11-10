@@ -196,9 +196,9 @@ BEGIN
   END IF;
   IF data->'draft_for_role' IS NOT NULL THEN
     IF data->'draft_for_role'->'name' IS NOT NULL THEN
-      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r JOIN public.guilds g ON g.id = r.guild_id WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND g.handle = (data->>'draft_for_role'->'guild')::varchar;
+      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r JOIN public.guilds g ON g.id = r.guild_id WHERE r.name = (data->'draft_for_role'->>'name')::varchar AND g.handle = (data->'draft_for_role'->>'guild')::varchar;
     ELSE
-      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r WHERE r.name = (data->>'draft_for_role'->'name')::varchar AND r.guild_id IS NULL;
+      SELECT r.id INTO STRICT draft_for_role_id FROM public.role r WHERE r.name = (data->'draft_for_role'->>'name')::varchar AND r.guild_id IS NULL;
     END IF;
   END IF;
   INSERT INTO conversation_node ("quest_id", "guild_id", "node_type", "meta", "status", "title", "description", "url", "parent_id", "draft_for_role_id")
@@ -209,7 +209,7 @@ BEGIN
       (data->>'title')::varchar, description, url, parent_id, draft_for_role_id)
     RETURNING id INTO STRICT node_id;
   IF data->'lid' IS NOT NULL THEN
-    id_map = jsonb_set(id_map, data->>'lid', to_jsonb(node_id));
+    id_map = jsonb_set(id_map, ARRAY[data->>'lid'], to_jsonb(node_id));
   END IF;
   EXECUTE 'SET LOCAL ROLE ' || curuser;
   UPDATE conversation_node SET "status" = COALESCE(data->>'status', 'private_draft')::public.publication_state
@@ -602,7 +602,6 @@ CREATE TRIGGER after_insert_node AFTER INSERT ON public.conversation_node FOR EA
 CREATE OR REPLACE FUNCTION public.after_delete_node() RETURNS trigger
   LANGUAGE plpgsql
   AS $$
-DECLARE db_name VARCHAR = current_database();
 BEGIN
   PERFORM pg_notify(current_database(), concat('D conversation_node ' , OLD.id, ' 0 ', node_notification_constraints(OLD)));
   RETURN NEW;

@@ -257,12 +257,10 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
     DECLARE is_invited boolean;
     DECLARE needs_approval boolean;
     DECLARE open_for_app boolean;
-    DECLARE guild_id integer;
-    DECLARE member_id integer;
+    DECLARE guild_id_ integer;
     BEGIN
         -- RAISE WARNING 'before_createup %', row_to_json(NEW);
-        SELECT id, open_for_applications, application_needs_approval INTO STRICT guild_id, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
-        SELECT id INTO member_id FROM public_members WHERE id=NEW.member_id;
+        SELECT id, open_for_applications, application_needs_approval INTO STRICT guild_id_, open_for_app, needs_approval FROM guilds WHERE id=NEW.guild_id;
         is_requested := NOT (OLD IS NULL OR OLD.status = 'invitation');
         is_invited := NOT (OLD IS NULL OR OLD.status = 'request');
         IF (NOT needs_approval) OR is_guild_id_member(NEW.guild_id) OR 1 = (SELECT COUNT(id) FROM guilds WHERE id = NEW.guild_id AND creator=NEW.member_id) THEN
@@ -288,14 +286,14 @@ CREATE OR REPLACE FUNCTION public.before_createup_guild_membership() RETURNS tri
           END IF;
         END IF;
         IF OLD IS NOT NULL AND NEW.permissions != OLD.permissions THEN
-          IF NOT public.has_guild_permission(guild_id, 'guildAdmin') THEN
+          IF NOT public.has_guild_permission(guild_id_, 'guildAdmin') THEN
             RAISE EXCEPTION 'permission guildAdmin / change guild permissions';
           END IF;
           IF 'guildAdmin' = ANY(OLD.permissions) AND NOT ('guildAdmin' = ANY(NEW.permissions)) AND NOT is_superadmin() THEN
             IF NEW.member_id != current_member_id() THEN
               RAISE EXCEPTION 'permission guildAdmin / can remove another member''s guildAdmin permission';
             END IF;
-            IF 1 = (SELECT COUNT(*) FROM guild_membership WHERE guild_id = NEW.guild_id AND permissions @> ARRAY['guildAdmin'::public.permission]) THEN
+            IF 1 = (SELECT COUNT(*) FROM guild_membership WHERE guild_id_ = NEW.guild_id AND permissions @> ARRAY['guildAdmin'::public.permission]) THEN
               RAISE EXCEPTION 'invalid permission / Cannot remove guildAdmin permission from the last guildAdmin member';
             END IF;
           END IF;
