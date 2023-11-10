@@ -13,7 +13,7 @@ export const adminInfo = {
 export async function mochaGlobalSetup() {
   execSync("./scripts/db_updater.py -d test init");
   execSync("./scripts/db_updater.py -d test deploy");
-  processes.push(new WaitingProc("postgrest", ["postgrest_test.conf"], echo=true));
+  processes.push(new WaitingProc("postgrest", ["postgrest_test.conf"]));
   processes.push(
     new WaitingProc(
       "MailHog",
