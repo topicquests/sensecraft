@@ -34,7 +34,7 @@
   <div v-else>
     <q-btn
       round
-      v-if="getUnreadCount(node_id) > 0"
+      v-if="getUnreadCount(node_id) > 0 && !isExpanded"
       size="15px"
       :color="localRead ? 'transparent' : 'blue'"
       text-color="black"
@@ -45,7 +45,15 @@
     </q-btn>
     <q-btn
       round
-      v-else-if="getChildrenOf(node_id).length > 0"
+      v-else-if="getChildrenOf(node_id).length > 0 && !isExpanded"
+      size="12px"
+      text-color="black"
+      @click="toggleReadStatus()"
+      ><strong>{{ getNodeCount(node_id) }}</strong>
+    </q-btn>
+    <q-btn
+      round
+      v-else-if="getChildrenOf(node_id).length > 0 && isExpanded"
       size="12px"
       text-color="black"
       :color="localRead ? 'transparent' : 'blue'"
@@ -85,6 +93,7 @@ const ReadStatusCounterButtonProps = Vue.extend({
       type: Boolean,
       default: false,
     },
+    isExpanded: { type: Boolean },
   },
 });
 
@@ -116,8 +125,6 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   getChannelUnreadCount(nodeId: number) {
-    console.log("isChannel", this.isChannel);
-    console.log("Channel id:", nodeId);
     if (
       this.getChannelById(nodeId) &&
       this.getChannelChildrenOf(nodeId).length > 0
@@ -128,8 +135,6 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   }
 
   getUnreadCount(nodeId: number) {
-    console.log("Node id: ", nodeId);
-    console.log("isChannel", this.isChannel);
     if (
       this.getConversationNodeById(nodeId) &&
       this.getChildrenOf(nodeId).length > 0
