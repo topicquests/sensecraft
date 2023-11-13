@@ -56,13 +56,19 @@ const ChannelGetters = {
       Object.values(state.channels).filter(
         (c: ConversationNode) => c.quest_id == quest_id
       ),
-  getChannelById: (state: ChannelState) => (id: number) => state.channels[id],
+  getChannelById: (state: ChannelState) => (id: number) =>
+    state.channelData[id],
   getChannelConversation: (state: ChannelState) => (channel_id: number) =>
     state.channelData[channel_id],
   getChannelConversationTree: (state: ChannelState) => (channel_id: number) => {
     const channel = state.channelData[channel_id];
     if (channel) return makeTree(Object.values(channel));
     return [];
+  },
+  getChannelChildrenOf: (state: ChannelState) => (node_id: number) => {
+    return Object.values(state.channelData).filter(
+      (n) => n.parent_id == node_id
+    );
   },
   getCurrentChannel: (state: ChannelState) => state.currentChannel,
   getChannelNode:

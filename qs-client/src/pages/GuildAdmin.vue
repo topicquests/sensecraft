@@ -24,19 +24,22 @@
         <q-tooltip>Click on guild name to goto guild</q-tooltip>
 
         <div class="row justify-center">
-          <div class="column guild-description-col">
+          <div class="column">
             <q-card>
-              <q-editor
-                v-model="getCurrentGuild.description"
-                class="guild-editor-description"
-              >
-              </q-editor>
-
-              <q-btn
-                id="update-button"
-                label="Update"
-                @click="doSubmit"
-              ></q-btn>
+              <div class="admin-content-container">
+                <q-editor
+                  class="admin-content guild-description-col"
+                  v-model="getCurrentGuild.description"
+                >
+                </q-editor>
+              </div>
+              <div class="row" q-mt-md>
+                <q-btn
+                  id="update-button"
+                  label="Update"
+                  @click="doSubmit"
+                ></q-btn>
+              </div>
             </q-card>
           </div>
         </div>
@@ -847,5 +850,24 @@ export default class GuildAdminPage extends Vue {
       width: 95%;
     }
   }
+}
+.admin-content-container {
+  padding: 1em;
+  margin-bottom: 1em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  width: 100%;
+  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
+  border: 5px solid #ccc;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.admin-content {
+  padding: 1em;
+  margin-bottom: 1em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  width: 100%;
+  box-shadow: 0 5px 20px 0 rgb(151, 146, 146);
 }
 </style>

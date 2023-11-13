@@ -51,6 +51,7 @@
       label-key="title"
       default-expand-all
       @update:selected="selectionChanged"
+      @update:expanded="checkIfExpanded(selectedNode)"
       :selected.sync="selectedNodeId"
       :filter-method="filterMethod"
       :filter="searchFilter_"
@@ -108,11 +109,13 @@
             icon="add"
             @click="addChildToNode(prop.node.id)"
           />
-          <read-status-button
+          <read-status-counter-button
             class="q-ml-md"
             :node_id="prop.node.id"
+            :isChannel="isChannel"
+            :isExpanded="checkIfExpanded(prop.node.id)"
             :isRead="getNodeReadStatus(prop.node.id)"
-          ></read-status-button>
+          ></read-status-counter-button>
         </div>
       </template>
       <template v-slot:default-body="prop">
@@ -164,7 +167,7 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import Component from "vue-class-component";
 import { ConversationNode, QTreeNode } from "../types";
 import NodeForm from "./node-form.vue";
-import ReadStatusButton from "./read-status-button.vue";
+import ReadStatusCounterButton from "./read-status-counter-button.vue";
 import {
   ConversationMap,
   ConversationGetterTypes,
@@ -193,6 +196,7 @@ const NodeTreeProps = Vue.extend({
     currentQuestId: Number || null,
     currentGuildId: Number || null,
     channelId: Number || null,
+    isChannel: { type: Boolean, default: false },
     editable: Boolean,
     hideDescription: Boolean,
     initialSelectedNodeId: Number || null,
@@ -200,7 +204,7 @@ const NodeTreeProps = Vue.extend({
 });
 
 @Component<NodeTree>({
-  components: { NodeForm, ReadStatusButton },
+  components: { NodeForm, ReadStatusCounterButton },
   name: "ConversationNodeTree",
   methods: {
     ...mapActions("channel", [
@@ -227,6 +231,19 @@ const NodeTreeProps = Vue.extend({
       "ensureAllQuestsReadStatus",
       "ensureAllChannelReadStatus",
     ]),
+    checkIfExpanded(nodeId: QTreeNode) {
+      const qtree = this.$refs.tree as QTree;
+      if (qtree) {
+        // For example, you can check if a node is expanded
+        const isExpanded = qtree.isExpanded(nodeId);
+        if (isExpanded) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return false;
+    },
   },
   computed: {
     ...mapState("conversation", ["neighbourhood", "conversation"]),
@@ -261,7 +278,11 @@ const NodeTreeProps = Vue.extend({
     ]),
     ...mapGetters("members", ["getMemberById"]),
     ...mapGetters("role", ["getRoles"]),
-    ...mapGetters("readStatus", ["getNodeReadStatus"]),
+    ...mapGetters("readStatus", [
+      "getNodeReadStatus",
+      "getUnreadStatusCount",
+      "getNodeStatusCount",
+    ]),
     searchFilter_: function () {
       return this.searchFilter + "_";
     },
@@ -270,10 +291,10 @@ const NodeTreeProps = Vue.extend({
       if (this.showFocusNeighbourhood) return this.neighbourhood;
       if (this.currentGuildId) return this.conversation;
       const entries: [string, ConversationNode][] = Object.entries(
-        this.conversation
+        this.conversation,
       );
       return Object.fromEntries(
-        entries.filter(([id, node]) => node.status == "published")
+        entries.filter(([id, node]) => node.status == "published"),
       );
     },
     nodesTree: function (): QTreeNode[] {
@@ -345,6 +366,8 @@ export default class NodeTree extends NodeTreeProps {
   getRoles!: RoleGetterTypes["getRoles"];
   getTreeSequence!: ConversationGetterTypes["getTreeSequence"];
   getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
+  getUnreadStatusCount!: ReadStatusGetterTypes["getUnreadStatusCount"];
+  getNodeStatusCount!: ReadStatusGetterTypes["getNodeStatusCount"];
 
   nodeMap!: ConversationMap;
 
@@ -363,7 +386,7 @@ export default class NodeTree extends NodeTreeProps {
   ensureQuest: QuestsActionTypes["ensureQuest"];
   ensureAllRoles: RoleActionTypes["ensureAllRoles"];
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
-  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllChannelReadStatus"];
   isGuildMember!: GuildsGetterTypes["isGuildMember"];
 
   emits = ["tree-selection"];
@@ -394,7 +417,7 @@ export default class NodeTree extends NodeTreeProps {
         children_status.sort(
           (a, b) =>
             publication_state_list.indexOf(a) -
-            publication_state_list.indexOf(b)
+            publication_state_list.indexOf(b),
         );
         const pos = pub_states.indexOf(children_status[0]);
         if (pos > 0) pub_states.splice(0, pos);
@@ -406,6 +429,25 @@ export default class NodeTree extends NodeTreeProps {
       if (pos >= 0) pub_states.splice(pos);
     }
     this.baseNodePubStateConstraints = pub_states;
+  }
+
+  getUnreadCount(nodeId: number) {
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      return this.getUnreadStatusCount(nodeId);
+    }
+    return 0;
+  }
+  getNodeCount(nodeId: number) {
+    if (
+      this.getConversationNodeById(nodeId) &&
+      this.getChildrenOf(nodeId).length > 0
+    ) {
+      return this.getNodeStatusCount(nodeId);
+    }
+    return 0;
   }
 
   getMemberHandle(id: number) {
@@ -437,7 +479,7 @@ export default class NodeTree extends NodeTreeProps {
     if (node_type && node.quest_id) {
       const max_state = this.getMaxPubStateForNodeType(
         node.quest_id,
-        node_type
+        node_type,
       );
       const pos = pub_states.indexOf(max_state);
       if (pos >= 0) pub_states.splice(pos + 1);
@@ -635,7 +677,7 @@ export default class NodeTree extends NodeTreeProps {
   async conversationChanged(after, before) {
     const before_ids = new Set(Object.keys(before));
     const added_ids = [...Object.keys(after)].filter(
-      (id) => !before_ids.has(id)
+      (id) => !before_ids.has(id),
     );
     if (added_ids.length == 1) {
       let node = after[added_ids[0]];
@@ -701,6 +743,7 @@ export default class NodeTree extends NodeTreeProps {
   }
   hiddenByCollapse(qnode: QTreeNode) {
     const qtree = this.$refs.tree as QTree;
+    console.log(qtree);
     while (qnode) {
       qnode = qnode.parent;
       if (!qnode) break;
@@ -797,7 +840,7 @@ export default class NodeTree extends NodeTreeProps {
     promises = [this.treePromise()];
     if (this.currentQuestId)
       promises.push(
-        this.ensureMemberById({ id: this.getCurrentQuest.creator })
+        this.ensureMemberById({ id: this.getCurrentQuest.creator }),
       );
     await Promise.all(promises);
   }

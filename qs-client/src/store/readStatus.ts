@@ -27,6 +27,15 @@ const ReadStatusGetter = {
       return state.readStatus[node_id].status;
     } else return true;
   },
+  getUnreadStatusCount: (state: ReadStatusState) => (node_id: number) => {
+    const unreadStatusCount: number =
+      state.readStatus[node_id].node_count -
+      state.readStatus[node_id].read_count;
+    return unreadStatusCount;
+  },
+  getNodeStatusCount: (state: ReadStatusState) => (node_id: number) => {
+    return state.readStatus[node_id].node_count;
+  },
 };
 
 const ReadStatusActions = {
