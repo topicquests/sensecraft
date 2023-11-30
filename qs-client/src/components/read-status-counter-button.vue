@@ -1,51 +1,34 @@
 <template>
-  <div v-if="isChannel">
+  <div>
+    <div v-if="isChannel">
+      <q-btn
+        round
+        v-if="getChannelUnreadCount(node_id) > 0 && !isExpanded"
+        size="15px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+        <strong>{{ getChannelUnreadCount(node_id) }}</strong> /
+        {{ getNodeCount(node_id) }}
+      </q-btn>
+    </div>
+    <div v-else>
+      <q-btn
+        round
+        v-if="getUnreadCount(node_id) > 0 && !isExpanded"
+        size="15px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+        <strong>{{ getUnreadCount(node_id) }}</strong> /
+        {{ getNodeCount(node_id) }}
+      </q-btn>
+    </div>
     <q-btn
       round
-      v-if="getChannelUnreadCount(node_id) > 0"
-      size="15px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-      <strong>{{ getChannelUnreadCount(node_id) }}</strong> /
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else-if="getChildrenOf(node_id).length > 0"
-      size="12px"
-      text-color="black"
-      :color="localRead ? 'transparent' : 'blue'"
-      @click="toggleReadStatus()"
-    >
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else
-      size="7px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-    </q-btn>
-  </div>
-  <div v-else>
-    <q-btn
-      round
-      v-if="getUnreadCount(node_id) > 0 && !isExpanded"
-      size="15px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-      <strong>{{ getUnreadCount(node_id) }}</strong> /
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else-if="getChildrenOf(node_id).length > 0 && !isExpanded"
+      v-if="getChildrenOf(node_id).length > 0 && !isExpanded"
       size="12px"
       text-color="black"
       @click="toggleReadStatus()"
