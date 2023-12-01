@@ -91,6 +91,7 @@ const ReadStatusCounterButtonProps = Vue.extend({
     ...mapActions("readStatus", [
       "CreateOrUpdateReadStatus",
       "ensureAllQuestsReadStatus",
+      "ensureAllChannelReadStatus",
     ]),
   },
 })
@@ -106,6 +107,7 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllChannelReadStatus"];
 
   getChannelUnreadCount(nodeId: number) {
     if (
@@ -146,6 +148,7 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
       },
     });
     this.ensureAllQuestsReadStatus();
+    this.ensureAllChannelReadStatus();
   }
 }
 </script>
