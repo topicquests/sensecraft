@@ -150,6 +150,7 @@
               v-bind:initialSelectedNodeId="selectedNodeId"
               @tree-selection="selectionChanged"
               :channelId="null"
+              :isChannel="false"
               :editable="true"
             />
           </div>
@@ -302,8 +303,8 @@ export default class QuestPlayPage extends Vue {
     if (only_mine) {
       guild_ids = guild_ids.filter((g) =>
         (this.member.guild_membership || []).some(
-          (gm) => gm.guild_id === g && gm.status == "confirmed"
-        )
+          (gm) => gm.guild_id === g && gm.status == "confirmed",
+        ),
       );
     }
     let guilds = guild_ids.map((gid) => this.getGuildById(gid));
@@ -319,7 +320,7 @@ export default class QuestPlayPage extends Vue {
     let guild_ids = memberships.map((gm) => gm.guild_id);
     if (only_as_leader) {
       guild_ids = guild_ids.filter((gid) =>
-        this.hasPermission(permission_enum.joinQuest, gid)
+        this.hasPermission(permission_enum.joinQuest, gid),
       );
     }
     return guild_ids.map((gid) => this.getGuildById(gid));

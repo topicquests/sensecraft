@@ -792,7 +792,6 @@ describe("'read_status' service", function () {
           adminToken,
           true
         );
-        // console.log(result);
         assert.equal(num_nodes_in_json(result), 2);
         tree_info = await axiosUtil.call(
           "nodes2json",

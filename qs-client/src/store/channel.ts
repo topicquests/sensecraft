@@ -44,17 +44,17 @@ const ChannelGetters = {
     Object.values(state.channels),
   getGuildChannels: (state: ChannelState): ConversationNode[] =>
     Object.values(state.channels).filter(
-      (c: ConversationNode) => c.quest_id == undefined
+      (c: ConversationNode) => c.quest_id == undefined,
     ),
   getGameChannels: (state: ChannelState): ConversationNode[] =>
     Object.values(state.channels).filter(
-      (c: ConversationNode) => c.quest_id != undefined
+      (c: ConversationNode) => c.quest_id != undefined,
     ),
   getGameChannelsOfQuest:
     (state: ChannelState) =>
     (quest_id: number): ConversationNode[] =>
       Object.values(state.channels).filter(
-        (c: ConversationNode) => c.quest_id == quest_id
+        (c: ConversationNode) => c.quest_id == quest_id,
       ),
   getChannelById: (state: ChannelState) => (id: number) =>
     state.channelData[id],
@@ -66,8 +66,8 @@ const ChannelGetters = {
     return [];
   },
   getChannelChildrenOf: (state: ChannelState) => (node_id: number) => {
-    return Object.values(state.channelData).filter(
-      (n) => n.parent_id == node_id
+    return Object.values(state.channelData[state.currentChannel]).filter(
+      (n) => n.parent_id == node_id,
     );
   },
   getCurrentChannel: (state: ChannelState) => state.currentChannel,
@@ -83,14 +83,14 @@ const ChannelGetters = {
         // TODO: role_draft
       } else if (node.status == publication_state_enum.guild_draft) {
         const casting = MyVapi.store.getters["quests/castingInQuest"](
-          node.guild_id
+          node.guild_id,
         );
         return casting?.guild_id == node.guild_id;
       } else if (node.status == publication_state_enum.proposed) {
         return MyVapi.store.getters["hasPermission"](
           permission_enum.guildAdmin,
           node.guild_id,
-          node.guild_id
+          node.guild_id,
         );
       }
     }
@@ -109,7 +109,7 @@ const ChannelActions = {
   },
   ensureChannelConversation: async (
     context,
-    { channel_id, guild }: { channel_id: number; guild: number }
+    { channel_id, guild }: { channel_id: number; guild: number },
   ) => {
     if (
       guild != context.state.currentGuild ||
@@ -147,14 +147,14 @@ export const channel = (axios: AxiosInstance) =>
         state: ChannelState,
         res: AxiosResponse<ConversationNode[]>,
         axios: AxiosInstance,
-        { params, data }
+        { params, data },
       ) => {
         if (state.currentGuild !== params.guild_id) {
           state.currentGuild = params.guild_id;
           state.channelData = {};
         }
         state.channels = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node])
+          res.data.map((node: ConversationNode) => [node.id, node]),
         );
       },
     })
@@ -167,7 +167,7 @@ export const channel = (axios: AxiosInstance) =>
         state: ChannelState,
         res: AxiosResponse<ConversationNode[]>,
         axios: AxiosInstance,
-        { params, data }
+        { params, data },
       ) => {
         const channel_id = params.node_id;
         const firstNode = res.data[0];
@@ -176,7 +176,7 @@ export const channel = (axios: AxiosInstance) =>
           state.channels = {};
         }
         const nodes: ConversationMap = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node])
+          res.data.map((node: ConversationNode) => [node.id, node]),
         );
         const channel = nodes[channel_id];
         if (channel.meta != "channel" || channel.parent_id != null)
@@ -192,7 +192,7 @@ export const channel = (axios: AxiosInstance) =>
         state: ChannelState,
         res: AxiosResponse<ConversationNode[]>,
         axios: AxiosInstance,
-        { params, data }
+        { params, data },
       ) => {
         const node = res.data[0];
         addToState(state, node);
@@ -210,7 +210,7 @@ export const channel = (axios: AxiosInstance) =>
         state: ChannelState,
         res: AxiosResponse<ConversationNode[]>,
         axios: AxiosInstance,
-        { data }
+        { data },
       ) => {
         const node = res.data[0];
         addToState(state, node);
