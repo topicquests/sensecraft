@@ -94,6 +94,7 @@ import { ReadStatusGetterTypes } from "src/store/readStatus";
 import { ConversationGetterTypes } from "../store/conversation";
 import { ReadStatusActionTypes } from "src/store/readStatus";
 import { ChannelGetterTypes } from "src/store/channel";
+import { ChannelActionTypes } from "src/store/channel";
 
 const ReadStatusCounterButtonProps = Vue.extend({
   props: {
@@ -106,7 +107,7 @@ const ReadStatusCounterButtonProps = Vue.extend({
       type: Boolean,
       default: false,
     },
-    isExpanded: { type: Boolean },
+    isExpanded: Boolean,
   },
 });
 
@@ -122,7 +123,12 @@ const ReadStatusCounterButtonProps = Vue.extend({
     ...mapGetters("channel", ["getChannelById", "getChannelChildrenOf"]),
   },
   methods: {
-    ...mapActions("readStatus", ["CreateOrUpdateReadStatus"]),
+    ...mapActions("readStatus", [
+      "CreateOrUpdateReadStatus",
+      "ensureAllChannelReadStatus",
+      "ensureAllQuestsReadStatus",
+    ]),
+    ...mapActions("channels", ["ensureChannels"]),
   },
 })
 export default class ReadStatusCounterButton extends ReadStatusCounterButtonProps {
@@ -137,6 +143,9 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllChannelReadStatus"];
+  ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   getChannelUnreadCount(nodeId: number) {
     if (
@@ -185,6 +194,11 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
         override: true,
       },
     });
+    if (this.isChannel) {
+      await this.ensureAllChannelReadStatus();
+    } else {
+      await this.ensureAllQuestsReadStatus();
+    }
   }
 }
 </script>
