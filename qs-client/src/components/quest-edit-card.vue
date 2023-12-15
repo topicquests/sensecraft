@@ -353,7 +353,6 @@ export default class QuestCard extends QuestCardProps {
   // declare the method attributes for Typescript
   created() {
     this.quest = this.thisQuest;
-    console.log("Quest", this.quest);
   }
   getDescription() {
     return this.quest.description || "";

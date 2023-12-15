@@ -51,7 +51,6 @@
       label-key="title"
       default-expand-all
       @update:selected="selectionChanged"
-      @update:expanded="checkIfExpanded(selectedNode)"
       :selected.sync="selectedNodeId"
       :filter-method="filterMethod"
       :filter="searchFilter_"
@@ -236,6 +235,7 @@ const NodeTreeProps = Vue.extend({
       if (qtree) {
         // For example, you can check if a node is expanded
         const isExpanded = qtree.isExpanded(nodeId);
+
         if (isExpanded) {
           return true;
         } else {

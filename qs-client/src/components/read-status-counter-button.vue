@@ -1,75 +1,88 @@
 <template>
-  <div v-if="isChannel">
-    <q-btn
-      round
-      v-if="getChannelUnreadCount(node_id) > 0"
-      size="15px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-      <strong>{{ getChannelUnreadCount(node_id) }}</strong> /
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else-if="getChildrenOf(node_id).length > 0"
-      size="12px"
-      text-color="black"
-      :color="localRead ? 'transparent' : 'blue'"
-      @click="toggleReadStatus()"
-    >
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else
-      size="7px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-    </q-btn>
-  </div>
-  <div v-else>
-    <q-btn
-      round
-      v-if="getUnreadCount(node_id) > 0 && !isExpanded"
-      size="15px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-      <strong>{{ getUnreadCount(node_id) }}</strong> /
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else-if="getChildrenOf(node_id).length > 0 && !isExpanded"
-      size="12px"
-      text-color="black"
-      @click="toggleReadStatus()"
-      ><strong>{{ getNodeCount(node_id) }}</strong>
-    </q-btn>
-    <q-btn
-      round
-      v-else-if="getChildrenOf(node_id).length > 0 && isExpanded"
-      size="12px"
-      text-color="black"
-      :color="localRead ? 'transparent' : 'blue'"
-      @click="toggleReadStatus()"
-    >
-      {{ getNodeCount(node_id) }}
-    </q-btn>
-    <q-btn
-      round
-      v-else
-      size="7px"
-      :color="localRead ? 'transparent' : 'blue'"
-      text-color="black"
-      @click="toggleReadStatus()"
-    >
-    </q-btn>
+  <div>
+    <div v-if="isChannel">
+      <!--Node is read has children and folded then transparent-->
+      <!--Node is not read has children and folded then blue-->
+      <q-btn
+        round
+        v-if="
+          getChannelUnreadCount(node_id) > 0 &&
+          getChannelChildrenOf(node_id) &&
+          getChannelChildrenOf(node_id).length > 0 &&
+          !isExpanded
+        "
+        size="9px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+        <strong>{{ getChannelUnreadCount(node_id) }}</strong> /
+        {{ getNodeCount(node_id) }}
+      </q-btn>
+      <!--Node is read has children and unfolded then transparent-->
+      <!--Node is not read has children and unfolded then blue-->
+      <q-btn
+        round
+        v-else-if="
+          getChannelChildrenOf(node_id) &&
+          getChannelChildrenOf(node_id).length > 0 &&
+          isExpanded
+        "
+        size="9px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+      </q-btn>
+      <q-btn
+        round
+        v-else
+        size="7px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+      </q-btn>
+    </div>
+    <div v-else>
+      <!--Node is read has children and folded then transparent-->
+      <!--Node is not read has children and folded then blue-->
+      <q-btn
+        round
+        v-if="
+          getUnreadCount(node_id) > 0 &&
+          getChildrenOf(node_id).length > 0 &&
+          !isExpanded
+        "
+        size="9px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+        <strong>{{ getUnreadCount(node_id) }}</strong> /
+        {{ getNodeCount(node_id) }}
+      </q-btn>
+      <!--Node is read has children and unfolded then transparent-->
+      <!--Node is not read has children and unfolded then blue-->
+      <q-btn
+        round
+        v-else-if="getChildrenOf(node_id).length > 0 && isExpanded"
+        size="9px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+      </q-btn>
+      <q-btn
+        round
+        v-else
+        size="9px"
+        :color="localRead ? 'transparent' : 'blue'"
+        text-color="black"
+        @click="toggleReadStatus()"
+      >
+      </q-btn>
+    </div>
   </div>
 </template>
 
@@ -81,6 +94,7 @@ import { ReadStatusGetterTypes } from "src/store/readStatus";
 import { ConversationGetterTypes } from "../store/conversation";
 import { ReadStatusActionTypes } from "src/store/readStatus";
 import { ChannelGetterTypes } from "src/store/channel";
+import { ChannelActionTypes } from "src/store/channel";
 
 const ReadStatusCounterButtonProps = Vue.extend({
   props: {
@@ -93,7 +107,7 @@ const ReadStatusCounterButtonProps = Vue.extend({
       type: Boolean,
       default: false,
     },
-    isExpanded: { type: Boolean },
+    isExpanded: Boolean,
   },
 });
 
@@ -101,14 +115,20 @@ const ReadStatusCounterButtonProps = Vue.extend({
   name: "read-status-counter",
   computed: {
     ...mapGetters("conversation", ["getConversationNodeById", "getChildrenOf"]),
-    ...mapGetters("readStatus", ["getUnreadStatusCount", "getNodeStatusCount"]),
-    ...mapGetters("channel", ["getChannelById, getChannelChildrenOf"]),
+    ...mapGetters("readStatus", [
+      "getUnreadStatusCount",
+      "getNodeStatusCount",
+      "getNodeReadStatus",
+    ]),
+    ...mapGetters("channel", ["getChannelById", "getChannelChildrenOf"]),
   },
   methods: {
     ...mapActions("readStatus", [
       "CreateOrUpdateReadStatus",
+      "ensureAllChannelReadStatus",
       "ensureAllQuestsReadStatus",
     ]),
+    ...mapActions("channels", ["ensureChannels"]),
   },
 })
 export default class ReadStatusCounterButton extends ReadStatusCounterButtonProps {
@@ -120,8 +140,11 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   getNodeStatusCount!: ReadStatusGetterTypes["getNodeStatusCount"];
   getChannelById!: ChannelGetterTypes["getChannelById"];
   getChannelChildrenOf!: ChannelGetterTypes["getChannelChildrenOf"];
+  getNodeReadStatus!: ReadStatusGetterTypes["getNodeReadStatus"];
 
   CreateOrUpdateReadStatus: ReadStatusActionTypes["CreateOrUpdateReadStatus"];
+  ensureChannels: ChannelActionTypes["ensureChannels"];
+  ensureAllChannelReadStatus: ReadStatusActionTypes["ensureAllChannelReadStatus"];
   ensureAllQuestsReadStatus: ReadStatusActionTypes["ensureAllQuestsReadStatus"];
 
   getChannelUnreadCount(nodeId: number) {
@@ -145,11 +168,20 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
   }
 
   getNodeCount(nodeId: number) {
-    if (
-      this.getConversationNodeById(nodeId) &&
-      this.getChildrenOf(nodeId).length > 0
-    ) {
-      return this.getNodeStatusCount(nodeId);
+    if (this.isChannel) {
+      if (
+        this.getChannelById(nodeId) &&
+        this.getChannelChildrenOf(nodeId).length > 0
+      ) {
+        return this.getNodeStatusCount(nodeId);
+      }
+    } else {
+      if (
+        this.getConversationNodeById(nodeId) &&
+        this.getChildrenOf(nodeId).length > 0
+      ) {
+        return this.getNodeStatusCount(nodeId);
+      }
     }
     return 0;
   }
@@ -162,7 +194,11 @@ export default class ReadStatusCounterButton extends ReadStatusCounterButtonProp
         override: true,
       },
     });
-    this.ensureAllQuestsReadStatus();
+    if (this.isChannel) {
+      await this.ensureAllChannelReadStatus();
+    } else {
+      await this.ensureAllQuestsReadStatus();
+    }
   }
 }
 </script>
