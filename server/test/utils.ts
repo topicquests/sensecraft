@@ -7,7 +7,7 @@ import type {
   ConversationNode,
   Member,
   Role,
-} from "../../qs-client/src/types";
+} from "../../client/src/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function enhanceError(err0: any) {

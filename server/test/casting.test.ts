@@ -15,7 +15,7 @@ import {
   sponsorInfo,
   publicQuestInfo,
 } from "./fixtures";
-import type { GuildMembership, Casting } from "../../qs-client/src/types";
+import type { GuildMembership, Casting } from "../../client/src/types";
 
 describe("'casting' service", function () {
   describe("guild creation", function () {

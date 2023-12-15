@@ -80,7 +80,7 @@ async function ensureBackend() {
       "./node_modules/.bin/ts-node",
       ["test/test_backend.ts"],
       {
-        cwd: "../qs-server",
+        cwd: "../server",
       },
     );
     backend = waitForOutput(backendProc, "Ready");

@@ -10,7 +10,7 @@ import { createTransport } from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import type { SentMessageInfo, Options as SMTPOptions } from 'nodemailer/lib/smtp-transport';
 
-import type { ServerData } from '../../qs-client/src/types';
+import type { ServerData } from '../../client/src/types';
 
 const config = propertiesReader('config.ini')
 const _env = process.argv[2] || 'development'
@@ -26,8 +26,8 @@ const app: express.Express = express();
 const server = createServer(app);
 const wss = new WebSocket.Server({ server })
 
-import { registration_status_enum } from '../../qs-client/src/enums'
-import { PublicMember, Casting, Role } from '../../qs-client/src/types'
+import { registration_status_enum } from '../../client/src/enums'
+import { PublicMember, Casting, Role } from '../../client/src/types'
 
 // tslint:disable: no-console
 

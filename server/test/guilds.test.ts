@@ -7,7 +7,7 @@ import {
   delete_members,
 } from "./utils";
 import { adminInfo, quidamInfo, leaderInfo, publicGuildInfo } from "./fixtures";
-import type { Guild, Member, GuildMembership } from "../../qs-client/src/types";
+import type { Guild, Member, GuildMembership } from "../../client/src/types";
 
 describe("'guilds' service", function () {
   describe("guild creation", function () {

@@ -16,9 +16,9 @@ This document details the design specifications of the QS-Demo game. It is a liv
 
 documentation contains project documentation
 
-qs-client used for frontend code
+client used for frontend code
 
-qs-server used for backend code
+server used for backend code
 
 Standard feathers folder structure
 

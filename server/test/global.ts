@@ -22,7 +22,7 @@ export async function mochaGlobalSetup() {
     )
   );
   processes.push(
-    new WaitingProc("node", ["dist/qs-server/dispatcher/main.js", "test"])
+    new WaitingProc("node", ["dist/server/dispatcher/main.js", "test"])
   );
   await Promise.all(processes.map((wp) => wp.ready()));
   // first user will be admin

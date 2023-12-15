@@ -6,7 +6,7 @@
   "author": "byroncoughlinsr <byroncoughlinsr@gmail.com>",
   "scripts": {
     "lint": "eslint --ext .js,.vue,.ts ./src ./features ./test",
-    "lint-staged": "lint-staged",
+    "lint-staged": "eslint --ext .js,.vue,.ts ./src ./features ./test",
     "test:integration": "cucumber-js -t @integration",
     "test": "echo \"See package.json => scripts for available tests.\" && exit 0",
     "prepare": "cd .. ; husky install",

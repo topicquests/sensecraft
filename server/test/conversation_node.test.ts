@@ -27,7 +27,7 @@ import type {
   GuildMembership,
   Casting,
   CastingRole,
-} from "../../qs-client/src/types";
+} from "../../client/src/types";
 //import { devNull } from 'os';
 
 function num_nodes_in_json(json) {

@@ -4,7 +4,7 @@ import type {
   Member,
   Guild,
   Quest,
-} from "../../qs-client/src/types";
+} from "../../client/src/types";
 
 export const adminInfo = aig;
 

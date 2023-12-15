@@ -30,7 +30,7 @@ async function frontendSetup() {
   execSync("./scripts/db_updater.py -d test deploy");
   processes.push(new WaitingProc("postgrest", ["postgrest_test.conf"]));
   processes.push(
-    new WaitingProc("node", ["dist/qs-server/dispatcher/main.js", "test"])
+    new WaitingProc("node", ["dist/server/dispatcher/main.js", "test"])
   );
   processes.push(
     new WaitingProc(

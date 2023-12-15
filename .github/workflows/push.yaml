@@ -28,7 +28,7 @@ jobs:
           go install github.com/mailhog/MailHog@latest
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
-        working-directory: ./qs-server
+        working-directory: ./server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
       - name: install postgrest
         run: |
@@ -37,28 +37,28 @@ jobs:
           rm postgrest-v11.2.2-linux-static-x64.tar.xz
           sudo mv postgrest /usr/bin/
       - name: Install server dependencies
-        working-directory: ./qs-server
+        working-directory: ./server
         run: npm ci
       - name: Build dispatcher
-        working-directory: ./qs-server
+        working-directory: ./server
         run: npm run build
       - name: Run server tests
-        working-directory: ./qs-server
+        working-directory: ./server
         run: npm run test
       - name: Install client dependencies
-        working-directory: ./qs-client
+        working-directory: ./client
         run: |
           npm ci
           npx @puppeteer/browsers install chrome@stable
           npx @puppeteer/browsers install chromedriver@stable
       - name: Run client unit tests
-        working-directory: ./qs-client
+        working-directory: ./client
         run: npm run test:unit
       - name: Run scoring tests
-        working-directory: ./qs-client
+        working-directory: ./client
         run: npm run test:scoring
       - name: Run integration tests
-        working-directory: ./qs-client
+        working-directory: ./client
         run: npm run test:integration
       - name: cleanup postgres container
         run: |

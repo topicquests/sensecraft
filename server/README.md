@@ -1,4 +1,4 @@
-# qs-server
+# server
 
 These are the server components of SenseCraft.
 
@@ -51,7 +51,7 @@ As a temporary workaround:
 in another directory: `git clone https://github.com/michelp/pgjwt.git ; cd pgjwt ; make install`
 You will need `sudo make install` instead of `make install` on many platforms.
 
-In `qs-server`:
+In `server`:
 
 First, set the mailing variables (See the section below.)
 Then, initialize the three databases for production, development and testing. By default, these will be called `sensecraft`, `sensecraft_dev` and `sensecraft_test` respectively. This can be controlled by parameters to the following script.
@@ -75,16 +75,16 @@ Those three steps will also be run using
 
 `npm run init`
 
-It should be done whenever a file is added or updated in the `qs-server/deploy` folder.
+It should be done whenever a file is added or updated in the `server/deploy` folder.
 (Do both of those with `-d production` before the verb to init/deploy the production database.)
 
 
-In `qs-demo`:
+In `server`:
 `npm install`
 
 ## Start your app
 
-In `qs-server`:
+In `server`:
 ```npm run dev```
 
 Or, equivalently, in two separate terminals:
@@ -95,7 +95,7 @@ and
 postgrest postgrest_development.conf
 ```
 
-Also, in `qs-client` (in another terminal):
+Also, in `client` (in another terminal):
 ```
 ./node_modules/.bin/quasar dev
 ```
@@ -103,7 +103,7 @@ Also, in `qs-client` (in another terminal):
 ## Permissions
 
 After you have created a first user, you will want to give admin permissions to that user.
-In `qs-server`, run `./scripts/add_permissions.py -u <username>`
+In `server`, run `./scripts/add_permissions.py -u <username>`
 This script also allows adding or removing other permissions from a given user.
 
 ## Server side variables
@@ -112,4 +112,4 @@ You will need to set some variables either before or after installation to defin
 
 ## Testing
 
-In both `qs-server` and `qs-client, run `npm test` and all your tests in the `test/` directory will be run.
+In both `server` and `client, run `npm test` and all your tests in the `test/` directory will be run.

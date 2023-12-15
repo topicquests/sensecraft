@@ -22,7 +22,7 @@ import type {
   GuildMembership,
   GuildMemberAvailableRole,
   Role,
-} from "../../qs-client/src/types";
+} from "../../client/src/types";
 
 describe("'role' service", function () {
   describe("guild creation", function () {

@@ -1,6 +1,6 @@
 # SenseCraft
 
-This is the front-end of the SenseCraft project. It uses the Quasar/Vue ecosystem. You need Postgrest running in the background, as described in the `qs-server` directory.
+This is the front-end of the SenseCraft project. It uses the Quasar/Vue ecosystem. You need Postgrest running in the background, as described in the `server` directory.
 
 ## Install the dependencies
 

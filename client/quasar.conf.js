@@ -193,7 +193,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "qs-client",
+        appId: "client",
       },
 
       devtool: "source-map",

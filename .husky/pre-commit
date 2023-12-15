@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd qs-client ; npm run lint-staged
+cd client ; npm run lint-staged
