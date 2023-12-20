@@ -68,12 +68,11 @@
     "libqp": "~2.0",
     "lint-staged": "~15.0",
     "prettier": "~3.0",
-    "selenium-webdriver": "~4.15",
+    "selenium-webdriver": "~4.16",
     "ts-jest": "~29",
     "ts-node": "TypeStrong/ts-node#main",
     "typescript": "~5.2",
     "vue-cli-plugin-component": "~1.12.2",
-    "vue-cli-plugin-components": "~0.0.0",
     "vue-cli-plugin-store": "~0.0.7",
     "vue-jest": "^3.0.7",
     "vuex-mock-store": "^0.1.0"
