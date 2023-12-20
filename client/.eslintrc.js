@@ -69,6 +69,6 @@ module.exports = {
       "error",
       { args: "none", varsIgnorePattern: "^_" },
     ],
-    "@typescript-eslint/no-explicit-any": ["warn"],
+    "@typescript-eslint/no-explicit-any": ["off"],
   },
 };
