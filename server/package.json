@@ -53,13 +53,13 @@
     "@typescript-eslint/eslint-plugin": "~6",
     "@typescript-eslint/parser": "~6",
     "eslint": "~8",
-    "eslint-config-prettier": "~9.0",
+    "eslint-config-prettier": "~9.1",
     "eslint-plugin-mocha": "~10.2",
     "libqp": "~2.0",
-    "prettier": "~3.0",
+    "prettier": "~3.1",
     "ts-mocha": "~10.0",
     "ts-node": "TypeStrong/ts-node#main",
-    "typescript": "~5.2"
+    "typescript": "~5.3"
   },
   "lint-staged": {
     "**/*": [
@@ -73,6 +73,6 @@
     "nodemailer": "~6.9",
     "pg-listen": "~1.7",
     "properties-reader": "~2.3",
-    "ws": "~8.14"
+    "ws": "~8.15"
   }
 }
