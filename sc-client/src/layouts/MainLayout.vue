@@ -175,42 +175,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from 'src/stores/member';
 import { useGuildStore } from 'src/stores/guilds'
+import { GuildData } from 'src/types';
 
 const router = useRouter()
 const memberStore = useMemberStore()
-//const guildStore = useGuildStore()
-const leftDrawer = ref(false)
-const rightDrawerOpen = ref(false)
+const guildStore = useGuildStore()
+let leftDrawer = false
+let rightDrawerOpen = false
 const showTree = true;
-const isAuthenticated = ref(memberStore.baseState.isAuthenticated)
+const isAuthenticated:Ref<boolean> = ref(memberStore.isAuthenticated)
 
 //Getters
-const currentGuild = false
+const currentGuild:GuildData = guildStore.getCurrentGuild
 
 function goTo(route: string): void {
   router.push(route)
 }
 
 function onLogout() {
-    this.rightDrawerOpen = false;
-    this.leftDrawer = false;
-    this.goTo('home');
-    this.logout();
-    this.$q.notify({
-      type: 'positive',
-      message: 'You are now logged out',
-    });
+    rightDrawerOpen = false;
+    leftDrawer = false;
+    goTo('home');
 }
 
 function   toggleNav() {
-    if (this.rightDrawerOpen) {
-      this.closeNav();
+    if (rightDrawerOpen) {
+     
     } else {
-      this.rightDrawerOpen = true;
+      rightDrawerOpen = true;
     }
 }
   

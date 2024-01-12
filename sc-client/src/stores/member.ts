@@ -25,9 +25,8 @@ const baseState: MemberState = {
 };
 
 export const useMemberStore = defineStore('member',  { 
-  state: (): State => {  
-    return { baseState }
-  }, 
+  state: () =>  { return baseState }
+  , 
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
