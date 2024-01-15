@@ -227,7 +227,7 @@ import { useGuildStore } from 'src/stores/guilds'
 import { useQuestStore } from 'src/stores/quests'
 import { useBaseStore } from 'src/stores/baseStore'
 import { GuildData } from 'src/types';
-import { permission_enum } from "../enums";
+import { permission_enum } from '../enums';
 
 const router = useRouter()
 const memberStore = useMemberStore()

@@ -102,14 +102,14 @@ export const useGuildStore = defineStore('guild',  {
     },       
 
   createGuild: async (context, { data }) => {
-    const res = await context.dispatch("createGuildBase", { data });
+    const res = await context.dispatch('createGuildBase', { data });
     // Refetch to get memberships.
     // TODO: maybe add representation to creation instead?
     const guild_id = res.data[0].id;
-    await context.dispatch("fetchGuildById", { params: { id: guild_id } });
+    await context.dispatch('fetchGuildById', { params: { id: guild_id } });
     // TODO: Get the membership from the guild
     await useMemberStore.fetchLoginUser;
-    await context.dispatch("addGuildMemberAvailableRole", {
+    await context.dispatch('addGuildMemberAvailableRole', {
       data: {
         member_id: res.data[0].creator,
         guild_id: guild_id,
@@ -123,18 +123,18 @@ export const useGuildStore = defineStore('guild',  {
     context,
     { guild_id, full = true }: { guild_id: number; full: boolean }
   ) => {
-    await context.dispatch("ensureGuild", { guild_id, full });
-    await context.dispatch("setCurrentGuild", guild_id);
+    await context.dispatch('ensureGuild', { guild_id, full });
+    await context.dispatch('setCurrentGuild', guild_id);
   },
   ensureGuildsPlayingQuest: async (
     context,
     { quest_id, full }: { quest_id: number; full?: boolean }
   ) => {
-    await MyVapi.store.dispatch("quests/ensureQuest", {
+    await MyVapi.store.dispatch('quests/ensureQuest', {
       quest_id,
       full: true,
     });
-    const quest = MyVapi.store.getters["quests/getQuestById"](quest_id);
+    const quest = MyVapi.store.getters['quests/getQuestById'](quest_id);
     let guildId: number[] = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
     if (guildId == undefined) return [];
     if (full) {
@@ -144,26 +144,26 @@ export const useGuildStore = defineStore('guild',  {
     }
     if (guildId.length > 0) {
       const guildParam = guildId.length == 1 ? guildId[0] : guildId;
-      await context.dispatch("fetchGuilds", {
+      await context.dispatch('fetchGuilds', {
         full,
         params: { id: guildParam },
       });
     }
   },
   addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
-    await context.dispatch("doAddGuildMembership", { data: membership });
+    await context.dispatch('doAddGuildMembership', { data: membership });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
     ].guild_membership.find(
       (c: GuildMembership) => c.member_id == membership.member_id
     );
-    if (gMembership.status == "confirmed") {
-      await MyVapi.store.dispatch("members/fetchMemberById", {
+    if (gMembership.status == 'confirmed') {
+      await MyVapi.store.dispatch('members/fetchMemberById', {
         full: true,
         params: { id: membership.member_id },
       });
-      if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
-        await MyVapi.store.dispatch("member/fetchLoginUser");
+      if (membership.member_id == MyVapi.store.getters['member/getUserId']) {
+        await MyVapi.store.dispatch('member/fetchLoginUser');
       }
     }
   },
@@ -171,21 +171,21 @@ export const useGuildStore = defineStore('guild',  {
     context,
     membership: Partial<GuildMembership>
   ) => {
-    await context.dispatch("doUpdateGuildMembership", { data: membership });
+    await context.dispatch('doUpdateGuildMembership', { data: membership });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
     ].guild_membership.find(
       (c: GuildMembership) => c.member_id == membership.member_id
     );
-    if (gMembership.status == "confirmed") {
-      await MyVapi.store.dispatch("members/reloadIfFull", membership.member_id);
-      if (membership.member_id == MyVapi.store.getters["member/getUserId"]) {
-        await MyVapi.store.dispatch("member/fetchLoginUser");
+    if (gMembership.status == 'confirmed') {
+      await MyVapi.store.dispatch('members/reloadIfFull', membership.member_id);
+      if (membership.member_id == MyVapi.store.getters['member/getUserId']) {
+        await MyVapi.store.dispatch('member/fetchLoginUser');
       }
     }
   },
   resetGuilds: (context) => {
-    context.commit("CLEAR_STATE");
+    context.commit('CLEAR_STATE');
   },
 }, 
 })

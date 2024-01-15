@@ -12,6 +12,9 @@
 const { configure } = require('quasar/wrappers');
 const path = require('path');
 
+const server_url = process.env.SERVER_URL || 'http://localhost:3000';
+const ws_url = process.env.WEBSOCKET_URL || 'ws://localhost:4000';
+
 module.exports = configure(function (/* ctx */) {
   return {
     eslint: {
@@ -39,6 +42,11 @@ module.exports = configure(function (/* ctx */) {
       'app.scss'
     ],
 
+    htmlVariables: {
+      server_url,
+      ws_url,
+    },
+
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
@@ -60,7 +68,7 @@ module.exports = configure(function (/* ctx */) {
         node: 'node16'
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,

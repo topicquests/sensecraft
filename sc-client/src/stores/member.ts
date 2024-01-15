@@ -1,9 +1,11 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 import { AxiosResponse, AxiosInstance } from 'axios';
 import { Member } from '../types';
 //import { getWSClient } from "../wsclient";
 //import { decode } from "jws";
+// import { useBaseStore } from "./base";
+import { api } from '../boot/axios';
 
 export interface MemberState {
   member: Member;
@@ -24,48 +26,103 @@ const baseState: MemberState = {
   isAuthenticated: false,
 };
 
-export const useMemberStore = defineStore('member',  { 
-  state: () =>  ({ 
+export const useMemberStore = defineStore('member', {
+  state: () => ({
     member: null,
     token: null,
     tokenExpiry: null,
-    isAuthenticated: false, })
-  , 
+    isAuthenticated: false,
+  }),
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
     getMembersAvailableRoles: (state: MemberState) =>
       state.member?.guild_member_available_role,
-      tokenIsValid: (state: MemberState) =>
+    tokenIsValid: (state: MemberState) =>
       state.token && state.tokenExpiry && state.tokenExpiry > Date.now(),
     getUserById: (state: MemberState) => (id: number) =>
       state.member?.id == id ? state.member : null,
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
-      castingPerQuest: (state: MemberState) =>
-      Object.fromEntries((state.member?.casting || []).map((c) => [c.quest_id, c])),
+    castingPerQuest: (state: MemberState) =>
+      Object.fromEntries(
+        (state.member?.casting || []).map((c) => [c.quest_id, c])
+      ),
     guildPerQuest: (state: MemberState) =>
-    Object.fromEntries((state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])
-    ),
+      Object.fromEntries(
+        (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])
+      ),
     castingRolesForQuest: (state: MemberState) => (questId: number) => {
-      return state.member?.casting_role.filter((role) => role.quest_id == questId);
+      return state.member?.casting_role.filter(
+        (role) => role.quest_id == questId
+      );
     },
     castingRolesPerQuest: (state: MemberState) => {
       const castingRolesPerQuest: { [id: number]: CastingRole[] } = {};
       state.member?.casting_role?.forEach((cr) => {
-      if (!castingRolesPerQuest[cr.quest_id]) {
-        castingRolesPerQuest[cr.quest_id] = [];
-      }
-      castingRolesPerQuest[cr.quest_id].push(cr);
-    });
+        if (!castingRolesPerQuest[cr.quest_id]) {
+          castingRolesPerQuest[cr.quest_id] = [];
+        }
+        castingRolesPerQuest[cr.quest_id].push(cr);
+      });
       return castingRolesPerQuest;
     },
   },
   actions: {
-    logout: async (context) => {
-    context.commit('LOGOUT');
-    getWSClient().logout();
-    await MyVapi.store.dispatch('reset');
+    logout: async () => {
+      // getWSClient().logout();
+      // await useBaseStore.reset();
     },
+    signin: async (mail: string, pass: string) => {
+      const res: AxiosResponse<string> = await api.post('/rpc/get_token', {
+        mail,
+        pass,
+      });
+      if (res.status == 200) {
+        this.token = res.data;
+        this.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
+        this.isAuthenticated = true;
+        const storage = window.localStorage;
+        storage.setItem('token', this.token);
+        storage.setItem('tokenExpiry', this.tokenExpiry.toString());
+        window.setTimeout(() => {
+          this.renewToken({ data: { token: this.token } });
+        }, TOKEN_RENEWAL);
+        // Ideally, I should be able to chain another action as below.
+        // But onSuccess is part of the mutator, not the action, so no async.
+        // return await MyVapi.store.dispatch('member/fetchLoginUser')
+      }
+    },
+
+    renewToken: async (token: string) => {
+      const res: AxiosResponse<string> = await api.post('/rpc/renew_token', {
+        token,
+      });
+      if (res.status == 200) {
+        if (res.data) {
+          this.token = res.data;
+          if (this.member) getWSClient().login(this.member.id, this.token);
+          const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
+          this.tokenExpiry = tokenExpiry;
+          const storage = window.localStorage;
+          storage.setItem('token', this.token);
+          storage.setItem('tokenExpiry', tokenExpiry.toString());
+          window.setTimeout(() => {
+            this.renewToken(this.token);
+          }, TOKEN_RENEWAL);
+        } else {
+          Object.assign(this, baseState);
+          window.localStorage.removeItem('token');
+          window.localStorage.removeItem('tokenExpiry');
+          console.log('Renewal failed.');
+        }
+      } else {
+        Object.assign(this, baseState);
+        window.localStorage.removeItem('token');
+        window.localStorage.removeItem('tokenExpiry');
+        console.log(error);
+      }
+    },
+
     registerUser: async (context, data) => {
       // const password = await hash(data.password, 10);
       // data = { ...data, password };
@@ -74,21 +131,23 @@ export const useMemberStore = defineStore('member',  {
     ensureLoginUser: async (context) => {
       // TODO: the case where the member is pending
       if (!context.state.member) {
-        const expiry = context.state.tokenExpiry || window.localStorage.getItem('tokenExpiry');
-      if (expiry && Date.now() < Number.parseInt(expiry)) {
-        await context.dispatch('fetchLoginUser');
-        if (!context.state.tokenExpiry) {
-          // add a commit for expiry?
-        }
-        return context.state.member;
+        const expiry =
+          context.state.tokenExpiry ||
+          window.localStorage.getItem('tokenExpiry');
+        if (expiry && Date.now() < Number.parseInt(expiry)) {
+          await context.dispatch('fetchLoginUser');
+          if (!context.state.tokenExpiry) {
+            // add a commit for expiry?
+          }
+          return context.state.member;
         }
       }
     },
     resetMember: (context) => {
       context.commit('CLEAR_STATE');
     },
-  }
-})
+  },
+});
 
 export const member = (axios: AxiosInstance) =>
   new MyVapi<MemberState>({
@@ -105,10 +164,7 @@ export const member = (axios: AxiosInstance) =>
         params.id = data.id;
         actionParams.data = filterKeys(data, memberPatchKeys);
       },
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<Member[]>,
-      ) => {
+      onSuccess: (state: MemberState, res: AxiosResponse<Member[]>) => {
         state.member = Object.assign({}, state.member, res.data[0]);
       },
     })
@@ -116,11 +172,7 @@ export const member = (axios: AxiosInstance) =>
       action: 'signin',
       property: 'token',
       path: 'get_token',
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<string>,
-      
-      ) => {
+      onSuccess: (state: MemberState, res: AxiosResponse<string>) => {
         state.token = res.data;
         state.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         state.isAuthenticated = true;
@@ -162,10 +214,7 @@ export const member = (axios: AxiosInstance) =>
         params.select =
           '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
       },
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<Member>,
-      ) => {
+      onSuccess: (state: MemberState, res: AxiosResponse<Member>) => {
         state.member = res.data[0];
         state.isAuthenticated = true;
         state.token = state.token || window.localStorage.getItem('token');
@@ -177,10 +226,7 @@ export const member = (axios: AxiosInstance) =>
         getWSClient().login(state.member.id, state.token);
         return state.member;
       },
-      onError: (
-        state: MemberState,
-        error,
-      ) => {
+      onError: (state: MemberState, error) => {
         window.localStorage.removeItem('token');
         window.localStorage.removeItem('tokenExpiry');
         console.log(error);
@@ -190,17 +236,11 @@ export const member = (axios: AxiosInstance) =>
       action: 'registerUserCrypted',
       property: 'member',
       path: 'create_member',
-      onError: (
-        state: MemberState,
-        error,
-      ) => {
+      onError: (state: MemberState, error) => {
         if (data.code == 409) throw new Error('EXISTS');
         else throw error;
       },
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<number>,
-      ) => {
+      onSuccess: (state: MemberState, res: AxiosResponse<number>) => {
         // TODO: Send email to user with activation link
         // TODO: Add to members state?
         MyVapi.store.dispatch('members/ensureMemberById', {
@@ -216,19 +256,13 @@ export const member = (axios: AxiosInstance) =>
     .call({
       action: 'renewToken',
       path: 'renew_token',
-      onError: (
-        state: MemberState,
-        error,
-      ) => {
+      onError: (state: MemberState, error) => {
         Object.assign(state, baseState);
         window.localStorage.removeItem('token');
         window.localStorage.removeItem('tokenExpiry');
         console.log(error);
       },
-      onSuccess: (
-        state: MemberState,
-        res: AxiosResponse<string>,
-      ) => {
+      onSuccess: (state: MemberState, res: AxiosResponse<string>) => {
         if (res.data) {
           state.token = res.data;
           if (state.member) getWSClient().login(state.member.id, state.token);
@@ -249,7 +283,7 @@ export const member = (axios: AxiosInstance) =>
           console.log('Renewal failed.');
         }
       },
-    })
+    });
 
 /*    // Step 4
     .getVuexStore({

@@ -1,17 +1,17 @@
-import { Store as VuexStore } from "vuex";
-import Vapi from "vuex-rest-api";
+import { Store as VuexStore } from 'vuex';
+import Vapi from 'vuex-rest-api';
 import {
   Store as VapiStore,
   StoreOptions as VapiStoreOptions,
   ActionMap,
   MutationMap,
-} from "vuex-rest-api/dist/Store";
+} from 'vuex-rest-api/dist/Store';
 import {
   ShorthandResourceActionOptions,
   ResourceActionOptions,
-} from "vuex-rest-api/dist/Resource";
-import { AxiosResponse } from "axios";
-import type { KeyArray } from "../types";
+} from 'vuex-rest-api/dist/Resource';
+import { AxiosResponse } from 'axios';
+import type { KeyArray } from '../types';
 
 export type RestActionType<P, D, R> = ({
   params,
@@ -93,24 +93,24 @@ export class MyVapi<S> extends Vapi {
   }
   delete(options: ShorthandResourceActionOptions): MyVapi<S> {
     options.headers = Object.assign({}, options.headers, {
-      Prefer: "return=representation",
+      Prefer: 'return=representation',
     });
     return super.delete(options) as MyVapi<S>;
   }
   post(options: ShorthandResourceActionOptions): MyVapi<S> {
     options.headers = Object.assign({}, options.headers, {
-      Prefer: "return=representation",
+      Prefer: 'return=representation',
     });
     return super.post(options) as MyVapi<S>;
   }
   patch(options: ShorthandResourceActionOptions): MyVapi<S> {
     options.headers = Object.assign({}, options.headers, {
-      Prefer: "return=representation",
+      Prefer: 'return=representation',
     });
     return super.patch(options) as MyVapi<S>;
   }
   call(options: CallResourceActionOptions): MyVapi<S> {
-    if (typeof options.path == "string") {
+    if (typeof options.path == 'string') {
       options.path = `/rpc/${options.path}`;
     }
     if (options.readOnly) {

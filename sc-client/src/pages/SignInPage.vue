@@ -18,7 +18,7 @@ import signinCard from '../components/signin-card.vue';
 import { AxiosError } from 'axios';
 
   const router = useRouter()
-  let title = "Sign In";  
+  let title = 'Sign In';  
   let isPwd = true;
   let isPwdSignIn = true;
   let showDialog = true;
@@ -39,13 +39,13 @@ import { AxiosError } from 'axios';
       console.log('Error with sign in', errorString);
       if (errorString == 'invalid confirmed / Cannot login untilconfirmed') {
         this.$q.notify({
-          type: "negative",
+          type: 'negative',
           message:
             'You have not been confirmed. Check your email for confirmation link',
         });
       } else {
         this.$q.notify({
-          type: "negative",
+          type: 'negative',
           message:
             'Problem signing in verify you have entered correctemail and password ',
         });

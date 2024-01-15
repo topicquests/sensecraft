@@ -44,19 +44,19 @@
 </template>
 
 <script lang="ts">
-import scoreboard from "../components/scoreboard.vue";
-import questTable from "../components/quest-table.vue";
-import member from "../components/member.vue";
-import { mapActions, mapGetters } from "vuex";
-import { userLoaded } from "../boot/userLoaded";
-import Component from "vue-class-component";
-import Vue from "vue";
-import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
-import { GuildsActionTypes } from "src/store/guilds";
+import scoreboard from '../components/scoreboard.vue';
+import questTable from '../components/quest-table.vue';
+import member from '../components/member.vue';
+import { mapActions, mapGetters } from 'vuex';
+import { userLoaded } from '../boot/userLoaded';
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import { QuestsActionTypes, QuestsGetterTypes } from 'src/store/quests';
+import { GuildsActionTypes } from 'src/store/guilds';
 
 @Component<QuestListPage>({
   meta: {
-    title: "Quests",
+    title: 'Quests',
   },
   components: {
     scoreboard: scoreboard,
@@ -64,12 +64,12 @@ import { GuildsActionTypes } from "src/store/guilds";
     member: member,
   },
   computed: {
-    ...mapGetters("quests", ["getQuests"]),
-    ...mapGetters("guilds", ["getGuilds"]),
+    ...mapGetters('quests', ['getQuests']),
+    ...mapGetters('guilds', ['getGuilds']),
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
+    ...mapActions('quests', ['ensureAllQuests', 'setCurrentQuest']),
+    ...mapActions('guilds', ['ensureAllGuilds', 'setCurrentGuild']),
   },
 })
 export default class QuestListPage extends Vue {
@@ -78,12 +78,12 @@ export default class QuestListPage extends Vue {
   isAuthenticated: false;
   serverData: [];
 
-  getQuests!: QuestsGetterTypes["getQuests"];
+  getQuests!: QuestsGetterTypes['getQuests'];
 
-  ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
-  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
-  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
-  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
+  ensureAllQuests: QuestsActionTypes['ensureAllQuests'];
+  ensureAllGuilds: GuildsActionTypes['ensureAllGuilds'];
+  setCurrentGuild: GuildsActionTypes['setCurrentGuild'];
+  setCurrentQuest: QuestsActionTypes['setCurrentQuest'];
 
   async beforeMount() {
     await userLoaded;

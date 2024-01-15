@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
   import { defineEmits } from 'vue';
-  name: "signinCard"
+  name: 'signinCard'
   let isPwd = true;
   let isPwdSignIn = true;
   let showDialog = true;

@@ -174,7 +174,7 @@ let  formdata = {
   }
 
   function goHome() {
-    router.push({ name: "home" });
+    router.push({ name: 'home' });
   }
   function onHide() {
     // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...

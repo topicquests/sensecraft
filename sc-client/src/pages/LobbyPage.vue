@@ -62,24 +62,24 @@
 </template>
 
 <script lang="ts">
-import scoreboard from "../components/scoreboard.vue";
-import questTable from "../components/quest-table.vue";
-import GuildsTable from "../components/guilds-table.vue";
-import member from "../components/member.vue";
-import { Guild } from "../types";
-import { mapActions, mapGetters } from "vuex";
-import { QuestsActionTypes, QuestsGetterTypes } from "src/store/quests";
-import { GuildsActionTypes, GuildsGetterTypes } from "src/store/guilds";
-import { MemberGetterTypes } from "src/store/member";
-import { userLoaded } from "../boot/userLoaded";
-import Component from "vue-class-component";
-import Vue from "vue";
-import GuildsMembershipIndicator from "../components/guilds-membership-indicator.vue";
+import scoreboard from '../components/scoreboard.vue';
+import questTable from '../components/quest-table.vue';
+import GuildsTable from '../components/guilds-table.vue';
+import member from '../components/member.vue';
+import { Guild } from '../types';
+import { mapActions, mapGetters } from 'vuex';
+import { QuestsActionTypes, QuestsGetterTypes } from 'src/store/quests';
+import { GuildsActionTypes, GuildsGetterTypes } from 'src/store/guilds';
+import { MemberGetterTypes } from 'src/store/member';
+import { userLoaded } from '../boot/userLoaded';
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import GuildsMembershipIndicator from '../components/guilds-membership-indicator.vue';
 
 @Component<LobbyPage>({
-  name: "LobbyPage",
+  name: 'LobbyPage',
   meta: {
-    title: "Dashboard",
+    title: 'Dashboard',
   },
   components: {
     scoreboard: scoreboard,
@@ -89,9 +89,9 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     GuildsMembershipIndicator: GuildsMembershipIndicator,
   },
   computed: {
-    ...mapGetters("guilds", ["getGuilds", "getMyGuilds", "isGuildMember"]),
-    ...mapGetters("quests", ["getQuests", "getActiveQuests"]),
-    ...mapGetters("member", ["member", "getUserId"]),
+    ...mapGetters('guilds', ['getGuilds', 'getMyGuilds', 'isGuildMember']),
+    ...mapGetters('quests', ['getQuests', 'getActiveQuests']),
+    ...mapGetters('member', ['member', 'getUserId']),
 
     getOpenGuilds: {
       get() {
@@ -111,8 +111,8 @@ import GuildsMembershipIndicator from "../components/guilds-membership-indicator
     },
   },
   methods: {
-    ...mapActions("quests", ["ensureAllQuests", "setCurrentQuest"]),
-    ...mapActions("guilds", ["ensureAllGuilds", "setCurrentGuild"]),
+    ...mapActions('quests', ['ensureAllQuests', 'setCurrentQuest']),
+    ...mapActions('guilds', ['ensureAllGuilds', 'setCurrentGuild']),
   },
 })
 export default class LobbyPage extends Vue {
@@ -121,17 +121,17 @@ export default class LobbyPage extends Vue {
   getOpenGuilds!: Guild[];
   getClosedGuilds!: Guild[];
 
-  getMyGuilds!: GuildsGetterTypes["getMyGuilds"];
-  getQuests!: QuestsGetterTypes["getQuests"];
-  getActiveQuests!: QuestsGetterTypes["getActiveQuests"];
-  getGuilds!: GuildsGetterTypes["getGuilds"];
-  getUserId!: MemberGetterTypes["getUserId"];
+  getMyGuilds!: GuildsGetterTypes['getMyGuilds'];
+  getQuests!: QuestsGetterTypes['getQuests'];
+  getActiveQuests!: QuestsGetterTypes['getActiveQuests'];
+  getGuilds!: GuildsGetterTypes['getGuilds'];
+  getUserId!: MemberGetterTypes['getUserId'];
 
   // declare the methods for Typescript
-  setCurrentGuild: GuildsActionTypes["setCurrentGuild"];
-  setCurrentQuest: QuestsActionTypes["setCurrentQuest"];
-  ensureAllQuests: QuestsActionTypes["ensureAllQuests"];
-  ensureAllGuilds: GuildsActionTypes["ensureAllGuilds"];
+  setCurrentGuild: GuildsActionTypes['setCurrentGuild'];
+  setCurrentQuest: QuestsActionTypes['setCurrentQuest'];
+  ensureAllQuests: QuestsActionTypes['ensureAllQuests'];
+  ensureAllGuilds: GuildsActionTypes['ensureAllGuilds'];
 
   async beforeMount() {
     await userLoaded;

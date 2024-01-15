@@ -69,17 +69,17 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import { mapActions, mapGetters } from "vuex";
-import scoreboard from "../components/scoreboard.vue";
-import member from "../components/member.vue";
-import { userLoaded } from "../boot/userLoaded";
-import { public_private_bool } from "../enums";
-import { GuildsActionTypes } from "../store/guilds";
-import { RoleActionTypes, RoleGetterTypes } from "../store/role";
-import { Role } from "./../types";
-import { MembersActionTypes } from "src/store/members";
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { mapActions, mapGetters } from 'vuex';
+import scoreboard from '../components/scoreboard.vue';
+import member from '../components/member.vue';
+import { userLoaded } from '../boot/userLoaded';
+import { public_private_bool } from '../enums';
+import { GuildsActionTypes } from '../store/guilds';
+import { RoleActionTypes, RoleGetterTypes } from '../store/role';
+import { Role } from './../types';
+import { MembersActionTypes } from 'src/store/members';
 
 @Component<GuildFormPage>({
   components: {
@@ -88,47 +88,47 @@ import { MembersActionTypes } from "src/store/members";
   },
 
   computed: {
-    ...mapGetters("role", ["getRoles"]),
+    ...mapGetters('role', ['getRoles']),
   },
 
   methods: {
-    ...mapActions("guilds", ["createGuild"]),
-    ...mapActions("role", ["ensureAllRoles"]),
-    ...mapActions("members", ["ensureAllMembers"]),
+    ...mapActions('guilds', ['createGuild']),
+    ...mapActions('role', ['ensureAllRoles']),
+    ...mapActions('members', ['ensureAllMembers']),
   },
   meta: {
-    title: "Create Guild",
+    title: 'Create Guild',
   },
 })
 export default class GuildFormPage extends Vue {
   public_private_bool = public_private_bool;
   ready = false;
-  createGuild: GuildsActionTypes["createGuild"];
+  createGuild: GuildsActionTypes['createGuild'];
 
   // declare the computed attributes for Typescript
-  getRoles!: RoleGetterTypes["getRoles"];
+  getRoles!: RoleGetterTypes['getRoles'];
   role: Partial<Role> = {
-    name: "",
+    name: '',
   };
 
   // declare the methods for Typescript
-  ensureAllRoles!: RoleActionTypes["ensureAllRoles"];
-  ensureAllMembers: MembersActionTypes["ensureAllMembers"];
+  ensureAllRoles!: RoleActionTypes['ensureAllRoles'];
+  ensureAllMembers: MembersActionTypes['ensureAllMembers'];
 
   async doSubmit(guild) {
     try {
       guild.default_role_id = this.role.id;
       const res = await this.createGuild({ data: guild });
       this.$q.notify({
-        message: `Added new guild`,
-        color: "positive",
+        message: 'Added new guild',
+        color: 'positive',
       });
-      this.$router.push({ name: "guild_admin", params: { guild_id: res.id } });
+      this.$router.push({ name: 'guild_admin', params: { guild_id: res.id } });
     } catch (err) {
-      console.log("there was an error in creating guild ", err);
+      console.log('there was an error in creating guild ', err);
       this.$q.notify({
-        message: `There was an error creating new guild.`,
-        color: "negative",
+        message: 'There was an error creating new guild.',
+        color: 'negative',
       });
     }
   }
@@ -142,10 +142,10 @@ export default class GuildFormPage extends Vue {
   data() {
     return {
       guild: {
-        name: "",
-        handle: "",
+        name: '',
+        handle: '',
         public: false,
-        description: "",
+        description: '',
         default_role_id: null,
       },
     };
