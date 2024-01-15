@@ -1,7 +1,7 @@
-import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
+import { boot } from "quasar/wrappers";
+import axios, { AxiosInstance } from "axios";
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
     $api: AxiosInstance;
@@ -16,8 +16,12 @@ declare module '@vue/runtime-core' {
 // for each client)
 const api = axios.create({ baseURL: server_url });
 
+const token = window.localStorage.getItem("token");
+
 api.interceptors.request.use(function (config) {
-  console.log(config);
+  if (token && token.length > 0) {
+    config.headers.common["Authorization"] = `Bearer ${token}`;
+  }
   return config;
 });
 
