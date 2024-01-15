@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
-import { AxiosResponse, AxiosInstance } from 'axios';
-import { Member } from '../types';
+import { AxiosResponse, AxiosInstance } from "axios";
+import { Member } from "../types";
 //import { getWSClient } from "../wsclient";
 //import { decode } from "jws";
 // import { useBaseStore } from "./base";
-import { api } from '../boot/axios';
+import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
 
 export interface MemberState {
   member: Member;
@@ -14,32 +14,21 @@ export interface MemberState {
   isAuthenticated: boolean;
 }
 
-// TODO: right now expiry is shared knowledge with backend.
-// Ideally, I should read it from the token.
-export const TOKEN_EXPIRATION = 1000000;
 const TOKEN_RENEWAL = (TOKEN_EXPIRATION * 9) / 10;
 
 const baseState: MemberState = {
   member: null,
-  token: null,
-  tokenExpiry: null,
   isAuthenticated: false,
 };
 
-export const useMemberStore = defineStore('member', {
-  state: () => ({
-    member: null,
-    token: null,
-    tokenExpiry: null,
-    isAuthenticated: false,
-  }),
+export const useMemberStore = defineStore("member", {
+  state: () => baseState,
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
     getMembersAvailableRoles: (state: MemberState) =>
       state.member?.guild_member_available_role,
-    tokenIsValid: (state: MemberState) =>
-      state.token && state.tokenExpiry && state.tokenExpiry > Date.now(),
+    tokenIsValid: (state: MemberState) => token_store.tokenIsValid(),
     getUserById: (state: MemberState) => (id: number) =>
       state.member?.id == id ? state.member : null,
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
@@ -73,52 +62,40 @@ export const useMemberStore = defineStore('member', {
       // await useBaseStore.reset();
     },
     signin: async (mail: string, pass: string) => {
-      const res: AxiosResponse<string> = await api.post('/rpc/get_token', {
+      const res: AxiosResponse<string> = await api.post("/rpc/get_token", {
         mail,
         pass,
       });
       if (res.status == 200) {
-        this.token = res.data;
-        this.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
+        token_store.setToken(res.data);
         this.isAuthenticated = true;
-        const storage = window.localStorage;
-        storage.setItem('token', this.token);
-        storage.setItem('tokenExpiry', this.tokenExpiry.toString());
         window.setTimeout(() => {
-          this.renewToken({ data: { token: this.token } });
+          this.renewToken();
         }, TOKEN_RENEWAL);
-        // Ideally, I should be able to chain another action as below.
-        // But onSuccess is part of the mutator, not the action, so no async.
-        // return await MyVapi.store.dispatch('member/fetchLoginUser')
+        await this.fetchLoginUser();
       }
     },
 
-    renewToken: async (token: string) => {
-      const res: AxiosResponse<string> = await api.post('/rpc/renew_token', {
+    renewToken: async () => {
+      const token = token_store.getToken();
+      if (!token) return;
+      const res: AxiosResponse<string> = await api.post("/rpc/renew_token", {
         token,
       });
       if (res.status == 200) {
         if (res.data) {
-          this.token = res.data;
-          if (this.member) getWSClient().login(this.member.id, this.token);
-          const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
-          this.tokenExpiry = tokenExpiry;
-          const storage = window.localStorage;
-          storage.setItem('token', this.token);
-          storage.setItem('tokenExpiry', tokenExpiry.toString());
+          token_store.setToken(res.data);
           window.setTimeout(() => {
-            this.renewToken(this.token);
+            this.renewToken();
           }, TOKEN_RENEWAL);
         } else {
           Object.assign(this, baseState);
-          window.localStorage.removeItem('token');
-          window.localStorage.removeItem('tokenExpiry');
-          console.log('Renewal failed.');
+          token_store.clearToken();
+          console.log("Renewal failed.");
         }
       } else {
         Object.assign(this, baseState);
-        window.localStorage.removeItem('token');
-        window.localStorage.removeItem('tokenExpiry');
+        token_store.clearToken();
         console.log(error);
       }
     },
@@ -126,16 +103,16 @@ export const useMemberStore = defineStore('member', {
     registerUser: async (context, data) => {
       // const password = await hash(data.password, 10);
       // data = { ...data, password };
-      return await context.dispatch('registerUserCrypted', { data });
+      return await context.dispatch("registerUserCrypted", { data });
     },
     ensureLoginUser: async (context) => {
       // TODO: the case where the member is pending
       if (!context.state.member) {
         const expiry =
           context.state.tokenExpiry ||
-          window.localStorage.getItem('tokenExpiry');
+          window.localStorage.getItem("tokenExpiry");
         if (expiry && Date.now() < Number.parseInt(expiry)) {
-          await context.dispatch('fetchLoginUser');
+          await context.dispatch("fetchLoginUser");
           if (!context.state.tokenExpiry) {
             // add a commit for expiry?
           }
@@ -144,7 +121,7 @@ export const useMemberStore = defineStore('member', {
       }
     },
     resetMember: (context) => {
-      context.commit('CLEAR_STATE');
+      context.commit("CLEAR_STATE");
     },
   },
 });
@@ -156,8 +133,8 @@ export const member = (axios: AxiosInstance) =>
   })
     // Step 3
     .patch({
-      action: 'updateUser',
-      property: 'member',
+      action: "updateUser",
+      property: "member",
       path: ({ id }) => `/members?id=eq.${id}`,
       beforeRequest: (state: MemberState, actionParams) => {
         const { params, data } = actionParams;
@@ -169,18 +146,18 @@ export const member = (axios: AxiosInstance) =>
       },
     })
     .call({
-      action: 'signin',
-      property: 'token',
-      path: 'get_token',
+      action: "signin",
+      property: "token",
+      path: "get_token",
       onSuccess: (state: MemberState, res: AxiosResponse<string>) => {
         state.token = res.data;
         state.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         state.isAuthenticated = true;
         const storage = window.localStorage;
-        storage.setItem('token', state.token);
-        storage.setItem('tokenExpiry', state.tokenExpiry.toString());
+        storage.setItem("token", state.token);
+        storage.setItem("tokenExpiry", state.tokenExpiry.toString());
         window.setTimeout(() => {
-          MyVapi.store.dispatch('member/renewToken', {
+          MyVapi.store.dispatch("member/renewToken", {
             data: { token: state.token },
           });
         }, TOKEN_RENEWAL);
@@ -190,36 +167,36 @@ export const member = (axios: AxiosInstance) =>
       },
     })
     .get({
-      action: 'fetchLoginUser',
-      property: 'member',
-      path: '/members',
+      action: "fetchLoginUser",
+      property: "member",
+      path: "/members",
       queryParams: true,
       beforeRequest: (state: MemberState, { params }) => {
         if (!state.token) {
-          state.token = window.localStorage.getItem('token');
+          state.token = window.localStorage.getItem("token");
         }
         if (!state.tokenExpiry) {
           state.tokenExpiry = Number.parseInt(
-            window.localStorage.getItem('tokenExpiry')
+            window.localStorage.getItem("tokenExpiry")
           );
         }
         const token_payload = decode(state.token).payload;
         const payload =
-          typeof token_payload == 'string'
+          typeof token_payload == "string"
             ? JSON.parse(token_payload)
             : token_payload;
-        const parts: string[] = payload.role.split('_');
+        const parts: string[] = payload.role.split("_");
         const role = parts[parts.length - 1];
         params.id = `eq.${role}`;
         params.select =
-          '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)';
+          "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)";
       },
       onSuccess: (state: MemberState, res: AxiosResponse<Member>) => {
         state.member = res.data[0];
         state.isAuthenticated = true;
-        state.token = state.token || window.localStorage.getItem('token');
+        state.token = state.token || window.localStorage.getItem("token");
         const tokenExpiry =
-          state.tokenExpiry || window.localStorage.getItem('tokenExpiry');
+          state.tokenExpiry || window.localStorage.getItem("tokenExpiry");
         if (tokenExpiry) {
           state.tokenExpiry = Number.parseInt(tokenExpiry as string);
         }
@@ -227,39 +204,39 @@ export const member = (axios: AxiosInstance) =>
         return state.member;
       },
       onError: (state: MemberState, error) => {
-        window.localStorage.removeItem('token');
-        window.localStorage.removeItem('tokenExpiry');
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("tokenExpiry");
         console.log(error);
       },
     })
     .call({
-      action: 'registerUserCrypted',
-      property: 'member',
-      path: 'create_member',
+      action: "registerUserCrypted",
+      property: "member",
+      path: "create_member",
       onError: (state: MemberState, error) => {
-        if (data.code == 409) throw new Error('EXISTS');
+        if (data.code == 409) throw new Error("EXISTS");
         else throw error;
       },
       onSuccess: (state: MemberState, res: AxiosResponse<number>) => {
         // TODO: Send email to user with activation link
         // TODO: Add to members state?
-        MyVapi.store.dispatch('members/ensureMemberById', {
+        MyVapi.store.dispatch("members/ensureMemberById", {
           id: res.data,
           full: false,
         });
       },
     })
     .call({
-      action: 'sendConfirmEmail',
-      path: 'send_login_email',
+      action: "sendConfirmEmail",
+      path: "send_login_email",
     })
     .call({
-      action: 'renewToken',
-      path: 'renew_token',
+      action: "renewToken",
+      path: "renew_token",
       onError: (state: MemberState, error) => {
         Object.assign(state, baseState);
-        window.localStorage.removeItem('token');
-        window.localStorage.removeItem('tokenExpiry');
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("tokenExpiry");
         console.log(error);
       },
       onSuccess: (state: MemberState, res: AxiosResponse<string>) => {
@@ -269,18 +246,18 @@ export const member = (axios: AxiosInstance) =>
           const tokenExpiry = Date.now() + TOKEN_EXPIRATION;
           state.tokenExpiry = tokenExpiry;
           const storage = window.localStorage;
-          storage.setItem('token', state.token);
-          storage.setItem('tokenExpiry', tokenExpiry.toString());
+          storage.setItem("token", state.token);
+          storage.setItem("tokenExpiry", tokenExpiry.toString());
           window.setTimeout(() => {
-            MyVapi.store.dispatch('member/renewToken', {
+            MyVapi.store.dispatch("member/renewToken", {
               data: { token: state.token },
             });
           }, TOKEN_RENEWAL);
         } else {
           Object.assign(state, baseState);
-          window.localStorage.removeItem('token');
-          window.localStorage.removeItem('tokenExpiry');
-          console.log('Renewal failed.');
+          window.localStorage.removeItem("token");
+          window.localStorage.removeItem("tokenExpiry");
+          console.log("Renewal failed.");
         }
       },
     });

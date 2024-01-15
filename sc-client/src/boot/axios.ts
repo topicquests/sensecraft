@@ -16,11 +16,56 @@ declare module "@vue/runtime-core" {
 // for each client)
 const api = axios.create({ baseURL: server_url });
 
-const token = window.localStorage.getItem("token");
+// TODO: right now expiry is shared knowledge with backend.
+// Ideally, I should read it from the token.
+export const TOKEN_EXPIRATION = 1000000;
+
+class TokenStore {
+  token: str | undefined;
+  tokenExpiry: number | undefined;
+  constructor() {
+    this.token = window.localStorage.getItem("token");
+    const origTokenExpiry = window.localStorage.getItem("tokenExpiry");
+    this.tokenExpiry = origTokenExpiry
+      ? Number.parseInt(origTokenExpiry)
+      : undefined;
+  }
+  setToken(token: string, tokenExpiry: number) {
+    this.token = token;
+    this.tokenExpiry = tokenExpiry || Date.now() + TOKEN_EXPIRATION;
+    window.localStorage.setItem("token", token);
+    window.localStorage.setItem("tokenExpiry", tokenExpiry.toString());
+  }
+  tokenIsValid() {
+    return this.token && this.tokenExpiry && Date.now() < this.tokenExpiry;
+  }
+  getToken() {
+    if (this.tokenIsValid()) {
+      return this.token;
+    }
+  }
+  clearToken() {
+    this.token = undefined;
+    this.tokenExpiry = undefined;
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("tokenExpiry");
+  }
+}
+
+const token_store = new TokenStore();
 
 api.interceptors.request.use(function (config) {
-  if (token && token.length > 0) {
-    config.headers.common["Authorization"] = `Bearer ${token}`;
+  const token = token_store.getToken();
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  if (
+    config.method === "put" ||
+    config.method === "patch" ||
+    config.method === "delete" ||
+    config.method === "post" /* and config.url does not starts with /rpc */
+  ) {
+    config.headers["Prefer"] = "return=representation";
   }
   return config;
 });
