@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 import { AxiosResponse, AxiosInstance } from "axios";
 import { Member } from "../types";
 //import { getWSClient } from "../wsclient";
-//import { decode } from "jws";
 // import { useBaseStore } from "./base";
 import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
 
@@ -73,7 +72,7 @@ export const useMemberStore = defineStore("member", {
           this.renewToken();
         }, TOKEN_RENEWAL);
         // await this.fetchLoginUser();
-        return res.data
+        return res.data;
       }
     },
 
@@ -106,23 +105,42 @@ export const useMemberStore = defineStore("member", {
       // data = { ...data, password };
       return await context.dispatch("registerUserCrypted", { data });
     },
-    async ensureLoginUser(context) {
-      // TODO: the case where the member is pending
-      if (!context.state.member) {
-        const expiry =
-          context.state.tokenExpiry ||
-          window.localStorage.getItem("tokenExpiry");
-        if (expiry && Date.now() < Number.parseInt(expiry)) {
-          await context.dispatch("fetchLoginUser");
-          if (!context.state.tokenExpiry) {
-            // add a commit for expiry?
-          }
-          return context.state.member;
-        }
+    async fetchLoginUser(): Promise<Member> {
+      const token_payload = token_store.getDecodedToken();
+      if (!token_payload) {
+        return undefined;
+      }
+      const parts: string[] = token_payload.role.split("_");
+      const role = parts[parts.length - 1];
+
+      const res: AxiosResponse<Member> = await api.get("/members", {
+        params: {
+          id: `eq.${role}`,
+          select:
+            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)",
+        },
+      });
+      if (res.status == 200) {
+        this.member = res.data;
+        this.isAuthenticated = true;
+        return res.data;
+      } else {
+        this.resetMember();
+        console.error(res.status);
+        console.error(res.data);
       }
     },
-    resetMember(context) {
-      context.commit("CLEAR_STATE");
+
+    async ensureLoginUser(): Promise<Member> {
+      // TODO: the case where the member is pending
+      if (!this.member) {
+        await this.fetchLoginUser();
+      }
+      return this.member;
+    },
+    resetMember() {
+      token_store.clearToken();
+      Object.assign(this, baseState);
     },
   },
 });
