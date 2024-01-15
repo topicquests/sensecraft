@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import signinCard from '../components/signin-card.vue';
+import { AxiosError } from 'axios';
 
   const router = useRouter()
   let title = "Sign In";  
@@ -23,10 +24,7 @@ import signinCard from '../components/signin-card.vue';
   let showDialog = true;
   let formData = { mail: null, pass: null };
 
-  //ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
-  //signin!: MemberActionTypes["signin"];
-
-  function doLogin(formData) {
+  function doLogin(this: any, formData: any) {
     try {
       this.formData.mail = formData.mail.toString().toLowerCase();
       this.formData.pass = formData.pass;
@@ -36,7 +34,7 @@ import signinCard from '../components/signin-card.vue';
       }
       // await this.ensureLoginUser();
       this.goNext();
-    } catch (AxiosError) {
+    } catch (AxiosError: any) {
       const errorString = AxiosError.response.data.message;
       console.log('Error with sign in', errorString);
       if (errorString == 'invalid confirmed / Cannot login untilconfirmed') {
@@ -55,7 +53,7 @@ import signinCard from '../components/signin-card.vue';
     }
   }
 
-  function goNext() {
+  function goNext(this: any) {
     try {
       this.goLobby();
     } catch (error) {

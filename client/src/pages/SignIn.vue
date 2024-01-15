@@ -40,7 +40,7 @@ export default class SigninPage extends Vue {
   ensureLoginUser!: MemberActionTypes["ensureLoginUser"];
   signin!: MemberActionTypes["signin"];
 
-  async doLogin(formData) {
+  async doLogin(formData: { mail: { toString: () => string }; pass: any }) {
     try {
       this.formData.mail = formData.mail.toString().toLowerCase();
       this.formData.pass = formData.pass;

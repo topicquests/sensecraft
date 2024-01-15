@@ -3,7 +3,6 @@ import { GuildData, Guild } from '../types';
 import { defineStore } from 'pinia'
 import { useMemberStore } from './member'
 
-
 interface GuildMap {
   [key: number]: GuildData;
 }
@@ -22,11 +21,15 @@ const baseState: GuildsState = {
   fullGuilds: {},
 };
 
-
 export const useGuildStore = defineStore('guild',  {
-  state: () => {
-   return baseState
-  },
+  state: () => ({
+    currentGuild: null,
+    fullFetch: false,
+    guilds: {},
+    fullGuilds: {}
+  }),
+
+   
   getters: {
     getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
@@ -62,34 +65,42 @@ export const useGuildStore = defineStore('guild',  {
         ?.map((gm: GuildMembership) => members[gm.member_id])
         .filter((member: PublicMember) => member);
     },
-  },  
+     getGuildsPlayingCurrentQuest: (state: GuildsState) => {
+      const quest: Quest = MyVapi.store.getters['quests/getCurrentQuest'];
+      if (!quest) return [];
+      const guildId = quest.game_play?.map((gp: GamePlay) =>
+        gp.game_status != game_play_status_enum.cancelled ? gp.guild_id : null
+      );
+      if (guildId == undefined) return [];
+      return Object.values(state.guilds).filter((guild: GuildData) =>
+        guildId.includes(guild.id)
+      );
+    },
+  }, 
   actions: {
-    ensureAllGuilds: async () => {
-        //await fetchGuilds();
-      }   
-  }  
-})
+    async ensureAllGuilds() {
+      if(this.guilds.length === 0 || !this.fullFetch) {
+        await this.fetchGuilds
+      }
+    },
+    setCurrentGuild( guild_id: number) {
+        this.currentGuild = guild_id
+        //getWSClient().setDefaultGuild(guild_id);
+    },
+    async ensureGuild(context, { guild_id, full = true }: { guild_id: number; full?: boolean }) {
+      if (
+        this.getGuildById(guild_id) === undefined ||
+        (full && !this.fullGuilds[guild_id])
+      ) {
+        /*
+        await context.dispatch("fetchGuildById", {
+          full,
+          params: { id: guild_id },
+        });
+        */
+      }
+    },       
 
-
-/*
-const GuildsActions = {
-  setCurrentGuild: (context, guild_id: number) => {
-    context.commit("SET_CURRENT_GUILD", guild_id);
-  },
-  ensureGuild: async (
-    context,
-    { guild_id, full = true }: { guild_id: number; full?: boolean }
-  ) => {
-    if (
-      context.getters.getGuildById(guild_id) === undefined ||
-      (full && !context.state.fullGuilds[guild_id])
-    ) {
-      await context.dispatch("fetchGuildById", {
-        full,
-        params: { id: guild_id },
-      });
-    }
-  },
   createGuild: async (context, { data }) => {
     const res = await context.dispatch("createGuildBase", { data });
     // Refetch to get memberships.
@@ -97,7 +108,7 @@ const GuildsActions = {
     const guild_id = res.data[0].id;
     await context.dispatch("fetchGuildById", { params: { id: guild_id } });
     // TODO: Get the membership from the guild
-    await MyVapi.store.dispatch("member/fetchLoginUser");
+    await useMemberStore.fetchLoginUser;
     await context.dispatch("addGuildMemberAvailableRole", {
       data: {
         member_id: res.data[0].creator,
@@ -176,8 +187,9 @@ const GuildsActions = {
   resetGuilds: (context) => {
     context.commit("CLEAR_STATE");
   },
-};
-*/
+}, 
+})
+
 export const guilds = (axios: AxiosInstance) =>
   new MyVapi<GuildsState>({
     axios,
@@ -442,7 +454,7 @@ export const guilds = (axios: AxiosInstance) =>
       // TODO: modify quests's castings appropriately. May need an appropriate mutation.
     })
   
-    /*
+   
     // Step 4
     .getVuexStore({
       getters: GuildsGetters,
@@ -470,8 +482,8 @@ export const guilds = (axios: AxiosInstance) =>
         },
       },
     });
-  })
-/*
+
+
 type GuildsRestActionTypes = {
   fetchGuildById: ({
     full,
@@ -512,17 +524,6 @@ type GuildsRestActionTypes = {
 export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &
   GuildsRestActionTypes;
 export type GuildsGetterTypes = RetypeGetterTypes<typeof GuildsGetters>;
-*/
-/*
-    getGuildsPlayingCurrentQuest: (state: GuildsState) => {
-      const quest: Quest = MyVapi.store.getters['quests/getCurrentQuest'];
-      if (!quest) return [];
-      const guildId = quest.game_play?.map((gp: GamePlay) =>
-        gp.game_status != game_play_status_enum.cancelled ? gp.guild_id : null
-      );
-      if (guildId == undefined) return [];
-      return Object.values(state.guilds).filter((guild: GuildData) =>
-        guildId.includes(guild.id)
-      );
-    },
-  */
+
+   
+  

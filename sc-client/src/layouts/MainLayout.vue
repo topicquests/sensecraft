@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh LpR fFf">
     <q-header elevated>
        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
        <q-toolbar>
@@ -89,9 +89,19 @@
           title="Guild Channels"
         />
       </div>
+      <div
+        v-if="currentGuild && questStore.getCurrentQuest"
+        class="q-pa-md q-gutter-sm"
+      >
+        <channel-list
+          v-bind:guild_id="currentGuild.id"
+          v-bind:quest_id="questStore.getCurrentQuest.id"
+          :inPage="false"
+          title="Game Channels"
+        />
+      </div>
     </q-drawer>
-
-    <q-drawer v-model="leftDrawer" :breakpoint="200" bordered :overlay="true">
+    <q-drawer v-model="leftDrawer" :breakpoint="500" bordered :overlay="true">
       <q-scroll-area class="fit">
         <q-list>
           <q-item clickable v-ripple id="root">
@@ -116,13 +126,48 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-         
+          <q-item
+          clickable
+          v-ripple
+          id="createQuest"
+          v-show="baseStore.hasPermission(permission_enum.createQuest)"
+        >
+          <q-item-section id="create_quest">
+            <q-item-label>
+              <q-btn :to="{ name: 'create_quest' }" name="createQuestBtn">
+                Create Quests</q-btn
+              >
+            </q-item-label>
+          </q-item-section>
+        </q-item>                 
           <q-item clickable v-ripple id="guildView">
             <q-item-section>
               <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
             </q-item-section>
           </q-item>
           <q-item>
+            <q-item
+            clickable
+            v-ripple
+            id="createGuild"
+            v-show="baseStore.hasPermission(permission_enum.createGuild)"
+          >
+            <q-item-section id="guild_create">
+              <q-item-label>
+                <q-btn :to="{ name: 'create_guild' }">Create Guild</q-btn>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item
+            clickable
+            v-ripple
+            v-if="baseStore.hasPermission(permission_enum.superadmin)"
+            id="admin"
+          >
+            <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
+              Administration
+            </q-btn>
+          </q-item>
             <q-btn
               v-show="!isAuthenticated"
               @click="goTo('signin')"
@@ -179,12 +224,17 @@ import { Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from 'src/stores/member';
 import { useGuildStore } from 'src/stores/guilds'
+import { useQuestStore } from 'src/stores/quests'
+import { useBaseStore } from 'src/stores/baseStore'
 import { GuildData } from 'src/types';
+import { permission_enum } from "../enums";
 
 const router = useRouter()
 const memberStore = useMemberStore()
 const guildStore = useGuildStore()
-let leftDrawer = false
+const questStore = useQuestStore()
+const baseStore = useBaseStore()
+const leftDrawer = ref(false)
 let rightDrawerOpen = false
 const showTree = true;
 const isAuthenticated:Ref<boolean> = ref(memberStore.isAuthenticated)
@@ -198,7 +248,7 @@ function goTo(route: string): void {
 
 function onLogout() {
     rightDrawerOpen = false;
-    leftDrawer = false;
+    leftDrawer.value = false;
     goTo('home');
 }
 

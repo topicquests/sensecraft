@@ -25,7 +25,11 @@ const baseState: MemberState = {
 };
 
 export const useMemberStore = defineStore('member',  { 
-  state: () =>  { return baseState }
+  state: () =>  ({ 
+    member: null,
+    token: null,
+    tokenExpiry: null,
+    isAuthenticated: false, })
   , 
   getters: {
     getUser: (state: MemberState) => state.member,

@@ -25,6 +25,21 @@ const routes: RouteRecordRaw[] = [
         name: 'register',
         component: () => import('pages/RegisterPage.vue'),
       },
+      {
+        path: "house_rules",
+        name: "house_rules",
+        component: () => import("pages/HouseRules.vue"),
+      },
+      {
+        path: "/lobby",
+        name: "lobby",
+        component: () => import("pages/LobbyPage.vue"),
+      },
+      {
+        path: "/quest",
+        name: "quest_list",
+        component: () => import("pages/QuestList.vue"),
+      },
     ],
   },
 
