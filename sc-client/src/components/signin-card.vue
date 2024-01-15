@@ -77,12 +77,12 @@
 </template>
 
 <script setup lang="ts">
-  import { defineEmits } from 'vue';
+  import { defineEmits, ref } from 'vue';
   name: 'signinCard'
   let isPwd = true;
   let isPwdSignIn = true;
   let showDialog = true;
-  let formData = { mail: null, pass: null };
+  let formData = ref({ mail: null, pass: null });
   const emit = defineEmits(['doLogin'])
 
   function doLogin() {

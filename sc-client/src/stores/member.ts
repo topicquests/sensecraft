@@ -61,7 +61,7 @@ export const useMemberStore = defineStore("member", {
       // getWSClient().logout();
       // await useBaseStore.reset();
     },
-    async signin(mail: string, pass: string) {
+    async signin(mail: string, pass: string): string | undefined {
       const res: AxiosResponse<string> = await api.post("/rpc/get_token", {
         mail,
         pass,
@@ -73,6 +73,7 @@ export const useMemberStore = defineStore("member", {
           this.renewToken();
         }, TOKEN_RENEWAL);
         // await this.fetchLoginUser();
+        return res.data
       }
     },
 

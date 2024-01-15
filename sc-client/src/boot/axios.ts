@@ -14,7 +14,7 @@ declare module "@vue/runtime-core" {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: server_url });
+export const api = axios.create({ baseURL: server_url });
 
 // TODO: right now expiry is shared knowledge with backend.
 // Ideally, I should read it from the token.
@@ -52,7 +52,7 @@ class TokenStore {
   }
 }
 
-const token_store = new TokenStore();
+export const token_store = new TokenStore();
 
 api.interceptors.request.use(function (config) {
   const token = token_store.getToken();
@@ -81,5 +81,3 @@ export default boot(({ app }) => {
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
 });
-
-export { api };

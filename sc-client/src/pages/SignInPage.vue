@@ -16,6 +16,7 @@
 import { useRouter } from 'vue-router';
 import signinCard from '../components/signin-card.vue';
 import { AxiosError } from 'axios';
+import { useMemberStore } from 'src/stores/member';
 
   const router = useRouter()
   let title = 'Sign In';  
@@ -23,12 +24,13 @@ import { AxiosError } from 'axios';
   let isPwdSignIn = true;
   let showDialog = true;
   let formData = { mail: null, pass: null };
+  const memberStore = useMemberStore();
 
-  function doLogin(this: any, formData: any) {
+  async function doLogin(this: any, formData: any) {
     try {
       this.formData.mail = formData.mail.toString().toLowerCase();
       this.formData.pass = formData.pass;
-      const signInResp = this.signin({ data: this.formData });
+      const signInResp = await memberStore.signin(this.formData.mail, this.formData.pass);
       if (!signInResp) {
         throw 'login failed';
       }
