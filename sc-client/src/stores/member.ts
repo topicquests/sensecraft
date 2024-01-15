@@ -4,6 +4,7 @@ import { AxiosResponse, AxiosInstance } from "axios";
 import { Member } from "../types";
 //import { getWSClient } from "../wsclient";
 // import { useBaseStore } from "./base";
+import { jwtDecode } from "jwt-decode";
 import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
 
 export interface MemberState {
@@ -106,10 +107,11 @@ export const useMemberStore = defineStore("member", {
       return await context.dispatch("registerUserCrypted", { data });
     },
     async fetchLoginUser(): Promise<Member> {
-      const token_payload = token_store.getDecodedToken();
-      if (!token_payload) {
+      const token = token_store.getToken();
+      if (!token) {
         return undefined;
       }
+      const token_payload = undefined; //jwtDecode(token);
       const parts: string[] = token_payload.role.split("_");
       const role = parts[parts.length - 1];
 

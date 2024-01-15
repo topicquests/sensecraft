@@ -1,6 +1,5 @@
 import { boot } from "quasar/wrappers";
 import axios, { AxiosInstance } from "axios";
-import { decode } from "jws";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
@@ -43,17 +42,6 @@ class TokenStore {
   getToken() {
     if (this.tokenIsValid()) {
       return this.token;
-    }
-  }
-  getDecodedToken() {
-    const token = this.getToken();
-    if (token) {
-      const token_payload = decode(token).payload;
-      const payload =
-        typeof token_payload == "string"
-          ? JSON.parse(token_payload)
-          : token_payload;
-      return payload;
     }
   }
   clearToken() {
