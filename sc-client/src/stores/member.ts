@@ -57,11 +57,11 @@ export const useMemberStore = defineStore("member", {
     },
   },
   actions: {
-    logout: async () => {
+    async logout() {
       // getWSClient().logout();
       // await useBaseStore.reset();
     },
-    signin: async (mail: string, pass: string) => {
+    async signin(mail: string, pass: string) {
       const res: AxiosResponse<string> = await api.post("/rpc/get_token", {
         mail,
         pass,
@@ -72,11 +72,11 @@ export const useMemberStore = defineStore("member", {
         window.setTimeout(() => {
           this.renewToken();
         }, TOKEN_RENEWAL);
-        await this.fetchLoginUser();
+        // await this.fetchLoginUser();
       }
     },
 
-    renewToken: async () => {
+    async renewToken() {
       const token = token_store.getToken();
       if (!token) return;
       const res: AxiosResponse<string> = await api.post("/rpc/renew_token", {
@@ -100,12 +100,12 @@ export const useMemberStore = defineStore("member", {
       }
     },
 
-    registerUser: async (context, data) => {
+    async registerUser(context, data) {
       // const password = await hash(data.password, 10);
       // data = { ...data, password };
       return await context.dispatch("registerUserCrypted", { data });
     },
-    ensureLoginUser: async (context) => {
+    async ensureLoginUser(context) {
       // TODO: the case where the member is pending
       if (!context.state.member) {
         const expiry =
@@ -120,7 +120,7 @@ export const useMemberStore = defineStore("member", {
         }
       }
     },
-    resetMember: (context) => {
+    resetMember(context) {
       context.commit("CLEAR_STATE");
     },
   },
