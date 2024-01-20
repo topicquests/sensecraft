@@ -2,6 +2,7 @@
 import { GuildData, Guild } from '../types';
 import { defineStore } from 'pinia'
 import { useMemberStore } from './member'
+import { useQuestStore } from './quests'
 
 interface GuildMap {
   [key: number]: GuildData;
@@ -20,6 +21,7 @@ const baseState: GuildsState = {
   guilds: {},
   fullGuilds: {},
 };
+const questStore = useQuestStore();
 
 export const useGuildStore = defineStore('guild',  {
   state: () => ({
@@ -66,7 +68,7 @@ export const useGuildStore = defineStore('guild',  {
         .filter((member: PublicMember) => member);
     },
      getGuildsPlayingCurrentQuest: (state: GuildsState) => {
-      const quest: Quest = MyVapi.store.getters['quests/getCurrentQuest'];
+      const quest: Quest = questStore.getCurrentQuest;
       if (!quest) return [];
       const guildId = quest.game_play?.map((gp: GamePlay) =>
         gp.game_status != game_play_status_enum.cancelled ? gp.guild_id : null
@@ -134,7 +136,7 @@ export const useGuildStore = defineStore('guild',  {
       quest_id,
       full: true,
     });
-    const quest = MyVapi.store.getters['quests/getQuestById'](quest_id);
+    const quest = questStore.getQuestById(quest_id);
     let guildId: number[] = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
     if (guildId == undefined) return [];
     if (full) {

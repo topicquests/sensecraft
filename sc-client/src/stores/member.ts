@@ -78,7 +78,7 @@ export const useMemberStore = defineStore('member', {
         window.setTimeout(() => {
           this.renewToken();
         }, TOKEN_RENEWAL);
-        // await this.fetchLoginUser();
+         await this.fetchLoginUser();
         return res.data;
       }
     },
@@ -117,7 +117,8 @@ export const useMemberStore = defineStore('member', {
       if (!token) {
         return undefined;
       }
-      const token_payload = undefined; //jwtDecode(token);
+      const token_payload = jwtDecode<JwtPayload>(token); //jwtDecode(token);
+      console.log("JWT ", token_payload)
       const parts: string[] = token_payload.role.split("_");
       const role = parts[parts.length - 1];
 
@@ -129,7 +130,7 @@ export const useMemberStore = defineStore('member', {
         },
       });
       if (res.status == 200) {
-        this.member = res.data;
+        this.member = res.data[0];
         this.isAuthenticated = true;
         return res.data;
       } else {
@@ -141,16 +142,12 @@ export const useMemberStore = defineStore('member', {
 
     async ensureLoginUser(): Promise<Member> {
       // TODO: the case where the member is pending
-      if (!member) {
-        const expiry = tokenExpiry ||
+      if (!this.member) {
+        const expiry = this.tokenExpiry ||
           window.localStorage.getItem('tokenExpiry');
         if (expiry && Date.now() < Number.parseInt(expiry)) {
-          const res: AxiosResponse<string> = await api.get('/members')
-          if(res==200) {
-            //do something
-          }
-          await context.dispatch('fetchLoginUser');
-          if (!context.state.tokenExpiry) {
+          fetchLoginUser();
+          if (!this.tokenExpiry) {
             // add a commit for expiry?
           }
           return this.member;
