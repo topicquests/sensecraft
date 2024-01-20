@@ -1,7 +1,7 @@
-import { boot } from "quasar/wrappers";
-import axios, { AxiosInstance } from "axios";
+import { boot } from 'quasar/wrappers';
+import axios, { AxiosInstance } from 'axios';
 
-declare module "@vue/runtime-core" {
+declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
     $api: AxiosInstance;
@@ -24,8 +24,8 @@ class TokenStore {
   token: str | undefined;
   tokenExpiry: number | undefined;
   constructor() {
-    this.token = window.localStorage.getItem("token");
-    const origTokenExpiry = window.localStorage.getItem("tokenExpiry");
+    this.token = window.localStorage.getItem('token');
+    const origTokenExpiry = window.localStorage.getItem('tokenExpiry');
     this.tokenExpiry = origTokenExpiry
       ? Number.parseInt(origTokenExpiry)
       : undefined;
@@ -33,8 +33,8 @@ class TokenStore {
   setToken(token: string, tokenExpiry: number) {
     this.token = token;
     this.tokenExpiry = tokenExpiry || Date.now() + TOKEN_EXPIRATION;
-    window.localStorage.setItem("token", token);
-    window.localStorage.setItem("tokenExpiry", tokenExpiry.toString());
+    window.localStorage.setItem('token', token);
+    window.localStorage.setItem('tokenExpiry', tokenExpiry.toString());
   }
   tokenIsValid() {
     return this.token && this.tokenExpiry && Date.now() < this.tokenExpiry;
@@ -47,8 +47,8 @@ class TokenStore {
   clearToken() {
     this.token = undefined;
     this.tokenExpiry = undefined;
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("tokenExpiry");
+    window.localStorage.removeItem('token');
+    window.localStorage.removeItem('tokenExpiry');
   }
 }
 
@@ -57,7 +57,7 @@ export const token_store = new TokenStore();
 api.interceptors.request.use(function (config) {
   const token = token_store.getToken();
   if (token) {
-    config.headers["Authorization"] = `Bearer ${token}`;
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
   if (
     config.method === "put" ||
@@ -65,7 +65,7 @@ api.interceptors.request.use(function (config) {
     config.method === "delete" ||
     (config.method === "post" && config.url.substring(0, 4) != "/rpc")
   ) {
-    config.headers["Prefer"] = "return=representation";
+    config.headers['Prefer'] = 'return=representation';
   }
   return config;
 });

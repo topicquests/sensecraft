@@ -14,7 +14,7 @@
           <div class="col-4 q-pl-md q-pb-md" style="width: 100%">
             <q-btn
               color="primary"
-              v-if="$store.state.member.member"
+              v-if="memberStore.member"
               label="New Quest"
               @click="
                 $router.push({
@@ -27,11 +27,11 @@
         <div class="column items-center">
           <div class="col-4" style="width: 100%">
             <div
-              v-if="getQuests && getQuests.length"
+              v-if="questStore.getQuests && questStore.getQuests.length"
               class="col-4 q-pa-lg"
               style="width: 100%"
             >
-              <quest-table v-bind:quests="getQuests" title="Quests" />
+              <quest-table v-bind:quests="questStore.getQuests" title="Quests" />
             </div>
             <div v-else class="column items-center q-mt-md">
               <h4>There are no quests</h4>
@@ -43,59 +43,36 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import scoreboard from '../components/scoreboard.vue';
 import questTable from '../components/quest-table.vue';
 import member from '../components/member.vue';
-import { mapActions, mapGetters } from 'vuex';
-import { userLoaded } from '../boot/userLoaded';
-import Component from 'vue-class-component';
-import Vue from 'vue';
-import { QuestsActionTypes, QuestsGetterTypes } from 'src/store/quests';
-import { GuildsActionTypes } from 'src/store/guilds';
 
-@Component<QuestListPage>({
-  meta: {
-    title: 'Quests',
-  },
-  components: {
-    scoreboard: scoreboard,
-    questTable: questTable,
-    member: member,
-  },
-  computed: {
-    ...mapGetters('quests', ['getQuests']),
-    ...mapGetters('guilds', ['getGuilds']),
-  },
-  methods: {
-    ...mapActions('quests', ['ensureAllQuests', 'setCurrentQuest']),
-    ...mapActions('guilds', ['ensureAllGuilds', 'setCurrentGuild']),
-  },
-})
-export default class QuestListPage extends Vue {
-  ready = false;
+import { userLoaded } from '../boot/userLoaded';
+import { useMemberStore } from 'src/stores/member';
+import { useQuestStore } from 'src/stores/quests';
+import { useGuildStore } from 'src/stores/guilds'
+import { onBeforeMount } from 'vue';
+
+const memberStore = useMemberStore();
+const questStore = useQuestStore();
+const guildStore = useGuildStore();
+
+let ready = false;
 
   isAuthenticated: false;
   serverData: [];
 
-  getQuests!: QuestsGetterTypes['getQuests'];
-
-  ensureAllQuests: QuestsActionTypes['ensureAllQuests'];
-  ensureAllGuilds: GuildsActionTypes['ensureAllGuilds'];
-  setCurrentGuild: GuildsActionTypes['setCurrentGuild'];
-  setCurrentQuest: QuestsActionTypes['setCurrentQuest'];
-
-  async beforeMount() {
+   onBeforeMount(async () => {
     await userLoaded;
     // not using those yet?
     await Promise.all([
-      this.ensureAllQuests(),
-      this.setCurrentGuild(false),
-      this.setCurrentQuest(true),
+      questStore.ensureAllQuests(),
+      guildStore.setCurrentGuild(false),
+      questStore.setCurrentQuest(true),
     ]);
-    this.ready = true;
-  }
-}
+    ready = true; 
+
 </script>
 
 <style>

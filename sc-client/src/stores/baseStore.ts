@@ -20,7 +20,7 @@ export const useBaseStore = defineStore('base', {
   state: () => ({}),
   getters: {
     hasPermission:
-      (state) =>
+      () =>
       (
         permission: permission_enum,
         guildN?: number | Guild,

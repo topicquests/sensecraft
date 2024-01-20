@@ -164,7 +164,7 @@
             v-if="baseStore.hasPermission(permission_enum.superadmin)"
             id="admin"
           >
-            <q-btn :to="{ name: 'admin', params: { member_id: memberId } }">
+            <q-btn :to="{ name: 'admin', params: { member_id: memberStore.member.id } }">
               Administration
             </q-btn>
           </q-item>
@@ -254,10 +254,14 @@ function onLogout() {
 
 function   toggleNav() {
     if (rightDrawerOpen) {
-     
+     closeNav();
     } else {
       rightDrawerOpen = true;
     }
 }
+
+function closeNav() {
+    rightDrawerOpen = false;
+  }
   
 </script>

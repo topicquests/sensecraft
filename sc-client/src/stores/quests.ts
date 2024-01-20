@@ -42,12 +42,7 @@ export const useQuestStore = defineStore('quest', {
   }),
   getters: {
     getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
-  }
-})
-
-
-/*
-const QuestsGetters = {
+  },
   getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
     Object.values(state.quests).filter(
       (quest: QuestData) => quest.status == status
@@ -235,6 +230,12 @@ const QuestsGetters = {
       .map((c: Casting) => members[c.member_id])
       .filter((member: PublicMember) => member);
   },
+})
+
+
+/*
+const QuestsGetters = {
+  
 };
 
 export const QuestsActions = {

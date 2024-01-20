@@ -12,7 +12,7 @@
             clearable
             filled
             square
-            v-model="formData.mail"
+            v-model="mail"
             :tabindex="1"
             name="email"
             type="email"
@@ -25,7 +25,7 @@
         </div>
         <q-input
           square
-          v-model="formData.pass"
+          v-model="pass"
           tabindex="2"
           filled
           :type="isPwdSignIn ? 'password' : 'text'"
@@ -77,18 +77,22 @@
 </template>
 
 <script setup lang="ts">
-  import { defineEmits, ref } from 'vue';
-  name: 'signinCard'
-  let isPwd = true;
+import { Ref, ref } from 'vue';
+
   let isPwdSignIn = true;
-  let showDialog = true;
-  let formData = ref({ mail: null, pass: null });
+  const mail: Ref<string> =  ref('mail');
+  const pass: Ref<string> = ref('pass');
+  let email: string;
+  let password:string;  
+
   const emit = defineEmits(['doLogin'])
 
-  function doLogin() {
-    emit('doLogin', formData);
+ const doLogin =() => {
+  email = mail.value;
+  password=pass.value;
+  
+    emit('doLogin', email, password)
   }
-
 </script>
 <style>
 .signon-card {
