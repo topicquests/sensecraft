@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { AxiosResponse, AxiosInstance } from 'axios';
+import { AxiosResponse } from 'axios';
 import { Member } from '../types';
 //import { getWSClient } from "../wsclient";
 // import { useBaseStore } from "./base";
@@ -61,7 +61,7 @@ export const useMemberStore = defineStore('member', {
   actions: {
     async logout() {
       // getWSClient().logout();
-      // await useBaseStore.reset();
+      await useBaseStore.reset();
     },
     async signin(mail: string, pass: string): string | undefined {
       const res: AxiosResponse<string> = await api.post('/rpc/get_token', {

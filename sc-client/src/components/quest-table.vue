@@ -16,7 +16,7 @@
     <q-table
       class="quest-table"
       :title="title"
-      :data="questStore.getFilteredQuests"
+      :data="getFilteredQuests()"
       :columns="columns"
       row-key="id"
     >
@@ -96,7 +96,7 @@
                 Register to the game
               </router-link>
             </span>
-            <span v-else-if="questStore.canAdminGuilds()">
+            <span v-else-if="canAdminGuilds()">
               <!-- TODO: Register in-place -->
               <router-link
                 :to="{
@@ -142,7 +142,7 @@ import QuestDateTimeInterval from "./quest-date-time-interval.vue";
 import { onBeforeMount } from "vue";
 
 const QuestTableProps = defineProps<{  
-  quests: [];
+  quests: QuestData;
   title: string;
 }>();
 

@@ -16,6 +16,8 @@ import { useMemberStore } from './member';
 import { useGuildStore } from './guilds';
 import { useQuestStore } from './quests';
 
+const memberStore = useMemberStore();
+
 export const useBaseStore = defineStore('base', {
   state: () => ({}),
   getters: {
@@ -96,7 +98,7 @@ export const useBaseStore = defineStore('base', {
     reset: async () => {
       // TODO
       return await Promise.all([
-        // context.dispatch("member/resetMember"),
+        memberStore.resetMember(),
         // context.dispatch("members/resetMembers"),
         // context.dispatch("quests/resetQuests"),
         // context.dispatch("guilds/resetGuilds"),

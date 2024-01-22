@@ -31,15 +31,15 @@
           <div class="col-4" style="width: 100%">
             <div v-if="guildsStore.getMyGuilds.length">
               <guilds-table
-                v-bind:guilds="guildsStore.getMyGuilds"
-                v-bind:title="'My Guilds'"
+                :guilds="guildsStore.getMyGuilds"
+                :title="'My Guilds'"
               />
               <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
             </div>
             <div v-else-if="getOpenGuilds.length">
               <guilds-table
-                v-bind:guilds="getOpenGuilds"
-                v-bind:title="'Open Guilds'"
+                :guilds="getOpenGuilds"
+                :title="'Open Guilds'"
               />
               <p v-if="memberStore.getUserId">Consider joining one of these guilds!</p>
               <p v-else>Register and join one of these guilds!</p>
@@ -71,7 +71,7 @@ import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
 import { Guild } from '../types';
-import { userLoaded } from '../boot/userLoaded';
+//import { userLoaded } from '../boot/userLoaded';
 import { onBeforeMount } from 'vue';
 import  member  from '../components/member.vue'
 
@@ -80,24 +80,17 @@ const guildsStore = useGuildStore();
 const questsStore = useQuestStore();
 let ready = false;
     
-function getOpenGuilds() {      
+function getOpenGuilds(): Guild {      
   return guildsStore.getGuilds.filter((guild: Guild) =>
   guild.open_for_applications && !guildsStore.isGuildMember(guild.id));
 };
-    
-function getClosedGuilds() {
-  return guildsStore.getGuilds.filter((guild:Guild) =>
-  !guild.open_for_applications && !guildsStore.isGuildMember(guild.id)
-  );
-};
-  
 
 onBeforeMount(async () => {
-  await userLoaded;
+  //await userLoaded;
     // all guilds and quests
-  await guildsStore.setCurrentGuild(true);
-  await guildsStore.setCurrentQuest(true);
-  await Promise.all([questsStore.ensureAllQuests(), guildsStore.ensureAllGuilds()]);
+  //await guildsStore.setCurrentGuild(true);
+  //await questsStore.setCurrentQuest(true);
+  //await Promise.all([questsStore.ensureAllQuests(), guildsStore.ensureAllGuilds()]);
   ready = true;
 });
 </script>

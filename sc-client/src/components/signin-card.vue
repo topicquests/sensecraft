@@ -80,8 +80,8 @@
 import { Ref, ref } from 'vue';
 
   let isPwdSignIn = true;
-  const mail: Ref<string> =  ref('mail');
-  const pass: Ref<string> = ref('pass');
+  const mail: Ref<string> =  ref('');
+  const pass: Ref<string> = ref('');
   let email: string;
   let password:string;  
 

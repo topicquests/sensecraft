@@ -111,12 +111,12 @@ interface GuildRow extends GuildData {
 
 const GuildsTableProp = defineProps<{  
   title: string;
-  guilds: [];
-  scores: object;
-  quest: object;
-  showPlayers: boolean;
-  selectable: boolean;
-  extra_columns: [];
+  guilds: Guild;
+  scores?: object;
+  quest?: object;
+  showPlayers?: boolean;
+  selectable?: boolean;
+  extra_columns?: [];
 }>();
 
 const questStore = useQuestStore();

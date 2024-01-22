@@ -237,7 +237,7 @@ const baseStore = useBaseStore()
 const leftDrawer = ref(false)
 let rightDrawerOpen = false
 const showTree = true;
-const isAuthenticated:Ref<boolean> = ref(memberStore.isAuthenticated)
+const isAuthenticated = ref(memberStore.isAuthenticated)
 
 //Getters
 const currentGuild:GuildData = guildStore.getCurrentGuild

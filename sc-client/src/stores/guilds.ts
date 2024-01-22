@@ -1,5 +1,4 @@
-
-import { GuildData, Guild } from '../types';
+import { GuildData } from '../types';
 import { defineStore } from 'pinia'
 import { useMemberStore } from './member'
 import { useQuestStore } from './quests'
@@ -15,23 +14,16 @@ export interface GuildsState {
   fullGuilds: { [key: number]: boolean };
 }
 
-const baseState: GuildsState = {
-  currentGuild: null,
-  fullFetch: false,
-  guilds: {},
-  fullGuilds: {},
-};
 const questStore = useQuestStore();
-
-export const useGuildStore = defineStore('guild',  {
-  state: () => ({
-    currentGuild: null,
+const baseState = {
+  currentGuild: null,
     fullFetch: false,
     guilds: {},
     fullGuilds: {}
-  }),
+}
 
-   
+export const useGuildStore = defineStore('guild',  {
+  state: () => baseState,   
   getters: {
     getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
@@ -101,9 +93,8 @@ export const useGuildStore = defineStore('guild',  {
         });
         */
       }
-    },       
-
-  createGuild: async (context, { data }) => {
+    },
+    createGuild: async (context, { data }) => {
     const res = await context.dispatch('createGuildBase', { data });
     // Refetch to get memberships.
     // TODO: maybe add representation to creation instead?
@@ -119,19 +110,18 @@ export const useGuildStore = defineStore('guild',  {
       },
     });
     return res.data[0];
-  },
-  
-  ensureCurrentGuild: async (
+    },  
+    ensureCurrentGuild: async (
     context,
     { guild_id, full = true }: { guild_id: number; full: boolean }
-  ) => {
+    ) => {
     await context.dispatch('ensureGuild', { guild_id, full });
     await context.dispatch('setCurrentGuild', guild_id);
-  },
-  ensureGuildsPlayingQuest: async (
+    },
+    ensureGuildsPlayingQuest: async (
     context,
     { quest_id, full }: { quest_id: number; full?: boolean }
-  ) => {
+    ) => {
     await MyVapi.store.dispatch('quests/ensureQuest', {
       quest_id,
       full: true,
@@ -151,8 +141,8 @@ export const useGuildStore = defineStore('guild',  {
         params: { id: guildParam },
       });
     }
-  },
-  addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
+    },
+    addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
     await context.dispatch('doAddGuildMembership', { data: membership });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
@@ -168,11 +158,11 @@ export const useGuildStore = defineStore('guild',  {
         await MyVapi.store.dispatch('member/fetchLoginUser');
       }
     }
-  },
-  updateGuildMembership: async (
+    },
+    updateGuildMembership: async (
     context,
     membership: Partial<GuildMembership>
-  ) => {
+    ) => {
     await context.dispatch('doUpdateGuildMembership', { data: membership });
     const gMembership: GuildMembership = context.state.guilds[
       membership.guild_id
@@ -185,13 +175,13 @@ export const useGuildStore = defineStore('guild',  {
         await MyVapi.store.dispatch('member/fetchLoginUser');
       }
     }
-  },
-  resetGuilds: (context) => {
+    },
+    resetGuilds: (context) => {
     context.commit('CLEAR_STATE');
-  },
-}, 
+    },
+  }, 
 })
-
+/*
 export const guilds = (axios: AxiosInstance) =>
   new MyVapi<GuildsState>({
     axios,
@@ -526,6 +516,6 @@ type GuildsRestActionTypes = {
 export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &
   GuildsRestActionTypes;
 export type GuildsGetterTypes = RetypeGetterTypes<typeof GuildsGetters>;
-
+*/
    
   
