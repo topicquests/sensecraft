@@ -61,7 +61,6 @@ api.interceptors.request.use(function (config) {
   }
   if (
     config.method === "put" ||
-    config.method === "get" ||
     config.method === "patch" ||
     config.method === "delete" ||
     (config.method === "post" && config.url.substring(0, 4) != "/rpc")
