@@ -39,7 +39,7 @@
             <div v-else-if="getOpenGuilds.length">
               <guilds-table
                 :guilds="getOpenGuilds"
-                :title="'Open Guilds'"
+                v-bind:title="'Open Guilds'"
               />
               <p v-if="memberStore.getUserId">Consider joining one of these guilds!</p>
               <p v-else>Register and join one of these guilds!</p>
@@ -71,7 +71,7 @@ import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
 import { Guild } from '../types';
-//import { userLoaded } from '../boot/userLoaded';
+import { userLoaded } from '../boot/userLoaded';
 import { onBeforeMount } from 'vue';
 import  member  from '../components/member.vue'
 
@@ -80,7 +80,7 @@ const guildsStore = useGuildStore();
 const questsStore = useQuestStore();
 let ready = false;
     
-function getOpenGuilds(): Guild {      
+function getOpenGuilds(): Guild  {      
   return guildsStore.getGuilds.filter((guild: Guild) =>
   guild.open_for_applications && !guildsStore.isGuildMember(guild.id));
 };
@@ -90,7 +90,7 @@ onBeforeMount(async () => {
     // all guilds and quests
   //await guildsStore.setCurrentGuild(true);
   //await questsStore.setCurrentQuest(true);
-  //await Promise.all([questsStore.ensureAllQuests(), guildsStore.ensureAllGuilds()]);
+  await Promise.all([questsStore.ensureAllQuests(), guildsStore.ensureAllGuilds()]);
   ready = true;
 });
 </script>

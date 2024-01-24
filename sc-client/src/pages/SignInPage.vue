@@ -16,8 +16,11 @@
 import { useRouter } from 'vue-router';
 import signinCard from '../components/signin-card.vue';
 import { useMemberStore } from 'src/stores/member';
+import axios, { AxiosError } from 'axios';
+import { useQuasar } from 'quasar';
 
   const router = useRouter();
+  const $q = useQuasar();
   const memberStore = useMemberStore();
 
   async function doLogin(mail: string, pass: string) {
@@ -30,11 +33,14 @@ import { useMemberStore } from 'src/stores/member';
       }
       await memberStore.ensureLoginUser();
       goNext();
-    } catch (error: unknown) {
-      //const errorString = error.response.data.message;
-      console.log('Error with sign in');
-      /*
-      if (errorString == 'invalid confirmed / Cannot login untilconfirmed') {
+    } catch (err) {
+      const errors = err as Error | AxiosError;
+      if(!axios.isAxiosError(errors)){
+    // do whatever you want with native error
+  }
+  /*
+      
+      if (errors == 'invalid confirmed / Cannot login untilconfirmed') {
         $q.notify({
           type: 'negative',
           message:
@@ -47,7 +53,7 @@ import { useMemberStore } from 'src/stores/member';
             'Problem signing in verify you have entered correctemail and password ',
         });
       }
-      */
+      */     
     }
   }
 

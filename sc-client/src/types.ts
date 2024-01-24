@@ -91,8 +91,8 @@ export interface Quest {
   public: boolean;
   turn_based: boolean;
   status: quest_status_type;
-  start?: string;
-  end?: string;
+  start: string;
+  end: string;
   created_at: string;
   updated_at: string;
   quest_membership?: QuestMembership[];

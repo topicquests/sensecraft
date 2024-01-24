@@ -1,7 +1,8 @@
-import { GuildData } from '../types';
+import { GuildData, Guild } from '../types';
 import { defineStore } from 'pinia'
 import { useMemberStore } from './member'
 import { useQuestStore } from './quests'
+import { api } from "../boot/axios";
 
 interface GuildMap {
   [key: number]: GuildData;
@@ -23,7 +24,12 @@ const baseState = {
 }
 
 export const useGuildStore = defineStore('guild',  {
-  state: () => baseState,   
+  state: () => ({  
+    currentGuild: null,
+    fullFetch: false,
+    guilds: [] as Guild[],
+    fullGuilds: {} as GuildData
+  }),   
   getters: {
     getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
@@ -72,9 +78,9 @@ export const useGuildStore = defineStore('guild',  {
     },
   }, 
   actions: {
-    async ensureAllGuilds() {
+    async ensureAllGuilds(): Guild[[]] {
       if(this.guilds.length === 0 || !this.fullFetch) {
-        await this.fetchGuilds
+        await this.fetchGuilds()
       }
     },
     setCurrentGuild( guild_id: number) {
@@ -179,7 +185,50 @@ export const useGuildStore = defineStore('guild',  {
     resetGuilds: (context) => {
     context.commit('CLEAR_STATE');
     },
-  }, 
+    async fetchGuilds(): Promise<GuildData[]> {
+      ({params})=> {
+        if (params.id) {
+          if (Array.isArray(params.id)) {
+            params.id = `in.(${params.id.join(',')})`;
+          } else {
+            params.id = `eq.${params.id}`;
+          }
+        }
+        const userId = memberStore.getUserId;
+        if(userId){
+          Object.assign(params, {
+            select:
+              '*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)',
+            'guild_membership.member_id': `eq.${userId}`,
+            'casting.member_id': `eq.${userId}`,
+          });
+        } else {
+          params.select = '*,game_play!guild_id(*)';
+        }
+      }
+      const res: AxiosResponse<GuildData[]> = await api.get('/guilds_data')
+      if (res.status == 200 ) {
+        const fullGuilds = Object.values(this.guilds).filter(
+          (guild: GuildData) => this.fullGuilds[guild.id]
+        );
+        const guilds = Object.fromEntries(
+          res.data.map((guild: GuildData) => [guild.id, guild])
+        );
+        for (const guild of fullGuilds) {
+          if (guilds[guild.id]) {
+            guilds[guild.id] = Object.assign(guilds[guild.id], {
+              casting: guild.casting,
+              guild_membership: guild.guild_membership,
+            });
+          } else {
+            guilds[guild.id] = guild;
+          }
+        }
+        this.guilds = guilds;
+        this.fullFetch = true;
+      }
+    },     
+  }
 })
 /*
 export const guilds = (axios: AxiosInstance) =>

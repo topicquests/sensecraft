@@ -38,7 +38,13 @@ const guildStore = useGuildStore();
 const questStore = useQuestStore()
 
 export const useMembersStore = defineStore('members', {
-  state: () => baseState,
+  state: () => ({
+    fullFetch: false,
+    questFetch: null,
+    guildFetch: null,
+    members: {},
+    fullMembers: {},
+  }),
   getters: {
     getMembers: (state: MembersState) =>
     Object.values(state.members).sort((a, b) =>

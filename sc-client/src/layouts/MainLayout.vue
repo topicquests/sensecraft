@@ -28,7 +28,7 @@
         </q-toolbar-title>
         <div>
           <q-btn
-            v-show="!isAuthenticated"
+            v-show="!memberStore.isAuthenticated"
             @click="goTo('signin')"
             roundeded
             label="sign in"
@@ -38,7 +38,7 @@
           >
           </q-btn>
           <q-btn
-            v-show="!isAuthenticated"
+            v-show="!memberStore.isAuthenticated"
             @click="goTo('register')"
             class="bg-deep-purple-7 gt-sm"
             name="registerBtn"
@@ -47,7 +47,7 @@
             id="register"
           ></q-btn>
         </div>
-        <div v-if="isAuthenticated">
+        <div v-if="memberStore.isAuthenticated">
           <q-btn
             class="gt-sm"
             @click="onLogout()"
@@ -59,7 +59,7 @@
           >
           </q-btn>
         </div>
-        <div v-if="isAuthenticated && showTree && currentGuild">
+        <div v-if="memberStore.isAuthenticated && showTree && currentGuild">
           <q-btn
             flat
             dense
@@ -114,7 +114,7 @@
               <q-btn :to="{ name: 'house_rules' }">House Rules</q-btn>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple v-show="isAuthenticated" id="lobby">
+          <q-item clickable v-ripple v-show="memberStore.isAuthenticated" id="lobby">
             <q-item-section>
               <q-btn :to="{ name: 'lobby' }">Dashboard</q-btn>
             </q-item-section>
@@ -169,7 +169,7 @@
             </q-btn>
           </q-item>
             <q-btn
-              v-show="!isAuthenticated"
+              v-show="!memberStore.isAuthenticated"
               @click="goTo('signin')"
               roundeded
               label="sign in"
@@ -181,7 +181,7 @@
           </q-item>
           <q-item>
             <q-btn
-              v-show="!isAuthenticated"
+              v-show="!memberStore.isAuthenticated"
               @click="goTo('register')"
               class="lt-md"
               name="registerBtn"
@@ -190,7 +190,7 @@
               id="register"
             ></q-btn>
           </q-item>
-          <div v-if="isAuthenticated">
+          <div v-if="memberStore.isAuthenticated">
             <q-item>
               <q-btn
                 class="lt-md"
@@ -220,7 +220,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from 'src/stores/member';
 import { useGuildStore } from 'src/stores/guilds'
@@ -228,6 +228,7 @@ import { useQuestStore } from 'src/stores/quests'
 import { useBaseStore } from 'src/stores/baseStore'
 import { GuildData } from 'src/types';
 import { permission_enum } from '../enums';
+import { useQuasar } from 'quasar'
 
 const router = useRouter()
 const memberStore = useMemberStore()
@@ -237,19 +238,26 @@ const baseStore = useBaseStore()
 const leftDrawer = ref(false)
 let rightDrawerOpen = false
 const showTree = true;
-const isAuthenticated = ref(memberStore.isAuthenticated)
+const $q = useQuasar();
+
 
 //Getters
 const currentGuild:GuildData = guildStore.getCurrentGuild
+
 
 function goTo(route: string): void {
   router.push(route)
 }
 
-function onLogout() {
+async function onLogout() {
     rightDrawerOpen = false;
     leftDrawer.value = false;
     goTo('home');
+    await memberStore.logout();
+    $q.notify({
+      type: "positive",
+      message: "You are now logged out",
+    });
 }
 
 function   toggleNav() {

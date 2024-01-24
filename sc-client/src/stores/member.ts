@@ -118,7 +118,6 @@ export const useMemberStore = defineStore('member', {
         return undefined;
       }
       const token_payload = jwtDecode<JwtPayload>(token); //jwtDecode(token);
-      console.log("JWT ", token_payload)
       const parts: string[] = token_payload.role.split("_");
       const role = parts[parts.length - 1];
 

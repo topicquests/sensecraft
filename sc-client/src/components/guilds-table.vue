@@ -90,7 +90,7 @@
 
 import { DateTime } from "luxon";
 import { QTable } from "quasar";
-import { Guild, GuildData, Casting, QuestData } from "../types";
+import { Guild, GuildData, Casting } from "../types";
 import GuildsMembershipIndicator from "./guilds-membership-indicator.vue";
 import GuildsPlayingIndicator from "./guilds-playing-indicator.vue";
 //import { ScoreMap } from "../scoring";
@@ -100,6 +100,7 @@ import { useBaseStore } from "src/stores/baseStore";
 //import GuildFormPage from "src/pages/CreateGuild.vue";
 import { onBeforeMount } from "vue";
 import { permission_enum } from "src/enums";
+import { useMemberStore } from "src/stores/member";
 
 type QTableColumns = QTable["columns"];
 
@@ -116,12 +117,13 @@ const GuildsTableProp = defineProps<{
   quest?: object;
   showPlayers?: boolean;
   selectable?: boolean;
-  extra_columns?: [];
+  extra_columns?: [],
 }>();
 
 const questStore = useQuestStore();
 const guildStore = useGuildStore();
 const baseStore = useBaseStore(); 
+const memberStore = useMemberStore();
 const extra = GuildsTableProp.extra_columns || [];
 let selectedGuild: [] = [];
 const columns:QTableColumns = [    
@@ -194,7 +196,7 @@ const columns:QTableColumns = [
       ];  
  
 function  guildData (): GuildRow[] {
-  return GuildsTableProp.guilds.map((guild: GuildData) => guildRow(guild));
+  return GuildsTableProp.guilds.map((guild:GuildData) => guildRow(guild));
 };
 
 function numPlayers(guild: Guild) {
@@ -206,7 +208,7 @@ function numPlayers(guild: Guild) {
 };
 
 function guildIfPlaying(quest_id: number) {
-  const casting: Casting = questStore.castingPerQuest[quest_id];
+  const casting: Casting = memberStore.castingPerQuest[quest_id];
   if (casting) {
     return casting.guild_id;
   }

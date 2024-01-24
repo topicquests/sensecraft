@@ -8,6 +8,7 @@ import { api } from "../boot/axios";
 import {
   QuestData,
   Guild,
+  Quest,
   Casting,
   QuestMembership,
   GamePlay,
@@ -39,303 +40,326 @@ export interface QuestsState {
   fullFetch: boolean;
   currentQuest?: number;
 };
-const baseState: QuestsState = {
-  currentQuest: null,
-  fullFetch: false,
-  quests: [],
-  fullQuests: {},
-};
 
 export const useQuestStore = defineStore('quest', {
-    state: () => ({
-      currentQuest: null,
-      fullFetch: false,
-      quests: [],
-      fullQuests: {},
-    }),
-
-  getters: {
-    getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
-    getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
-      Object.values(state.quests).
-      filter((quest: QuestData) => quest.status == status
-    ),
-    getQuests: (state: QuestsState): quests => Object.values(state.quests),
-    getQuestById: (state: QuestsState) => (id: number) => state.quests[id],  
-    getMyQuests: (state: QuestsState) => {
-      const member_id = memberStrore.getUserId
-      return Object.values(state.quests).filter((quest: QuestData) =>
-      quest?.quest_membership?.find((m: QuestMembership) => m.member_id == member_id && m.confirmed));
+    state: () => { 
+      return {
+        currentQuest: null,
+        fullFetch: false,
+        quests: [] as Quest[],
+        fullQuests: {} as Quest,
+      }
     },
-    getActiveQuests: (state: QuestsState): quests =>
+    getters: {
+      getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
+      getQuests: (state: QuestsState):Quest => Object.values(state.quests),
+      getQuestById: (state: QuestsState) => (id: number) => state.quests[id], 
+      getMyQuests: (state: QuestsState) => {
+        const member_id = memberStrore.getUserId
+        return Object.values(state.quests).filter((quest: QuestData) =>
+        quest?.quest_membership?.find((m: QuestMembership) => m.member_id == member_id && m.confirmed));
+      },
+      getActiveQuests: (state: QuestsState): quests =>
       Object.values(state.quests).filter(
       (quest) => [
         "ongoing", 
         "paused", 
         "registration"
       ].indexOf(quest.status) >= 0),
-    getPlayingQuests: (state: QuestsState) => {
-      const member_id = memberStrore.member/getUserId
-      return Object.values(state.quests).filter((quest: QuestData) =>
-      quest.casting?.find((c: Casting) => c.member_id == member_id)
-      );
-    },
-    getPlayers: (state: QuestsState) => (quest_id: number) =>
-      state.quests[quest_id]?.casting?.map((c: Casting) =>
-      memberStrore.getMemberById(c.member_id)
-    ),
-    getPlayersInGuild: (state: QuestsState) => (quest_id: number, guild_id: number) =>
-      state.quests[quest_id]?.casting
-        ?.filter((c: Casting) => c.guild_id == guild_id)
-        .map((c: Casting) =>
-          memberStrore.getMemberById(c.member_id)
-    ),
-    isQuestMember: (state: QuestsState) => (quest_id: number) => {
-      const member_id = memberStrore.getUserId;
-      return state.quests[quest_id]?.quest_membership?.find(
-      (m: QuestMembership) => m.member_id == member_id && m.confirmed
-      );
-    },
-    castingInQuest: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
-      member_id = member_id || memberStore.getUserId;
-      quest_id = quest_id || state.currentQuest;
-      return state.quests[quest_id]?.casting?.find(
-        (c: Casting) => c.member_id == member_id
-      );
-    },
-    isPlayingQuestInGuild: (state: QuestsState) =>
-      (quest_id?: number, guild_id?: number, member_id?: number) => {
+      getPlayingQuests: (state: QuestsState) => {
+        const member_id = memberStrore.member/getUserId
+        return Object.values(state.quests).filter((quest: QuestData) =>
+        quest.casting?.find((c: Casting) => c.member_id == member_id)
+        );
+      },
+      getPlayers: (state: QuestsState) => (quest_id: number) =>
+        state.quests[quest_id]?.casting?.map((c: Casting) =>
+        memberStrore.getMemberById(c.member_id)
+      ),
+      getPlayersInGuild: (state: QuestsState) => (quest_id: number, guild_id: number) =>
+        state.quests[quest_id]?.casting
+          ?.filter((c: Casting) => c.guild_id == guild_id)
+          .map((c: Casting) =>
+            memberStrore.getMemberById(c.member_id)
+      ),
+      isQuestMember: (state: QuestsState) => (quest_id: number) => {
+        const member_id = memberStrore.getUserId;
+        return state.quests[quest_id]?.quest_membership?.find(
+        (m: QuestMembership) => m.member_id == member_id && m.confirmed
+        );
+      },
+      getCurrentGamePlay: (state: QuestsState) => {
+        if (state.currentQuest) {
+          const quest = state.quests[state.currentQuest];
+          const currentGuild: Guild =useGuildStore.getCurrentGuild;
+          if (currentGuild) {
+            return quest?.game_play?.find(
+            (gp: GamePlay) => gp.guild_id == currentGuild.id
+          );
+          }
+        }
+      },
+      getCastingRoles: () =>
+        (member_id: number): Role[] => {
+          const castingRoles =
+          memberStore.getPlayersRoles(member_id);
+          const roles = castingRoles.map((pr) =>
+            MyVapi.store.getters["role/getRoleById"](pr.role_id)
+          );
+          return roles;
+      },
+      getCastingRolesForQuest: () =>
+        (member_id: number, quest_id: number): Role[] => {
+          const castingRoles =
+          memberStore.getPlayersRoles(member_id);
+          const playerRoles = castingRoles.filter(
+          (role) => role.quest_id == quest_id
+          );
+        const roles = playerRoles.map((pr) =>
+          MyVapi.store.getters["role/getRoleById"](pr.role_id)
+        );
+        return roles;
+      },
+      getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
+        const quest = state.quests[state.currentQuest];
+        const members = memberStore.members;
+        const currentGuildId = useGuildStore.currentGuild;
+        if (!currentGuildId) return [];
+        return quest.casting
+          .filter((c: Casting) => c.guild_id == currentGuildId)
+          .map((c: Casting) => members[c.member_id])
+          .filter((member: PublicMember) => member);
+        },
+      isPlayingQuestInGuild: (state: QuestsState) =>
+        (quest_id?: number, guild_id?: number, member_id?: number) => {
         member_id = member_id || memberStore.getUserId;
         quest_id = quest_id || state.currentQuest;
         return state.quests[quest_id]?.casting?.find(
           (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
         );
       },
-    isPlayingQuestAsGuildId: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
-      member_id = member_id || memberStore.getUserId;
-      quest_id = quest_id || state.currentQuest;
-      const casting = state.quests[quest_id]?.casting?.find(
+      isPlayingQuestAsGuildId: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
+        member_id = member_id || memberStore.getUserId;
+        quest_id = quest_id || state.currentQuest;
+        const casting = state.quests[quest_id]?.casting?.find(
         (c: Casting) => c.member_id == member_id
-      );
-      return casting?.guild_id;
-    },
-    isGuildPlayingQuest: (state: QuestsState) => (quest_id?: number, guild_id?: number) => {
-      quest_id = quest_id || state.currentQuest;
-      return state.quests[quest_id]?.casting?.find(
-        (c: Casting) => c.guild_id == guild_id
-      );
-    },
-    getGamePlayForGuild: (state) =>
-      (guild_id: number): GamePlay => {
-      if (state.currentQuest) {
-        const quest = state.quests[state.currentQuest];
-        return quest?.game_play?.find(
-          (gp: GamePlay) => gp.guild_id == guild_id
         );
-      }
-    },
-    getCurrentGamePlay: (state: QuestsState) => {
-      if (state.currentQuest) {
+        return casting?.guild_id;
+      },
+      castingInQuest: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
+        member_id = member_id || memberStore.getUserId;
+        quest_id = quest_id || state.currentQuest;
+        return state.quests[quest_id]?.casting?.find(
+          (c: Casting) => c.member_id == member_id
+        );
+      },
+      getCastingRolesById: () =>
+        (member_id: number, quest_id: number): Role[] => {
+        const castingRoles =
+        memberStore.getPlayersRoles(member_id);
+        const playerRoles = castingRoles?.filter(
+        (role) => role.quest_id == quest_id
+        );
+        return playerRoles;
+      },
+      getMembersOfCurrentQuest: (state: QuestsState) => {
         const quest = state.quests[state.currentQuest];
-        const currentGuild: Guild =useGuildStore.getCurrentGuild;
-        if (currentGuild) {
+        const members = memberStore.members;
+        return quest?.quest_membership
+        ?.map((qm: QuestMembership) => members[qm.member_id])
+        .filter((member: PublicMember) => member);
+      },
+      isGuildPlayingQuest: (state: QuestsState) => (quest_id?: number, guild_id?: number) => {
+        quest_id = quest_id || state.currentQuest;
+        return state.quests[quest_id]?.casting?.find(
+          (c: Casting) => c.guild_id == guild_id
+        );
+      },
+      getPlayersOfCurrentQuest: (state: QuestsState) => {
+        const quest = state.quests[state.currentQuest];
+        const members = memberStore.members;
+        return quest?.casting
+          .map((c: Casting) => members[c.member_id])
+          .filter((member: PublicMember) => member);
+      },
+      getGamePlayForGuild: (state: QuestsState) =>
+        (guild_id: number): GamePlay => {
+        if (state.currentQuest) {
+          const quest = state.quests[state.currentQuest];
           return quest?.game_play?.find(
-          (gp: GamePlay) => gp.guild_id == currentGuild.id
-        );
+          (gp: GamePlay) => gp.guild_id == guild_id);
+        }
+      },
+      getQuestsByStatus: (state: QuestsState) => (status: quest_status_enum) =>
+        Object.values(state.quests).
+        filter((quest: QuestData) => quest.status == status),
+      getMaxPubStateForNodeType: () => (
+        quest_id: number,
+        node_type: ibis_node_type_type
+        ): publication_state_type => {
+          const roleCastings: CastingRole[] =
+          memberStore.castingRolesForQuest(quest_id);
+          const roles: Role[] = roleCastings.map((rc) =>
+            MyVapi.store.getters["role/getRoleById"](rc.role_id)
+          );
+          let maxPubStates = roles.map((role) => role.max_pub_state);
+          maxPubStates = maxPubStates.concat(
+          roles.map(
+            (role) =>
+              role.role_node_constraint.find((x) => x.node_type == node_type)
+                ?.max_pub_state
+          )
+          );
+          maxPubStates = maxPubStates.filter((x) => x != undefined);
+          if (maxPubStates.length > 0) {
+            // maximum for all roles
+            maxPubStates.sort(
+            (a, b) =>
+              publication_state_list.indexOf(b) -
+              publication_state_list.indexOf(a)
+            );
+            return maxPubStates[0];
+          }
+          // no constraint
+          return publication_state_enum.submitted;
+      },
+      
+    },
+    actions: {
+      async ensureAllQuests(): Quest[] {
+        if (this.quests.length === 0 || !this.fullFetch) {
+          await this.fetchQuests();
+        }
+      },
+      async fetchQuests(): Promise<QuestData[]> {
+        ({params})=> {
+        const userId = memberStore.getUserId;
+            if (userId) {
+              Object.assign(params, {
+                select:
+                  "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)",
+                "quest_membership.member_id": `eq.${userId}`,
+                "casting.member_id": `eq.${userId}`,
+              });
+            } else {
+              params.select = "*,game_play!quest_id(*)";
+            }
+          }
+        const res: AxiosResponse<QuestData[]> = await api.get('/quests_data')
+        if (res.status == 200) {
+          const fullQuests = Object.values(this.quests).filter(
+            (quest: QuestData) => this.fullQuests[quest.id]
+          );
+          const quests = Object.fromEntries(
+            res.data.map((quest: QuestData) => [quest.id, quest])
+          );
+          for (const quest of fullQuests) {
+            if (quests[quest.id]) {
+              quests[quest.id] = Object.assign(quests[quest.id], {
+                casting: quest.casting,
+                quest_membership: quest.quest_membership,
+              });
+            }
+          }
+          this.quests = quests;
+          this.fullFetch = true;
+        }
+      },
+      async ensureQuest ({ quest_id, full = true }: { quest_id: number; full?: boolean }) {
+        if (this.getQuestById(quest_id) === undefined ||
+            (full && !this.fullQuests[quest_id])){  
+          fetchQuestById(full, quest_id)        
+        }
+      },
+      createQuest: async (context, { data }) => {
+        const res = await context.dispatch("createQuestBase", { data });
+        // Refetch to get memberships.
+        // TODO: maybe add representation to creation instead?
+        const quest_id = res.data[0].id;
+        await context.dispatch("fetchQuestById", { params: { id: quest_id } });
+        // TODO: Get the membership from the quest
+        await MyVapi.store.dispatch("member/fetchLoginUser");
+        await MyVapi.store.dispatch("conversation/resetConversation");
+        return res.data[0];
+      },
+      
+      ensureCurrentQuest: async (context, { quest_id, full = true }) => {
+        await context.dispatch("ensureQuest", { quest_id, full });
+        await context.dispatch("setCurrentQuest", quest_id);
+      },
+      resetQuests: () => {
+        Object.assign(baseState);
+      },
+      
+      
+      async fetchQuestById(full?: boolean,
+        params: { id: number | number[] }) {
+          if (Array.isArray(params.id)) {
+            params.id = `in.(${params.id.join(",")})`;
+          } else {
+            params.id = `eq.${params.id}`;
+          }
+          const userId = memberStore.getUserId;
+          if (userId || full) {
+            params.select =
+              "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";
+            if (!full) {
+              Object.assign(params, {
+                "quest_membership.member_id": `eq.${userId}`,
+                "casting.member_id": `eq.${userId}`,
+              });
+            }
+          } else {
+            params.select = "*,game_play!quest_id(*)";
+          }
+          const res: AxiosResponse<QuestData[]> = await api.get('/quests', {
+            full,
+            params: { id: quest_id },
+          });
+          if (res.status == 200 ) {
+            this.quest[quest_id] == res.data[0];
+          }
         }
       }
-    },
-    getCastingRoles: () =>
-      (member_id: number): Role[] => {
-        const castingRoles =
-        memberStore.getPlayersRoles(member_id);
-        const roles = castingRoles.map((pr) =>
-          MyVapi.store.getters["role/getRoleById"](pr.role_id)
-        );
-        return roles;
-    },
-    getCastingRolesForQuest: () =>
-      (member_id: number, quest_id: number): Role[] => {
-        const castingRoles =
-        memberStore.getPlayersRoles(member_id);
-        const playerRoles = castingRoles.filter(
-        (role) => role.quest_id == quest_id
-        );
-      const roles = playerRoles.map((pr) =>
-        MyVapi.store.getters["role/getRoleById"](pr.role_id)
-      );
-      return roles;
-    },
-    getMaxPubStateForNodeType: () => (
-      quest_id: number,
-      node_type: ibis_node_type_type
-      ): publication_state_type => {
-        const roleCastings: CastingRole[] =
-        memberStore.castingRolesForQuest(quest_id);
-        const roles: Role[] = roleCastings.map((rc) =>
-          MyVapi.store.getters["role/getRoleById"](rc.role_id)
-        );
-        let maxPubStates = roles.map((role) => role.max_pub_state);
-        maxPubStates = maxPubStates.concat(
-        roles.map(
-          (role) =>
-            role.role_node_constraint.find((x) => x.node_type == node_type)
-              ?.max_pub_state
-        )
-        );
-        maxPubStates = maxPubStates.filter((x) => x != undefined);
-        if (maxPubStates.length > 0) {
-          // maximum for all roles
-          maxPubStates.sort(
-          (a, b) =>
-            publication_state_list.indexOf(b) -
-            publication_state_list.indexOf(a)
-          );
-          return maxPubStates[0];
-        }
-        // no constraint
-        return publication_state_enum.submitted;
-    },
-    getCastingRolesById: () =>
-    (member_id: number, quest_id: number): Role[] => {
-      const castingRoles =
-        memberStore.getPlayersRoles(member_id);
-      const playerRoles = castingRoles?.filter(
-        (role) => role.quest_id == quest_id
-      );
-      return playerRoles;
-    },
-    getMembersOfCurrentQuest: (state: QuestsState) => {
-    const quest = state.quests[state.currentQuest];
-    const members = memberStore.members;
-    return quest?.quest_membership
-      ?.map((qm: QuestMembership) => members[qm.member_id])
-      .filter((member: PublicMember) => member);
-    },
-    getPlayersOfCurrentQuest: (state: QuestsState) => {
-    const quest = state.quests[state.currentQuest];
-    const members = memberStore.members;
-    return quest?.casting
-      .map((c: Casting) => members[c.member_id])
-      .filter((member: PublicMember) => member);
-    },
-    getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
-    const quest = state.quests[state.currentQuest];
-    const members = memberStore.members;
-    const currentGuildId = useGuildStore.currentGuild;
-    if (!currentGuildId) return [];
-    return quest.casting
-      .filter((c: Casting) => c.guild_id == currentGuildId)
-      .map((c: Casting) => members[c.member_id])
-      .filter((member: PublicMember) => member);
-    },
+    })
+/*
+ 
+      
+    
+   
+    
+    
+    
+    
+    
+   
+    
+    
+   
+   
+    
+    
+    
+   
+    
   },
   actions: {
   setCurrentQuest(quest_id: number) {
     this.currentQuest = quest_id;
     //getWSClient().setDefaultQuest(quest_id);
   },
-  /*
+  
   setCastingRole: (role_id: number) => {
     //context.commit("SET_CASTING_ROLE", role_id);
   },
   */
-  async ensureQuest ({ quest_id, full = true }: { quest_id: number; full?: boolean }) {
-    if (this.getQuestById(quest_id) === undefined ||
-        (full && !this.fullQuests[quest_id])){  
-      fetchQuestById(full, quest_id)        
-    }
-  },
-  createQuest: async (context, { data }) => {
-    const res = await context.dispatch("createQuestBase", { data });
-    // Refetch to get memberships.
-    // TODO: maybe add representation to creation instead?
-    const quest_id = res.data[0].id;
-    await context.dispatch("fetchQuestById", { params: { id: quest_id } });
-    // TODO: Get the membership from the quest
-    await MyVapi.store.dispatch("member/fetchLoginUser");
-    await MyVapi.store.dispatch("conversation/resetConversation");
-    return res.data[0];
-  },
-  async ensureAllQuests () {
-    if (this.quests.length === 0 || !this.fullFetch) {
-      await this.fetchQuests();
-    }
-  },
-  ensureCurrentQuest: async (context, { quest_id, full = true }) => {
-    await context.dispatch("ensureQuest", { quest_id, full });
-    await context.dispatch("setCurrentQuest", quest_id);
-  },
-  resetQuests: () => {
-    Object.assign(baseState);
-  },
-  async fetchQuests(): Promise<QuestData[]> {
-    ({params})=> {
-    const userId = memberStore.getUserId;
-        if (userId) {
-          Object.assign(params, {
-            select:
-              "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)",
-            "quest_membership.member_id": `eq.${userId}`,
-            "casting.member_id": `eq.${userId}`,
-          });
-        } else {
-          params.select = "*,game_play!quest_id(*)";
-        }
-      }
-    const res: AxiosResponse<QuestData[]> = await api.get('/quests_data')
-    if (res.status == 200) {
-      const fullQuests = Object.values(this.quests).filter(
-        (quest: QuestData) => this.fullQuests[quest.id]
-      );
-      const quests = Object.fromEntries(
-        res.data.map((quest: QuestData) => [quest.id, quest])
-      );
-      for (const quest of fullQuests) {
-        if (quests[quest.id]) {
-          quests[quest.id] = Object.assign(quests[quest.id], {
-            casting: quest.casting,
-            quest_membership: quest.quest_membership,
-          });
-        }
-      }
-      this.quests = quests;
-      this.fullFetch = true;
-    }
-  },
+
+  /*
   
-  async fetchQuestById(full?: boolean,
-    params: { id: number | number[] }) {
-      if (Array.isArray(params.id)) {
-        params.id = `in.(${params.id.join(",")})`;
-      } else {
-        params.id = `eq.${params.id}`;
-      }
-      const userId = memberStore.getUserId;
-      if (userId || full) {
-        params.select =
-          "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";
-        if (!full) {
-          Object.assign(params, {
-            "quest_membership.member_id": `eq.${userId}`,
-            "casting.member_id": `eq.${userId}`,
-          });
-        }
-      } else {
-        params.select = "*,game_play!quest_id(*)";
-      }
-      const res: AxiosResponse<QuestData[]> = await api.get('/quests', {
-        full,
-        params: { id: quest_id },
-      });
-      if (res.status == 200 ) {
-        this.quest[quest_id] == res.data[0];
-      }
-    }
-  }
 });
 
-/*
+
+
 export const quests = (axios: AxiosInstance) =>
   new MyVapi<QuestsState>({
     axios,

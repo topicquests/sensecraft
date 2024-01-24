@@ -135,23 +135,21 @@ import { QTableProps } from "quasar";
 import {
   permission_enum,
   quest_status_type,
-  quest_status_enum,
 } from "../enums";
 import { GuildMembership, QuestData, Member } from "../types";
 import QuestDateTimeInterval from "./quest-date-time-interval.vue";
 import { onBeforeMount } from "vue";
 
 const QuestTableProps = defineProps<{  
-  quests: QuestData;
+  quests: QuestData[];
   title: string;
 }>();
 
-type QTableColumns = QTable["columns"];
 
 const questStore = useQuestStore();
 const memberStore = useMemberStore();
 const baseStore = useBaseStore();
-let questStatus = "All";
+let questStatus= "All";
 let questStatusOptions: quest_status_type[];
 
 const columns:QTableProps['columns'] = [     
@@ -232,9 +230,9 @@ const columns:QTableProps['columns'] = [
         },
       ];
 
-function refInterval(row: QuestData) {
-  const start: number = DateTime.fromISO(row.start).ts;
-  const end: number = DateTime.fromISO(row.end).ts;
+function refInterval(row:QuestData) {
+  const start: number = DateTime.fromISO(row.start).millisecond;
+  const end: number = DateTime.fromISO(row.end).millisecond;
   const now = Date.now();
   const refTime = start > now ? start : end;
   return Math.abs(refTime - now);
