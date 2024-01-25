@@ -24,7 +24,7 @@ const baseState: MemberState = {
 
 export const useMemberStore = defineStore('member', {
   state: () => baseState,
- 
+
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
@@ -63,7 +63,7 @@ export const useMemberStore = defineStore('member', {
       // getWSClient().logout();
       await useBaseStore.reset();
     },
-    async signin(mail: string, pass: string): string | undefined {
+    async signin(mail: string, pass: string): Promise<string | undefined> {
       const res: AxiosResponse<string> = await api.post('/rpc/get_token', {
         mail,
         pass,
@@ -74,7 +74,7 @@ export const useMemberStore = defineStore('member', {
         this.isAuthenticated = true;
         const storage = window.localStorage;
         storage.setItem('token', this.token);
-        storage.setItem('tokenExpiry', this.tokenExpiry.toString());      
+        storage.setItem('tokenExpiry', this.tokenExpiry.toString());
         window.setTimeout(() => {
           this.renewToken();
         }, TOKEN_RENEWAL);
@@ -179,7 +179,7 @@ export const member = (axios: AxiosInstance) =>
         state.member = Object.assign({}, state.member, res.data[0]);
       },
     })
-   
+
     .get({
       action: 'fetchLoginUser',
       property: 'member',
