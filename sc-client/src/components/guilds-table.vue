@@ -112,7 +112,7 @@ interface GuildRow extends GuildData {
 
 const GuildsTableProp = defineProps<{  
   title: string;
-  guilds: Guild;
+  guilds: GuildData[];
   scores?: object;
   quest?: object;
   showPlayers?: boolean;

@@ -55,11 +55,14 @@
 <script setup lang="ts">
 import { onBeforeMount } from 'vue';
 import { useGuildStore } from 'src/stores/guilds';
+import { useQuestStore } from 'src/stores/quests';
 
 const guildStore = useGuildStore();
+const questStore = useQuestStore()
 
 onBeforeMount( () => {
   guildStore.ensureAllGuilds();
+  questStore.ensureAllQuests();
 }) 
 
 

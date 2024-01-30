@@ -28,7 +28,7 @@
         </q-toolbar-title>
         <div>
           <q-btn
-            v-show="!memberStore.isAuthenticated"
+            v-show="!checkIfAuthenticated()"
             @click="goTo('signin')"
             roundeded
             label="sign in"
@@ -38,7 +38,7 @@
           >
           </q-btn>
           <q-btn
-            v-show="!memberStore.isAuthenticated"
+            v-show="!checkIfAuthenticated()"
             @click="goTo('register')"
             class="bg-deep-purple-7 gt-sm"
             name="registerBtn"
@@ -47,7 +47,7 @@
             id="register"
           ></q-btn>
         </div>
-        <div v-if="memberStore.isAuthenticated">
+        <div v-if="checkIfAuthenticated()">
           <q-btn
             class="gt-sm"
             @click="onLogout()"
@@ -59,7 +59,7 @@
           >
           </q-btn>
         </div>
-        <div v-if="memberStore.isAuthenticated && showTree && currentGuild">
+        <div v-if="checkIfAuthenticated() && showTree && currentGuild">
           <q-btn
             flat
             dense
@@ -74,7 +74,7 @@
        </q-toolbar>
     </q-header>
     <q-drawer
-      v-model="rightDrawerOpen"
+      v-model="rightDrawer"
       :breakpoint="200"
       bordered
       side="right"
@@ -114,7 +114,7 @@
               <q-btn :to="{ name: 'house_rules' }">House Rules</q-btn>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple v-show="memberStore.isAuthenticated" id="lobby">
+          <q-item clickable v-ripple v-show="checkIfAuthenticated()" id="lobby">
             <q-item-section>
               <q-btn :to="{ name: 'lobby' }">Dashboard</q-btn>
             </q-item-section>
@@ -130,7 +130,7 @@
           clickable
           v-ripple
           id="createQuest"
-          v-show="baseStore.hasPermission(permission_enum.createQuest)"
+          v-show="checkForPermission(permission_enum.createQuest)"
         >
           <q-item-section id="create_quest">
             <q-item-label>
@@ -150,7 +150,7 @@
             clickable
             v-ripple
             id="createGuild"
-            v-show="baseStore.hasPermission(permission_enum.createGuild)"
+            v-show="checkForPermission(permission_enum.createGuild)"
           >
             <q-item-section id="guild_create">
               <q-item-label>
@@ -161,7 +161,7 @@
           <q-item
             clickable
             v-ripple
-            v-if="baseStore.hasPermission(permission_enum.superadmin)"
+            v-if="checkForPermission(permission_enum.superadmin)"
             id="admin"
           >
             <q-btn :to="{ name: 'admin', params: { member_id: memberStore.member.id } }">
@@ -169,7 +169,7 @@
             </q-btn>
           </q-item>
             <q-btn
-              v-show="!memberStore.isAuthenticated"
+              v-show="!checkIfAuthenticated()"
               @click="goTo('signin')"
               roundeded
               label="sign in"
@@ -181,7 +181,7 @@
           </q-item>
           <q-item>
             <q-btn
-              v-show="!memberStore.isAuthenticated"
+              v-show="!checkIfAuthenticated()"
               @click="goTo('register')"
               class="lt-md"
               name="registerBtn"
@@ -190,7 +190,7 @@
               id="register"
             ></q-btn>
           </q-item>
-          <div v-if="memberStore.isAuthenticated">
+          <div v-if="checkIfAuthenticated()">
             <q-item>
               <q-btn
                 class="lt-md"
@@ -228,48 +228,64 @@ import { useQuestStore } from 'src/stores/quests'
 import { useBaseStore } from 'src/stores/baseStore'
 import { GuildData } from 'src/types';
 import { permission_enum } from '../enums';
-import { useQuasar } from 'quasar'
+import { useQuasar } from 'quasar';
 
-const router = useRouter()
-const memberStore = useMemberStore()
-const guildStore = useGuildStore()
-const questStore = useQuestStore()
-const baseStore = useBaseStore()
-const leftDrawer = ref(false)
-let rightDrawerOpen = false
+
+const router = useRouter();
+const memberStore = useMemberStore();
+const guildStore = useGuildStore();
+const questStore = useQuestStore();
+const baseStore = useBaseStore();
+const leftDrawer = ref(false);
+let hasPermission = ref(false);
+let isAuthenticated = ref(false);
+let rightDrawer = ref(false);
 const showTree = true;
-const $q = useQuasar();
-
 
 //Getters
 const currentGuild:GuildData = guildStore.getCurrentGuild
 
-
+function checkForPermission(permission_enum:permission_enum): boolean{
+   hasPermission.value =  baseStore.hasPermission(permission_enum)
+   if(hasPermission.value == true) {
+    return true;
+   }
+   return false;
+}
+function checkIfAuthenticated(): boolean {
+  isAuthenticated.value = memberStore.isAuthenticated;
+  if (isAuthenticated.value == true) {
+    return true;
+  }
+  return false;
+}
 function goTo(route: string): void {
   router.push(route)
 }
 
 async function onLogout() {
-    rightDrawerOpen = false;
+  const $q = useQuasar();
+    rightDrawer.value = false;
     leftDrawer.value = false;
     goTo('home');
     await memberStore.logout();
+    
     $q.notify({
-      type: "positive",
-      message: "You are now logged out",
+      type: 'positive',
+      message: 'You are now logged out',
     });
 }
 
 function   toggleNav() {
-    if (rightDrawerOpen) {
+    if (rightDrawer.value) {
      closeNav();
     } else {
-      rightDrawerOpen = true;
+      rightDrawer.value = true;
     }
 }
 
 function closeNav() {
-    rightDrawerOpen = false;
+    rightDrawer.value = false;
   }
   
 </script>

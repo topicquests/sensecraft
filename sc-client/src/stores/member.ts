@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { AxiosResponse } from 'axios';
 import { Member } from '../types';
 //import { getWSClient } from "../wsclient";
-// import { useBaseStore } from "./base";
+import { useBaseStore } from "./baseStore";
 import { jwtDecode } from "jwt-decode";
 import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
 
@@ -60,8 +60,9 @@ export const useMemberStore = defineStore('member', {
   },
   actions: {
     async logout() {
+      const baseStore = useBaseStore()
       // getWSClient().logout();
-      await useBaseStore.reset();
+      await baseStore.reset();
     },
     async signin(mail: string, pass: string): Promise<string | undefined> {
       const res: AxiosResponse<string> = await api.post('/rpc/get_token', {
@@ -145,7 +146,7 @@ export const useMemberStore = defineStore('member', {
         const expiry = this.tokenExpiry ||
           window.localStorage.getItem('tokenExpiry');
         if (expiry && Date.now() < Number.parseInt(expiry)) {
-          fetchLoginUser();
+          this.fetchLoginUser();
           if (!this.tokenExpiry) {
             // add a commit for expiry?
           }
@@ -155,6 +156,7 @@ export const useMemberStore = defineStore('member', {
     },
     resetMember() {
       token_store.clearToken();
+      this.isAuthenticated = false;
       Object.assign(this, baseState);
     },
   },

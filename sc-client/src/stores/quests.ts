@@ -25,9 +25,6 @@ import {
 } from '../enums';
 
 
-const memberStore = useMemberStore();
-
-
 //import type { RoleState } from './role';
 //import { getWSClient } from '../wsclient';
 
@@ -41,18 +38,19 @@ export interface QuestsState {
   currentQuest?: number;
 };
 
+const baseState: QuestsState = {
+  currentQuest: null,
+  fullFetch: false,
+  quests: {},
+  fullQuests: {},
+};
+
+
 export const useQuestStore = defineStore('quest', {
-    state: () => { 
-      return {
-        currentQuest: null,
-        fullFetch: false,
-        quests: [] as Quest[],
-        fullQuests: {} as Quest,
-      }
-    },
+    state: () => baseState,
     getters: {
       getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
-      getQuests: (state: QuestsState):Quest => Object.values(state.quests),
+      getQuests: (state: QuestsState):QuestsData[] => Object.values(state.quests),
       getQuestById: (state: QuestsState) => (id: number) => state.quests[id], 
       getMyQuests: (state: QuestsState) => {
         const member_id = memberStrore.getUserId
@@ -102,7 +100,7 @@ export const useQuestStore = defineStore('quest', {
       getCastingRoles: () =>
         (member_id: number): Role[] => {
           const castingRoles =
-          memberStore.getPlayersRoles(member_id);
+          useMemberStore.getPlayersRoles(member_id);
           const roles = castingRoles.map((pr) =>
             MyVapi.store.getters["role/getRoleById"](pr.role_id)
           );
@@ -111,7 +109,7 @@ export const useQuestStore = defineStore('quest', {
       getCastingRolesForQuest: () =>
         (member_id: number, quest_id: number): Role[] => {
           const castingRoles =
-          memberStore.getPlayersRoles(member_id);
+          useMemberStore.getPlayersRoles(member_id);
           const playerRoles = castingRoles.filter(
           (role) => role.quest_id == quest_id
           );
@@ -122,7 +120,7 @@ export const useQuestStore = defineStore('quest', {
       },
       getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
         const quest = state.quests[state.currentQuest];
-        const members = memberStore.members;
+        const members = useMemberStore.members;
         const currentGuildId = useGuildStore.currentGuild;
         if (!currentGuildId) return [];
         return quest.casting
@@ -132,14 +130,14 @@ export const useQuestStore = defineStore('quest', {
         },
       isPlayingQuestInGuild: (state: QuestsState) =>
         (quest_id?: number, guild_id?: number, member_id?: number) => {
-        member_id = member_id || memberStore.getUserId;
+        member_id = member_id || useMemberStore.getUserId;
         quest_id = quest_id || state.currentQuest;
         return state.quests[quest_id]?.casting?.find(
           (c: Casting) => c.member_id == member_id && c.guild_id == guild_id
         );
       },
       isPlayingQuestAsGuildId: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
-        member_id = member_id || memberStore.getUserId;
+        member_id = member_id || useMemberStore.getUserId;
         quest_id = quest_id || state.currentQuest;
         const casting = state.quests[quest_id]?.casting?.find(
         (c: Casting) => c.member_id == member_id
@@ -147,7 +145,7 @@ export const useQuestStore = defineStore('quest', {
         return casting?.guild_id;
       },
       castingInQuest: (state: QuestsState) => (quest_id?: number, member_id?: number) => {
-        member_id = member_id || memberStore.getUserId;
+        member_id = member_id || useMemberStore.getUserId;
         quest_id = quest_id || state.currentQuest;
         return state.quests[quest_id]?.casting?.find(
           (c: Casting) => c.member_id == member_id
@@ -156,7 +154,7 @@ export const useQuestStore = defineStore('quest', {
       getCastingRolesById: () =>
         (member_id: number, quest_id: number): Role[] => {
         const castingRoles =
-        memberStore.getPlayersRoles(member_id);
+        useMemberStore.getPlayersRoles(member_id);
         const playerRoles = castingRoles?.filter(
         (role) => role.quest_id == quest_id
         );
@@ -164,7 +162,7 @@ export const useQuestStore = defineStore('quest', {
       },
       getMembersOfCurrentQuest: (state: QuestsState) => {
         const quest = state.quests[state.currentQuest];
-        const members = memberStore.members;
+        const members = useMemberStore.members;
         return quest?.quest_membership
         ?.map((qm: QuestMembership) => members[qm.member_id])
         .filter((member: PublicMember) => member);
@@ -177,7 +175,7 @@ export const useQuestStore = defineStore('quest', {
       },
       getPlayersOfCurrentQuest: (state: QuestsState) => {
         const quest = state.quests[state.currentQuest];
-        const members = memberStore.members;
+        const members = useMemberStore.members;
         return quest?.casting
           .map((c: Casting) => members[c.member_id])
           .filter((member: PublicMember) => member);
@@ -198,7 +196,7 @@ export const useQuestStore = defineStore('quest', {
         node_type: ibis_node_type_type
         ): publication_state_type => {
           const roleCastings: CastingRole[] =
-          memberStore.castingRolesForQuest(quest_id);
+          useMemberStore.castingRolesForQuest(quest_id);
           const roles: Role[] = roleCastings.map((rc) =>
             MyVapi.store.getters["role/getRoleById"](rc.role_id)
           );
@@ -233,7 +231,7 @@ export const useQuestStore = defineStore('quest', {
       },
       async fetchQuests(): Promise<QuestData[]> {
         ({params})=> {
-        const userId = memberStore.getUserId;
+        const userId = useMemberStore.getUserId;
             if (userId) {
               Object.assign(params, {
                 select:
@@ -245,7 +243,7 @@ export const useQuestStore = defineStore('quest', {
               params.select = "*,game_play!quest_id(*)";
             }
           }
-        const res: AxiosResponse<QuestData[]> = await api.get('/quests_data')
+        const res: AxiosResponse<QuestData[]> = await api.get('/quests_data',  { params });
         if (res.status == 200) {
           const fullQuests = Object.values(this.quests).filter(
             (quest: QuestData) => this.fullQuests[quest.id]
@@ -299,7 +297,7 @@ export const useQuestStore = defineStore('quest', {
           } else {
             params.id = `eq.${params.id}`;
           }
-          const userId = memberStore.getUserId;
+          const userId = useMemberStore.getUserId;
           if (userId || full) {
             params.select =
               "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";

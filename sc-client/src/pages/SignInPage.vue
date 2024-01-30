@@ -16,8 +16,8 @@
 import { useRouter } from 'vue-router';
 import signinCard from '../components/signin-card.vue';
 import { useMemberStore } from 'src/stores/member';
-import axios, { AxiosError } from 'axios';
 import { useQuasar } from 'quasar';
+import axios, { AxiosError } from 'axios';
 
   const router = useRouter();
   const $q = useQuasar();
@@ -33,27 +33,26 @@ import { useQuasar } from 'quasar';
       }
       await memberStore.ensureLoginUser();
       goNext();
-    } catch (err) {
-      const errors = err as Error | AxiosError;
-      if(!axios.isAxiosError(errors)){
-    // do whatever you want with native error
-  }
-  /*
+    } catch (error) {
+      let message;
+  if (axios.isAxiosError(error) && error.response) {
+	message = error.response.data.message;
+  } else message = String(error);
+  console.log("error message ", message)
       
-      if (errors == 'invalid confirmed / Cannot login untilconfirmed') {
+      if (message == "invalid confirmed / Cannot login until confirmed") {
         $q.notify({
-          type: 'negative',
+          type: "negative",
           message:
-            'You have not been confirmed. Check your email for confirmation link',
+            "You have not been confirmed. Check your email for confirmation link",
         });
       } else {
-        .$q.notify({
-          type: 'negative',
+        $q.notify({
+          type: "negative",
           message:
-            'Problem signing in verify you have entered correctemail and password ',
+            "Problem signing in verify you have entered correctemail and password ",
         });
       }
-      */     
     }
   }
 

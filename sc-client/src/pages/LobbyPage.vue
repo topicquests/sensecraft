@@ -70,8 +70,8 @@ import GuildsTable from '../components/guilds-table.vue';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
-import { Guild } from '../types';
-import { userLoaded } from '../boot/userLoaded';
+import { Guild, GuildData } from '../types';
+//import { userLoaded } from '../boot/userLoaded';
 import { onBeforeMount } from 'vue';
 import  member  from '../components/member.vue'
 
@@ -80,7 +80,7 @@ const guildsStore = useGuildStore();
 const questsStore = useQuestStore();
 let ready = false;
     
-function getOpenGuilds(): Guild  {      
+function getOpenGuilds(): GuildData[]  {      
   return guildsStore.getGuilds.filter((guild: Guild) =>
   guild.open_for_applications && !guildsStore.isGuildMember(guild.id));
 };

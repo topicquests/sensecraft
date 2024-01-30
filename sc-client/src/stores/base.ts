@@ -1,15 +1,3 @@
-import { Store as VuexStore } from 'vuex';
-import Vapi from 'vuex-rest-api';
-import {
-  Store as VapiStore,
-  StoreOptions as VapiStoreOptions,
-  ActionMap,
-  MutationMap,
-} from 'vuex-rest-api/dist/Store';
-import {
-  ShorthandResourceActionOptions,
-  ResourceActionOptions,
-} from 'vuex-rest-api/dist/Resource';
 import { AxiosResponse } from 'axios';
 import type { KeyArray } from '../types';
 

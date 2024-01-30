@@ -16,10 +16,27 @@ import { useMemberStore } from './member';
 import { useGuildStore } from './guilds';
 import { useQuestStore } from './quests';
 
-const memberStore = useMemberStore();
-
 export const useBaseStore = defineStore('base', {
   state: () => ({}),
+  actions: {
+    async reset() {
+      const memberStore = useMemberStore();
+    
+      // TODO
+      
+      return await Promise.all([
+        memberStore.resetMember(),
+        // context.dispatch("members/resetMembers"),
+        // context.dispatch("quests/resetQuests"),
+        // context.dispatch("guilds/resetGuilds"),
+        // context.dispatch("role/resetRole"),
+        // context.dispatch("channel/resetChannel"),
+        // context.dispatch("serverData/resetServerData"),
+        // context.dispatch("readStatus/resetReadStatus"),
+      ]);
+      
+    },
+  },
   getters: {
     hasPermission:
       () =>
@@ -93,22 +110,7 @@ export const useBaseStore = defineStore('base', {
         }
         return false;
       },
-  },
-  actions: {
-    reset: async () => {
-      // TODO
-      return await Promise.all([
-        memberStore.resetMember(),
-        // context.dispatch("members/resetMembers"),
-        // context.dispatch("quests/resetQuests"),
-        // context.dispatch("guilds/resetGuilds"),
-        // context.dispatch("role/resetRole"),
-        // context.dispatch("channel/resetChannel"),
-        // context.dispatch("serverData/resetServerData"),
-        // context.dispatch("readStatus/resetReadStatus"),
-      ]);
-    },
-  },
+  },  
 });
 /*
 
