@@ -243,7 +243,7 @@ export const useQuestStore = defineStore('quest', {
               params.select = "*,game_play!quest_id(*)";
             }
           }
-        const res: AxiosResponse<QuestData[]> = await api.get('/quests_data',  { params });
+        const res: AxiosResponse<QuestData[]> = await api.get('/quests_data');
         if (res.status == 200) {
           const fullQuests = Object.values(this.quests).filter(
             (quest: QuestData) => this.fullQuests[quest.id]
@@ -320,26 +320,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     })
-/*
- 
-      
-    
-   
-    
-    
-    
-    
-    
-   
-    
-    
-   
-   
-    
-    
-    
-   
-    
+/*    
   },
   actions: {
   setCurrentQuest(quest_id: number) {

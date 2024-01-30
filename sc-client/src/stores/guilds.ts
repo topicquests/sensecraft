@@ -209,7 +209,7 @@ export const useGuildStore = defineStore('guild',  {
         params.select = '*,game_play!guild_id(*)';
       }
       
-      const res: AxiosResponse<GuildData[]> = await api.get('/guilds_data');
+      const res: AxiosResponse<GuildData[]> = await api.get('/guilds_data', { params });
       
       if (res.status == 200 ) {
         const fullGuilds = Object.values(this.guilds).filter(
