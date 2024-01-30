@@ -1,11 +1,5 @@
-import {
-  MyVapi,
-  RestDataActionType,
-  RestEmptyActionType,
-  RetypeActionTypes,
-  RetypeGetterTypes,
-  filterKeys,
-} from "./base";
+import { filterKeys } from "./baseStore";
+import { defineStore } from 'pinia'
 import { AxiosResponse, AxiosInstance } from "axios";
 import { Role, RoleNodeConstraint, rolePatchKeys } from "../types";
 
@@ -31,77 +25,73 @@ const baseState: RoleState = {
 };
 
 export const useRoleStore = defineStore('role', {
-  state: () ({
-    role: [],
-    fullFetch: false,
-    fullRole: {},
-  })
-})
+  state: () => baseState,
 
-getters: {
-  getRoleById: (state: RoleState) => (id: number) => state.role[id],
-  getRoleByName: (state: RoleState) => (name: string) => state.role[name],
-  getRoles: (state: RoleState) =>
-    Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
-  getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
-    state.role[id].role_node_constraint,
-  getRoleNodeConstraintByType:
-    (state: RoleState) => (id: number, node_type: string) => {
-      const roleNodeConstraint: RoleNodeConstraint[] = state.role[
-        id
-      ].role_node_constraint.filter(
-        (node: RoleNodeConstraint) => node.node_type == node_type
-      );
-      return roleNodeConstraint;
+  getters: {
+    getRoleById: (state: RoleState) => (id: number) => state.role[id],
+    getRoleByName: (state: RoleState) => (name: string) => state.role[name],
+    getRoles: (state: RoleState) =>
+      Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
+    getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
+      state.role[id].role_node_constraint,
+    getRoleNodeConstraintByType:
+      (state: RoleState) => (id: number, node_type: string) => {
+        const roleNodeConstraint: RoleNodeConstraint[] = state.role[
+          id
+        ].role_node_constraint.filter(
+          (node: RoleNodeConstraint) => node.node_type == node_type
+        );
+        return roleNodeConstraint;
+      },
+  },
+  actions: {
+    ensureAllRoles: async () => {
+      if (context.state.role.length === 0 || !context.state.fullFetch) {
+        await context.dispatch("fetchRoles");
+      }
     },
-},
-actions: {
-  ensureAllRoles: async () => {
-    if (context.state.role.length === 0 || !context.state.fullFetch) {
+    ensureRole: async (
+      context,
+      { role_id, full = true }: { role_id: number; full?: boolean }
+    ) => {
+      if (
+        context.getters.getRoleById(role_id) === undefined ||
+        (full && !context.state.fullRole[role_id])
+      ) {
+        await context.dispatch("fetchRoleById", {
+          full,
+          params: { id: role_id },
+        });
+      }
+    },
+    createRole: async (context, { data }) => {
+      const res = await context.dispatch("createRoleBase", { data });
       await context.dispatch("fetchRoles");
-    }
-  },
-  ensureRole: async (
-    context,
-    { role_id, full = true }: { role_id: number; full?: boolean }
-  ) => {
-    if (
-      context.getters.getRoleById(role_id) === undefined ||
-      (full && !context.state.fullRole[role_id])
-    ) {
-      await context.dispatch("fetchRoleById", {
-        full,
-        params: { id: role_id },
+      return res.data[0];
+    },
+    resetRole: (context) => {
+      context.commit("CLEAR_STATE");
+    },
+    createRoleNodeConstraint: async (context, { data }) => {
+      await context.dispatch("createRoleNodeConstraintBase", {
+        data,
       });
-    }
-  },
-  createRole: async (context, { data }) => {
-    const res = await context.dispatch("createRoleBase", { data });
-    await context.dispatch("fetchRoles");
-    return res.data[0];
-  },
-  resetRole: (context) => {
-    context.commit("CLEAR_STATE");
-  },
-  createRoleNodeConstraint: async (context, { data }) => {
-    await context.dispatch("createRoleNodeConstraintBase", {
-      data,
-    });
-    await context.dispatch("fetchRoles");
-  },
-  updateRoleNodeConstraint: async (context, { data }) => {
-    await context.dispatch("updateRoleNodeConstraintBase", {
-      data,
-    });
-    await context.dispatch("fetchRoles");
-  },
-  deleteRoleNodeConstraint: async (context, { data }) => {
-    await context.dispatch("deleteRoleNodeConstraintBase", {
-      data,
-    });
-    await context.dispatch("fetchRoles");
-  },
-},
+      await context.dispatch("fetchRoles");
+    },
+    updateRoleNodeConstraint: async (context, { data }) => {
+      await context.dispatch("updateRoleNodeConstraintBase", {
+        data,
+      });
+      await context.dispatch("fetchRoles");
+    },
+    deleteRoleNodeConstraint: async (context, { data }) => {
+      await context.dispatch("deleteRoleNodeConstraintBase", {
+        data,
+      });
+      await context.dispatch("fetchRoles");
+    },
+  }
+});
 
 export const role = (axios: AxiosInstance) =>
   new MyVapi<RoleState>({
@@ -244,7 +234,7 @@ export const role = (axios: AxiosInstance) =>
         },
       },
     });
-
+/*
 type RoleRestActionTypes = {
   fetchRoles: RestEmptyActionType<Role[]>;
   fetchRoleById: ({
@@ -274,3 +264,4 @@ type RoleRestActionTypes = {
 export type RoleActionTypes = RetypeActionTypes<typeof RoleActions> &
   RoleRestActionTypes;
 export type RoleGetterTypes = RetypeGetterTypes<typeof RoleGetters>;
+*/

@@ -15,15 +15,22 @@ import {
 import { useMemberStore } from './member';
 import { useGuildStore } from './guilds';
 import { useQuestStore } from './quests';
+import { useRoleStore } from './role';
+
+export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
+  return Object.fromEntries(
+    keys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]])
+  ) as Partial<T>;
+}
 
 export const useBaseStore = defineStore('base', {
   state: () => ({}),
   actions: {
     async reset() {
       const memberStore = useMemberStore();
-    
+
       // TODO
-      
+
       return await Promise.all([
         memberStore.resetMember(),
         // context.dispatch("members/resetMembers"),
@@ -34,7 +41,7 @@ export const useBaseStore = defineStore('base', {
         // context.dispatch("serverData/resetServerData"),
         // context.dispatch("readStatus/resetReadStatus"),
       ]);
-      
+
     },
   },
   getters: {
@@ -46,7 +53,7 @@ export const useBaseStore = defineStore('base', {
         questN?: number | Quest,
         nodeType?: ibis_node_type_enum
       ) => {
-        const member = useMemberStore.getUser;
+        const member = useMemberStore().getUser;
         if (!member) return false;
         if (member.permissions.indexOf(permission) >= 0) return true;
         if (member.permissions.indexOf('superadmin') >= 0) return true;
@@ -55,7 +62,7 @@ export const useBaseStore = defineStore('base', {
         if (guildN) {
           guild =
             typeof guildN == 'number'
-              ? useGuildStore.getGuildById(guildN)
+              ? useGuildStore().getGuildById(guildN)
               : guildN;
           if (guild) {
             const membership = (guild.guild_membership || []).find(
@@ -74,7 +81,7 @@ export const useBaseStore = defineStore('base', {
         if (questN) {
           quest =
             typeof questN == 'number'
-              ? useQuestStore.getQuestById(questN)
+              ? useQuestStore().getQuestById(questN)
               : questN;
           if (quest) {
             const membership = (quest.quest_membership || []).find(
@@ -96,7 +103,7 @@ export const useBaseStore = defineStore('base', {
                 cr.guild_id == guild.id && cr.quest_id == quest.id
             )
             .map((cr: CastingRole) =>
-              MyVapi.store.getters['role/getRoleById'](cr.role_id)
+              useRoleStore().getRoleById(cr.role_id)
             );
           for (const role of roles) {
             if (role?.permissions?.indexOf(permission) >= 0) return true;
@@ -110,7 +117,7 @@ export const useBaseStore = defineStore('base', {
         }
         return false;
       },
-  },  
+  },
 });
 /*
 

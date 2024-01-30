@@ -68,10 +68,10 @@ let ready = false;
     // not using those yet?
     await Promise.all([
       questStore.ensureAllQuests(),
-      guildStore.setCurrentGuild(false),
-      questStore.setCurrentQuest(true),
+      // guildStore.setCurrentGuild(false),
+      // questStore.setCurrentQuest(true),
     ]);
-    ready = true; 
+    ready = true;
 
 </script>
 

@@ -34,17 +34,9 @@ const baseState: MembersState = {
   fullMembers: {},
 };
 
-const guildStore = useGuildStore();
-const questStore = useQuestStore()
 
 export const useMembersStore = defineStore('members', {
-  state: () => ({
-    fullFetch: false,
-    questFetch: null,
-    guildFetch: null,
-    members: {},
-    fullMembers: {},
-  }),
+  state: () => baseState,
   getters: {
     getMembers: (state: MembersState) =>
     Object.values(state.members).sort((a, b) =>
@@ -116,12 +108,10 @@ export const useMembersStore = defineStore('members', {
       }
     },
     async ensureMembersOfGuild (
-      { guildId, full = true }: 
-      { guildId: number; full?: boolean }) {
-      await guildStore.ensureGuild( {
-        guild_id: guildId,
-        force: true,
-      });
+      { guildId, full = true }:
+        { guildId: number; full?: boolean }) {
+      const guildStore = useGuildStore();
+      await guildStore.ensureGuild(guildId, true);
       const guild = guildStore.getGuildById(guildId);
       let membersId: number[] =
         guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) || [];
@@ -139,8 +129,9 @@ export const useMembersStore = defineStore('members', {
         });*/
       }
     },
-    async ensurePlayersOfQuest ( { questId, full = true }: 
-      { questId: number; full?: boolean })  {
+    async ensurePlayersOfQuest ( { questId, full = true }:
+      { questId: number; full?: boolean }) {
+      const questStore = useQuestStore();
       await questStore.ensureQuest( {
         quest_id: questId,
         full: true,
@@ -164,7 +155,7 @@ export const useMembersStore = defineStore('members', {
     resetMembers() {
       context.commit("CLEAR_STATE");
     },
-  }  
+  }
 })
 /*
 export const members = (axios: AxiosInstance) =>
