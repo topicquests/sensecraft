@@ -13,6 +13,7 @@ import {
   CastingRole,
 } from '../types';
 import { useMemberStore } from './member';
+import { useMembersStore } from './members';
 import { useGuildStore } from './guilds';
 import { useQuestStore } from './quests';
 import { useRoleStore } from './role';
@@ -26,22 +27,15 @@ export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
 export const useBaseStore = defineStore('base', {
   state: () => ({}),
   actions: {
-    async reset() {
-      const memberStore = useMemberStore();
-
-      // TODO
-
-      return await Promise.all([
-        memberStore.resetMember(),
-        // context.dispatch("members/resetMembers"),
-        // context.dispatch("quests/resetQuests"),
-        // context.dispatch("guilds/resetGuilds"),
-        // context.dispatch("role/resetRole"),
+    reset() {
+      useMemberStore().resetMember();
+      useMembersStore().resetMembers();
+      useQuestStore().resetQuests();
+      useGuildStore().resetGuilds();
+      useRoleStore().resetRole();
         // context.dispatch("channel/resetChannel"),
         // context.dispatch("serverData/resetServerData"),
         // context.dispatch("readStatus/resetReadStatus"),
-      ]);
-
     },
   },
   getters: {

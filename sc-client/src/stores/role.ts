@@ -69,8 +69,8 @@ export const useRoleStore = defineStore('role', {
       await context.dispatch("fetchRoles");
       return res.data[0];
     },
-    resetRole: (context) => {
-      context.commit("CLEAR_STATE");
+    resetRole() {
+      Object.assign(this, baseState);
     },
     createRoleNodeConstraint: async (context, { data }) => {
       await context.dispatch("createRoleNodeConstraintBase", {

@@ -21,7 +21,7 @@ export interface GuildsState {
 const questStore = useQuestStore();
 const baseState: GuildsState = {
   guilds: {},
-  currentGuild: null,
+  currentGuild: undefined,
   fullFetch: false,
   fullGuilds: {}
 }
@@ -32,7 +32,7 @@ export const useGuildStore = defineStore('guild',  {
     baseState,
 
   getters: {
-    getCurrentGuild: (state: GuildsState) => state.guilds[state.currentGuild],
+    getCurrentGuild: (state: GuildsState) => (state.currentGuild)?state.guilds[state.currentGuild]:undefined,
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
     getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
     getMyGuilds: (state: GuildsState): GuildData[] => {
@@ -60,7 +60,7 @@ export const useGuildStore = defineStore('guild',  {
       );
     },
     getMembersOfCurrentGuild: (state: GuildsState) => {
-      const guild = state.guilds[state.currentGuild];
+      const guild = state.currentGuild?state.guilds[state.currentGuild]:undefined;
       const members = useMembersStore().members;
       return guild?.guild_membership
         ?.map((gm: GuildMembership) => members[gm.member_id])
@@ -83,6 +83,7 @@ export const useGuildStore = defineStore('guild',  {
       if(Object.keys(this.guilds).length === 0 || !this.fullFetch) {
         await this.fetchGuilds();
       }
+      return this.guilds;
     },
     setCurrentGuild( guild_id: number) {
         this.currentGuild = guild_id
@@ -96,22 +97,21 @@ export const useGuildStore = defineStore('guild',  {
         await this.fetchGuildById(guild_id, full);
       }
     },
-    createGuild: async (context, { data }) => {
-    const res = await context.dispatch('createGuildBase', { data });
-    // Refetch to get memberships.
-    // TODO: maybe add representation to creation instead?
-    const guild_id = res.data[0].id;
-    await this.fetchGuildById(guild_id);
-    // TODO: Get the membership from the guild
-    await useMemberStore().fetchLoginUser;
-    await context.dispatch('addGuildMemberAvailableRole', {
-      data: {
-        member_id: res.data[0].creator,
-        guild_id: guild_id,
-        role_id: res.data[0].default_role_id,
-      },
-    });
-    return res.data[0];
+    async createGuild(data: GuildData): Promise<GuildData> {
+      const res: AxiosResponse<GuildData[]> = await this.createGuildBase(data);
+      // Refetch to get memberships.
+      // TODO: maybe add representation to creation instead?
+      const guild = res.data[0];
+      const guild_id = guild.id;
+      await this.fetchGuildById(guild_id);
+      // TODO: Get the membership from the guild
+      await useMemberStore().fetchLoginUser;
+      await this.addGuildMemberAvailableRole(
+        guild.creator,
+        guild_id,
+        guild.default_role_id,
+      );
+      return guild;
     },
     async ensureCurrentGuild(guild_id: number, full: boolean=true) {
       await this.ensureGuild(guild_id, full);
@@ -150,7 +150,7 @@ export const useGuildStore = defineStore('guild',  {
       (c: GuildMembership) => c.member_id == membership.member_id
     );
     if (gMembership.status == 'confirmed') {
-      await MyVapi.store.dispatch('members/fetchMemberById', {
+      await useMembersStore().fetchMemberById({
         full: true,
         params: { id: membership.member_id },
       });
@@ -160,25 +160,24 @@ export const useGuildStore = defineStore('guild',  {
     }
     },
     */
-    updateGuildMembership: async (
-    context,
-    membership: Partial<GuildMembership>
-    ) => {
-    await context.dispatch('doUpdateGuildMembership', { data: membership });
-    const gMembership: GuildMembership = context.state.guilds[
-      membership.guild_id
-    ].guild_membership.find(
-      (c: GuildMembership) => c.member_id == membership.member_id
-    );
-    if (gMembership.status == 'confirmed') {
-      await MyVapi.store.dispatch('members/reloadIfFull', membership.member_id);
-      if (membership.member_id == MyVapi.store.getters['member/getUserId']) {
-        await MyVapi.store.dispatch('member/fetchLoginUser');
+    async updateGuildMembership(
+      membership: Partial<GuildMembership>
+    ) {
+      await this.doUpdateGuildMembership(membership);
+      const gMembership: GuildMembership = this.guilds[
+        membership.guild_id
+      ].guild_membership.find(
+        (c: GuildMembership) => c.member_id == membership.member_id
+      );
+      if (gMembership.status == 'confirmed') {
+        await useMembersStore().reloadIfFull(membership.member_id);
+        if (membership.member_id == useMemberStore().getUserId) {
+          await useMemberStore().fetchLoginUser();
+        }
       }
-    }
     },
-    resetGuilds: (context) => {
-    context.commit('CLEAR_STATE');
+    resetGuilds() {
+      Object.assign(this, baseState);
     },
     async fetchGuilds(id: undefined | number | Array<number>): Promise<GuildData[]> {
       const userId = useMemberStore().getUserId;
@@ -206,7 +205,7 @@ export const useGuildStore = defineStore('guild',  {
       const res: AxiosResponse<GuildData[]> = await api.get('/guilds_data', { params });
 
       if (res.status == 200 ) {
-        const fullGuilds = Object.values(this.guilds).filter(
+        const fullGuilds: GuildData[] = Object.values<GuildData>(this.guilds).filter(
           (guild: GuildData) => this.fullGuilds[guild.id]
         );
 
@@ -268,8 +267,9 @@ export const useGuildStore = defineStore('guild',  {
             ),
           };
         }
+        return res.data;
       }
-  }
+    },
   }
 })
 /*

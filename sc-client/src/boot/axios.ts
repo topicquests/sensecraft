@@ -21,7 +21,7 @@ export const api = axios.create({ baseURL: server_url });
 export const TOKEN_EXPIRATION = 1000000;
 
 class TokenStore {
-  token: str | undefined;
+  token: string | undefined;
   tokenExpiry: number | undefined;
   constructor() {
     this.token = window.localStorage.getItem('token');
@@ -30,7 +30,7 @@ class TokenStore {
       ? Number.parseInt(origTokenExpiry)
       : undefined;
   }
-  setToken(token: string, tokenExpiry: number) {
+  setToken(token: string, tokenExpiry: number|undefined=undefined) {
     this.token = token;
     this.tokenExpiry = tokenExpiry || Date.now() + TOKEN_EXPIRATION;
     window.localStorage.setItem('token', token);

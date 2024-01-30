@@ -15,6 +15,7 @@ import {
 
 import { useGuildStore } from './guilds'
 import { useQuestStore } from './quests'
+import { useMemberStore } from './member'
 
 interface MemberMap {
   [key: number]: PublicMember;
@@ -28,8 +29,8 @@ export interface MembersState {
 }
 const baseState: MembersState = {
   fullFetch: false,
-  questFetch: null,
-  guildFetch: null,
+  questFetch: undefined,
+  guildFetch: undefined,
   members: {},
   fullMembers: {},
 };
@@ -39,45 +40,45 @@ export const useMembersStore = defineStore('members', {
   state: () => baseState,
   getters: {
     getMembers: (state: MembersState) =>
-    Object.values(state.members).sort((a, b) =>
-      a.handle.localeCompare(b.handle)
-    ),
+      Object.values(state.members).sort((a, b) =>
+        a.handle.localeCompare(b.handle)
+      ),
     getMemberById: (state: MembersState) => (id: number) => {
       const member = state.members[id];
       if (member) return member;
       // may also be in member
-      const loggedIn = MemberStore.member
+      const loggedIn = useMemberStore().member
       if (loggedIn?.id == id) return loggedIn;
     },
     getMemberByHandle: (state: MembersState) => (handle: string) =>
-    Object.values(state.members).find(
-      (member: PublicMember) => member.handle == handle
-    ),
+      Object.values(state.members).find(
+        (member: PublicMember) => member.handle == handle
+      ),
     getMembersByHandle: (state: MembersState) =>
-    Object.fromEntries(
-      Object.values(state.members).map((member: PublicMember) => [
-        member.handle,
-        member,
-      ])
-    ),
+      Object.fromEntries(
+        Object.values(state.members).map((member: PublicMember) => [
+          member.handle,
+          member,
+        ])
+      ),
     getMemberHandles: (state: MembersState) =>
-    Object.values(state.members)
-      .map((member: PublicMember) => member.handle)
-      .sort(),
+      Object.values(state.members)
+        .map((member: PublicMember) => member.handle)
+        .sort(),
     getPlayersRoles: (state: MembersState) => (member_id: number) => {
-        return state.members[member_id]?.casting_role;
+      return state.members[member_id]?.casting_role;
     },
     getAvailableRolesByMemberId: (state: MembersState) => (member_id: number) => {
       return state.members[member_id]?.guild_member_available_role;
     },
-    getAvailableRolesForMemberAndGuild:(state: MembersState) => (member_id: number, guild_id: number) => {
+    getAvailableRolesForMemberAndGuild: (state: MembersState) => (member_id: number, guild_id: number) => {
       const roles = state.members[member_id]?.guild_member_available_role || [];
       return roles.filter((cr) => cr.guild_id == guild_id);
     },
     castingRolesPerQuest: (state: MembersState) => (member_id: number, quest_id: number) => {
-      const castingRole = [];
+      const castingRole: CastingRole[] = [];
       const rolesPerQuest = state.members[member_id].casting_role;
-      if (rolesPerQuest?.length > 0) {
+      if (rolesPerQuest !== undefined && rolesPerQuest.length > 0) {
         rolesPerQuest.forEach((cr) => {
           if (cr.quest_id == quest_id) {
             castingRole.push(cr);
@@ -91,7 +92,7 @@ export const useMembersStore = defineStore('members', {
 
   actions: {
     async ensureAllMembers() {
-      if (this.members.length === 0 || !this.fullFetch) {
+      if (Object.keys(this.members).length === 0 || !this.fullFetch) {
         //await context.dispatch("fetchMembers");
       }
     },
@@ -102,12 +103,12 @@ export const useMembersStore = defineStore('members', {
         //await context.dispatch("fetchMemberById", { full, params: { id } });
       }
     },
-    async reloadIfFull (id: number) {
+    async reloadIfFull(id: number) {
       if (this.fullMembers[id]) {
         //await context.dispatch("fetchMemberById", { full: true, params: { id } });
       }
     },
-    async ensureMembersOfGuild (
+    async ensureMembersOfGuild(
       { guildId, full = true }:
         { guildId: number; full?: boolean }) {
       const guildStore = useGuildStore();
@@ -129,10 +130,9 @@ export const useMembersStore = defineStore('members', {
         });*/
       }
     },
-    async ensurePlayersOfQuest ( { questId, full = true }:
-      { questId: number; full?: boolean }) {
+    async ensurePlayersOfQuest(questId: number, full: boolean = true) {
       const questStore = useQuestStore();
-      await questStore.ensureQuest( {
+      await questStore.ensureQuest({
         quest_id: questId,
         full: true,
       });
@@ -143,7 +143,7 @@ export const useMembersStore = defineStore('members', {
         quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) || []
       );
       membersId = [...new Set(membersId)];
-      membersId = membersId.filter((id: number) => !context.state.members[id]);
+      membersId = membersId.filter((id: number) => !this.members[id]);
       if (membersId.length > 0) {
         /*await context.dispatch("fetchMemberById", {
           full,
@@ -153,10 +153,10 @@ export const useMembersStore = defineStore('members', {
       }
     },
     resetMembers() {
-      context.commit("CLEAR_STATE");
+      Object.assign(this, baseState);
     },
   }
-})
+});
 /*
 export const members = (axios: AxiosInstance) =>
   new MyVapi<MembersState>({

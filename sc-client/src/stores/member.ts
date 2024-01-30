@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { AxiosResponse } from 'axios';
-import { Member } from '../types';
+import { Member, CastingRole } from '../types';
 //import { getWSClient } from "../wsclient";
 import { useBaseStore } from "./baseStore";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
 
 export interface MemberState {
@@ -60,9 +60,8 @@ export const useMemberStore = defineStore('member', {
   },
   actions: {
     async logout() {
-      const baseStore = useBaseStore()
       // getWSClient().logout();
-      await baseStore.reset();
+      useBaseStore().reset();
     },
     async signin(mail: string, pass: string): Promise<string | undefined> {
       const res: AxiosResponse<string> = await api.post('/rpc/get_token', {
@@ -104,16 +103,16 @@ export const useMemberStore = defineStore('member', {
       } else {
         Object.assign(this, baseState);
         token_store.clearToken();
-        console.log(error);
+        console.error(res.data);
       }
     },
 
-    async registerUser(context, data) {
+    async registerUser(data: Member): Promise<Member> {
       // const password = await hash(data.password, 10);
       // data = { ...data, password };
-      return await context.dispatch("registerUserCrypted", { data });
+      return await this.registerUserCrypted(data);
     },
-    async fetchLoginUser(): Promise<Member> {
+    async fetchLoginUser(): Promise<Member|undefined> {
       const token = token_store.getToken();
       if (!token) {
         return undefined;
@@ -122,7 +121,7 @@ export const useMemberStore = defineStore('member', {
       const parts: string[] = token_payload.role.split("_");
       const role = parts[parts.length - 1];
 
-      const res: AxiosResponse<Member> = await api.get("/members", {
+      const res: AxiosResponse<Member[]> = await api.get("/members", {
         params: {
           id: `eq.${role}`,
           select:
@@ -132,12 +131,12 @@ export const useMemberStore = defineStore('member', {
       if (res.status == 200) {
         this.member = res.data[0];
         this.isAuthenticated = true;
-        return res.data;
       } else {
         this.resetMember();
         console.error(res.status);
         console.error(res.data);
       }
+      return this.member;
     },
 
     async ensureLoginUser(): Promise<Member> {

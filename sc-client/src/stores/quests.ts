@@ -280,7 +280,7 @@ export const useQuestStore = defineStore('quest', {
         await context.dispatch("fetchQuestById", { params: { id: quest_id } });
         // TODO: Get the membership from the quest
         await useMemberStore().fetchLoginUser();
-        await useConversationStore().resetConversation();
+        // await useConversationStore().resetConversation();
         return res.data[0];
       },
 
