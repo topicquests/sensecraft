@@ -296,7 +296,7 @@ export const useQuestStore = defineStore('quest', {
         this.getQuestById(quest_id) === undefined ||
         (full && !this.fullQuests[quest_id])
       ) {
-        await this.fetchQuestById(full, quest_id);
+        await this.fetchQuestById(quest_id, full);
       }
     },
     createQuest: async (context, { data }) => {
@@ -304,7 +304,7 @@ export const useQuestStore = defineStore('quest', {
       // Refetch to get memberships.
       // TODO: maybe add representation to creation instead?
       const quest_id = res.data[0].id;
-      await context.dispatch('fetchQuestById', { params: { id: quest_id } });
+      await context.dispatch('fetchQuestById', { quest_id });
       // TODO: Get the membership from the quest
       await useMemberStore().fetchLoginUser();
       // await useConversationStore().resetConversation();
@@ -319,11 +319,12 @@ export const useQuestStore = defineStore('quest', {
       Object.assign(baseState);
     },
 
-    async fetchQuestById(full?: boolean, params: { id: number | number[] }) {
-      if (Array.isArray(params.id)) {
-        params.id = `in.(${params.id.join(',')})`;
+    async fetchQuestById(id: number | number[], full?: boolean) {
+      const params = Object();
+      if (Array.isArray(id)) {
+        params.id = `in.(${id.join(',')})`;
       } else {
-        params.id = `eq.${params.id}`;
+        params.id = `eq.${id}`;
       }
       const userId = useMemberStore().getUserId;
       if (userId || full) {
@@ -338,12 +339,22 @@ export const useQuestStore = defineStore('quest', {
       } else {
         params.select = '*,game_play!quest_id(*)';
       }
-      const res: AxiosResponse<QuestData[]> = await api.get('/quests', {
-        full,
-        params: { id: quest_id },
-      });
+      const res: AxiosResponse<QuestData[]> = await api.get('/quests', params);
       if (res.status == 200) {
-        this.quests[quest_id] == res.data[0];
+        this.quests = {
+          ...this.quests,
+          ...Object.fromEntries(
+            res.data.map((quest: QuestData) => [quest.id, quest]),
+          ),
+        };
+        if (full) {
+          this.fullQuests = {
+            ...this.fullQuests,
+            ...Object.fromEntries(
+              res.data.map((quest: QuestData) => [quest.id, true]),
+            ),
+          };
+        }
       }
     },
     async addCasting(casting: Partial<Casting>) {
