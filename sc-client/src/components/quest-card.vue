@@ -78,7 +78,7 @@ const QuestCardProps = defineProps<{
     currentQuest: QuestData;
     creator: object;
     showQuestInfo: boolean;
-    
+
 }>();
 
      {

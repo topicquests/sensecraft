@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { AxiosResponse } from 'axios';
 import { Member, CastingRole } from '../types';
 //import { getWSClient } from "../wsclient";
-import { useBaseStore } from "./baseStore";
-import { jwtDecode, JwtPayload } from "jwt-decode";
-import { api, token_store, TOKEN_EXPIRATION } from "../boot/axios";
+import { useBaseStore } from './baseStore';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 
 export interface MemberState {
   member: Member;
@@ -36,15 +36,15 @@ export const useMemberStore = defineStore('member', {
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
     castingPerQuest: (state: MemberState) =>
       Object.fromEntries(
-        (state.member?.casting || []).map((c) => [c.quest_id, c])
+        (state.member?.casting || []).map((c) => [c.quest_id, c]),
       ),
     guildPerQuest: (state: MemberState) =>
       Object.fromEntries(
-        (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id])
+        (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id]),
       ),
     castingRolesForQuest: (state: MemberState) => (questId: number) => {
       return state.member?.casting_role.filter(
-        (role) => role.quest_id == questId
+        (role) => role.quest_id == questId,
       );
     },
     castingRolesPerQuest: (state: MemberState) => {
@@ -78,7 +78,7 @@ export const useMemberStore = defineStore('member', {
         window.setTimeout(() => {
           this.renewToken();
         }, TOKEN_RENEWAL);
-         await this.fetchLoginUser();
+        await this.fetchLoginUser();
         return res.data;
       }
     },
@@ -112,20 +112,20 @@ export const useMemberStore = defineStore('member', {
       // data = { ...data, password };
       return await this.registerUserCrypted(data);
     },
-    async fetchLoginUser(): Promise<Member|undefined> {
+    async fetchLoginUser(): Promise<Member | undefined> {
       const token = token_store.getToken();
       if (!token) {
         return undefined;
       }
       const token_payload = jwtDecode<JwtPayload>(token); //jwtDecode(token);
-      const parts: string[] = token_payload.role.split("_");
+      const parts: string[] = token_payload.role.split('_');
       const role = parts[parts.length - 1];
 
-      const res: AxiosResponse<Member[]> = await api.get("/members", {
+      const res: AxiosResponse<Member[]> = await api.get('/members', {
         params: {
           id: `eq.${role}`,
           select:
-            "*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)",
+            '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)',
         },
       });
       if (res.status == 200) {
@@ -142,8 +142,8 @@ export const useMemberStore = defineStore('member', {
     async ensureLoginUser(): Promise<Member> {
       // TODO: the case where the member is pending
       if (!this.member) {
-        const expiry = this.tokenExpiry ||
-          window.localStorage.getItem('tokenExpiry');
+        const expiry =
+          this.tokenExpiry || window.localStorage.getItem('tokenExpiry');
         if (expiry && Date.now() < Number.parseInt(expiry)) {
           this.fetchLoginUser();
           if (!this.tokenExpiry) {

@@ -1,8 +1,8 @@
 <template>
   <q-layout view="hHh LpR fFf">
     <q-header elevated>
-       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-       <q-toolbar>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <q-toolbar>
         <q-btn
           id="leftDrawer"
           dense
@@ -71,7 +71,7 @@
             <q-icon name="menu" />
           </q-btn>
         </div>
-       </q-toolbar>
+      </q-toolbar>
     </q-header>
     <q-drawer
       v-model="rightDrawer"
@@ -82,7 +82,7 @@
       class="sidenav"
       :overlay="true"
     >
-    <div v-if="currentGuild" class="q-pa-md q-gutter-sm">
+      <div v-if="currentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
           v-bind:guild_id="currentGuild.id"
           :inPage="false"
@@ -127,19 +127,19 @@
             </q-item-section>
           </q-item>
           <q-item
-          clickable
-          v-ripple
-          id="createQuest"
-          v-show="checkForPermission(permission_enum.createQuest)"
-        >
-          <q-item-section id="create_quest">
-            <q-item-label>
-              <q-btn :to="{ name: 'create_quest' }" name="createQuestBtn">
-                Create Quests</q-btn
-              >
-            </q-item-label>
-          </q-item-section>
-        </q-item>                 
+            clickable
+            v-ripple
+            id="createQuest"
+            v-show="checkForPermission(permission_enum.createQuest)"
+          >
+            <q-item-section id="create_quest">
+              <q-item-label>
+                <q-btn :to="{ name: 'create_quest' }" name="createQuestBtn">
+                  Create Quests</q-btn
+                >
+              </q-item-label>
+            </q-item-section>
+          </q-item>
           <q-item clickable v-ripple id="guildView">
             <q-item-section>
               <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
@@ -147,27 +147,32 @@
           </q-item>
           <q-item>
             <q-item
-            clickable
-            v-ripple
-            id="createGuild"
-            v-show="checkForPermission(permission_enum.createGuild)"
-          >
-            <q-item-section id="guild_create">
-              <q-item-label>
-                <q-btn :to="{ name: 'create_guild' }">Create Guild</q-btn>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-ripple
-            v-if="checkForPermission(permission_enum.superadmin)"
-            id="admin"
-          >
-            <q-btn :to="{ name: 'admin', params: { member_id: memberStore.member.id } }">
-              Administration
-            </q-btn>
-          </q-item>
+              clickable
+              v-ripple
+              id="createGuild"
+              v-show="checkForPermission(permission_enum.createGuild)"
+            >
+              <q-item-section id="guild_create">
+                <q-item-label>
+                  <q-btn :to="{ name: 'create_guild' }">Create Guild</q-btn>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-ripple
+              v-if="checkForPermission(permission_enum.superadmin)"
+              id="admin"
+            >
+              <q-btn
+                :to="{
+                  name: 'admin',
+                  params: { member_id: memberStore.member.id },
+                }"
+              >
+                Administration
+              </q-btn>
+            </q-item>
             <q-btn
               v-show="!checkIfAuthenticated()"
               @click="goTo('signin')"
@@ -223,13 +228,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from 'src/stores/member';
-import { useGuildStore } from 'src/stores/guilds'
-import { useQuestStore } from 'src/stores/quests'
-import { useBaseStore } from 'src/stores/baseStore'
+import { useGuildStore } from 'src/stores/guilds';
+import { useQuestStore } from 'src/stores/quests';
+import { useBaseStore } from 'src/stores/baseStore';
 import { GuildData } from 'src/types';
 import { permission_enum } from '../enums';
 import { useQuasar } from 'quasar';
-
 
 const router = useRouter();
 const memberStore = useMemberStore();
@@ -242,14 +246,14 @@ let isAuthenticated = ref(false);
 let rightDrawer = ref(false);
 const showTree = true;
 const $q = useQuasar();
-const currentGuild:GuildData | undefined = guildStore.getCurrentGuild
+const currentGuild: GuildData | undefined = guildStore.getCurrentGuild;
 
-function checkForPermission(permission_enum:permission_enum): boolean{
-   hasPermission.value =  baseStore.hasPermission(permission_enum)
-   if(hasPermission.value == true) {
+function checkForPermission(permission_enum: permission_enum): boolean {
+  hasPermission.value = baseStore.hasPermission(permission_enum);
+  if (hasPermission.value == true) {
     return true;
-   }
-   return false;
+  }
+  return false;
 }
 function checkIfAuthenticated(): boolean {
   isAuthenticated.value = memberStore.isAuthenticated;
@@ -259,31 +263,30 @@ function checkIfAuthenticated(): boolean {
   return false;
 }
 function goTo(route: string): void {
-  router.push(route)
+  router.push(route);
 }
 
 async function onLogout() {
-    rightDrawer.value = false;
-    leftDrawer.value = false;
-    goTo('home');
-    await memberStore.logout();
-    
-    $q.notify({
-      type: 'positive',
-      message: 'You are now logged out',
-    });
+  rightDrawer.value = false;
+  leftDrawer.value = false;
+  goTo('home');
+  await memberStore.logout();
+
+  $q.notify({
+    type: 'positive',
+    message: 'You are now logged out',
+  });
 }
 
-function   toggleNav() {
-    if (rightDrawer.value) {
-     closeNav();
-    } else {
-      rightDrawer.value = true;
-    }
+function toggleNav() {
+  if (rightDrawer.value) {
+    closeNav();
+  } else {
+    rightDrawer.value = true;
+  }
 }
 
 function closeNav() {
-    rightDrawer.value = false;
-  }
-  
+  rightDrawer.value = false;
+}
 </script>

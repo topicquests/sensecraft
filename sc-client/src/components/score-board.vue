@@ -71,13 +71,12 @@
   </q-card>
 </template>
 <script setup lang="ts">
-
-import  { ref } from "vue";
-import { useMembersStore } from "../stores/members"
-import { useGuildStore } from "src/stores/guilds";
-import { useQuestStore } from "src/stores/quests";
-import { quest_status_enum } from "../enums";
-import { onBeforeMount } from "vue";
+import { ref } from 'vue';
+import { useMembersStore } from '../stores/members';
+import { useGuildStore } from 'src/stores/guilds';
+import { useQuestStore } from 'src/stores/quests';
+import { quest_status_enum } from '../enums';
+import { onBeforeMount } from 'vue';
 
 const status = ref(quest_status_enum);
 const questStore = useQuestStore();
@@ -89,16 +88,15 @@ function questCount(st: quest_status_enum) {
     return questStore.getQuestsByStatus(st).length;
   }
   return 0;
-  }
+}
 
-  onBeforeMount(async () => {
-    await Promise.all([
-      questStore.ensureAllQuests(),
-      guildStore.ensureAllGuilds(),
-      membersStore.ensureAllMembers(),
-    ]);
-  })
-
+onBeforeMount(async () => {
+  await Promise.all([
+    questStore.ensureAllQuests(),
+    guildStore.ensureAllGuilds(),
+    membersStore.ensureAllMembers(),
+  ]);
+});
 </script>
 <style>
 .b1 {

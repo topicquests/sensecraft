@@ -60,7 +60,7 @@ const questStore = useQuestStore();
     start: "",
     end: "",
   };
- 
+
   function validateStartEnd(quest) {
     if (quest.start < quest.end) {
       return true;

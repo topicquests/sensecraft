@@ -30,7 +30,7 @@ class TokenStore {
       ? Number.parseInt(origTokenExpiry)
       : undefined;
   }
-  setToken(token: string, tokenExpiry: number|undefined=undefined) {
+  setToken(token: string, tokenExpiry: number | undefined = undefined) {
     this.token = token;
     this.tokenExpiry = tokenExpiry || Date.now() + TOKEN_EXPIRATION;
     window.localStorage.setItem('token', token);
@@ -60,10 +60,10 @@ api.interceptors.request.use(function (config) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   if (
-    config.method === "put" ||
-    config.method === "patch" ||
-    config.method === "delete" ||
-    (config.method === "post" && config.url.substring(0, 4) != "/rpc")
+    config.method === 'put' ||
+    config.method === 'patch' ||
+    config.method === 'delete' ||
+    (config.method === 'post' && config.url.substring(0, 4) != '/rpc')
   ) {
     config.headers['Prefer'] = 'return=representation';
   }

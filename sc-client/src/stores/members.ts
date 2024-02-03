@@ -1,8 +1,6 @@
-import { defineStore } from 'pinia'
-import {
-  filterKeys,
-} from "./base";
-import { AxiosResponse, AxiosInstance } from "axios";
+import { defineStore } from 'pinia';
+import { filterKeys } from './base';
+import { AxiosResponse, AxiosInstance } from 'axios';
 import {
   PublicMember,
   GuildMembership,
@@ -11,11 +9,11 @@ import {
   GuildMemberAvailableRole,
   CastingRole,
   memberPatchKeys,
-} from "../types";
+} from '../types';
 
-import { useGuildStore } from './guilds'
-import { useQuestStore } from './quests'
-import { useMemberStore } from './member'
+import { useGuildStore } from './guilds';
+import { useQuestStore } from './quests';
+import { useMemberStore } from './member';
 
 interface MemberMap {
   [key: number]: PublicMember;
@@ -35,31 +33,30 @@ const baseState: MembersState = {
   fullMembers: {},
 };
 
-
 export const useMembersStore = defineStore('members', {
   state: () => baseState,
   getters: {
     getMembers: (state: MembersState) =>
       Object.values(state.members).sort((a, b) =>
-        a.handle.localeCompare(b.handle)
+        a.handle.localeCompare(b.handle),
       ),
     getMemberById: (state: MembersState) => (id: number) => {
       const member = state.members[id];
       if (member) return member;
       // may also be in member
-      const loggedIn = useMemberStore().member
+      const loggedIn = useMemberStore().member;
       if (loggedIn?.id == id) return loggedIn;
     },
     getMemberByHandle: (state: MembersState) => (handle: string) =>
       Object.values(state.members).find(
-        (member: PublicMember) => member.handle == handle
+        (member: PublicMember) => member.handle == handle,
       ),
     getMembersByHandle: (state: MembersState) =>
       Object.fromEntries(
         Object.values(state.members).map((member: PublicMember) => [
           member.handle,
           member,
-        ])
+        ]),
       ),
     getMemberHandles: (state: MembersState) =>
       Object.values(state.members)
@@ -68,26 +65,30 @@ export const useMembersStore = defineStore('members', {
     getPlayersRoles: (state: MembersState) => (member_id: number) => {
       return state.members[member_id]?.casting_role;
     },
-    getAvailableRolesByMemberId: (state: MembersState) => (member_id: number) => {
-      return state.members[member_id]?.guild_member_available_role;
-    },
-    getAvailableRolesForMemberAndGuild: (state: MembersState) => (member_id: number, guild_id: number) => {
-      const roles = state.members[member_id]?.guild_member_available_role || [];
-      return roles.filter((cr) => cr.guild_id == guild_id);
-    },
-    castingRolesPerQuest: (state: MembersState) => (member_id: number, quest_id: number) => {
-      const castingRole: CastingRole[] = [];
-      const rolesPerQuest = state.members[member_id].casting_role;
-      if (rolesPerQuest !== undefined && rolesPerQuest.length > 0) {
-        rolesPerQuest.forEach((cr) => {
-          if (cr.quest_id == quest_id) {
-            castingRole.push(cr);
-          }
-        });
-        return castingRole;
-      }
-      return [];
-    },
+    getAvailableRolesByMemberId:
+      (state: MembersState) => (member_id: number) => {
+        return state.members[member_id]?.guild_member_available_role;
+      },
+    getAvailableRolesForMemberAndGuild:
+      (state: MembersState) => (member_id: number, guild_id: number) => {
+        const roles =
+          state.members[member_id]?.guild_member_available_role || [];
+        return roles.filter((cr) => cr.guild_id == guild_id);
+      },
+    castingRolesPerQuest:
+      (state: MembersState) => (member_id: number, quest_id: number) => {
+        const castingRole: CastingRole[] = [];
+        const rolesPerQuest = state.members[member_id].casting_role;
+        if (rolesPerQuest !== undefined && rolesPerQuest.length > 0) {
+          rolesPerQuest.forEach((cr) => {
+            if (cr.quest_id == quest_id) {
+              castingRole.push(cr);
+            }
+          });
+          return castingRole;
+        }
+        return [];
+      },
   },
 
   actions: {
@@ -96,9 +97,13 @@ export const useMembersStore = defineStore('members', {
         //await context.dispatch("fetchMembers");
       }
     },
-    async ensureMemberById(
-      { id, full = true }: { id: number; full?: boolean }
-    ) {
+    async ensureMemberById({
+      id,
+      full = true,
+    }: {
+      id: number;
+      full?: boolean;
+    }) {
       if (!this.members[id]) {
         //await context.dispatch("fetchMemberById", { full, params: { id } });
       }
@@ -108,18 +113,21 @@ export const useMembersStore = defineStore('members', {
         //await context.dispatch("fetchMemberById", { full: true, params: { id } });
       }
     },
-    async ensureMembersOfGuild(
-      { guildId, full = true }:
-        { guildId: number; full?: boolean }) {
+    async ensureMembersOfGuild({
+      guildId,
+      full = true,
+    }: {
+      guildId: number;
+      full?: boolean;
+    }) {
       const guildStore = useGuildStore();
       await guildStore.ensureGuild(guildId, true);
       const guild = guildStore.getGuildById(guildId);
       let membersId: number[] =
-        guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) || [];
+        guild.guild_membership?.map((mp: GuildMembership) => mp.member_id) ||
+        [];
       if (full) {
-        membersId = membersId.filter(
-          (id: number) => !this.fullMembers[id]
-        );
+        membersId = membersId.filter((id: number) => !this.fullMembers[id]);
       } else {
         membersId = membersId.filter((id: number) => !this.members[id]);
       }
@@ -140,7 +148,8 @@ export const useMembersStore = defineStore('members', {
       let membersId: number[] =
         quest.casting?.map((mp: Casting) => mp.member_id) || [];
       membersId.concat(
-        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) || []
+        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) ||
+          [],
       );
       membersId = [...new Set(membersId)];
       membersId = membersId.filter((id: number) => !this.members[id]);
@@ -155,7 +164,7 @@ export const useMembersStore = defineStore('members', {
     resetMembers() {
       Object.assign(this, baseState);
     },
-  }
+  },
 });
 /*
 export const members = (axios: AxiosInstance) =>

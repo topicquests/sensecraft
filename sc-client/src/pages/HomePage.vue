@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-page>
-       <div class="container q-pa-md">
+      <div class="container q-pa-md">
         <div class="row justify-center text-center">
           <h1 class="text-h1 q-pt-lg q-pr-sm q-pl-sm">SenseCraft</h1>
           <h3 class="text-h3 q-pt-lg q-pb-lg">
@@ -40,14 +40,13 @@
                 height="100%"
                 src="https://www.youtube.com/embed/WPF64UXFER0"
                 frameborder="0"
-                allowfullscreen=false
+                allowfullscreen="false"
                 style="position: absolute; top: 0; left: 0"
               ></iframe>
             </div>
           </q-card>
         </div>
-       </div>
-    
+      </div>
     </q-page>
   </div>
 </template>
@@ -58,21 +57,19 @@ import { useGuildStore } from 'src/stores/guilds';
 import { useQuestStore } from 'src/stores/quests';
 
 const guildStore = useGuildStore();
-const questStore = useQuestStore()
+const questStore = useQuestStore();
 
-onBeforeMount( () => {
+onBeforeMount(() => {
   guildStore.ensureAllGuilds();
   questStore.ensureAllQuests();
-}) 
-
-
+});
 </script>
-
-
 
 <style lang="scss" scoped>
 .h1 {
-  font: italic 20px Arial, sans-serif;
+  font:
+    italic 20px Arial,
+    sans-serif;
 }
 .wrapper {
   display: flex;
@@ -111,7 +108,9 @@ video.youtube {
 }
 @media only screen and (max-width: 600px) {
   h1 {
-    font: italic 46px Arial, sans-serif;
+    font:
+      italic 46px Arial,
+      sans-serif;
   }
 }
 </style>

@@ -79,20 +79,20 @@
 <script setup lang="ts">
 import { Ref, ref } from 'vue';
 
-  let isPwdSignIn = true;
-  const mail: Ref<string> =  ref('');
-  const pass: Ref<string> = ref('');
-  let email: string;
-  let password:string;  
+let isPwdSignIn = true;
+const mail: Ref<string> = ref('');
+const pass: Ref<string> = ref('');
+let email: string;
+let password: string;
 
-  const emit = defineEmits(['doLogin'])
+const emit = defineEmits(['doLogin']);
 
- const doLogin =() => {
+const doLogin = () => {
   email = mail.value;
-  password=pass.value;
-  
-    emit('doLogin', email, password)
-  }
+  password = pass.value;
+
+  emit('doLogin', email, password);
+};
 </script>
 <style>
 .signon-card {
@@ -101,14 +101,14 @@ import { Ref, ref } from 'vue';
   width: 350px;
   height: 380px;
 }
-input[type="email"] {
+input[type='email'] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   box-sizing: border-box;
   border: none;
   width: 100%;
 }
-input[type="password"] {
+input[type='password'] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
   box-sizing: border-box;

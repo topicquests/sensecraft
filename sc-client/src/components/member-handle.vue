@@ -13,12 +13,11 @@ import { onBeforeMount, ref } from 'vue';
 
 const memberStore = useMemberStore();
 let ready = ref(false);
- 
-onBeforeMount( async () =>{
+
+onBeforeMount(async () => {
   await memberStore.ensureLoginUser;
   ready.value = true;
-})
-
+});
 </script>
 <style>
 .member {

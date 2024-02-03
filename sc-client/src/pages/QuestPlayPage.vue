@@ -212,16 +212,16 @@ function route(to, from) {
   if (from.params.quest_id != to.params.quest_id) {
         ready.value = false;
         initialize();
-  }    
-    
+  }
+
 
   //data
   ibis_node_type_list = ibis_node_type_list;
   publication_state_list = publication_state_list;
   public_private_bool = public_private_bool;
   guildId!: number;
-  
-  
+
+
   mySelectedPlayingGuildId: number = null;
   newNode: Partial<ConversationNode> = {};
   selectedNodeId: number = null;

@@ -41,9 +41,9 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/QuestList.vue'),
       },
       {
-        path: "/quest/create",
-        name: "create_quest",
-        component: () => import("pages/CreateQuest.vue"),
+        path: '/quest/create',
+        name: 'create_quest',
+        component: () => import('pages/CreateQuest.vue'),
       },
     ],
   },

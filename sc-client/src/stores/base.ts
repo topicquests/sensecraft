@@ -30,10 +30,10 @@ type ActionFn<F extends (...args: any) => any> = (
   ...args: [...Parameters<F>[1]]
 ) => ReturnType<F>;
 export type RetypeActionTypes<
-  T extends { [key: string]: (...args: any) => any }
+  T extends { [key: string]: (...args: any) => any },
 > = { [K in keyof T]: ActionFn<T[K]> };
 export type RetypeGetterTypes<
-  T extends { [key: string]: (...args: any) => any }
+  T extends { [key: string]: (...args: any) => any },
 > = { [K in keyof T]: ReturnType<T[K]> };
 export type p0<F extends (...args: any) => any> = Parameters<F>[0];
 
@@ -56,7 +56,7 @@ interface CallResourceActionOptions extends ShorthandResourceActionOptions {
 
 export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
   return Object.fromEntries(
-    keys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]])
+    keys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]]),
   ) as Partial<T>;
 }
 
@@ -123,7 +123,7 @@ export class MyVapi<S> extends Vapi {
             return baseHeaders;
           }
         },
-      })
+      }),
     ) as MyVapi<S>;
   }
 }

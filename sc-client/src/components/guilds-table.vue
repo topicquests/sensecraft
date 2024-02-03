@@ -52,7 +52,12 @@
                 <span v-else>View</span>
               </router-link>
               <router-link
-                v-if="baseStore.hasPermission(permission_enum.guildAdmin, props.row.id)"
+                v-if="
+                  baseStore.hasPermission(
+                    permission_enum.guildAdmin,
+                    props.row.id,
+                  )
+                "
                 :to="{
                   name: 'guild_admin',
                   params: { guild_id: props.row.id },
@@ -87,125 +92,125 @@
 </template>
 
 <script setup lang="ts">
-
-import { DateTime } from "luxon";
-import { QTable } from "quasar";
-import { Guild, GuildData, Casting } from "../types";
-import GuildsMembershipIndicator from "./guilds-membership-indicator.vue";
-import GuildsPlayingIndicator from "./guilds-playing-indicator.vue";
+import { DateTime } from 'luxon';
+import { QTable } from 'quasar';
+import { Guild, GuildData, Casting } from '../types';
+import GuildsMembershipIndicator from './guilds-membership-indicator.vue';
+import GuildsPlayingIndicator from './guilds-playing-indicator.vue';
 //import { ScoreMap } from "../scoring";
-import { useQuestStore } from "src/stores/quests";
-import { useGuildStore } from "src/stores/guilds";
-import { useBaseStore } from "src/stores/baseStore";
+import { useQuestStore } from 'src/stores/quests';
+import { useGuildStore } from 'src/stores/guilds';
+import { useBaseStore } from 'src/stores/baseStore';
 //import GuildFormPage from "src/pages/CreateGuild.vue";
-import { onBeforeMount } from "vue";
-import { permission_enum } from "src/enums";
-import { useMemberStore } from "src/stores/member";
+import { onBeforeMount } from 'vue';
+import { permission_enum } from 'src/enums';
+import { useMemberStore } from 'src/stores/member';
 
-type QTableColumns = QTable["columns"];
+type QTableColumns = QTable['columns'];
 
 interface GuildRow extends GuildData {
   score?: number;
   status_order?: number;
   numPlayers?: number;
-};
+}
 
-const GuildsTableProp = defineProps<{  
+const GuildsTableProp = defineProps<{
   title: string;
   guilds: GuildData[];
   scores?: object;
   quest?: object;
   showPlayers?: boolean;
   selectable?: boolean;
-  extra_columns?: [],
+  extra_columns?: [];
 }>();
 
 const questStore = useQuestStore();
 const guildStore = useGuildStore();
-const baseStore = useBaseStore(); 
+const baseStore = useBaseStore();
 const memberStore = useMemberStore();
 const extra = GuildsTableProp.extra_columns || [];
 let selectedGuild: [] = [];
-const columns:QTableColumns = [    
-        {
-          name: "info",
-          required: true,
-          label: "description",
-          align: "left",
-          classes: "gt-md",
-          field:"info",
-          headerClasses: "gt-md",
-        },
-        {
-          name: "name",
-          required: true,
-          label: "Guild",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "status",
-          required: false,
-          label: "Status",
-          align: "left",
-          field: "status_order",
-          sortable: true,
-        },
-        {
-          name: "actions",
-          required: true,
-          label: "Actions",
-          align: "left",
-          field: "actions",
-          sortable: true,
-        },
-        {
-          name: "numPlayers",
-          required: false,
-          label: GuildsTableProp.showPlayers ? "Players" : "Members",
-          align: "left",
-          field: "member_count",
-          sortable: true,
-        },
-        {
-          name: "numOngoingQuests",
-          required: false,
-          label: "Ongoing Quests",
-          align: "left",
-          field: "ongoing_quests_count",
-          sortable: true,
-        },
-        {
-          name: "numFinishedQuests",
-          required: false,
-          label: "Quests Completed",
-          align: "left",
-          field: "finished_quests_count",
-          sortable: true,
-        },
-        {
-          name: "lastMove",
-          required: false,
-          label: "Last Move",
-          align: "left",
-          field: "last_node_published_at",
-          sortable: true,
-        },
-        ...extra,
-      ];  
- 
-function  guildData (): GuildRow[] {
-  return GuildsTableProp.guilds.map((guild:GuildData) => guildRow(guild));
-};
+const columns: QTableColumns = [
+  {
+    name: 'info',
+    required: true,
+    label: 'description',
+    align: 'left',
+    classes: 'gt-md',
+    field: 'info',
+    headerClasses: 'gt-md',
+  },
+  {
+    name: 'name',
+    required: true,
+    label: 'Guild',
+    align: 'left',
+    field: 'name',
+    sortable: true,
+  },
+  {
+    name: 'status',
+    required: false,
+    label: 'Status',
+    align: 'left',
+    field: 'status_order',
+    sortable: true,
+  },
+  {
+    name: 'actions',
+    required: true,
+    label: 'Actions',
+    align: 'left',
+    field: 'actions',
+    sortable: true,
+  },
+  {
+    name: 'numPlayers',
+    required: false,
+    label: GuildsTableProp.showPlayers ? 'Players' : 'Members',
+    align: 'left',
+    field: 'member_count',
+    sortable: true,
+  },
+  {
+    name: 'numOngoingQuests',
+    required: false,
+    label: 'Ongoing Quests',
+    align: 'left',
+    field: 'ongoing_quests_count',
+    sortable: true,
+  },
+  {
+    name: 'numFinishedQuests',
+    required: false,
+    label: 'Quests Completed',
+    align: 'left',
+    field: 'finished_quests_count',
+    sortable: true,
+  },
+  {
+    name: 'lastMove',
+    required: false,
+    label: 'Last Move',
+    align: 'left',
+    field: 'last_node_published_at',
+    sortable: true,
+  },
+  ...extra,
+];
+
+function guildData(): GuildRow[] {
+  return GuildsTableProp.guilds.map((guild: GuildData) => guildRow(guild));
+}
 
 function numPlayers(guild: Guild) {
   if (GuildsTableProp.showPlayers) {
     const quest = questStore.getCurrentQuest;
-    return (quest.casting || []).filter((c:Casting) => c.guild_id == guild.id).length;
+    return (quest.casting || []).filter((c: Casting) => c.guild_id == guild.id)
+      .length;
   }
   return (guild.guild_membership || []).length;
-};
+}
 
 function guildIfPlaying(quest_id: number) {
   const casting: Casting = memberStore.castingPerQuest[quest_id];
@@ -215,62 +220,62 @@ function guildIfPlaying(quest_id: number) {
 }
 
 function selectionChanged(rowEvent: {
-    rows: readonly any[];
-    keys: readonly any[];
-    added: boolean;
-    evt: Event;
+  rows: readonly any[];
+  keys: readonly any[];
+  added: boolean;
+  evt: Event;
 }) {
-    if (rowEvent.added) {
-      guildStore.setCurrentGuild(rowEvent.rows[0].id);
-    } else {
-      guildStore.setCurrentGuild(null);
-    }
+  if (rowEvent.added) {
+    guildStore.setCurrentGuild(rowEvent.rows[0].id);
+  } else {
+    guildStore.setCurrentGuild(null);
   }
+}
 
-  function guildRow(guild: GuildData): GuildRow {
-    return {
-      ...guild,
-      status_order: guildStore.isGuildMember(guild.id)
-        ? 0
-        : guild.open_for_applications
+function guildRow(guild: GuildData): GuildRow {
+  return {
+    ...guild,
+    status_order: guildStore.isGuildMember(guild.id)
+      ? 0
+      : guild.open_for_applications
         ? 1
         : 2,
-      numPlayers: numPlayers(guild),
-      //score: this.scores ? this.scores[guild.id] : null,
-    };
-  }
-
-  function lastMoveRel(row: GuildData) {
-    return row.last_node_published_at
-      ? DateTime.fromISO(row.last_node_published_at).toRelative()
-      : "";
-  }
-  function lastMoveFull(row: GuildData) {
-    return row.last_node_published_at
-      ? DateTime.fromISO(row.last_node_published_at).toLocaleString(
-          DateTime.DATETIME_FULL
-        )
-      : "";
+    numPlayers: numPlayers(guild),
+    //score: this.scores ? this.scores[guild.id] : null,
   };
+}
 
-  onBeforeMount (async () =>{
-    if (GuildsTableProp.selectable) {
-      let guild = guildStore.getCurrentGuild;
-      if (!guild && questStore.getCurrentQuest) {
-        const guild_id = guildIfPlaying(questStore.getCurrentQuest.id);
-        if (guild_id) {
-          guild = guildStore.getGuildById(guild_id);
-        }
-      }
-      if (guild) {
-        //selectedGuild = [guildRow(guild)];
-        // does this mean we won't get update on other rows?
-        await guildStore.setCurrentGuild(guild.id);
-      } else {
-        await guildStore.setCurrentGuild(true);
+function lastMoveRel(row: GuildData) {
+  return row.last_node_published_at
+    ? DateTime.fromISO(row.last_node_published_at).toRelative()
+    : '';
+}
+function lastMoveFull(row: GuildData) {
+  return row.last_node_published_at
+    ? DateTime.fromISO(row.last_node_published_at).toLocaleString(
+        DateTime.DATETIME_FULL,
+      )
+    : '';
+}
+
+onBeforeMount(async () => {
+  if (GuildsTableProp.selectable) {
+    let guild = guildStore.getCurrentGuild;
+    if (!guild && questStore.getCurrentQuest) {
+      const guild_id = guildIfPlaying(questStore.getCurrentQuest.id);
+      if (guild_id) {
+        guild = guildStore.getGuildById(guild_id);
       }
     }
-  });
+    if (guild) {
+      //selectedGuild = [guildRow(guild)];
+      // does this mean we won't get update on other rows?
+      await guildStore.setCurrentGuild(guild.id);
+    } else {
+      await guildStore.setCurrentGuild(true);
+    }
+  }
+});
 </script>
 <style>
 .guilds-table {

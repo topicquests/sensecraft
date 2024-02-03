@@ -112,80 +112,79 @@
 </template>
 
 <script setup lang="ts">
-
 import { Notify } from 'quasar';
 import { useRouter } from 'vue-router';
 
-const router = useRouter()
-let  formdata = {
-    email: null,
-    handle: null,
-    name: null,
-    password: null,
-  };
-  let isPwd = true;
+const router = useRouter();
+let formdata = {
+  email: null,
+  handle: null,
+  name: null,
+  password: null,
+};
+let isPwd = true;
 
-  function  doRegister() {
-    try {
-      const theEmail = this.formdata.email;
-      const theHandle = this.formdata.handle;
-      const theName = this.formdata.name;
-      if (!theEmail) {
-        this.$q.notify({ type: 'negative', message: 'Missing Email' });
-        return;
-      }
-      if (!theHandle) {
-        this.$q.notify({ type: 'negative', message: 'Missing Handle' });
-        return;
-      }
-      if (!theName) {
-        this.$q.notify({ type: 'negative', message: 'Missingname field' });
-        return;
-      }
-      if (!this.formdata.password) {
-        this.$q.notify({ type: 'negative', message: 'Missing Password' });
-        return;
-      }
-      // TODO: the domain can benormalized to LC, but case can be significant in the handle
-      this.formdata.email = theEmail.toLowerCase();
-       this.registerUser(this.formdata);
+function doRegister() {
+  try {
+    const theEmail = this.formdata.email;
+    const theHandle = this.formdata.handle;
+    const theName = this.formdata.name;
+    if (!theEmail) {
+      this.$q.notify({ type: 'negative', message: 'Missing Email' });
+      return;
+    }
+    if (!theHandle) {
+      this.$q.notify({ type: 'negative', message: 'Missing Handle' });
+      return;
+    }
+    if (!theName) {
+      this.$q.notify({ type: 'negative', message: 'Missingname field' });
+      return;
+    }
+    if (!this.formdata.password) {
+      this.$q.notify({ type: 'negative', message: 'Missing Password' });
+      return;
+    }
+    // TODO: the domain can benormalized to LC, but case can be significant in the handle
+    this.formdata.email = theEmail.toLowerCase();
+    this.registerUser(this.formdata);
+    Notify.create({
+      message:
+        'Account created successfully. Please check your email for a confirmation link.',
+      color: 'positive',
+    });
+    this.$router.push({ name: 'confirm_registration' });
+  } catch (error) {
+    if (error.message === 'EXISTS') {
       Notify.create({
         message:
-          'Account created successfully. Please check your email for a confirmation link.',
-        color: 'positive',
+          'This account already exists. Try resetting your password or contact support.',
+        color: 'negative',
       });
-      this.$router.push({ name: 'confirm_registration' });
-    } catch (error) {
-      if (error.message === 'EXISTS') {
-        Notify.create({
-          message:
-            'This account already exists. Try resetting your password or contact support.',
-          color: 'negative',
-        });
-      } else {
-        Notify.create({
-          message:
-            'There was an error creating your account. If this issue persists, contact support.',
-          color: 'negative',
-        });
-      }
-      console.log('There was an errorregistering ', error);
+    } else {
+      Notify.create({
+        message:
+          'There was an error creating your account. If this issue persists, contact support.',
+        color: 'negative',
+      });
     }
+    console.log('There was an errorregistering ', error);
   }
+}
 
-  function goHome() {
-    router.push({ name: 'home' });
-  }
-  function onHide() {
-    // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-    setTimeout(() => {
-      this.goHome();
-    }, 50);
-  }
+function goHome() {
+  router.push({ name: 'home' });
+}
+function onHide() {
+  // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
+  setTimeout(() => {
+    this.goHome();
+  }, 50);
+}
 </script>
 
 <style>
-input[type="email"] {
+input[type='email'] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   box-sizing: border-box;
@@ -193,14 +192,14 @@ input[type="email"] {
 
   width: 100%;
 }
-input[type="password"] {
+input[type='password'] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   box-sizing: border-box;
   border: none;
   width: 100%;
 }
-input[type="text"] {
+input[type='text'] {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   box-sizing: border-box;

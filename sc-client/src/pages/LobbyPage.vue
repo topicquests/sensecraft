@@ -18,10 +18,12 @@
             />
             <q-btn :to="{ name: 'quest_list' }">All Quests</q-btn>
           </div>
-          <div v-else-if="questsStore.getQuests.length" class="col-6" style="width: 100%">
-            <quest-table 
-                :quests="questsStore.getQuests" 
-                :title="'Quests'" />
+          <div
+            v-else-if="questsStore.getQuests.length"
+            class="col-6"
+            style="width: 100%"
+          >
+            <quest-table :quests="questsStore.getQuests" :title="'Quests'" />
           </div>
           <div v-else class="column items-center q-mt-md">
             <h4>There are no quests</h4>
@@ -37,11 +39,10 @@
               <q-btn :to="{ name: 'guild_list' }">All Guilds</q-btn>
             </div>
             <div v-else-if="getOpenGuilds.length">
-              <guilds-table
-                :guilds="getOpenGuilds"
-                :title="'Open Guilds'"
-              />
-              <p v-if="memberStore.getUserId">Consider joining one of these guilds!</p>
+              <guilds-table :guilds="getOpenGuilds" :title="'Open Guilds'" />
+              <p v-if="memberStore.getUserId">
+                Consider joining one of these guilds!
+              </p>
               <p v-else>Register and join one of these guilds!</p>
               <q-btn
                 v-if="getOpenGuilds.length < guildsStore.getGuilds.length"
@@ -50,9 +51,7 @@
               >
             </div>
             <div v-else-if="guildsStore.getGuilds.length">
-              <guilds-table 
-                :guilds="guildsStore.getGuilds" 
-                :title="'Guilds'" />
+              <guilds-table :guilds="guildsStore.getGuilds" :title="'Guilds'" />
               <p>No guild is recruiting right now</p>
             </div>
             <h4 v-else style="text-align: center">
@@ -75,24 +74,29 @@ import { useQuestStore } from '../stores/quests';
 import { Guild, GuildData } from '../types';
 //import { userLoaded } from '../boot/userLoaded';
 import { onBeforeMount, ref } from 'vue';
-import  member  from '../components/member-handle.vue'
+import member from '../components/member-handle.vue';
 
 const memberStore = useMemberStore();
 const guildsStore = useGuildStore();
 const questsStore = useQuestStore();
 let ready = ref(false);
-    
-function getOpenGuilds(): GuildData[]  {      
-  return guildsStore.getGuilds.filter((guild: Guild) =>
-  guild.open_for_applications && !guildsStore.isGuildMember(guild.id));
-};
+
+function getOpenGuilds(): GuildData[] {
+  return guildsStore.getGuilds.filter(
+    (guild: Guild) =>
+      guild.open_for_applications && !guildsStore.isGuildMember(guild.id),
+  );
+}
 
 onBeforeMount(async () => {
   //await userLoaded;
-    // all guilds and quests
+  // all guilds and quests
   //await guildsStore.setCurrentGuild(true);
   //await questsStore.setCurrentQuest(true);
-  await Promise.all([questsStore.ensureAllQuests(), guildsStore.ensureAllGuilds()]);
+  await Promise.all([
+    questsStore.ensureAllQuests(),
+    guildsStore.ensureAllGuilds(),
+  ]);
   ready.value = true;
 });
 </script>
