@@ -59,6 +59,7 @@ export enum quest_status_enum {
   paused = 'paused',
   scoring = 'scoring',
   finished = 'finished',
+  All = 'All'
 }
 
 export type quest_status_type = keyof typeof quest_status_enum;

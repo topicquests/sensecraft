@@ -67,9 +67,9 @@
           <td>
             <guilds-playing-indicator
               v-if="showPlayers"
-              v-bind:quest="questStore.getCurrentQuest"
-              v-bind:playing="questStore.isPlayingQuestAsGuildId() == props.row.id"
-              v-bind:guild="props.row"
+              :quest="questStore.getCurrentQuest"
+              :playing="questStore.isPlayingQuestAsGuildId() == props.row.id"
+              :guild="props.row"
             />
             <guilds-membership-indicator v-else v-bind:guild="props.row" />
           </td>

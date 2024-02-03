@@ -9,14 +9,14 @@
 
 <script setup lang="ts">
 import { useMemberStore } from 'src/stores/member';
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 
 const memberStore = useMemberStore();
-let ready = false;
+let ready = ref(false);
  
 onBeforeMount( async () =>{
   await memberStore.ensureLoginUser;
-  ready = true;
+  ready.value = true;
 })
 
 </script>

@@ -32,7 +32,7 @@ export const useGuildStore = defineStore('guild',  {
     baseState,
 
   getters: {
-    getCurrentGuild: (state: GuildsState) => (state.currentGuild)?state.guilds[state.currentGuild]:undefined,
+    getCurrentGuild: (state: GuildsState) => (state.currentGuild)?state.guilds[state.currentGuild]:GuildData,
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
     getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
     getMyGuilds: (state: GuildsState): GuildData[] => {

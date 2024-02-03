@@ -241,9 +241,8 @@ let hasPermission = ref(false);
 let isAuthenticated = ref(false);
 let rightDrawer = ref(false);
 const showTree = true;
-
-//Getters
-const currentGuild:GuildData = guildStore.getCurrentGuild
+const $q = useQuasar();
+const currentGuild:GuildData | undefined = guildStore.getCurrentGuild
 
 function checkForPermission(permission_enum:permission_enum): boolean{
    hasPermission.value =  baseStore.hasPermission(permission_enum)
@@ -264,7 +263,6 @@ function goTo(route: string): void {
 }
 
 async function onLogout() {
-  const $q = useQuasar();
     rightDrawer.value = false;
     leftDrawer.value = false;
     goTo('home');

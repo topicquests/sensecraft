@@ -16,7 +16,7 @@
     <q-table
       class="quest-table"
       :title="title"
-      :data="getFilteredQuests()"
+      :rows="getFilteredQuests()"
       :columns="columns"
       row-key="id"
     >
@@ -134,6 +134,7 @@ import type { QTable } from "quasar";
 import { QTableProps } from "quasar";
 import {
   permission_enum,
+  quest_status_enum,
   quest_status_type,
 } from "../enums";
 import { GuildMembership, QuestData, Member } from "../types";
@@ -237,12 +238,13 @@ function refInterval(row:QuestData) {
   const refTime = start > now ? start : end;
   return Math.abs(refTime - now);
 }   
-function getFilteredQuests() {
+function getFilteredQuests():Partial<QuestData[]> {  
   if (questStatus && questStatus != "All") {
     return questStore.getQuestsByStatus(questStatus);
   } else {
+    console.log("Filtered quests", questStore.getQuestsByStatus(quest_status_enum.finished));
       questStatus = "All";
-      return questStore.quests;
+      return questStore.getQuestsByStatus(quest_status_enum.finished);
   }
 };
 
