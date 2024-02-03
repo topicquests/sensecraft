@@ -227,11 +227,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useMemberStore } from 'src/stores/member';
-import { useGuildStore } from 'src/stores/guilds';
-import { useQuestStore } from 'src/stores/quests';
-import { useBaseStore } from 'src/stores/baseStore';
-import { GuildData } from 'src/types';
+import { useMemberStore } from '../stores/member';
+import { useGuildStore } from '../stores/guilds';
+import { useQuestStore } from '../stores/quests';
+import { useBaseStore } from '../stores/baseStore';
+import { GuildData } from '../types';
 import { permission_enum } from '../enums';
 import { useQuasar } from 'quasar';
 
