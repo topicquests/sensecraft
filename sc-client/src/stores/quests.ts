@@ -346,9 +346,9 @@ export const useQuestStore = defineStore('quest', {
         this.quests[quest_id] == res.data[0];
       }
     },
-    async addCasting() {
+    async addCasting(casting: Partial<Casting>) {
       const memberStore = useMemberStore();
-      const res: AxiosResponse<Casting[]> = await api.post('/casting');
+      const res: AxiosResponse<Casting[]> = await api.post('/casting', casting);
       if (res.status == 200) {
         const casting = res.data[0];
         let quest = this.quests[casting.quest_id];
@@ -356,17 +356,14 @@ export const useQuestStore = defineStore('quest', {
           const castings = quest.casting || [];
           castings.push(casting);
           quest = { ...quest, casting: castings };
-          this.quests = { ...state.quests, [quest.id]: quest };
+          this.quests = { ...this.quests, [quest.id]: quest };
         }
-        if ((casting.member_id = memberStore.getUserId)) {
-          if (memberStore.member) {
-            const castings =
-              memberStore.member.casting.filter(
-                (c: Casting) => c.quest_id != casting.quest_id,
-              ) || [];
-            castings.push(casting);
-            memberStore.member.casting = castings;
-          }
+        if ((casting.member_id = memberStore.getUserId) && memberStore.member) {
+          const castings = (memberStore.member.casting || []).filter(
+            (c: Casting) => c.quest_id != casting.quest_id,
+          );
+          castings.push(casting);
+          memberStore.member.casting = castings;
         }
       }
     },

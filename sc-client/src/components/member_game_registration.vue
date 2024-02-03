@@ -55,7 +55,13 @@ function availableRoles(): Role[] {
     .map((cr: GuildMemberAvailableRole) => roleStore.getRoleById(cr.role_id));
 }
 async function doAddCasting(quest_id: number) {
-  await questStore.addCasting();
+  const guild_id = MemberGameRegistrationProp.guildId;
+  const member_id = memberStore.member.id;
+  await questStore.addCasting({
+    quest_id,
+    guild_id: guild_id,
+    member_id: member_id,
+  });
 }
 /*data: {
         quest_id,
