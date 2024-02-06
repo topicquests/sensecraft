@@ -16,6 +16,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/HomePage.vue'),
       },
       {
+        path: "/admin",
+        name: "admin",
+        component: () => import("pages/Admin.vue"),
+      },
+      {
         path: '/signin',
         name: 'signin',
         component: () => import('pages/SignInPage.vue'),
@@ -36,6 +41,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/LobbyPage.vue'),
       },
       {
+        path: "/guild",
+        name: "guild_list",
+        component: () => import("pages/GuildList.vue"),
+      },
+      {
         path: '/quest',
         name: 'quest_list',
         component: () => import('pages/QuestList.vue'),
@@ -54,6 +64,11 @@ const routes: RouteRecordRaw[] = [
         path: "/guild/:guild_id",
         name: "guild",
         component: () => import("pages/Guild.vue"),
+      },
+      {
+        path: "guild/create",
+        name: "create_guild",
+        component: () => import("pages/CreateGuild.vue"),
       },
     ],
   },
