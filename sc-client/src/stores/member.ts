@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { AxiosResponse } from 'axios';
-import { Member, CastingRole } from '../types';
+import { Member, CastingRole, memberPatchKeys } from '../types';
 //import { getWSClient } from "../wsclient";
-import { useBaseStore } from './baseStore';
+import { useBaseStore, filterKeys } from './baseStore';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
-import { useMembersStore } from './members'
+import { useMembersStore } from './members';
 
 export interface MemberState {
   member: Member;
@@ -88,7 +88,7 @@ export const useMemberStore = defineStore('member', {
       // data = { ...data, password };
       return await this.registerUserCrypted(data);
     },
-    
+
     async ensureLoginUser(): Promise<Member> {
       // TODO: the case where the member is pending
       if (!this.member) {
@@ -156,30 +156,34 @@ export const useMemberStore = defineStore('member', {
         console.error(res.data);
       }
     },
-    async sendConfirmEmail (): boolean {
+    async sendConfirmEmail(): boolean {
       AxiosResponse<string> = await api.post('/rpc/send_login_email', {
-        email: string
+        email: string,
       });
     },
     async registerUserCrypted(): Partial<Member> {
       const membersStore = useMembersStore();
       const res: AxiosResponse<string> = await api.post('/rpc/create_member', {
         Member,
-      })
-      if(res==200) {
+      });
+      if (res == 200) {
         membersStore.ensureMemberById({
           id: res.data,
           full: false,
-        })
+        });
       }
     },
-    async updateUser() {
-      const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, memberPatchKeys);
-      const res:AxiosResponse<string> = await api.patch('')
-
-    }
+    async updateUser(data: Partial<Member>): Promise<Member> {
+      data = filterKeys(data, memberPatchKeys);
+      const params = {
+        id: `eq.${data.id}`,
+      };
+      const res: AxiosResponse<Member[]> = await api.patch('/members', data, {
+        params,
+      });
+      this.member = Object.assign({}, this.member, res.data[0]);
+      return this.member;
+    },
   },
 });
 /*
@@ -301,7 +305,7 @@ type MemberRestActionTypes = {
   updateUser: RestDataActionType<Partial<Member>, Member[]>;
   registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
   confirmToken: RestDataActionType<{ token: string }, string>;
-  
+
 };
 
 export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
