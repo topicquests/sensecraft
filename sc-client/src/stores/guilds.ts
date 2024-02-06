@@ -13,6 +13,7 @@ import { useMembersStore } from './members';
 import { useQuestStore } from './quests';
 import { api } from '../boot/axios';
 import { AxiosResponse } from 'axios';
+import { getWSClient } from "../wsclient";
 
 interface GuildMap {
   [key: number]: GuildData;
