@@ -45,6 +45,16 @@ const routes: RouteRecordRaw[] = [
         name: 'create_quest',
         component: () => import('pages/CreateQuest.vue'),
       },
+      {
+        path: "/quest/:quest_id",
+        name: "quest_page",
+        component: () => import("pages/QuestPlayPage.vue"),
+      },
+      {
+        path: "/guild/:guild_id",
+        name: "guild",
+        component: () => import("pages/Guild.vue"),
+      },
     ],
   },
 

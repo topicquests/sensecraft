@@ -4,7 +4,7 @@
       <q-table
         class="guilds-table"
         :title="title"
-        :data="guildData"
+        :rows="guildData()"
         :columns="columns"
         style="text-align: left"
         row-key="id"
@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
 import { DateTime } from 'luxon';
-import { QTable } from 'quasar';
+import { QTable, QTableProps } from 'quasar';
 import { Guild, GuildData, Casting } from '../types';
 import GuildsMembershipIndicator from './guilds-membership-indicator.vue';
 import GuildsPlayingIndicator from './guilds-playing-indicator.vue';
@@ -130,7 +130,7 @@ const baseStore = useBaseStore();
 const memberStore = useMemberStore();
 const extra = GuildsTableProp.extra_columns || [];
 let selectedGuild: [] = [];
-const columns: QTableColumns = [
+const columns: QTableProps['columns']=[
   {
     name: 'info',
     required: true,
@@ -199,7 +199,7 @@ const columns: QTableColumns = [
   ...extra,
 ];
 
-function guildData(): GuildRow[] {
+function guildData(): Partial<GuildData[]> {
   return GuildsTableProp.guilds.map((guild: GuildData) => guildRow(guild));
 }
 

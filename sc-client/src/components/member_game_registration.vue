@@ -33,7 +33,7 @@ import { useRoleStore } from 'src/stores/role';
 import { useQuestStore } from 'src/stores/quests';
 
 const MemberGameRegistrationProp = defineProps<{
-  show: boolean;
+  show?: boolean;
   questId: number;
   guildId: number;
 }>();
@@ -43,7 +43,7 @@ const membersStore = useMembersStore();
 const roleStore = useRoleStore();
 const questStore = useQuestStore();
 const ready = ref(false);
-const roleId: number;
+const roleId = ref<number | undefined>(undefined);
 
 function availableRoles(): Role[] {
   const memberId = memberStore.member?.id;
@@ -63,22 +63,19 @@ async function doAddCasting(quest_id: number) {
     member_id: member_id,
   });
 }
-/*data: {
-        quest_id,
-        guild_id: MemberGameRegistrationProp.guildId,
-        member_id: memberStore.member.id,
-      },
-      */
 
 async function updateRole() {
   const guild_id = MemberGameRegistrationProp.guildId;
-  const role_id = roleId;
+  const role_id: number | undefined = roleId.value;
   const member_id = memberStore.member.id;
   const quest_id = MemberGameRegistrationProp.questId;
-  await this.doAddCasting(quest_id);
-  await this.addCastingRole({
-    data: { member_id, guild_id, role_id, quest_id },
-  });
+  await doAddCasting(quest_id);
+  await questStore.addCastingRole({
+    member_id, 
+    guild_id, 
+    role_id, 
+    quest_id ,
+  })
 }
 
 async function ensureData() {

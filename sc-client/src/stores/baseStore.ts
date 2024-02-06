@@ -17,6 +17,8 @@ import { useMembersStore } from './members';
 import { useGuildStore } from './guilds';
 import { useQuestStore } from './quests';
 import { useRoleStore } from './role';
+import { useServerDataStore } from './serverData';
+import { useReadStatusStore } from './readStatus'
 
 export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
   return Object.fromEntries(
@@ -33,9 +35,9 @@ export const useBaseStore = defineStore('base', {
       useQuestStore().resetQuests();
       useGuildStore().resetGuilds();
       useRoleStore().resetRole();
+      useServerDataStore().resetServerData();
+      useReadStatusStore().resetReadStatus();
       // context.dispatch("channel/resetChannel"),
-      // context.dispatch("serverData/resetServerData"),
-      // context.dispatch("readStatus/resetReadStatus"),
     },
   },
   getters: {

@@ -378,6 +378,34 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+    async addCastingRole(castingRole: Partial<CastingRole>) {
+      const memberStore = useMemberStore();
+      const membersStore = useMembersStore();
+      if(res==200) {
+        const castingRole = res.data[0];
+        if ((castingRole.member_id = memberStore.getUserId)) {
+          if (memberStore.member) {
+            const castingRoles =
+              memberStore.member.casting_role.filter(
+                (cr: CastingRole) => cr.role_id != casting_role.role_id
+              ) || [];
+            castingRoles.push(casting_role);
+            memberStore.member.casting_role = castingRoles;
+          }
+        }
+        const member_id = castingRole.member_id;
+          let member = memberStore.members[member_id];
+          if (member) {
+            const casting_role =
+              member.casting_role?.filter(
+                (cr: CastingRole) => cr.role_id != castingRole.role_id
+              ) || [];
+            casting_role.push(castingRole);
+            member = { ...member, casting_role };
+            membersStore.members = { ...membersStore.members, [member_id]: member };
+        }
+      }
+    }
   },
 });
 /*
@@ -396,103 +424,6 @@ export const useQuestStore = defineStore('quest', {
 /*
 
 });
-
-
-
-export const quests = (axios: AxiosInstance) =>
-  new MyVapi<QuestsState>({
-    axios,
-    state: baseState,
-  })
-    // Step 3
-    .get({
-      action: "fetchQuestById",
-      path: "/quests_data",
-      queryParams: true,
-      beforeRequest: (state: QuestsState, { full, params }) => {
-        if (Array.isArray(params.id)) {
-          params.id = `in.(${params.id.join(",")})`;
-        } else {
-          params.id = `eq.${params.id}`;
-        }
-        const userId = MyVapi.store.getters["member/getUserId"];
-        if (userId || full) {
-          params.select =
-            "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)";
-          if (!full) {
-            Object.assign(params, {
-              "quest_membership.member_id": `eq.${userId}`,
-              "casting.member_id": `eq.${userId}`,
-            });
-          }
-        } else {
-          params.select = "*,game_play!quest_id(*)";
-        }
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<QuestData[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        state.quests = {
-          ...state.quests,
-          ...Object.fromEntries(
-            res.data.map((quest: QuestData) => [quest.id, quest])
-          ),
-        };
-        if (actionParams.full) {
-          state.fullQuests = {
-            ...state.fullQuests,
-            ...Object.fromEntries(
-              res.data.map((quest: QuestData) => [quest.id, true])
-            ),
-          };
-        }
-      },
-    })
-    .get({
-      action: "fetchQuests",
-      property: "quests",
-      path: "/quests_data",
-      queryParams: true,
-      beforeRequest: (state: QuestsState, { params }) => {
-        const userId = MyVapi.store.getters["member/getUserId"];
-        if (userId) {
-          Object.assign(params, {
-            select:
-              "*,quest_membership!quest_id(*),casting!quest_id(*),game_play!quest_id(*)",
-            "quest_membership.member_id": `eq.${userId}`,
-            "casting.member_id": `eq.${userId}`,
-          });
-        } else {
-          params.select = "*,game_play!quest_id(*)";
-        }
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<QuestData[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const fullQuests = Object.values(state.quests).filter(
-          (quest: QuestData) => state.fullQuests[quest.id]
-        );
-        const quests = Object.fromEntries(
-          res.data.map((quest: QuestData) => [quest.id, quest])
-        );
-        for (const quest of fullQuests) {
-          if (quests[quest.id]) {
-            quests[quest.id] = Object.assign(quests[quest.id], {
-              casting: quest.casting,
-              quest_membership: quest.quest_membership,
-            });
-          }
-        }
-        state.quests = quests;
-        state.fullFetch = true;
-      },
-    })
     .post({
       action: "createQuestBase",
       path: "/quests",
@@ -630,29 +561,7 @@ export const quests = (axios: AxiosInstance) =>
         MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
       },
     })
-    .post({
-      action: "addCasting",
-      path: "/casting",
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<Casting[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const casting = res.data[0];
-        let quest = state.quests[casting.quest_id];
-        if (quest) {
-          const castings = quest.casting || [];
-          castings.push(casting);
-          quest = { ...quest, casting: castings };
-          state.quests = { ...state.quests, [quest.id]: quest };
-        }
-        const store = MyVapi.store;
-        if ((casting.member_id = store.getters["member/getUserId"])) {
-          store.commit("member/ADD_CASTING", casting);
-        }
-      },
-    })
+    
     .patch({
       action: "updateCasting",
       path: ({ id }) => `/casting?id=eq.${id}`,
@@ -681,23 +590,7 @@ export const quests = (axios: AxiosInstance) =>
         }
       },
     })
-    .post({
-      action: "addCastingRole",
-      path: "/casting_role",
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<CastingRole[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const castingRole = res.data[0];
-        const store = MyVapi.store;
-        if ((castingRole.member_id = store.getters["member/getUserId"])) {
-          store.commit("member/ADD_CASTING_ROLE", castingRole);
-        }
-        store.commit("members/ADD_CASTING_ROLE", castingRole);
-      },
-    })
+    
     .patch({
       action: "updateCasting",
       path: ({ id }) => `/casting?id=eq.${id}`,
@@ -768,14 +661,7 @@ export const quests = (axios: AxiosInstance) =>
     });
 
 type QuestsRestActionTypes = {
-  fetchQuestById: ({
-    full,
-    params,
-  }: {
-    full?: boolean;
-    params: { id: number | number[] };
-  }) => Promise<AxiosResponse<QuestData[]>>;
-  fetchQuests: RestEmptyActionType<QuestData[]>;
+ 
   createQuestBase: RestDataActionType<Partial<Quest>, QuestData[]>;
   updateQuest: RestDataActionType<Partial<Quest>, QuestData[]>;
   addQuestMembership: RestDataActionType<

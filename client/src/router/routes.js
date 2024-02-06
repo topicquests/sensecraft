@@ -24,6 +24,11 @@ const routes = [
         name: "lobby",
         component: () => import("pages/Lobby.vue"),
       },
+      {
+        path: "/admin",
+        name: "admin",
+        component: () => import("pages/Admin.vue"),
+      },
       //Quest pages
       {
         path: "/quest",
