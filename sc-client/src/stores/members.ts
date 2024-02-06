@@ -43,8 +43,8 @@ export const useMembersStore = defineStore('members', {
     getMemberById: (state: MembersState) => (id: number) => {
       const member = state.members[id];
       if (member) return member;
-      // may also be in member
       const loggedIn = useMemberStore().member;
+      // may also be in member      
       if (loggedIn?.id == id) return loggedIn;
     },
     getMemberByHandle: (state: MembersState) => (handle: string) =>
@@ -65,20 +65,18 @@ export const useMembersStore = defineStore('members', {
     getPlayersRoles: (state: MembersState) => (member_id: number) => {
       return state.members[member_id]?.casting_role;
     },
-    getAvailableRolesByMemberId:
-      (state: MembersState) => (member_id: number) => {
+    getAvailableRolesByMemberId: (state: MembersState) => (member_id: number) => {
         return state.members[member_id]?.guild_member_available_role;
       },
-    getAvailableRolesForMemberAndGuild:
-      (state: MembersState) => (member_id: number, guild_id: number) => {
+    getAvailableRolesForMemberAndGuild: (state: MembersState) => 
+      (member_id: number, guild_id: number) => {
         const roles =
           state.members[member_id]?.guild_member_available_role || [];
         return roles.filter((cr) => cr.guild_id == guild_id);
       },
-    castingRolesPerQuest:
-      (state: MembersState) => (member_id: number, quest_id: number) => {
+    castingRolesPerQuest: (state: MembersState) => (member_id: number, quest_id: number) => {
         const castingRole: CastingRole[] = [];
-        const rolesPerQuest = state.members[member_id].casting_role;
+        const rolesPerQuest: CastingRole[] = state.members[member_id].casting_role;
         if (rolesPerQuest !== undefined && rolesPerQuest.length > 0) {
           rolesPerQuest.forEach((cr) => {
             if (cr.quest_id == quest_id) {
@@ -94,7 +92,7 @@ export const useMembersStore = defineStore('members', {
   actions: {
     async ensureAllMembers() {
       if (Object.keys(this.members).length === 0 || !this.fullFetch) {
-        //await context.dispatch("fetchMembers");
+        await fetchMembers();
       }
     },
     async ensureMemberById({
@@ -105,12 +103,12 @@ export const useMembersStore = defineStore('members', {
       full?: boolean;
     }) {
       if (!this.members[id]) {
-        //await context.dispatch("fetchMemberById", { full, params: { id } });
+        await fetchMemberById ({ full, params: { id } });
       }
     },
     async reloadIfFull(id: number) {
       if (this.fullMembers[id]) {
-        //await context.dispatch("fetchMemberById", { full: true, params: { id } });
+        await fetchMemberById ({ full: true, params: { id } });
       }
     },
     async ensureMembersOfGuild({
@@ -132,10 +130,10 @@ export const useMembersStore = defineStore('members', {
         membersId = membersId.filter((id: number) => !this.members[id]);
       }
       if (membersId.length > 0) {
-        /*await context.dispatch("fetchMemberById", {
+        await fetchMemberById({
           full,
           params: { id: membersId },
-        });*/
+        });
       }
     },
     async ensurePlayersOfQuest(questId: number, full: boolean = true) {
@@ -154,17 +152,81 @@ export const useMembersStore = defineStore('members', {
       membersId = [...new Set(membersId)];
       membersId = membersId.filter((id: number) => !this.members[id]);
       if (membersId.length > 0) {
-        /*await context.dispatch("fetchMemberById", {
+        fetchMemberById({
           full,
           params: { id: membersId },
         });
-        */
       }
     },
     resetMembers() {
       Object.assign(this, baseState);
     },
   },
+  //axios calls
+  async fetchMembers (): Promise <PublicMember[]> {
+    const res: AxiosResponse<string> = await axios.api.get('/public_members')
+    if(res==200) {
+      const fullMembers = Object.values(this.members).filter(
+        (member: PublicMember) => this.fullMembers[member.id]
+      );
+      const members = Object.fromEntries(
+        res.data.map((member: PublicMember) => [member.id, member])
+      );
+      for (const member of fullMembers) {
+        if (members[member.id]) {
+          Object.assign(members[member.id], {
+            guild_member_available_role: member.guild_member_available_role,
+            casting_role: member.casting_role,
+          });
+        }
+      }
+      this.members = members;
+      this.fullFetch = true;
+    }
+  },
+  /*
+  fetchMemberById: ({
+    full,
+    params,
+  }: {
+    full?: boolean;
+    params: { id: number | number[] };
+  }) => Promise<AxiosResponse<PublicMember[]>>;
+  */
+  async fetchMemberById ():Promise<PublicMember[]> {
+    const memberStore = useMemberStore();
+    if (Array.isArray(params.id)) {
+      params.id = `in.(${params.id.join(",")})`;
+    } else {
+      params.id = `eq.${params.id}`;
+    }
+    if (full) {
+      let select = "*,casting_role!member_id(*)";
+      if (memberStore.member.isAuthenticated) {
+        select += ",guild_member_available_role!member_id(*)";
+      }
+      Object.assign(params, { select });
+    }
+    const res: AxiosResponse<string> = await axios.api.get('public_members', { params: {
+      id: number }
+    })
+    if (res == 200 ) {
+      this.members = {
+        ...this.members,
+        ...Object.fromEntries(
+          res.data.map((member: PublicMember) => [member.id, member])
+        ),
+      };
+      if (actionParams.full) {
+        this.fullMembers = {
+          ...this.fullMembers,
+          ...Object.fromEntries(
+            res.data.map((member: PublicMember) => [member.id, true])
+          ),
+        };
+      }
+    }
+  }
 });
 /*
 export const members = (axios: AxiosInstance) =>
@@ -211,34 +273,6 @@ export const members = (axios: AxiosInstance) =>
             ),
           };
         }
-      },
-    })
-    .get({
-      path: "/public_members",
-      property: "members",
-      action: "fetchMembers",
-      onSuccess: (
-        state: MembersState,
-        res: AxiosResponse<PublicMember[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const fullMembers = Object.values(state.members).filter(
-          (member: PublicMember) => state.fullMembers[member.id]
-        );
-        const members = Object.fromEntries(
-          res.data.map((member: PublicMember) => [member.id, member])
-        );
-        for (const member of fullMembers) {
-          if (members[member.id]) {
-            Object.assign(members[member.id], {
-              guild_member_available_role: member.guild_member_available_role,
-              casting_role: member.casting_role,
-            });
-          }
-        }
-        state.members = members;
-        state.fullFetch = true;
       },
     })
     .patch({
@@ -342,14 +376,8 @@ export const members = (axios: AxiosInstance) =>
     });
 
 type MembersRestActionTypes = {
-  fetchMemberById: ({
-    full,
-    params,
-  }: {
-    full?: boolean;
-    params: { id: number | number[] };
-  }) => Promise<AxiosResponse<PublicMember[]>>;
-  fetchMembers: RestEmptyActionType<PublicMember[]>;
+  
+  
   updateMember: RestDataActionType<Partial<PublicMember>, PublicMember[]>;
 };
 

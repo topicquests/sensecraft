@@ -108,6 +108,8 @@ export const useMemberStore = defineStore('member', {
       this.isAuthenticated = false;
       Object.assign(this, baseState);
     },
+
+    //Axios calls
     async fetchLoginUser(): Promise<Member | undefined> {
       const token = token_store.getToken();
       if (!token) {
@@ -186,20 +188,6 @@ export const useMemberStore = defineStore('member', {
     },
   },
 });
-/*
-    .patch({
-      action: 'updateUser',
-      property: 'member',
-      path: ({ id }) => `/members?id=eq.${id}`,
-      beforeRequest: (state: MemberState, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, memberPatchKeys);
-      },
-      onSuccess: (state: MemberState, res: AxiosResponse<Member[]>) => {
-        state.member = Object.assign({}, state.member, res.data[0]);
-      },
-    })
 
 /*    // Step 4
       mutations: {
@@ -300,15 +288,4 @@ export const useMemberStore = defineStore('member', {
         },
       },
     });
-
-type MemberRestActionTypes = {
-  updateUser: RestDataActionType<Partial<Member>, Member[]>;
-  registerUserCrypted: RestDataActionType<Partial<Member>, Member[]>;
-  confirmToken: RestDataActionType<{ token: string }, string>;
-
-};
-
-export type MemberActionTypes = RetypeActionTypes<typeof MemberActions> &
-  MemberRestActionTypes;
-export type MemberGetterTypes = RetypeGetterTypes<typeof MemberGetters>;
 */
