@@ -405,6 +405,10 @@ export const useQuestStore = defineStore('quest', {
             membersStore.members = { ...membersStore.members, [member_id]: member };
         }
       }
+    },
+    //deleteCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
+    async deleteCastingRole(): Promise<Partial<CastingRole>> {
+      
     }
   },
 });
@@ -678,7 +682,7 @@ type QuestsRestActionTypes = {
   updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
   addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
   updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
-  deleteCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
+  
   endTurn: RestDataActionType<{ quest_id: number }, void>;
 };
 

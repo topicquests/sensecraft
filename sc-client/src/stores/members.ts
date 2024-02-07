@@ -188,15 +188,6 @@ export const useMembersStore = defineStore('members', {
         return res.data;
       }
     },
-    /*
-  fetchMemberById: ({
-    full,
-    params,
-  }: {
-    full?: boolean;
-    params: { id: number | number[] };
-  }) => Promise<AxiosResponse<PublicMember[]>>;
-  */
     async fetchMemberById(
       id: number | number[],
       full?: boolean,
@@ -237,79 +228,20 @@ export const useMembersStore = defineStore('members', {
         return res.data;
       }
     },
+    async updateMember(data: Partial<Member>): Promise<PublicMember[] | undefined> {
+      data = filterKeys(data, memberPatchKeys);
+      const  params  = {
+        id: 'eq.${data.id}',
+      };       
+      const res: AxiosResponse<PublicMember> = await axios.api.patch('/members', data, {
+        params
+      })
+      this.member = Object.assign({}, this.member, res.data[0]);
+      return this.member
+    }
   },
 });
 /*
-export const members = (axios: AxiosInstance) =>
-  new MyVapi<MembersState>({
-    axios,
-    state: baseState as MembersState,
-  })
-    // Step 3
-    .get({
-      action: "fetchMemberById",
-      path: "/public_members",
-      queryParams: true,
-      beforeRequest: (state: MembersState, { full, params }) => {
-        if (Array.isArray(params.id)) {
-          params.id = `in.(${params.id.join(",")})`;
-        } else {
-          params.id = `eq.${params.id}`;
-        }
-        if (full) {
-          let select = "*,casting_role!member_id(*)";
-          if (MyVapi.store.state.member.isAuthenticated) {
-            select += ",guild_member_available_role!member_id(*)";
-          }
-          Object.assign(params, { select });
-        }
-      },
-      onSuccess: (
-        state: MembersState,
-        res: AxiosResponse<PublicMember[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        state.members = {
-          ...state.members,
-          ...Object.fromEntries(
-            res.data.map((member: PublicMember) => [member.id, member])
-          ),
-        };
-        if (actionParams.full) {
-          state.fullMembers = {
-            ...state.fullMembers,
-            ...Object.fromEntries(
-              res.data.map((member: PublicMember) => [member.id, true])
-            ),
-          };
-        }
-      },
-    })
-    .patch({
-      action: "updateMember",
-      path: ({ id }) => `/public_members?id=eq.${id}`,
-      property: "members",
-      beforeRequest: (state: MembersState, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, memberPatchKeys);
-      },
-      onSuccess: (
-        state: MembersState,
-        res: AxiosResponse<PublicMember[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
-        const member = res.data[0];
-        state.members = { ...state.members, [member.id]: member };
-      },
-    })
-    // Step 4
-    .getVuexStore({
-      getters: MembersGetters,
-      actions: MembersActions,
-      mutations: {
         ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
           state: MembersState,
           guildMemberAvailableRole: GuildMemberAvailableRole
@@ -385,14 +317,5 @@ export const members = (axios: AxiosInstance) =>
         },
       },
     });
-
-type MembersRestActionTypes = {
-
-
-  updateMember: RestDataActionType<Partial<PublicMember>, PublicMember[]>;
-};
-
-export type MembersActionTypes = RetypeActionTypes<typeof MembersActions> &
-  MembersRestActionTypes;
-export type MembersGetterTypes = RetypeGetterTypes<typeof MembersGetters>;
+  
 */

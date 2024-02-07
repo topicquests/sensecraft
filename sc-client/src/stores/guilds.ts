@@ -99,7 +99,7 @@ export const useGuildStore = defineStore('guild', {
       this.currentGuild = guild_id;
       //getWSClient().setDefaultGuild(guild_id);
     },
-    async ensureGuild(guild_id: number, full: boolean | undefined = true) {
+    async ensureGuild(guild_id: number | undefined, full: boolean | undefined = true) {
       if (
         this.getGuildById(guild_id) === undefined ||
         (full && !this.fullGuilds[guild_id])
@@ -127,49 +127,47 @@ export const useGuildStore = defineStore('guild', {
       await this.ensureGuild(guild_id, full);
       await this.setCurrentGuild(guild_id);
     },
-    /*
-    ensureGuildsPlayingQuest: async (
-    context,
-    { quest_id, full }: { quest_id: number; full?: boolean }
-    ) => {
-    await MyVapi.store.dispatch('quests/ensureQuest', {
-      quest_id,
-      full: true,
-    });
-    const quest = questStore.getQuestById(quest_id);
-    let guildId: number[] = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
-    if (guildId == undefined) return [];
-    if (full) {
-      guildId = guildId.filter((id: number) => !context.state.fullGuilds[id]);
-    } else {
-      guildId = guildId.filter((id: number) => !context.state.guilds[id]);
-    }
-    if (guildId.length > 0) {
-      const guildParam = guildId.length == 1 ? guildId[0] : guildId;
-      await this.fetchGuilds( {
-        full,
-        params: { id: guildParam },
-      });
-    }
-    },
-    addGuildMembership: async (context, membership: Partial<GuildMembership>) => {
-    await context.dispatch('doAddGuildMembership', { data: membership });
-    const gMembership: GuildMembership = context.state.guilds[
-      membership.guild_id
-    ].guild_membership.find(
-      (c: GuildMembership) => c.member_id == membership.member_id
-    );
-    if (gMembership.status == 'confirmed') {
-      await useMembersStore().fetchMemberById({
+    
+    async ensureGuildsPlayingQuest ({quest_id, full }: { quest_id: number; full?: boolean }) {
+      await questStore.ensureQuest({
+        quest_id,
         full: true,
-        params: { id: membership.member_id },
       });
-      if (membership.member_id == MyVapi.store.getters['member/getUserId']) {
-        await MyVapi.store.dispatch('member/fetchLoginUser');
+      const quest = questStore.getQuestById(quest_id);
+      let guildId: number[] = quest.game_play?.map((gp: GamePlay) => gp.guild_id);
+      if (guildId == undefined) return [];
+      if (full) {
+        guildId = guildId.filter((id: number) => !this.fullGuilds[id]);
+      } else {
+        guildId = guildId.filter((id: number) => !this.guilds[id]);
       }
-    }
+      if (guildId.length > 0) {
+        const guildParam = guildId.length == 1 ? guildId[0] : guildId;
+        await this.fetchGuilds( {
+          full,
+          params: { id: guildParam },
+        });
+      }
     },
-    */
+    async addGuildMembership (context, membership: Partial<GuildMembership>) {
+      const membersStore = useMembersStore();
+      const memberStore = useMemberStore();
+      await guildStore.doAddGuildMembership({ data: membership });
+      const gMembership: GuildMembership = this.guilds[
+        membership.guild_id
+      ].guild_membership.find(
+        (c: GuildMembership) => c.member_id == membership.member_id
+      );
+      if (gMembership.status == 'confirmed') {
+        await membersStore.fetchMemberById({
+          full: true,
+          params: { id: membership.member_id },
+      });
+        if (membership.member_id == memberStore.getUserId()) {
+          await memberStore.fetchLoginUser();
+        }
+      }
+    },    
     async updateGuildMembership(membership: Partial<GuildMembership>) {
       await this.doUpdateGuildMembership(membership);
       const gMembership: GuildMembership = this.guilds[
@@ -286,6 +284,10 @@ export const useGuildStore = defineStore('guild', {
         return res.data;
       }
     },
+    // createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
+    createGuildBase(): Promise<Guild[] | undefined> {
+
+    }
   },
 });
 /*
@@ -295,51 +297,6 @@ export const guilds = (axios: AxiosInstance) =>
     state: baseState,
   })
     // Step 3
-    .get({
-      action: 'fetchGuildById',
-      path: '/guilds_data',
-      queryParams: true,
-      beforeRequest: (state: GuildsState, { full, params }) => {
-        if (Array.isArray(params.id)) {
-          params.id = `in.(${params.id.join(',')})`;
-        } else {
-          params.id = `eq.${params.id}`;
-        }
-        const userId = MyVapi.store.getters['member/getUserId'];
-        if (userId) {
-          params.select =
-            '*,guild_membership!guild_id(*),casting!guild_id(*),game_play!guild_id(*)';
-          if (!full) {
-            Object.assign(params, {
-              'guild_membership.member_id': `eq.${userId}`,
-              'casting.member_id': `eq.${userId}`,
-            });
-          }
-        } else {
-          params.select = '*,game_play!guild_id(*)';
-        }
-      },
-      onSuccess: (
-        state: GuildsState,
-        res: AxiosResponse<GuildData[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        state.guilds = {
-          ...state.guilds,
-          ...Object.fromEntries(
-            res.data.map((guild: GuildData) => [guild.id, guild])
-          ),
-        };
-        if (actionParams.full) {
-          state.fullGuilds = {
-            ...state.fullGuilds,
-            ...Object.fromEntries(
-              res.data.map((guild: GuildData) => [guild.id, true])
-            ),
-          };
-        }
-      },
     })
     .post({
       action: 'createGuildBase',
@@ -540,7 +497,7 @@ type GuildsRestActionTypes = {
     full?: boolean;
     params: { id: number | number[] };
   }) => Promise<AxiosResponse<GuildData[]>>;
-  createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
+ 
   updateGuild: RestDataActionType<Partial<Guild>, Guild[]>;
   doAddGuildMembership: RestDataActionType<
     Partial<GuildMembership>,

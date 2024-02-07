@@ -34,8 +34,8 @@ import { useQuestStore } from 'src/stores/quests';
 
 const MemberGameRegistrationProp = defineProps<{
   show?: boolean;
-  questId: number;
-  guildId: number;
+  questId: number | undefined;
+  guildId: number | undefined;
 }>();
 
 const memberStore = useMemberStore();
