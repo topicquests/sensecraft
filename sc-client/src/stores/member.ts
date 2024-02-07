@@ -165,10 +165,10 @@ export const useMemberStore = defineStore('member', {
     },
     async registerUserCrypted(): Partial<Member> {
       const membersStore = useMembersStore();
-      const res: AxiosResponse<string> = await api.post('/rpc/create_member', {
+      const res: AxiosResponse<Member> = await api.post('/rpc/create_member', {
         Member,
       });
-      if (res == 200) {
+      if (res.status == 200) {
         membersStore.ensureMemberById({
           id: res.data,
           full: false,
@@ -185,6 +185,27 @@ export const useMemberStore = defineStore('member', {
       });
       this.member = Object.assign({}, this.member, res.data[0]);
       return this.member;
+    },
+
+    removeCastingRole(castingRole: CastingRole) {
+      if (
+        this.member &&
+        this.member.casting_role !== undefined &&
+        this.member.casting_role.length > 0 &&
+        this.member.id == castingRole.member_id
+      ) {
+        const casting_role = this.member.casting_role;
+        const pos = casting_role.findIndex(
+          (a: CastingRole) =>
+            a.role_id == castingRole.role_id &&
+            a.member_id == castingRole.member_id &&
+            a.guild_id == castingRole.guild_id,
+        );
+        if (pos >= 0) {
+          casting_role.splice(pos, 1);
+          this.member = { ...this.member, casting_role };
+        }
+      }
     },
   },
 });

@@ -381,35 +381,60 @@ export const useQuestStore = defineStore('quest', {
     async addCastingRole(castingRole: Partial<CastingRole>) {
       const memberStore = useMemberStore();
       const membersStore = useMembersStore();
-      if(res==200) {
+      if (res == 200) {
         const castingRole = res.data[0];
         if ((castingRole.member_id = memberStore.getUserId)) {
           if (memberStore.member) {
             const castingRoles =
               memberStore.member.casting_role.filter(
-                (cr: CastingRole) => cr.role_id != casting_role.role_id
+                (cr: CastingRole) => cr.role_id != casting_role.role_id,
               ) || [];
             castingRoles.push(casting_role);
             memberStore.member.casting_role = castingRoles;
           }
         }
         const member_id = castingRole.member_id;
-          let member = memberStore.members[member_id];
-          if (member) {
-            const casting_role =
-              member.casting_role?.filter(
-                (cr: CastingRole) => cr.role_id != castingRole.role_id
-              ) || [];
-            casting_role.push(castingRole);
-            member = { ...member, casting_role };
-            membersStore.members = { ...membersStore.members, [member_id]: member };
+        let member = memberStore.members[member_id];
+        if (member) {
+          const casting_role =
+            member.casting_role?.filter(
+              (cr: CastingRole) => cr.role_id != castingRole.role_id,
+            ) || [];
+          casting_role.push(castingRole);
+          member = { ...member, casting_role };
+          membersStore.members = {
+            ...membersStore.members,
+            [member_id]: member,
+          };
         }
       }
     },
-    //deleteCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
-    async deleteCastingRole(): Promise<Partial<CastingRole>> {
-      
-    }
+
+    async deleteCastingRole(
+      member_id: number,
+      guild_id: number,
+      role_id: number,
+      quest_id: number,
+    ) {
+      const params = {
+        member_id: `eq.${member_id}`,
+        guild_id: `eq.${guild_id}`,
+        role_id: `eq.${role_id}`,
+        quest_id: `eq.${quest_id}`,
+      };
+      const res: AxiosResponse<CastingRole[]> = await api.delete(
+        '/casting_role',
+        { params },
+      );
+      if (res.status == 200) {
+        const memberStore = useMemberStore();
+        const membersStore = useMembersStore();
+        if (memberStore.getUserId == member_id) {
+          memberStore.removeCastingRole(res.data[0]);
+        }
+        membersStore.removeCastingRole(res.data[0]);
+      }
+    },
   },
 });
 /*
@@ -565,7 +590,7 @@ export const useQuestStore = defineStore('quest', {
         MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
       },
     })
-    
+
     .patch({
       action: "updateCasting",
       path: ({ id }) => `/casting?id=eq.${id}`,
@@ -594,7 +619,7 @@ export const useQuestStore = defineStore('quest', {
         }
       },
     })
-    
+
     .patch({
       action: "updateCasting",
       path: ({ id }) => `/casting?id=eq.${id}`,
@@ -665,7 +690,7 @@ export const useQuestStore = defineStore('quest', {
     });
 
 type QuestsRestActionTypes = {
- 
+
   createQuestBase: RestDataActionType<Partial<Quest>, QuestData[]>;
   updateQuest: RestDataActionType<Partial<Quest>, QuestData[]>;
   addQuestMembership: RestDataActionType<
@@ -682,7 +707,7 @@ type QuestsRestActionTypes = {
   updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
   addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
   updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
-  
+
   endTurn: RestDataActionType<{ quest_id: number }, void>;
 };
 

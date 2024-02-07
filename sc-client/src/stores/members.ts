@@ -228,17 +228,46 @@ export const useMembersStore = defineStore('members', {
         return res.data;
       }
     },
-    async updateMember(data: Partial<Member>): Promise<PublicMember[] | undefined> {
+    async updateMember(
+      data: Partial<Member>,
+    ): Promise<PublicMember[] | undefined> {
       data = filterKeys(data, memberPatchKeys);
-      const  params  = {
+      const params = {
         id: 'eq.${data.id}',
-      };       
-      const res: AxiosResponse<PublicMember> = await axios.api.patch('/members', data, {
-        params
-      })
+      };
+      const res: AxiosResponse<PublicMember> = await axios.api.patch(
+        '/members',
+        data,
+        {
+          params,
+        },
+      );
       this.member = Object.assign({}, this.member, res.data[0]);
-      return this.member
-    }
+      return this.member;
+    },
+
+    removeCastingRole(castingRole: CastingRole) {
+      const { member_id } = castingRole;
+      let member = this.members[member_id];
+      if (
+        member &&
+        member.casting_role !== undefined &&
+        member.casting_role.length > 0
+      ) {
+        const { casting_role } = member;
+        const pos = casting_role.findIndex(
+          (a: CastingRole) =>
+            a.role_id == castingRole.role_id &&
+            a.member_id == castingRole.member_id &&
+            a.guild_id == castingRole.guild_id,
+        );
+        if (pos >= 0) {
+          casting_role.splice(pos, 1);
+          member = { ...member, casting_role };
+          this.members = { ...this.members, [member_id]: member };
+        }
+      }
+    },
   },
 });
 /*
@@ -317,5 +346,5 @@ export const useMembersStore = defineStore('members', {
         },
       },
     });
-  
+
 */
