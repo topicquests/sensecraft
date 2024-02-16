@@ -38,8 +38,7 @@ export const useGuildStore = defineStore('guild', {
   state: () => baseState,
 
   getters: {
-    getCurrentGuild: (state: GuildsState):GuildData =>
-      state.currentGuild ? state.guilds[state.currentGuild] : undefined,
+    getCurrentGuild: (state: GuildsState):GuildData|undefined => state.guilds[state.currentGuild],
     getGuilds: (state: GuildsState) => Object.values(state.guilds),
     getGuildById: (state: GuildsState) => (id: number) => state.guilds[id],
     getMyGuilds: (state: GuildsState): GuildData[] => {
@@ -52,7 +51,7 @@ export const useGuildStore = defineStore('guild', {
         ),
       );
     },
-    isGuildMember: (state: GuildsState) => (guild_id: number) => {
+    isGuildMember: (state: GuildsState) => (guild_id: number|undefined) => {
       const memberId = useMemberStore().getUserId;
       return state.guilds[guild_id]?.guild_membership?.find(
         (m: GuildMembership) =>
@@ -95,7 +94,7 @@ export const useGuildStore = defineStore('guild', {
       }
       return this.guilds;
     },
-    setCurrentGuild(guild_id: number) {
+    setCurrentGuild(guild_id: number | null) {
       this.currentGuild = guild_id;
       //getWSClient().setDefaultGuild(guild_id);
     },
@@ -107,7 +106,7 @@ export const useGuildStore = defineStore('guild', {
         await this.fetchGuildById(guild_id, full);
       }
     },
-    async createGuild(data: GuildData): Promise<GuildData> {
+    async createGuild(data: Partial<Guild>): Promise<GuildData> {
       const res: AxiosResponse<GuildData[]> = await this.createGuildBase(data);
       // Refetch to get memberships.
       // TODO: maybe add representation to creation instead?
@@ -149,7 +148,7 @@ export const useGuildStore = defineStore('guild', {
         });
       }
     },
-    async addGuildMembership (context, membership: Partial<GuildMembership>) {
+    async addGuildMembership (membership: Partial<GuildMembership>) {
       const membersStore = useMembersStore();
       const memberStore = useMemberStore();
       await guildStore.doAddGuildMembership({ data: membership });
@@ -287,10 +286,17 @@ export const useGuildStore = defineStore('guild', {
     // createGuildBase: RestDataActionType<Partial<Guild>, Guild[]>;
     createGuildBase(): Promise<Guild[] | undefined> {
 
+    },
+    
+    async registerAllMembers({ params: { guildId, questId }}): void {
+      const res:AxiosResponse<void> = await api.post('/rpc/register_all_members', {
+        questId,
+        guildId,
+      });
     }
-  },
-});
-/*
+  }
+})
+    /*
 export const guilds = (axios: AxiosInstance) =>
   new MyVapi<GuildsState>({
     axios,
@@ -452,12 +458,7 @@ export const guilds = (axios: AxiosInstance) =>
         }
       },
     })
-    .call({
-      action: 'registerAllMembers',
-      path: 'register_all_members',
-      queryParams: true,
-      // TODO: modify quests's castings appropriately. May need an appropriate mutation.
-    })
+    
 
 
     // Step 4
@@ -519,10 +520,7 @@ type GuildsRestActionTypes = {
     Partial<GuildMemberAvailableRole>,
     GuildMemberAvailableRole[]
   >;
-  registerAllMembers: RestParamActionType<
-    { questId: number; guildId: number },
-    void
-  >;
+  
 };
 
 export type GuildsActionTypes = RetypeActionTypes<typeof GuildsActions> &

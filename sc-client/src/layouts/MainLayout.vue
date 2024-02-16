@@ -84,7 +84,7 @@
     >
       <div v-if="currentGuild" class="q-pa-md q-gutter-sm">
         <channel-list
-          v-bind:guild_id="currentGuild.id"
+          :guild_id="currentGuild.id"
           :inPage="false"
           title="Guild Channels"
         />
@@ -231,6 +231,7 @@ import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
 import { useBaseStore } from '../stores/baseStore';
+import channelList  from '../components/ChannelListComponent.vue'
 import { GuildData } from '../types';
 import { permission_enum } from '../enums';
 import { useQuasar } from 'quasar';
@@ -246,7 +247,7 @@ let isAuthenticated = ref(false);
 let rightDrawer = ref(false);
 const showTree = true;
 const $q = useQuasar();
-const currentGuild: GuildData | undefined = guildStore.getCurrentGuild;
+const currentGuild  = ref<GuildData|undefined>(guildStore.getCurrentGuild);
 
 function checkForPermission(permission_enum: permission_enum): boolean {
   hasPermission.value = baseStore.hasPermission(permission_enum);

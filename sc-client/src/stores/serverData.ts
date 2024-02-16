@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ServerData } from "src/types";
+import { defineStore } from 'pinia';
 
 export interface ServerDataState {
   serverData: ServerData;

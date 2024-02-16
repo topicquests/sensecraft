@@ -59,7 +59,7 @@ export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
     keys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]]),
   ) as Partial<T>;
 }
-
+/*
 export class MyVapi<S> extends Vapi {
   static store: VuexStore<any>;
   getStore(options: StoreOptions): MyVapiStore {
@@ -127,3 +127,4 @@ export class MyVapi<S> extends Vapi {
     ) as MyVapi<S>;
   }
 }
+*/

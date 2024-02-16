@@ -110,7 +110,7 @@ export const game_play_status_list: game_play_status_type[] = Object.keys(
   game_play_status_enum,
 ) as game_play_status_type[];
 
-export const public_private_bool = [
+export const public_private_bool:{ label: string, value: boolean }[] = [
   {
     label: 'Public',
     value: true,

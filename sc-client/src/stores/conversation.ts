@@ -1,12 +1,7 @@
 import {
-  MyVapi,
-  RestParamActionType,
-  RestDataActionType,
-  RetypeActionTypes,
-  RetypeGetterTypes,
   filterKeys,
 } from "./base";
-import { AxiosResponse, AxiosInstance } from "axios";
+import { AxiosResponse } from "axios";
 import {
   ConversationNode,
   QTreeNode,
@@ -19,6 +14,7 @@ import {
   publication_state_list,
   meta_state_enum,
 } from "../enums";
+import { defineStore } from 'pinia';
 import { calc_threat_status, ThreatMap, ScoreMap } from "../scoring";
 import { base_scoring } from "../scoring/base_scoring";
 
@@ -121,7 +117,7 @@ export const useConversationStore = defineStore('conversation', {
       makeTree(Object.values(state.conversation || state.neighbourhood))[0]
     ),
     getThreatMap: (state: ConversationState): ThreatMap => {
-      const tree = MyVapi.store.getters["conversation/getConversationTree"];
+      const tree = this.getConversationTree();
       if (tree && tree.length > 0) {
         const threatMap: ThreatMap = {};
         calc_threat_status(tree[0], threatMap);
@@ -130,7 +126,7 @@ export const useConversationStore = defineStore('conversation', {
     },
     getPrivateThreatMap: (state: ConversationState): ThreatMap => {
       const tree =
-        MyVapi.store.getters["conversation/getPrivateConversationTree"];
+        this.getPrivateConversationTree();
       if (tree && tree.length > 0) {
         const threatMap: ThreatMap = {};
         calc_threat_status(tree[0], threatMap);
@@ -138,23 +134,23 @@ export const useConversationStore = defineStore('conversation', {
       }
     },
     getScoreMap: (state: ConversationState): ScoreMap => {
-      const tree = MyVapi.store.getters["conversation/getConversationTree"];
+      const tree = this.getConversationTree();
       if (tree && tree.length > 0) {
-        const threatMap = MyVapi.store.getters["conversation/getThreatMap"];
+        const threatMap = this.getThreatMap();
         return base_scoring(tree[0], threatMap);
       }
     },
     getPrivateScoreMap: (state: ConversationState): ScoreMap => {
       const tree =
-      MyVapi.store.getters["conversation/getPrivateConversationTree"];
+     this.getPrivateConversationTree();
       if (tree && tree.length > 0) {
         const threatMap =
-        MyVapi.store.getters["conversation/getPrivateThreatMap"];
+       this.getPrivateThreatMap();
         return base_scoring(tree[0], threatMap);
       }
     },
     getGuildScoreMap: (state: ConversationState): ScoreMap => {
-      const scoreMap = MyVapi.store.getters["conversation/getScoreMap"] || {};
+      const scoreMap = this.getScoreMap() || {};
       const guildScoreMap: ScoreMap = {};
       Object.keys(scoreMap).forEach((key) => {
       const guild_id = state.conversation[key].guild_id;
@@ -164,7 +160,7 @@ export const useConversationStore = defineStore('conversation', {
     },
     getPrivateGuildScoreMap: (state: ConversationState): ScoreMap => {
       const scoreMap =
-      MyVapi.store.getters["conversation/getPrivateScoreMap"] || {};
+      this.getPrivateScoreMap() || {};
       const guildScoreMap: ScoreMap = {};
       Object.keys(scoreMap).forEach((key) => {
       const guild_id = state.conversation[key].guild_id;
@@ -179,7 +175,7 @@ export const useConversationStore = defineStore('conversation', {
       );
     },
     canEdit: (state: ConversationState) => (node_id: number) => {
-      const userId = MyVapi.store.getters["member/getUserId"];
+      const userId = memberStore.getUserId();
       const node = state.conversation[node_id];
       if (
         !(
@@ -187,7 +183,7 @@ export const useConversationStore = defineStore('conversation', {
           node.status == publication_state_enum.role_draft ||
           node.status == publication_state_enum.guild_draft ||
           (node.status == publication_state_enum.proposed &&
-            MyVapi.store.getters["hasPermission"](
+           baseStore.hasPermission()(
               "publishGameMove",
               node.guild_id,
               node.quest_id,
@@ -199,7 +195,7 @@ export const useConversationStore = defineStore('conversation', {
       }
       if (node && userId) {
       if (node.creator_id == userId) return true;
-        return MyVapi.store.getters["hasPermission"](
+        return baseStore.hasPermission()(
           "editConversationNode",
           node.guild_id,
           node.quest_id,
@@ -227,21 +223,20 @@ export const useConversationStore = defineStore('conversation', {
         await context.dispatch("fetchConversation", { params: { quest_id } });
       }
     },
-    ensureRootNode: async (context, quest_id: number) => {
+    ensureRootNode: async (quest_id: number | undefined) => {
       if (
-        quest_id != context.state.currentQuest ||
-        !context.state.conversationRoot
+        quest_id != this.currentQuest ||
+        !this.conversationRoot
       ) {
       await context.dispatch("fetchRootNode", { params: { quest_id } });
       }
     },
     ensureConversationNeighbourhood: async (
-      context,
       { node_id, guild }: { node_id: number; guild?: number }
     ) => {
       if (
-        node_id != context.state.neighbourhoodRoot ||
-        Object.keys(context.state.neighbourhood).length == 0
+        node_id != this.neighbourhoodRoot ||
+        Object.keys(this.neighbourhood).length == 0
       ) {
       await context.dispatch("fetchConversationNeighbourhood", {
         params: { node_id, guild },
@@ -261,8 +256,8 @@ export const useConversationStore = defineStore('conversation', {
         });
       }
     },
-    resetConversation: (context) => {
-      context.commit("CLEAR_STATE");
+    resetConversation: () => {
+      Object.assign(state, baseState);
     },
   }
 })

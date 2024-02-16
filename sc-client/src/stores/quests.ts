@@ -28,7 +28,7 @@ import {
 } from '../enums';
 
 //import type { RoleState } from './role';
-//import { getWSClient } from '../wsclient';
+import { getWSClient } from '../wsclient';
 
 interface QuestMap {
   [key: number]: QuestData;
@@ -50,7 +50,7 @@ const baseState: QuestsState = {
 export const useQuestStore = defineStore('quest', {
   state: () => baseState,
   getters: {
-    getCurrentQuest: (state: QuestsState) => state.quests[state.currentQuest],
+    getCurrentQuest: (state: QuestsState): QuestData => state.quests[state.currentQuest],
     getQuests(): QuestsData[] {
       return Object.values(this.quests);
     },
@@ -150,7 +150,7 @@ export const useQuestStore = defineStore('quest', {
         return casting?.guild_id;
       },
     castingInQuest:
-      (state: QuestsState) => (quest_id?: number, member_id?: number) => {
+      (state: QuestsState) => (quest_id?: number | null, member_id?: number) => {
         member_id = member_id || useMemberStore().getUserId;
         quest_id = quest_id || state.currentQuest;
         return state.quests[quest_id]?.casting?.find(
@@ -241,6 +241,10 @@ export const useQuestStore = defineStore('quest', {
         return this.quests;
       }
     },
+    setCurrentQuest(quest_id: number) {
+      this.currentQuest = quest_id;
+      getWSClient().setDefaultQuest(quest_id);
+    },
     async fetchQuests(
       id: undefined | number | Array<number>,
     ): Promise<QuestData[]> {
@@ -299,15 +303,15 @@ export const useQuestStore = defineStore('quest', {
         await this.fetchQuestById(quest_id, full);
       }
     },
-    createQuest: async (context, { data }) => {
-      const res = await context.dispatch('createQuestBase', { data });
+    createQuest: async ({ data }) => {
+      const res = await this.createQuestBase({ data });
       // Refetch to get memberships.
       // TODO: maybe add representation to creation instead?
       const quest_id = res.data[0].id;
-      await context.dispatch('fetchQuestById', { quest_id });
+      await this.fetchQuestById({ quest_id });
       // TODO: Get the membership from the quest
       await useMemberStore().fetchLoginUser();
-      // await useConversationStore().resetConversation();
+      await useConversationStore().resetConversation();
       return res.data[0];
     },
 
@@ -381,6 +385,7 @@ export const useQuestStore = defineStore('quest', {
     async addCastingRole(castingRole: Partial<CastingRole>) {
       const memberStore = useMemberStore();
       const membersStore = useMembersStore();
+      const res:AxiosResponse<CastingRole> = await axios.api.patch(castingRole)
       if (res == 200) {
         const castingRole = res.data[0];
         if ((castingRole.member_id = memberStore.getUserId)) {
@@ -412,9 +417,9 @@ export const useQuestStore = defineStore('quest', {
 
     async deleteCastingRole(
       member_id: number,
-      guild_id: number,
+      guild_id: number | undefined,
       role_id: number,
-      quest_id: number,
+      quest_id: number | undefined,
     ) {
       const params = {
         member_id: `eq.${member_id}`,
@@ -435,33 +440,37 @@ export const useQuestStore = defineStore('quest', {
         membersStore.removeCastingRole(res.data[0]);
       }
     },
-  },
-});
-/*
-  },
-  actions: {
-  setCurrentQuest(quest_id: number) {
-    this.currentQuest = quest_id;
-    //getWSClient().setDefaultQuest(quest_id);
-  },
-
-  setCastingRole: (role_id: number) => {
-    //context.commit("SET_CASTING_ROLE", role_id);
-  },
-  */
-
-/*
-
-});
-    .post({
-      action: "createQuestBase",
-      path: "/quests",
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<Quest[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
+    async updateCasting(data) {
+      const memberStore = useMemberStore();
+      params.id = data.id;
+      const res:AxiosResponse<Casting[]> = await api.patch('/casting', 
+        params)
+      if(res.status == 200 ) {
+        const casting = res.data[0];
+        const quest = this.quests[casting.quest_id];
+        if (quest) {
+          const castings =
+            quest.casting?.filter(
+              (gp: Casting) => gp.quest_id !== casting.quest_id
+            ) || [];
+          castings.push(casting);
+          quest.casting = castings;
+        }
+        if ((casting.member_id = memberStore.getUserId())) {
+          if (this.member) {
+            const castings =
+              this.member.casting.filter(
+                (c: Casting) => c.quest_id != casting.quest_id
+              ) || [];
+            castings.push(casting);
+            this.member.casting = castings;
+          }
+        }
+      }      
+    },
+    async createQuestBase(data: Partial<Quest>) {
+      const res: AxiosResponse<QuestData[]> = await api.post('/quest', data)
+      if(res==200) {
         const questData: QuestData = Object.assign(res.data[0], {
           last_node_published_at: null,
           node_count: 0,
@@ -473,66 +482,53 @@ export const useQuestStore = defineStore('quest', {
           my_recruiting_guild_count: 0,
           is_quest_member: true,
         });
-        state.quests = { ...state.quests, [questData.id]: questData };
-      },
-    })
-    .patch({
-      action: "updateQuest",
-      path: ({ id }) => `/quests?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, questPatchKeys);
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<Quest[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
+        this.quests = { ...state.quests, [questData.id]: questData };  
+      }
+    },
+    async updateQuest(data: Partial<Quest>) {
+      const { params } = actionParams;
+      params.id = data.id;
+      actionParams.data = filterKeys(data, questPatchKeys);
+      const res: AxiosResponse<QuestData[]> = await api.update('quest', paramas)
+      if (res.status == 200) {
         const quest = res.data[0];
         // Update the QuestData with the Quest object;
         // assume other fields were not affected.
         const questData: QuestData = Object.assign(
           {},
-          state.quests[quest.id],
+          this.quests[quest.id],
           quest
         );
-        state.quests = { ...state.quests, [quest.id]: questData };
-        state.fullQuests = { ...state.fullQuests, [quest.id]: undefined };
-      },
-    })
-    .post({
-      action: "addQuestMembership",
-      path: "/quest_membership",
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<QuestMembership[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const membership = res.data[0];
-        const quest = state.quests[membership.quest_id];
+        this.quests = { ...this.quests, [quest.id]: questData };
+        this.fullQuests = { ...this.fullQuests, [quest.id]: undefined };  
+      }
+    },
+    async addQuestMembership() {
+      const memberStore =useMemberStore();
+    const res: AxiosResponse<QuestMembership[]> = await api.post('/quest_membership', params) 
+    if(res.status == 200) {
+      const membership = res.data[0];
+        const quest = this.quests[membership.quest_id];
         if (quest) {
           const memberships = quest.quest_membership || [];
           memberships.push(membership);
           quest.quest_membership = memberships;
         }
-        MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
-      },
-    })
-    .patch({
-      action: "updateQuestMembership",
-      path: ({ id }) => `/quest_membership?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, { params, data }) => {
-        params.id = data.id;
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<QuestMembership[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
+        if (memberStore.member) {
+          const memberships =
+            memberStore.member.quest_membership.filter(
+              (m: QuestMembership) => m.quest_id != membership.quest_id
+            ) || [];
+          memberships.push(membership);
+          memberStore.member.quest_membership = memberships;
+        }
+      }
+    }, 
+    async updateQuestMembership(data) {
+      const memberStore =useMemberStore();
+      params.id = data.id;
+      const res: AxiosResponse<QuestMembership[]> = await api.patch('/quest_membership', params)
+      if(res.status==200){
         const membership = res.data[0];
         const quest = state.quests[membership.quest_id];
         if (quest) {
@@ -543,42 +539,46 @@ export const useQuestStore = defineStore('quest', {
           memberships.push(membership);
           quest.quest_membership = memberships;
         }
-        MyVapi.store.commit("member/ADD_QUEST_MEMBERSHIP", membership);
-      },
-    })
-    .post({
-      action: "addGamePlay",
-      path: "/game_play",
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<GamePlay[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
+        if (memberStore.member) {
+          const memberships =
+            memberStore.member.quest_membership.filter(
+              (m: QuestMembership) => m.quest_id != membership.quest_id
+            ) || [];
+          memberships.push(membership);
+          memberStore.member.quest_membership = memberships;
+        }  
+      }
+    }, 
+    async addGamePlay() {
+      const guildStore = useGuildStore();
+      const res:AxiosResponse<GamePlay[]> = await api.post("/game_play", params);
+      if(res.status==200){
         const game_play = res.data[0];
-        const quest = state.quests[game_play.quest_id];
+        const quest = this.quests[game_play.quest_id];
         if (quest) {
           const game_plays = quest.game_play || [];
           game_plays.push(game_play);
           quest.game_play = game_plays;
         }
-        MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
-      },
-    })
-    .patch({
-      action: "updateGamePlay",
-      path: ({ id }) => `/game_play?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, { params, data }) => {
-        params.id = data.id;
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<GamePlay[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
+        const guild_id = game_play.guild_id;
+        const guild = guildStore.guilds[guild_id];
+        // Assuming it is definitely not there
+        if (guild) {
+          const game_plays =
+            guild.game_play?.filter(
+              (gp: GamePlay) => gp.quest_id !== game_play.quest_id
+            ) || [];
+          game_plays.push(game_play);
+          guildStore.guild.game_play = game_plays;
+        }         
+      }
+    },
+    async updateGamePlay(data: {id: number}) {
+      params.id = data.id;
+      const res: AxiosResponse<GamePlay[]> = await api.patch('/game_play', params)
+      if (res.status==200) {
         const game_play = res.data[0];
-        const quest = state.quests[game_play.quest_id];
+        const quest = this.quests[game_play.quest_id];
         if (quest) {
           const game_plays =
             quest.game_play?.filter(
@@ -587,131 +587,18 @@ export const useQuestStore = defineStore('quest', {
           game_plays.push(game_play);
           quest.game_play = game_plays;
         }
-        MyVapi.store.commit("guilds/ADD_GAME_PLAY", game_play);
-      },
-    })
-
-    .patch({
-      action: "updateCasting",
-      path: ({ id }) => `/casting?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, { params, data }) => {
-        params.id = data.id;
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<Casting[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const casting = res.data[0];
-        const quest = state.quests[casting.quest_id];
-        if (quest) {
-          const castings =
-            quest.casting?.filter(
-              (gp: Casting) => gp.quest_id !== casting.quest_id
+        if (guild) {
+          const game_plays =
+            guild.game_play?.filter(
+              (gp: GamePlay) => gp.quest_id !== game_play.quest_id
             ) || [];
-          castings.push(casting);
-          quest.casting = castings;
-        }
-        const store = MyVapi.store;
-        if ((casting.member_id = store.getters["member/getUserId"])) {
-          store.commit("member/ADD_CASTING", casting);
-        }
-      },
-    })
-
-    .patch({
-      action: "updateCasting",
-      path: ({ id }) => `/casting?id=eq.${id}`,
-      beforeRequest: (state: QuestsState, { params, data }) => {
-        params.id = data.id;
-      },
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<Casting[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const casting = res.data[0];
-        const quest = state.quests[casting.quest_id];
-        if (quest) {
-          const castings =
-            quest.casting?.filter(
-              (gp: Casting) => gp.quest_id !== casting.quest_id
-            ) || [];
-          castings.push(casting);
-          quest.casting = castings;
-        }
-        const store = MyVapi.store;
-        if ((casting.member_id = store.getters["member/getUserId"])) {
-          store.commit("member/ADD_CASTING", casting);
-        }
-      },
-    })
-    .delete({
-      action: "deleteCastingRole",
-      path: ({ member_id, guild_id, role_id, quest_id }) =>
-        `/casting_role?member_id=eq.${member_id}&guild_id=eq.${guild_id}&role_id=eq.${role_id}&quest_id=eq.${quest_id}`,
-      onSuccess: (
-        state: QuestsState,
-        res: AxiosResponse<CastingRole[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        if (
-          MyVapi.store.getters["member/getUserId"] ==
-          actionParams.params.member_id
-        ) {
-          MyVapi.store.commit("member/REMOVE_CASTING_ROLE", actionParams);
-        }
-        MyVapi.store.commit("members/REMOVE_CASTING_ROLE", actionParams);
-      },
-    })
-    .call({
-      action: "endTurn",
-      path: "end_turn",
-    })
-    // Step 4
-    .getVuexStore({
-      getters: QuestsGetters,
-      actions: QuestsActions,
-      mutations: {
-        SET_CURRENT_QUEST: (state: QuestsState, quest_id: number) => {
-          state.currentQuest = quest_id;
-          getWSClient().setDefaultQuest(quest_id);
-        },
-        SET_CASTING_ROLE: (state: RoleState, role_id: number) => {
-          // TODO
-        },
-        CLEAR_STATE: (state: QuestsState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-
-type QuestsRestActionTypes = {
-
-  createQuestBase: RestDataActionType<Partial<Quest>, QuestData[]>;
-  updateQuest: RestDataActionType<Partial<Quest>, QuestData[]>;
-  addQuestMembership: RestDataActionType<
-    Partial<QuestMembership>,
-    QuestMembership[]
-  >;
-  updateQuestMembership: RestDataActionType<
-    Partial<QuestMembership>,
-    QuestMembership[]
-  >;
-  addGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
-  updateGamePlay: RestDataActionType<Partial<GamePlay>, GamePlay[]>;
-  addCasting: RestDataActionType<Partial<Casting>, Casting[]>;
-  updateCasting: RestDataActionType<Partial<Casting>, Casting[]>;
-  addCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
-  updateCastingRole: RestDataActionType<Partial<CastingRole>, CastingRole[]>;
-
-  endTurn: RestDataActionType<{ quest_id: number }, void>;
-};
-
-export type QuestsActionTypes = RetypeActionTypes<typeof QuestsActions> &
-  QuestsRestActionTypes;
-export type QuestsGetterTypes = RetypeGetterTypes<typeof QuestsGetters>;
-*/
+          game_plays.push(game_play);
+          guildStore.guild.game_play = game_plays;
+        }  
+      }
+    },
+    async endTurn(data) {
+      await api.post('/rpc/end_turn', data)
+    }
+  }
+});

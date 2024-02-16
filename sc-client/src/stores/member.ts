@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { AxiosResponse } from 'axios';
 import { Member, CastingRole, memberPatchKeys } from '../types';
-//import { getWSClient } from "../wsclient";
+import { getWSClient } from "../wsclient";
 import { useBaseStore, filterKeys } from './baseStore';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
@@ -61,7 +61,11 @@ export const useMemberStore = defineStore('member', {
   },
   actions: {
     async logout() {
-      // getWSClient().logout();
+      window.localStorage.removeItem("token");
+      window.localStorage.removeItem("tokenExpiry");
+      // legacy
+      window.localStorage.removeItem("email");
+      getWSClient().logout();
       useBaseStore().reset();
     },
     async signin(mail: string, pass: string): Promise<string | undefined> {
@@ -159,14 +163,14 @@ export const useMemberStore = defineStore('member', {
       }
     },
     async sendConfirmEmail(): boolean {
-      AxiosResponse<string> = await api.post('/rpc/send_login_email', {
+      await api.post('/rpc/send_login_email', {
         email: string,
       });
     },
     async registerUserCrypted(): Partial<Member> {
       const membersStore = useMembersStore();
       const res: AxiosResponse<Member> = await api.post('/rpc/create_member', {
-        Member,
+        member,
       });
       if (res.status == 200) {
         membersStore.ensureMemberById({
@@ -212,13 +216,7 @@ export const useMemberStore = defineStore('member', {
 
 /*    // Step 4
       mutations: {
-        LOGOUT: (state: MemberState) => {
-          window.localStorage.removeItem("token");
-          window.localStorage.removeItem("tokenExpiry");
-          // legacy
-          window.localStorage.removeItem("email");
-          return Object.assign(state, baseState);
-        },
+      
         ADD_CASTING: (state: MemberState, casting) => {
           if (state.member) {
             const castings =

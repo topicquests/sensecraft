@@ -1,17 +1,12 @@
-import type { Store } from "vuex";
 import RobustWebSocket from "robust-websocket";
-import { useMemberStore } from './stores/member'
-import { useMembersStore } from './stores/members'
-import { useConversationStore } from './stores/conversation'
-import { useQuestStore } from './stores/quests'
-import { useGuildStore } from './stores/guilds'
+import { useMemberStore } from './stores/member';
+import { useMembersStore } from './stores/members';
+import { useConversationStore } from './stores/conversation';
+import { useQuestStore } from './stores/quests';
+import { useGuildStore } from './stores/guilds';
 
 export class WSClient {
-  const memberStore = useMemberStore();
-  const membersStore = useMembersStore();
-  const conversationStore = useConversationStore();
-  const questStore = useQuestStore();
-  const guildStore = useGuildStore();
+  
   ws: RobustWebSocket;
   connected = false;
   login_message: string = null;
@@ -19,6 +14,8 @@ export class WSClient {
   guild_id: number | boolean = false;
   quest_id: number | boolean = false;
   constructor(store, url) {
+  const memberStore = useMemberStore();
+ 
     this.store = store;
     function shouldReconnect(event, ws) {
       if (event.type === "online") return 0;
@@ -80,6 +77,10 @@ export class WSClient {
     else this.ws.send(`QUEST ${id}`);
   }
   async onMessage(event) {
+    const membersStore = useMembersStore();
+    const conversationStore = useConversationStore();
+    const questStore = useQuestStore();
+    const guildStore = useGuildStore();
     const parts = /^([CUD]) (\w+) (\d+)$/.exec(event.data);
     if (!parts) {
       console.error(`Unknown ws event: ${event}`);

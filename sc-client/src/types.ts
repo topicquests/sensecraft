@@ -97,7 +97,7 @@ export interface Quest {
   updated_at: string;
   quest_membership?: QuestMembership[];
   casting?: Casting[];
-  game_play?: GamePlay[];
+  game_play: [];
 }
 
 export const questPatchKeys: KeyArray<Quest> = [
@@ -206,9 +206,9 @@ export interface Guild {
   created_at: string;
   updated_at: string;
   application_needs_approval: boolean;
-  default_role_id: number;
+  default_role_id: number | null | undefined;
   guild_membership?: GuildMembership[];
-  game_play?: GamePlay[];
+  game_play: GamePlay[];
   casting?: Casting[];
 }
 
@@ -244,7 +244,7 @@ export interface RoleNodeConstraint {
 }
 
 export interface Role {
-  id: number;
+  id: number | null;
   name: string;
   guild_id: number;
   permissions?: permission_type[];

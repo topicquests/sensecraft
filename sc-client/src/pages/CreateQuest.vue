@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <q-card class="create-quest-card q-mt-md q-pa-md">
         <div>
-          <member></member>
+          <member_handle></member_handle>
         </div>
         <div class="column items-center">
           <div class="col-12 q-mb-md scoreboard">
@@ -18,8 +18,9 @@
         <div class="row justify-center">
           <div class="column quest-card-1" v-if="newQuest">
             <quest-card
-              v-bind:thisQuest="newQuest"
+              :thisQuest="newQuest"
               :create="true"
+              :edit="true"
               v-on:doUpdateQuest="doSubmitQuest"
             ></quest-card>
           </div>
@@ -30,28 +31,21 @@
 </template>
 
 <script setup lang="ts">
-import scoreboard from "../components/scoreboard.vue";
-import member from "../components/member.vue";
+import scoreboard from "../components/score-board.vue";
+import member_handle from "../components/member-handle.vue";
 import { userLoaded } from "../boot/userLoaded";
-import { public_private_bool } from "../enums";
 import QuestCard from "../components/quest-edit-card.vue";
 import { useQuestStore } from "src/stores/quests";
 import { onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import { QuestData } from "src/types";
 
 const router = useRouter();
 const $q = useQuasar();
 const questStore = useQuestStore();
 
-  group: "public";
-  public_private_bool: public_private_bool;
-  shape: "line";
-  submitResult: [];
-  details: "";
-  handle: "";
-  type: false;
-  const newQuest = {
+  const newQuest: Partial<QuestData> = {
     name: "",
     handle: "",
     status: "draft",
@@ -61,14 +55,14 @@ const questStore = useQuestStore();
     end: "",
   };
 
-  function validateStartEnd(quest) {
+  function validateStartEnd(quest: QuestData) {
     if (quest.start < quest.end) {
       return true;
     }
     return false;
   }
 
-  async function  doSubmitQuest(quest) {
+  async function  doSubmitQuest(quest: QuestData) {
     try {
       console.log("Entered in do update quest");
       if (!validateStartEnd(quest)) {
@@ -90,7 +84,7 @@ const questStore = useQuestStore();
   }
   onBeforeMount(async () => {
     await userLoaded;
-  }
+  })
 </script>
 
 <style>

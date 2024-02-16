@@ -70,7 +70,7 @@ export const useMembersStore = defineStore('members', {
         return state.members[member_id]?.guild_member_available_role;
       },
     getAvailableRolesForMemberAndGuild:
-      (state: MembersState) => (member_id: number, guild_id: number) => {
+      (state: MembersState) => (member_id: number, guild_id: number | undefined) => {
         const roles =
           state.members[member_id]?.guild_member_available_role || [];
         return roles.filter((cr) => cr.guild_id == guild_id);
@@ -106,7 +106,9 @@ export const useMembersStore = defineStore('members', {
       full?: boolean;
     }) {
       if (!this.members[id]) {
-        await fetchMemberById({ full, params: { id } });
+        await fetchMemberById({ 
+          full, 
+          params: { id } });
       }
     },
     async reloadIfFull(id: number) {
@@ -133,7 +135,7 @@ export const useMembersStore = defineStore('members', {
         membersId = membersId.filter((id: number) => !this.members[id]);
       }
       if (membersId.length > 0) {
-        await fetchMemberById({
+        await this.fetchMemberById({
           full,
           params: { id: membersId },
         });
@@ -155,7 +157,7 @@ export const useMembersStore = defineStore('members', {
       membersId = [...new Set(membersId)];
       membersId = membersId.filter((id: number) => !this.members[id]);
       if (membersId.length > 0) {
-        fetchMemberById({
+        this.fetchMemberById({
           full,
           params: { id: membersId },
         });
@@ -189,15 +191,17 @@ export const useMembersStore = defineStore('members', {
       }
     },
     async fetchMemberById(
-      id: number | number[],
-      full?: boolean,
-    ): Promise<PublicMember[] | undefined> {
+      id: undefined | number | Array<number>, 
+      full: boolean = true,
+    ): Promise<PublicMember[]> {
       const memberStore = useMemberStore();
       const params = Object();
-      if (Array.isArray(params.id)) {
-        params.id = `in.(${params.id.join(',')})`;
-      } else {
-        params.id = `eq.${params.id}`;
+      if (id !== undefined) {
+        if (Array.isArray(id)) {
+          params.id = `in.(${params.id.join(',')})`;
+        } else {
+          params.id = `eq.${id}`;
+        }
       }
       if (full) {
         let select = '*,casting_role!member_id(*)';

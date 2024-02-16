@@ -31,20 +31,24 @@ import scoreboard from "../components/score-board.vue";
 import member from "../components/member-handle.vue";
 import { userLoaded } from "../boot/userLoaded";
 import GuildsTable from "../components/guilds-table.vue";
-import { useGuildStore } from '../stores/guilds'
+import { useGuildStore } from '../stores/guilds';
 import { Guild } from "../types";
 import { onBeforeMount, ref } from "vue";
+import { useRoleStore } from "src/stores/role";
+import { useQuestStore } from "src/stores/quests";
 
 const ready = ref(false);
 const guildStore = useGuildStore();
+const roleStore = useRoleStore();
+const questStore = useQuestStore();
 
 onBeforeMount(async() => {
   await userLoaded;
   await Promise.all([
       guildStore.ensureAllGuilds(),
-      await this.ensureAllRoles(),
+      await roleStore.ensureAllRoles(),
       guildStore.setCurrentGuild(true),
-      this.setCurrentQuest(false),
+      questStore.setCurrentQuest(false),
     ]);
     ready.value = true;
 })

@@ -97,16 +97,13 @@ import { QTable, QTableProps } from 'quasar';
 import { Guild, GuildData, Casting } from '../types';
 import GuildsMembershipIndicator from './guilds-membership-indicator.vue';
 import GuildsPlayingIndicator from './guilds-playing-indicator.vue';
-//import { ScoreMap } from "../scoring";
 import { useQuestStore } from 'src/stores/quests';
 import { useGuildStore } from 'src/stores/guilds';
 import { useBaseStore } from 'src/stores/baseStore';
-//import GuildFormPage from "src/pages/CreateGuild.vue";
 import { onBeforeMount } from 'vue';
 import { permission_enum } from 'src/enums';
 import { useMemberStore } from 'src/stores/member';
 
-type QTableColumns = QTable['columns'];
 
 interface GuildRow extends GuildData {
   score?: number;
@@ -129,7 +126,7 @@ const guildStore = useGuildStore();
 const baseStore = useBaseStore();
 const memberStore = useMemberStore();
 const extra = GuildsTableProp.extra_columns || [];
-let selectedGuild: [] = [];
+let selectedGuild: GuildRow[] = [];
 const columns: QTableProps['columns']=[
   {
     name: 'info',
@@ -268,12 +265,10 @@ onBeforeMount(async () => {
       }
     }
     if (guild) {
-      //selectedGuild = [guildRow(guild)];
+      selectedGuild = [guildRow(guild)];
       // does this mean we won't get update on other rows?
       await guildStore.setCurrentGuild(guild.id);
-    } else {
-      await guildStore.setCurrentGuild(true);
-    }
+    } 
   }
 });
 </script>

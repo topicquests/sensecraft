@@ -3,7 +3,7 @@
     <div class="row justify-center q-gutter-md">
       <q-card class="admin-card q-mt-md q-pa-md">
         <div>
-          <member></member>
+          <member_handle></member_handle>
         </div>
         <div class="column items-center">
           <div class="col-12 q-mb-md scoreboard">
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import member from "../components/member-handle.vue";
+import member_handle from "../components/member-handle.vue";
 import scoreboard from "../components/score-board.vue";
 import roleTable from "../components/role-table.vue";
 import serverDataCard from "../components/server-data-card.vue";
@@ -125,32 +125,32 @@ function ensure(array: [], value: number, present) {
 
 
     superAdmin: {
-      get() {
+      function get() {
         return this.member?.permissions.includes("superadmin");
-      },
-      set(value) {
+      }
+      function set(value) {
         ensure(this.member?.permissions, "superadmin", value);
-      },
-    },
+      }
+    }
 
     createQuest: {
-      get() {
+     function get() {
         return this.member?.permissions.includes("createQuest");
-      },
-      set(value) {
+      }
+     function  set(value) {
         ensure(this.member?.permissions, "createQuest", value);
-      },
-    },
+      }
+    }
     createGuild: {
-      get() {
+      function get() {
         return this.member?.permissions.includes("createGuild");
-      },
-      set(value) {
+      }
+      function set(value) {
         ensure(this.member?.permissions, "createGuild", value);
-      },
-    },
+      }
+    }
 
-   function   member(): Member | undefined {
+   function member(): Member | undefined {
       return membersStore.getMemberById(member_id.value);
     }
 
@@ -158,7 +158,6 @@ function ensure(array: [], value: number, present) {
   const ready = ref(false);
   let userIsSuperAdmin = ref(false);
   const member_id = ref<number | null>(null);
-  let member: Partial<Member>;
   const superAdmin!: string;
   const createQuest!: string;
   const createGuild!: string;

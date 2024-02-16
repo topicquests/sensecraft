@@ -1,13 +1,9 @@
 import {
-  MyVapi,
-  RestDataActionType,
-  RestParamActionType,
-  RetypeActionTypes,
-  RetypeGetterTypes,
 } from "./base";
 import { ConversationNode, ReadStatusData } from "../types";
+import { defineStore } from 'pinia';
 
-import { AxiosInstance, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 
 export interface ReadStatusMap {
   [key: number]: ReadStatusData;
@@ -25,7 +21,8 @@ export const useReadStatusStore = defineStore('readStatus', {
   state: () => baseState,
   getters: {
     getNodeReadStatus: (state: ReadStatusState) => (node_id: number) => {
-      const memberId = MyVapi.store.getters["member/getUserId"];
+      const memberStore = useMemberStore();
+      const memberId = memberStore.getUserId();
       const read = Object.values(state.readStatus).filter(
         (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
       );
@@ -45,13 +42,15 @@ export const useReadStatusStore = defineStore('readStatus', {
   },
   actions: {
     ensureAllQuestsReadStatus: async (context) => {
+      const conversationStore = useConversationStore();
       const cn: ConversationNode =
-        MyVapi.store.state["conversation"]["conversationRoot"];
+        conversationStore.conversationRoot();
       const rootid: number = cn.id;
       await context.dispatch("fetchReadStatus", { params: { rootid } });
     },
     ensureAllChannelReadStatus: async (context) => {
-      const rootid = MyVapi.store.getters["channel/getCurrentChannel"];
+      const channelStore = useChannelStore();
+      const rootid = channelStore.getCurrentChannel();
       await context.dispatch("fetchReadStatus", { params: { rootid } });
     },
     resetReadStatus: (context) => {

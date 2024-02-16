@@ -40,7 +40,7 @@
                 class="q-ml-md"
                 style="width: 50%"
                 v-model="role"
-                :options="getRoles"
+                :options="roleStore.getRoles"
                 option-label="name"
                 option-value="id"
               />
@@ -68,89 +68,66 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import { mapActions, mapGetters } from 'vuex';
-import scoreboard from '../components/scoreboard.vue';
-import member from '../components/member.vue';
+<script setup lang="ts">
+import { ref } from 'vue';
+import scoreboard from '../components/score-board.vue';
+import member from '../components/member-handle.vue';
 import { userLoaded } from '../boot/userLoaded';
 import { public_private_bool } from '../enums';
-import { GuildsActionTypes } from '../store/guilds';
-import { RoleActionTypes, RoleGetterTypes } from '../store/role';
 import { Role } from './../types';
-import { MembersActionTypes } from 'src/store/members';
+import { onBeforeMount } from 'vue';
+import { useRoleStore } from 'src/stores/role';
+import { useMembersStore } from 'src/stores/members';
+import { useGuildStore } from 'src/stores/guilds';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
-@Component<GuildFormPage>({
-  components: {
-    scoreboard: scoreboard,
-    member: member,
-  },
+interface guildType {
+  name: string,
+  handle: string,
+  public: boolean,
+  description: string,
+  default_role_id: number | null | undefined
+}
 
-  computed: {
-    ...mapGetters('role', ['getRoles']),
-  },
-
-  methods: {
-    ...mapActions('guilds', ['createGuild']),
-    ...mapActions('role', ['ensureAllRoles']),
-    ...mapActions('members', ['ensureAllMembers']),
-  },
-  meta: {
-    title: 'Create Guild',
-  },
-})
-export default class GuildFormPage extends Vue {
-  public_private_bool = public_private_bool;
-  ready = false;
-  createGuild: GuildsActionTypes['createGuild'];
-
-  // declare the computed attributes for Typescript
-  getRoles!: RoleGetterTypes['getRoles'];
-  role: Partial<Role> = {
-    name: '',
-  };
-
-  // declare the methods for Typescript
-  ensureAllRoles!: RoleActionTypes['ensureAllRoles'];
-  ensureAllMembers: MembersActionTypes['ensureAllMembers'];
-
-  async doSubmit(guild) {
-    try {
-      guild.default_role_id = this.role.id;
-      const res = await this.createGuild({ data: guild });
-      this.$q.notify({
-        message: 'Added new guild',
-        color: 'positive',
-      });
-      this.$router.push({ name: 'guild_admin', params: { guild_id: res.id } });
-    } catch (err) {
-      console.log('there was an error in creating guild ', err);
-      this.$q.notify({
-        message: 'There was an error creating new guild.',
-        color: 'negative',
-      });
-    }
-  }
-
-  async beforeMount() {
-    await userLoaded;
-    await this.ensureAllRoles();
-    await this.ensureAllMembers();
-    this.ready = true;
-  }
-  data() {
-    return {
-      guild: {
+const roleStore = useRoleStore();
+const membersStore = useMembersStore();
+const guildStore = useGuildStore();
+const ready = ref(false)
+const $q = useQuasar();
+const router = useRouter();
+const guild: guildType = {
         name: '',
         handle: '',
         public: false,
         description: '',
         default_role_id: null,
-      },
-    };
+};
+const role = ref<Partial<Role>>({name: ''});
+
+async function doSubmit(guild:guildType) {
+  try {
+    guild.default_role_id = role.value.id;
+    const res = await guildStore.createGuild(guild);
+    $q.notify({
+      message: 'Added new guild',
+      color: 'positive',
+    });
+    router.push({ name: 'guild_admin', params: { guild_id: res.id } });
+  } catch (err) {
+    console.log('there was an error in creating guild ', err);
+    $q.notify({
+      message: 'There was an error creating new guild.',
+      color: 'negative',
+    });
   }
-}
+};
+onBeforeMount(async () => {
+  await userLoaded;
+  await roleStore.ensureAllRoles();
+  await membersStore.ensureAllMembers();
+  ready.value = true;
+});
 </script>
 <style>
 .details {

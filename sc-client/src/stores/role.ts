@@ -1,6 +1,6 @@
 import { filterKeys } from './baseStore';
 import { defineStore } from 'pinia';
-import { AxiosResponse, AxiosInstance } from 'axios';
+import { AxiosResponse} from 'axios';
 import { Role, RoleNodeConstraint, rolePatchKeys } from '../types';
 
 interface RoleMap {
@@ -46,8 +46,8 @@ export const useRoleStore = defineStore('role', {
   },
   actions: {
     ensureAllRoles: async () => {
-      if (context.state.role.length === 0 || !context.state.fullFetch) {
-        await context.dispatch('fetchRoles');
+      if (this.role.length === 0 || !this.fullFetch) {
+        await fetchRoles();
       }
     },
     ensureRole: async (
@@ -56,212 +56,152 @@ export const useRoleStore = defineStore('role', {
     ) => {
       if (
         context.getters.getRoleById(role_id) === undefined ||
-        (full && !context.state.fullRole[role_id])
+        (full && !this.fullRole[role_id])
       ) {
-        await context.dispatch('fetchRoleById', {
+        await fetchRoleById({
           full,
-          params: { id: role_id },
+          id: role_id,
         });
       }
     },
-    createRole: async (context, { data }) => {
-      const res = await context.dispatch('createRoleBase', { data });
-      await context.dispatch('fetchRoles');
+    createRole: async ({ data }) => {
+      const res = await createRoleBase({ data });
+      await fetchRoles();
       return res.data[0];
     },
     resetRole() {
       Object.assign(this, baseState);
     },
-    createRoleNodeConstraint: async (context, { data }) => {
-      await context.dispatch('createRoleNodeConstraintBase', {
+    createRoleNodeConstraint: async ({ data }) => {
+      await createRoleNodeConstraintBase({
         data,
       });
-      await context.dispatch('fetchRoles');
+      await fetchRoles();
     },
-    updateRoleNodeConstraint: async (context, { data }) => {
-      await context.dispatch('updateRoleNodeConstraintBase', {
+    updateRoleNodeConstraint: async ({ data }) => {
+      await updateRoleNodeConstraintBase({
         data,
       });
-      await context.dispatch('fetchRoles');
+      await fetchRoles();
     },
-    deleteRoleNodeConstraint: async (context, { data }) => {
-      await context.dispatch('deleteRoleNodeConstraintBase', {
+    deleteRoleNodeConstraint: async ({ data }) => {
+      await deleteRoleNodeConstraintBase({
         data,
       });
-      await context.dispatch('fetchRoles');
+      await fetchRoles();
     },
-  },
-});
-
-export const role = (axios: AxiosInstance) =>
-  new MyVapi<RoleState>({
-    axios,
-    state: baseState,
-  })
-    .get({
-      action: 'fetchRoles',
-      property: 'role',
-      path: '/role',
-      queryParams: true,
-      beforeRequest: (state: RoleState, { params }) => {
-        params.select = '*,role_node_constraint!role_id(*)';
-      },
-      onSuccess: (state: RoleState, res: AxiosResponse<Role[]>) => {
-        const roles = Object.fromEntries(
-          res.data.map((role: Role) => [role.id, role]),
-        );
-        state.role = roles;
-        state.fullFetch = true;
-      },
-    })
-    .get({
-      action: 'fetchRoleById',
-      path: '/role',
-      queryParams: true,
-      beforeRequest: (state: RoleState, { params }) => {
-        params.id = `eq.${params.id}`;
-        params.select = '*,role_node_constraint!role_id(*)';
-      },
-      onSuccess: (
-        state: RoleState,
-        res: AxiosResponse<Role[]>,
-        axios: AxiosInstance,
-        actionParams,
-      ) => {
-        state.role = {
+    
+    async fetchRoles() {
+      params.select = '*,role_node_constraint!role_id(*)';
+      const res:AxiosResponse<Role[]> = axios.api.get('/role', params)
+      if (res.status == 200) {
+        this.role = roles;
+        this.fullFetch = true;
+      }
+    },
+    async fetchRoleById (
+      id: number | Arra<number>,
+      full: boolean = true,
+    ): Promise<Role[]> {
+      const params = Object();
+      if(Array.isArray(id)) {
+        params.id = `in(${id.join(',')})`;
+      } else {
+        params.id = `eq.${id}`;
+      }
+      params.select = '*,role_node_constraint!role_id(*)';
+      const res:AxiosResponse<Role[]> = await api.get('role', {
+        params
+      })
+      if (res.status == 200) {
+        this.role = {
           ...state.role,
           ...Object.fromEntries(res.data.map((role: Role) => [role.id, role])),
         };
-        if (actionParams.full) {
-          state.fullRole = {
-            ...state.fullRole,
+        if (full) {
+          this.fullRole = {
+            ...this.fullRole,
             ...Object.fromEntries(
               res.data.map((role: Role) => [role.id, true]),
             ),
           };
         }
-      },
-    })
-    .post({
-      action: 'createRoleBase',
-      property: 'role',
-      path: '/role',
-      onSuccess: (
-        state: RoleState,
-        res: AxiosResponse<Role[]>,
-        axios: AxiosInstance,
-        { data },
-      ) => {
+      } 
+    },
+    async createRoleBase( data: Partial<Role> ): Promise<void>  {
+      const res:AxiosResponse<Role[]> = await api.post('/role', {
+        data
+      })
+      if ( res.status==200) {
         const role = res.data[0];
-        state.role = { ...state.role, [role.id]: role };
-      },
-    })
-    .patch({
-      action: 'updateRole',
-      path: ({ id }) => `/role?id=eq.${id}`,
-      beforeRequest: (state: RoleState, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, rolePatchKeys);
-      },
-      onSuccess: (
-        state: RoleState,
-        res: AxiosResponse<Role[]>,
-        axios: AxiosInstance,
-        { data },
-      ) => {
+        this.role = { ...this.role, [role.id]: role };  
+      }
+    },
+    async updateRole(data: Partial<Role>, params) {
+      params.data = filterKeys(data, rolePatchKeys);
+      params = {
+        id: `eq.${data.id}`
+      };
+      const res: AxiosResponse<Role[]> = await api.patch('/role', data, {
+        params,
+      });
+      if (res.status==200) {
         let role = res.data[0];
-        role = Object.assign({}, state.role[role.id], role);
-        state.role = { ...state.role, [role.id]: role };
-      },
-    })
-    .delete({
-      action: 'deleteRole',
-      path: ({ id }) => `/role?id=eq.${id}`,
-    })
+        role = Object.assign({}, this.role[role.id], role);
+        this.role = { ...this.role, [role.id]: role };
+      }
+    },
 
-    .post({
-      action: 'createRoleNodeConstraintBase',
-      path: '/role_node_constraint',
-      onSuccess: (
-        state: RoleState,
-        res: AxiosResponse<RoleNodeConstraint[]>,
-        axios: AxiosInstance,
-        { data },
-      ) => {
+  async deleteRole({ params }): Promise<void> {
+
+      const res: AxiosResponse = await api.delete(`roles/${params.id}`);
+      if (res.status === 204) {
+        console.log(`Role with ID ${params.id} deleted successfully.`);
+      } else {
+        console.error(`Failed to delete role with ID ${params.id}.`);
+      }
+    },
+    async createRoleNodeConstraintBase({data}) {
+      const res:AxiosResponse<RoleNodeConstraint[]> = api.post('/role_node_constraint', data.RoleNodeConstraint) 
+      if (res.status==200) {
         const rnc = res.data[0];
-        const role = state.role[rnc.role_id];
+        const role = this.role[rnc.role_id];
         const role_node_constraint = role.role_node_constraint;
         role_node_constraint.push(rnc);
-        state.role[rnc.role_id] = { ...role, role_node_constraint };
-      },
-    })
-    .patch({
-      action: 'updateRoleNodeConstraintBase',
-      path: ({ role_id, node_type }) =>
-        `/role_node_constraint?role_id=eq.${role_id}&node_type=eq.${node_type}`,
-      beforeRequest: (state: RoleNodeConstraintState, { params, data }) => {
-        params.role_id = data.role_id;
+        this.role[rnc.role_id] = { ...role, role_node_constraint };
+      }
+    },
+    async updateRoleNodeConstraintBase(params, data) {
+      params.role_id = data.role_id;
         params.node_type = data.node_type;
         data.slug = undefined;
         Object.assign(data, {
           updated_at: undefined,
           role_node_constraint: undefined,
         });
-      },
-    })
-    .delete({
-      action: 'deleteRoleNodeConstraintBase',
-      path: ({ role_id, node_type }) =>
-        `/role_node_constraint?role_id=eq.${role_id}&node_type=eq.${node_type}`,
-      beforeRequest: (state: RoleNodeConstraintState, { params, data }) => {
-        params.role_id = data.role_id;
-        params.node_type = data.node_type;
-        data.slug = undefined;
-        Object.assign(data, {
-          updated_at: undefined,
-          role_node_constraint: undefined,
-        });
-      },
-    })
-
-    .getVuexStore({
-      getters: RoleGetters,
-      actions: RoleActions,
-      mutations: {
-        CLEAR_STATE: (state: RoleState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-/*
-type RoleRestActionTypes = {
-  fetchRoles: RestEmptyActionType<Role[]>;
-  fetchRoleById: ({
-    full,
-    params,
-  }: {
-    full?: boolean;
-    params: { id: number };
-  }) => Promise<AxiosResponse<Role>>;
-  createRoleBase: RestDataActionType<Partial<Role>, Role[]>;
-  updateRole: RestDataActionType<Partial<Role>, Role[]>;
-  deleteRole: RestDataActionType<Partial<Role>, Role[]>;
-  createRoleNodeConstraintBase: RestDataActionType<
-    Partial<RoleNodeConstraint>,
-    RoleNodeConstraint[]
-  >;
-  updateRoleNodeConstraintBase: RestDataActionType<
-    Partial<RoleNodeConstraint>,
-    RoleNodeConstraint[]
-  >;
-  deleteRoleNodeConstraintBase: RestDataActionType<
-    Partial<RoleNodeConstraint>,
-    RoleNodeConstraint[]
-  >;
-};
-
-export type RoleActionTypes = RetypeActionTypes<typeof RoleActions> &
-  RoleRestActionTypes;
-export type RoleGetterTypes = RetypeGetterTypes<typeof RoleGetters>;
-*/
+      const res:AxiosResponse<RoleNodeConstraint[]> = api.patch('/role_node_constraint')
+      if (res==200) {
+        console.log("update updateRoleNodeConstraintBase successful");
+      }
+    },
+    async deleteRoleNodeConstraintBase(data) {
+      const { role_id, node_type } = data;
+      params= {
+        role_id,
+        node_type,
+      }
+      data.slug = undefined;
+      Object.assign(data, {
+        updated_at: undefined,
+        role_node_constraint: undefined,
+      });
+       //`/role_node_constraint?role_id=eq.${role_id}&node_type=eq.${node_type}`,
+      const res:AxiosResponse<RoleNodeConstraint[]> = await api.delete('/role_node_constraint', {
+        params
+      })
+      if(res==200) {
+        console.log ("deleteRoleNodeConstraintBase successful")
+      }
+    },
+  }
+});

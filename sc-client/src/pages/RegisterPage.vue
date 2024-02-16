@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { Notify } from 'quasar';
+import { useQuasar, Notify } from 'quasar';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -122,38 +122,39 @@ let formdata = {
   name: null,
   password: null,
 };
+const $q = useQuasar();
 let isPwd = true;
 
 function doRegister() {
   try {
-    const theEmail = this.formdata.email;
-    const theHandle = this.formdata.handle;
-    const theName = this.formdata.name;
+    const theEmail: null | string = formdata.email;
+    const theHandle = formdata.handle;
+    const theName = formdata.name;
     if (!theEmail) {
-      this.$q.notify({ type: 'negative', message: 'Missing Email' });
+      $q.notify({ type: 'negative', message: 'Missing Email' });
       return;
     }
     if (!theHandle) {
-      this.$q.notify({ type: 'negative', message: 'Missing Handle' });
+      $q.notify({ type: 'negative', message: 'Missing Handle' });
       return;
     }
     if (!theName) {
-      this.$q.notify({ type: 'negative', message: 'Missingname field' });
+      $q.notify({ type: 'negative', message: 'Missingname field' });
       return;
     }
-    if (!this.formdata.password) {
-      this.$q.notify({ type: 'negative', message: 'Missing Password' });
+    if (!formdata.password) {
+      $q.notify({ type: 'negative', message: 'Missing Password' });
       return;
     }
     // TODO: the domain can benormalized to LC, but case can be significant in the handle
-    this.formdata.email = theEmail.toLowerCase();
-    this.registerUser(this.formdata);
+    formdata.email = theEmail.toLowerCase();
+    registerUser(formdata);
     Notify.create({
       message:
         'Account created successfully. Please check your email for a confirmation link.',
       color: 'positive',
     });
-    this.$router.push({ name: 'confirm_registration' });
+    router.push({ name: 'confirm_registration' });
   } catch (error) {
     if (error.message === 'EXISTS') {
       Notify.create({
@@ -178,7 +179,7 @@ function goHome() {
 function onHide() {
   // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
   setTimeout(() => {
-    this.goHome();
+    goHome();
   }, 50);
 }
 </script>
