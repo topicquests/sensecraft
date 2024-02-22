@@ -40,7 +40,7 @@ export const useMembersStore = defineStore('members', {
       Object.values(state.members).sort((a, b) =>
         a.handle.localeCompare(b.handle),
       ),
-    getMemberById: (state: MembersState) => (id: number) => {
+    getMemberById: (state: MembersState) => (id?: number) => {
       const member = state.members[id];
       if (member) return member;
       const loggedIn = useMemberStore().member;

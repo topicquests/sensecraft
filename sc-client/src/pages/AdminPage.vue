@@ -3,7 +3,7 @@
     <div class="row justify-center q-gutter-md">
       <q-card class="admin-card q-mt-md q-pa-md">
         <div>
-          <member_handle></member_handle>
+          <member-handle></member-handle>
         </div>
         <div class="column items-center">
           <div class="col-12 q-mb-md scoreboard">
@@ -26,7 +26,7 @@
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="superAdmin"
+              v-model="checkForSuperAdmin"
               label="superAdmin"
               left-label
               name="superadmin"
@@ -34,7 +34,7 @@
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="createQuest"
+              v-model="checkForCreateQuest"
               label="createQuest"
               left-label
               name="create-quest"
@@ -42,7 +42,7 @@
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="createGuild"
+              v-model="checkForCreateGuild"
               label="createGuild"
               left-label
               name="create-guild"
@@ -74,7 +74,7 @@
           <div class="row">
             <div class="col-12">
               <div id="roles" class="q-mb-xl">
-                <role-table v-bind:roles="roleStore.getRoles"></role-table>
+                <role-table :roles="roleStore.getRoles"></role-table>
               </div>
             </div>
           </div>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import member_handle from "../components/member-handle.vue";
+import memberHandle from "../components/member-handle.vue";
 import scoreboard from "../components/score-board.vue";
 import roleTable from "../components/role-table.vue";
 import serverDataCard from "../components/server-data-card.vue";
@@ -109,8 +109,18 @@ import { useServerDataStore } from 'src/stores/serverData'
 import { onBeforeMount } from "vue";
 import { useQuasar } from 'quasar';
 
+const ready = ref(false);
+  const userIsSuperAdmin = ref(false);
+  const member_id = ref<number | undefined>(undefined);
+  const membersStore = useMembersStore();
+  const memberStore = useMemberStore();
+  const baseStore = useBaseStore();
+  const roleStore = useRoleStore();
+  const serverDataStore = useServerDataStore();
+  const $q = useQuasar();
 
-function ensure(array: [], value: number, present) {
+
+function ensure(array: [], value: permission_enum, present: boolean) {
   if (!array) return;
   if (present) {
     if (!array.includes(value)) {
@@ -121,54 +131,30 @@ function ensure(array: [], value: number, present) {
       array.splice(array.indexOf(value), 1);
     }
   }
-}
-
-
-    superAdmin: {
-      function get() {
-        return this.member?.permissions.includes("superadmin");
+}   
+  function checkForSuperAdmin() {
+    if(memberStore.member?.permissions.includes("superadmin")) {
+        return true;
       }
-      function set(value) {
-        ensure(this.member?.permissions, "superadmin", value);
-      }
+    else 
+      return false
+  }
+  function checkForCreateQuest() {
+    if (memberStore.member?.permissions.includes("createQuest")){
+      return true;
     }
-
-    createQuest: {
-     function get() {
-        return this.member?.permissions.includes("createQuest");
+  }
+  function checkForCreateGuild() {
+        if(memberStore.member?.permissions.includes("createGuild")) {
+          return true
+        }
+        else
+          return false
       }
-     function  set(value) {
-        ensure(this.member?.permissions, "createQuest", value);
-      }
-    }
-    createGuild: {
-      function get() {
-        return this.member?.permissions.includes("createGuild");
-      }
-      function set(value) {
-        ensure(this.member?.permissions, "createGuild", value);
-      }
-    }
-
-   function member(): Member | undefined {
-      return membersStore.getMemberById(member_id.value);
-    }
-
-
-  const ready = ref(false);
-  let userIsSuperAdmin = ref(false);
-  const member_id = ref<number | null>(null);
-  const superAdmin!: string;
-  const createQuest!: string;
-  const createGuild!: string;
-  const superadmin!: boolean;
-  const membersStore = useMembersStore();
-  const memberStore = useMemberStore();
-  const baseStore = useBaseStore();
-  const roleStore = useRoleStore();
-  const serverDataStore = useServerDataStore();
-  const $q = useQuasar();
-
+  function member(): Member | undefined {
+    return membersStore.getMemberById(member_id.value);
+  }
+    
   async function ensureData() {
     const promises = [membersStore.ensureAllMembers(), roleStore.ensureAllRoles()];
     if (baseStore.hasPermission(permission_enum.superadmin)) {
@@ -179,9 +165,8 @@ function ensure(array: [], value: number, present) {
 
   async function updatePermissions() {
     try {
-      const member = member;
-      await memberStore.updateMember({
-        data: { id: member.id, permissions: member.permissions },
+      await membersStore.updateMember({
+        data: { id: memberStore.member.id, permissions: memberStore.member.permissions },
       });
       $q.notify({
         message: "Permissions were updated successfully",
@@ -196,12 +181,12 @@ function ensure(array: [], value: number, present) {
     }
   }
   onBeforeMount(async () => {
-    await userLoaded;
+    //await userLoaded;
     member_id.value = memberStore.getUserId;
     userIsSuperAdmin.value = baseStore.hasPermission(permission_enum.superadmin);
-    await serverDataStore.ensureData();
+    await ensureData();
     ready.value = true;
-  }
+  })
 </script>
 <style>
 .admin-card {

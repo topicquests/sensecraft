@@ -75,10 +75,12 @@ import { Guild, GuildData } from '../types';
 //import { userLoaded } from '../boot/userLoaded';
 import { onBeforeMount, ref } from 'vue';
 import member from '../components/member-handle.vue';
+import { useMembersStore } from 'src/stores/members';
 
 const memberStore = useMemberStore();
 const guildsStore = useGuildStore();
 const questsStore = useQuestStore();
+const membersStore = useMembersStore();
 let ready = ref(false);
 
 function getOpenGuilds(): GuildData[] {
@@ -96,6 +98,7 @@ onBeforeMount(async () => {
   await Promise.all([
     questsStore.ensureAllQuests(),
     guildsStore.ensureAllGuilds(),
+    membersStore.ensureAllMembers(),
   ]);
   ready.value = true;
 });

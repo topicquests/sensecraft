@@ -316,8 +316,8 @@ export const useQuestStore = defineStore('quest', {
     },
 
     ensureCurrentQuest: async (context, { quest_id, full = true }) => {
-      await context.dispatch('ensureQuest', { quest_id, full });
-      await context.dispatch('setCurrentQuest', quest_id);
+      await ensureQuest({ quest_id, full });
+      await setCurrentQuest(quest_id);
     },
     resetQuests: () => {
       Object.assign(baseState);

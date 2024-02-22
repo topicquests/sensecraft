@@ -86,7 +86,6 @@ const baseState: ConversationState = {
 
 export const useConversationStore = defineStore('conversation', {
   state: () => baseState,
-
   getters: {
     getConversation: (state: ConversationState): ConversationNode[] =>
       Object.values(state.conversation),
@@ -115,9 +114,9 @@ export const useConversationStore = defineStore('conversation', {
     getTreeSequence: (state: ConversationState): number[] =>
       depthFirst(
       makeTree(Object.values(state.conversation || state.neighbourhood))[0]
-    ),
+      ),
     getThreatMap: (state: ConversationState): ThreatMap => {
-      const tree = this.getConversationTree();
+      const tree = state.getConversationTree();
       if (tree && tree.length > 0) {
         const threatMap: ThreatMap = {};
         calc_threat_status(tree[0], threatMap);
@@ -126,7 +125,7 @@ export const useConversationStore = defineStore('conversation', {
     },
     getPrivateThreatMap: (state: ConversationState): ThreatMap => {
       const tree =
-        this.getPrivateConversationTree();
+        state.getPrivateConversationTree();
       if (tree && tree.length > 0) {
         const threatMap: ThreatMap = {};
         calc_threat_status(tree[0], threatMap);
@@ -134,7 +133,7 @@ export const useConversationStore = defineStore('conversation', {
       }
     },
     getScoreMap: (state: ConversationState): ScoreMap => {
-      const tree = this.getConversationTree();
+      const tree = state.getConversationTree();
       if (tree && tree.length > 0) {
         const threatMap = this.getThreatMap();
         return base_scoring(tree[0], threatMap);
@@ -142,7 +141,7 @@ export const useConversationStore = defineStore('conversation', {
     },
     getPrivateScoreMap: (state: ConversationState): ScoreMap => {
       const tree =
-     this.getPrivateConversationTree();
+     state.getPrivateConversationTree();
       if (tree && tree.length > 0) {
         const threatMap =
        this.getPrivateThreatMap();
@@ -220,7 +219,7 @@ export const useConversationStore = defineStore('conversation', {
     ensureConversation: async (context, quest_id: number) => {
       // maybe allow guildId, min status.
       if (quest_id != context.state.currentQuest || !context.state.full) {
-        await context.dispatch("fetchConversation", { params: { quest_id } });
+        await fetchConversation({ params: { quest_id }});
       }
     },
     ensureRootNode: async (quest_id: number | undefined) => {
@@ -228,7 +227,7 @@ export const useConversationStore = defineStore('conversation', {
         quest_id != this.currentQuest ||
         !this.conversationRoot
       ) {
-      await context.dispatch("fetchRootNode", { params: { quest_id } });
+      await fetchRootNode({ params: { quest_id }});
       }
     },
     ensureConversationNeighbourhood: async (
@@ -238,7 +237,7 @@ export const useConversationStore = defineStore('conversation', {
         node_id != this.neighbourhoodRoot ||
         Object.keys(this.neighbourhood).length == 0
       ) {
-      await context.dispatch("fetchConversationNeighbourhood", {
+      await fetchConversationNeighbourhood({
         params: { node_id, guild },
         });
       }
@@ -251,34 +250,139 @@ export const useConversationStore = defineStore('conversation', {
       node_id != context.state.neighbourhoodRoot ||
       Object.keys(context.state.neighbourhood).length == 0
     ) {
-      await context.dispatch("fetchConversationSubtree", {
+      await fetchConversationSubtree({
         params: { node_id },
-        });
+      });
       }
     },
     resetConversation: () => {
-      Object.assign(state, baseState);
+      Object.assign(baseState);
     },
-  }
+    async fetchConversationNode(params:{id: number}) {
+      const res: AxiosResponse<ConversationNode[]> = await api.get(`/conversation_node/${params}`)
+      if(res.status == 200 ) {
+        const node = res.data[0];
+        if (node.meta == "channel") {
+          // maybe we came here through the websocket
+          addToState(this.node)
+        } else {
+          this.node = res.data[0];
+          addToState(this.node);
+        }
+      }
+    },
+    addToState(node: ConversationNode) {
+      this.conversation = { ...this.conversation, [node.id]: node };
+      if (!node.parent_id) {
+        if (node.meta == meta_state_enum.channel) {
+          throw new Error("channels should not be called in conversation");
+        } else {
+          this.conversationRoot = node;
+        }
+      }
+      if (this.neighbourhoodRoot) {
+        const root = this.neighbourhood[state.neighbourhoodRoot];
+        if (root && node.ancestry.startsWith(root.ancestry)) {
+          this.neighbourhood = { ...this.neighbourhood, [node.id]: node };
+        }
+      }
+    },
+    async fetchConversation(params) {
+      const res:AxiosResponse = await api.get( `/conversation_node?quest_id=eq.${params.quest_id}&meta=not.eq.channel`)
+      if(res.status==200) {
+      if (this.currentQuest !== params.quest_id) {
+        this.currentQuest = params.quest_id;
+        this.neighbourhood = {};
+        this.neighbourhoodRoot = null;
+      }
+      this.conversation = Object.fromEntries(
+        res.data.map((node: ConversationNode) => [node.id, node])
+      );
+      this.full = true;
+      this.conversationRoot = res.data.find(
+        (node: ConversationNode) => node.parent_id === null
+      );
+      }
+    },
+    async fetchRootNode(params: { quest_id }) {
+      const res:AxiosResponse<ConversationNode[]> = await api.get(`/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`)
+      if(res.status==200) {
+        if (this.currentQuest !== params.quest_id) {
+          this.currentQuest = params.quest_id;
+          this.conversation = {};
+          this.neighbourhood = {};
+          this.neighbourhoodRoot = null;
+        }
+      if (res.data.length) 
+        addToState(state, res.data[0]);
+      }
+    },
+    async fetchConversationNeighbourhood(params: { node_id: number, guild: number }) {
+      const res:AxiosResponse<ConversationNode[]> = await api.post(`rpc/node_neighbourhood/${params}`)
+      const firstNode = res.data[0];
+      if (this.currentQuest !== firstNode.quest_id) {
+        this.currentQuest = firstNode.quest_id;
+        this.conversation = {};
+        this.conversationRoot = null;
+      }
+      this.neighbourhood = Object.fromEntries(
+        res.data.map((node: ConversationNode) => [node.id, node])
+      );
+      this.neighbourhoodRoot = params.node_id;
+      const root = res.data.find(
+        (node: ConversationNode) => node.parent_id == null
+      );
+      this.conversation = Object.assign(
+      this.conversation,
+      this.neighbourhood
+      );
+      if (root) {
+        this.conversationRoot = root;
+      }
+    },
+    async fetchConversationSubtree(params: {node_id: number}) {
+      const res:AxiosResponse<ConversationNode[]> = await api.post(`rpc/node_neighbourhood/${params}`)
+      if(res.status==200) {
+        const firstNode = res.data[0];
+        if (this.currentQuest !== firstNode.quest_id) {
+          this.currentQuest = firstNode.quest_id;
+          this.conversation = {};
+          this.conversationRoot = null;
+        }
+        this.neighbourhood = Object.fromEntries(
+          res.data.map((node: ConversationNode) => [node.id, node])
+        );
+        this.neighbourhoodRoot = params.node_id;
+        const root = res.data.find(
+          (node: ConversationNode) => node.parent_id == null
+        );
+        this.conversation = Object.assign(
+          this.conversation,
+          this.neighbourhood
+        );
+        if (root) {
+          this.conversationRoot = root;
+        }
+      }
+    },
+    async createConversationNode(data: {node: Partial<ConversationNode>}) {
+      const res: AxiosResponse<ConversationNode[]> = await api.post('/conversation_node', data)
+      if(res.status==200) {
+        state.node = res.data[0];
+        addToState(this.node);
+      }
+    },
+    async updateConversationNode(data: {node: Partial<ConversationNode>}) {
+      const params= Object();
+      params.id = data.node.id;
+      data = filterKeys(data, conversationNodePatchKeys);
+      const res: AxiosResponse<ConversationNode[]> = await api.patch(`/conversation_node/${params}`, data)
+      const node = res.data[0];
+      addToState(node);
+    },
+   }
 })
 
-
-function addToState(state: ConversationState, node: ConversationNode) {
-  state.conversation = { ...state.conversation, [node.id]: node };
-  if (!node.parent_id) {
-    if (node.meta == meta_state_enum.channel) {
-      throw new Error("channels should not be called in conversation");
-    } else {
-      state.conversationRoot = node;
-    }
-  }
-  if (state.neighbourhoodRoot) {
-    const root = state.neighbourhood[state.neighbourhoodRoot];
-    if (root && node.ancestry.startsWith(root.ancestry)) {
-      state.neighbourhood = { ...state.neighbourhood, [node.id]: node };
-    }
-  }
-}
 export function ibis_node_icon(
   node_type: ibis_node_type_type,
   small_icon: boolean
@@ -376,274 +480,3 @@ export function makeTree(
   }
   return roots;
 }
-
-
-/*
-
-export const conversation = (axios: AxiosInstance) =>
-  new MyVapi<ConversationState>({
-    axios,
-    state: baseState,
-  })
-    // Step 3
-    .get({
-      action: "fetchConversationNode",
-      queryParams: false,
-      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-      property: "node",
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        const node = res.data[0];
-        if (node.meta == "channel") {
-          // maybe we came here through the websocket
-          MyVapi.store.commit("channel/ADD_TO_STATE", node);
-        } else {
-          state.node = res.data[0];
-          addToState(state, state.node);
-        }
-      },
-    })
-    .get({
-      path: ({ quest_id }: { quest_id: number }) =>
-        `/conversation_node?quest_id=eq.${quest_id}&meta=not.eq.channel`,
-      property: "conversation",
-      action: "fetchConversation",
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        if (state.currentQuest !== params.quest_id) {
-          state.currentQuest = params.quest_id;
-          state.neighbourhood = {};
-          state.neighbourhoodRoot = null;
-        }
-        state.conversation = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node])
-        );
-        state.full = true;
-        state.conversationRoot = res.data.find(
-          (node: ConversationNode) => node.parent_id === null
-        );
-      },
-    })
-    .get({
-      path: ({ quest_id }: { quest_id: number }) => {
-        return `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`;
-      },
-      property: "conversationRoot",
-      action: "fetchRootNode",
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        if (state.currentQuest !== params.quest_id) {
-          state.currentQuest = params.quest_id;
-          state.conversation = {};
-          state.neighbourhood = {};
-          state.neighbourhoodRoot = null;
-        }
-        if (res.data.length) addToState(state, res.data[0]);
-      },
-    })
-    .call({
-      path: "node_neighbourhood",
-      property: "conversation",
-      action: "fetchConversationNeighbourhood",
-      readOnly: true,
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        const firstNode = res.data[0];
-        if (state.currentQuest !== firstNode.quest_id) {
-          state.currentQuest = firstNode.quest_id;
-          state.conversation = {};
-          state.conversationRoot = null;
-        }
-        state.neighbourhood = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node])
-        );
-        state.neighbourhoodRoot = params.node_id;
-        const root = res.data.find(
-          (node: ConversationNode) => node.parent_id == null
-        );
-        state.conversation = Object.assign(
-          state.conversation,
-          state.neighbourhood
-        );
-        if (root) {
-          state.conversationRoot = root;
-        }
-      },
-      ensureConversation: async (context, quest_id: number) => {
-        // maybe allow guildId, min status.
-        if (quest_id != context.state.currentQuest || !context.state.full) {
-          await context.dispatch("fetchConversation", { params: { quest_id } });
-        }
-      },
-      ensureRootNode: async (context, quest_id: number) => {
-        if (
-          quest_id != context.state.currentQuest ||
-          !context.state.conversationRoot
-        ) {
-          await context.dispatch("fetchRootNode", { params: { quest_id } });
-        }
-      },
-      ensureConversationNeighbourhood: async (
-        context,
-        { node_id, guild }: { node_id: number; guild?: number }
-      ) => {
-        if (
-          node_id != context.state.neighbourhoodRoot ||
-          Object.keys(context.state.neighbourhood).length == 0
-        ) {
-          await context.dispatch("fetchConversationNeighbourhood", {
-            params: { node_id, guild },
-          });
-        }
-      },
-      ensureConversationSubtree: async (
-        context,
-        { node_id }: { node_id: number }
-      ) => {
-        if (
-          node_id != context.state.neighbourhoodRoot ||
-          Object.keys(context.state.neighbourhood).length == 0
-        ) {
-          await context.dispatch("fetchConversationSubtree", {
-            params: { node_id },
-          });
-        }
-      },
-      resetConversation: (context) => {
-        context.commit("CLEAR_STATE");
-      },
-    };
-    })
-    })
-    .call({
-      path: "node_subtree",
-      property: "conversation",
-      action: "fetchConversationSubtree",
-      readOnly: true,
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        const firstNode = res.data[0];
-        if (state.currentQuest !== firstNode.quest_id) {
-          state.currentQuest = firstNode.quest_id;
-          state.conversation = {};
-          state.conversationRoot = null;
-        }
-        state.neighbourhood = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node])
-        );
-        state.neighbourhoodRoot = params.node_id;
-        const root = res.data.find(
-          (node: ConversationNode) => node.parent_id == null
-        );
-        state.conversation = Object.assign(
-          state.conversation,
-          state.neighbourhood
-        );
-        if (root) {
-          state.conversationRoot = root;
-        }
-      },
-    })
-    .post({
-      action: "createConversationNode",
-      path: "/conversation_node",
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data }
-      ) => {
-        state.node = res.data[0];
-        addToState(state, state.node);
-      },
-    })
-    .patch({
-      action: "updateConversationNode",
-      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-      beforeRequest: (state, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, conversationNodePatchKeys);
-      },
-      onSuccess: (
-        state: ConversationState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
-        const node = res.data[0];
-        addToState(state, node);
-      },
-    })
-    // Step 4
-    .getVuexStore({
-      getters: ConversationGetters,
-      actions: ConversationActions,
-      mutations: {
-        CLEAR_STATE: (state: ConversationState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-
-type ConversationRestActionTypes = {
-  fetchConversationNode: RestParamActionType<
-    { id: number },
-    ConversationNode[]
-  >;
-  fetchConversation: RestParamActionType<
-    { quest_id: number },
-    ConversationNode[]
-  >;
-  fetchRootNode: RestParamActionType<{ quest_id: number }, ConversationNode[]>;
-  fetchConversationNeighbourhood: RestParamActionType<
-    {
-      guild: number;
-      node_id: number;
-    },
-    ConversationNode[]
-  >;
-  fetchConversationSubtree: RestParamActionType<
-    {
-      node_id: number;
-    },
-    ConversationNode[]
-  >;
-  createConversationNode: RestDataActionType<
-    Partial<ConversationNode>,
-    ConversationNode[]
-  >;
-  updateConversationNode: RestDataActionType<
-    Partial<ConversationNode>,
-    ConversationNode[]
-  >;
-};
-
-export type ConversationActionTypes = RetypeActionTypes<
-  typeof ConversationActions
-> &
-  ConversationRestActionTypes;
-export type ConversationGetterTypes = RetypeGetterTypes<
-  typeof ConversationGetters
->;
-*/

@@ -57,8 +57,8 @@ import { onBeforeUpdate } from "vue";
 import { onBeforeMount } from "vue";
 
 const ChannelListProps = defineProps<{
-    guild_id: number;
-    quest_id: number;
+    guild_id?: number;
+    quest_id?: number;
     inPage: boolean;
     title: string;
 }>();

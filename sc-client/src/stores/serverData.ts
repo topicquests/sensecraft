@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios";
 import { ServerData } from "src/types";
 import { defineStore } from 'pinia';
+import { api } from '../boot/axios';
 
 export interface ServerDataState {
   serverData: ServerData;
@@ -18,13 +19,13 @@ export const useServerDataStore = defineStore('serverData', {
   actions: {
     async ensureServerData ()  {
       if (!this.serverData) {
-        await fetchServerData();
+        await this.fetchServerData();
         return this.serverData;
       }
     },
     async resetServerData ()  {
       if (this.serverData) {
-        await fetchServerData();
+        await this.fetchServerData();
         return this.serverData;
       }
     },

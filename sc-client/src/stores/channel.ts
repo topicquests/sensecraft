@@ -111,12 +111,12 @@ actions: {
   resetChannel: (state: ChannelState) => {
     Object.assign(state, baseState);
   },
-  addToState(state: ChannelState, node: ConversationNode) {
+  addToState(node: ConversationNode) {
     const channel_id = Number.parseInt(node.ancestry.split(".")[0]);
     if (!node.parent_id) {
-      this.channels = { ...state.channels, [channel_id]: node };
+      this.channels = { ...this.channels, [channel_id]: node };
     }
-    if (node.parent_id && state.channelData[channel_id] == undefined) {
+    if (node.parent_id && this.channelData[channel_id] == undefined) {
       console.log("Missing channel");
       return;
     }
@@ -161,84 +161,26 @@ actions: {
         this.channelData = { ...this.channelData, [channel_id]: nodes };
         this.currentChannel = channel_id;
       }
+    },
+    async createChannelNode(params) {
+     const res: AxiosResponse<ConversationNode[]> = await api.post('/conversation_node', {
+      params
+     });
+     if(res.status==200)
+     {
+      const node = res.data[0];
+      addToState(node);
+     }
+    },
+    async updateChannelNode(params: Partial<conversationNode>) {
+      data = filterKeys(data, conversationNodePatchKeys);
+      const res: AxiosResponse<ConversationNode[]> = await api.patch('/conversation_node/${params.id}', {
+        params
+      })
+      if (res.status == 200) {
+        const node = res.data[0];
+        addToState(node);
+      }
     }
   }
 })
-
-
-/*
-    .get({
-      path: ({ guild_id }: { guild_id: number }) =>
-        `/conversation_node?guild_id=eq.${guild_id}&meta=eq.channel&parent_id=is.null`,
-      property: "channels",
-      action: "fetchChannels",
-      onSuccess: (
-        state: ChannelState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data },
-      ) => {
-        if (state.currentGuild !== params.guild_id) {
-          state.currentGuild = params.guild_id;
-          state.channelData = {};
-        }
-        state.channels = Object.fromEntries(
-          res.data.map((node: ConversationNode) => [node.id, node]),
-        );
-      },
-    })
-
-    .post({
-      action: "createChannelNode",
-      path: "/conversation_node",
-      onSuccess: (
-        state: ChannelState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { params, data },
-      ) => {
-        const node = res.data[0];
-        addToState(state, node);
-      },
-    })
-    .patch({
-      action: "updateChannelNode",
-      path: ({ id }: { id: number }) => `/conversation_node?id=eq.${id}`,
-      beforeRequest: (state, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-        actionParams.data = filterKeys(data, conversationNodePatchKeys);
-      },
-      onSuccess: (
-        state: ChannelState,
-        res: AxiosResponse<ConversationNode[]>,
-        axios: AxiosInstance,
-        { data },
-      ) => {
-        const node = res.data[0];
-        addToState(state, node);
-      },
-    })
-    // Step 4
-    .getVuexStore({
-      getters: ChannelGetters,
-      actions: ChannelActions,
-      mutations: {
-        SET_CURRENT_CHANNEL: (state: ChannelState, channel_id: number) => {
-          state.currentChannel = channel_id;
-        },
-        CLEAR_STATE: (state: ChannelState) => {
-          Object.assign(state, baseState);
-        },
-        ADD_TO_STATE: (state: ChannelState, node: ConversationNode) => {
-          addToState(state, node);
-        },
-      },
-    });
-
-
-
-export type ChannelActionTypes = RetypeActionTypes<typeof ChannelActions> &
-  ChannelRestActionTypes;
-export type ChannelGetterTypes = RetypeGetterTypes<typeof ChannelGetters>;
-*/

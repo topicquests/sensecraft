@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "/admin",
         name: "admin",
-        component: () => import("pages/Admin.vue"),
+        component: () => import("pages/AdminPage.vue"),
       },
       //Quest pages
       {
@@ -146,7 +146,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "/admin",
         name: "admin",
-        component: () => import("pages/Admin.vue"),
+        component: () => import("pages/AdminPage.vue"),
       },
       {
         path: "/guild/:guild_id/channel",

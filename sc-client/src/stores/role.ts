@@ -2,6 +2,7 @@ import { filterKeys } from './baseStore';
 import { defineStore } from 'pinia';
 import { AxiosResponse} from 'axios';
 import { Role, RoleNodeConstraint, rolePatchKeys } from '../types';
+import { api } from '../boot/axios';
 
 interface RoleMap {
   [key: number]: Role;
@@ -45,17 +46,16 @@ export const useRoleStore = defineStore('role', {
       },
   },
   actions: {
-    ensureAllRoles: async () => {
+    async  ensureAllRoles() {
       if (this.role.length === 0 || !this.fullFetch) {
-        await fetchRoles();
+        await this.fetchRoles();
       }
     },
-    ensureRole: async (
-      context,
+    async ensureRole(
       { role_id, full = true }: { role_id: number; full?: boolean },
-    ) => {
+    ) {
       if (
-        context.getters.getRoleById(role_id) === undefined ||
+        this.getRoleById(role_id) === undefined ||
         (full && !this.fullRole[role_id])
       ) {
         await fetchRoleById({
@@ -64,37 +64,41 @@ export const useRoleStore = defineStore('role', {
         });
       }
     },
-    createRole: async ({ data }) => {
+    async createRole ({ data }) {
       const res = await createRoleBase({ data });
-      await fetchRoles();
+      await this.fetchRoles();
       return res.data[0];
     },
     resetRole() {
       Object.assign(this, baseState);
     },
-    createRoleNodeConstraint: async ({ data }) => {
+    async createRoleNodeConstraint({ data }) {
       await createRoleNodeConstraintBase({
         data,
       });
-      await fetchRoles();
+      await this.fetchRoles();
     },
-    updateRoleNodeConstraint: async ({ data }) => {
+    async updateRoleNodeConstraint({ data }) {
       await updateRoleNodeConstraintBase({
         data,
       });
-      await fetchRoles();
+      await this.fetchRoles();
     },
-    deleteRoleNodeConstraint: async ({ data }) => {
+    async deleteRoleNodeConstraint({ data }) {
       await deleteRoleNodeConstraintBase({
         data,
       });
-      await fetchRoles();
+      await this.fetchRoles();
     },
     
     async fetchRoles() {
+      const params = Object();
       params.select = '*,role_node_constraint!role_id(*)';
-      const res:AxiosResponse<Role[]> = axios.api.get('/role', params)
+      const res:AxiosResponse<Role[]> = await api.get('/role', {params})
       if (res.status == 200) {
+        const roles = Object.fromEntries(
+          res.data.map((role: Role) => [role.id, role])
+        );
         this.role = roles;
         this.fullFetch = true;
       }
@@ -115,7 +119,7 @@ export const useRoleStore = defineStore('role', {
       })
       if (res.status == 200) {
         this.role = {
-          ...state.role,
+          ...this.role,
           ...Object.fromEntries(res.data.map((role: Role) => [role.id, role])),
         };
         if (full) {

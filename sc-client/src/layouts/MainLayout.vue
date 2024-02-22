@@ -225,7 +225,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
@@ -241,12 +241,12 @@ const memberStore = useMemberStore();
 const guildStore = useGuildStore();
 const questStore = useQuestStore();
 const baseStore = useBaseStore();
-const leftDrawer = ref(false);
-let hasPermission = ref(false);
-let isAuthenticated = ref(false);
-let rightDrawer = ref(false);
-const showTree = true;
 const $q = useQuasar();
+const leftDrawer = ref(false);
+const hasPermission = ref(false);
+const isAuthenticated = ref(false);
+const rightDrawer = ref(false);
+const showTree = true;
 const currentGuild  = ref<GuildData|undefined>(guildStore.getCurrentGuild);
 
 function checkForPermission(permission_enum: permission_enum): boolean {
@@ -255,39 +255,39 @@ function checkForPermission(permission_enum: permission_enum): boolean {
     return true;
   }
   return false;
-}
+};
 function checkIfAuthenticated(): boolean {
   isAuthenticated.value = memberStore.isAuthenticated;
   if (isAuthenticated.value == true) {
     return true;
   }
   return false;
-}
+};
 function goTo(route: string): void {
   router.push(route);
-}
-
+};
 async function onLogout() {
   rightDrawer.value = false;
   leftDrawer.value = false;
   goTo('home');
   await memberStore.logout();
-
   $q.notify({
     type: 'positive',
     message: 'You are now logged out',
   });
-}
-
+};
 function toggleNav() {
   if (rightDrawer.value) {
     closeNav();
   } else {
     rightDrawer.value = true;
   }
-}
-
+};
 function closeNav() {
   rightDrawer.value = false;
-}
+};
+onBeforeMount(() => {
+  guildStore.ensureAllGuilds();
+  questStore.ensureAllQuests();
+});
 </script>

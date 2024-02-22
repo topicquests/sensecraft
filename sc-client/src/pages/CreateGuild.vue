@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <q-card style="width: 60%" class="q-mt-md">
         <div>
-          <member></member>
+          <member_handle></member_handle>
         </div>
         <div class="column items-center">
           <div class="col-12 q-mb-md" style="width: 75%">
@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import scoreboard from '../components/score-board.vue';
-import member from '../components/member-handle.vue';
+import member_handle from '../components/member-handle.vue';
 import { userLoaded } from '../boot/userLoaded';
 import { public_private_bool } from '../enums';
 import { Role } from './../types';
