@@ -65,13 +65,13 @@ export interface ConversationMap {
 
 export interface ConversationState {
   full: boolean;
-  node?: ConversationNode;
-  currentQuest?: number;
+  node?: ConversationNode|null;
+  currentQuest?: number|null;
   // currentGuild?: number;
   conversation: ConversationMap;
-  neighbourhoodRoot?: number;
-  neighbourhood: ConversationMap;
-  conversationRoot?: ConversationNode;
+  neighbourhoodRoot?: number|null;
+  neighbourhood: ConversationMap|undefined;
+  conversationRoot?: ConversationNode|null;
 }
 
 const baseState: ConversationState = {
@@ -79,7 +79,7 @@ const baseState: ConversationState = {
   node: null,
   currentQuest: null,
   conversation: {},
-  neighbourhoodRoot: null,
+  neighbourhoodRoot: undefined,
   neighbourhood: {},
   conversationRoot: null,
 };
@@ -94,8 +94,11 @@ export const useConversationStore = defineStore('conversation', {
     getRootNode: (state: ConversationState) => state.conversationRoot,
     getNeighbourhood: (state: ConversationState): ConversationNode[] =>
       Object.values(state.neighbourhood),
-    getFocusNode: (state: ConversationState) =>
-      state.neighbourhood[state.neighbourhoodRoot],
+    getFocusNode: (state: ConversationState) => {
+      if(state.neighbourhoodRoot && state.neighbourhood) {
+        state.neighbourhood[state.neighbourhoodRoot]
+      }
+    },    
     getNeighbourhoodTree: (state: ConversationState) =>
       state.neighbourhood ? makeTree(Object.values(state.neighbourhood)) : null,
     getConversationTree: (state: ConversationState) =>
@@ -115,15 +118,15 @@ export const useConversationStore = defineStore('conversation', {
       depthFirst(
       makeTree(Object.values(state.conversation || state.neighbourhood))[0]
       ),
-    getThreatMap: (state: ConversationState): ThreatMap => {
-      const tree = state.getConversationTree();
+    getThreatMap() {
+      const tree = this.getConversationTree();
       if (tree && tree.length > 0) {
         const threatMap: ThreatMap = {};
         calc_threat_status(tree[0], threatMap);
         return threatMap;
       }
     },
-    getPrivateThreatMap: (state: ConversationState): ThreatMap => {
+    getPrivateThreatMap: (state: ConversationState): ThreatMap|undefined => {
       const tree =
         state.getPrivateConversationTree();
       if (tree && tree.length > 0) {
@@ -131,20 +134,21 @@ export const useConversationStore = defineStore('conversation', {
         calc_threat_status(tree[0], threatMap);
         return threatMap;
       }
+      return
     },
-    getScoreMap: (state: ConversationState): ScoreMap => {
-      const tree = state.getConversationTree();
+    getScoreMap: () {
+      const tree = this.getConversationTree();
       if (tree && tree.length > 0) {
         const threatMap = this.getThreatMap();
         return base_scoring(tree[0], threatMap);
       }
     },
-    getPrivateScoreMap: (state: ConversationState): ScoreMap => {
+    getPrivateScoreMap: (state: ConversationState): ScoreMap|undefined => {
       const tree =
      state.getPrivateConversationTree();
       if (tree && tree.length > 0) {
         const threatMap =
-       this.getPrivateThreatMap();
+       state.getPrivateThreatMap();
         return base_scoring(tree[0], threatMap);
       }
     },
@@ -242,16 +246,15 @@ export const useConversationStore = defineStore('conversation', {
         });
       }
     }, 
-    ensureConversationSubtree: async (
-      context,
+    async ensureConversationSubtree (
       { node_id }: { node_id: number }
-    ) => {
+    ){
     if (
-      node_id != context.state.neighbourhoodRoot ||
-      Object.keys(context.state.neighbourhood).length == 0
+      node_id != this.neighbourhoodRoot ||
+      Object.keys(this.neighbourhood).length == 0
     ) {
-      await fetchConversationSubtree({
-        params: { node_id },
+      await this.fetchConversationSubtree({
+        { node_id },
       });
       }
     },

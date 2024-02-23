@@ -19,6 +19,7 @@
     "jwt-decode": "~4.0",
     "pinia": "~2.1",
     "quasar": "~2.14",
+    "robust-websocket": "^1.0.0",
     "vue": "~3.4",
     "vue-i18n": "~9.9",
     "vue-router": "~4.2"
@@ -44,8 +45,8 @@
     "eslint-plugin-vue": "~9",
     "jest-environment-jsdom": "~29",
     "jest-mock-axios": "~4.7",
-    "ts-jest": "~29",
     "prettier": "~3.2",
+    "ts-jest": "~29",
     "typescript": "~5.3"
   },
   "engines": {
