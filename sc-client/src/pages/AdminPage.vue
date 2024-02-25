@@ -14,7 +14,7 @@
           <div class="col-md-auto col-sm-6">
             <q-select
               v-model="member_id"
-              :options="membersStore.getMembers"
+              :options="members"
               option-label="handle"
               option-value="id"
               label="Handle"
@@ -26,24 +26,24 @@
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="checkForSuperAdmin"
+              v-model="superAdmin"
               label="superAdmin"
               left-label
-              name="superadmin"
+              name="superAdmin"
             />
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="checkForCreateQuest"
-              label="createQuest"
+              v-model="createQuest"
+              label="Quest Admin"
               left-label
               name="create-quest"
             />
           </div>
           <div class="col-md-auto col-sm-6">
             <q-checkbox
-              v-model="checkForCreateGuild"
-              label="createGuild"
+              v-model="createGuild"
+              label="Guild Admin"
               left-label
               name="create-guild"
             />
@@ -99,7 +99,7 @@ import roleTable from "../components/role-table.vue";
 import serverDataCard from "../components/server-data-card.vue";
 import type { Member } from "../types";
 import { userLoaded } from "../boot/userLoaded";
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 import { permission_enum } from "../enums";
 import { useMembersStore } from "src/stores/members"; 
 import { useMemberStore } from "src/stores/member";
@@ -110,17 +110,20 @@ import { onBeforeMount } from "vue";
 import { useQuasar } from 'quasar';
 
 const ready = ref(false);
-  const userIsSuperAdmin = ref(false);
-  const member_id = ref<number | undefined>(undefined);
+  const userIsSuperAdmin = ref(false); 
   const membersStore = useMembersStore();
   const memberStore = useMemberStore();
   const baseStore = useBaseStore();
   const roleStore = useRoleStore();
   const serverDataStore = useServerDataStore();
   const $q = useQuasar();
+  const member_id = ref<number|undefined>(undefined);
+const members = membersStore.getMembers;
 
+const member = ref<Member>( membersStore.getMemberById(member_id.value));
+    
 
-function ensure(array: [], value: permission_enum, present: boolean) {
+function ensure(array: string[], value: permission_enum, present: boolean) {
   if (!array) return;
   if (present) {
     if (!array.includes(value)) {
@@ -131,32 +134,39 @@ function ensure(array: [], value: permission_enum, present: boolean) {
       array.splice(array.indexOf(value), 1);
     }
   }
-}   
-  function checkForSuperAdmin() {
-    if(memberStore.member?.permissions.includes("superadmin")) {
-        return true;
+}
+const superAdmin = computed({
+  get() {
+        return member.value?.permissions.includes("superadmin");
+      },
+      set(value) {
+        ensure(member.value?.permissions, permission_enum.superadmin, value);
       }
-    else 
-      return false
-  }
-  function checkForCreateQuest() {
-    if (memberStore.member?.permissions.includes("createQuest")){
-      return true;
-    }
-  }
-  function checkForCreateGuild() {
-        if(memberStore.member?.permissions.includes("createGuild")) {
-          return true
-        }
-        else
-          return false
-      }
-  function member(): Member | undefined {
-    return membersStore.getMemberById(member_id.value);
-  }
-    
-  async function ensureData() {
-    const promises = [membersStore.ensureAllMembers(), roleStore.ensureAllRoles()];
+});
+const createQuest = computed({
+  get() {
+    return member.value?.permissions.includes("createQuest");
+  },
+  set(val) {
+    ensure(member.value?.permissions, permission_enum.createQuest, val);
+  },
+});
+const createGuild = computed({
+  get() {
+    return member.value?.permissions.includes("createGuild");
+  },
+  set(val) {
+    ensure(member.value?.permissions, permission_enum.createGuild, val);
+  },
+})
+watch(member_id, (newVal, oldVal) => {
+  // Handle member selection change here
+  member.value = membersStore.getMemberById(member_id.value)
+  console.log('Selected member ID:', newVal);
+});
+ 
+async function ensureData() {
+  const promises = [membersStore.ensureAllMembers(), roleStore.ensureAllRoles()];
     if (baseStore.hasPermission(permission_enum.superadmin)) {
       promises.push(serverDataStore.ensureServerData());
     }
@@ -165,8 +175,8 @@ function ensure(array: [], value: permission_enum, present: boolean) {
 
   async function updatePermissions() {
     try {
-      await membersStore.updateMember({
-        data: { id: memberStore.member.id, permissions: memberStore.member.permissions },
+      await membersStore.updateMember({      
+        data: { id: member.value.id, permissions: member.value.permissions } ,
       });
       $q.notify({
         message: "Permissions were updated successfully",
@@ -182,7 +192,7 @@ function ensure(array: [], value: permission_enum, present: boolean) {
   }
   onBeforeMount(async () => {
     //await userLoaded;
-    member_id.value = memberStore.getUserId;
+    member_id.value = await memberStore.getUserId;
     userIsSuperAdmin.value = baseStore.hasPermission(permission_enum.superadmin);
     await ensureData();
     ready.value = true;

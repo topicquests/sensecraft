@@ -167,7 +167,6 @@
               <q-btn
                 :to="{
                   name: 'admin',
-                  params: { member_id: memberStore.member.id },
                 }"
               >
                 Administration
@@ -286,8 +285,8 @@ function toggleNav() {
 function closeNav() {
   rightDrawer.value = false;
 };
-onBeforeMount(() => {
-  guildStore.ensureAllGuilds();
-  questStore.ensureAllQuests();
+onBeforeMount(async () => {
+  await guildStore.ensureAllGuilds();
+  await questStore.ensureAllQuests();
 });
 </script>

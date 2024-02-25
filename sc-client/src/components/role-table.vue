@@ -1,5 +1,5 @@
 <template>
-  <q-table :title="RoleTableProps.title" :data="RoleTableProps.roles" :columns="columns" class="q-pb-md">
+  <q-table :title="RoleTableProps.title" :rows="RoleTableProps.roles" :columns="columns" class="q-pb-md">
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td key="name" :props="props"> {{ props.row.name }}</q-td>

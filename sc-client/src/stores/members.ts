@@ -70,7 +70,8 @@ export const useMembersStore = defineStore('members', {
         return state.members[member_id]?.guild_member_available_role;
       },
     getAvailableRolesForMemberAndGuild:
-      (state: MembersState) => (member_id: number, guild_id: number | undefined) => {
+      (state: MembersState) =>
+      (member_id: number, guild_id: number | undefined) => {
         const roles =
           state.members[member_id]?.guild_member_available_role || [];
         return roles.filter((cr) => cr.guild_id == guild_id);
@@ -106,9 +107,10 @@ export const useMembersStore = defineStore('members', {
       full?: boolean;
     }) {
       if (!this.members[id]) {
-        await fetchMemberById({ 
-          full, 
-          params: { id } });
+        await fetchMemberById({
+          full,
+          params: { id },
+        });
       }
     },
     async reloadIfFull(id: number) {
@@ -184,14 +186,14 @@ export const useMembersStore = defineStore('members', {
               casting_role: member.casting_role,
             });
           }
-          this.members = members;
-          this.fullFetch = true;
         }
+        this.members = members;
+        this.fullFetch = true;
         return res.data;
       }
     },
     async fetchMemberById(
-      id: undefined | number | Array<number>, 
+      id: undefined | number | Array<number>,
       full: boolean = true,
     ): Promise<PublicMember[]> {
       const memberStore = useMemberStore();
@@ -233,21 +235,20 @@ export const useMembersStore = defineStore('members', {
       }
     },
     async updateMember(
-      data: Partial<Member>,
+      actionParams: Partial<Member>,
     ): Promise<PublicMember[] | undefined> {
-      data = filterKeys(data, memberPatchKeys);
-      const params = {
-        id: 'eq.${data.id}',
-      };
-      const res: AxiosResponse<PublicMember> = await axios.api.patch(
-        '/members',
+      const { data } = actionParams;
+      const params = Object();
+      params.id = data.id;
+      actionParams.data = filterKeys(data, memberPatchKeys);
+      const res: AxiosResponse<PublicMember> = await api.patch(
+        `/public_members?id=eq.${params.id}`,
         data,
-        {
-          params,
-        },
       );
-      this.member = Object.assign({}, this.member, res.data[0]);
-      return this.member;
+      if (res.status == 200) {
+        this.member = Object.assign({}, this.member, res.data[0]);
+        return this.member;
+      }
     },
 
     removeCastingRole(castingRole: CastingRole) {
