@@ -139,11 +139,13 @@
         <span>End</span>
       </div>
     </div>
-    <div class="row">
-      <template>
+    <div class="row">      
         <div class="col-6">
           <div class="q-pa-md" style="max-width: 400px">
-            <q-input filled v-model="quest.start" name="startDate">
+            <q-input 
+              filled 
+              v-model="quest.start" 
+              name="startDate">
               <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy
@@ -151,7 +153,9 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="quest.start" mask="YYYY-MM-DD HH:mm">
+                    <q-date 
+                      v-model="quest.start" 
+                      mask="YYYY-MM-DD HH:mm">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -189,9 +193,9 @@
             </q-input>
           </div>
         </div>
-      </template>
+      
       <div class="col-6">
-        <template>
+        
           <div class="q-pa-md" style="max-width: 400px">
             <q-input filled v-model="quest.end" name="endDate">
               <template v-slot:prepend>
@@ -239,7 +243,7 @@
               </template>
             </q-input>
           </div>
-        </template>
+       
       </div>
     </div>
     <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
@@ -316,7 +320,7 @@ const QuestCardProps = defineProps<{
    
 }>();
 const questStore = useQuestStore();
-let quest = ref<Partial<Quest>>(QuestCardProps.thisQuest) ;
+const quest = ref<Partial<Quest>>(QuestCardProps.thisQuest) ;
 const $q = useQuasar();
 const emit = defineEmits(['doUpdateQuest']);
 
@@ -352,7 +356,8 @@ function updateStatus(value: quest_status_type) {
 }
 function doUpdateQuest() {
   console.log("Quest ", quest.value);
-  emit("doUpdateQuest", quest.value);
+  const createdQuest:QuestData = Object.assign(quest.value)
+  emit("doUpdateQuest", createdQuest);
 }
 </script>
 <style>

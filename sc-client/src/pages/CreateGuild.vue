@@ -25,7 +25,10 @@
               </q-option-group>
             </div>
             <div class="row justify-start q-pb-lg">
-              <q-input class="guildText" v-model="guild.name" label="Name" />
+              <q-input class="guildText" 
+                v-model="guild.name" 
+                label="Name" 
+              />
             </div>
             <div class="row justify-start q-pb-xs">Details<br /></div>
             <div class="row justify-start q-pb-lg">

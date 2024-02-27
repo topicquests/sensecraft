@@ -20,7 +20,7 @@
             <quest-card
               :thisQuest="newQuest"
               :create="true"
-              :edit="true"
+              :edit="false"
               v-on:doUpdateQuest="doSubmitQuest"
             ></quest-card>
           </div>

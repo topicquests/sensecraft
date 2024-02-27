@@ -153,11 +153,6 @@ const routes = [
       //   component: () => import("pages/ConversationColumnEdit.vue"),
       // },
       {
-        path: "/admin",
-        name: "admin",
-        component: () => import("pages/Admin.vue"),
-      },
-      {
         path: "/guild/:guild_id/channel",
         name: "guild_channel_list",
         component: () => import("pages/GuildChannelList.vue"),

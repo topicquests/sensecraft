@@ -242,15 +242,15 @@ const questStore = useQuestStore();
 const baseStore = useBaseStore();
 const $q = useQuasar();
 const leftDrawer = ref(false);
-const hasPermission = ref(false);
+let hasPermission = false;
 const isAuthenticated = ref(false);
 const rightDrawer = ref(false);
 const showTree = true;
 const currentGuild  = ref<GuildData|undefined>(guildStore.getCurrentGuild);
 
 function checkForPermission(permission_enum: permission_enum): boolean {
-  hasPermission.value = baseStore.hasPermission(permission_enum);
-  if (hasPermission.value == true) {
+  hasPermission = baseStore.hasPermission(permission_enum);
+  if (hasPermission == true) {
     return true;
   }
   return false;
