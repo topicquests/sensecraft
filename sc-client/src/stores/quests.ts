@@ -305,8 +305,8 @@ export const useQuestStore = defineStore('quest', {
         await this.fetchQuestById(quest_id, full);
       }
     },
-    async createQuest({ data }) {
-      const res = await this.createQuestBase({ data });
+    async createQuest(data: Partial<QuestData>) {
+      const res = await this.createQuestBase(data);
       // Refetch to get memberships.
       // TODO: maybe add representation to creation instead?
       const quest_id = res.data[0].id;
@@ -470,7 +470,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
-    async createQuestBase(data) {
+    async createQuestBase(data: Partial<QuestData>) {
       const res: AxiosResponse<Quest> = await api.post('/quests', data);
       if (res.status == 200) {
         const questData: QuestData = Object.assign(res.data[0], {

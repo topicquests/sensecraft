@@ -356,7 +356,7 @@ function updateStatus(value: quest_status_type) {
 }
 function doUpdateQuest() {
   console.log("Quest ", quest.value);
-  const createdQuest:QuestData = Object.assign(quest.value)
+  const createdQuest:Partial<QuestData> = Object.assign(quest.value)
   emit("doUpdateQuest", createdQuest);
 }
 </script>

@@ -55,20 +55,19 @@ const questStore = useQuestStore();
     end: "",
   };
 
-  function validateStartEnd(quest: QuestData) {
-    if (quest.start < quest.end) {
+function validateStartEnd(quest: Partial<QuestData>) {
+    if (quest.start && quest.end && (quest.start < quest.end)) {
       return true;
     }
     return false;
   }
 
-  async function  doSubmitQuest(quest: QuestData) {
+  async function  doSubmitQuest(quest: Partial<QuestData>) {
     try {
-      console.log("Entered in do update quest");
       if (!validateStartEnd(quest)) {
         throw "End date is before start date";
       }
-      const res = await questStore.createQuest({ data: quest });
+      const res = await questStore.createQuest(quest );
       $q.notify({
         message: "Quest was updated successfully",
         color: "positive",
