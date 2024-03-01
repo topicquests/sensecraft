@@ -8,7 +8,7 @@ import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 import { useMembersStore } from './members';
 
 export interface MemberState {
-  member: Member;
+  member: Member|null;
   token?: string;
   tokenExpiry?: number;
   isAuthenticated: boolean;
@@ -19,8 +19,8 @@ const TOKEN_RENEWAL = (TOKEN_EXPIRATION * 9) / 10;
 const baseState: MemberState = {
   member: null,
   isAuthenticated: false,
-  token: null,
-  tokenExpiry: null,
+  token: undefined,
+  tokenExpiry: undefined,
 };
 
 export const useMemberStore = defineStore('member', {

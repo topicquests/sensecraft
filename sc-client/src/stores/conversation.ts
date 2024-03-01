@@ -4,6 +4,7 @@ import {
   ConversationNode,
   QTreeNode,
   conversationNodePatchKeys,
+  defaultNodeType,
 } from '../types';
 import {
   ibis_node_type_enum,
@@ -15,7 +16,7 @@ import {
 import { defineStore } from 'pinia';
 import { calc_threat_status, ThreatMap, ScoreMap } from '../scoring';
 import { base_scoring } from '../scoring/base_scoring';
-
+import { api } from 'src/boot/axios';
 export function ibis_child_types(
   parent_type: ibis_node_type_type,
 ): ibis_node_type_type[] {
@@ -89,7 +90,12 @@ export const useConversationStore = defineStore('conversation', {
       Object.values(state.conversation),
     getConversationNodeById: (state: ConversationState) => (id: number) =>
       state.conversation[id],
-    getRootNode: (state: ConversationState) => state.conversationRoot,
+    getRootNode: (state: ConversationState): ConversationNode|undefined => {
+      if (state.conversationRoot) {
+        return state.conversationRoot
+      }
+      return undefined
+    },
     getNeighbourhood: (state: ConversationState): ConversationNode[] =>
       Object.values(state.neighbourhood),
     getFocusNode: (state: ConversationState) => {
@@ -219,12 +225,12 @@ export const useConversationStore = defineStore('conversation', {
     async ensureConversation(quest_id: number) {
       // maybe allow guildId, min status.
       if (quest_id != this.currentQuest || !this.full) {
-        await fetchConversation({ params: { quest_id } });
+        await this.fetchConversation( { quest_id } );
       }
     },
     async ensureRootNode(quest_id: number | undefined) {
       if (quest_id != this.currentQuest || !this.conversationRoot) {
-        await fetchRootNode({ params: { quest_id } });
+        await this.fetchRootNode( { quest_id } );
       }
     },
     async ensureConversationNeighbourhood({
@@ -306,9 +312,9 @@ export const useConversationStore = defineStore('conversation', {
         );
       }
     },
-    async fetchRootNode(params: { quest_id }) {
+    async fetchRootNode(params: { quest_id:number|undefined }) {
       const res: AxiosResponse<ConversationNode[]> = await api.get(
-        `/conversation_node?quest_id=eq.${quest_id}&parent_id=is.null&meta=eq.conversation`,
+        `/conversation_node?quest_id=eq.${params.quest_id}&parent_id=is.null&meta=eq.conversation`,
       );
       if (res.status == 200) {
         if (this.currentQuest !== params.quest_id) {
@@ -372,19 +378,19 @@ export const useConversationStore = defineStore('conversation', {
         }
       }
     },
-    async createConversationNode(data: { node: Partial<ConversationNode> }) {
+    async createConversationNode(data: { node: ConversationNode|defaultNodeType}) {
       const res: AxiosResponse<ConversationNode[]> = await api.post(
         '/conversation_node',
         data,
       );
       if (res.status == 200) {
-        state.node = res.data[0];
-        addToState(this.node);
+        const node = res.data[0];
+        this.addToState(node);
       }
     },
-    async updateConversationNode(data: { node: Partial<ConversationNode> }) {
+    async updateConversationNode(data: Partial<ConversationNode>|defaultNodeType) {
       const params = Object();
-      params.id = data.node.id;
+      params.id = data.id;
       data = filterKeys(data, conversationNodePatchKeys);
       const res: AxiosResponse<ConversationNode[]> = await api.patch(
         `/conversation_node/${params}`,

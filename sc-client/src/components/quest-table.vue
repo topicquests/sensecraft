@@ -126,9 +126,9 @@
 
 <script setup lang="ts">
 import { DateTime } from 'luxon';
-import { useQuestStore } from 'src/stores/quests';
-import { useMemberStore } from 'src/stores/member';
-import { useBaseStore } from 'src/stores/baseStore';
+import { useQuestStore } from '../stores/quests';
+import { useMemberStore } from '../stores/member';
+import { useBaseStore } from '../stores/baseStore';
 import type { QTable } from 'quasar';
 import { QTableProps } from 'quasar';
 import {

@@ -75,7 +75,7 @@
 import { ref } from 'vue';
 import scoreboard from '../components/score-board.vue';
 import member_handle from '../components/member-handle.vue';
-import { userLoaded } from '../boot/userLoaded';
+//import { userLoaded } from '../boot/userLoaded';
 import { public_private_bool } from '../enums';
 import { Role } from './../types';
 import { onBeforeMount } from 'vue';
@@ -126,7 +126,7 @@ async function doSubmit(guild:guildType) {
   }
 };
 onBeforeMount(async () => {
-  await userLoaded;
+  //await userLoaded;
   await roleStore.ensureAllRoles();
   await membersStore.ensureAllMembers();
   ready.value = true;

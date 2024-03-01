@@ -275,6 +275,14 @@ export interface CastingRole {
   quest_id: number;
 }
 
+export interface defaultNodeType {
+  quest_id?: number;
+  title?: string;
+  description?: string;
+  status: string;
+  node_type: string;
+}
+
 export type ServerData = {
   smtp_server: string;
   smtp_port: number;

@@ -185,7 +185,7 @@ export default class QuestTeamPage extends Vue {
     await Promise.all([
       this.ensurePlayersOfQuest({ questId: quest_id }),
       this.ensureAllRoles(),
-      this.ensureCurrentQuest({ quest_id }),
+      this.ensureCurrentQuest(quest_id),
       this.ensureConversation(quest_id),
     ]);
     await this.ensureGuildsPlayingQuest({ quest_id });

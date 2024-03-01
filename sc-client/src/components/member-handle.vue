@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMemberStore } from 'src/stores/member';
+import { useMemberStore } from '../stores/member';
 import { onBeforeMount, ref } from 'vue';
 
 const memberStore = useMemberStore();

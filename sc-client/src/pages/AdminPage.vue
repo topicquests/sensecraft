@@ -101,11 +101,11 @@ import type { Member } from "../types";
 import { userLoaded } from "../boot/userLoaded";
 import { ref, computed, watch } from "vue";
 import { permission_enum } from "../enums";
-import { useMembersStore } from "src/stores/members"; 
-import { useMemberStore } from "src/stores/member";
-import { useBaseStore } from "src/stores/baseStore"
-import { useRoleStore } from "src/stores/role";
-import { useServerDataStore } from 'src/stores/serverData'
+import { useMembersStore } from "../stores/members"; 
+import { useMemberStore } from "../stores/member";
+import { useBaseStore } from "../stores/baseStore"
+import { useRoleStore } from "../stores/role";
+import { useServerDataStore } from '../stores/serverData'
 import { onBeforeMount } from "vue";
 import { useQuasar } from 'quasar';
 

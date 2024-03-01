@@ -288,9 +288,9 @@ export const useGuildStore = defineStore('guild', {
         return res.data;
       }
     },
-    async createGuildBase(data): Promise<Guild[] | undefined> {
-      const res: AxiosResponse<Guild[]> = await api.post('/guild', { data });
-      if (res.status == 200) {
+    async createGuildBase(data: Partial<GuildData>): Promise<Partial<GuildData>> {
+      const res: AxiosResponse<GuildData> = await api.post('/guilds', data);
+      if (res.status == 201) {
         const guildData: GuildData = Object.assign(res.data[0], {
           member_count: 1,
           member_request_count: 0,
@@ -303,9 +303,10 @@ export const useGuildStore = defineStore('guild', {
           recruiting_for_quest_count: 0,
         });
         this.guilds = { ...this.guilds, [guildData.id]: guildData };
-        this.fullGuilds = { ...this.fullGuilds, [guildData.id]: undefined };
+        //this.fullGuilds = { ...this.fullGuilds, [guildData.id]: undefined };
         // TODO: update memberships in member.
       }
+      return res.data[0];
     },
     async registerAllMembers({ params: { guildId, questId } }): void {
       await api.post('/rpc/register_all_members', {

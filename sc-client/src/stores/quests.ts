@@ -5,7 +5,7 @@ import { useMemberStore } from './member';
 import { useMembersStore } from './members';
 import { useGuildStore } from './guilds';
 import { useRoleStore } from './role';
-// import { useConversationStore } from './conversation';
+import { useConversationStore } from './conversation';
 import { api } from '../boot/axios';
 
 import {
@@ -18,6 +18,7 @@ import {
   CastingRole,
   Role,
   PublicMember,
+  questPatchKeys,
 } from '../types';
 import {
   quest_status_enum,
@@ -29,6 +30,7 @@ import {
 
 //import type { RoleState } from './role';
 import { getWSClient } from '../wsclient';
+import { filterKeys } from './base';
 
 interface QuestMap {
   [key: number]: QuestData;
@@ -37,11 +39,11 @@ export interface QuestsState {
   quests: QuestMap;
   fullQuests: { [key: number]: boolean };
   fullFetch: boolean;
-  currentQuest?: number;
+  currentQuest?: number|null;
 }
 
 const baseState: QuestsState = {
-  currentQuest: null,
+  currentQuest: undefined,
   fullFetch: false,
   quests: {},
   fullQuests: {},
@@ -50,9 +52,11 @@ const baseState: QuestsState = {
 export const useQuestStore = defineStore('quest', {
   state: () => baseState,
   getters: {
-    getCurrentQuest: (state: QuestsState): QuestData =>
-      state.quests[state.currentQuest],
-    getQuests(): QuestsData[] {
+    getCurrentQuest: (state: QuestsState): QuestData | undefined => {
+    if(state.currentQuest){ 
+    return state.quests[state.currentQuest]}
+  return undefined},
+    getQuests(): QuestData[] {
       return Object.values(this.quests);
     },
     getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
@@ -64,11 +68,11 @@ export const useQuestStore = defineStore('quest', {
         ),
       );
     },
-    getActiveQuests: (state: QuestsState): quests =>
+    getActiveQuests: (state: QuestsState) =>
       Object.values(state.quests).filter(
         (quest) =>
           ['ongoing', 'paused', 'registration'].indexOf(quest.status) >= 0,
-      ),
+    ),
     getPlayingQuests: (state: QuestsState) => {
       const member_id = useMemberStore().getUserId;
       return Object.values(state.quests).filter((quest: QuestData) =>
@@ -93,7 +97,7 @@ export const useQuestStore = defineStore('quest', {
     getCurrentGamePlay: (state: QuestsState) => {
       if (state.currentQuest) {
         const quest = state.quests[state.currentQuest];
-        const currentGuild: Guild = useGuildStore().getCurrentGuild;
+        const currentGuild: number = useGuildStore().getCurrentGuild;
         if (currentGuild) {
           return quest?.game_play?.find(
             (gp: GamePlay) => gp.guild_id == currentGuild.id,
@@ -306,26 +310,25 @@ export const useQuestStore = defineStore('quest', {
       }
     },
     async createQuest(data: Partial<QuestData>) {
-      const res = await this.createQuestBase(data);
+      const res: Partial<QuestData> = await this.createQuestBase(data);
       // Refetch to get memberships.
       // TODO: maybe add representation to creation instead?
-      const quest_id = res.data[0].id;
-      await this.fetchQuestById({ quest_id });
+      await this.fetchQuestById( res.id );
       // TODO: Get the membership from the quest
       await useMemberStore().fetchLoginUser();
       await useConversationStore().resetConversation();
-      return res.data[0];
+      return res;
     },
 
-    ensureCurrentQuest: async (context, { quest_id, full = true }) => {
-      await ensureQuest({ quest_id, full });
-      await setCurrentQuest(quest_id);
+    async ensureCurrentQuest ( quest_id: number, full = true ){
+      await this.ensureQuest({ quest_id, full });
+      await this.setCurrentQuest(quest_id);
     },
     resetQuests: () => {
       Object.assign(baseState);
     },
 
-    async fetchQuestById(id: number | number[], full?: boolean) {
+    async fetchQuestById(id: number | number[]| undefined, full?: boolean) {
       const params = Object();
       if (Array.isArray(id)) {
         params.id = `in.(${id.join(',')})`;
@@ -389,7 +392,7 @@ export const useQuestStore = defineStore('quest', {
       const membersStore = useMembersStore();
       const res: AxiosResponse<CastingRole> =
         await axios.api.patch(castingRole);
-      if (res == 200) {
+      if (res.status == 200) {
         const castingRole = res.data[0];
         if ((castingRole.member_id = memberStore.getUserId)) {
           if (memberStore.member) {
@@ -470,9 +473,9 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
-    async createQuestBase(data: Partial<QuestData>) {
-      const res: AxiosResponse<Quest> = await api.post('/quests', data);
-      if (res.status == 200) {
+    async createQuestBase(data: Partial<QuestData>): Promise<Partial<QuestData>> {
+      const res: AxiosResponse<QuestData> = await api.post('/quests', data);
+      if (res.status == 201) {
         const questData: QuestData = Object.assign(res.data[0], {
           last_node_published_at: null,
           node_count: 0,
@@ -484,16 +487,17 @@ export const useQuestStore = defineStore('quest', {
           my_recruiting_guild_count: 0,
           is_quest_member: true,
         });
-        this.quests = { ...state.quests, [questData.id]: questData };
+        this.quests = { ...this.quests, [questData.id]: questData };
       }
+      return res.data[0];
     },
     async updateQuest(data: Partial<Quest>) {
-      const { params } = actionParams;
+     const params = Object.assign(data)
       params.id = data.id;
-      actionParams.data = filterKeys(data, questPatchKeys);
-      const res: AxiosResponse<QuestData[]> = await api.update(
-        'quest',
-        paramas,
+      data = filterKeys(data, questPatchKeys);
+      const res: AxiosResponse<QuestData[]> = await api.patch(
+        `/quests/${params}`,
+        data,
       );
       if (res.status == 200) {
         const quest = res.data[0];
@@ -614,7 +618,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
-    async endTurn(data) {
+    async endTurn(data: {quest_id: number}) {
       await api.post('/rpc/end_turn', data);
     },
   },
