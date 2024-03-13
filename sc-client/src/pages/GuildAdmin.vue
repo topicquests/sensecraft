@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <q-card class="guild-admin-card q-mt-md q-pa-md">
         <div class="row justify-end" style="width: 92%">
-          <member></member>
+          <member-handle></member-handle>
         </div>
         <div class="row justify-center" style="width: 100%">
           <div class="col-10 justify-center">
@@ -11,25 +11,24 @@
           </div>
         </div>
         <div class="column items-center">
-          <h4 v-if="getCurrentGuild">
+          <h4 v-if="guildStore.getCurrentGuild">
             <router-link
               :to="{
                 name: 'guild',
-                params: { guild_id: String(getCurrentGuild.id) },
+                params: { guild_id: String(guildStore.getCurrentGuild.id) },
               }"
-              >{{ getCurrentGuild.name }}
+              >{{ guildStore.getCurrentGuild.name }}
             </router-link>
           </h4>
         </div>
         <q-tooltip>Click on guild name to goto guild</q-tooltip>
-
         <div class="row justify-center">
           <div class="column">
             <q-card>
               <div class="admin-content-container">
                 <q-editor
                   class="admin-content guild-description-col"
-                  v-model="getCurrentGuild.description"
+                   v-model="guildStore.getCurrentGuild.description"
                 >
                 </q-editor>
               </div>
@@ -187,7 +186,7 @@
 
             <guild-card
               class="guilds-card"
-              v-bind:currentGuild="{ ...getCurrentGuild }"
+              v-bind:currentGuild="{ ...guildStore.getCurrentGuild }"
               :showDescription="false"
             ></guild-card>
           </div>
@@ -227,7 +226,7 @@
                           roleRemoved(member.id, details.value);
                         }
                       "
-                      :options="getRoles"
+                      :options="roleStore.getRoles"
                       option-label="name"
                       option-value="id"
                       emit-value
@@ -294,115 +293,108 @@ import {
   PublicMember,
   CastingRole,
 } from "../types";
-import Vue from "vue";
+import Vue, { computed, ref } from "vue";
 import CastingRoleEdit from "../components/casting_role_edit.vue";
 import roleTable from "../components/role-table.vue";
 import guildCard from "../components/guild-card.vue";
 import QuestTable from "../components/quest-table.vue";
-import scoreboard from "../components/scoreboard.vue";
-import member from "../components/member.vue";
+import scoreboard from "../components/score-board.vue";
+import memberHandle from "../components/member-handle.vue";
 import { onBeforeMount } from "vue";
+import { useGuildStore } from "src/stores/guilds";
+import { useQuasar } from "quasar";
+import { useQuestStore } from "src/stores/quests";
+import { useMemberStore } from "src/stores/member";
+import { useRoleStore } from "src/stores/role";
+import { useBaseStore } from "src/stores/baseStore";
+import { useRouter } from "vue-router";
 
-    currentQuestIdS: {
-      get: function () {
-        return this.currentQuestId;
-      },
-      set: function (value) {
-        this.setCurrentQuest(value);
-      },
-    },
-    activeQuests: {
-      get: function () {
-        const active_quests = this.getQuests.filter(
-          (q: Quest) =>
-            (q.status == quest_status_enum.ongoing ||
-              q.status == quest_status_enum.paused ||
-              q.status == quest_status_enum.registration) &&
-            this.confirmedPlayQuestIds.includes(q.id)
-        );
-        if (active_quests && active_quests.length > 0) {
+const guildStore = useGuildStore();
+const questStore = useQuestStore();
+const memberStore = useMemberStore();
+const baseStore = useBaseStore()
+const roleStore = useRoleStore();
+const $q = useQuasar();
+const router = useRouter();
+const ready = ref(false);
+const currentGuildId!: number;
+const member_id: number|null = null;
+const questGamePlay: GamePlay[] = [];
+const isAdmin = ref(false);
+const label = "";
+const guildId: number|null = null;
+const currentQuestIdS = computed ({
+  get: function () {
+    return questStore.currentQuest;
+  },
+  set: function (value) {
+      questStore.setCurrentQuest(value);
+  },
+});
+function activeQuests() {
+  const active_quests = questStore.getQuests.filter(
+    (q: Quest) =>
+    (q.status == quest_status_enum.ongoing ||
+     q.status == quest_status_enum.paused ||
+     q.status == quest_status_enum.registration) &&
+    confirmedPlayQuestIds.includes(q.id));
+      if (active_quests && active_quests.length > 0) {
           return active_quests;
         } else {
           return [];
         }
       },
-    },
-    pastQuests: {
-      get: function () {
-        this.getQuests.filter(
-          (q: Quest) =>
-            (q.status == quest_status_enum.finished ||
-              q.status == quest_status_enum.scoring) &&
-            this.playQuestIds.includes(q.id)
-        );
-      },
-    },
-    playQuestIds: {
-      get: function () {
-        this.getCurrentGuild.game_play.map((gp: GamePlay) => gp.quest_id);
-      },
-    },
-    guildGamePlays: {
-      get: function () {
-        if (this.getCurrentGuild?.game_play?.length > 0) {
-          const gamePlay = this.getCurrentGuild.game_play.filter(
-            (gp: GamePlay) => gp.status == registration_status_enum.confirmed
-          );
-          return gamePlay;
-        } else {
-          return [];
-        }
-      },
-    },
-    potentialQuests: {
-      get: function () {
-        return this.getQuests.filter(
-          (q: Quest) =>
-            (q.status == quest_status_enum.registration ||
-              q.status == quest_status_enum.ongoing) &&
-            !this.confirmedPlayQuestIds.includes(q.id)
-        );
-      },
-    },
-    confirmedPlayQuestIds: {
-      get: function () {
-        return (this.guildGamePlays || []).map((gp: GamePlay) => gp.quest_id);
-      },
-    },
-    getGuildMembers: {
-      get: function () {
-        if (this.getCurrentGuild) {
-          return this.getMembersOfCurrentGuild;
-        }
-        return [];
-      },
-    },
-   
-  watch: {},
-  methods: {
-  
-  handle: string = null;
-  member_id: number = null;
-  questGamePlay: GamePlay[] = [];
-  isAdmin = false;
-  label = "";
-  questId: number = null;
-  gamePlay?: GamePlay = null;
-  selectedNode: ConversationNode = null;
-  focusNode: ConversationNode = null;
-  guildId: number = null;
-  availableRolesByMember: { [key: number]: number[] } = {};
-  availableRoles: GuildMemberAvailableRole[] = [];
+    })
+function pastQuests() {
+  questStore.getQuests.filter(
+    (q: Quest) =>
+    (q.status == quest_status_enum.finished ||
+     q.status == quest_status_enum.scoring) &&
+      playQuestIds()
+  );
+}
+function playQuestIds() {
+  guildStore.getCurrentGuild.game_play.map((gp: GamePlay) => gp.quest_id);
+}
+function guildGamePlays() {
+  if (guildStore.getCurrentGuild?.game_play?.length > 0) {
+    const gamePlay = guildStore.getCurrentGuild.game_play.filter(
+    (gp: GamePlay) => gp.status == registration_status_enum.confirmed
+    );
+    return gamePlay;
+  } else {
+    return [];
+  }
+}
+function potentialQuests() {
+  return questStore.getQuests.filter(
+    (q: Quest) =>
+    (q.status == quest_status_enum.registration ||
+     q.status == quest_status_enum.ongoing) &&
+    !confirmedPlayQuestIds()
+    );
+  }
+function confirmedPlayQuestIds(){
+    return (guildGamePlays || []).map((gp: GamePlay) => gp.quest_id);
+},
+function getGuildMembers() {
+  if (guildStore.getCurrentGuild) {
+    return guildStore.getMembersOfCurrentGuild;
+  }
+  return [];
+}
+
+ 
+ 
 
   // declare state bindings for TypeScript
   member!: MemberState["member"];
   memberId!: number;
-  currentGuildId!: number;
+ 
   currentQuestId!: QuestsState["currentQuest"];
   allRoles!: RoleState["role"];
   currentQuestIdS!: number;
-  ready = false;
-
+ 
   function getCastingRole(memberId: number, questId: number) {
     const roles: CastingRole[] = this.castingRolesPerQuest(memberId, questId);
     const rolesName = roles.map((cr) => this.allRoles[cr.role_id].name);
@@ -410,53 +402,57 @@ import { onBeforeMount } from "vue";
   }
 
   async function addGuildAdmin(id) {
-    if (!this.isGuildAdmin(id)) {
-      const guildMembership = this.getGuildMembershipById(id);
-      guildMembership.permissions.push("guildAdmin");
-      await this.updateGuildMembership(guildMembership);
-      this.$q.notify({
+    if (!isGuildAdmin(id)) {
+      const guildMembership = guildStore.getGuildMembershipById(id);
+      if(guildMembership) {
+        guildMembership.permissions.push("guildAdmin");
+      }
+      await guildStore.updateGuildMembership(guildMembership);
+      $q.notify({
         type: "positive",
         message:
           "Guild admin added to " + (await this.getMemberById(id)?.handle),
       });
-    } else if (this.isGuildAdmin(id)) {
-      const perm = this.getGuildMembershipById(id).permissions;
+    } else if (isGuildAdmin(id)) {
+      const perm = guildStore.getGuildMembershipById(id).permissions;
       for (var i = 0; i < perm.length; i++) {
         if (perm[i] == "guildAdmin") {
           perm.splice(i, 1);
         }
       }
-      const guildMembership = this.getGuildMembershipById(id);
+      const guildMembership = guildStore.getGuildMembershipById(id);
+      if(guildMembership) {
       guildMembership.permissions = perm;
-      await this.updateGuildMembership(guildMembership);
-      this.$q.notify({
+      await guildStore.updateGuildMembership(guildMembership);
+      $q.notify({
         type: "positive",
         message:
-          "Guild admin removed from " + (await this.getMemberById(id)?.handle),
+          "Guild admin removed from " + (await memberStore.getMemberById(id)?.handle),
       });
     }
   }
   async function removeGuildAdmin(id) {
-    if (!this.isGuildAdmin(id)) {
-      const guildMembership = this.getGuildMembershipById(id);
-      guildMembership.permissions.push("guildAdmin");
-      await this.updateGuildMembership(guildMembership);
-      this.$q.notify({
-        type: "positive",
-        message:
-          "Guild admin added to  " + (await this.getMemberById(id)?.handle),
-      });
-    } else if (this.isGuildAdmin(id)) {
-      const perm = this.getGuildMembershipById(id).permissions;
-      for (var i = 0; i < perm.length; i++) {
-        if (perm[i] == "guildAdmin") {
-          perm.splice(i, 1);
-        }
+    if (!isGuildAdmin(id)) {
+      const guildMembership = guildStore.getGuildMembershipById(id);
+      if(guildMembership) {
+        guildMembership.permissions.push("guildAdmin");
+        await guildStore.updateGuildMembership(guildMembership);
+        $q.notify({
+          type: "positive",
+          message:
+          "Guild admin added to  " + (await memberStore.getMemberById(id)?.handle),
+        });
+      } else if (isGuildAdmin(id) && guildStore.getGuildMembershipById(id)) {
+          const perm = guildStore.getGuildMembershipById(id).permissions;
+          for (var i = 0; i < perm.length; i++) {
+            if (perm[i] == "guildAdmin") {
+            perm.splice(i, 1);
+          }
       }
-      const guildMembership = this.getGuildMembershipById(id);
-      guildMembership.permissions = perm;
-      await this.updateGuildMembership(guildMembership);
-      this.$q.notify({
+      const guildMembership = guildStore.getGuildMembershipById(id);
+        guildMembership.permissions = perm;
+        await guildStore.updateGuildMembership(guildMembership);
+        $q.notify({
         type: "positive",
         message:
           "Guild admin removed from  " + (await this.getMemberById(id)?.handle),
@@ -464,7 +460,7 @@ import { onBeforeMount } from "vue";
     }
   }
   function isGuildAdmin(id) {
-    const perm = this.getGuildMembershipById(id).permissions;
+    const perm = guildStore.getGuildMembershipById(id).permissions;
     if (perm.find((e) => e == "guildAdmin")) {
       return true;
     }
@@ -472,8 +468,8 @@ import { onBeforeMount } from "vue";
   }
   async function doRegister(questId: number) {
     try {
-      this.questId = questId;
-      const regQuest = this.getQuestById(questId);
+      questId = questId;
+      const regQuest = questStore.getQuestById(questId);
       if (
         (
           [
@@ -485,16 +481,16 @@ import { onBeforeMount } from "vue";
         throw `Can not register quest in ${regQuest.status} status`;
       }
       let payload = {
-        guild_id: this.currentGuildId,
+        guild_id: currentGuildId,
         quest_id: questId,
       };
-      await this.addGamePlay({ data: payload });
-      this.$q.notify({
+      await questStore.addGamePlay({ data: payload });
+      $q.notify({
         type: "positive",
         message: "You have registered to Quest ",
       });
     } catch (err) {
-      this.$q.notify({
+      $q.notify({
         type: "negative",
         message: `${err}`,
       });
@@ -504,7 +500,7 @@ import { onBeforeMount } from "vue";
   function findPlayOfGuild(gamePlays) {
     if (gamePlays) {
       return gamePlays.find(
-        (gp: GamePlay) => gp.guild_id == this.currentGuildId
+        (gp: GamePlay) => gp.guild_id == currentGuildId
       );
     }
   }
@@ -513,9 +509,9 @@ import { onBeforeMount } from "vue";
     return this.castingInQuest(null, member_id)?.guild_id;
   }
 
-  async roleAdded(member_id, role_id) {
+  async function roleAdded(member_id, role_id) {
     const guild_id = this.guildId;
-    await this.addGuildMemberAvailableRole({
+    await guildStore.addGuildMemberAvailableRole({
       data: { member_id, guild_id, role_id },
     });
   }
@@ -528,7 +524,7 @@ import { onBeforeMount } from "vue";
     });
   }
   async function castingRoleAdded(member_id: number, role_id: number) {
-    const guild_id = this.guildId;
+    const guild_id = guildId;
     const quest_id: number = this.currentQuestId;
     await this.addCastingRole({
       data: { member_id, guild_id, role_id, quest_id },
@@ -537,7 +533,7 @@ import { onBeforeMount } from "vue";
 
   async function castingRoleRemoved(member_id: number, role_id: number) {
     const guild_id: number = this.guildId;
-    const quest_id: number = this.currentQuestId;
+    const quest_id: number = currentQuestId;
     await this.deleteCastingRole({
       params: { member_id, role_id, guild_id, quest_id },
       data: {},
@@ -545,14 +541,14 @@ import { onBeforeMount } from "vue";
   }
   async function doSubmit() {
     try {
-      await this.updateGuild({ data: this.getCurrentGuild });
-      this.$q.notify({
+      await guildStore.updateGuild({ data: guildStore.getCurrentGuild });
+      $q.notify({
         message: "Guild was updated successfully",
         color: "positive",
       });
     } catch (err) {
       console.log("there was an error in updating guild ", err);
-      this.$q.notify({
+      $q.notify({
         message:
           "There was an error updating guild. If this issue persists, contact support.",
         color: "negative",
@@ -564,13 +560,13 @@ import { onBeforeMount } from "vue";
     this.guildId = Number.parseInt(this.$route.params.guild_id);
     await userLoaded;
     await Promise.all([
-      this.ensureGuild({ guild_id: this.guildId }),
-      this.ensureAllQuests(),
+      guildStore.ensureGuild({ guild_id: this.guildId }),
+      questStore.ensureAllQuests(),
       this.ensureAllRoles(),
       this.ensureMembersOfGuild({ guildId: this.guildId }),
     ]);
     this.member_id = this.memberId;
-    await this.setCurrentGuild(this.guildId);
+    await guildStore.setCurrentGuild(this.guildId);
     this.availableRolesByMember = Object.fromEntries(
       this.getGuildMembers.map((m: Member) => [
         m.id,
@@ -579,23 +575,22 @@ import { onBeforeMount } from "vue";
           .map((r: GuildMemberAvailableRole) => r.role_id),
       ])
     );
-    this.isAdmin = this.hasPermission(
+    isAdmin.value = baseStore.hasPermission(
       permission_enum.guildAdmin,
-      this.currentGuildId
+      currentGuildId
     );
-    const canRegisterToQuest = this.hasPermission(
+    const canRegisterToQuest = baseStore.hasPermission(
       permission_enum.joinQuest,
-      this.currentGuildId
+      currentGuildId
     );
     if (!canRegisterToQuest) {
-      this.$router.push({
+      router.push({
         name: "guild",
         params: { guild_id: String(this.guildId) },
       });
     }
-    this.ready = true;
+    ready.value = true;
   }
-
 </script>
 <style>
 .guild-admin-card {

@@ -59,9 +59,9 @@ import { useQuestStore } from 'src/stores/quests';
 const guildStore = useGuildStore();
 const questStore = useQuestStore();
 
-onBeforeMount(() => {
-  guildStore.ensureAllGuilds();
-  questStore.ensureAllQuests();
+onBeforeMount(async () => {
+  await guildStore.ensureAllGuilds();
+  await questStore.ensureAllQuests();
 });
 </script>
 

@@ -9,6 +9,7 @@ import {
   GuildMemberAvailableRole,
   CastingRole,
   memberPatchKeys,
+  Member,
 } from '../types';
 import { api } from '../boot/axios';
 import { useGuildStore } from './guilds';
@@ -40,7 +41,7 @@ export const useMembersStore = defineStore('members', {
       Object.values(state.members).sort((a, b) =>
         a.handle.localeCompare(b.handle),
       ),
-    getMemberById: (state: MembersState) => (id?: number) => {
+    getMemberById: (state: MembersState) => (id: number) => {
       const member = state.members[id];
       if (member) return member;
       const loggedIn = useMemberStore().member;
@@ -79,7 +80,7 @@ export const useMembersStore = defineStore('members', {
     castingRolesPerQuest:
       (state: MembersState) => (member_id: number, quest_id: number) => {
         const castingRole: CastingRole[] = [];
-        const rolesPerQuest: CastingRole[] =
+        const rolesPerQuest: CastingRole[]|undefined =
           state.members[member_id].casting_role;
         if (rolesPerQuest !== undefined && rolesPerQuest.length > 0) {
           rolesPerQuest.forEach((cr) => {
@@ -107,15 +108,15 @@ export const useMembersStore = defineStore('members', {
       full?: boolean;
     }) {
       if (!this.members[id]) {
-        await fetchMemberById({
+        await this.fetchMemberById(
+          id,
           full,
-          params: { id },
-        });
+        );
       }
     },
     async reloadIfFull(id: number) {
       if (this.fullMembers[id]) {
-        await fetchMemberById({ full: true, params: { id } });
+        await this.fetchMemberById( id, true );
       }
     },
     async ensureMembersOfGuild({
@@ -137,10 +138,10 @@ export const useMembersStore = defineStore('members', {
         membersId = membersId.filter((id: number) => !this.members[id]);
       }
       if (membersId.length > 0) {
-        await this.fetchMemberById({
-          full,
-          params: { id: membersId },
-        });
+        await this.fetchMemberById(
+          membersId ,
+          full
+        );
       }
     },
     async ensurePlayersOfQuest(questId: number, full: boolean = true) {
@@ -159,10 +160,10 @@ export const useMembersStore = defineStore('members', {
       membersId = [...new Set(membersId)];
       membersId = membersId.filter((id: number) => !this.members[id]);
       if (membersId.length > 0) {
-        this.fetchMemberById({
-          full,
-          params: { id: membersId },
-        });
+        this.fetchMemberById(
+          membersId ,
+          full,         
+        );
       }
     },
     resetMembers() {
@@ -195,7 +196,7 @@ export const useMembersStore = defineStore('members', {
     async fetchMemberById(
       id: undefined | number | Array<number>,
       full: boolean = true,
-    ): Promise<PublicMember[]> {
+    ): Promise<AxiosResponse<PublicMember[]>> {
       const memberStore = useMemberStore();
       const params = Object();
       if (id !== undefined) {
@@ -230,24 +231,22 @@ export const useMembersStore = defineStore('members', {
               res.data.map((member: PublicMember) => [member.id, true]),
             ),
           };
-        }
-        return res.data;
+        }        
       }
+      return res;
     },
     async updateMember(
-      actionParams: Partial<Member>,
-    ): Promise<PublicMember[] | undefined> {
-      const { data } = actionParams;
+      data: Partial<Member>,
+    ) {
       const params = Object();
       params.id = data.id;
-      actionParams.data = filterKeys(data, memberPatchKeys);
-      const res: AxiosResponse<PublicMember> = await api.patch(
+      data = filterKeys(data, memberPatchKeys);
+      const res: AxiosResponse<PublicMember[]> = await api.patch(
         `/public_members?id=eq.${params.id}`,
         data,
       );
       if (res.status == 200) {
-        this.member = Object.assign({}, this.member, res.data[0]);
-        return this.member;
+        this.members = Object.assign({}, this.members, res.data[0]);
       }
     },
 
@@ -275,81 +274,3 @@ export const useMembersStore = defineStore('members', {
     },
   },
 });
-/*
-        ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
-          state: MembersState,
-          guildMemberAvailableRole: GuildMemberAvailableRole
-        ) => {
-          const member_id = guildMemberAvailableRole.member_id;
-          let member = state.members[member_id];
-          if (member) {
-            const guild_member_available_role =
-              member.guild_member_available_role?.filter(
-                (a: GuildMemberAvailableRole) =>
-                  a.role_id != guildMemberAvailableRole.role_id
-              ) || [];
-            guild_member_available_role.push(guildMemberAvailableRole);
-            member = { ...member, guild_member_available_role };
-            state.members = { ...state.members, [member_id]: member };
-          }
-        },
-        REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
-          state: MembersState,
-          guildMemberAvailableRole: GuildMemberAvailableRole
-        ) => {
-          const member_id = guildMemberAvailableRole.member_id;
-          let member = state.members[member_id];
-          if (member) {
-            const guild_member_available_role =
-              member.guild_member_available_role;
-            const pos = guild_member_available_role.findIndex(
-              (a: GuildMemberAvailableRole) =>
-                a.role_id == guildMemberAvailableRole.role_id &&
-                a.member_id == guildMemberAvailableRole.member_id &&
-                a.guild_id == guildMemberAvailableRole.guild_id
-            );
-            if (pos >= 0) {
-              guild_member_available_role.splice(pos, 1);
-              member = { ...member, guild_member_available_role };
-              state.members = { ...state.members, [member_id]: member };
-            }
-          }
-        },
-        ADD_CASTING_ROLE: (state: MembersState, castingRole) => {
-          const member_id = castingRole.member_id;
-          let member = state.members[member_id];
-          if (member) {
-            const casting_role =
-              member.casting_role?.filter(
-                (cr: CastingRole) => cr.role_id != castingRole.role_id
-              ) || [];
-            casting_role.push(castingRole);
-            member = { ...member, casting_role };
-            state.members = { ...state.members, [member_id]: member };
-          }
-        },
-        REMOVE_CASTING_ROLE: (state: MembersState, castingRole) => {
-          const member_id = castingRole.params.member_id;
-          let member = state.members[member_id];
-          if (member.casting_role.length > 0) {
-            const casting_role = member.casting_role;
-            const pos = casting_role.findIndex(
-              (a: CastingRole) =>
-                a.role_id == castingRole.params.role_id &&
-                a.member_id == castingRole.params.member_id &&
-                a.guild_id == castingRole.params.guild_id
-            );
-            if (pos >= 0) {
-              casting_role.splice(pos, 1);
-              member = { ...member, casting_role };
-              state.members = { ...state.members, [member_id]: member };
-            }
-          }
-        },
-        CLEAR_STATE: (state: MembersState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-
-*/

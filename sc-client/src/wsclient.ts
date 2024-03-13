@@ -9,7 +9,7 @@ export class WSClient {
   
   ws: RobustWebSocket;
   connected = false;
-  login_message: string = null;
+  login_message: string|null = null;
   store: Store<any>;
   guild_id: number | boolean = false;
   quest_id: number | boolean = false;
@@ -29,11 +29,11 @@ export class WSClient {
       this.connected = true;
       if (
         !this.login_message &&
-        memberStore.member.member &&
+        memberStore.member &&
        memberStore.tokenIsValid()
       ) {
         this.login(
-          memberStore.member.member.id,
+          memberStore.member.id,
           memberStore.member.token
         );
       } else if (this.login_message) {

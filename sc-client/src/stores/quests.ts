@@ -39,11 +39,11 @@ export interface QuestsState {
   quests: QuestMap;
   fullQuests: { [key: number]: boolean };
   fullFetch: boolean;
-  currentQuest?: number|null;
+  currentQuest: number;
 }
 
 const baseState: QuestsState = {
-  currentQuest: undefined,
+  currentQuest: 0,
   fullFetch: false,
   quests: {},
   fullQuests: {},
@@ -52,10 +52,10 @@ const baseState: QuestsState = {
 export const useQuestStore = defineStore('quest', {
   state: () => baseState,
   getters: {
-    getCurrentQuest: (state: QuestsState): QuestData | undefined => {
-    if(state.currentQuest){ 
-    return state.quests[state.currentQuest]}
-  return undefined},
+    getCurrentQuest: (state: QuestsState): QuestData => {
+    if(state.currentQuest) 
+    return state.quests[state.currentQuest]
+  },
     getQuests(): QuestData[] {
       return Object.values(this.quests);
     },

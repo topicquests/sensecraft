@@ -8,7 +8,7 @@ import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 import { useMembersStore } from './members';
 
 export interface MemberState {
-  member: Member|null;
+  member?: Member;
   token?: string;
   tokenExpiry?: number;
   isAuthenticated: boolean;
@@ -16,8 +16,14 @@ export interface MemberState {
 
 const TOKEN_RENEWAL = (TOKEN_EXPIRATION * 9) / 10;
 
-const baseState: MemberState = {
-  member: null,
+const baseState: MemberState = { 
+  member: undefined, 
+  isAuthenticated: false,
+  token: undefined,
+  tokenExpiry: undefined,
+};
+const clearBaseState: MemberState = { 
+  member: undefined, 
   isAuthenticated: false,
   token: undefined,
   tokenExpiry: undefined,
@@ -44,9 +50,10 @@ export const useMemberStore = defineStore('member', {
         (state.member?.casting || []).map((c) => [c.quest_id, c.guild_id]),
       ),
     castingRolesForQuest: (state: MemberState) => (questId: number) => {
-      return state.member?.casting_role.filter(
+      if(state.member?.casting_role){
+      return state.member.casting_role.filter(
         (role) => role.quest_id == questId,
-      );
+      )}
     },
     castingRolesPerQuest: (state: MemberState) => {
       const castingRolesPerQuest: { [id: number]: CastingRole[] } = {};
@@ -65,7 +72,7 @@ export const useMemberStore = defineStore('member', {
       window.localStorage.removeItem("tokenExpiry");
       // legacy
       window.localStorage.removeItem("email");
-      getWSClient().logout();
+      //getWSClient().logout();
       useBaseStore().reset();
     },
     async signin(mail: string, pass: string): Promise<string | undefined> {
@@ -80,6 +87,7 @@ export const useMemberStore = defineStore('member', {
         const storage = window.localStorage;
         storage.setItem('token', this.token);
         storage.setItem('tokenExpiry', this.tokenExpiry.toString());
+        token_store.setToken(this.token, this.tokenExpiry);
         window.setTimeout(() => {
           this.renewToken();
         }, TOKEN_RENEWAL);
@@ -87,9 +95,7 @@ export const useMemberStore = defineStore('member', {
         return res.data;
       }
     },
-    async registerUser(data: Member): Promise<Member> {
-      // const password = await hash(data.password, 10);
-      // data = { ...data, password };
+    async registerUser(data: Partial<Member>): Promise<Partial<Member>> {
       return await this.registerUserCrypted(data);
     },
 
@@ -110,7 +116,7 @@ export const useMemberStore = defineStore('member', {
     resetMember() {
       token_store.clearToken();
       this.isAuthenticated = false;
-      Object.assign(this, baseState);
+      Object.assign(this, clearBaseState);
     },
 
     //Axios calls
@@ -139,7 +145,7 @@ export const useMemberStore = defineStore('member', {
       }
       return this.member;
     },
-    async renewToken(): string {
+    async renewToken() {
       const token = token_store.getToken();
       if (!token) return;
       const res: AxiosResponse<string> = await api.post('/rpc/renew_token', {
@@ -162,22 +168,21 @@ export const useMemberStore = defineStore('member', {
         console.error(res.data);
       }
     },
-    async sendConfirmEmail(): boolean {
+    async sendConfirmEmail(email: string){
       await api.post('/rpc/send_login_email', {
-        email: string,
+        email
       });
     },
-    async registerUserCrypted(): Partial<Member> {
+    async registerUserCrypted(data:Partial<Member>): Promise<Partial<Member>> {
       const membersStore = useMembersStore();
-      const res: AxiosResponse<Member> = await api.post('/rpc/create_member', {
-        member,
-      });
+      const res: AxiosResponse<Member> = await api.post('/rpc/create_member', data);
       if (res.status == 200) {
         membersStore.ensureMemberById({
-          id: res.data,
+          id: res.data.id,
           full: false,
         });
       }
+      return res.data;
     },
     async updateUser(data: Partial<Member>): Promise<Member> {
       data = filterKeys(data, memberPatchKeys);
@@ -214,97 +219,4 @@ export const useMemberStore = defineStore('member', {
   },
 });
 
-/*    // Step 4
-      mutations: {
-      
-        ADD_CASTING: (state: MemberState, casting) => {
-          if (state.member) {
-            const castings =
-              state.member.casting.filter(
-                (c: Casting) => c.quest_id != casting.quest_id
-              ) || [];
-            castings.push(casting);
-            state.member.casting = castings;
-          }
-        },
-        ADD_CASTING_ROLE: (state: MemberState, casting_role) => {
-          if (state.member) {
-            const castingRoles =
-              state.member.casting_role.filter(
-                (cr: CastingRole) => cr.role_id != casting_role.role_id
-              ) || [];
-            castingRoles.push(casting_role);
-            state.member.casting_role = castingRoles;
-          }
-        },
-        REMOVE_CASTING_ROLE: (state: MemberState, castingRole) => {
-          if (state.member) {
-            const casting_role = state.member.casting_role;
-            const pos = casting_role.findIndex(
-              (a: CastingRole) =>
-                a.role_id == castingRole.role_id &&
-                a.member_id == castingRole.member_id &&
-                a.guild_id == castingRole.guild_id
-            );
-            casting_role.splice(pos, 1);
-            state.member = { ...state.member, casting_role };
-          }
-        },
-        ADD_GUILD_MEMBER_AVAILABLE_ROLE: (
-          state: MemberState,
-          guild_Member_Available_Role: GuildMemberAvailableRole
-        ) => {
-          if (state.member) {
-            const guildMemberAvailableRoles =
-              state.member.guild_member_available_role.filter(
-                (a: GuildMemberAvailableRole) =>
-                  a.role_id != guild_Member_Available_Role.role_id
-              ) || [];
-            guildMemberAvailableRoles.push(guild_Member_Available_Role);
-            state.member.guild_member_available_role =
-              guildMemberAvailableRoles;
-          }
-        },
-        REMOVE_GUILD_MEMBER_AVAILABLE_ROLE: (
-          state: MemberState,
-          guild_Member_Available_Role: GuildMemberAvailableRole
-        ) => {
-          if (state.member) {
-            const guild_member_available_role =
-              state.member.guild_member_available_role;
-            const pos = guild_member_available_role.findIndex(
-              (a: GuildMemberAvailableRole) =>
-                a.role_id == guild_Member_Available_Role.role_id &&
-                a.member_id == guild_Member_Available_Role.member_id &&
-                a.guild_id == guild_Member_Available_Role.guild_id
-            );
-            guild_member_available_role.splice(pos, 1);
-            state.member = { ...state.member, guild_member_available_role };
-          }
-        },
-        ADD_GUILD_MEMBERSHIP: (state: MemberState, membership) => {
-          if (state.member) {
-            const memberships =
-              state.member.guild_membership.filter(
-                (m: GuildMembership) => m.guild_id != membership.guild_id
-              ) || [];
-            memberships.push(membership);
-            state.member.guild_membership = memberships;
-          }
-        },
-        ADD_QUEST_MEMBERSHIP: (state: MemberState, membership) => {
-          if (state.member) {
-            const memberships =
-              state.member.quest_membership.filter(
-                (m: QuestMembership) => m.quest_id != membership.quest_id
-              ) || [];
-            memberships.push(membership);
-            state.member.quest_membership = memberships;
-          }
-        },
-        CLEAR_STATE: (state: MemberState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-*/
+

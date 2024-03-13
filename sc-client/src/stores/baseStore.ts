@@ -49,7 +49,9 @@ export const useBaseStore = defineStore('base', {
         questN?: number | Quest,
         nodeType?: ibis_node_type_enum,
       ) => {
-        const member = useMemberStore().getUser;
+        const memberStore = useMemberStore()
+        const guildStore = useGuildStore()
+        const member = memberStore.getUser;
         if (!member) return false;
         if (member.permissions.indexOf(permission) >= 0) return true;
         if (member.permissions.indexOf('superadmin') >= 0) return true;
@@ -58,7 +60,7 @@ export const useBaseStore = defineStore('base', {
         if (guildN) {
           guild =
             typeof guildN == 'number'
-              ? useGuildStore().getGuildById(guildN)
+              ? guildStore.getGuildById(guildN)
               : guildN;
           if (guild) {
             const membership = (guild.guild_membership || []).find(
@@ -113,8 +115,4 @@ export const useBaseStore = defineStore('base', {
       },
   },
 });
-/*
 
-export type BaseGetterTypes = RetypeGetterTypes<typeof BaseGetters>;
-export type MemberActionTypes = RetypeActionTypes<typeof BaseActions>;
-*/

@@ -41,16 +41,17 @@
 </template>
 
 <script setup lang="ts">
-import Vue from "vue";
 import { Notify, useQuasar } from "quasar";
 import { useRoute, useRouter } from 'vue-router'
 import { onBeforeMount } from "vue";
+import { useMemberStore } from "src/stores/member";
 
   let email: string | null= null;
   let token: string | null = null;
   const $q = useQuasar();
   const router = useRouter();
   const route = useRoute();
+  const memberStore = useMemberStore()
  
 
   async function resend() {
@@ -59,13 +60,13 @@ import { onBeforeMount } from "vue";
       $q.notify({ type: "negative", message: "Missing Email" });
       return;
     }
-    await this.sendConfirmEmail({ data: { email: theEmail } });
+    await memberStore.sendConfirmEmail(theEmail);
   }
 
   async function getNewToken(prevToken: string | null) {
     try {
-      await this.renewToken({ data: { token: prevToken } });
-      await this.fetchLoginUser();
+      await memberStore.renewToken();
+      await memberStore.fetchLoginUser();
       Notify.create({
         message: "Email Verified. You are now signed in",
         color: "positive",
@@ -79,14 +80,13 @@ import { onBeforeMount } from "vue";
       });
     }
   }
-
-  onBeforeMount(async() {
+  onBeforeMount(async() =>{
     const tokenArg = route.query.token;
     if (tokenArg) {
       token = Array.isArray(tokenArg) ? tokenArg[0] : tokenArg;
-      await this.getNewToken(token);
+      await getNewToken(token);
     }
-  }
+  })
 </script>
 <style>
 .card {

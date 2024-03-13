@@ -113,23 +113,35 @@
 
 <script setup lang="ts">
 import { useQuasar, Notify } from 'quasar';
+import { Member } from 'src/types';
 import { useRouter } from 'vue-router';
+import { useMemberStore } from 'src/stores/member';
+import axios from 'axios';
+import { ref } from 'vue';
+
+interface FormData {
+  email?: string;
+  handle?: string;
+  name?: string;
+  password?: string;
+}
 
 const router = useRouter();
-let formdata = {
-  email: null,
-  handle: null,
-  name: null,
-  password: null,
-};
+const memberStore = useMemberStore();
+const formdata = ref<FormData>({
+  email: undefined,
+  handle: undefined,
+  name: undefined,
+  password: undefined,
+});
 const $q = useQuasar();
 let isPwd = true;
 
 function doRegister() {
   try {
-    const theEmail: null | string = formdata.email;
-    const theHandle = formdata.handle;
-    const theName = formdata.name;
+    const theEmail: undefined | string = formdata.value.email;
+    const theHandle = formdata.value.handle;
+    const theName = formdata.value.name;
     if (!theEmail) {
       $q.notify({ type: 'negative', message: 'Missing Email' });
       return;
@@ -142,48 +154,40 @@ function doRegister() {
       $q.notify({ type: 'negative', message: 'Missingname field' });
       return;
     }
-    if (!formdata.password) {
+    if (!formdata.value.password) {
       $q.notify({ type: 'negative', message: 'Missing Password' });
       return;
     }
     // TODO: the domain can benormalized to LC, but case can be significant in the handle
-    formdata.email = theEmail.toLowerCase();
-    registerUser(formdata);
+    formdata.value.email = theEmail.toLowerCase();
+    memberStore.registerUser(formdata.value);
     Notify.create({
       message:
         'Account created successfully. Please check your email for a confirmation link.',
       color: 'positive',
     });
     router.push({ name: 'confirm_registration' });
-  } catch (error) {
-    if (error.message === 'EXISTS') {
-      Notify.create({
-        message:
-          'This account already exists. Try resetting your password or contact support.',
-        color: 'negative',
-      });
+  } catch (error:unknown) {
+    if(axios.isAxiosError(error)){
+      console.log(error.status)
+      $q.notify({
+      message: 'There was an error creating new member.',
+      color: 'negative',
+    })
     } else {
-      Notify.create({
+      console.log('there was an error in creating member ', error);
+      $q.notify({
         message:
-          'There was an error creating your account. If this issue persists, contact support.',
+        'There was an error creating your account. If this issue persists, contact support.',
         color: 'negative',
       });
     }
-    console.log('There was an errorregistering ', error);
   }
 }
-
 function goHome() {
   router.push({ name: 'home' });
 }
-function onHide() {
-  // Workaround needed because of timing issues (sequencing of 'hide' and 'ok' events) ...
-  setTimeout(() => {
-    goHome();
-  }, 50);
-}
 </script>
-
 <style>
 input[type='email'] {
   font-family: Arial, Helvetica, sans-serif;

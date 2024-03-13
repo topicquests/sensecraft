@@ -95,7 +95,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/register',
         name: 'register',
-        component: () => import('pages/Register.vue'),
+        component: () => import('pages/RegisterPage.vue'),
       },
       {
         path: '/signin',
