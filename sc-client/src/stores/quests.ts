@@ -19,6 +19,7 @@ import {
   Role,
   PublicMember,
   questPatchKeys,
+  GuildData,
 } from '../types';
 import {
   quest_status_enum,
@@ -97,7 +98,7 @@ export const useQuestStore = defineStore('quest', {
     getCurrentGamePlay: (state: QuestsState) => {
       if (state.currentQuest) {
         const quest = state.quests[state.currentQuest];
-        const currentGuild: number = useGuildStore().getCurrentGuild;
+        const currentGuild: GuildData = useGuildStore().getCurrentGuild;
         if (currentGuild) {
           return quest?.game_play?.find(
             (gp: GamePlay) => gp.guild_id == currentGuild.id,
@@ -107,35 +108,46 @@ export const useQuestStore = defineStore('quest', {
     },
     getCastingRoles:
       () =>
-      (member_id: number): Role[] => {
+      (member_id: number): Role[]|undefined => {
         const castingRoles = useMembersStore().getPlayersRoles(member_id);
+        if(castingRoles) {
         const roles = castingRoles.map((pr) =>
           useRoleStore().getRoleById(pr.role_id),
         );
         return roles;
+        }
+        return undefined 
       },
     getCastingRolesForQuest:
       () =>
-      (member_id: number, quest_id: number): Role[] => {
+      (member_id: number, quest_id: number): Role[]|undefined => {
         const castingRoles = useMembersStore().getPlayersRoles(member_id);
+        if(castingRoles) {
         const playerRoles = castingRoles.filter(
           (role) => role.quest_id == quest_id,
         );
+        
         const roles = playerRoles.map((pr) =>
           useRoleStore().getRoleById(pr.role_id),
         );
+        
         return roles;
+        }
+        return undefined
       },
     getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest];
-      const members = useMemberStore().members;
+      const membersStore = useMembersStore();
       const currentGuildId = useGuildStore().currentGuild;
       if (!currentGuildId) return [];
+      if (quest.casting) {
       return quest.casting
         .filter((c: Casting) => c.guild_id == currentGuildId)
-        .map((c: Casting) => members[c.member_id])
+        .map((c: Casting) => membersStore.members[c.member_id])
         .filter((member: PublicMember) => member);
+      }
     },
+
     isPlayingQuestInGuild:
       (state: QuestsState) =>
       (quest_id?: number, guild_id?: number, member_id?: number) => {
@@ -165,7 +177,7 @@ export const useQuestStore = defineStore('quest', {
       },
     getCastingRolesById:
       () =>
-      (member_id: number, quest_id: number): Role[] => {
+      (member_id: number, quest_id: number): CastingRole[]|undefined => {
         const castingRoles = useMembersStore().getPlayersRoles(member_id);
         const playerRoles = castingRoles?.filter(
           (role) => role.quest_id == quest_id,
@@ -174,9 +186,9 @@ export const useQuestStore = defineStore('quest', {
       },
     getMembersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest];
-      const members = useMemberStore().members;
+      const membersStore = useMembersStore()
       return quest?.quest_membership
-        ?.map((qm: QuestMembership) => members[qm.member_id])
+        ?.map((qm: QuestMembership) => membersStore.members[qm.member_id])
         .filter((member: PublicMember) => member);
     },
     isGuildPlayingQuest:
@@ -188,14 +200,14 @@ export const useQuestStore = defineStore('quest', {
       },
     getPlayersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest];
-      const members = useMemberStore().members;
+      const membersStore = useMembersStore()
+     if(quest.casting)
       return quest?.casting
-        .map((c: Casting) => members[c.member_id])
+        .map((c: Casting) => membersStore.members[c.member_id])
         .filter((member: PublicMember) => member);
     },
-    getGamePlayForGuild:
-      (state: QuestsState) =>
-      (guild_id: number): GamePlay => {
+    getGamePlayForGuild: (state: QuestsState) =>
+      (guild_id: number): GamePlay|undefined => {
         if (state.currentQuest) {
           const quest = state.quests[state.currentQuest];
           return quest?.game_play?.find(
@@ -213,18 +225,22 @@ export const useQuestStore = defineStore('quest', {
         quest_id: number,
         node_type: ibis_node_type_type,
       ): publication_state_type => {
-        const roleCastings: CastingRole[] =
+        const roleCastings: CastingRole[]|undefined =
           useMemberStore().castingRolesForQuest(quest_id);
-        const roles: Role[] = roleCastings.map((rc) =>
+        if(roleCastings) {
+          const roles: Role[] = roleCastings.map((rc) =>
           useRoleStore().getRoleById(rc.role_id),
         );
+        if(roles){
+        
         let maxPubStates = roles.map((role) => role.max_pub_state);
         maxPubStates = maxPubStates.concat(
-          roles.map(
-            (role) =>
-              role.role_node_constraint.find((x) => x.node_type == node_type)
-                ?.max_pub_state,
-          ),
+          roles.map((role) =>
+          role.role_node_constraint
+            ? role.role_node_constraint.find((x) => x.node_type == node_type)?.max_pub_state
+            : undefined
+        )
+        
         );
         maxPubStates = maxPubStates.filter((x) => x != undefined);
         if (maxPubStates.length > 0) {
@@ -233,18 +249,19 @@ export const useQuestStore = defineStore('quest', {
             (a, b) =>
               publication_state_list.indexOf(b) -
               publication_state_list.indexOf(a),
-          );
-          return maxPubStates[0];
+          );          
+        }         
+      }
+       
         }
         // no constraint
         return publication_state_enum.submitted;
       },
   },
   actions: {
-    async ensureAllQuests(): Quest[] {
+    async ensureAllQuests(){
       if (Object.keys(this.quests).length === 0 || !this.fullFetch) {
-        await this.fetchQuests();
-        return this.quests;
+        await this.fetchQuests(undefined);
       }
     },
     setCurrentQuest(quest_id: number) {
@@ -253,7 +270,7 @@ export const useQuestStore = defineStore('quest', {
     },
     async fetchQuests(
       id: undefined | number | Array<number>,
-    ): Promise<QuestData[]> {
+    ): Promise<QuestData[] | undefined> {
       const userId = useMemberStore().getUserId;
       const params = Object();
       if (id !== undefined) {
@@ -294,6 +311,7 @@ export const useQuestStore = defineStore('quest', {
         this.fullFetch = true;
         return res.data;
       }
+      return undefined
     },
     async ensureQuest({
       quest_id,

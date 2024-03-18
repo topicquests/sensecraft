@@ -196,14 +196,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ServerData } from "../types";
 import { ref } from "vue";
 import { useServerDataStore } from '../stores/serverData'
 import { useQuasar } from 'quasar'
 
 const serverDataStore = useServerDataStore();
 const isPwdSignIn= ref(true);
-const serverData:Partial<ServerData> = ref(serverDataStore.getServerData);
+const serverData = ref(serverDataStore.getServerData);
 const $q = useQuasar();
 
 async function doUpdateServerData() {

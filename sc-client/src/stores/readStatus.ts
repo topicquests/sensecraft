@@ -2,7 +2,10 @@ import {
 } from "./base";
 import { ConversationNode, ReadStatusData } from "../types";
 import { defineStore } from 'pinia';
-
+import { useMemberStore } from "./member";
+import { useConversationStore } from "./conversation";
+import { useChannelStore } from "./channel";
+import { api } from "src/boot/axios";
 import { AxiosResponse } from "axios";
 
 export interface ReadStatusMap {
@@ -10,11 +13,15 @@ export interface ReadStatusMap {
 }
 export interface ReadStatusState {
   fullFetch: false;
-  readStatus: ReadStatusMap;
+  readStatus?: ReadStatusMap;
 }
 const baseState: ReadStatusState = {
   fullFetch: false,
-  readStatus: null,
+  readStatus: undefined,
+};
+const clearBaseState: ReadStatusState = {
+  fullFetch: false,
+  readStatus: undefined,
 };
 
 export const useReadStatusStore = defineStore('readStatus', {
@@ -22,171 +29,124 @@ export const useReadStatusStore = defineStore('readStatus', {
   getters: {
     getNodeReadStatus: (state: ReadStatusState) => (node_id: number) => {
       const memberStore = useMemberStore();
-      const memberId = memberStore.getUserId();
+      const memberId = memberStore.getUserId;
+      if(state.readStatus){
       const read = Object.values(state.readStatus).filter(
         (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
       );
       if (read.length > 0) {
         return state.readStatus[node_id].status;
       } else return true;
-    },
+    }
+  },
     getUnreadStatusCount: (state: ReadStatusState) => (node_id: number) => {
-      const unreadStatusCount: number =
-        state.readStatus[node_id].node_count -
-        state.readStatus[node_id].read_count;
+      if(state.readStatus) {
+        const unreadStatusCount: number =
+          state.readStatus[node_id].node_count -
+          state.readStatus[node_id].read_count;
       return unreadStatusCount;
+      }
     },
     getNodeStatusCount: (state: ReadStatusState) => (node_id: number) => {
-      return state.readStatus[node_id].node_count;
+      if(state.readStatus) {
+        return state.readStatus[node_id].node_count;
+      }
     },
   },
   actions: {
-    ensureAllQuestsReadStatus: async (context) => {
+    async ensureAllQuestsReadStatus(){
       const conversationStore = useConversationStore();
+      if (conversationStore.conversationRoot) {
       const cn: ConversationNode =
-        conversationStore.conversationRoot();
+        conversationStore.conversationRoot;
+      
       const rootid: number = cn.id;
-      await context.dispatch("fetchReadStatus", { params: { rootid } });
+      await this.fetchReadStatus({ rootid });
+      }
     },
-    ensureAllChannelReadStatus: async (context) => {
+    async ensureAllChannelReadStatus() {
       const channelStore = useChannelStore();
-      const rootid = channelStore.getCurrentChannel();
-      await context.dispatch("fetchReadStatus", { params: { rootid } });
+      if(channelStore.getCurrentChannel) {
+        const rootid = channelStore.getCurrentChannel;
+        await this.fetchReadStatus({ rootid });
+      }
     },
-    resetReadStatus: (context) => {
-      context.commit("CLEAR_STATE");
+    resetReadStatus() {
+      Object.assign(this, clearBaseState);
     },
-  }
-})  
-
-/*
-export const readStatus = (axios: AxiosInstance) =>
-  new MyVapi<ReadStatusState>({
-    axios,
-    state: baseState,
-  })
-    .post({
-      action: "CreateReadStatus",
-      path: "/read_status",
-      onSuccess: (
-        state: ReadStatusState,
-        res: AxiosResponse<ReadStatusData[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
+    async creatReadStatus(data: Partial<ReadStatusData>) {
+      const res: AxiosResponse<ReadStatusData[]>=await api.post('/read_status', {
+        data
+      })
+      if(res.status==200) {
         const readStatusData: ReadStatusData = Object.assign(res.data[0], {
           node_id: null,
         });
-        state.readStatus = {
-          ...state.readStatus,
+        this.readStatus = {
+          ...this.readStatus,
           [readStatusData.node_id]: readStatusData,
         };
-      },
-    })
-    .patch({
-      action: "updateReadStatus",
-      path: ({ id }) => `/readStatus?node_id=eq.${id}`,
-      beforeRequest: (state: ReadStatusState, actionParams) => {
-        const { params, data } = actionParams;
-        params.id = data.id;
-      },
-      onSuccess: (
-        state: ReadStatusState,
-        res: AxiosResponse<ReadStatusData[]>,
-        axios: AxiosInstance,
-        { data }
-      ) => {
+      }
+    },
+    async updateReadStatus(data:Partial<ReadStatusData>) {
+      const res:AxiosResponse<ReadStatusData[]>=await api.patch(`/readstatus/${data.node_id}`, data)
+      if(res.status==200) {
         const readStatus = res.data[0];
-        const readStatusData: ReadStatusData = Object.assign(
-          state.readStatus[readStatus.node_id],
+        if(this.readStatus) {
+          const readStatusData: ReadStatusData = Object.assign(
+          this.readStatus[readStatus.node_id],
           readStatus
-        );
-        state.readStatus = {
-          ...state.readStatus,
+          );
+          this.readStatus = {
+          ...this.readStatus,
           [readStatus.node_id]: readStatusData,
-        };
-      },
-    })
-
-    .call({
-      action: "fetchReadStatus",
-      path: "unread_status_list",
-      property: "readStatus",
-      readOnly: true,
-      onSuccess: (
-        state: ReadStatusState,
-        res: AxiosResponse<ReadStatusData[]>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        state["readStatus"] = Object.fromEntries(
+          };
+        }
+      }
+    },
+    async fetchReadStatus(params:{rootid:number}) {
+      const res:AxiosResponse<ReadStatusData[]>=await api.post('rpc/unread_status_list', {
+        params
+      })
+      if(res.status==200) {
+        this["readStatus"] = Object.fromEntries(
           res.data.map((x) => [x.node_id, x])
         );
-      },
-    })
-    .call({
-      action: "CreateOrUpdateReadStatus",
-      path: "node_set_read_status",
-      property: "readStatus",
-      queryParams: true,
-      onSuccess: (
-        state: ReadStatusState,
-        res: AxiosResponse<{
-          new_node_id: number;
-          new_member_id: number;
-          status_new: boolean;
-        }>,
-        axios: AxiosInstance,
-        actionParams
-      ) => {
-        const memberId = MyVapi.store.getters["member/getUserId"];
-        const node_id = res.data[0].new_node_id;
+      }
+    },
+    async CreateOrUpdateReadStatus() {
+      const res:AxiosResponse<{
+        new_node_id: number;
+        new_member_id: number;
+        status_new: boolean;
+      }> = await api.post('node_set_read_status')
+      if(res.status==200){
+       const memberStore=useMemberStore();
+        const memberId = memberStore.getUserId;
+        const node_id = res.data.new_node_id;
         const newReadStatus: ReadStatusData = {
           node_id,
-          member_id: res.data[0].new_member_id,
+          member_id: res.data.new_member_id,
           seconds_shown: 0,
-          status: res.data[0].status_new,
+          status: res.data.status_new,
           node_count: 0,
           read_count: 0,
         };
-        const read = Object.values(state.readStatus).filter(
+        if(this.readStatus) {
+        const read = Object.values(this.readStatus).filter(
           (isRead: ReadStatusData) => isRead.node_id == node_id && memberId
-        );
-        if (read.length > 0) {
-          state.readStatus[node_id].status = res.data[0].status_new;
+        ); 
+               
+        if (read.length > 0 && this.readStatus) {
+          this.readStatus[node_id].status = res.data.status_new;
         } else {
-          state.readStatus = {
-            ...state.readStatus,
+          this.readStatus = {
+            ...this.readStatus,
             [node_id]: newReadStatus,
           };
-        }
-      },
-    })
-    .getVuexStore({
-      getters: ReadStatusGetter,
-      actions: ReadStatusActions,
-      mutations: {
-        CLEAR_STATE: (state: ReadStatusState) => {
-          Object.assign(state, baseState);
-        },
-      },
-    });
-type ReadStatusRestActionTypes = {
-  fetchReadStatus: RestParamActionType<{ rootid: number }, ReadStatusData[]>;
-  CreateOrUpdateReadStatus: RestParamActionType<
-    { nodeid: number; new_status: boolean; override: boolean },
-    ReadStatusData[]
-  >;
-
-  createReadStatus: RestDataActionType<
-    Partial<ReadStatusData>,
-    ReadStatusData[]
-  >;
-};
-
-export type ReadStatusActionTypes = RetypeActionTypes<
-  typeof ReadStatusActions & ReadStatusRestActionTypes
->;
-
-export type ReadStatusGetterTypes = RetypeGetterTypes<typeof ReadStatusGetter>;
-*/
+        } 
+      }
+      }
+    }
+  }
+}); 

@@ -99,7 +99,7 @@ export const useMemberStore = defineStore('member', {
       return await this.registerUserCrypted(data);
     },
 
-    async ensureLoginUser(): Promise<Member> {
+    async ensureLoginUser(): Promise<Member|undefined> {
       // TODO: the case where the member is pending
       if (!this.member) {
         const expiry =
@@ -108,9 +108,9 @@ export const useMemberStore = defineStore('member', {
           this.fetchLoginUser();
           if (!this.tokenExpiry) {
             // add a commit for expiry?
-          }
-          return this.member;
+          }         
         }
+        return this.member;
       }
     },
     resetMember() {
@@ -135,6 +135,7 @@ export const useMemberStore = defineStore('member', {
             '*,quest_membership!member_id(*),guild_membership!member_id(*),casting!member_id(*),casting_role!member_id(*),guild_member_available_role!member_id(*)',
         },
       });
+      console.log("Status", res.status)
       if (res.status == 200) {
         this.member = res.data[0];
         this.isAuthenticated = true;

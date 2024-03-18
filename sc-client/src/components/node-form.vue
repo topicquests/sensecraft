@@ -8,7 +8,7 @@
       </h3>
     </section>
     <section v-if="node.url || node.node_type == 'reference'">
-      <template v-if="editing">
+      <template v-if="NodeFormProps.editing">
         <q-input v-model="node.url" label="URL" ref="url" />
       </template>
       <template v-else>
@@ -26,7 +26,7 @@
       </div>
     </section>
     <section>
-      <template v-if="editing">
+      <template v-if="NodeFormProps.editing">
         <q-editor
           v-model="description"
           style="width: 98%"
@@ -37,7 +37,7 @@
         <span v-html="node.description" class="node-card-details" />
       </template>
     </section>
-    <section v-if="editing">
+    <section v-if="NodeFormProps.editing">
       <div class="row justify-start">
         <ibis-button
           :node_type="node.node_type"
@@ -53,7 +53,7 @@
         />
       </div>
     </section>
-    <div v-if="editing" class="row justify-start q-pb-lg q-ml-lg">
+    <div v-if="NodeFormProps.editing" class="row justify-start q-pb-lg q-ml-lg">
       <q-select
         v-model="node.status"
         :options="pub_state_list"
@@ -87,7 +87,7 @@
         <span v-else>Content node</span>
       </p>
     </div>
-    <div class="row justify-center" v-if="editing">
+    <div class="row justify-center" v-if="NodeFormProps.editing">
       <q-btn
         label="Cancel"
         @click="cancel"
@@ -112,10 +112,7 @@
   </q-card>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { QInput } from "quasar";
-import Component from "vue-class-component";
+<script setup lang="ts">
 import IbisButton from "./ibis-btn.vue";
 import { ConversationNode, Role } from "../types";
 import {
@@ -124,76 +121,58 @@ import {
   publication_state_list,
   publication_state_type,
 } from "../enums";
+import { computed } from "vue";
+import { QInput } from "quasar";
 
-import { Prop } from "vue/types/options";
-
-const NodeFormProps = Vue.extend({
-  props: {
-    nodeInput: Object as Prop<Partial<ConversationNode>>,
-    editing: Boolean,
-    ibisTypes: Array as Prop<ibis_node_type_type[]>,
-    allowChangeMeta: Boolean,
-    roles: Array as Prop<Role[]>,
-    pubFn: Function as Prop<
-      (node: Partial<ConversationNode>) => publication_state_type[]
-    >,
+const NodeFormProps = defineProps<{
+    nodeInput: Partial<ConversationNode>;
+    editing: boolean;
+    ibisTypes: ibis_node_type_type[];
+    allowChangeMeta: boolean;
+    roles: Role[];
+    pubFn: (node: Partial<ConversationNode>) => publication_state_type[];
+}>();
+const emit = defineEmits(['action', 'cancel']);
+let node: Partial<ConversationNode> = {};
+let pub_state_list: publication_state_type[] = publication_state_list
+const description = computed( {
+  get() {
+    return NodeFormProps.nodeInput.description || "";
   },
-});
-
-@Component<NodeForm>({
-  name: "NodeForm",
-  components: { IbisButton },
-  computed: {
-    description: {
-      get() {
-        return this.nodeInput.description || "";
-      },
-      set(value) {
-        this.node.description = value;
-      },
-    },
-  },
-  watch: {
-    nodeInput(newNode: Partial<ConversationNode>) {
-      // TODO: watch if data is dirty
-      this.node = { ...this.nodeInput };
-    },
+  set(value) {
+    node.description = value;
   },
 })
-export default class NodeForm extends NodeFormProps {
-  node: Partial<ConversationNode> = {};
-  ibis_node_type_list = ibis_node_type_list;
-  pub_state_list: publication_state_type[] = publication_state_list;
-  description!: string;
+ node = { ...NodeFormProps.nodeInput };
+  if (NodeFormProps.pubFn) pub_state_list = NodeFormProps.pubFn(node);
+  else pub_state_list = publication_state_list;
+/*
 
-  created() {
-    this.node = { ...this.nodeInput };
-    if (this.pubFn) this.pub_state_list = this.pubFn(this.node);
-    else this.pub_state_list = publication_state_list;
-  }
-  getDescription() {
-    return this.node.description || "";
-  }
-  setDescription(description: string) {
-    this.node.description = description;
-  }
-  descriptionChange(value: string) {
-    this.node.description = value;
-  }
-  action() {
-    this.$emit("action", this.node);
-  }
-  cancel() {
-    this.$emit("cancel");
-  }
-  statusChanged(event) {
-    if (this.pubFn) this.pub_state_list = this.pubFn(this.node);
-  }
-  setFocus() {
-    const titleEl = this.$refs.title as QInput;
-    titleEl.focus();
-  }
+function getDescription() {
+  return node.description || "";
 }
+function setDescription(description: string) {
+  node.description = description;
+}
+function descriptionChange(value: string) {
+  node.description = value;
+}
+*/
+function action() {
+    emit("action", node);
+  }
+function cancel() {
+    emit("cancel");
+}
+function statusChanged() {
+  if (NodeFormProps.pubFn) pub_state_list = NodeFormProps.pubFn(node);
+  }
+ /* 
+function setFocus() {
+  const titleEl = this.$refs.title as QInput;
+    titleEl.focus();
+}
+*/
 </script>
 <style>
 #node-card {

@@ -164,7 +164,7 @@
 import { ConversationNode, QTreeNode } from '../types';
 import NodeForm from './node-form.vue';
 import ReadStatusCounterButton from './read-status-counter-button.vue';
-import { ConversationMap, ibis_child_types } from '../store/conversation';
+import { ConversationMap, ibis_child_types } from '../stores/conversation'
 import { QTree } from 'quasar';
 import {
   ibis_node_type_type,
@@ -477,7 +477,7 @@ async function confirmAddChild(node) {
     });
   }
 }
-async function confirmEdit(node) {
+async function confirmEdit(node:Partial<ConversationNode> ) {
   try {
     if (NodeTreeProps.channelId) {
       await channelStore.updateChannelNode({ data: node });

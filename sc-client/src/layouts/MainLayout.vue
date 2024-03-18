@@ -103,112 +103,7 @@
     </q-drawer>
     <q-drawer v-model="leftDrawer" :breakpoint="500" bordered :overlay="true">
       <q-scroll-area class="fit">
-        <q-list>
-          <q-item clickable v-ripple id="root">
-            <q-item-section>
-              <q-btn :to="{ name: 'root' }">Home</q-btn>
-            </q-item-section>
-          </q-item>
-          <q-item clickable v-ripple id="house_rules">
-            <q-item-section>
-              <q-btn :to="{ name: 'house_rules' }">House Rules</q-btn>
-            </q-item-section>
-          </q-item>
-          <q-item clickable v-ripple v-show="checkIfAuthenticated()" id="lobby">
-            <q-item-section>
-              <q-btn :to="{ name: 'lobby' }">Dashboard</q-btn>
-            </q-item-section>
-          </q-item>
-          <q-item clickable v-ripple id="questView">
-            <q-item-section id="quest_list">
-              <q-item-label>
-                <q-btn :to="{ name: 'quest_list' }">Quests</q-btn>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-ripple
-            id="createQuest"
-            v-show="checkForPermission(permission_enum.createQuest)"
-          >
-            <q-item-section id="create_quest">
-              <q-item-label>
-                <q-btn :to="{ name: 'create_quest' }" name="createQuestBtn">
-                  Create Quests</q-btn
-                >
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item clickable v-ripple id="guildView">
-            <q-item-section>
-              <q-btn :to="{ name: 'guild_list' }"> Guilds </q-btn>
-            </q-item-section>
-          </q-item>
-          <q-item>
-            <q-item
-              clickable
-              v-ripple
-              id="createGuild"
-              v-show="checkForPermission(permission_enum.createGuild)"
-            >
-              <q-item-section id="guild_create">
-                <q-item-label>
-                  <q-btn :to="{ name: 'create_guild' }">Create Guild</q-btn>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-ripple
-              v-if="checkForPermission(permission_enum.superadmin)"
-              id="admin"
-            >
-              <q-btn
-                :to="{
-                  name: 'admin',
-                }"
-              >
-                Administration
-              </q-btn>
-            </q-item>
-            <q-btn
-              v-show="!checkIfAuthenticated()"
-              @click="goTo('signin')"
-              roundeded
-              label="sign in"
-              id="signin"
-              name="signinBtn"
-              class="q-mr-sm lt-md"
-            >
-            </q-btn>
-          </q-item>
-          <q-item>
-            <q-btn
-              v-show="!checkIfAuthenticated()"
-              @click="goTo('register')"
-              class="lt-md"
-              name="registerBtn"
-              roundeded
-              label="Register"
-              id="register"
-            ></q-btn>
-          </q-item>
-          <div v-if="checkIfAuthenticated()">
-            <q-item>
-              <q-btn
-                class="lt-md"
-                @click="onLogout()"
-                outline
-                roundeded
-                label="log off"
-                id="logoff"
-                name="logoffBtn"
-              >
-              </q-btn>
-            </q-item>
-          </div>
-        </q-list>
+        <drawer_menu v-on:onLogout="onLogout"></drawer_menu>
       </q-scroll-area>
     </q-drawer>
     <q-page-container class="q-pa-md">
@@ -229,32 +124,22 @@ import { useRouter } from 'vue-router';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
-import { useBaseStore } from '../stores/baseStore';
 import channelList  from '../components/ChannelListComponent.vue'
 import { GuildData } from '../types';
-import { permission_enum } from '../enums';
 import { useQuasar } from 'quasar';
+import drawer_menu  from '../components/drawer_menu.vue'
 
 const router = useRouter();
 const memberStore = useMemberStore();
 const guildStore = useGuildStore();
 const questStore = useQuestStore();
-const baseStore = useBaseStore();
 const $q = useQuasar();
 const leftDrawer = ref(false);
-let hasPermission = false;
 const isAuthenticated = ref(false);
 const rightDrawer = ref(false);
 const showTree = true;
 const currentGuild  = ref<GuildData|undefined>(guildStore.getCurrentGuild);
 
-function checkForPermission(permission_enum: permission_enum): boolean {
-  hasPermission = baseStore.hasPermission(permission_enum);
-  if (hasPermission == true) {
-    return true;
-  }
-  return false;
-};
 function checkIfAuthenticated(): boolean {
   isAuthenticated.value = memberStore.isAuthenticated;
   if (isAuthenticated.value == true) {

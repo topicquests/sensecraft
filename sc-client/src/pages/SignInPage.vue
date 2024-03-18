@@ -32,6 +32,11 @@ async function doLogin(mail: string, pass: string) {
       throw 'login failed';
     }
     await memberStore.ensureLoginUser();
+    $q.notify({
+        type: 'positive',
+        message:
+          'You are logged in',
+      });
     goNext();
   } catch (error) {
     let message;

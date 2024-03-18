@@ -8,6 +8,7 @@ import { makeTree, ConversationMap } from "./conversation";
 import { useMemberStore } from './member'
 import { useQuestStore } from './quests'
 import { useBaseStore } from './baseStore'
+import { useGuildStore } from './guilds';
 
 interface ChannelMap {
   [key: number]: ConversationMap;
@@ -16,15 +17,15 @@ interface ChannelMap {
 export interface ChannelState {
   channels: ConversationMap;
   channelData: ChannelMap;
-  currentGuild: number;
-  currentChannel: number;
+  currentGuild?: number;
+  currentChannel?: number;
 }
 
 const baseState: ChannelState = {
-  currentGuild: null,
+  currentGuild: undefined,
   channels: {},
   channelData: {},
-  currentChannel: null,
+  currentChannel: undefined,
 };
 
 export const useChannelStore = defineStore('channel', {
@@ -41,45 +42,50 @@ export const useChannelStore = defineStore('channel', {
       Object.values(state.channels).filter(
       (c: ConversationNode) => c.quest_id != undefined,
     ),
-    getGameChannelsOfQuest: (state: ChannelState): ConversationNode[] =>
+    getGameChannelsOfQuest: (state: ChannelState) =>
       (quest_id: number): ConversationNode[] =>
       Object.values(state.channels).filter(
         (c: ConversationNode) => c.quest_id == quest_id,
       ),
-    getChannelById: (state: ChannelState): ConversationNode[] => (id: number) =>
+    getChannelById: (state: ChannelState) => (id: number) =>
       state.channelData[id],
-    getChannelConversation: (state: ChannelState): ConversationNode[] => (channel_id: number) =>
+    getChannelConversation: (state: ChannelState) => (channel_id: number) =>
       state.channelData[channel_id],
-    getChannelConversationTree: (state: ChannelState): QTreeNode[] => (channel_id: number) => {
+    getChannelConversationTree: (state: ChannelState) => (channel_id: number) => {
       const channel = state.channelData[channel_id];
       if (channel) return makeTree(Object.values(channel));
         return [];
     },
-    getChannelChildrenOf: (state: ChannelState):ConversationNode[] => (node_id: number) => {
-      return Object.values(state.channelData[state.currentChannel]).filter(
-      (n) => n.parent_id == node_id,
-      );
+    getChannelChildrenOf: (state: ChannelState) => (node_id: number) => {
+      if(state.currentChannel) {
+        return Object.values(state.channelData[state.currentChannel]).filter(
+        (n) => n.parent_id == node_id,
+        );
+      }
     },
-    getCurrentChannel: (state: ChannelState): number => state.currentChannel,
-    getChannelNode: (state: ChannelState): ChannelMap => (channel_id: number, node_id: number) =>
+    getCurrentChannel: (state: ChannelState) => state.currentChannel,
+    getChannelNode: (state: ChannelState) => (channel_id: number, node_id: number) =>
       state.channelData[channel_id]?.[node_id],
     canEdit: (state: ChannelState) => (channel_id: number, node_id: number) => {
       const memberStore = useMemberStore();
       const questStore = useQuestStore();
       const baseStore = useBaseStore();
-      const userId = memberStore.getUserId();
+      if (memberStore && memberStore.getUserId) {
+      const userId = memberStore.getUserId;
+      
       const node = state.channelData[channel_id]?.[node_id];
       if (node && userId) {
         if (node.status == publication_state_enum.private_draft) {
           return node.creator_id == userId;
         // TODO: role_draft
        } else if (node.status == publication_state_enum.guild_draft) {
-        const casting = questStore.castingInQuest()(
+        const casting = questStore.castingInQuest(
           node.guild_id,
         );
         return casting?.guild_id == node.guild_id;
+       }
       } else if (node.status == publication_state_enum.proposed) {
-        return baseStore.hasPermission()(
+        return baseStore.hasPermission(
           permission_enum.guildAdmin,
           node.guild_id,
           node.guild_id,
@@ -90,20 +96,20 @@ export const useChannelStore = defineStore('channel', {
     }
   },
 
-actions: {
-  setCurrentChannel (channel_id: number) {
-    this.currentChannel = channel_id;
-  },
-  async ensureChannels(guild_id: number) {
-    if (guild_id != this.currentGuild) {
-      await this.fetchChannels (guild_id);
-    }
-  },
-  ensureChannelConversation: async (
-    { channel_id, guild }: { channel_id: number; guild: number }) => {
-    if (
-      guild != context.state.currentGuild ||
-      context.state.channelData[channel_id] === undefined
+  actions: {
+    setCurrentChannel (channel_id: number) {
+      this.currentChannel = channel_id;
+    },
+    async ensureChannels(guild_id: number) {
+      if (guild_id != this.currentGuild) {
+        await this.fetchChannels (guild_id);
+      }
+    },
+    async ensureChannelConversation (channel_id: number, guild: number, channelData: []){
+      const guildStore = useGuildStore();
+      if (
+      guild != guildStore.currentGuild ||
+      channelData[channel_id] === undefined
     ) {
       await fetchChannelConversation({params: { node_id: channel_id }})
     }
@@ -143,9 +149,9 @@ actions: {
     }
   },
   
-    async fetchChannelConversation(params){
-      const res:AxiosResponse<ConversationNode[]> = api.get('rpc/node_subtree', params)
-      if (res == 200) {
+    async fetchChannelConversation(params: {node_id: number}){
+      const res:AxiosResponse<Partial<ConversationNode[]>> = api.get('rpc/node_subtree', params)
+      if (res.status == 200) {
         const channel_id = params.node_id;
         const firstNode = res.data[0];
         if (this.currentGuild !== firstNode.guild_id) {

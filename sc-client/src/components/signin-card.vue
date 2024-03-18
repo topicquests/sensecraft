@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { Ref, ref } from 'vue';
 
-let isPwdSignIn = true;
+let isPwdSignIn = ref(true);
 const mail: Ref<string> = ref('');
 const pass: Ref<string> = ref('');
 let email: string;
