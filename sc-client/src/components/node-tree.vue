@@ -56,6 +56,7 @@
       :nodes="nodesTree"
       node-key="id"
       label-key="title"
+      :key="treeSize"
       default-expand-all
       @update:selected="selectionChanged"
       v-model:selected="selectedNodeId"
@@ -63,11 +64,7 @@
       :filter="searchFilter_"
     >
       <template v-slot:default-header="{ node }">
-        <div
-          class="row items-center"
-          v-if="node.id"
-          :ref="'node_' + node.id"
-        >
+        <div class="row items-center" v-if="node.id" :ref="'node_' + node.id">
           <q-icon :name="node.icon" class="q-mr-sm" />
           <span
             :class="
@@ -109,7 +106,8 @@
           />
           <q-btn
             v-if="canAddChild(node.id)"
-            flat icon="add"
+            flat
+            icon="add"
             @click="addChildToNode(node.id)"
           />
           <read-status-counter-button
@@ -254,7 +252,12 @@ const nodeFormRef = computed(
 );
 const canAddChild = computed(() => {
   return (nodeId) => {
-    return NodeTreeProps.editable && canAddTo(nodeId) && !editingNodeId.value && !addingChildToNodeId.value;
+    return (
+      NodeTreeProps.editable &&
+      canAddTo(nodeId) &&
+      !editingNodeId.value &&
+      !addingChildToNodeId.value
+    );
   };
 });
 const searchFilter_ = computed(() => {
@@ -313,6 +316,10 @@ const getNodesTree = () => {
 };
 
 const nodesTree = ref<Partial<QTreeNode[]> | undefined | null>(getNodesTree());
+const treeSize = computed((): number | undefined => {
+  const nodesTree = getNodesTree();
+  return nodesTree ? readStatusStore.getNodeSize(nodesTree[0].id) : undefined;
+});
 
 const canEdit = computed(() => (nodeId: number): boolean => {
   const quest = questStore.getQuestById(NodeTreeProps.currentQuestId!);

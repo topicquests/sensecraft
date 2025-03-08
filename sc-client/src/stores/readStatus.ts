@@ -69,6 +69,13 @@ export const useReadStatusStore = defineStore('readStatus', {
           } else return true;
         }
       },
+    getNodeSize:
+      (state: ReadStatusState) =>
+      (node_id: number): number | undefined => {
+        if (state.readStatus) {
+          return state.readStatus[node_id]?.node_count;
+        }
+      },
     getUnreadStatusCount: (state: ReadStatusState) => (node_id: number) => {
       if (state.readStatus && state.readStatus[node_id]) {
         const unreadStatusCount: number =
@@ -167,7 +174,7 @@ export const useReadStatusStore = defineStore('readStatus', {
       Object.assign(this, clearBaseState);
     },
     // Axios Calls
-    async creatReadStatus(data: Partial<ReadStatusData>) {
+    async createReadStatus(data: Partial<ReadStatusData>) {
       const res: AxiosResponse<ReadStatusData[]> = await api.post(
         '/read_status',
         {

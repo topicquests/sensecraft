@@ -2,6 +2,7 @@ import RobustWebSocket from 'robust-websocket';
 import { useMemberStore } from './stores/member';
 import { useMembersStore } from './stores/members';
 import { useConversationStore } from './stores/conversation';
+import { useReadStatusStore } from './stores/readStatus';
 import { useQuestStore } from './stores/quests';
 import { useGuildStore } from './stores/guilds';
 import { token_store } from './boot/axios';
@@ -17,11 +18,13 @@ export class WSClient {
   questStore: any;
   guildStore: any;
   conversationStore: any;
+  readStatusStore: any;
   constructor(url) {
     const memberStore = useMemberStore();
     this.memberStore = memberStore;
     this.membersStore = useMembersStore();
     this.conversationStore = useConversationStore();
+    this.readStatusStore = useReadStatusStore();
     this.questStore = useQuestStore();
     this.guildStore = useGuildStore();
 
@@ -95,7 +98,14 @@ export class WSClient {
         if (crud == 'D') {
           // TODO
         } else {
-          await this.conversationStore.fetchConversationNode(id);
+          const node = await this.conversationStore.fetchConversationNode(id);
+          const rootid: number = Number(node.ancestry.split('.')[0]);
+          if (
+            node.meta == 'channel' ||
+            this.readStatusStore.readStatus[rootid] !== undefined
+          ) {
+            await this.readStatusStore.fetchReadStatus({ rootid });
+          }
         }
         break;
       case 'quests':

@@ -281,7 +281,7 @@ export const useConversationStore = defineStore('conversation', {
     resetConversation() {
       Object.assign(this, clearBaseState);
     },
-    async fetchConversationNode(id: number) {
+    async fetchConversationNode(id: number): Promise<ConversationNode> {
       const params = Object();
       params.id = `eq.${id}`;
       const res: AxiosResponse<ConversationNode[]> = await api.get(
@@ -298,9 +298,10 @@ export const useConversationStore = defineStore('conversation', {
           // maybe we came here through the websocket
           this.addToState(node);
         } else {
-          this.node = res.data[0];
+          this.node = res.data[0]; // Are we sure about this?
           this.addToState(node);
         }
+        return node;
       }
     },
     addToState(node: ConversationNode) {
