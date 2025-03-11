@@ -1,0 +1,55 @@
+api:
+  url: http://localhost:3000/
+  admin_email: admin@admin.com
+  admin_password: admin
+
+members:
+  sponsor:
+    email: sponsor@sponsor.com
+    password: sponsor
+    permissions:
+      - createQuest
+  drone_rider:
+    email: drone_rider@example.com
+    password: drone_rider
+    permissions:
+      - createGuild
+  econtrarian:
+    email: econtrarian@example.com
+    password: econtrarian
+    permissions:
+      - createGuild
+  info_mapper:
+    email: info_mapper@example.com
+    password: info_mapper
+    permissions:
+      - createGuild
+  traditionalist:
+    email: traditionalist@example.com
+    password: traditionalist
+    permissions:
+      - createGuild
+  visitor:
+    email: visitor@example.com
+    password: visitor
+    permissions:
+      - createGuild
+
+quests:
+  plastic:
+    name: How could we remove plastic from the sea?
+    creator: sponsor
+
+guilds:
+  drone_riders:
+    creator: drone_rider
+  econtrarians:
+    creator: econtrarian
+  traditionalists:
+    creator: traditionalist
+    members:
+      visitor:
+        roles:
+          - Critic
+  info_first:
+    creator: info_mapper

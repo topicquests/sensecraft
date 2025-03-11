@@ -1,0 +1,278 @@
+- creator_id: sponsor
+  lid: n1
+  meta: conversation
+  node_type: question
+  quest_id: plastic
+  status: published
+  title: How could we remove plastic from the sea?
+- creator_id: sponsor
+  lid: n2
+  node_type: question
+  parent_id: n1
+  quest_id: plastic
+  status: published
+  title: How do we capture plastic in the sea?
+- creator_id: sponsor
+  lid: n3
+  node_type: question
+  parent_id: n1
+  quest_id: plastic
+  status: published
+  title: How do we safely dispose of captured plastic
+- creator_id: traditionalist
+  guild_id: traditionalists
+  lid: n4
+  node_type: answer
+  parent_id: n2
+  quest_id: plastic
+  status: submitted
+  title: capture the plastic with trawlers
+- creator_id: traditionalist
+  guild_id: traditionalists
+  lid: n4.1
+  node_type: reference
+  parent_id: n4
+  quest_id: plastic
+  status: submitted
+  title: Ocean cleanup device successfully collects plastic for first time
+  url: https://www.theguardian.com/environment/2019/oct/03/ocean-cleanup-device-successfully-collects-plastic-for-first-time
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n5
+  node_type: answer
+  parent_id: n2
+  quest_id: plastic
+  status: submitted
+  title: use drones to fish out floating plastic
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n6
+  node_type: question
+  parent_id: n4
+  quest_id: plastic
+  status: guild_draft
+  title: Will sealife be affected by this?
+- id: n6
+  status: submitted
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n8
+  node_type: con_answer
+  parent_id: n6
+  quest_id: plastic
+  status: guild_draft
+  title: dismantling plastic islands has impact on local sealife
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n9
+  node_type: pro
+  parent_id: n8
+  quest_id: plastic
+  status: guild_draft
+  title: there is new sealife on plastic islands
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n10
+  node_type: reference
+  parent_id: n9
+  quest_id: plastic
+  status: guild_draft
+  title: Ocean plastic is creating new communities of life on the high seas
+  url: https://www.sciencedaily.com/releases/2021/12/211202092930.htm
+- creator_id: traditionalist
+  guild_id: traditionalists
+  lid: n7
+  node_type: answer
+  parent_id: n6
+  quest_id: plastic
+  status: submitted
+  title: sealife is affected by the plastic itself
+- id: n8
+  status: submitted
+- id: n9
+  status: submitted
+- id: n10
+  status: submitted
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n11
+  node_type: pro
+  parent_id: n5
+  quest_id: plastic
+  status: submitted
+  title: fishing out individual pieces should be less harmful to wildlife
+- creator_id: visitor
+  guild_id: traditionalists
+  lid: n12
+  node_type: question
+  parent_id: n5
+  quest_id: plastic
+  status: guild_draft
+  title: Can a drone lift big plastic pieces?
+- creator_id: visitor
+  guild_id: traditionalists
+  lid: n13
+  node_type: con_answer
+  parent_id: n12
+  quest_id: plastic
+  status: guild_draft
+  title: Lifting plastic may be too heavy
+- id: n12
+  status: proposed
+- id: n13
+  status: proposed
+- id: n13
+  title: Drones may not be able to lift heavy plastic pieces
+- id: n12
+  status: submitted
+  acting_member: traditionalist
+- id: n13
+  status: submitted
+  acting_member: traditionalist
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n14
+  node_type: con
+  parent_id: n13
+  quest_id: plastic
+  status: submitted
+  title: Drones can carry hundreds of kg
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n14.1
+  node_type: answer
+  parent_id: n12
+  quest_id: plastic
+  status: submitted
+  title: Use swimming drones, no need to lift
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n15
+  node_type: reference
+  parent_id: n14.1
+  quest_id: plastic
+  status: submitted
+  title: A Drone Army Is Rising Against Ocean Plastics
+  url: https://www.bloomberg.com/news/articles/2021-06-14/a-drone-army-is-rising-against-ocean-plastics
+- creator_id: drone_rider
+  guild_id: drone_riders
+  lid: n16
+  node_type: reference
+  parent_id: n14.1
+  quest_id: plastic
+  status: submitted
+  title: Marine drones
+  url: https://www.plasticsoupfoundation.org/en/solutions/marine-drone/
+- creator_id: drone_rider
+  description: ordinary carrying capability for professional Drones is 20 to 220 kg.
+  guild_id: drone_riders
+  lid: n18
+  node_type: reference
+  parent_id: n14
+  quest_id: plastic
+  status: submitted
+  title: 'How Much Weight Can A Drone Carry 2022: Top Full Guide'
+  url: https://lucidcam.com/how-much-weight-can-a-drone-carry/
+- creator_id: traditionalist
+  guild_id: traditionalists
+  lid: n19
+  node_type: con
+  parent_id: n14
+  quest_id: plastic
+  status: submitted
+  title: Such drones are expensive
+- creator_id: traditionalist
+  description: These (heavy-payload) drones can operate for over $15,000.
+  guild_id: traditionalists
+  lid: n20
+  node_type: reference
+  parent_id: n19
+  quest_id: plastic
+  status: submitted
+  title: 'How Much Weight Can A Drone Carry 2022: Top Full Guide'
+  url: https://lucidcam.com/how-much-weight-can-a-drone-carry/
+- creator_id: sponsor
+  lid: n21
+  node_type: question
+  parent_id: n2
+  quest_id: plastic
+  status: published
+  title: How do we capture the plastic micro-particles?
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n22
+  node_type: answer
+  parent_id: n21
+  quest_id: plastic
+  status: submitted
+  title: Mussels can transform microplastics into floating pellets
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n23
+  node_type: reference
+  parent_id: n22
+  quest_id: plastic
+  status: submitted
+  title: Mussel poo could be the secret to removing microplastics from the oceans
+  url: https://www.euronews.com/green/2021/07/20/mussel-poo-could-be-the-secret-to-removing-microplastics-from-the-oceans
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n27
+  node_type: answer
+  parent_id: n3
+  quest_id: plastic
+  status: submitted
+  title: New enzymes digest plastic at room temperature
+- creator_id: econtrarian
+  guild_id: econtrarians
+  lid: n28
+  node_type: reference
+  parent_id: n27
+  quest_id: plastic
+  status: submitted
+  title: AI-designed enzyme devours plastic trash in days
+  url: https://www.anthropocenemagazine.org/2022/05/ai-designed-enzyme-devours-plastic-waste-in-hours/
+- creator_id: info_mapper
+  guild_id: info_first
+  lid: n24
+  node_type: question
+  parent_id: n2
+  quest_id: plastic
+  status: submitted
+  title: How to find all the plastic in the ocean?
+- creator_id: info_mapper
+  guild_id: info_first
+  lid: n25
+  node_type: answer
+  parent_id: n24
+  quest_id: plastic
+  status: submitted
+  title: Use drones to locate plastic
+- creator_id: info_mapper
+  guild_id: info_first
+  lid: n26
+  node_type: reference
+  parent_id: n25
+  quest_id: plastic
+  status: submitted
+  title: Drones are helping to clean up the world's plastic pollution
+  url: https://www.cnn.com/2021/06/23/europe/ellipsis-drone-plastic-pollution-c2e-spc-intl/index.html
+- creator_id: info_mapper
+  guild_id: info_first
+  lid: n29
+  node_type: answer
+  parent_id: n12
+  quest_id: plastic
+  status: submitted
+  title: guide swimming drones with flying drones
+- creator_id: info_mapper
+  guild_id: info_first
+  lid: n30
+  node_type: reference
+  parent_id: n29
+  quest_id: plastic
+  status: submitted
+  title:
+    These drones look for trash in waterways - and then send sailing drones to
+    clean it up
+  url: https://www.fastcompany.com/90618192/these-drones-look-for-trash-in-waterways-and-then-send-sailing-drones-to-clean-it-up
