@@ -56,10 +56,11 @@ describe('GuildStore - fetchGuildsById', () => {
       mockAxios.onGet('/guilds_data').reply((config) => {
         const requestedId = config.params?.id?.replace('eq.', '')
         if (requestedId === '999') {
+          console.log("Params ", config.params)
           console.log('Returning 404 for non-existent ID');
           return [404];
         }
-        //return [200, [mockGuild]];
+        return [200, [mockGuild]];
       });
       const result = await guildStore.fetchGuildsById(id);
       expect(result).toEqual([]);
