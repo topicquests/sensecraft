@@ -52,18 +52,18 @@ describe('GuildStore - fetchGuildsById', () => {
     expect(guildStore.guilds[2]).toEqual(mockGuilds[1]);
   });
   it('returns an empty array if API response is unsuccessful (404)', async () => {
-      const id = 999;
-      mockAxios.onGet('/guilds_data').reply((config) => {
-        const requestedId = config.params?.id?.replace('eq.', '')
-        if (requestedId === '999') {
-          console.log("Params ", config.params)
-          console.log('Returning 404 for non-existent ID');
-          return [404];
-        }
-        return [200, [mockGuild]];
-      });
-      const result = await guildStore.fetchGuildsById(id);
-      expect(result).toEqual([]);
-      expect(guildStore.guilds[id]).toBeUndefined();
+    const id = 999;
+    mockAxios.onGet('/guilds_data').reply((config) => {
+      const requestedId = config.params?.id?.replace('eq.', '');
+      if (requestedId === '999') {
+        console.log('Params ', config.params);
+        console.log('Returning 404 for non-existent ID');
+        return [200, []];
+      }
+      return [200, [mockGuild]];
     });
+    const result = await guildStore.fetchGuildsById(id);
+    expect(result).toEqual([]);
+    expect(guildStore.guilds[id]).toBeUndefined();
+  });
 });
