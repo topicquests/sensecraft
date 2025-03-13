@@ -3,6 +3,7 @@ import {
   ConversationNode,
   GamePlay,
   GuildData,
+  GuildMemberAvailableRole,
   GuildMembership,
   Member,
   QuestData,
@@ -19,6 +20,12 @@ export const mockCasting: Casting = {
   status: 'request',
   created_at: '',
   updated_at: '',
+};
+
+export const mockGuildMemberAvailableRole: GuildMemberAvailableRole = {
+  guild_id: 1,
+  member_id: 1,
+  role_id: 1
 };
 export const mockRole: Role = {
   id: 1,
@@ -156,6 +163,10 @@ export const mockChannelStatusMap: ReadStatusMap = {
   2: {
     node_count: 2,
     read_count: 1,
+    node_id: 1,
+    member_id: 1,
+    status: true,
+    seconds_shown: 0
   },
 };
 

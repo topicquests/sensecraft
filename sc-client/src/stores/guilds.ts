@@ -294,24 +294,29 @@ export const useGuildStore = defineStore('guild', {
     async createGuildBase(
       data: Partial<Guild>,
     ): Promise<AxiosResponse<GuildData[]>> {
-      const res: AxiosResponse<GuildData[]> = await api.post('/guilds', data);
-      if (res.status == 201) {
-        const guildData: GuildData = Object.assign(res.data[0], {
-          member_count: 1,
-          member_request_count: 0,
-          is_member: true,
-          is_admin: true,
-          last_node_published_at: '',
-          node_count: 0,
-          ongoing_quests_count: 0,
-          finished_quests_count: 0,
-          recruiting_for_quest_count: 0,
-        });
-        this.guilds = { ...this.guilds, [guildData.id]: guildData };
-        this.fullGuilds = { ...this.fullGuilds, [guildData.id]: false };
-        // TODO: update memberships in member.
+      try {
+        const res: AxiosResponse<GuildData[]> = await api.post('/guilds', data);
+        if (res.status == 201) {
+          const guildData: GuildData = Object.assign(res.data[0], {
+            member_count: 1,
+            member_request_count: 0,
+            is_member: true,
+            is_admin: true,
+            last_node_published_at: '',
+            node_count: 0,
+            ongoing_quests_count: 0,
+            finished_quests_count: 0,
+            recruiting_for_quest_count: 0,
+          });
+          this.guilds = { ...this.guilds, [guildData.id]: guildData };
+          this.fullGuilds = { ...this.fullGuilds, [guildData.id]: false };
+          // TODO: update memberships in member.
+        }
+        return res;
+      } catch (error) {
+        console.error('Guild creation failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
       }
-      return res;
     },
     async registerAllMembers(guildId: number, questId: number) {
       await api.post('/rpc/register_all_members', {
@@ -320,71 +325,85 @@ export const useGuildStore = defineStore('guild', {
       });
     },
     async updateGuild(data: Partial<Guild>) {
-      data = filterKeys(data, guildPatchKeys);
-      const res: AxiosResponse<Partial<GuildData[]>> = await api.patch(
-        'guilds',
-        data,
-        {
-          params: { id: `eq.${data.id}` },
-        },
-      );
-
-      if (res.status == 200) {
-        const guild = res.data[0];
-        const guildData: GuildData = Object.assign(
-          {},
-          this.guilds[guild.id],
-          guild,
+      try {
+        data = filterKeys(data, guildPatchKeys);
+        const res: AxiosResponse<Partial<GuildData[]>> = await api.patch(
+          'guilds',
+          data,
+          {
+            params: { id: `eq.${data.id}` },
+          },
         );
-        this.guilds = { ...this.guilds, [guild.id]: guildData };
+        if (res.status == 200) {
+          const guild = res.data[0];
+          const guildData: GuildData = Object.assign(
+            {},
+            this.guilds[guild.id],
+            guild,
+          );
+          this.guilds = { ...this.guilds, [guild.id]: guildData };
+        }
+      } catch (error) {
+        console.error('Guild update failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
       }
     },
     async doAddGuildMembership(data: Partial<GuildMembership>) {
-      const res: AxiosResponse<GuildMembership[]> = await api.post(
-        'guild_membership',
-        data,
-      );
-      if (res.status == 201) {
-        const membership = res.data[0];
-        const guild = this.guilds[membership.guild_id];
-        if (guild) {
-          const memberships = guild.guild_membership || [];
-          memberships.push(membership);
-          guild.guild_membership = memberships;
+      try {
+        const res: AxiosResponse<GuildMembership[]> = await api.post(
+          'guild_membership',
+          data,
+        );
+        if (res.status == 201) {
+          const membership = res.data[0];
+          const guild = this.guilds[membership.guild_id];
+          if (guild) {
+            const memberships = guild.guild_membership || [];
+            memberships.push(membership);
+            guild.guild_membership = memberships;
+          }
         }
+      } catch (error) {
+        console.error('Add guildMembership failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
       }
     },
     async doUpdateGuildMembership(data: Partial<GuildMembership>) {
-      const memberStore = useMemberStore();
-      const res: AxiosResponse<GuildMembership[]> = await api.patch(
-        'guild_membership',
-        data,
-        {
-          params: {
-            member_id: `eq.${data.member_id}`,
-            guild_id: `eq.${data.guild_id}`,
+      try {
+        const memberStore = useMemberStore();
+        const res: AxiosResponse<GuildMembership[]> = await api.patch(
+          'guild_membership',
+          data,
+          {
+            params: {
+              member_id: `eq.${data.member_id}`,
+              guild_id: `eq.${data.guild_id}`,
+            },
           },
-        },
-      );
-      if (res.status == 200) {
-        const membership = res.data[0];
-        const guild = this.guilds[membership.guild_id];
-        if (guild) {
-          const memberships =
-            guild.guild_membership?.filter(
-              (gp: GuildMembership) => gp.member_id !== membership.member_id,
-            ) || [];
-          memberships.push(membership);
-          guild.guild_membership = memberships;
+        );
+        if (res.status == 200) {
+          const membership = res.data[0];
+          const guild = this.guilds[membership.guild_id];
+          if (guild) {
+            const memberships =
+              guild.guild_membership?.filter(
+                (gp: GuildMembership) => gp.member_id !== membership.member_id,
+              ) || [];
+            memberships.push(membership);
+            guild.guild_membership = memberships;
+          }
+          if (memberStore.member && memberStore.member.guild_membership) {
+            const memberships =
+              memberStore.member.guild_membership.filter(
+                (m: GuildMembership) => m.guild_id != membership.guild_id,
+              ) || [];
+            memberships.push(membership);
+            memberStore.member.guild_membership = memberships;
+          }
         }
-        if (memberStore.member && memberStore.member.guild_membership) {
-          const memberships =
-            memberStore.member.guild_membership.filter(
-              (m: GuildMembership) => m.guild_id != membership.guild_id,
-            ) || [];
-          memberships.push(membership);
-          memberStore.member.guild_membership = memberships;
-        }
+      } catch(error) {
+        console.error('Update guildMembership failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
       }
     },
     async addGuildMemberAvailableRole(data: {
@@ -392,116 +411,125 @@ export const useGuildStore = defineStore('guild', {
       guild_id: number;
       role_id: number | null | undefined;
     }) {
-      const memberStore = useMemberStore();
-      const membersStore = useMembersStore();
-      const res: AxiosResponse<GuildMemberAvailableRole[]> = await api.post(
-        '/guild_member_available_role',
-        data,
-      );
-      if (res.status == 201) {
-        const availableRole = res.data[0];
-        if (memberStore.getUserId == availableRole.member_id)
-          if (
-            memberStore.member &&
-            memberStore.member.guild_member_available_role
-          ) {
-            const guildMemberAvailableRoles =
-              memberStore.member.guild_member_available_role.filter(
+      try {
+        const memberStore = useMemberStore();
+        const membersStore = useMembersStore();
+        const res: AxiosResponse<GuildMemberAvailableRole[]> = await api.post(
+          '/guild_member_available_role',
+          data,
+        );
+        if (res.status == 201) {
+          const availableRole = res.data[0];
+          if (memberStore.getUserId == availableRole.member_id)
+            if (
+              memberStore.member &&
+              memberStore.member.guild_member_available_role
+            ) {
+              const guildMemberAvailableRoles =
+                memberStore.member.guild_member_available_role.filter(
+                  (a: GuildMemberAvailableRole) =>
+                    a.role_id != availableRole.role_id,
+                ) || [];
+              guildMemberAvailableRoles.push(availableRole);
+              memberStore.member.guild_member_available_role =
+                guildMemberAvailableRoles;
+            }
+          const member_id = availableRole.member_id;
+          let member = membersStore.members[member_id];
+          if (member) {
+            const guild_member_available_role =
+              member.guild_member_available_role?.filter(
                 (a: GuildMemberAvailableRole) =>
                   a.role_id != availableRole.role_id,
               ) || [];
-            guildMemberAvailableRoles.push(availableRole);
-            memberStore.member.guild_member_available_role =
-              guildMemberAvailableRoles;
-          }
-
-        const member_id = availableRole.member_id;
-        let member = membersStore.members[member_id];
-        if (member) {
-          const guild_member_available_role =
-            member.guild_member_available_role?.filter(
-              (a: GuildMemberAvailableRole) =>
-                a.role_id != availableRole.role_id,
-            ) || [];
-          guild_member_available_role.push(availableRole);
-          member = { ...member, guild_member_available_role };
-          membersStore.members = {
-            ...membersStore.members,
-            [member_id]: member,
-          };
-        }
-      }
-    },
-    async deleteGuildMemberAvailableRole(
-      data: Partial<GuildMemberAvailableRole>,
-    ) {
-      const memberStore = useMemberStore();
-      const membersStore = useMembersStore();
-      const questStore = useQuestStore();
-      const params = Object();
-      params.member_id = `eq.${data.member_id}`;
-      params.guild_id = `eq.${data.guild_id}`;
-      params.role_id = `eq.${data.role_id}`;
-      const res: AxiosResponse<GuildMemberAvailableRole[]> = await api.delete(
-        '/guild_member_available_role',
-        {
-          params,
-        },
-      );
-      if (res.status == 200) {
-        const availableRole = res.data[0];
-        if (memberStore.getUserId == availableRole.member_id) {
-          if (memberStore.member) {
-            const guild_member_available_role =
-              memberStore.member.guild_member_available_role;
-            const pos = guild_member_available_role!.findIndex(
-              (a: GuildMemberAvailableRole) =>
-                a.role_id === availableRole.role_id &&
-                a.member_id === availableRole.member_id &&
-                a.guild_id === availableRole.guild_id,
-            );
-            guild_member_available_role!.splice(pos, 1);
-            memberStore.member = {
-              ...memberStore.member,
-              guild_member_available_role,
-            };
-          }
-        }
-        const member_id = availableRole.member_id;
-        let member = membersStore.members[member_id];
-
-        const guild_member_available_role = member.guild_member_available_role;
-        if (member && guild_member_available_role) {
-          const pos = guild_member_available_role.findIndex(
-            (a: GuildMemberAvailableRole) =>
-              a.role_id == availableRole.role_id &&
-              a.member_id == availableRole.member_id &&
-              a.guild_id == availableRole.guild_id,
-          );
-          if (pos >= 0) {
-            guild_member_available_role.splice(pos, 1);
+            guild_member_available_role.push(availableRole);
             member = { ...member, guild_member_available_role };
             membersStore.members = {
               ...membersStore.members,
               [member_id]: member,
             };
           }
-          const castingRoles = questStore.getCastingRolesById(
-            availableRole.member_id,
-            availableRole.role_id,
-          );
-          if (castingRoles?.length) {
-            castingRoles.forEach((element) => {
-              questStore.deleteCastingRole(
-                element.member_id!,
-                element.guild_id,
-                element.role_id,
-                element.quest_id,
-              );
-            });
-          }
         }
+      } catch(error) {
+        console.error('Add guild member available role failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
       }
     },
-  },
+    async deleteGuildMemberAvailableRole(
+      data: Partial<GuildMemberAvailableRole>,
+    ) {
+      try {
+        const memberStore = useMemberStore();
+        const membersStore = useMembersStore();
+        const questStore = useQuestStore();
+        const params = Object();
+        params.member_id = `eq.${data.member_id}`;
+        params.guild_id = `eq.${data.guild_id}`;
+        params.role_id = `eq.${data.role_id}`;
+        const res: AxiosResponse<GuildMemberAvailableRole[]> = await api.delete(
+          '/guild_member_available_role',
+          {
+            params,
+          },
+        );
+        if (res.status == 200) {
+          const availableRole = res.data[0];
+          if (memberStore.getUserId == availableRole.member_id) {
+            if (memberStore.member) {
+              const guild_member_available_role =
+                memberStore.member.guild_member_available_role;
+              const pos = guild_member_available_role!.findIndex(
+                (a: GuildMemberAvailableRole) =>
+                  a.role_id === availableRole.role_id &&
+                  a.member_id === availableRole.member_id &&
+                  a.guild_id === availableRole.guild_id,
+              );
+              guild_member_available_role!.splice(pos, 1);
+              memberStore.member = {
+                ...memberStore.member,
+                guild_member_available_role,
+              };
+            }
+          }
+          const member_id = availableRole.member_id;
+          let member = membersStore.members[member_id];
+
+          const guild_member_available_role = member.guild_member_available_role;
+          if (member && guild_member_available_role) {
+            const pos = guild_member_available_role.findIndex(
+              (a: GuildMemberAvailableRole) =>
+                a.role_id == availableRole.role_id &&
+                a.member_id == availableRole.member_id &&
+                a.guild_id == availableRole.guild_id,
+            );
+            if (pos >= 0) {
+              guild_member_available_role.splice(pos, 1);
+              member = { ...member, guild_member_available_role };
+              membersStore.members = {
+                ...membersStore.members,
+                [member_id]: member,
+              };
+            }
+            const castingRoles = questStore.getCastingRolesById(
+              availableRole.member_id,
+              availableRole.role_id,
+            );
+            if (castingRoles?.length) {
+              castingRoles.forEach((element) => {
+                questStore.deleteCastingRole(
+                  element.member_id!,
+                  element.guild_id,
+                  element.role_id,
+                  element.quest_id,
+                );
+              });
+            }
+          }
+        }
+      } catch(error) {
+        console.error('Delete guild member available role failed:', error);
+        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+      }
+    }
+  }
 });
