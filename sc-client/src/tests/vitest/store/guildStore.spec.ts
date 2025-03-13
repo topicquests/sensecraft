@@ -34,7 +34,7 @@ vi.mock('src/stores/quests', () => ({
   }),
 }));
 
-describe('GuildStore - fetchGuildsById', () => {
+describe('GuildStore - testing of guilds store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     guildStore = useGuildStore();
