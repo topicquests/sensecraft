@@ -156,7 +156,7 @@ def ensure_guilds(config, member_ids, role_ids, quest_data):
             for quest_handle in config['quests']:
                 quest_id = quest_data[quest_handle]['id']
                 # Ensure member playing each quest
-                if member_id not in {x['role_id'] for x in casting_by_member_and_quest[member_id][quest_id]}:
+                if member_id not in {x['member_id'] for x in casting_by_member_and_quest[member_id][quest_id]}:
                     r = requests.post(f"{url}casting", headers=member_header,
                                       json=dict(guild_id=guild_id, quest_id=quest_id, member_id=member_id))
                     assert r.ok
