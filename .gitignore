@@ -103,3 +103,6 @@ dist
 # TernJS port file
 .tern-port
 /.gtm/
+
+#playwright zipfiles
+/src/test-results/
