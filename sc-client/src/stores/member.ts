@@ -95,7 +95,7 @@ export const useMemberStore = defineStore('member', {
         storage.setItem('tokenExpiry', this.tokenExpiry.toString());
         token_store.setToken(this.token, this.tokenExpiry);
         window.setTimeout(() => {
-          this.renewToken();
+          this.renewToken(this.token);
         }, TOKEN_RENEWAL);
         await this.fetchLoginUser();
         return res.data;
@@ -105,7 +105,7 @@ export const useMemberStore = defineStore('member', {
       return await this.registerUserCrypted(data);
     },
 
-    async ensureLoginUser(): Promise<Member | undefined> {
+    async ensureLoginUser(): Promise<Partial<Member> | undefined> {
       // TODO: the case where the member is pending
       if (!this.member) {
         const expiry =
@@ -128,7 +128,8 @@ export const useMemberStore = defineStore('member', {
     },
 
     //Axios calls
-    async fetchLoginUser(): Promise<Member | undefined> {
+    async fetchLoginUser(): Promise<Partial<Member> | undefined> {
+      console.log("Entered fetchLogin")
       const token = token_store.getToken();
       if (!token) {
         return undefined;
@@ -154,7 +155,7 @@ export const useMemberStore = defineStore('member', {
       }
       return this.member;
     },
-    async renewToken(token: string) {
+    async renewToken(token?: string) {
       //const token = token_store.getToken();
       const res: AxiosResponse<string> = await api.post('/rpc/renew_token', {
         token,
@@ -193,7 +194,7 @@ export const useMemberStore = defineStore('member', {
       }
       return res.data;
     },
-    async updateUser(data: Partial<Member>): Promise<Member> {
+    async updateUser(data: Partial<Member>): Promise<Partial<Member>> {
       data = filterKeys(data, memberPatchKeys);
       const params = {
         id: `eq.${data.id}`,

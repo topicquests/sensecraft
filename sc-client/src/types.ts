@@ -50,7 +50,7 @@ export interface PublicMember {
 }
 
 export interface Member extends PublicMember {
-  password: string;
+  password?: string;
   created_at: string;
   updated_at: string;
   name: string;
