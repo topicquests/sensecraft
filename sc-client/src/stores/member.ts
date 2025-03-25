@@ -129,7 +129,6 @@ export const useMemberStore = defineStore('member', {
 
     //Axios calls
     async fetchLoginUser(): Promise<Partial<Member> | undefined> {
-      console.log("Entered fetchLogin")
       const token = token_store.getToken();
       if (!token) {
         return undefined;
