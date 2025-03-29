@@ -11,14 +11,15 @@
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"See package.json => scripts for available tests.\" && exit 0",
     "prepare": "quasar prepare",
+    "playwright:install": "playwright install",
     "dev": "quasar dev",
     "build": "quasar build",
     "test:scoring": "cucumber-js -t @scoring",
     "test:cucumber": "cucumber-js --require ts-node/register --import src/tests/stepDefinitions/**/*.ts",
     "test:unit": "vitest",
     "test:unit:ci": "vitest run",
-    "test:playwright": "playwright test src/tests/e2e",
-    "test:playwright:ui": "playwright test src/tests/e2e --ui"
+    "test:playwright": "playwright install && playwright test src/tests/e2e",
+    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui"
   },
   "dependencies": {
     "@quasar/babel-preset-app": "~2.0",
@@ -38,6 +39,7 @@
     "@babel/preset-env": "^7.26",
     "@babel/preset-typescript": "^7.26",
     "@cucumber/cucumber": "~11.2",
+    "@cucumber/messages": "~27",
     "@cucumber/pretty-formatter": "~1.0",
     "@intlify/unplugin-vue-i18n": "~6.0",
     "@pinia/testing": "~1",
