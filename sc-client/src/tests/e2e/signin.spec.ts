@@ -9,12 +9,16 @@ test.describe('User sign in with Mocked API', () => {
     // Intercept the login API request and mock response
     await page.route('**/rpc/get_token', async (route) => {
       const requestBody = await route.request().postDataJSON();
-      if (requestBody.mail === 'test@example.com' && requestBody.pass === 'password123') {
+      if (
+        requestBody.mail === 'test@example.com' &&
+        requestBody.pass === 'password123'
+      ) {
         //create a mock token
         const header = { alg: 'HS256', typ: 'JWT' };
         const payload = { user: 'testuser', role: 'admin' };
         const base64UrlEncode = (data: string) => {
-          return Buffer.from(data).toString('base64')
+          return Buffer.from(data)
+            .toString('base64')
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=+$/, '');
@@ -39,7 +43,7 @@ test.describe('User sign in with Mocked API', () => {
     });
 
     // Intercept the member details fetch request and return mock data
-    await page.route('**/members*', async (route) => {
+    await page.route(/\/members\?/, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -56,7 +60,9 @@ test.describe('User sign in with Mocked API', () => {
     await page.fill('input[name="email"]', 'test@example.com');
     await page.fill('input[name="pass"]', 'password123');
     await page.click('button[name="loginBtn"]');
-    await expect(page.locator('.q-notification:has-text("You are logged in")')).toBeVisible();
+    await expect(
+      page.locator('.q-notification:has-text("You are logged in")'),
+    ).toBeVisible();
     await expect(page).toHaveURL(/.*lobby/);
   });
 
@@ -74,10 +80,14 @@ test.describe('User sign in with Mocked API', () => {
     await page.fill('input[name="pass"]', 'wrongpassword');
 
     await page.click('button[name="loginBtn"]');
-    await expect(page.locator('.q-notification:has-text("Problem signing in")')).toBeVisible();
+    await expect(
+      page.locator('.q-notification:has-text("Problem signing in")'),
+    ).toBeVisible();
   });
-  test('should goto confirm password page when forgot password link clicked', async ({ page }) => {
+  test('should goto confirm password page when forgot password link clicked', async ({
+    page,
+  }) => {
     await page.click('text=Forgot password?');
     await expect(page).toHaveURL(/\/confirmPassword$/);
-  })
+  });
 });
