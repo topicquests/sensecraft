@@ -52,13 +52,12 @@ jobs:
         working-directory: ./sc-client
         run: |
           npm ci --legacy-peer-deps
-          npx @puppeteer/browsers install chrome@stable
-          npx @puppeteer/browsers install chromedriver@stable
       - name: Run client unit tests
         working-directory: ./sc-client
         run: |
           npm run prepare
           npm run test:unit:ci
+          npm run test:playwright
       # - name: Run scoring tests
       #   working-directory: ./sc-client
       #   run: npm run test:scoring
