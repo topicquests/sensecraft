@@ -82,6 +82,7 @@ async function doRegister(formData: FormData) {
       formData.email = formData.email.toLowerCase();
     }
     await memberStore.registerUser(formData);
+    console.log('Sending notification...');
     Notify.create({
       message:
         'Account created successfully. Please check your email for a confirmation link.',

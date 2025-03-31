@@ -36,5 +36,5 @@ yarn-error.log*
 # local .env files
 .env.local*
 
-# Test result zip files
-/test-results/
+# Test results
+test-results
