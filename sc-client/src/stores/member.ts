@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios';
 import { Member, CastingRole, memberPatchKeys } from '../types';
 import { getWSClient } from '../wsclient';
 import { useBaseStore, filterKeys } from './baseStore';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { jwtDecode} from 'jwt-decode';
 import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 import { useMembersStore } from './members';
 
@@ -45,6 +45,7 @@ export const useMemberStore = defineStore('member', {
     getUserById: (state: MemberState) => (id: number) =>
       state.member?.id == id ? state.member : null,
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
+    isGuildMember: (state: MemberState) => state.member.guild_membership,
     castingPerQuest: (state: MemberState) =>
       Object.fromEntries(
         (state.member?.casting || []).map((c) => [c.quest_id, c]),
@@ -72,7 +73,7 @@ export const useMemberStore = defineStore('member', {
     },
   },
   actions: {
-    async logout() {
+    logout() {
       window.localStorage.removeItem('token');
       window.localStorage.removeItem('tokenExpiry');
       // legacy

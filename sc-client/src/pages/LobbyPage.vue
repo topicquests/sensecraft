@@ -4,6 +4,22 @@
       <q-card class="lobby-card q-mt-md q-pa-md">
         <div>
           <member></member>
+          <q-btn
+            fab
+            icon="help"
+            color="blue-10"
+            class="fixed-top-right q-mt-xl q-mr-md"
+            style="top: 50px; z-index: 10;"
+            @click="showDialog = true"
+          >
+            <q-tooltip max-width="25rem">
+              Help on dashboard page
+            </q-tooltip>
+          </q-btn>
+          <dashboard-instructions v-model="showDialog" />
+          <div v-if="memberStore.isGuildMember.length == 0" >
+            <dashboard-instructions v-model:showDialog="showDialog" />
+          </div>
         </div>
         <div class="column items-center">
           <div class="col-12 q-mb-md scoreboard">
@@ -58,11 +74,12 @@
 import scoreboard from '../components/score-board.vue';
 import QuestTable from '../components/quest-table.vue';
 import GuildsTable from '../components/guilds-table.vue';
+import dashboardInstructions from 'src/components/dashboard-instructions.vue';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
 import { Guild, GuildData } from '../types';
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, watchEffect } from 'vue';
 import member from '../components/member-handle.vue';
 import { useMembersStore } from '../stores/members';
 import { waitUserLoaded } from '../app-access';
@@ -75,11 +92,20 @@ const membersStore = useMembersStore();
 
 // Reactive Variables
 const ready = ref(false);
+const showDialog = ref(false);
 
 // Computed Properties
 const quests = computed({
   get: () => questsStore.getQuests,
   set: () => {},
+});
+
+watchEffect(() => {
+  if (memberStore.isGuildMember.length === 0) {
+    showDialog.value = true;  // Automatically set to true if condition is met
+  } else {
+    showDialog.value = false;  // Hide the dialog if condition is not met
+  }
 });
 const getActiveQuests = computed(() => questsStore.getActiveQuests);
 const getOpenGuilds = computed((): GuildData[] =>
@@ -94,8 +120,8 @@ const myGuilds = computed((): GuildData[] => guildsStore.getMyGuilds);
 onBeforeMount(async () => {
   await waitUserLoaded();
   // all guilds and quests
-  await guildsStore.setCurrentGuild(true);
-  await questsStore.setCurrentQuest(true);
+  guildsStore.setCurrentGuild(true);
+  questsStore.setCurrentQuest(true);
   await Promise.all([
     questsStore.ensureAllQuests(),
     guildsStore.ensureAllGuilds(),

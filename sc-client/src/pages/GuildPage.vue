@@ -7,6 +7,19 @@
             <div class="row justify-end" style="width: 92%">
               <member-handle></member-handle>
             </div>
+            <q-btn
+            fab
+            icon="help"
+            color="blue-10"
+            class="fixed-top-right q-mt-xl q-mr-md"
+            style="top: 50px; z-index: 10;"
+            @click="showDialog = true"
+          >
+            <q-tooltip max-width="25rem">
+              Help on guild page
+            </q-tooltip>
+          </q-btn>
+          <guildpage-instructions v-model="showDialog" />
             <div class="row justify-center" style="width: 100%">
               <div class="col-10 justify-center">
                 <scoreboard></scoreboard>
@@ -124,6 +137,7 @@
 // Imports
 import scoreboard from '../components/score-board.vue';
 import memberHandle from '../components/member-handle.vue';
+import guildpageInstructions from 'src/components/guildpage-instructions.vue';
 import guildHeader from '../components/guild-header.vue';
 import guildDescription from '../components/guild-description.vue';
 import activeQuest from '../components/active-quests.vue';
@@ -179,6 +193,7 @@ const ready = ref(false);
 const { member } = storeToRefs(memberStore);
 const castingRoles = ref<Role[]>([]);
 const memberPlaysQuestInThisGuild = ref(false);
+const showDialog = ref(false);
 
 //Non Reactive Variables
 let guildGamePlays: GamePlay[] = [];
@@ -253,8 +268,8 @@ const isMember = computed<boolean>({
 const playingQuestInGuild = computed(() => {
   if (currentGuild.value) {
     return questStore.isPlayingQuestInGuild(
-      currentQuest.value!.id,
-      currentGuild.value!.id,
+      currentQuest.value.id,
+      currentGuild.value.id,
     );
   }
   return false;
@@ -285,18 +300,18 @@ const canRegisterToQuest = computed(() =>
 // Watches
 watch(
   currentQuestId,
-  () => {
+  async() => {
     if (currentQuestId.value) {
       getCastingRoles();
-      initializeQuest();
-      readStatusStore.ensureGuildUnreadChannels();
+      await initializeQuest();
+      await readStatusStore.ensureGuildUnreadChannels();
     }
   },
   { immediate: true },
 );
 watch(
   member,
-  (newVal) => {
+   (newVal) => {
     if (newVal) {
       getCastingRoles();
     }
@@ -317,11 +332,11 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 // Functions
-async function getCastingRoles() {
-  if (member!.value && currentQuest.value) {
+ function getCastingRoles() {
+  if (member.value && currentQuest.value) {
     const castingRolesData =
-      (await membersStore.castingRolesPerQuest(
-        member!.value.id,
+      (membersStore.castingRolesPerQuest(
+        member.value.id,
         currentQuest.value?.id,
       )) || [];
     castingRoles.value = castingRolesData.map(
@@ -339,31 +354,32 @@ function findPlayOfGuild(
     );
   return undefined;
 }
-function checkPermissions() {
+function checkPermissions():boolean {
   if (typeof guildStore.currentGuild === 'number') {
     isMember.value = !!guildStore.isGuildMember(guildStore.currentGuild);
-    canRegisterToQuest.value;
+    return canRegisterToQuest.value;
   }
+  return false;
 }
 
 async function castingRoleAdded(role_id: number) {
   const guild_id = guildId.value;
   const quest_id: number | undefined = questStore.currentQuest;
   await questStore.addCastingRole({
-    member_id: member!.value!.id,
+    member_id: member.value.id,
     role_id,
-    guild_id: guild_id!,
+    guild_id: guild_id,
     quest_id,
   });
 }
 async function castingRoleRemoved(role_id: number) {
   const guild_id: number | undefined = guildId.value;
   const quest_id: number | undefined = questStore.currentQuest;
-  const member_id = member!.value!.id;
+  const member_id = member.value.id;
   if (!member || !member.value?.id) {
     return [];
   }
-  await questStore.deleteCastingRole(member_id, guild_id!, role_id, quest_id);
+  await questStore.deleteCastingRole(member_id, guild_id, role_id, quest_id);
 }
 async function initialize() {
   await waitUserLoaded();
@@ -374,22 +390,23 @@ async function initialize() {
   await Promise.all([
     questStore.ensureAllQuests(),
     roleStore.ensureAllRoles(),
-    channelStore.ensureChannels(guild_id!),
+    channelStore.ensureChannels(guild_id),
     membersStore.ensureMembersOfGuild({ guildId: guild_id }),
   ]);
-  guildStore.setCurrentGuild(guild_id!);
+  guildStore.setCurrentGuild(guild_id);
   if (isMember.value) {
-    channelStore.setCurrentGuild(guild_id!);
+    channelStore.setCurrentGuild(guild_id);
   }
-  readStatusStore.ensureGuildUnreadChannels(), await initializeStage2();
+  await readStatusStore.ensureGuildUnreadChannels()
+  await initializeStage2();
   ready.value = true;
 }
 async function initializeStage2() {
   checkPermissions();
-  const playQuestIds = currentGuild.value!.game_play.map(
+  const playQuestIds = currentGuild.value.game_play.map(
     (gp: GamePlay) => gp.quest_id,
   );
-  guildGamePlays = currentGuild.value!.game_play.filter(
+  guildGamePlays = currentGuild.value.game_play.filter(
     (gp: GamePlay) => gp.status == registration_status_enum.confirmed,
   );
   const confirmedPlayQuestIds = (guildGamePlays || []).map(
@@ -416,7 +433,7 @@ async function initializeQuest() {
   if (currentQuest.value) {
     const creatorId = currentQuest.value.creator;
     if (!creatorId) await membersStore.ensureMemberById(creatorId);
-    var quest_id: number | undefined = questStore.currentQuest;
+    let quest_id: number | undefined = questStore.currentQuest;
     if (typeof quest_id === 'number')
       await guildStore.ensureGuildsPlayingQuest({ quest_id });
     if (
@@ -432,7 +449,7 @@ async function initializeQuest() {
     }
 
     const questCasting = castingList.find(
-      (ct: Casting) => ct.member_id == member!.value?.id,
+      (ct: Casting) => ct.member_id == member.value?.id,
     );
     if (questCasting) {
       if (questCasting.guild_id == currentGuildId.value) {
@@ -447,7 +464,7 @@ async function initializeQuest() {
     }
     const gamePlay: Partial<GamePlay> | undefined =
       findPlayOfGuild(gamePlayData);
-    var node_id = gamePlay?.focus_node_id;
+    let node_id = gamePlay?.focus_node_id;
     if (!node_id) {
       await conversationStore.ensureRootNode(questStore.currentQuest);
       node_id = conversationStore.conversationRoot?.id;
@@ -459,7 +476,7 @@ async function initializeQuest() {
       );
     } else {
       // ill-constructed quest
-      await conversationStore.resetConversation();
+      conversationStore.resetConversation();
     }
     return 'success';
   }
