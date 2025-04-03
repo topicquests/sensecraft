@@ -12,22 +12,22 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js v20.18.3
+      - name: Use Node.js v20.19.0
         uses: actions/setup-node@v4
         with:
-          node-version: v20.18.3
+          node-version: v20.19.0
       - name: use postgres
         uses: Daniel-Marynicz/postgresql-action@master
         with:
-          postgres_image_tag: 17.2-alpine-jwt
+          postgres_image_tag: 17.4-alpine-jwt
           postgres_image_name: conversence/postgres
       - name: Install client components
         working-directory: /tmp
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget
-          wget -c https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-          sudo tar -C /usr/local/ -xzf go1.24.0.linux-amd64.tar.gz
+          sudo apt install -y postgresql-client wget libgtk
+          wget -c https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+          sudo tar -C /usr/local/ -xzf go1.24.2.linux-amd64.tar.gz
           go install github.com/mailhog/MailHog@latest
           echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
@@ -57,13 +57,15 @@ jobs:
         run: |
           npm run prepare
           npm run test:unit:ci
+      - name: Run integration unit tests
+        working-directory: ./sc-client
+        run: |
+          sudo npx playwright install-deps
+          npm run playwright:install
           npm run test:playwright
       # - name: Run scoring tests
       #   working-directory: ./sc-client
       #   run: npm run test:scoring
-      # - name: Run integration tests
-      #   working-directory: ./sc-client
-      #   run: npm run test:integration
       - name: cleanup postgres container
         run: |
           export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:17.2-alpine-jwt`
