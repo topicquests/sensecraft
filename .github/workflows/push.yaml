@@ -25,7 +25,7 @@ jobs:
         working-directory: /tmp
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget libgtk
+          sudo apt install -y postgresql-client wget
           wget -c https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
           sudo tar -C /usr/local/ -xzf go1.24.2.linux-amd64.tar.gz
           go install github.com/mailhog/MailHog@latest
@@ -68,7 +68,7 @@ jobs:
       #   run: npm run test:scoring
       - name: cleanup postgres container
         run: |
-          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:17.2-alpine-jwt`
+          export PGCONT=`docker ps -q --filter ancestor=conversence/postgres:17.4-alpine-jwt`
           if [[-n $PGCONT]]
           then
             docker container stop $PGCONT
