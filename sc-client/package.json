@@ -16,8 +16,8 @@
     "build": "quasar build",
     "test:scoring": "cucumber-js -t @scoring",
     "test:cucumber": "cucumber-js --require ts-node/register --import src/tests/stepDefinitions/**/*.ts",
-    "test:unit": "vitest",
-    "test:unit:ci": "vitest run",
+    "test:unit": "vitest --exclude src/tests/e2e",
+    "test:unit:ci": "vitest run --exclude src/tests/e2e",
     "test:playwright": "playwright install && playwright test src/tests/e2e",
     "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui"
   },
