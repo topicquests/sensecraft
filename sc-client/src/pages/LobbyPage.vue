@@ -8,7 +8,7 @@
             fab
             icon="help"
             color="blue-10"
-            class="fixed-top-right q-mt-xl q-mr-md"
+            class="help-button fixed-top-right q-mt-xl q-mr-md"
             style="top: 50px; z-index: 10;"
             @click="showDialog = true"
           >
@@ -17,7 +17,7 @@
             </q-tooltip>
           </q-btn>
           <dashboard-instructions v-model="showDialog" />
-          <div v-if="memberStore.isGuildMember.length == 0" >
+          <div v-if="memberStore.isGuildMember && memberStore.isGuildMember.length == 0" >
             <dashboard-instructions v-model:showDialog="showDialog" />
           </div>
         </div>
@@ -74,7 +74,7 @@
 import scoreboard from '../components/score-board.vue';
 import QuestTable from '../components/quest-table.vue';
 import GuildsTable from '../components/guilds-table.vue';
-import dashboardInstructions from 'src/components/dashboard-instructions.vue';
+import dashboardInstructions from '../components/dashboard-instructions.vue';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
@@ -101,7 +101,7 @@ const quests = computed({
 });
 
 watchEffect(() => {
-  if (memberStore.isGuildMember.length === 0) {
+  if (memberStore.isGuildMember && memberStore.isGuildMember.length === 0) {
     showDialog.value = true;  // Automatically set to true if condition is met
   } else {
     showDialog.value = false;  // Hide the dialog if condition is not met
@@ -153,6 +153,33 @@ p {
 .scoreboard {
   width: 75%;
 }
+.help-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1976d2 !important;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s, transform 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.help-button:hover {
+  background-color: #1565c0 !important;
+  transform: scale(1.05);
+}
+
+/* Ensures the button remains fixed in the top right */
+.fixed-top-right {
+  position: fixed;
+  top: 50px;
+  right: 16px;
+  z-index: 10;
+}
+
 
 @media only screen and (max-width: 1300px) {
   .lobby-card {

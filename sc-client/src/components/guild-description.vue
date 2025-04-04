@@ -36,8 +36,8 @@
 import { computed } from 'vue';
 import { useGuildStore } from '../stores/guilds';
 import { useMemberStore } from '../stores/member';
-import { useChannelStore } from 'src/stores/channel';
-import { useReadStatusStore } from 'src/stores/readStatus';
+import { useChannelStore } from '../stores/channel';
+import { useReadStatusStore } from '../stores/readStatus';
 
 const guildStore = useGuildStore();
 const memberStore = useMemberStore();
@@ -48,7 +48,8 @@ const currentGuild = computed(() => guildStore.getCurrentGuild);
 const member = computed(() => memberStore.member);
 const isMember = computed<boolean>({
   get: () => {
-    return !!guildStore.isGuildMember(currentGuild.value?.id);
+    return !!guildStore.isGuildMember(currentGuild.value?.id ?? 0);
+
   },
   set: (value) => {
     return value;
@@ -56,15 +57,17 @@ const isMember = computed<boolean>({
 });
 
 const joinToGuild = async () => {
-  if (typeof currentGuild.value.id === 'number')
+  if (currentGuild.value && typeof currentGuild.value.id === 'number')
     await guildStore.addGuildMembership({
       guild_id: currentGuild.value.id,
       member_id: member.value?.id,
     });
-  isMember.value = true;
-  await channelStore.setCurrentGuild(currentGuild.value.id);
-  await channelStore.ensureChannels(currentGuild.value.id!)
-  await readStatusStore.ensureGuildUnreadChannels();
+  if(currentGuild.value) {
+    isMember.value = true;
+    channelStore.setCurrentGuild(currentGuild.value.id);
+    await channelStore.ensureChannels(currentGuild.value.id)
+    await readStatusStore.ensureGuildUnreadChannels();
+  };
 };
 </script>
 <style scoped>
