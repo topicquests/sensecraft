@@ -16,7 +16,7 @@ declare const server_url: string;
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-export const api = axios.create({ baseURL: server_url! });
+export const api = axios.create({ baseURL: server_url });
 
 // TODO: right now expiry is shared knowledge with backend.
 // Ideally, I should read it from the token.
@@ -62,14 +62,16 @@ api.interceptors.request.use(function (config) {
   if (token && config.headers['Authorization'] === undefined) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
+  if (config) {
   if (
     config.method === 'put' ||
     config.method === 'patch' ||
     config.method === 'delete' ||
-    (config.method === 'post' && config.url.substring(0, 4) != '/rpc')
+    (config.method === 'post' && config.url?.substring(0, 4) != '/rpc')
   ) {
     config.headers['Prefer'] = 'return=representation';
   }
+}
   return config;
 });
 

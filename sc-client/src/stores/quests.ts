@@ -282,7 +282,7 @@ export const useQuestStore = defineStore('quest', {
     async ensureAllQuests(): Promise<QuestData[] | undefined> {
       if (Object.keys(this.quests).length === 0 || !this.fullFetch) {
         const quest: QuestData[] | undefined = await this.fetchQuests();
-        if (quest!.length > 0) return quest;
+        if (quest && quest.length > 0) return quest;
       } else return undefined;
     },
     async ensureQuest({

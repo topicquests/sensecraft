@@ -14,7 +14,7 @@ import { useMemberStore } from './member';
 import { useMembersStore } from './members';
 import { useQuestStore } from './quests';
 import { api } from '../boot/axios';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { getWSClient } from '../wsclient';
 import { filterKeys } from './baseStore';
 
@@ -313,9 +313,13 @@ export const useGuildStore = defineStore('guild', {
           // TODO: update memberships in member.
         }
         return res;
-      } catch (error) {
-        console.error('Guild creation failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.error('Guild creation failed:', error);
+          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        } else {
+          console.error('Unexpected error', error)
+        }
       }
     },
     async registerAllMembers(guildId: number, questId: number) {

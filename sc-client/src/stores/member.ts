@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Member, CastingRole, memberPatchKeys } from '../types';
 import { getWSClient } from '../wsclient';
 import { useBaseStore, filterKeys } from './baseStore';
 import { jwtDecode} from 'jwt-decode';
 import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 import { useMembersStore } from './members';
+import { Notify } from 'quasar';
 
 export interface MemberState {
   member?: Partial<Member>;
@@ -45,7 +46,11 @@ export const useMemberStore = defineStore('member', {
     getUserById: (state: MemberState) => (id: number) =>
       state.member?.id == id ? state.member : null,
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
-    isGuildMember: (state: MemberState) => state.member.guild_membership,
+    isGuildMember: (state: MemberState) => {
+      if (state && state.member) {
+        return state.member.guild_membership
+      }
+    },
     castingPerQuest: (state: MemberState) =>
       Object.fromEntries(
         (state.member?.casting || []).map((c) => [c.quest_id, c]),
@@ -95,16 +100,16 @@ export const useMemberStore = defineStore('member', {
         storage.setItem('tokenExpiry', this.tokenExpiry.toString());
         token_store.setToken(this.token, this.tokenExpiry);
         window.setTimeout(() => {
-          this.renewToken(this.token);
+          void this.renewToken(this.token);
         }, TOKEN_RENEWAL);
         await this.fetchLoginUser();
         return res.data;
       }
     },
     async registerUser(data: Partial<Member>): Promise<Partial<Member>> {
-      return await this.registerUserCrypted(data);
+      const res = await this.registerUserCrypted(data);
+      return res?.data ?? {};
     },
-
     async ensureLoginUser(): Promise<Partial<Member> | undefined> {
       // TODO: the case where the member is pending
       if (!this.member) {
@@ -163,7 +168,7 @@ export const useMemberStore = defineStore('member', {
         if (res.data) {
           token_store.setToken(res.data);
           window.setTimeout(() => {
-            this.renewToken(token);
+            void this.renewToken(token);
           }, TOKEN_RENEWAL);
         } else {
           Object.assign(this, baseState);
@@ -182,17 +187,40 @@ export const useMemberStore = defineStore('member', {
         headers: { Authorization: null },
       });
     },
-    async registerUserCrypted(data: Partial<Member>): Promise<Partial<Member>> {
-      const membersStore = useMembersStore();
-      const res: AxiosResponse<Member> = await api.post(
-        '/rpc/create_member',
-        data,
-      );
-      if (res.status == 200) {
-        await membersStore.ensureMemberById(res.data.id, false);
+    async registerUserCrypted(data: Partial<Member>): Promise<AxiosResponse<Partial<Member>> | undefined> {
+      try {
+        const membersStore = useMembersStore();
+        const res: AxiosResponse<Partial<Member>> = await api.post(
+          '/rpc/create_member',
+          data
+        );
+        if (res.status === 200 && res.data.id !== undefined) {
+          await membersStore.ensureMemberById(res.data.id, false);
+        }
+        return res;
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          const status = error.response?.status;
+          if (status === 409) {
+            Notify.create({
+              message: 'An account with this email already exists.',
+              color: 'negative',
+            });
+          } else {
+            Notify.create({
+              message:
+                'There was an error creating your account. If this issue persists, contact support.',
+              color: 'negative',
+            });
+          }
+          console.error('Registration failed:', error);
+        } else {
+          console.error('Unexpected error', error);
+        }
+        return undefined;
       }
-      return res.data;
     },
+
     async updateUser(data: Partial<Member>): Promise<Partial<Member>> {
       data = filterKeys(data, memberPatchKeys);
       const params = {

@@ -81,14 +81,16 @@ async function doRegister(formData: FormData) {
     if (formData.email) {
       formData.email = formData.email.toLowerCase();
     }
-    await memberStore.registerUser(formData);
+    const res = await memberStore.registerUser(formData);
     console.log('Sending notification...');
-    Notify.create({
-      message:
-        'Account created successfully. Please check your email for a confirmation link.',
-      color: 'positive',
-    });
-    router.push({ name: 'confirm_registration' });
+    if(res) {
+      Notify.create({
+        message:
+          'Account created successfully. Please check your email for a confirmation link.',
+        color: 'positive',
+      });
+      await router.push({ name: 'confirm_registration' });
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Axios error:', error);

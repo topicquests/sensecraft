@@ -9,9 +9,38 @@ import {
   QuestData,
   QuestMembership,
   Role,
-} from 'src/types';
-import { ChannelsReadMap, ReadStatusMap } from 'src/stores/readStatus';
-import { registration_status_enum } from 'src/enums';
+} from '../../types';
+import { ChannelsReadMap, ReadStatusMap } from '../../stores/readStatus';
+import { registration_status_enum } from '../../enums';
+
+export const admin: Partial<Member> = {
+  name: "Admin",
+  handle: "admin",
+  password: "admin",
+  email: "admin@example.com",
+};
+
+export const questCreator: Partial<Member> = {
+  name: "Quest Creator",
+  handle: "questCreator",
+  password: "password",
+  email: "questcreator@example.com",
+};
+
+export const guildCreator: Partial<Member> = {
+  name: "Guild Creator",
+  handle: "guildCreator",
+  password: "password",
+  email: "guildcreator@example.com",
+};
+
+export const player1: Partial<Member> = {
+  name: "Player One",
+  handle: "player1",
+  password: "password",
+  email: "player1@example.com"
+};
+
 export const mockCasting: Casting = {
   guild_id: 1,
   quest_id: 1,
@@ -30,16 +59,16 @@ export const mockGuildMemberAvailableRole: GuildMemberAvailableRole = {
 export const mockRole: Role = {
   id: 1,
   name: 'Researcher',
-  guild_id: null,
+  guild_id: 1,
   max_pub_state: 'guild_draft',
-  permissions: null,
-  role_draft_target_role_id: null,
+  permissions: [],
+  role_draft_target_role_id: undefined,
   role_node_constraint: [
     {
       max_pub_state: 'proposed',
       node_type: 'reference',
       role_id: 1,
-      role_draft_target_role_id: null,
+      role_draft_target_role_id: undefined,
     },
   ],
 };
@@ -48,8 +77,8 @@ export const mockGuildMembership: GuildMembership = {
   member_id: 1,
   permissions: [],
   status: registration_status_enum.confirmed,
-  created_at: undefined,
-  updated_at: undefined,
+  created_at: '',
+  updated_at: '',
 };
 export const mockQuestMembership: QuestMembership = {
   quest_id: 1,
@@ -86,15 +115,15 @@ export const mockConversation: ConversationNode = {
 export const mockGuild: GuildData = {
   id: 1,
   handle: 'TestGuild',
-  slug: undefined,
+  slug: '',
   name: 'Test Guild',
   description: 'This is a test guild',
-  creator: undefined,
+  creator: 1,
   public: true,
-  open_for_applications: false,
-  created_at: undefined,
-  updated_at: undefined,
-  application_needs_approval: undefined,
+  open_for_applications: true,
+  created_at: '',
+  updated_at: '',
+  application_needs_approval: false,
   default_role_id: undefined,
   guild_membership: [],
   game_play: [mockGamePlay],
@@ -120,7 +149,7 @@ export const mockGuildAfterJoin = {
 export const mockNode: ConversationNode = {
   id: 1,
   quest_id: 1,
-  guild_id: null,
+  guild_id: undefined,
   creator_id: 1,
   ancestry: '1',
   node_type: 'question',
@@ -130,9 +159,9 @@ export const mockNode: ConversationNode = {
   updated_at: '2024-08-02T09:25:27.964354-07:00',
   title: 'Test Node',
   description: 'Test node description',
-  url: null,
+  url: '',
   meta: 'conversation',
-  draft_for_role_id: null,
+  draft_for_role_id: undefined,
 };
 export const mockChannel: ConversationNode = {
   id: 2,
@@ -182,12 +211,12 @@ export const mockMember: Member = {
   casting_role: undefined,
   guild_member_available_role: [],
   password: undefined,
-  created_at: undefined,
-  updated_at: undefined,
+  created_at: '',
+  updated_at: '',
   name: 'John Smith',
   confirmed: true,
-  last_login: undefined,
-  last_login_email_sent: undefined,
+  last_login: '',
+  last_login_email_sent: '',
 };
 
 export const mockMemberAfterJoin: Member = {

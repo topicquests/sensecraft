@@ -46,7 +46,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { onBeforeMount } from 'vue';
 import { useMemberStore } from '../stores/member';
 
-let email: string | null = null;
+const email: string | null = null;
 let token: string | null = null;
 const $q = useQuasar();
 const router = useRouter();
@@ -54,7 +54,7 @@ const route = useRoute();
 const memberStore = useMemberStore();
 
 async function resend() {
-  let theEmail = email;
+  const theEmail = email;
   if (!theEmail) {
     $q.notify({ type: 'negative', message: 'Missing Email' });
     return;
@@ -70,8 +70,9 @@ async function getNewToken(prevToken: string) {
       message: 'Email Verified. You are now signed in',
       color: 'positive',
     });
-    router.push({ name: 'lobby' });
+    await router.push({ name: 'lobby' });
   } catch (err) {
+    console.log("Error renewing token: ", err)
     $q.notify({
       message:
         'There was an error renewing token. Please resend email verification.',

@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { Notify } from 'quasar';
 import { ref } from 'vue';
 
 export interface FormData {
@@ -121,8 +122,19 @@ const emailError = ref<string | null>(null);
 
 // Functions
 function doRegister() {
+  validateEmail();
+  if (emailError.value) {
+    Notify.create({
+      type: 'negative',
+      message: 'Invalid or Missing Email',
+      color: 'negative',
+    });
+    return;
+  }
+
   emit('doRegister', formdata.value);
 }
+
 
 function getFormData() {
   return formdata.value;

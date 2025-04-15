@@ -85,7 +85,7 @@ export const useChannelStore = defineStore('channel', {
         );
       }
     },
-    getChannelsByGuildId: (state: ChannelState): ConversationNode[] => {
+    getChannelsByGuildId: (state: ChannelState) => {
       if (state.currentGuild) {
         return Object.values(state.channels).filter(
           (n) => n.guild_id == state.currentGuild,
@@ -96,12 +96,17 @@ export const useChannelStore = defineStore('channel', {
     getChannelNode:
       (state: ChannelState) => (channel_id: number, node_id: number) =>
         state.channelData[channel_id]?.[node_id],
-    getChannelOfNode: (state: ChannelState) => (node_id: number) => {
-      for (const channel_id of Object.keys(state.channelData)) {
-        const channel = state.channelData[channel_id];
-        if (channel[node_id]) return channel_id;
-      }
-    },
+      getChannelOfNode: (state: ChannelState) => (node_id: number): string | undefined => {
+        for (const channel_id of Object.keys(state.channelData)) {
+          const channel = state.channelData[Number (channel_id)];
+          if (channel && channel[node_id]) {
+            return channel_id;
+          }
+        }
+        return undefined;
+      },
+
+
     canEdit:
       (state: ChannelState) => (channel_id?: number, node_id?: number) => {
         const memberStore = useMemberStore();
@@ -112,7 +117,7 @@ export const useChannelStore = defineStore('channel', {
           const userId = memberStore.getUserId;
           if (typeof channel_id === 'number' && typeof node_id === 'number') {
             const node = state.channelData[channel_id]?.[node_id];
-            if (node && userId) {
+            if (node && node.guild_id && userId) {
               if (node.status == publication_state_enum.private_draft) {
                 return node.creator_id == userId;
                 // TODO: role_draft
@@ -166,20 +171,22 @@ export const useChannelStore = defineStore('channel', {
     resetChannel() {
       Object.assign(this, clearBaseState);
     },
-    addToState(node: ConversationNode) {
-      const channel_id = Number.parseInt(node.ancestry.split('.')[0]);
-      if (!node.parent_id) {
-        this.channels = { ...this.channels, [channel_id]: node };
-      }
-      if (node.parent_id && !this.channelData[channel_id]) {
-        console.error('Missing channel');
-        this.channelData[channel_id] = {};
-      }
-      if (!this.channelData[channel_id]) {
-        this.channelData[channel_id] = {};
-      }
-      this.channelData[channel_id][node.id] = node;
+    addToState(node: Partial<ConversationNode>) {
+      if(node.ancestry) {
+        const channel_id = Number.parseInt(node.ancestry.split('.')[0]);
+        if (!node.parent_id) {
+          this.channels = { ...this.channels, [channel_id]: node };
+        }
+        if (node.parent_id && !this.channelData[channel_id]) {
+          console.error('Missing channel');
+          this.channelData[channel_id] = {};
+        }
+        if (!this.channelData[channel_id]) {
+          this.channelData[channel_id] = {};
+        }
+        this.channelData[channel_id][node.id] = node;
       this.currentChannel = channel_id;
+    }
     },
 
     async fetchChannels(guild_id: number) {
@@ -239,8 +246,8 @@ export const useChannelStore = defineStore('channel', {
       if (res.status == 200) {
         const channel_id = params.node_id;
         const firstNode = res.data[0];
-        if (this.currentGuild !== firstNode!.guild_id) {
-          this.currentGuild = firstNode!.guild_id;
+        if (this.currentGuild !== firstNode.guild_id) {
+          this.currentGuild = firstNode.guild_id;
           this.channels = {};
         }
         const nodes: Partial<ConversationNode> = Object.fromEntries(

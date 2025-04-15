@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('User sign in with Mocked API', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/signin'); // Navigate to the signin page
+    await page.goto('http://localhost:8080/signin');
   });
 
   test('should successfully log in a user', async ({ page }) => {

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary guild-page" v-if="ready && currentGuildId">
+  <q-page class="bg-secondary guild-page" >
     <div class="row justify-center">
       <q-card class="guild-card q-mt-md q-pa-md">
         <div class="col-12 justify-center">
@@ -137,7 +137,7 @@
 // Imports
 import scoreboard from '../components/score-board.vue';
 import memberHandle from '../components/member-handle.vue';
-import guildpageInstructions from 'src/components/guildpage-instructions.vue';
+import guildpageInstructions from '../components/guildpage-instructions.vue';
 import guildHeader from '../components/guild-header.vue';
 import guildDescription from '../components/guild-description.vue';
 import activeQuest from '../components/active-quests.vue';
@@ -259,14 +259,17 @@ const currentGuildId = computed<number>({
 });
 const isMember = computed<boolean>({
   get: () => {
+    if(currentGuild.value) {
     return !!guildStore.isGuildMember(currentGuild.value?.id);
+    }
+    return false
   },
   set: (value) => {
     return value;
   },
 });
 const playingQuestInGuild = computed(() => {
-  if (currentGuild.value) {
+  if (currentGuild.value && currentQuest.value) {
     return questStore.isPlayingQuestInGuild(
       currentQuest.value.id,
       currentGuild.value.id,
@@ -326,14 +329,14 @@ onBeforeMount(async () => {
   await initialize();
 });
 onBeforeRouteLeave((to, from, next) => {
-  guildStore.setCurrentGuild(undefined);
-  questStore.setCurrentQuest(undefined);
+  guildStore.setCurrentGuild(true);
+  questStore.setCurrentQuest(true);
   next();
 });
 
 // Functions
  function getCastingRoles() {
-  if (member.value && currentQuest.value) {
+  if (member && member.value && currentQuest.value) {
     const castingRolesData =
       (membersStore.castingRolesPerQuest(
         member.value.id,
@@ -363,39 +366,49 @@ function checkPermissions():boolean {
 }
 
 async function castingRoleAdded(role_id: number) {
-  const guild_id = guildId.value;
-  const quest_id: number | undefined = questStore.currentQuest;
-  await questStore.addCastingRole({
-    member_id: member.value.id,
-    role_id,
-    guild_id: guild_id,
-    quest_id,
-  });
+  if (member && member.value) {
+    const guild_id = guildId.value;
+    const quest_id: number | undefined = questStore.currentQuest;
+    await questStore.addCastingRole({
+      member_id: member.value.id,
+      role_id,
+      guild_id: guild_id,
+      quest_id,
+    });
+  }
 }
 async function castingRoleRemoved(role_id: number) {
   const guild_id: number | undefined = guildId.value;
   const quest_id: number | undefined = questStore.currentQuest;
+  if (member && member.value ) {
   const member_id = member.value.id;
   if (!member || !member.value?.id) {
     return [];
   }
-  await questStore.deleteCastingRole(member_id, guild_id, role_id, quest_id);
+  if (member_id)
+    await questStore.deleteCastingRole(member_id, guild_id, role_id, quest_id);
+  }
 }
+
 async function initialize() {
   await waitUserLoaded();
   if (typeof route.params.guild_id === 'string') {
     guildId.value = Number.parseInt(route.params.guild_id);
   }
   const guild_id = guildId.value;
-  await Promise.all([
-    questStore.ensureAllQuests(),
-    roleStore.ensureAllRoles(),
-    channelStore.ensureChannels(guild_id),
-    membersStore.ensureMembersOfGuild({ guildId: guild_id }),
-  ]);
-  guildStore.setCurrentGuild(guild_id);
-  if (isMember.value) {
-    channelStore.setCurrentGuild(guild_id);
+  if (guild_id) {
+    await Promise.all([
+      questStore.ensureAllQuests(),
+      roleStore.ensureAllRoles(),
+      channelStore.ensureChannels(guild_id),
+      membersStore.ensureMembersOfGuild({ guildId: guild_id }),
+    ]);
+    console.log("Passed all promises");
+    guildStore.setCurrentGuild(guild_id);
+    if (isMember.value) {
+      channelStore.setCurrentGuild(guild_id);
+    }
+
   }
   await readStatusStore.ensureGuildUnreadChannels()
   await initializeStage2();
@@ -403,28 +416,31 @@ async function initialize() {
 }
 async function initializeStage2() {
   checkPermissions();
-  const playQuestIds = currentGuild.value.game_play.map(
-    (gp: GamePlay) => gp.quest_id,
-  );
-  guildGamePlays = currentGuild.value.game_play.filter(
-    (gp: GamePlay) => gp.status == registration_status_enum.confirmed,
-  );
-  const confirmedPlayQuestIds = (guildGamePlays || []).map(
-    (gp: GamePlay) => gp.quest_id,
-  );
-  pastQuests = questStore.getQuests.filter(
-    (q: Quest) =>
-      (q.status == quest_status_enum.finished ||
-        q.status == quest_status_enum.scoring) &&
-      playQuestIds.includes(q.id),
-  );
-  activeQuests.value = questStore.getQuests.filter(
-    (q: QuestData) =>
-      (q.status == quest_status_enum.ongoing ||
-        q.status == quest_status_enum.paused ||
-        q.status == quest_status_enum.registration) &&
-      confirmedPlayQuestIds.includes(q.id),
-  );
+  if(currentGuild.value) {
+    const playQuestIds = currentGuild.value.game_play.map(
+      (gp: GamePlay) => gp.quest_id,
+    );
+    guildGamePlays = currentGuild.value.game_play.filter(
+      (gp: GamePlay) => gp.status == registration_status_enum.confirmed,
+    );
+    const confirmedPlayQuestIds = (guildGamePlays || []).map(
+      (gp: GamePlay) => gp.quest_id,
+    );
+
+    pastQuests = questStore.getQuests.filter(
+      (q: Quest) =>
+        (q.status == quest_status_enum.finished ||
+          q.status == quest_status_enum.scoring) &&
+        playQuestIds.includes(q.id),
+    );
+    activeQuests.value = questStore.getQuests.filter(
+      (q: QuestData) =>
+        (q.status == quest_status_enum.ongoing ||
+          q.status == quest_status_enum.paused ||
+          q.status == quest_status_enum.registration) &&
+        confirmedPlayQuestIds.includes(q.id),
+    );
+  }
   if (guildGamePlays.length > 0) {
     await initializeQuest();
   }
@@ -447,7 +463,7 @@ async function initializeQuest() {
       console.error('currentQuest.value.casting is undefined');
       return;
     }
-
+    if (member) {
     const questCasting = castingList.find(
       (ct: Casting) => ct.member_id == member.value?.id,
     );
@@ -456,7 +472,7 @@ async function initializeQuest() {
         memberPlaysQuestInThisGuild.value = true;
       }
     }
-
+    }
     const gamePlayData = currentQuest.value.game_play;
     if (!gamePlayData) {
       console.error('currentQuest.value.game_play is undefined');

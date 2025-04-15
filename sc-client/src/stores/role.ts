@@ -31,20 +31,18 @@ export const useRoleStore = defineStore('role', {
   getters: {
     getRoleById: (state: RoleState) => (id: number) => state.role[id],
     getRoleByName:
-      (state: RoleState) =>
-      (id: number, name: string): Role | undefined =>
-        state.role[name],
+    (state: RoleState) =>
+    (id: number, name: string): Role | undefined =>
+      Object.values(state.role).find((role) => role.name === name),
     getRoles: (state: RoleState) =>
       Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
     getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
       state.role[id].role_node_constraint,
     getRoleNodeConstraintByType:
       (state: RoleState) => (id: number, node_type: string) => {
-        const roleNodeConstraint: RoleNodeConstraint[] = state.role[
-          id
-        ].role_node_constraint!.filter(
-          (node: RoleNodeConstraint) => node.node_type == node_type,
-        );
+        const roleNodeConstraint: RoleNodeConstraint[] = state.role[id]?.role_node_constraint?.filter(
+          (node: RoleNodeConstraint) => node.node_type === node_type,
+        ) ?? [];
         return roleNodeConstraint;
       },
   },
@@ -71,10 +69,10 @@ export const useRoleStore = defineStore('role', {
     async createRole(data: Partial<Role>): Promise<Partial<Role>> {
       console.log('Creating role with data:', data);
       try {
-        const res = await this.createRoleBase(data);
+        const res:Role = await this.createRoleBase(data);
         console.log('Role created successfully:', res);
         await this.fetchRoles();
-        return res[0];
+        return res;
       } catch (error) {
         console.error('Error in createRole:', error);
         throw error;
@@ -169,8 +167,10 @@ export const useRoleStore = defineStore('role', {
         res.data.length > 0
       ) {
         const role = res.data[0];
-        this.role = { ...this.role, [role.id]: role };
-        this.fullRole = { ...this.fullRole!, [role.id]: true };
+        if (role.id != null) {
+          this.role = { ...this.role, [role.id]: role };
+          this.fullRole = { ...this.fullRole!, [role.id]: true };
+        }
       }
     },
 
@@ -221,8 +221,7 @@ export const useRoleStore = defineStore('role', {
       const params = {
         role_id,
         node_type,
-      };
-      data.slug = undefined;
+      }
       Object.assign(data, {
         updated_at: undefined,
         role_node_constraint: undefined,

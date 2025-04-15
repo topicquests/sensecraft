@@ -25,7 +25,7 @@ export class WaitingProc {
   procname: string;
   proc: ChildProcessWithoutNullStreams;
   sentinel: string;
-  echo: boolean;
+  echo: boolean | undefined;
   constructor(
     command: string,
     params?: string[],
@@ -201,7 +201,7 @@ class AxiosUtil {
   }
 }
 
-export const axiosUtil = new AxiosUtil("http://127.0.0.1:3001");
+export const axiosUtil = new AxiosUtil("http://127.0.0.1:3000");
 
 export async function add_members(
   members: Partial<Member>[],

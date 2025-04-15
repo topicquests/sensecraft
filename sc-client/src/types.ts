@@ -134,7 +134,7 @@ export interface BaseConversationNode {
   description: string;
   url: string;
   meta: meta_state_type;
-  draft_for_role_id: number;
+  draft_for_role_id?: number;
 }
 
 export interface ConversationNode extends BaseConversationNode {
@@ -164,7 +164,7 @@ export const conversationNodePatchKeys: KeyArray<ConversationNode> = [
 export interface QTreeNode extends ConversationNode {
   // id: number | string;
   children?: QTreeNode[];
-  label: string;
+  label?: string;
   color?: string;
   icon?: string;
   parent?: QTreeNode;

@@ -45,14 +45,14 @@ const q = useQuasar();
 const memberStore = useMemberStore();
 const email = ref<string | undefined>(undefined);
 
-function sendConfirmationEmail() {
+async function sendConfirmationEmail() {
   try {
-    let theEmail = email.value;
+    const theEmail = email.value;
     if (!theEmail) {
       q.notify({ type: 'negative', message: 'Missing Email' });
       return;
     }
-    memberStore.sendConfirmEmail(theEmail);
+    await memberStore.sendConfirmEmail(theEmail);
     q.notify({
       type: 'positive',
       message: 'Please check email for confirmation link',

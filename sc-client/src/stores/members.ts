@@ -42,12 +42,16 @@ export const useMembersStore = defineStore('members', {
       ),
     getMemberById:
       (state: MembersState) =>
-      (id: number): PublicMember => {
+      (id: number): Partial <PublicMember | undefined> => {
         const member = state.members[id];
         if (member) return member;
         const loggedIn = useMemberStore().member;
         // may also be in member
-        if (loggedIn?.id == id) return loggedIn;
+        if (loggedIn?.id == id) {
+          return loggedIn;
+        }
+        else
+        return undefined
       },
     getMembersByIds: (state: MembersState) => (ids: number[]) =>
       ids.map((id) => state.members[id]),
@@ -152,7 +156,7 @@ export const useMembersStore = defineStore('members', {
         (id: number | undefined) => !this.members[id!],
       );
       if (membersId.length > 0 && typeof membersId === 'number') {
-        this.fetchMemberById(membersId, full);
+        await this.fetchMemberById(membersId, full);
       }
     },
     resetMembers() {
