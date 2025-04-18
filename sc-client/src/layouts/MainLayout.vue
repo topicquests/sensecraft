@@ -127,9 +127,7 @@ import { useQuestStore } from '../stores/quests';
 import { useQuasar } from 'quasar';
 import drawer_menu from '../components/drawer_menu.vue';
 import right_drawer from '../components/right-drawer.vue';
-import { useChannelStore } from 'src/stores/channel';
-import { useReadStatusStore } from 'src/stores/readStatus';
-import { read } from 'fs';
+import { useReadStatusStore } from '../stores/readStatus';
 
 // Router
 const router = useRouter();
@@ -138,7 +136,6 @@ const router = useRouter();
 const memberStore = useMemberStore();
 const guildStore = useGuildStore();
 const questStore = useQuestStore();
-const channelStore = useChannelStore();
 const readStatusStore = useReadStatusStore();
 
 // Quasar
@@ -180,13 +177,13 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 // Functions
-function goTo(newRoute: string): void {
-  router.push({ name: newRoute });
+async function goTo(newRoute: string): void {
+  await router.push({ name: newRoute });
 }
-async function onLogout() {
+function onLogout() {
   rightDrawer.value = false;
   leftDrawer.value = false;
-  await memberStore.logout();
+  memberStore.logout();
   goTo('home');
   $q.notify({
     type: 'positive',

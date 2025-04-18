@@ -40,7 +40,7 @@
         </div>
       </q-card-section>
       <q-card-actions class="flex justify-center">
-        <q-btn flat label="Close" color="primary" v-close-popup />
+        <q-btn flat label="Close" name="dashboardInstruction" color="primary" v-close-popup />
       </q-card-actions>
     </q-card>
   </q-dialog>

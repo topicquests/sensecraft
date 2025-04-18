@@ -30,6 +30,7 @@
               label="superAdmin"
               left-label
               name="superAdmin"
+              data-testid="checkbox-superAdmin"
             />
           </div>
           <div class="col-md-auto col-sm-6">
@@ -38,6 +39,7 @@
               label="Quest Admin"
               left-label
               name="create-quest"
+              data-testid="checkbox-createQuest"
             />
           </div>
           <div class="col-md-auto col-sm-6">
@@ -46,6 +48,7 @@
               label="Guild Admin"
               left-label
               name="create-guild"
+              data-testid="checkbox-createGuild"
             />
           </div>
         </div>
@@ -103,7 +106,7 @@ import scoreboard from '../components/score-board.vue';
 import roleTable from '../components/role-table.vue';
 import serverDataCard from '../components/server-data-card.vue';
 import { waitUserLoaded } from '../app-access';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { permission_enum } from '../enums';
 import { useMembersStore } from '../stores/members';
 import { useMemberStore } from '../stores/member';
@@ -132,29 +135,37 @@ const member_id = ref<number | undefined>(undefined);
 const members = computed(() => membersStore.getMembers);
 const superAdmin = computed({
   get() {
-    return member.value?.permissions.includes('superadmin');
+    return member.value?.permissions!.includes('superadmin');
   },
   set(value) {
-    ensure(member.value!.permissions, permission_enum.superadmin, value!);
+    ensure(member.value!.permissions!, permission_enum.superadmin, value!);
   },
 });
 const createQuest = computed({
   get() {
-    return member.value?.permissions.includes('createQuest');
+    return member.value?.permissions!.includes('createQuest');
   },
   set(val) {
-    ensure(member.value!.permissions, permission_enum.createQuest, val!);
+    ensure(member.value!.permissions!, permission_enum.createQuest, val!);
   },
 });
 const createGuild = computed({
   get() {
-    return member.value?.permissions.includes('createGuild');
+    return member.value?.permissions!.includes('createGuild');
   },
   set(val) {
-    ensure(member.value!.permissions, permission_enum.createGuild, val!);
+    ensure(member.value!.permissions!, permission_enum.createGuild, val!);
   },
 });
 const member = computed(() => membersStore.getMemberById(member_id.value!));
+
+watch(member_id, () => {
+  // force update to member reference or manually trigger side effects if needed
+  const newMember = membersStore.getMemberById(member_id.value!);
+  if (newMember && !newMember.permissions) {
+    newMember.permissions = [];
+  }
+});
 
 // Functions
 async function ensureData() {
@@ -199,7 +210,7 @@ async function updatePermissions() {
 }
 onBeforeMount(async () => {
   await waitUserLoaded();
-  member_id.value = await memberStore.getUserId;
+  member_id.value = memberStore.getUserId;
   userIsSuperAdmin.value = baseStore.hasPermission(permission_enum.superadmin);
   await ensureData();
   ready.value = true;

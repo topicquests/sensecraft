@@ -81,9 +81,8 @@ test.describe('User registration page', () => {
     const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
     await expect(successNotification).toBeVisible();
     const token = await getEmailWithToken(questCreator.email!);
-    console.log("Token: ", token)
-    await page.goto(`http://localhost:8080/confirm?token=${token}`);
-    await expect(page.locator('text=Email confirmed successfully')).toBeVisible();
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
 
   test('should register successfully guildCreator', async ({ page }) => {
@@ -95,9 +94,8 @@ test.describe('User registration page', () => {
     const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
     await expect(successNotification).toBeVisible();
     const token = await getEmailWithToken(guildCreator.email!);
-    console.log("Token: ", token)
-    await page.goto(`http://localhost:8080/confirm?token=${token}`);
-    await expect(page.locator('text=Email confirmed successfully')).toBeVisible();
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
 
   test('should register successfully player1', async ({ page }) => {
@@ -109,8 +107,7 @@ test.describe('User registration page', () => {
     const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
     await expect(successNotification).toBeVisible();
     const token = await getEmailWithToken(player1.email!);
-    console.log("Token: ", token)
-    await page.goto(`http://localhost:8080/confirm?token=${token}`);
-    await expect(page.locator('text=Email confirmed successfully')).toBeVisible();
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
 });

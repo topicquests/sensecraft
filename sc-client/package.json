@@ -19,13 +19,15 @@
     "test:unit": "vitest --exclude src/tests/e2e",
     "test:unit:ci": "vitest run --exclude src/tests/e2e",
     "test:playwright": "playwright install && playwright test src/tests/e2e",
-    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui"
+    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui",
+    "test:e2e:ordered": "ts-node scripts/generate-e2e-command.ts"
   },
   "dependencies": {
     "@quasar/babel-preset-app": "~2.0",
     "@quasar/extras": "~1.16",
     "axios": "~1.8",
     "jwt-decode": "~4.0",
+    "libqp": "^2.1.1",
     "pinia": "~3.0",
     "quasar": "~2.18",
     "robust-websocket": "~1.0",
@@ -51,6 +53,7 @@
     "@quasar/vite-plugin": "~1.9",
     "@testing-library/vue": "~8.1",
     "@tsconfig/recommended": "~1.0",
+    "@types/libqp": "^1.1.3",
     "@types/luxon": "~3.4",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "~8",
