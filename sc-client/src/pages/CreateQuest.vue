@@ -72,7 +72,7 @@ async function doSubmitQuest(quest: Partial<QuestData>) {
       message: 'Quest was updated successfully',
       color: 'positive',
     });
-    router.push({ name: 'quest_edit', params: { quest_id: res.id } });
+    await router.push({ name: 'quest_edit', params: { quest_id: res.id } });
   } catch (err) {
     console.log('there was an error in updating quest ', err);
     $q.notify({

@@ -117,7 +117,7 @@
         v-model="quest.name"
         :style="{ width: '400px' }"
         label="Quest title"
-        name="name"
+        name="quest-title"
         id="name"
         filled
       />
@@ -128,8 +128,9 @@
         v-model="description"
         name="description"
         id="q-editor"
+        data-test="description-editor"
         style="background-color: lightgrey"
-      ></q-editor>
+      />
     </div>
     <div class="row">
       <div class="col-6 q-pl-md">
@@ -142,7 +143,11 @@
     <div class="row">
       <div class="col-6">
         <div class="q-pa-md" style="max-width: 400px">
-          <q-input filled v-model="quest.start" name="startDate">
+          <q-input
+            filled
+            v-model="quest.start"
+            name="startDate"
+            data-test="start-input">
             <template v-slot:prepend>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy
@@ -181,7 +186,11 @@
 
       <div class="col-6">
         <div class="q-pa-md" style="max-width: 400px">
-          <q-input filled v-model="quest.end" name="endDate">
+          <q-input
+            filled
+            v-model="quest.end"
+            name="endDate"
+            data-test="end-input">
             <template v-slot:prepend>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy
@@ -237,7 +246,7 @@
       <q-input
         class="field-name"
         style="width: 300px"
-        name="handle"
+        name="quest-handle"
         v-model="quest.handle"
         label="Quest handle"
         filled

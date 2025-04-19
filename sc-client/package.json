@@ -18,8 +18,8 @@
     "test:cucumber": "cucumber-js --require ts-node/register --import src/tests/stepDefinitions/**/*.ts",
     "test:unit": "vitest --exclude src/tests/e2e",
     "test:unit:ci": "vitest run --exclude src/tests/e2e",
-    "test:playwright": "playwright install && playwright test src/tests/e2e",
-    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui",
+    "test:playwright": "playwright install && playwright test src/tests/e2e -j1",
+    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui -j1",
     "test:e2e:ordered": "ts-node scripts/generate-e2e-command.ts"
   },
   "dependencies": {

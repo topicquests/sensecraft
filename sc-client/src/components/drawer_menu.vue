@@ -14,6 +14,7 @@
         <q-item-section>Quest</q-item-section>
       </q-item>
       <q-item
+        data-test="create-quest-link"
         v-if="checkForPermission(permission_enum.createQuest)"
         :to="{ name: 'create_quest' }"
       >
