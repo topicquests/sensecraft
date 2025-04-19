@@ -35,9 +35,9 @@ jobs:
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
       - name: install postgrest
         run: |
-          wget https://github.com/PostgREST/postgrest/releases/download/v12.2.8/postgrest-v12.2.8-linux-static-x86-64.tar.xz
-          tar -Jxf postgrest-v12.2.8-linux-static-x86-64.tar.xz
-          rm postgrest-v12.2.8-linux-static-x86-64.tar.xz
+          wget https://github.com/PostgREST/postgrest/releases/download/v12.2.10/postgrest-v12.2.10-linux-static-x86-64.tar.xz
+          tar -Jxf postgrest-v12.2.10-linux-static-x86-64.tar.xz
+          rm postgrest-v12.2.10-linux-static-x86-64.tar.xz
           sudo mv postgrest /usr/bin/
       - name: Install server dependencies
         working-directory: ./server
