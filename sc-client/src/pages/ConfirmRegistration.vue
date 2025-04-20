@@ -46,7 +46,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { onBeforeMount } from 'vue';
 import { useMemberStore } from '../stores/member';
 
-const email: string | null = null;
+// eslint-disable-next-line prefer-const
+let email: string | null = null; // must be non-const because used as model
 let token: string | null = null;
 const $q = useQuasar();
 const router = useRouter();
@@ -72,7 +73,7 @@ async function getNewToken(prevToken: string) {
     });
     await router.push({ name: 'lobby' });
   } catch (err) {
-    console.log("Error renewing token: ", err)
+    console.log('Error renewing token: ', err);
     $q.notify({
       message:
         'There was an error renewing token. Please resend email verification.',
