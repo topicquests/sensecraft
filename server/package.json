@@ -42,8 +42,8 @@
     "ignore": []
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.20.0",
+    "@eslint/eslintrc": "~3.3",
+    "@eslint/js": "~9.25",
     "@tsconfig/recommended": "~1.0",
     "@types/expect": "~1",
     "@types/express": "~5",
