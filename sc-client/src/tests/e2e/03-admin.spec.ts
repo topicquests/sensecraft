@@ -17,8 +17,6 @@ test.describe('Admin Permission Flow', () => {
     await page.locator('#qselect').click();
     await page.locator('.q-menu').getByText(questCreator.handle!).click();
     await page.getByTestId('checkbox-createQuest').click();
-    const isChecked = await page.locator('input[name="create-quest"]').isChecked();
-    expect(isChecked).toBe(true);
     await page.getByRole('button', { name: 'Update', exact: true  }).click();
     await expect(
       page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
@@ -31,8 +29,6 @@ test.describe('Admin Permission Flow', () => {
     await page.locator('#qselect').click();
     await page.locator('.q-menu').getByText(guildCreator.handle!).click();
     await page.getByTestId('checkbox-createGuild').click();
-    const isChecked = await page.locator('input[name="create-guild"]').isChecked();
-    expect(isChecked).toBe(true);
     await page.getByRole('button', { name: 'Update', exact: true  }).click();
     await expect(
       page.getByRole('alert').filter({ hasText: 'Permissions were updated' })

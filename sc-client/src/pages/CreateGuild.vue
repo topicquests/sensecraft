@@ -25,11 +25,20 @@
               </q-option-group>
             </div>
             <div class="row justify-start q-pb-lg">
-              <q-input class="guildText" v-model="guild.name" label="Name" />
+              <q-input
+                class="guildText"
+                v-model="guild.name"
+                label="Name"
+                name="guild-title"/>
             </div>
             <div class="row justify-start q-pb-xs">Details<br /></div>
             <div class="row justify-start q-pb-lg">
-              <q-editor v-model="description" style="width: 85%"></q-editor>
+              <q-editor
+                v-model="description"
+                name="description"
+                data-test="guild-description-editor"
+                style="width:
+                85%"></q-editor>
             </div>
             <div class="row">
               <span class="q-pt-md"> Default Role </span>
@@ -46,17 +55,19 @@
               <q-input
                 v-model="guild.handle"
                 label="Handle"
+                name="guild-handle"
                 class="guildText"
               />
             </div>
             <div class="row justify-start q-pb-lg">
               <q-btn
                 label="Submit"
+                name="create-guild-btn"
                 @click="doSubmit(guild)"
                 color="primary"
                 class="q-mr-md q-ml-md"
               />
-              <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+              <q-btn label="Cancel" @click="router.push({ name: 'home' })" />
             </div>
           </q-card>
         </div>
@@ -121,7 +132,7 @@ async function doSubmit(guild: guildType) {
       message: 'Added new guild',
       color: 'positive',
     });
-    router.push({ name: 'guild_admin', params: { guild_id: res.data[0].id } });
+    await router.push({ name: 'guild_admin', params: { guild_id: res.data[0].id } });
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       console.log(error.status);

@@ -14,6 +14,7 @@ test.describe('User signin page', () => {
       page.locator('.q-notification:has-text("You are logged in")'),
     ).toBeVisible();
     await expect(page).toHaveURL(/.*lobby/);
+    await page.click('button[name="dashboardInstruction"]');
   });
 
   test('should show error on invalid login', async ({ page }) => {

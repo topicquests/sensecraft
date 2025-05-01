@@ -203,7 +203,7 @@ onBeforeMount(async () => {
   }
   const questId = quest_id.value;
   if (typeof questId === 'number') {
-    await questStore.setCurrentQuest(questId);
+    questStore.setCurrentQuest(questId);
     await questStore.ensureQuest({ quest_id: questId });
     await conversationStore.ensureConversation(questId);
     if (conversationStore.getConversation!.length > 0) {

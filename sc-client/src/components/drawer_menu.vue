@@ -24,12 +24,14 @@
         <q-item-section>Guilds</q-item-section>
       </q-item>
       <q-item
+        data-test="create-guild-link"
         v-if="checkForPermission(permission_enum.createGuild)"
         :to="{ name: 'create_guild' }"
       >
         <q-item-section>Create Guild</q-item-section>
       </q-item>
       <q-item
+
         v-if="checkForPermission(permission_enum.superadmin)"
         :to="{ name: 'admin' }"
       >

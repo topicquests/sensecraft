@@ -1,7 +1,11 @@
 <template>
   <q-card class="node-card q-pa-md">
     <section class="node-card-title">
-      <q-input v-model="node.title" label="Node title" ref="title">
+      <q-input
+        v-model="node.title"
+        label="Node title"
+        name="node-title"
+        ref="title">
         <template v-slot:prepend>
           <IbisButton
             :node_type="node!.node_type as ibis_node_type_type"
@@ -31,6 +35,7 @@
       <template v-if="NodeFormProps.editing">
         <q-editor
           v-model="description"
+          data-test="node-description-editor"
           style="width: 98%"
           class="q-editor node-card-details scrollable-div"
           :toolbar="[['bold', 'italic', 'underline', 'strike', 'undo', 'redo']]"
@@ -153,7 +158,7 @@ const title = ref<QInput>();
 const node = ref<Partial<ConversationNode> | defaultNodeType>({});
 
 // Non Reactive Variables
-let pub_state_list: publication_state_type[] = publication_state_list;
+const pub_state_list: publication_state_type[] = publication_state_list;
 
 // Computed Properties
 const selectedNodeType = computed<string | undefined>({
@@ -196,7 +201,7 @@ const description = computed<string>({
     return NodeFormProps.nodeInput!.description || '';
   },
   set(value) {
-    node.value!.description = value;
+    node.value.description = value;
   },
 });
 

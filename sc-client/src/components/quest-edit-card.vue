@@ -271,7 +271,7 @@
           class="q-mr-md q-ml-md"
         />
       </div>
-      <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+      <q-btn label="Cancel" @click="router.push({ name: 'home' })" />
     </div>
   </q-card>
 </template>
@@ -283,6 +283,7 @@ import { DateTime } from 'luxon';
 import { useQuestStore } from '../stores/quests';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 // Props
 const QuestCardProps = defineProps<{
@@ -290,6 +291,9 @@ const QuestCardProps = defineProps<{
   edit: boolean;
   create: boolean;
 }>();
+
+//Router
+const router = useRouter();
 
 // Stores
 const questStore = useQuestStore();
