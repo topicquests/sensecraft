@@ -27,18 +27,77 @@ export const questCreator: Partial<Member> = {
   email: "questcreator@example.com",
 };
 
-export const guildCreator: Partial<Member> = {
-  name: "Guild Creator",
-  handle: "guildCreator",
+export const guildCreator1: Partial<Member> = {
+  name: "Guild Creator1",
+  handle: "guildCreator1",
   password: "password",
-  email: "guildcreator@example.com",
+  email: "guildcreator1@example.com",
+};
+export const guildCreator2: Partial<Member> = {
+  name: "Guild Creator2",
+  handle: "guildCreator2",
+  password: "password",
+  email: "guildcreator2@example.com",
 };
 
 export const player1: Partial<Member> = {
   name: "Player One",
-  handle: "player1",
+  handle: "playerOne",
   password: "password",
   email: "player1@example.com"
+};
+export const player2: Partial<Member> = {
+  name: "Player Two",
+  handle: "playerTwo",
+  password: "password",
+  email: "player2@example.com"
+};
+export const player3: Partial<Member> = {
+  name: "Player Three",
+  handle: "playerThree",
+  password: "password",
+  email: "player3@example.com"
+};
+export const player4: Partial<Member> = {
+  name: "Player Four",
+  handle: "playerFour",
+  password: "password",
+  email: "player4@example.com"
+};
+export const player5: Partial<Member> = {
+  name: "Player Five",
+  handle: "playerFive",
+  password: "password",
+  email: "player5@example.com"
+};
+export const player6: Partial<Member> = {
+  name: "Player Six",
+  handle: "playerSix",
+  password: "password",
+  email: "player6@example.com"
+};
+export const player7: Partial<Member> = {
+  name: "Player Seven",
+  handle: "playerSeven",
+  password: "password",
+  email: "player8@example.com"
+};
+export const player8: Partial<Member> = {
+  name: "Player Eight",
+  handle: "playerEight",
+  password: "password",
+  email: "player8@example.com"
+};export const player9: Partial<Member> = {
+  name: "Player Nine",
+  handle: "playerNine",
+  password: "password",
+  email: "player9@example.com"
+};
+export const player10: Partial<Member> = {
+  name: "Player Ten",
+  handle: "playerTen",
+  password: "password",
+  email: "player10@example.com"
 };
 
 export const mockCasting: Casting = {

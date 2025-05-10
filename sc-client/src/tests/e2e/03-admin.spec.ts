@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { admin, guildCreator, questCreator } from '../mocks/StoreMocks';
+import { admin, guildCreator1, guildCreator2, questCreator } from '../mocks/StoreMocks';
 
 test.describe('Admin Permission Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +10,7 @@ test.describe('Admin Permission Flow', () => {
     await page.click('button[name="dashboardInstruction"]');
   });
 
-  test('Admin can assign createQuest permission to another member', async ({ page }) => {
+  test('Admin can assign createQuest permission to questCreator member', async ({ page }) => {
     await page.click('button[name="leftdrawerBtn"]');
     await page.getByText('Administration').click();
     await expect(page).toHaveURL(/\/admin$/);
@@ -22,12 +22,24 @@ test.describe('Admin Permission Flow', () => {
       page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
     ).toBeVisible();
   });
-  test('Admin can assign createGuild permission to another member', async ({ page }) => {
+  test('Admin can assign createGuild permission to guildCreator1 member', async ({ page }) => {
     await page.click('button[name="leftdrawerBtn"]');
     await page.getByText('Administration').click();
     await expect(page).toHaveURL(/\/admin$/);
     await page.locator('#qselect').click();
-    await page.locator('.q-menu').getByText(guildCreator.handle!).click();
+    await page.locator('.q-menu').getByText(guildCreator1.handle!).click();
+    await page.getByTestId('checkbox-createGuild').click();
+    await page.getByRole('button', { name: 'Update', exact: true  }).click();
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
+    ).toBeVisible();
+  });
+  test('Admin can assign createGuild permission to guildCreator2 member', async ({ page }) => {
+    await page.click('button[name="leftdrawerBtn"]');
+    await page.getByText('Administration').click();
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.locator('#qselect').click();
+    await page.locator('.q-menu').getByText(guildCreator2.handle!).click();
     await page.getByTestId('checkbox-createGuild').click();
     await page.getByRole('button', { name: 'Update', exact: true  }).click();
     await expect(

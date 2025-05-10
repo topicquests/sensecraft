@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { admin, guildCreator, player1, questCreator } from '../mocks/StoreMocks'
+import { admin, guildCreator1, guildCreator2, player1, player2, player3, player4, player5, player6, player7, player8, player9, player10,  questCreator } from '../mocks/StoreMocks'
 import { getEmailWithToken } from '../utils/mailhog-util';
 
 test.describe('User registration page', () => {
@@ -85,15 +85,27 @@ test.describe('User registration page', () => {
     await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
 
-  test('should register successfully guildCreator', async ({ page }) => {
-    await page.fill('input[name="email"]', guildCreator.email!);
-    await page.fill('input[name="name"]', guildCreator.name!);
-    await page.fill('input[name="handle"]', guildCreator.handle!);
-    await page.fill('input[name="password"]', guildCreator.password!);
+  test('should register successfully guildCreator1', async ({ page }) => {
+    await page.fill('input[name="email"]', guildCreator1.email!);
+    await page.fill('input[name="name"]', guildCreator1.name!);
+    await page.fill('input[name="handle"]', guildCreator1.handle!);
+    await page.fill('input[name="password"]', guildCreator1.password!);
     await page.click('button[name="registerButton"]');
     const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
     await expect(successNotification).toBeVisible();
-    const token = await getEmailWithToken(guildCreator.email!);
+    const token = await getEmailWithToken(guildCreator1.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully guildCreator2', async ({ page }) => {
+    await page.fill('input[name="email"]', guildCreator2.email!);
+    await page.fill('input[name="name"]', guildCreator2.name!);
+    await page.fill('input[name="handle"]', guildCreator2.handle!);
+    await page.fill('input[name="password"]', guildCreator2.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(guildCreator2.email!);
     await page.goto(token);
     await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
@@ -110,4 +122,113 @@ test.describe('User registration page', () => {
     await page.goto(token);
     await expect(page).toHaveURL('http://localhost:8080/lobby');
   });
+  test('should register successfully player2', async ({ page }) => {
+    await page.fill('input[name="email"]', player2.email!);
+    await page.fill('input[name="name"]', player2.name!);
+    await page.fill('input[name="handle"]', player2.handle!);
+    await page.fill('input[name="password"]', player2.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player2.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player3', async ({ page }) => {
+    await page.fill('input[name="email"]', player3.email!);
+    await page.fill('input[name="name"]', player3.name!);
+    await page.fill('input[name="handle"]', player3.handle!);
+    await page.fill('input[name="password"]', player3.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player3.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player4', async ({ page }) => {
+    await page.fill('input[name="email"]', player4.email!);
+    await page.fill('input[name="name"]', player4.name!);
+    await page.fill('input[name="handle"]', player4.handle!);
+    await page.fill('input[name="password"]', player4.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player4.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player5', async ({ page }) => {
+    await page.fill('input[name="email"]', player5.email!);
+    await page.fill('input[name="name"]', player5.name!);
+    await page.fill('input[name="handle"]', player5.handle!);
+    await page.fill('input[name="password"]', player5.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player5.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player6', async ({ page }) => {
+    await page.fill('input[name="email"]', player6.email!);
+    await page.fill('input[name="name"]', player6.name!);
+    await page.fill('input[name="handle"]', player6.handle!);
+    await page.fill('input[name="password"]', player6.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player6.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player7', async ({ page }) => {
+    await page.fill('input[name="email"]', player7.email!);
+    await page.fill('input[name="name"]', player7.name!);
+    await page.fill('input[name="handle"]', player7.handle!);
+    await page.fill('input[name="password"]', player7.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player7.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player8', async ({ page }) => {
+    await page.fill('input[name="email"]', player8.email!);
+    await page.fill('input[name="name"]', player8.name!);
+    await page.fill('input[name="handle"]', player8.handle!);
+    await page.fill('input[name="password"]', player8.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player8.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player9', async ({ page }) => {
+    await page.fill('input[name="email"]', player9.email!);
+    await page.fill('input[name="name"]', player9.name!);
+    await page.fill('input[name="handle"]', player9.handle!);
+    await page.fill('input[name="password"]', player9.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player9.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+  test('should register successfully player10', async ({ page }) => {
+    await page.fill('input[name="email"]', player10.email!);
+    await page.fill('input[name="name"]', player10.name!);
+    await page.fill('input[name="handle"]', player10.handle!);
+    await page.fill('input[name="password"]', player10.password!);
+    await page.click('button[name="registerButton"]');
+    const successNotification = page.locator('.q-notifications__list--bottom .q-notification:has-text("Account created successfully")');
+    await expect(successNotification).toBeVisible();
+    const token = await getEmailWithToken(player10.email!);
+    await page.goto(token);
+    await expect(page).toHaveURL('http://localhost:8080/lobby');
+  });
+
 });
