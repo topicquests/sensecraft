@@ -56,6 +56,7 @@
         />
         <q-select
           v-model="selectedNodeType"
+          data-test="node-type-selector"
           :options="ibisTypes"
           @update:model-value="nodeTypeChanged"
           label="Type"
@@ -66,6 +67,7 @@
     <div v-if="NodeFormProps.editing" class="row justify-start q-pb-lg q-ml-lg">
       <q-select
         v-model="selectedStatusType"
+        data-test="node-status-selector"
         :options="pub_state_list"
         @update:model-value="statusChanged"
         label="Status"
@@ -108,12 +110,15 @@
       <q-btn
         v-if="NodeFormProps.nodeInput!.id"
         label="Update"
+        data-test="update-node-btn"
         @click="action"
         color="primary"
         class="q-mr-md q-ml-md"
       />
       <q-btn
         v-else
+        name="addBtn"
+        data-test="add-node-btn"
         label="Add"
         @click="action"
         color="primary"

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh LpR fFf">
+ <q-layout view="hHh Lpr fFf">
     <q-header elevated>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <q-toolbar>
@@ -51,6 +51,7 @@
           <q-btn
             class="gt-sm"
             @click="onLogout()"
+            size="md"
             outline
             roundeded
             label="log off"
@@ -167,7 +168,7 @@ watch(currentQuest, () => {
 });
 
 // Lifecycles
-onBeforeMount(async () => {
+onBeforeMount(() => {
   isAuthenticated.value = memberStore.isAuthenticated;
 });
 onBeforeRouteLeave((to, from, next) => {
@@ -177,7 +178,7 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 // Functions
-async function goTo(newRoute: string): void {
+async function goTo(newRoute: string): Promise<void> {
   await router.push({ name: newRoute });
 }
 function onLogout() {

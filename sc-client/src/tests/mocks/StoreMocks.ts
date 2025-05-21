@@ -99,6 +99,16 @@ export const player10: Partial<Member> = {
   password: "password",
   email: "player10@example.com"
 };
+export const guild1: Partial<GuildData> = {
+  name: 'Black Knights',
+  description:"join guild 1",
+  handle: "guildOne"
+}
+export const guild2: Partial<GuildData> = {
+  name: "Saggezza",
+  description:"join guild 2",
+  handle: "guildTwo"
+}
 
 export const mockCasting: Casting = {
   guild_id: 1,
@@ -283,30 +293,19 @@ export const mockMemberAfterJoin: Member = {
   guild_membership: [mockGuildMembership],
 };
 
-export const mockQuest: QuestData = {
-  last_node_published_at: '2024-09-16T08:38:43.907127-07:00',
-  node_count: 0,
-  confirmed_guild_count: 0,
-  interested_guild_count: 0,
-  player_count: 0,
-  is_playing: true,
-  my_confirmed_guild_count: 0,
-  my_recruiting_guild_count: 0,
-  is_quest_member: false,
-  id: 1,
-  handle: 'TestQuest',
-  slug: '',
-  name: 'Test Quest',
-  description: 'This is a test quest',
-  creator: 0,
-  public: true,
-  turn_based: false,
-  status: 'ongoing',
-  start: '',
-  end: '',
-  created_at: '',
-  updated_at: '',
-  quest_membership: [mockQuestMembership],
-  casting: [mockCasting],
-  game_play: [mockGamePlay],
+export const mockQuest: Partial<QuestData> = {
+  handle: 'ClimateChangeConsequences',
+  name: 'What are the consequences of global climate change',
+  description: `The world is shifting in subtle and dramatic ways. In this quest, your team is challenged to investigate the outcomes of large-scale changes shaping our environment, societies, and ways of life.
+What transformations are underway? How are they affecting different regions, communities, or systems? Your task is to explore and interpret the ripple effects of global change—what they are, how they unfold, and why they matter.
+Approach this with curiosity, skepticism, or storytelling—there’s no single path forward, only the challenge to make sense of what’s happening and what it might mean.`
 };
+export const firstNode: Partial<ConversationNode> = {
+  title: 'Climate change consequences',
+  description: `investigate the outcomes of large-scale changes shaping our environment, societies, and ways of life.
+What transformations are underway? How are they affecting different regions, communities, or systems? Your task is to explore and interpret the ripple effects of global change—what they are, how they unfold, and why they matter.
+Approach this with curiosity, skepticism, or storytelling—there’s no single path forward, only the challenge to make sense of what’s happening and what it might mean.`,
+  node_type: 'question',
+  status: 'published'
+}
+

@@ -12,14 +12,9 @@ test.describe('Edit quest', () => {
   })
   test('Quest creator can go to create quest page', async ({ page }) => {
     await page.goto('http://localhost:8080/quest/1/edit');
-    await expect(page.locator('input[name="quest-title"]')).toHaveValue(mockQuest.name)
+    await expect(page.locator('input[name="quest-title"]')).toHaveValue(mockQuest.name!)
     await page.getByRole('button', { name: 'registration' }).click();
-    await page.getByRole('button', { name: 'update' }).click();
+    await page.click('[data-test="update-quest-btn"]');
     await expect(page.locator('p:has-text("Status:")')).toHaveText('Status: registration');
   });
-  test('Create first node', async ({page}) => {
-    await page.goto('http://localhost:8080/quest/1/edit');
-    await page.getByLabel('Node title').fill(mockNode.title);
-    await page.locator('[data-test="node-description-editor"] .q-editor__content').fill(mockNode.description);
-  })
 })

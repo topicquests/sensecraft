@@ -116,15 +116,15 @@ const showDialog = ref(false);
 // Functions
 function getDate(dte: string) {
   if (dte) {
-    let date: Date = new Date(dte);
-    let formattedDate: string = new Intl.DateTimeFormat('en-US').format(date);
+    const date: Date = new Date(dte);
+    const formattedDate: string = new Intl.DateTimeFormat('en-US').format(date);
     return formattedDate;
   }
 }
 function getLastActivity() {
   let date: Date = new Date();
   let newestDate;
-  var dateArray: QTreeNode[] = [];
+  const dateArray: QTreeNode[] = [];
   const neighbourhood: Partial<QTreeNode> | undefined =
     conversationStore.getNeighbourhood;
   if (neighbourhood!.length) {

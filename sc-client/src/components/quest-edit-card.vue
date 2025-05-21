@@ -256,6 +256,7 @@
       <div v-if="edit">
         <q-btn
           label="update"
+          data-test="update-quest-btn"
           name="updateQuestBtn"
           @click="doUpdateQuest"
           color="primary"
@@ -265,7 +266,8 @@
       <div v-else>
         <q-btn
           label="Create"
-          name="updateQuestBtn"
+          data-test="create-quest-btn"
+          name="createQuestBtn"
           @click="doUpdateQuest"
           color="primary"
           class="q-mr-md q-ml-md"
