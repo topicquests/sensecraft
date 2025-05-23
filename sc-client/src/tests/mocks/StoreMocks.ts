@@ -80,7 +80,7 @@ export const player7: Partial<Member> = {
   name: "Player Seven",
   handle: "playerSeven",
   password: "password",
-  email: "player8@example.com"
+  email: "player7@example.com"
 };
 export const player8: Partial<Member> = {
   name: "Player Eight",

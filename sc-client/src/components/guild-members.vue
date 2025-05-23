@@ -13,13 +13,13 @@
           <div class="col-4">
             <span v-if="playingAsGuildId(member.id)">
               <span
-                v-if="playingAsGuildId(member.id) == GuildMembersProps.guild.id"
+                v-if="playingAsGuildId(member.id) == GuildMembersProps.guild!.id"
                 style="color: black"
               >
                 {{ getAllCastingRoleNames(member.id) }}
               </span>
               <span
-                v-if="playingAsGuildId(member.id) != GuildMembersProps.guild.id"
+                v-if="playingAsGuildId(member.id) != GuildMembersProps.guild!.id"
                 >Playing in
                 <router-link
                   :to="{

@@ -82,7 +82,7 @@
                 />
               </div>
             </div>
-            <div class="row justify-centetr">
+            <div class="row justify-center">
               <div
                 class="column items-center"
                 style="width: 100%"
@@ -194,10 +194,10 @@ const { member } = storeToRefs(memberStore);
 const castingRoles = ref<Role[]>([]);
 const memberPlaysQuestInThisGuild = ref(false);
 const showDialog = ref(false);
+const pastQuests = ref<Quest[]>([]);
 
 //Non Reactive Variables
 let guildGamePlays: GamePlay[] = [];
-let pastQuests: Quest[] = [];
 const activeQuests = ref<QuestData[]>([]);
 
 //Table Columns
@@ -213,7 +213,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'status',
     required: false,
-    label: 'Handle',
+    label: 'Status',
     align: 'left',
     field: 'status',
     sortable: true,
@@ -221,7 +221,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'handle',
     required: false,
-    label: 'Status',
+    label: 'Handle',
     align: 'left',
     field: 'handle',
     sortable: true,
@@ -464,9 +464,10 @@ async function initializeQuest() {
       return;
     }
     if (member) {
-    const questCasting = castingList.find(
-      (ct: Casting) => ct.member_id == member.value?.id,
+    const questCasting = castingList?.find(
+      (ct: Casting) => ct.member_id === member.value?.id,
     );
+
     if (questCasting) {
       if (questCasting.guild_id == currentGuildId.value) {
         memberPlaysQuestInThisGuild.value = true;
