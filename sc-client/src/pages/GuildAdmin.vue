@@ -77,6 +77,7 @@
                     </span>
                     <q-btn
                       v-else
+                      data-test="register-quest-btn"
                       label="Register"
                       @click="doRegister(slotProps.quest.id)"
                       class="q-mr-md q-ml-md"
@@ -197,7 +198,8 @@
               </div>
               <div>
                 <div v-for="member in getGuildMembers" :key="member!.id">
-                  <div class="row" id="members-handle">
+                  <div class="row" :data-testid="`member-block-${member.handle}`">
+
                     <span class="q-pl-md q-pt-md">
                       {{ member.handle }}
                     </span>
@@ -219,9 +221,9 @@
                       :options="roleStore.getRoles"
                       option-label="name"
                       option-value="id"
+                      :data-testid="`role-select-${member.id}`"
                       emit-value
                       map-options
-                      id="qselect"
                     >
                     </q-select>
                   </div>
@@ -331,7 +333,7 @@ const isAdmin = ref(false);
 
 // Variables
 let guildId: number | undefined = undefined;
-let confirmedPlayQuestId: number[] = [];
+const confirmedPlayQuestId: number[] = [];
 
 // Computed Properties
 const currentGuild = computed({
@@ -413,7 +415,7 @@ const doRegister = computed(() => async (quest_Id: number) => {
       throw `Can not register quest in ${regQuest.status} status`;
     }
     if (typeof guildId === 'number') {
-      let payload: Partial<GamePlay> = {
+      const payload: Partial<GamePlay> = {
         guild_id: guildId,
         quest_id: questId,
       };
@@ -452,7 +454,7 @@ onBeforeMount(async () => {
     roleStore.ensureAllRoles(),
     membersStore.ensureMembersOfGuild({ guildId }),
   ]);
-  currentGuild.value = await guildStore.getGuildById(guildId!);
+  currentGuild.value = guildStore.getGuildById(guildId!);
   availableRolesByMember.value = Object.fromEntries(
     guildStore.getMembersOfCurrentGuild!.map((m: PublicMember) => [
       m.id,
@@ -461,19 +463,19 @@ onBeforeMount(async () => {
         .map((r: GuildMemberAvailableRole) => r.role_id),
     ]),
   );
-  if (typeof currentGuildId! === 'number') {
+  if (typeof currentGuildId.value === 'number') {
     isAdmin.value = baseStore.hasPermission(
       permission_enum.guildAdmin,
-      currentGuildId,
+      currentGuildId.value,
     );
     const canRegisterToQuest = baseStore.hasPermission(
       permission_enum.joinQuest,
-      currentGuildId,
+      currentGuildId.value,
     );
     if (!canRegisterToQuest) {
-      router.push({
+      await router.push({
         name: 'guild',
-        params: { guild_id: String(currentGuildId) },
+        params: { guild_id: String(currentGuildId.value) },
       });
     }
   }
@@ -503,7 +505,7 @@ async function addGuildAdmin(member: PublicMember) {
       type: 'positive',
       message:
         'Guild admin added to ' +
-        (await membersStore.getMemberById(id)?.handle),
+        (membersStore.getMemberById(id)?.handle),
     });
   } catch (error) {
     guildMembership!.permissions.pop();
@@ -533,7 +535,7 @@ async function removeGuildAdmin(member: PublicMember) {
       type: 'positive',
       message:
         'Guild admin removed from  ' +
-        (await membersStore.getMemberById(id)?.handle),
+        (membersStore.getMemberById(id)?.handle),
     });
   } catch (error) {
     guildMembership!.permissions.push(permission_enum.guildAdmin);

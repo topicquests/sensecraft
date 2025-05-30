@@ -101,12 +101,31 @@ export const player10: Partial<Member> = {
 };
 export const guild1: Partial<GuildData> = {
   name: 'Black Knights',
-  description:"join guild 1",
+  description:`Are you seeking a guild that values teamwork, structured communication, and collaborative success? Look no further! Black Knights are now recruiting, and we’re excited to welcome new members who thrive in an organized and supportive environment.
+
+Who We Are:
+Black Knight is a community of passionate players dedicated to conquering quests We pride ourselves on our ability to co-construct structured conversations that lead to efficient teamwork and enjoyable gameplay. Whether you’re a veteran player or just starting, you’ll find a home here with us.
+
+What We Offer:
+Organized Communication: keeping our discussions and planning structured.
+Collaborative Environment: Regularly scheduled events, raids, and activities that are meticulously planned for maximum participation and enjoyment.
+Resource Sharing: Access to comprehensive guides, tips, and shared knowledge from experienced members.
+Support System: A welcoming community ready to assist with quests, leveling, and in-game challenges.
+
+Our Expectations:
+Active Participation: Be present and contribute to guild events and discussions.
+Respectful Conduct: Maintain a positive and respectful attitude towards all members.
+Effective Communication: Engage in our structured communication channels to stay informed and involved.`,
   handle: "guildOne"
 }
 export const guild2: Partial<GuildData> = {
-  name: "Saggezza",
-  description:"join guild 2",
+  name: "Coherence",
+  description:`Welcome to Coherence,
+  a guild dedicated to helping learners make sense of complex ideas in a coherent manner!
+  Our goal is to create a supportive community to enable members to learn and grow together,
+  share their insights and perspectives to help each other gain a deeper understanding of complex topics.
+  Whether you're an expert in a particular field or just starting out, we welcome all learners who are passionate about making sense of the world around us.
+  Let's work together towards building a more coherent and interconnected world!`,
   handle: "guildTwo"
 }
 
