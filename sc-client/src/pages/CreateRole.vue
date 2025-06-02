@@ -32,7 +32,7 @@ import scoreboard from '../components/score-board.vue';
 import member from '../components/member-handle.vue';
 import roleCard from '../components/role-card.vue';
 import { Role } from '../types';
-import { useRoleStore } from 'src/stores/role';
+import { useRoleStore } from '../stores/role';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
@@ -44,8 +44,8 @@ const $q = useQuasar();
 const newRole: Partial<Role> = {
   name: '',
   permissions: [],
-  max_pub_state: null,
-  guild_id: null,
+  max_pub_state: undefined,
+  guild_id: undefined,
 };
 
 async function createNewRole(newRole: Partial<Role>) {
@@ -56,7 +56,7 @@ async function createNewRole(newRole: Partial<Role>) {
       type: 'positive',
     });
     console.log('Role id: ', res.id);
-    router.push({ name: 'role_edit', params: { role_id: res.id } });
+    await router.push({ name: 'role_edit', params: { role_id: res.id } });
   } catch (err) {
     console.log('there was an error in creating role ', err);
     $q.notify({

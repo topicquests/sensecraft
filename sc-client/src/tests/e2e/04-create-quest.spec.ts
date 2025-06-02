@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { firstNode, mockQuest, questCreator } from '../mocks/StoreMocks';
+import { firstNode, mockQuest, questCreator } from '../utilities/StoreMocks';
 import { DateTime } from 'luxon';
 
 test.describe('Quest creator Permission Flow', () => {
@@ -48,11 +48,11 @@ test.describe('Quest creator Permission Flow', () => {
     await page.goto('http://localhost:8080/quest/1/edit');
     await page.fill('input[name="node-title"]', firstNode.title!);
     await page.locator('[data-test="node-description-editor"] .q-editor__content').fill(firstNode.description!);
-    await page.click('[data-test="node-type-selector"]');   
-    await page.click('div.q-item[role="option"] >> text=question'); 
+    await page.click('[data-test="node-type-selector"]');
+    await page.click('div.q-item[role="option"] >> text=question');
     await expect(page.locator('[data-test="node-type-selector"]')).toContainText('question');
     await page.click('[data-test="node-status-selector"]')
-    await page.click('div.q-item[role="option"] >> text=published'); 
+    await page.click('div.q-item[role="option"] >> text=published');
     await expect(page.locator('[data-test="node-status-selector"]')).toContainText('published');
     await page.click('[data-test="add-node-btn"]');
   });

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { admin } from '../mocks/StoreMocks';
+import { admin } from '../utilities/StoreMocks';
 
 test.describe('User signin page', () => {
   test.beforeEach(async ({ page }) => {

@@ -276,7 +276,7 @@ export const useQuestStore = defineStore('quest', {
       await this.fetchQuestById(res.id);
       // TODO: Get the membership from the quest
       await useMemberStore().fetchLoginUser();
-      await useConversationStore().resetConversation();
+      useConversationStore().resetConversation();
       return res;
     },
     async ensureAllQuests(): Promise<QuestData[] | undefined> {
@@ -294,14 +294,14 @@ export const useQuestStore = defineStore('quest', {
     }) {
       if (
         this.getQuestById(quest_id) === undefined ||
-        (full && !this.fullQuests![quest_id])
+        (full && !this.fullQuests[quest_id])
       ) {
         await this.fetchQuestById(quest_id, full);
       }
     },
     async ensureCurrentQuest(quest_id: number, full = true) {
       await this.ensureQuest({ quest_id, full });
-      await this.setCurrentQuest(quest_id);
+      this.setCurrentQuest(quest_id);
     },
     setCurrentQuest(quest_id: number | boolean) {
       if (typeof quest_id === 'number') {
@@ -531,7 +531,7 @@ export const useQuestStore = defineStore('quest', {
           quest,
         );
         this.quests = { ...this.quests, [quest.id]: questData };
-        this.fullQuests = { ...this.fullQuests!, [quest.id]: true };
+        this.fullQuests = { ...this.fullQuests, [quest.id]: true };
       }
     },
     async addQuestMembership(params: Partial<QuestMembership>) {
@@ -595,7 +595,7 @@ export const useQuestStore = defineStore('quest', {
       );
       if (res.status == 201) {
         const game_play: GamePlay | undefined = res.data[0];
-        let quest = this.quests[game_play!.quest_id!];
+        let quest = this.quests[game_play!.quest_id];
         if (quest) {
           const game_plays = quest.game_play || [] || undefined;
           game_plays.push(game_play!);
@@ -603,7 +603,7 @@ export const useQuestStore = defineStore('quest', {
           this.quests = { ...this.quests, [quest.id]: quest };
         }
         const guild_id = game_play!.guild_id;
-        const guild = guildStore.guilds[guild_id!];
+        const guild = guildStore.guilds[guild_id];
         // Assuming it is definitely not there
         if (guild) {
           const game_plays =
@@ -625,7 +625,7 @@ export const useQuestStore = defineStore('quest', {
       );
       if (res.status == 200) {
         const game_play: GamePlay = res.data[0];
-        const quest = this.quests[game_play.quest_id!];
+        const quest = this.quests[game_play.quest_id];
         if (quest) {
           const game_plays: GamePlay[] | undefined = quest.game_play?.filter(
             (gp: GamePlay) => gp.quest_id !== game_play.quest_id,
@@ -634,7 +634,7 @@ export const useQuestStore = defineStore('quest', {
           quest.game_play = game_plays;
         }
         const guild_id = game_play.guild_id;
-        const guild = guildStore.guilds[guild_id!];
+        const guild = guildStore.guilds[guild_id];
         if (guild) {
           const game_plays =
             guild.game_play?.filter(

@@ -1,11 +1,11 @@
 import {test, expect} from '@playwright/test';
-import {player1, player2, player3, player4, player5} from '../mocks/StoreMocks';
+import {player1, player2, player3, player4, player5} from '../utilities/StoreMocks';
 
 test.describe('Add players to guild one', () => {
     test.beforeEach(async({page}) => {
         await page.goto('http://localhost:8080/signin')
     })
-    
+
     test('add player one to guild 1', async ({ page }) => {
     // Sign in
     await page.fill('input[name="email"]', player1.email!);
@@ -27,7 +27,7 @@ test.describe('Add players to guild one', () => {
     const viewLink = row.locator('a', { hasText: 'View' });
     await expect(viewLink).toBeVisible();
     await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/); 
+    await expect(page).toHaveURL(/.*guild\/\d+/);
     await expect(page.locator('.guild-page')).toBeVisible();
 
     const joinButton = page.locator('button', { hasText: 'Join' });
@@ -57,7 +57,7 @@ test.describe('Add players to guild one', () => {
     const viewLink = row.locator('a', { hasText: 'View' });
     await expect(viewLink).toBeVisible();
     await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/); 
+    await expect(page).toHaveURL(/.*guild\/\d+/);
     await expect(page.locator('.guild-page')).toBeVisible();
 
     const joinButton = page.locator('button', { hasText: 'Join' });
@@ -87,7 +87,7 @@ test.describe('Add players to guild one', () => {
     const viewLink = row.locator('a', { hasText: 'View' });
     await expect(viewLink).toBeVisible();
     await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/); 
+    await expect(page).toHaveURL(/.*guild\/\d+/);
     await expect(page.locator('.guild-page')).toBeVisible();
 
     const joinButton = page.locator('button', { hasText: 'Join' });
@@ -117,7 +117,7 @@ test.describe('Add players to guild one', () => {
     const viewLink = row.locator('a', { hasText: 'View' });
     await expect(viewLink).toBeVisible();
     await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/); 
+    await expect(page).toHaveURL(/.*guild\/\d+/);
     await expect(page.locator('.guild-page')).toBeVisible();
 
     const joinButton = page.locator('button', { hasText: 'Join' });
@@ -125,7 +125,7 @@ test.describe('Add players to guild one', () => {
       await joinButton.click();
       await expect(joinButton).toBeHidden();
     }
-  }); 
+  });
   test('add player five to guild 1', async ({ page }) => {
     // Sign in
     await page.fill('input[name="email"]', player5.email!);
@@ -147,7 +147,7 @@ test.describe('Add players to guild one', () => {
     const viewLink = row.locator('a', { hasText: 'View' });
     await expect(viewLink).toBeVisible();
     await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/); 
+    await expect(page).toHaveURL(/.*guild\/\d+/);
     await expect(page.locator('.guild-page')).toBeVisible();
 
     const joinButton = page.locator('button', { hasText: 'Join' });
@@ -155,5 +155,5 @@ test.describe('Add players to guild one', () => {
       await joinButton.click();
       await expect(joinButton).toBeHidden();
     }
-  }); 
+  });
 })

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { admin, guildCreator1, guildCreator2, questCreator } from '../mocks/StoreMocks';
+import { admin, guildCreator1, guildCreator2, questCreator } from '../utilities/StoreMocks';
 
 test.describe('Admin Permission Flow', () => {
   test.beforeEach(async ({ page }) => {

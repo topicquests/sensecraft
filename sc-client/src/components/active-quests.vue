@@ -60,7 +60,9 @@
     <div v-else class="col-12">
       <h2 class="q-mt-md q-mb-md">You are not registered to any quests</h2>
     </div>
-    <q-dialog v-model="prompt" persistent>
+    <q-dialog
+      v-model="prompt" persistent
+      data-test="register-dialog">
       <member-game-registration
         :guildId="ActiveQuestsProps.guildId!"
         :questId="quest_id"

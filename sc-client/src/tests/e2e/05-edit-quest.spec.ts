@@ -1,5 +1,5 @@
 import test, { expect } from "@playwright/test";
-import { mockNode, mockQuest, questCreator } from "../mocks/StoreMocks";
+import { mockNode, mockQuest, questCreator } from "../utilities/StoreMocks";
 
 
 test.describe('Edit quest', () => {

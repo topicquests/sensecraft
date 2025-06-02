@@ -169,7 +169,7 @@ export const useRoleStore = defineStore('role', {
         const role = res.data[0];
         if (role.id != null) {
           this.role = { ...this.role, [role.id]: role };
-          this.fullRole = { ...this.fullRole!, [role.id]: true };
+          this.fullRole = { ...this.fullRole, [role.id]: true };
         }
       }
     },

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { guild1, guild2, guildCreator1, guildCreator2 } from '../mocks/StoreMocks';
+import { guild1, guild2, guildCreator1, guildCreator2 } from '../utilities/StoreMocks';
 
 test.describe('Guild creator Permission Flow', () => {
   test.beforeEach(async ({ page }) => {

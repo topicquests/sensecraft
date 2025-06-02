@@ -400,39 +400,7 @@ const getGuildAdmins = computed((): PublicMember[] =>
       .map((gm: GuildMembership) => gm.member_id),
   ),
 );
-const doRegister = computed(() => async (quest_Id: number) => {
-  try {
-    const questId = quest_Id;
-    const regQuest = questStore.getQuestById(questId);
-    if (
-      (
-        [
-          quest_status_enum.ongoing,
-          quest_status_enum.registration,
-        ] as quest_status_type[]
-      ).indexOf(regQuest.status) < 0
-    ) {
-      throw `Can not register quest in ${regQuest.status} status`;
-    }
-    if (typeof guildId === 'number') {
-      const payload: Partial<GamePlay> = {
-        guild_id: guildId,
-        quest_id: questId,
-      };
-      await questStore.addGamePlay(payload);
-    }
-    $q.notify({
-      type: 'positive',
-      message: 'You have registered to Quest ',
-    });
-  } catch (err) {
-    $q.notify({
-      type: 'negative',
-      message: `${err}`,
-    });
-    console.log('error registering to quest: ', err);
-  }
-});
+
 const findPlayOfGuild = computed(() => (gamePlays: GamePlay[]) => {
   if (gamePlays) {
     return gamePlays.find(
@@ -488,6 +456,52 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 // Functions
+const doRegister = async (quest_Id: number) => {
+  try {
+    const questId = quest_Id;
+    const regQuest = questStore.getQuestById(questId);
+    if (
+      (
+        [
+          quest_status_enum.ongoing,
+          quest_status_enum.registration,
+        ] as quest_status_type[]
+      ).indexOf(regQuest.status) < 0
+    ) {
+      throw `Can not register quest in ${regQuest.status} status`;
+    }
+    if (typeof guildId === 'number') {
+      const payload: Partial<GamePlay> = {
+        guild_id: guildId,
+        quest_id: quest_Id,
+      };
+      await questStore.addGamePlay(payload);
+
+      // ✅ Update availableRolesByMember here after registration
+      await membersStore.ensureMembersOfGuild({ guildId });
+
+      availableRolesByMember.value = Object.fromEntries(
+        guildStore.getMembersOfCurrentGuild!.map((m: PublicMember) => [
+          m.id,
+          m.guild_member_available_role
+            ?.filter((r: GuildMemberAvailableRole) => r.guild_id == guildId)
+            .map((r: GuildMemberAvailableRole) => r.role_id),
+        ]),
+      );
+    }
+
+    $q.notify({
+      type: 'positive',
+      message: 'You have registered to Quest',
+    });
+  } catch (err) {
+    $q.notify({
+      type: 'negative',
+      message: `${err}`,
+    });
+    console.log('error registering to quest: ', err);
+  }
+};
 async function addGuildAdmin(member: PublicMember) {
   const id = member.id;
   const guildMembership = guildStore.getGuildMembershipById(id);

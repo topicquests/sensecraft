@@ -313,17 +313,13 @@ watch(
   { immediate: true },
 );
 watch(
-  member,
-   (newVal) => {
-    if (newVal) {
-      getCastingRoles();
-    }
+  () => member?.value,
+  (newVal) => {
+    if (newVal) getCastingRoles();
   },
-  {
-    immediate: true,
-    deep: true,
-  },
+  { immediate: true, deep: true }
 );
+
 //Lifecycle Hooks
 onBeforeMount(async () => {
   await initialize();
@@ -427,7 +423,7 @@ async function initializeStage2() {
       (gp: GamePlay) => gp.quest_id,
     );
 
-    pastQuests = questStore.getQuests.filter(
+    pastQuests.value = questStore.getQuests.filter(
       (q: Quest) =>
         (q.status == quest_status_enum.finished ||
           q.status == quest_status_enum.scoring) &&

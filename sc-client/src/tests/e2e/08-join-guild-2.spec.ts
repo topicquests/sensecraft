@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {player6, player7, player8, player9, player10, guild2} from '../mocks/StoreMocks';
+import {player6, player7, player8, player9, player10, guild2} from '../utilities/StoreMocks';
 
 test.describe('Add players to guild 2', () => {
     test.beforeEach(async({page}) => {
