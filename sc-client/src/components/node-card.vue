@@ -1,71 +1,69 @@
 <template>
-  <div>
-    <q-card id="node-card">
-      <section id="node-card-title">
-        <h3 class="q-ma-md">
-          <IbisButton :node_type="node.node_type"> </IbisButton>
-          {{ node.title }}
-        </h3>
-      </section>
-      <section>
-        <div v-if="node.url">
-          <a v-bind:href="node.url" target="_blank">
-            {{ node.url }}
-          </a>
-        </div>
-        <div>
-          <p id="node-card-detail-header">Details<br /></p>
-        </div>
-        <div v-html="description()" id="node-card-details"></div>
-      </section>
-    </q-card>
-  </div>
+  <q-card class="node-card">
+    <q-card-section class="node-title-bar">
+      <h3 class="q-ma-none flex items-center justify-center">
+        <IbisButton :node_type="node.node_type" class="q-mr-sm" />
+        {{ node.title }}
+      </h3>
+    </q-card-section>
+
+    <q-separator color="grey-4" />
+
+    <q-card-section>
+      <div v-if="node.url" class="q-mb-md">
+        <q-btn
+          :href="node.url"
+          target="_blank"
+          type="a"
+          color="primary"
+          flat
+          label="Open Related Link"
+          icon="link"
+        />
+      </div>
+
+      <div class="text-h6">Details</div>
+      <q-markdown
+        :src="node.description || ''"
+        class="node-description q-mt-sm"
+      />
+    </q-card-section>
+
+    <q-card-actions align="right" class="q-pa-sm">
+      <slot name="actions"></slot>
+    </q-card-actions>
+  </q-card>
 </template>
 
 <script setup lang="ts">
 import IbisButton from './ibis-btn.vue';
 import { ConversationNode } from '../types';
 
-const NodeCardProps = defineProps<{
+const { node } = defineProps<{
   node: ConversationNode;
 }>();
-
-function description() {
-  return NodeCardProps.node.description || '';
-}
 </script>
-<style>
-#node-card {
-  text-align: center;
+
+<style scoped>
+.node-card {
+  background-color: #9eb5f3;
+  color: #270bc2;
   border: 2px solid black;
-  font-size: 1em;
-  color: rgb(39, 11, 194);
-  background-color: rgb(158, 181, 243);
 }
-#node-card-details {
-  background-color: rgb(158, 181, 243);
-  color: rgb(39, 11, 194);
-  text-align: left;
-  font-size: 1em;
-  padding-top: 3%;
-  padding-left: 1%;
+
+.node-description {
+  background-color: #9eb5f3;
+  color: #270bc2;
+  padding: 1rem;
   border: 1px solid gray;
+  border-radius: 4px;
 }
-#node-card-title {
-  border: 1px solid gray;
+
+.node-title-bar {
   background-color: lightgray;
-  color: rgb(39, 11, 194);
-}
-#node-card-data {
-  text-align: left;
-  font-size: 1em;
-  background-color: rgb(158, 181, 243);
-  color: rgb(39, 11, 194);
-}
-#node-card-detail-header {
+  color: #270bc2;
+  padding: 1rem;
   text-align: center;
-  background-color: rgb(158, 181, 243);
-  color: black;
-  margin-bottom: 0%;
+  border-bottom: 1px solid gray;
 }
 </style>
