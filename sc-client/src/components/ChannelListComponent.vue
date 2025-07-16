@@ -54,7 +54,7 @@ import { useChannelStore } from '../stores/channel';
 import { waitUserLoaded } from '../app-access';
 import { onBeforeUpdate } from 'vue';
 import { onBeforeMount } from 'vue';
-import { useGuildStore } from 'src/stores/guilds';
+import { useGuildStore } from '../stores/guilds';
 
 const ChannelListProps = defineProps<{
   guild_id?: number;
@@ -69,7 +69,7 @@ const ready = ref(false);
 guildStore.setCurrentGuild(ChannelListProps.guild_id);
 const getChannels = computed(() => {
   const channels = ChannelListProps.quest_id
-    ? channelStore.getGameChannelsOfQuest(ChannelListProps.quest_id!)
+    ? channelStore.getGameChannelsOfQuest(ChannelListProps.quest_id)
     : channelStore.getRootGuildChannels;
   return channels;
 });
@@ -82,7 +82,7 @@ onBeforeUpdate(async () => {
 
 onBeforeMount(async () => {
   await waitUserLoaded();
-  ensureData();
+  await ensureData();
   ready.value = true;
 });
 defineExpose({ getChannels });

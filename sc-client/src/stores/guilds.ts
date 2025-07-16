@@ -23,7 +23,7 @@ interface GuildMap {
 }
 export interface GuildsState {
   guilds: GuildMap;
-  currentGuild: number;
+  currentGuild: number | undefined;
   fullFetch: boolean;
   fullGuilds: { [key: number]: boolean };
 }
@@ -65,7 +65,7 @@ export const useGuildStore = defineStore('guild', {
     },
     isGuildMember:
       (state: GuildsState) =>
-      (guild_id: number): Partial<GuildMembership> => {
+      (guild_id: number): Partial<GuildMembership> | undefined => {
         const memberId = useMemberStore().getUserId;
         return state.guilds[guild_id].guild_membership?.find(
           (m: Partial<GuildMembership>) =>
@@ -87,7 +87,7 @@ export const useGuildStore = defineStore('guild', {
       state: GuildsState,
     ): PublicMember[] | undefined => {
       if (typeof state.currentGuild === 'number') {
-        const guild: GuildData | undefined = state.currentGuild!
+        const guild: GuildData | undefined = state.currentGuild
           ? state.guilds[state.currentGuild]
           : undefined;
         const membersStore = useMembersStore();
@@ -147,7 +147,7 @@ export const useGuildStore = defineStore('guild', {
       const guild_id = guild.id;
       await this.fetchGuildsById(guild_id);
       // TODO: Get the membership from the guild
-      await useMemberStore().fetchLoginUser;
+      useMemberStore().fetchLoginUser;
       const params = {
         member_id: guild.creator,
         guild_id: guild_id,
@@ -159,7 +159,7 @@ export const useGuildStore = defineStore('guild', {
     },
     async ensureCurrentGuild(guild_id: number, full: boolean = true) {
       await this.ensureGuild(guild_id, full);
-      await this.setCurrentGuild(guild_id);
+      this.setCurrentGuild(guild_id);
     },
     async ensureGuildsPlayingQuest({
       quest_id,
@@ -345,7 +345,7 @@ export const useGuildStore = defineStore('guild', {
             this.guilds[guild.id],
             guild,
           );
-          this.guilds = { ...this.guilds, [guild.id]: guildData };
+          this.guilds = { ...this.guilds, [guild!.id]: guildData };
         }
       } catch (error) {
         console.error('Guild update failed:', error);

@@ -13,6 +13,10 @@ import {
 import { ChannelsReadMap, ReadStatusMap } from '../../stores/readStatus';
 import { registration_status_enum } from '../../enums';
 
+export interface Conversation {
+  title: string,
+  conv: string
+}
 export const admin: Partial<Member> = {
   name: "Admin",
   handle: "admin",
@@ -27,12 +31,19 @@ export const questCreator: Partial<Member> = {
   email: "questcreator@example.com",
 };
 
-export const guildCreator1: Partial<Member> = {
+export const guildCreator1: Partial<Member > = {
   name: "Guild Creator1",
   handle: "guildCreator1",
   password: "password",
   email: "guildcreator1@example.com",
 };
+export const guildCreator1Conv: Conversation = {
+  title: "Welcome Black Knights",
+  conv: `Welcome, brave soul! We're thrilled to have you with us.
+  The Black Knights are more than a guild — we're a team built on strategy, shared purpose, and respect.
+  Before we charge into quests together, let’s get to know you.`
+}
+
 export const guildCreator2: Partial<Member> = {
   name: "Guild Creator2",
   handle: "guildCreator2",

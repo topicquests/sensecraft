@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { firstNode, mockQuest, questCreator } from '../utilities/StoreMocks';
 import { DateTime } from 'luxon';
+import { signInPage } from '../utilities/utility';
 
 test.describe('Quest creator Permission Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/signin');
-    await page.fill('input[name="email"]', questCreator.email!);
-    await page.fill('input[name="pass"]', questCreator.password!);
-    await page.click('button[name="loginBtn"]');
+    await signInPage(questCreator, page);
     await page.click('button[name="dashboardInstruction"]');
   });
 

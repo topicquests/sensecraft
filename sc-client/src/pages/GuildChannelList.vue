@@ -10,41 +10,42 @@
               guild_id: guildId,
             },
           }"
-          >{{ currentGuild.name }}</router-link
         >
+          {{ currentGuild.name }}
+        </router-link>
       </h3>
     </div>
+
     <div class="col-3 q-md q-mb-md">
-      <channel-list :guild_id="guildId" :inPage="true" title="Guild Channels" />
+      <channel-list
+        :guild_id="guildId"
+        :inPage="true"
+        title="Guild Channels"
+      />
       <q-btn
         v-if="canAddChannel && !creating"
+        data-test="create-guild-channel-Btn"
         @click="createGuildChannel"
         label="Create Guild Channel"
       />
-      <!-- todo: create_guild_channel permission -->
-      <q-input
+      <node-form
         v-if="creating"
-        v-model="newChannelName"
-        label="Channel name"
-        id="channel_name"
+        :nodeInput="newChannelNode"
+        :editing="true"
+        :ibisTypes="[ibis_node_type_enum.channel]"
+        :roles="[]"
+        :allowChangeMeta="false"
+        :pubFn="() => [publication_state_enum.guild_draft]"
+        @action="handleNewChannelSubmit"
+        @cancel="cancelCreateGuildChannel"
       />
-      <q-btn
-        v-if="creating"
-        @click="cancelCreateGuildChannel()"
-        label="Cancel"
-      />
-      <q-btn
-        v-if="creating"
-        @click="confirmCreateGuildChannel()"
-        label="Confirm"
-      />
-      <!-- todo: only active if non-empty name -->
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import ChannelList from '../components/ChannelListComponent.vue';
+import NodeForm from '../components/node-form.vue';
 import { waitUserLoaded } from '../app-access';
 import {
   ibis_node_type_enum,
@@ -69,53 +70,54 @@ const currentGuild = computed(() => guildStore.getCurrentGuild!);
 const guildId = ref<number>();
 const ready = ref(false);
 const creating = ref(false);
-const newChannelName = ref('');
-const canAddChannel = computed({
-  get: () => {
-    return baseStore.hasPermission(permission_enum.guildAdmin, guildId.value);
-  },
-  set: () => {},
+const newChannelNode = ref<Partial<ConversationNode>>({});
+
+const canAddChannel = computed(() => {
+  return baseStore.hasPermission(permission_enum.guildAdmin, guildId.value);
 });
 
 function createGuildChannel() {
+  newChannelNode.value = {
+    title: '',
+    node_type: ibis_node_type_enum.channel,
+    meta: meta_state_enum.channel,
+    status: publication_state_enum.guild_draft,
+    guild_id: guildId.value,
+  };
   creating.value = true;
 }
+
 function cancelCreateGuildChannel() {
   creating.value = false;
 }
-async function confirmCreateGuildChannel() {
+
+async function handleNewChannelSubmit(node: Partial<ConversationNode>) {
   try {
-    let channel: Partial<ConversationNode> = {
-      title: newChannelName.value,
-      node_type: ibis_node_type_enum.channel,
-      meta: meta_state_enum.channel,
-      status: publication_state_enum.guild_draft,
-      guild_id: guildId.value,
-    };
-    await channelStore.createChannelNode(channel);
+    await channelStore.createChannelNode(node);
     q.notify({
-      message: `Added new conversation node`,
+      message: 'Channel created successfully',
       color: 'positive',
     });
   } catch (err) {
-    console.log('there was an error in creating conversation node ', err);
+    console.error('Error creating channel:', err);
     q.notify({
-      message: `There was an error creating new conversation node.`,
+      message: 'Failed to create channel',
       color: 'negative',
     });
   }
   creating.value = false;
 }
+
 onBeforeMount(async () => {
   await waitUserLoaded();
-  if (typeof route.params.guild_id === 'string')
+  if (typeof route.params.guild_id === 'string') {
     guildId.value = Number.parseInt(route.params.guild_id);
+  }
   guildStore.setCurrentGuild(guildId.value!);
-  const promises = [
+  await Promise.all([
     guildStore.ensureGuild(guildId.value!),
     channelStore.ensureChannels(guildId.value!),
-  ];
-  await Promise.all(promises);
+  ]);
   ready.value = true;
 });
 </script>

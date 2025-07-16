@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div v-if="shouldShowGuildChannels && isMember" class="q-pa-md q-gutter-sm">
+    <div v-if="shouldShowGuildChannels && isMember"
+      class="q-pa-md q-gutter-sm"
+      data-testid="guild-channels-container">
       <channel-list
-        :guild_id="rightDrawerProps.currentGuild.id"
+        :guild_id="rightDrawerProps.currentGuild!.id"
         :inPage="false"
         title="Guild Channels"
       />
@@ -12,8 +14,8 @@
       class="q-pa-md q-gutter-sm"
     >
       <channel-list
-        :guild_id="rightDrawerProps.currentGuild.id"
-        :quest_id="rightDrawerProps.currentQuest.id"
+        :guild_id="rightDrawerProps.currentGuild!.id"
+        :quest_id="rightDrawerProps.currentQuest!.id"
         :inPage="false"
         title="Game Channels"
       />
@@ -24,9 +26,9 @@
 import { GuildData, QuestData } from '../types';
 import channelList from '../components/ChannelListComponent.vue';
 import { computed, onBeforeMount, watch } from 'vue';
-import { useChannelStore } from 'src/stores/channel';
-import { useGuildStore } from 'src/stores/guilds';
-import { useQuestStore } from 'src/stores/quests';
+import { useChannelStore } from '../stores/channel';
+import { useGuildStore } from '../stores/guilds';
+import { useQuestStore } from '../stores/quests';
 import { waitUserLoaded } from '../app-access';
 
 const channelStore = useChannelStore();

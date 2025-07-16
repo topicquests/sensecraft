@@ -143,7 +143,7 @@ import { QInput } from 'quasar';
 const NodeFormProps = defineProps<{
   nodeInput?: Partial<ConversationNode> | defaultNodeType;
   editing: boolean;
-  ibisTypes: ibis_node_type_type[];
+  ibisTypes?: ibis_node_type_type[];
   allowChangeMeta?: boolean;
   roles?: Role[];
   pubFn?: (
@@ -235,7 +235,7 @@ node.value = { ...NodeFormProps.nodeInput };
 
 // Functions
 function isValidNodeType(type: string): type is ibis_node_type_type {
-  return NodeFormProps.ibisTypes.includes(type as ibis_node_type_type);
+  return !!NodeFormProps.ibisTypes?.includes(type as ibis_node_type_type);
 }
 function isValidNodeStatus(status: any): status is publication_state_type {
   return publication_state_list.includes(status);

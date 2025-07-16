@@ -74,6 +74,7 @@
             round
             :color="readStatusStore.hasUnreadChannels ? 'cyan' : 'grey'"
             aria-label="Tree View"
+            name="rightdrawerBtn"
             @click="toggleNav"
             id="channel_list"
           >

@@ -467,7 +467,7 @@ function editNode(nodeId: number) {
       selectedIbisTypes = ibis_child_types(parent!.node_type);
       allowChangeMeta.value =
         parent!.meta == 'conversation' &&
-        conversationStore.canMakeMeta(nodeId!);
+        conversationStore.canMakeMeta(nodeId);
     } else {
       selectedIbisTypes = ibis_node_type_list;
       allowChangeMeta.value = false;
