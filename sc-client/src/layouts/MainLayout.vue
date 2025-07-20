@@ -121,7 +121,7 @@
 </template>
 <script setup lang="ts">
 // Imports
-import { computed, onBeforeMount, ref, watch } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { useMemberStore } from '../stores/member';
 import { useGuildStore } from '../stores/guilds';
@@ -142,6 +142,7 @@ const readStatusStore = useReadStatusStore();
 
 // Quasar
 const $q = useQuasar();
+const nodeTreeRef = ref();
 
 // Reactive variables
 const leftDrawer = ref(false);
@@ -156,17 +157,7 @@ const checkIfAuthenticated = computed(
   (): boolean => memberStore.isAuthenticated,
 );
 
-// Watches
-watch(currentGuild, () => {
-  if (currentGuild.value) {
-    readStatusStore.hasUnreadChannels;
-  }
-});
-watch(currentQuest, () => {
-  if (currentQuest.value) {
-    readStatusStore.hasUnreadChannels;
-  }
-});
+
 
 // Lifecycles
 onBeforeMount(() => {
@@ -182,11 +173,12 @@ onBeforeRouteLeave((to, from, next) => {
 async function goTo(newRoute: string): Promise<void> {
   await router.push({ name: newRoute });
 }
-function onLogout() {
+async function onLogout() {
   rightDrawer.value = false;
   leftDrawer.value = false;
+  nodeTreeRef.value?.clearTree();
   memberStore.logout();
-  goTo('home');
+  await goTo('home');
   $q.notify({
     type: 'positive',
     message: 'You are now logged out',

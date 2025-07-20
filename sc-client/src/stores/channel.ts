@@ -160,7 +160,7 @@ export const useChannelStore = defineStore('channel', {
       const guildStore = useGuildStore();
       if (
         guild != guildStore.currentGuild ||
-        this.channelData![channel_id] === undefined
+        this.channelData[channel_id] === undefined
       ) {
         await this.fetchChannelConversation(channel_id);
       }
@@ -175,18 +175,21 @@ export const useChannelStore = defineStore('channel', {
       if(node.ancestry) {
         const channel_id = Number.parseInt(node.ancestry.split('.')[0]);
         if (!node.parent_id) {
-          this.channels = { ...this.channels, [channel_id]: node };
+          this.channels = { ...this.channels, [channel_id]: node as QTreeNode };
         }
         if (node.parent_id && !this.channelData[channel_id]) {
           console.error('Missing channel');
           this.channelData[channel_id] = {};
         }
-        if (!this.channelData[channel_id]) {
-          this.channelData[channel_id] = {};
-        }
-        this.channelData[channel_id][node.id] = node;
-      this.currentChannel = channel_id;
-    }
+       if (!this.channelData[channel_id]) {
+        this.channelData[channel_id] = {};
+      }
+
+      if (node.id !== undefined) {
+        this.channelData[channel_id][node.id] = node as QTreeNode;
+      }
+        this.currentChannel = channel_id;
+      }
     },
 
     async fetchChannels(guild_id: number) {
@@ -250,7 +253,7 @@ export const useChannelStore = defineStore('channel', {
           this.currentGuild = firstNode.guild_id;
           this.channels = {};
         }
-        const nodes: Partial<ConversationNode> = Object.fromEntries(
+        const nodes: Record<number, ConversationNode> = Object.fromEntries(
           res.data.map((node: Partial<ConversationNode>) => [node.id, node]),
         );
         const channel = nodes[channel_id];

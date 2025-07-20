@@ -107,7 +107,7 @@ async function initialize() {
   if (typeof route.params.quest_id === 'string') {
     questId.value = Number.parseInt(route.params.quest_id);
   }
-  await questStore.setCurrentQuest(questId.value!);
+  questStore.setCurrentQuest(questId.value!);
   await Promise.all([
     questStore.ensureQuest({ quest_id: questId.value! }),
     guildStore.ensureGuildsPlayingQuest({ quest_id: questId.value! }),

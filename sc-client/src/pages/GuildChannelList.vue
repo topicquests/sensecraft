@@ -72,9 +72,9 @@ const ready = ref(false);
 const creating = ref(false);
 const newChannelNode = ref<Partial<ConversationNode>>({});
 
-const canAddChannel = computed(() => {
+function canAddChannel () {
   return baseStore.hasPermission(permission_enum.guildAdmin, guildId.value);
-});
+};
 
 function createGuildChannel() {
   newChannelNode.value = {

@@ -39,17 +39,18 @@ const rightDrawerProps = defineProps<{
   currentQuest?: QuestData;
   currentGuild?: GuildData;
 }>();
-
 const isMember = computed<boolean>({
   get: () => {
     if (rightDrawerProps.currentGuild) {
-      return !!guildStore.isGuildMember(rightDrawerProps.currentGuild!.id);
+      return !!guildStore.isGuildMember(rightDrawerProps.currentGuild.id);
     }
+    return false; // or another default fallback
   },
   set: (value) => {
-    return value;
+    return value
   },
 });
+
 const isPlayingInQuest = computed<boolean>({
   get: () => {
     if (rightDrawerProps.currentQuest) {
@@ -58,6 +59,7 @@ const isPlayingInQuest = computed<boolean>({
         rightDrawerProps.currentGuild!.id,
       );
     }
+    return false
   },
   set: (value) => {
     return value;
@@ -67,12 +69,18 @@ const shouldShowGuildChannels = computed(() => !!rightDrawerProps.currentGuild);
 const canShowBothChannels = computed(
   () => !!rightDrawerProps.currentGuild && !!rightDrawerProps.currentQuest,
 );
-watch(isMember, (newVal) => {
-  channelStore.ensureChannels(channelStore.getChannelsCurrentGuildId);
+watch(isMember, async () => {
+  const guildId = channelStore.getChannelsCurrentGuildId;
+  if (guildId !== undefined) {
+    await channelStore.ensureChannels(guildId);
+  }
 });
-
 onBeforeMount(async () => {
   await waitUserLoaded();
-  await channelStore.ensureChannels(channelStore.getChannelsCurrentGuildId);
+  const guildId = channelStore.getChannelsCurrentGuildId;
+  if (guildId !== undefined) {
+    await channelStore.ensureChannels(guildId);
+  }
 });
+
 </script>
