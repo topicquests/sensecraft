@@ -119,17 +119,26 @@ export const useChannelStore = defineStore('channel', {
             const node = state.channelData[channel_id]?.[node_id];
             if (node && node.guild_id && userId) {
               if (node.status == publication_state_enum.private_draft) {
-                return node.creator_id == userId;
+                if (node.creator_id == userId)
+                  return true
                 // TODO: role_draft
               } else if (node.status == publication_state_enum.guild_draft) {
-                if (node.quest_id) {
+                if (node.quest_id ) {
                   const casting = questStore.castingInQuest(
                     node.quest_id,
                     userId,
                   );
-                  return casting?.guild_id == node.guild_id;
+                  if (node.creator_id == userId) {
+                    return casting?.guild_id == node.guild_id;
+                  } else {
+                      return false
+                  }
                 }
-                return guildStore.isGuildMember(node.guild_id);
+                if (node.creator_id == userId) {
+                  return guildStore.isGuildMember(node.guild_id);
+                } else {
+                  return false
+                }
               }
             } else if (node.status == publication_state_enum.proposed) {
               return baseStore.hasPermission(

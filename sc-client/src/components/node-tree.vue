@@ -93,17 +93,14 @@
               >{{ scores[node.id] }}</span
             >&nbsp;{{ threats[node.id] }}]</span
           >
-          <q-btn
-            :flat="true"
-            v-if="
-              editable &&
-              canEdit(node.id) &&
-              !editingNodeId &&
-              !isAddingChild
-            "
-            icon="edit"
-            @click="editNode(node.id)"
+        <EditButton
+          v-if="editable && !editingNodeId && !isAddingChild"
+          :questId="currentQuestId"
+          :channelId="channelId"
+          :nodeId="node.id"
+          @click="editNode(node.id)"
           />
+
           <q-btn
             v-if="canAddChild()"
             flat
@@ -195,6 +192,7 @@ import { useQuestStore } from '../stores/quests';
 import { computed, nextTick, onBeforeMount, onMounted, ref, ComponentPublicInstance, watch } from 'vue';
 import { useReadStatusStore } from '../stores/readStatus';
 import { useRoleStore } from '../stores/role';
+import EditButton from './edit-button.vue';
 
 type NodeFormInstance = ComponentPublicInstance<{
   setFocus: () => void;
@@ -329,16 +327,6 @@ const treeSize = computed(() => {
   return firstNode?.id ? readStatusStore.getNodeSize(firstNode.id) : undefined;
 });
 
-
-const canEdit = computed(() => (nodeId: number): boolean => {
-  const quest = questStore.getQuestById(NodeTreeProps.currentQuestId!);
-  if (quest && (!quest.is_playing || quest.status == 'finished')) return false;
-  if (NodeTreeProps.channelId) {
-    return !!channelStore.canEdit(NodeTreeProps.channelId, nodeId);
-  } else {
-    return conversationStore.canEdit(nodeId);
-  }
-});
 // Watches
 watch(
   [
@@ -654,8 +642,7 @@ async function keyResponder(evt: KeyboardEvent) {
       if (
         NodeTreeProps.editable &&
         conversationStore.canEdit(selectedNodeId.value!) &&
-        !editingNodeId.value &&
-        !addingChildToNodeId.value
+        !editingNodeId.value
       ) {
         editNode(selectedNodeId.value!);
         evt.preventDefault();
@@ -664,8 +651,7 @@ async function keyResponder(evt: KeyboardEvent) {
     case '+':
       if (
         NodeTreeProps.editable &&
-        !editingNodeId.value &&
-        !addingChildToNodeId.value
+        !editingNodeId.value
       ) {
         addChildToNode(selectedNodeId.value!);
         evt.preventDefault();

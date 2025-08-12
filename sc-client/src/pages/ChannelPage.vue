@@ -79,6 +79,17 @@
                 </div>
               </q-card-section>
               <q-separator />
+             <EditButton
+              :nodeId="selectedNode.id"
+              :channelId="channelId"
+              :questId="questId"
+              @click="editNode(selectedNode.id)"
+            />
+
+              <q-btn
+                :flat="true"
+                icon="add"
+              />
             </q-card>
           </div>
         </transition>
@@ -95,50 +106,95 @@
 
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, computed, onBeforeMount, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import nodeTree from '../components/node-tree.vue';
 import { useGuildStore } from '../stores/guilds';
 import { useChannelStore } from '../stores/channel';
 import { useRoleStore } from '../stores/role';
 import { ConversationNode } from '../types';
+import { useConversationStore } from '../stores/conversation';
+import EditButton from '../components/edit-button.vue';
 
+// Stores
 const guildStore = useGuildStore();
 const channelStore = useChannelStore();
 const roleStore = useRoleStore();
-
+const conversationStore = useConversationStore();
 const route = useRoute();
 
-//Reactive variables
+// Reactive variables
 const guildId = ref<number>(Number(route.params.guild_id));
 const questId = ref<number | undefined>(
   route.params.quest_id ? Number(route.params.quest_id) : undefined
 );
 const channelId = ref<number>(Number(route.params.channel_id));
 const selectedNodeId = ref<number | undefined>(channelId.value);
-const selectedNode = ref<ConversationNode | null>(channelStore.getChannelNode(channelId.value, selectedNodeId.value!));
+const selectedNode = ref<ConversationNode | null>(
+  channelStore.getChannelNode(channelId.value, selectedNodeId.value!)
+);
 const currentChannel = computed(() => {
-  const id = channelId.value;
-  return channelStore.channels[id];
+  return channelStore.channels[channelId.value];
 });
 const roles = roleStore.getRoles;
 const ready = ref(false);
 
-watch(() => route.params.channel_id, async (newId, oldId) => {
-  if (newId !== oldId) {
-    await loadChannelData();
-    selectionChanged(Number(newId))
-  }
-});
+// -- Variables needed for editNode function --
+const newNode = ref<ConversationNode | null>(null);
+const addingChildToNodeId = ref<number | null>(null);
+const editingNodeId = ref<number | null>(null);
+const allowChangeMeta = ref(false);
+const selectedIbisTypes = ref<any[]>([]); // adjust type if you have one
+const form = ref<any>(null);
+const nodeForms = ref<Record<string, any>>({});
 
+// Stub or import ibis_child_types and ibis_node_type_list here
+// Example placeholders (replace with your real imports)
+function ibis_child_types(nodeType: string) {
+  // Return array of valid child types for the given nodeType
+  return ['childType1', 'childType2'];
+}
+const ibis_node_type_list = ['type1', 'type2', 'type3'];
+
+// Stub or import calcPublicationConstraints function
+function calcPublicationConstraints(node: ConversationNode) {
+  // Your logic here
+  // Possibly set some reactive state or perform validation
+  console.log('calcPublicationConstraints called for node:', node.id);
+}
+
+// Stub or import getNode (fetches a node by id)
+function getNode(nodeId: number): ConversationNode | null {
+  // Try to find node in current channel or other store
+  // For example:
+  const node = channelStore.getChannelNode(channelId.value, nodeId);
+  return node ?? null;
+}
+
+// Watch for route changes on channel_id and reload data
+watch(
+  () => route.params.channel_id,
+  async (newId, oldId) => {
+    if (newId !== oldId) {
+      await loadChannelData();
+      selectionChanged(Number(newId));
+    }
+  }
+);
+
+// Called when selected node changes from the node tree component
 function selectionChanged(newSelectedNodeId: number) {
   selectedNodeId.value = newSelectedNodeId;
   selectedNode.value = channelStore.getChannelNode(channelId.value, newSelectedNodeId);
-const correctChannelId = channelStore.getChannelOfNode(newSelectedNodeId);
-if (correctChannelId) {
-  channelId.value = Number(correctChannelId);
+
+  // If node belongs to a different channel, update channelId
+  const correctChannelId = channelStore.getChannelOfNode(newSelectedNodeId);
+  if (correctChannelId) {
+    channelId.value = Number(correctChannelId);
+  }
 }
-}
+
+// Load guild, roles, and channel data
 async function loadChannelData() {
   await Promise.all([
     guildStore.ensureGuild(guildId.value),
@@ -147,16 +203,52 @@ async function loadChannelData() {
   ]);
   const channel = channelStore.channels[channelId.value];
   if (channel && channel.children && Object.keys(channel.children).length > 0) {
-    const rootNode = Object.values(channel.children).find((n: any) => n.parent_id === null);
+    const rootNode = Object.values(channel.children).find(
+      (n: any) => n.parent_id === null
+    );
     selectedNodeId.value = rootNode?.id ?? undefined;
   } else {
     selectedNodeId.value = channel.id;
     selectedNode.value = channelStore.getChannelNode(channelId.value, selectedNodeId.value);
   }
 }
-onBeforeMount(async () => {
-  await loadChannelData()
 
+// Main editNode function, adapted for your context
+async function editNode(nodeId: number) {
+  if (typeof nodeId === 'number') {
+    const selectedNodeLocal = getNode(nodeId);
+    if (!selectedNodeLocal) {
+      console.warn('Node not found:', nodeId);
+      return;
+    }
+    newNode.value = { ...selectedNodeLocal };
+    addingChildToNodeId.value = null;
+
+    if (selectedNodeLocal.parent_id != null) {
+      const parent = getNode(selectedNodeLocal.parent_id);
+      selectedIbisTypes.value = ibis_child_types(parent?.node_type ?? '');
+      allowChangeMeta.value =
+        parent?.meta === 'conversation' && conversationStore.canMakeMeta(nodeId);
+    } else {
+      selectedIbisTypes.value = ibis_node_type_list;
+      allowChangeMeta.value = false;
+    }
+
+    calcPublicationConstraints(selectedNodeLocal);
+    editingNodeId.value = nodeId;
+
+    // Wait for DOM updates, then set focus if possible
+    await nextTick();
+    const formKey = `editForm_${nodeId}`;
+    form.value = nodeForms.value[formKey];
+    if (form.value?.setFocus) {
+      form.value.setFocus();
+    }
+  }
+}
+
+onBeforeMount(async () => {
+  await loadChannelData();
   ready.value = true;
 });
 

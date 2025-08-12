@@ -24,13 +24,13 @@ const questNodeTreeProps = defineProps<{
 
 const router = useRouter();
 
-const selectionChanged = (selectedNodeId: number) => {
-  router.push({
+const selectionChanged = async (selectedNodeId: number) => {
+  await router.push({
     name: selectedNodeId ? 'quest_page_node' : 'quest_page',
     params: {
       quest_id: String(questNodeTreeProps.questId),
       node_id: selectedNodeId
-        ? String(questNodeTreeProps.selectedNodeId)
+        ? String(selectedNodeId)
         : undefined,
     },
   });
