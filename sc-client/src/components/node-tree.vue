@@ -133,7 +133,8 @@
         <div
           class="scrollable-div q-pt-md q-pb-md"
           v-html="prop.node.description"
-        ></div>
+        >
+        </div>
         <node-form
           :ref="nodeFormRef(prop.node.id)"
           v-if="editable && prop.node.id == editingNodeId"
@@ -240,7 +241,6 @@ const form = ref<NodeFormInstance | null>(null);
 const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
 const isAddingChild = computed(() => !!addingChildToNodeId.value);
 const nodesTree = ref<QTreeNode[]>([]);
-
 
 // Non Reactive Variables
 let baseNodePubStateConstraints: publication_state_type[];

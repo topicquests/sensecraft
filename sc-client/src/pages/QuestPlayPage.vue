@@ -92,6 +92,21 @@
         </transition>
       </div>
     </div>
+    <template>
+     <node-form
+          :ref="nodeFormRef(selectedNodeId!)"
+          v-if="editable && selectedNodeId == editingNodeId"
+          :nodeInput="selectedNode(true)"
+          :allowAddChild="false"
+          :ibisTypes="selectedIbisTypes"
+          :editing="true"
+          :roles="roleStore.getRoles"
+          :allowChangeMeta="allowChangeMeta"
+          :pubFn="calcSpecificPubConstraints"
+          v-on:action="confirmEdit"
+          v-on:cancel="cancel"
+      />
+    </template>
   </q-page>
 </template>
 
@@ -103,24 +118,34 @@ import questDetails from '../components/quest-details.vue';
 import questActions from '../components/quest-actions.vue';
 import { waitUserLoaded } from '../app-access';
 import { useRoute } from 'vue-router';
-import { ref, computed, onMounted, watch, nextTick } from 'vue'; // added nextTick
+import { ref, computed, onMounted, watch, nextTick, ComponentPublicInstance } from 'vue'; // added nextTick
 import { useQuestStore } from '../stores/quests';
 import { useGuildStore } from '../stores/guilds';
 import { useMemberStore } from '../stores/member';
 import { ConversationNode, GuildData, GuildMembership } from '../types';
 import { useConversationStore } from '../stores/conversation';
 import { ibis_child_types}  from '../stores/conversation'
-import { ibis_node_type_list } from'../enums'
+import { ibis_node_type_list, publication_state_enum, publication_state_list, publication_state_type } from'../enums'
 import EditButton from '../components/edit-button.vue';
+import NodeForm from '../components/node-form.vue';
+import { useRoleStore } from '../stores/role';
+import { useQuasar } from 'quasar';
 
+type NodeFormInstance = ComponentPublicInstance<{
+  setFocus: () => void;
+}>;
 // Stores
 const questStore = useQuestStore();
 const guildStore = useGuildStore();
 const memberStore = useMemberStore();
 const conversationStore = useConversationStore();
+const roleStore = useRoleStore();
 
 // Route
 const route = useRoute();
+
+// Quasar
+const $q = useQuasar();
 
 // Reactive Variables
 const ready = ref(false);
@@ -131,8 +156,8 @@ const addingChildToNodeId = ref<number | null>(null);
 const selectedIbisTypes = ref<any[]>([]);
 const allowChangeMeta = ref(false);
 const editingNodeId = ref<number | null>(null);
-const form = ref<any>(null);
-const nodeForms = ref<Record<string, any>>({});
+const form = ref<NodeFormInstance | null>(null);
+const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
 
 const parseNodeId = (param: string | string[] | undefined): number | undefined => {
   if (typeof param === 'string') {
@@ -145,10 +170,10 @@ const parseNodeId = (param: string | string[] | undefined): number | undefined =
 
 const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.node_id));
 
-
-
 // Variables
 let myPlayingGuilds: GuildData[] = [];
+let editable: boolean = false;
+let baseNodePubStateConstraints: publication_state_type[];
 
 // Lifecycle Hooks
 onMounted(async () => {
@@ -169,6 +194,9 @@ const guildId = computed(() => {
   const casting = memberStore.castingPerQuest[quest_id!];
   return casting ? casting.guild_id : undefined;
 });
+const currentGuildId = computed(() =>
+  guildStore.getCurrentGuild
+)
 // Watches
 watch(guildId, async () => {
   await initializeGuildInner();
@@ -187,6 +215,108 @@ watch(selectedNode, (val) => {
 });
 
 // Functions
+function isNodeFormInstance(
+  el: Element | NodeFormInstance | null,
+): el is NodeFormInstance {
+  return !!el && typeof el === 'object' && '$' in el;
+}
+function nodeFormRef(nodeId: string | number ) {
+  return (el: Element | NodeFormInstance | null) => {
+    if (isNodeFormInstance(el)) {
+      nodeForms.value[`editForm_${nodeId}`] = el;
+    } else {
+      nodeForms.value[`editForm_${nodeId}`] = null;
+    }
+  };
+}
+function calcPublicationConstraints(node: Partial<ConversationNode>) {
+  if (!currentGuildId.value) {
+    baseNodePubStateConstraints = [
+      publication_state_enum.private_draft,
+      publication_state_enum.published,
+    ];
+    return;
+  }
+  // a node publication state must be <= its parent's and >= all its children
+  const pub_states = [...publication_state_list];
+  if (!node) return [];
+  if (node.parent_id) {
+    const parent = getNode(node.parent_id);
+    if (parent) {
+      const pos = pub_states.indexOf(parent.status);
+      if (pos >= 0) {
+        pub_states.splice(pos + 1);
+      }
+    }
+  }
+  if (node.id) {
+    const children_status = conversationStore
+      .getChildrenOf(node.id)!
+      .map((n) => n!.status);
+    if (children_status.length > 0) {
+      children_status.sort(
+        (a, b) =>
+          publication_state_list.indexOf(a) - publication_state_list.indexOf(b),
+      );
+      const pos = pub_states.indexOf(children_status[0]);
+      if (pos > 0) pub_states.splice(0, pos);
+    }
+  }
+  if (node.meta == 'channel') {
+    // clamp to guild
+    const pos = pub_states.indexOf('proposed');
+    if (pos >= 0) pub_states.splice(pos);
+  }
+  baseNodePubStateConstraints = pub_states;
+}
+function calcSpecificPubConstraints(node: Partial<ConversationNode>) {
+  if (node.meta == 'channel' || !currentGuildId.value)
+    return baseNodePubStateConstraints;
+  const pub_states = [...baseNodePubStateConstraints];
+  if (node.meta == 'meta') {
+    // clamp to guild
+    const pos = pub_states.indexOf('proposed');
+    if (pos >= 0) pub_states.splice(pos);
+  }
+  const node_type = node.node_type;
+  if (node_type && node.quest_id) {
+    const max_state = questStore.getMaxPubStateForNodeType(
+      node.quest_id,
+      node_type,
+    );
+    const pos = pub_states.indexOf(max_state);
+    if (pos >= 0) pub_states.splice(pos + 1);
+  }
+  const posCurrent = pub_states.indexOf(node.status!);
+  if (posCurrent < 0) {
+    console.error('current node status not in pub_states');
+    pub_states.push(node.status!);
+  }
+  return pub_states;
+}
+function cancel() {
+  editingNodeId.value = null;
+  addingChildToNodeId.value = null;
+  newNode.value = {};
+}
+async function confirmEdit(node: Partial<ConversationNode>) {
+  try {
+    await conversationStore.updateConversationNode(node);
+    cancel();
+
+    editingNodeId.value = null;
+    $q.notify({
+      message: `node updated`,
+      color: 'positive',
+    });
+  } catch (err) {
+    console.log('there was an error in adding node ', err);
+    $q.notify({
+      message: `There was an error updating node.`,
+      color: 'negative',
+    });
+  }
+}
 function guildsPlayingGame(onlyMine = false, recruiting = false) {
   let guildIds =
     questStore.getCurrentQuest?.game_play?.map((gp) => gp.guild_id) || [];
@@ -203,15 +333,67 @@ function guildsPlayingGame(onlyMine = false, recruiting = false) {
   }
   return guilds;
 }
-function calcPublicationConstraints(node: ConversationNode) {
-  // Your logic here
-  // Possibly set some reactive state or perform validation
-  console.log('calcPublicationConstraints called for node:', node.id);
-}
 
 function getNode(nodeId: number): ConversationNode | null {
   const node = conversationStore.getConversationNodeById(nodeId);
   return node ?? null;
+}
+async function editNode(nodeId: number) {
+  if (typeof nodeId !== 'number') {
+    console.warn('Invalid nodeId:', nodeId);
+    return;
+  }
+
+  const selectedNodeLocal = getNode(nodeId);
+  if (!selectedNodeLocal) {
+    console.warn('Node not found:', nodeId);
+    return;
+  }
+
+  // Clone the node into a local editable copy
+  newNode.value = { ...selectedNodeLocal };
+  addingChildToNodeId.value = null;
+
+  // Determine allowed child types and meta permissions
+  if (selectedNodeLocal.parent_id != null) {
+    const parent = getNode(selectedNodeLocal.parent_id);
+    selectedIbisTypes.value = parent?.node_type
+      ? ibis_child_types(parent.node_type)
+      : [];
+
+    allowChangeMeta.value =
+      parent?.meta === 'conversation' &&
+      conversationStore.canMakeMeta(nodeId);
+  } else {
+    selectedIbisTypes.value = ibis_node_type_list;
+    allowChangeMeta.value = false;
+  }
+
+  // Apply publication constraints
+  calcPublicationConstraints(selectedNodeLocal);
+
+  // Mark as editing
+  editingNodeId.value = nodeId;
+  editable = true;
+
+  // Wait for DOM + refs to update
+  await nextTick();
+
+  const formKey = `editForm_${nodeId}`;
+  const formInstance = nodeForms.value[formKey];
+
+  if (!formInstance) {
+    console.warn(`Form instance for ${formKey} not found.`, {
+      availableKeys: Object.keys(nodeForms.value),
+      nodeForms: nodeForms.value
+    });
+  }
+
+  form.value = formInstance || null;
+
+  if (form.value?.setFocus) {
+    form.value.setFocus();
+  }
 }
 
 
@@ -224,6 +406,7 @@ async function initialize() {
   await Promise.all([
     questStore.ensureQuest({ quest_id: questId.value! }),
     guildStore.ensureGuildsPlayingQuest({ quest_id: questId.value! }),
+    roleStore.ensureAllRoles()
   ]);
   await initializeGuildInner();
 }
@@ -244,43 +427,7 @@ async function initializeGuildInner() {
     }
   }
 }
-
-async function editNode(nodeId: number) {
-  if (typeof nodeId === 'number') {
-    const selectedNodeLocal = getNode(nodeId);
-    if (!selectedNodeLocal) {
-      console.warn('Node not found:', nodeId);
-      return;
-    }
-    newNode.value = { ...selectedNodeLocal };
-    addingChildToNodeId.value = null;
-
-    if (selectedNodeLocal.parent_id != null) {
-      const parent = getNode(selectedNodeLocal.parent_id);
-      selectedIbisTypes.value = parent?.node_type
-  ? ibis_child_types(parent.node_type)
-  : [];
-
-      allowChangeMeta.value =
-        parent?.meta === 'conversation' && conversationStore.canMakeMeta(nodeId);
-    } else {
-      selectedIbisTypes.value = ibis_node_type_list;
-      allowChangeMeta.value = false;
-    }
-
-    calcPublicationConstraints(selectedNodeLocal);
-    editingNodeId.value = nodeId;
-
-    await nextTick();
-    const formKey = `editForm_${nodeId}`;
-    form.value = nodeForms.value[formKey];
-    if (form.value?.setFocus) {
-      form.value.setFocus();
-    }
-  }
-}
 </script>
-
 <style scoped>
 .quest-play-page {
   background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
