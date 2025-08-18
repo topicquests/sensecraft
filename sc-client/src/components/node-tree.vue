@@ -135,6 +135,7 @@
           v-html="prop.node.description"
         >
         </div>
+         <div v-if="editable && prop.node.id === editingNodeId" class="floating-node-form">
         <node-form
           :ref="nodeFormRef(prop.node.id)"
           v-if="editable && prop.node.id == editingNodeId"
@@ -148,6 +149,8 @@
           v-on:action="confirmEdit"
           v-on:cancel="cancel"
         />
+         </div>
+         <div v-if="editable && prop.node.id == addingChildToNodeId" class="floating-node-form">
         <node-form
           :ref="nodeFormRef(prop.node.id)"
           v-if="editable && prop.node.id == addingChildToNodeId"
@@ -161,6 +164,7 @@
           v-on:action="confirmAddChild"
           v-on:cancel="cancel"
         />
+         </div>
       </template>
     </q-tree>
   </div>
@@ -803,7 +807,18 @@ defineExpose({
 });
 </script>
 <style scoped>
-/* General Styling */
+.floating-node-form {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  z-index: 999;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  padding: 2px;
+}
 .node-status {
   display: block;
   font-size: 0.9em;

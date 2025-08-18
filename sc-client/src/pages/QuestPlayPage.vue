@@ -1,41 +1,46 @@
 <template>
   <q-page v-if="ready" class="bg-secondary quest-play-page">
-    <div class="row q-mb-md">
-  <div class="col-8">
-    <q-breadcrumbs class="q-pa-sm rounded-borders shadow-2">
-      <q-breadcrumbs-el
-        class="text-black"
-        icon="home"
-        label="Guild"
-        :to="{ name: 'guild', params: { guild_id: guildId } }"
-      />
-      <q-breadcrumbs-el icon="forum" label="Quest Play" />
-    </q-breadcrumbs>
-        <div class="q-ml-md" style="display: flex; align-items: center;">
-      <member />
-    </div>
-  </div>
-</div>
-    <div class="row justify-center q-pa-md" style="max-width: 1200px; margin: 0 auto; width: 100%">
-      <q-card style="width: 100%; background-color: transparent" class="q-mb-md">
-        <quest-details />
-        <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
-
-        <div class="row justify-center q-mt-lg">
-          <router-link
-            :to="{
-              name: 'conversation_column',
-              params: { quest_id: questId },
-            }"
-          >
-            Card View
-          </router-link>
+         <div class="q-ml-md" style="display: flex; justify-content: flex-end;">
+          <member />
         </div>
-      </q-card>
+    <!-- Quest Details & Actions -->
+    <div class="row justify-center q-pa-md" style="max-width: 1200px; margin: 0 auto; width: 100%">
+      <q-card
+  flat
+  bordered
+  class="q-mb-md q-pa-md rounded-borders shadow-2"
+  style="width: 100%; background-color: transparent"
+>
+  <section class="q-mb-md">
+    <quest-details />
+  </section>
 
-      <!-- Main content: Node Tree + Selected Node side-by-side -->
+  <q-separator spaced />
+
+  <section class="q-mt-md">
+    <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
+  </section>
+
+  <q-separator spaced />
+
+ <div class="row justify-center q-mt-xl">
+  <q-btn
+    color="accent"
+    unelevated
+    size="lg"
+    icon="view_module"
+    label="Card View"
+    :to="{ name: 'conversation_column', params: { quest_id: questId } }"
+    class="card-view-btn"
+  />
+</div>
+
+</q-card>
+
+
+      <!-- Main content: Node Tree + Selected Node -->
       <div class="row q-mt-md" style="width: 100%">
-        <!-- Left: Quest Node Tree (9 columns wide on md+) -->
+        <!-- Left: Quest Node Tree -->
         <div class="col-12 col-md-9">
           <q-card class="q-pa-md" style="height: 100%;">
             <quest-node-tree
@@ -46,13 +51,11 @@
           </q-card>
         </div>
 
-        <!-- Right: Selected Node (3 columns wide on md+) -->
+        <!-- Right: Selected Node -->
         <transition name="fade">
           <div class="col-12 col-md-3" v-if="selectedNode">
             <q-card flat bordered class="q-pa-md shadow-2 rounded-borders selected-node-card" style="height: 100%;">
-              <h3
-                class="text-h6 text-primary text-weight-bold q-mb-sm row items-center selected-node-header"
-              >
+              <h3 class="text-h6 text-primary text-weight-bold q-mb-sm row items-center selected-node-header">
                 <q-icon name="label_important" class="q-mr-sm" />
                 Selected Node
               </h3>
@@ -66,18 +69,9 @@
                     Root
                   </q-badge>
                 </div>
-                <div
-                  class="scrollable-description q-mb-md"
-                  style="max-height: 200px; overflow-y: auto;"
-                >
-                  <div
-                    v-if="selectedNode!.description"
-                    v-html="selectedNode!.description"
-                    class="node-card-details"
-                  />
-                  <div v-else class="text-grey">
-                    No description provided.
-                  </div>
+                <div class="scrollable-description q-mb-md" style="max-height: 200px; overflow-y: auto;">
+                  <div v-if="selectedNode!.description" v-html="selectedNode!.description" class="node-card-details" />
+                  <div v-else class="text-grey">No description provided.</div>
                 </div>
               </q-card-section>
               <q-separator />
@@ -86,31 +80,50 @@
                 :questId="questId"
                 @click="editNode(selectedNode!.id)"
               />
-              <q-btn :flat="true" icon="add" />
+              <q-btn
+                v-if="canAddChild()"
+                flat
+                icon="add"
+                @click="addChildToNode(selectedNodeId!)"
+              />
             </q-card>
           </div>
         </transition>
       </div>
     </div>
-    <template>
-     <node-form
-          :ref="nodeFormRef(selectedNodeId!)"
-          v-if="editable && selectedNodeId == editingNodeId"
-          :nodeInput="selectedNode(true)"
+
+    <!-- Floating Node Form -->
+    <div v-if="editable && selectedNodeId === editingNodeId && selectedNode" class="floating-node-form">
+      <node-form
+        :ref="nodeFormRef(selectedNodeId!)"
+        :nodeInput="selectedNode"
+        :allowAddChild="false"
+        :ibisTypes="selectedIbisTypes"
+        :editing="true"
+        :roles="roleStore.getRoles"
+        :allowChangeMeta="allowChangeMeta"
+        :pubFn="calcSpecificPubConstraints"
+        @action="confirmEdit"
+        @cancel="cancel"
+      />
+    </div>
+    <div v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length" class="floating-node-form">
+        <node-form
+          :ref="nodeFormRef(selectedNodeId)"
+          v-if="editable && selectedNodeId== addingChildToNodeId"
+          :nodeInput="newNode"
           :allowAddChild="false"
-          :ibisTypes="selectedIbisTypes"
+          :ibisTypes="childIbisTypes"
           :editing="true"
           :roles="roleStore.getRoles"
           :allowChangeMeta="allowChangeMeta"
           :pubFn="calcSpecificPubConstraints"
-          v-on:action="confirmEdit"
+          v-on:action="confirmAddChild"
           v-on:cancel="cancel"
-      />
-    </template>
+        />
+         </div>
   </q-page>
 </template>
-
-
 <script setup lang="ts">
 import member from '../components/member-handle.vue';
 import questNodeTree from '../components/quest-node-tree.vue';
@@ -122,10 +135,10 @@ import { ref, computed, onMounted, watch, nextTick, ComponentPublicInstance } fr
 import { useQuestStore } from '../stores/quests';
 import { useGuildStore } from '../stores/guilds';
 import { useMemberStore } from '../stores/member';
-import { ConversationNode, GuildData, GuildMembership } from '../types';
+import { ConversationNode, GuildData, GuildMembership, QTreeNode } from '../types';
 import { useConversationStore } from '../stores/conversation';
 import { ibis_child_types}  from '../stores/conversation'
-import { ibis_node_type_list, publication_state_enum, publication_state_list, publication_state_type } from'../enums'
+import { ibis_node_type_list, ibis_node_type_type, publication_state_enum, publication_state_list, publication_state_type } from'../enums'
 import EditButton from '../components/edit-button.vue';
 import NodeForm from '../components/node-form.vue';
 import { useRoleStore } from '../stores/role';
@@ -157,6 +170,9 @@ const selectedIbisTypes = ref<any[]>([]);
 const allowChangeMeta = ref(false);
 const editingNodeId = ref<number | null>(null);
 const form = ref<NodeFormInstance | null>(null);
+const editable = ref<boolean>(true)
+const nodesTree = ref<QTreeNode[]>([]);
+const showFocusNeighbourhood = ref(false);
 const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
 
 const parseNodeId = (param: string | string[] | undefined): number | undefined => {
@@ -172,8 +188,8 @@ const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.node_id)
 
 // Variables
 let myPlayingGuilds: GuildData[] = [];
-let editable: boolean = false;
 let baseNodePubStateConstraints: publication_state_type[];
+let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 
 // Lifecycle Hooks
 onMounted(async () => {
@@ -197,6 +213,15 @@ const guildId = computed(() => {
 const currentGuildId = computed(() =>
   guildStore.getCurrentGuild
 )
+const canAddChild = computed(() => {
+  return () => {
+    return (
+      canAddTo() &&
+      !editingNodeId.value &&
+      !addingChildToNodeId.value
+    );
+  };
+});
 // Watches
 watch(guildId, async () => {
   await initializeGuildInner();
@@ -215,20 +240,77 @@ watch(selectedNode, (val) => {
 });
 
 // Functions
-function isNodeFormInstance(
-  el: Element | NodeFormInstance | null,
-): el is NodeFormInstance {
-  return !!el && typeof el === 'object' && '$' in el;
-}
-function nodeFormRef(nodeId: string | number ) {
+function nodeFormRef(nodeId: string | number) {
   return (el: Element | NodeFormInstance | null) => {
-    if (isNodeFormInstance(el)) {
+    console.log('nodeFormRef called for nodeId', nodeId, el);
+
+    if (el && typeof el === 'object' && '$' in el) {
       nodeForms.value[`editForm_${nodeId}`] = el;
     } else {
       nodeForms.value[`editForm_${nodeId}`] = null;
     }
+
+    // Automatically assign to form if editing this node
+    if (editingNodeId.value === nodeId) {
+      form.value = nodeForms.value[`editForm_${nodeId}`];
+    }
   };
 }
+function canAddTo(): boolean {
+  const quest = questStore.getQuestById(
+    questId.value!
+  );
+  if (quest) {
+    return (
+      (quest.is_playing || quest.is_quest_member) && quest.status != 'finished'
+    );
+  }
+  return false;
+}
+function addChildToNode(nodeId: number | null) {
+  const formKey = `addChildForm_${nodeId}`;
+  editingNodeId.value = null;
+  const parent = getNode(nodeId!);
+  const parent_ibis_type = parent!.node_type;
+  childIbisTypes = ibis_child_types(parent_ibis_type);
+  allowChangeMeta.value = parent!.meta === 'conversation';
+  newNode.value = {
+    status: 'private_draft',
+    node_type: childIbisTypes[0],
+    parent_id: nodeId!,
+    quest_id: parent!.quest_id,
+    guild_id: guildStore.getCurrentGuild!.id,
+    meta: parent!.meta,
+  };
+  calcPublicationConstraints(newNode.value);
+  addingChildToNodeId.value = nodeId;
+  setTimeout(() => {
+    form.value = nodeForms.value[formKey];
+    if (form.value) form.value.setFocus();
+  }, 0);
+}
+async function confirmAddChild(node: ConversationNode) {
+  try {
+    await conversationStore.createConversationNode(node);
+    cancel();
+    nodesTree.value = getNodesTree() ?? [];
+  } catch (error) {
+    console.error('Error adding child node:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add node. Please try again.',
+    });
+  }
+}
+const getNodesTree = (): QTreeNode[] => {
+  if (showFocusNeighbourhood.value) {
+    return conversationStore.getNeighbourhoodTree ?? [];
+  }
+  if (currentGuildId.value) {
+    return conversationStore.getPrivateConversationTree ?? [];
+  }
+  return conversationStore.getConversationTree ?? [];
+};
 function calcPublicationConstraints(node: Partial<ConversationNode>) {
   if (!currentGuildId.value) {
     baseNodePubStateConstraints = [
@@ -339,18 +421,13 @@ function getNode(nodeId: number): ConversationNode | null {
   return node ?? null;
 }
 async function editNode(nodeId: number) {
-  if (typeof nodeId !== 'number') {
-    console.warn('Invalid nodeId:', nodeId);
-    return;
-  }
-
   const selectedNodeLocal = getNode(nodeId);
   if (!selectedNodeLocal) {
     console.warn('Node not found:', nodeId);
     return;
   }
 
-  // Clone the node into a local editable copy
+  // Clone the node for editing
   newNode.value = { ...selectedNodeLocal };
   addingChildToNodeId.value = null;
 
@@ -360,7 +437,6 @@ async function editNode(nodeId: number) {
     selectedIbisTypes.value = parent?.node_type
       ? ibis_child_types(parent.node_type)
       : [];
-
     allowChangeMeta.value =
       parent?.meta === 'conversation' &&
       conversationStore.canMakeMeta(nodeId);
@@ -374,28 +450,22 @@ async function editNode(nodeId: number) {
 
   // Mark as editing
   editingNodeId.value = nodeId;
-  editable = true;
+  editable.value = true;
 
-  // Wait for DOM + refs to update
+  // Wait for the DOM to update
   await nextTick();
 
+  // Safely get the form instance
   const formKey = `editForm_${nodeId}`;
-  const formInstance = nodeForms.value[formKey];
-
-  if (!formInstance) {
-    console.warn(`Form instance for ${formKey} not found.`, {
-      availableKeys: Object.keys(nodeForms.value),
-      nodeForms: nodeForms.value
-    });
-  }
-
-  form.value = formInstance || null;
+  const formInstance = nodeForms.value[formKey] || null;
+  form.value = formInstance;
 
   if (form.value?.setFocus) {
     form.value.setFocus();
+  } else {
+    console.warn('Form instance not ready yet for nodeId', nodeId);
   }
 }
-
 
 async function initialize() {
   await waitUserLoaded();
@@ -455,5 +525,30 @@ async function initializeGuildInner() {
   text-decoration: underline;
   padding: 5px;
   margin-top: 16px;
+}
+.card-view-btn {
+  border-radius: 30px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6); /* glow effect */
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.card-view-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
+}
+
+.floating-node-form {
+  position: fixed;
+  top: 100px; /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px; /* adjust as needed */
+  z-index: 999;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  padding: 16px;
 }
 </style>

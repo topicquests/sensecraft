@@ -102,7 +102,7 @@ export const useConversationStore = defineStore('conversation', {
       Object.values(state.conversation),
     getConversationNodeById:
       (state: ConversationState) =>
-      (id: number): QTreeNode | undefined =>
+      (id: number): ConversationNode | undefined =>
         state.conversation[id],
     getRootNode: (state: ConversationState): ConversationNode | undefined => {
       if (state.conversationRoot) {

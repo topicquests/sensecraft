@@ -112,8 +112,8 @@ function createGameChannel() {
 function cancelCreateGameChannel() {
   creatingGameC.value = false;
 }
-function confirmCreateGameChannel() {
-  let channel: Partial<ConversationNode> = {
+async function confirmCreateGameChannel() {
+  const channel: Partial<ConversationNode> = {
     title: newGameChannelName.value,
     node_type: ibis_node_type_enum.channel,
     meta: meta_state_enum.channel,
@@ -121,11 +121,11 @@ function confirmCreateGameChannel() {
     guild_id: guildId.value,
     quest_id: questId.value,
   };
-  channelStore.createChannelNode(channel);
+  await channelStore.createChannelNode(channel);
   creatingGameC.value = false;
 }
 onBeforeMount(async () => {
-  await waitUserLoaded;
+  waitUserLoaded;
   if (typeof route.params.guild_id === 'string')
     guildId.value = Number.parseInt(route.params.guild_id);
   if (typeof route.params.quest_id === 'string')

@@ -213,7 +213,6 @@ async function loadChannelData() {
   }
 }
 
-// Main editNode function, adapted for your context
 async function editNode(nodeId: number) {
   if (typeof nodeId === 'number') {
     const selectedNodeLocal = getNode(nodeId);

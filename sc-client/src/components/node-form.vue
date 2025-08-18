@@ -60,7 +60,7 @@
           :options="ibisTypes"
           @update:model-value="nodeTypeChanged"
           label="Type"
-          style="width: 25%"
+          style="width:40%"
         />
       </div>
     </section>
@@ -71,7 +71,7 @@
         :options="pub_state_list"
         @update:model-value="statusChanged"
         label="Status"
-        style="width: 25%"
+        style="width: 40%"
       />
       <q-select
         v-if="selectedStatusType == 'role_draft'"
@@ -277,57 +277,71 @@ defineExpose({
   setFocus,
 });
 </script>
-<style scoped>
-#node-card {
+<style>
+ /* Base node card */
+.node-card {
   text-align: center;
   border: 3px solid black;
   font-size: 1.2em;
   color: rgb(39, 11, 194);
   background-color: rgb(158, 181, 243);
-  height: 300px;
+  min-height: 300px;
+  padding: 1%;                 /* Add some inner spacing */
+  box-sizing: border-box;      /* Includes padding in height/width */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
-#node-card-details {
-  background-color: rgb(158, 181, 243);
-  color: rgb(39, 11, 194);
-  text-align: left;
-  font-size: 1.2em;
-  padding-top: 3%;
-  padding-left: 1%;
-  border: 1px solid gray;
-}
-#node-card-title {
+
+.node-card-title {
   border: 1px solid gray;
   background-color: lightgray;
   color: rgb(39, 11, 194);
+  padding: 0.5em;
+  font-weight: bold;
+  text-align: center;
 }
-#node-card-data {
-  text-align: left;
-  font-size: 1.2em;
+
+.node-card-content {
   background-color: rgb(158, 181, 243);
   color: rgb(39, 11, 194);
+  text-align: left;
+  font-size: 1.2em;
+  padding: 0.5em;
+  border: 1px solid gray;
+  margin-top: 0.5em;
+  overflow-y: auto;
+  max-height: 200px;
 }
-#node-card-detail-header {
+
+.node-card-detail-header {
   text-align: center;
   background-color: rgb(158, 181, 243);
   color: black;
-  margin-bottom: 0%;
-}
-.scrollable-div {
-  max-height: 200px;
-  overflow-y: scroll;
+  margin-bottom: 0.5em;
+  font-weight: bold;
 }
 .scrollable-description {
-  max-height: 200px; /* Set the maximum height you want */
-  overflow-y: auto; /* This adds the vertical scrollbar when content overflows */
-  padding: 10px; /* Optional padding */
-  border: 1px solid #ccc; /* Optional border */
+  padding: 10px;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: rgb(158, 181, 243);
+  color: rgb(39, 11, 194);
 }
+
 @media (max-width: 600px) {
-  .q-editor__toolbar .q-btn--strike, /* Strike-through button */
-  .q-editor__toolbar .q-btn--link,  /* Link button */
-  .q-editor__toolbar .q-btn--quote, /* Quote button */
-  .q-editor__toolbar .q-btn--image  /* Image button */ {
-    display: none !important; /* Ensure it overrides Quasar's styles */
+  #node-card {
+    font-size: 1em;       /* Slightly smaller text */
+    padding: 0.5em;
+  }
+
+  /* Hide specific Quasar editor buttons */
+  .q-editor__toolbar .q-btn--strike,
+  .q-editor__toolbar .q-btn--link,
+  .q-editor__toolbar .q-btn--quote,
+  .q-editor__toolbar .q-btn--image {
+    display: none !important;
   }
 }
 </style>

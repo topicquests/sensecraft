@@ -41,12 +41,11 @@
             >
             this quest.
           </span>
-          <span v-else-if="guildId">
+          <span v-else-if="guildId" class="text-h6">
             You're playing in guild
-            <router-link
-              :to="{ name: 'guild', params: { guild_id: guildId } }"
-              >{{ getCurrentGuild.name }}</router-link
-            >
+            <router-link :to="{ name: 'guild', params: { guild_id: guildId } }">
+              {{ getCurrentGuild.name }}
+            </router-link>
           </span>
           <span v-else-if="getCurrentQuest.status != 'registration'">
             The game has started
