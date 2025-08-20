@@ -121,7 +121,7 @@
           v-on:action="confirmAddChild"
           v-on:cancel="cancel"
         />
-         </div>
+      </div>
   </q-page>
 </template>
 <script setup lang="ts">
@@ -249,8 +249,6 @@ function nodeFormRef(nodeId: string | number) {
     } else {
       nodeForms.value[`editForm_${nodeId}`] = null;
     }
-
-    // Automatically assign to form if editing this node
     if (editingNodeId.value === nodeId) {
       form.value = nodeForms.value[`editForm_${nodeId}`];
     }
@@ -444,18 +442,10 @@ async function editNode(nodeId: number) {
     selectedIbisTypes.value = ibis_node_type_list;
     allowChangeMeta.value = false;
   }
-
-  // Apply publication constraints
   calcPublicationConstraints(selectedNodeLocal);
-
-  // Mark as editing
   editingNodeId.value = nodeId;
   editable.value = true;
-
-  // Wait for the DOM to update
   await nextTick();
-
-  // Safely get the form instance
   const formKey = `editForm_${nodeId}`;
   const formInstance = nodeForms.value[formKey] || null;
   form.value = formInstance;
