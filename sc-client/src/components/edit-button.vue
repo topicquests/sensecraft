@@ -16,7 +16,7 @@ import { useConversationStore } from '../stores/conversation';
 const props = defineProps<{
   questId?: number | null;
   channelId?: number | null;
-  nodeId: number;
+  nodeId: number | undefined;
 }>();
 
 const emit = defineEmits<{

@@ -1,11 +1,10 @@
 <template>
   <q-page class="bg-grey-1 q-pa-md">
-    <!-- Breadcrumb and Role Badge -->
     <div class="row q-mb-md">
       <div class="col-12">
         <q-breadcrumbs class="q-pa-sm rounded-borders shadow-2">
           <q-breadcrumbs-el
-            class="text-white"
+            class="text-black"
             icon="home"
             label="Guild"
             :to="{ name: 'guild', params: { guild_id: guildId } }"
@@ -20,12 +19,9 @@
         </q-breadcrumbs>
       </div>
     </div>
-
-    <!-- Channel Title -->
     <div class="text-h5 q-mb-md channel-title">
       {{ currentChannel?.title || 'Channel Name' }}
     </div>
-
     <!-- Main Card Layout -->
     <q-card class="q-pa-md">
       <q-card-section class="row q-col-gutter-md">
@@ -41,10 +37,9 @@
             :isChannel="true"
             :roles="roles"
             :editable="true"
-            :nodeForms="nodeForms" 
+            :nodeForms="nodeForms"
           />
         </div>
-
         <!-- Right: Selected Node -->
         <transition name="fade">
           <div class="col-12 col-md-3" v-if="selectedNode">
@@ -82,12 +77,25 @@
                 :nodeId="selectedNode.id"
                 :channelId="channelId"
                 :questId="questId"
-                @click="editNode(selectedNode.id)"
+                @click="editNode(selectedNodeId!)"
               />
-              <q-btn flat icon="add" />
+              <q-btn
+                v-if="canAddChild()"
+                flat
+                icon="add"
+                @click="addChildToNode(selectedNodeId!)"
+              />
             </q-card>
           </div>
-           <!-- Floating Node Form -->
+
+        </transition>
+        <q-card-section v-if="!ready" class="col-12 row justify-center items-center q-my-lg loading-area">
+          <q-spinner color="primary" size="50px" />
+          <div class="q-ml-sm text-primary text-weight-semibold">Loading channel and nodes...</div>
+        </q-card-section>
+      </q-card-section>
+    </q-card>
+    <!-- Floating Node Form -->
     <div v-if="editable && selectedNodeId === editingNodeId && selectedNode" class="floating-node-form">
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
@@ -117,13 +125,6 @@
           v-on:cancel="cancel"
         />
       </div>
-        </transition>
-        <q-card-section v-if="!ready" class="col-12 row justify-center items-center q-my-lg loading-area">
-          <q-spinner color="primary" size="50px" />
-          <div class="q-ml-sm text-primary text-weight-semibold">Loading channel and nodes...</div>
-        </q-card-section>
-      </q-card-section>
-    </q-card>
   </q-page>
 </template>
 
@@ -134,105 +135,99 @@ import nodeTree from '../components/node-tree.vue';
 import { useGuildStore } from '../stores/guilds';
 import { useChannelStore } from '../stores/channel';
 import { useRoleStore } from '../stores/role';
-import { ConversationNode } from '../types';
-import { useConversationStore } from '../stores/conversation';
+import { ConversationNode, defaultNodeType, QTreeNode } from '../types';
+import { ibis_child_types, useConversationStore } from '../stores/conversation';
 import EditButton from '../components/edit-button.vue';
+import { ibis_node_type_list, ibis_node_type_type, publication_state_enum, publication_state_list, publication_state_type } from '../enums';
+import { useQuestStore } from '../stores/quests';
+import { useQuasar } from 'quasar';
+import NodeForm from '../components/node-form.vue';
+
 type NodeFormInstance = ComponentPublicInstance<{
   setFocus: () => void;
 }>;
+
+// Emits
+const emit = defineEmits<{
+  'tree-selection': [id: number];
+}>();
+
+// Quasar
+const $q = useQuasar();
 
 // Stores
 const guildStore = useGuildStore();
 const channelStore = useChannelStore();
 const roleStore = useRoleStore();
 const conversationStore = useConversationStore();
+const questStore = useQuestStore();
 const route = useRoute();
 
 // Reactive variables
 const guildId = ref<number>(Number(route.params.guild_id));
-const questId = ref<number | undefined>(
-  route.params.quest_id ? Number(route.params.quest_id) : undefined
-);
+const questId = ref<number | undefined>(Number(route.params.quest_id));
 const channelId = ref<number>(Number(route.params.channel_id));
 const selectedNodeId = ref<number | undefined>(channelId.value);
-const selectedNode = ref<ConversationNode | null>(
+const selectedNode = ref<Partial<ConversationNode> | null>(
   channelStore.getChannelNode(channelId.value, selectedNodeId.value!)
 );
-const currentChannel = computed(() => channelStore.channels[channelId.value]);
 const roles = roleStore.getRoles;
 const ready = ref(false);
 const editable = ref<boolean>(true)
-const newNode = ref<ConversationNode | null>(null);
+const newNode = ref<Partial<ConversationNode> | null >(null);
 const addingChildToNodeId = ref<number | null>(null);
 const editingNodeId = ref<number | undefined>(undefined);
 const allowChangeMeta = ref(false);
-const selectedIbisTypes = ref<any[]>([]);
+const showFocusNeighbourhood = ref(false);
 const form = ref<NodeFormInstance | null>(null);
 const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
+const selected = ref<number | null>(null);
 
-// ---- Placeholder stubs (replace with real ones) ----
-function calcSpecificPubConstraints(node: Partial<ConversationNode>) {
-  if (node.meta == 'channel' || !currentGuildId.value)
-    return baseNodePubStateConstraints;
-  const pub_states = [...baseNodePubStateConstraints];
-  if (node.meta == 'meta') {
-    // clamp to guild
-    const pos = pub_states.indexOf('proposed');
-    if (pos >= 0) pub_states.splice(pos);
+//Non reactive variables
+let baseNodePubStateConstraints: publication_state_type[];
+let selectedIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+
+//computed properties
+const currentChannel = computed(() => channelStore.channels[channelId.value]);
+const currentGuild = computed(() => guildStore.getCurrentGuild)
+const getNodesTree = (): QTreeNode[] => {
+  if (channelId.value) {
+    return channelStore.getChannelConversationTree(channelId.value) ?? [];
   }
-  const node_type = node.node_type;
-  if (node_type && node.quest_id) {
-    const max_state = questStore.getMaxPubStateForNodeType(
-      node.quest_id,
-      node_type,
+  if (showFocusNeighbourhood.value) {
+    return conversationStore.getNeighbourhoodTree ?? [];
+  }
+  if (currentGuild.value) {
+    return conversationStore.getPrivateConversationTree ?? [];
+  }
+  return conversationStore.getConversationTree ?? [];
+};
+const canAddChild = computed(() => {
+  return () => {
+    return (
+      editable.value &&
+      canAddTo() &&
+      !editingNodeId.value &&
+      !addingChildToNodeId.value
     );
-    const pos = pub_states.indexOf(max_state);
-    if (pos >= 0) pub_states.splice(pos + 1);
+  };
+});
+watch(selected, (newVal) => {
+  if (newVal !== null && typeof newVal === 'number') {
+    emit('tree-selection', newVal);
   }
-  const posCurrent = pub_states.indexOf(node.status!);
-  if (posCurrent < 0) {
-    console.error('current node status not in pub_states');
-    pub_states.push(node.status!);
-  }
-  return pub_states;
-}
-function ibis_child_types(nodeType: string) {
-  return ['childType1', 'childType2'];
-}
-const ibis_node_type_list = ['type1', 'type2', 'type3'];
-
-  calcPublicationConstraints(selectedNode);
-  editingNodeId.value = selectedNodeId;;
-  editable.value = true;
-  await nextTick();
-  const formKey = `editForm_${nodeId}`;
-  const formInstance = nodeForms.value[formKey] || null;
-  form.value = formInstance;
-
-  if (form.value?.setFocus) {
-    form.value.setFocus();
-  } else {
-    console.warn('Form instance not ready yet for nodeId', nodeId);
-  }
-}
-
-function getNode(nodeId: number): ConversationNode | null {
-  return channelStore.getChannelNode(channelId.value, nodeId) ?? null;
-}
-
-// ---- Route watching ----
+});
 watch(
   () => route.params.channel_id,
-  async (newId, oldId) => {
+   (newId, oldId) => {
     if (newId !== oldId) {
-      await loadChannelData();
       selectionChanged(Number(newId));
     }
   }
 );
-
 watch(
-  () => route.params.node_id, // if your route has a node param
+  () => route.params.node_id,
   async newNodeId => {
     if (newNodeId) {
       await nextTick();
@@ -241,31 +236,13 @@ watch(
   },
   { immediate: true }
 );
-// Functions
-function nodeFormRef(nodeId: string | number) {
-  return (el: Element | NodeFormInstance | null) => {
-    console.log('nodeFormRef called for nodeId', nodeId, el);
-    if (el && typeof el === 'object' && '$' in el) {
-      nodeForms.value[`editForm_${nodeId}`] = el;
-    } else {
-      nodeForms.value[`editForm_${nodeId}`] = null;
-    }
-    if (editingNodeId.value === nodeId) {
-      form.value = nodeForms.value[`editForm_${nodeId}`];
-    }
-  };
-}
+// Hooks
+onBeforeMount(async () => {
+  await loadChannelData();
+  ready.value = true;
+});
 
-function selectionChanged(newSelectedNodeId: number) {
-  selectedNodeId.value = newSelectedNodeId;
-  selectedNode.value = channelStore.getChannelNode(channelId.value, newSelectedNodeId);
-
-  const correctChannelId = channelStore.getChannelOfNode(newSelectedNodeId);
-  if (correctChannelId) {
-    channelId.value = Number(correctChannelId);
-  }
-}
-
+//Functions
 async function loadChannelData() {
   await Promise.all([
     guildStore.ensureGuild(guildId.value),
@@ -281,37 +258,224 @@ async function loadChannelData() {
     selectedNode.value = channelStore.getChannelNode(channelId.value, selectedNodeId.value);
   }
 }
+async function confirmEdit(node: Partial<ConversationNode>) {
+  try {
+    if (channelId.value) {
+      await channelStore.updateChannelNode(node);
+    } else {
+      await conversationStore.updateConversationNode(node);
+    }
+    cancel();
+    nodeTree.value = getNodesTree() ?? [];
+    editingNodeId.value = undefined;
+    $q.notify({
+      message: `node updated`,
+      color: 'positive',
+    });
+  } catch (err) {
+    console.log('there was an error in adding node ', err);
+    $q.notify({
+      message: `There was an error updating node.`,
+      color: 'negative',
+    });
+  }
+}
+async function confirmAddChild(node: ConversationNode) {
+  try {
+    if (channelId.value) {
+      await channelStore.createChannelNode(node);
+    } else {
+      await conversationStore.createConversationNode(node);
+    }
+    cancel();
+    nodeTree.value = getNodesTree() ?? [];
+  } catch (error) {
+    console.error('Error adding child node:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add node. Please try again.',
+    });
+  }
+}
+function cancel() {
+  editingNodeId.value = undefined;
+  addingChildToNodeId.value = null;
+  newNode.value = {};
+}
+function calcSpecificPubConstraints(
+  node: Partial<ConversationNode> | defaultNodeType
+): publication_state_type[] {
+  if (node.meta == 'channel' || !currentGuild.value)
+    return baseNodePubStateConstraints;
+
+  const pub_states = [...baseNodePubStateConstraints];
+
+  if (node.meta == 'meta') {
+    const pos = pub_states.indexOf('proposed');
+    if (pos >= 0) pub_states.splice(pos);
+  }
+
+  const node_type = (node as ConversationNode).node_type;
+  if (node_type && (node as ConversationNode).quest_id) {
+    const max_state = questStore.getMaxPubStateForNodeType(
+      (node as ConversationNode).quest_id,
+      node_type,
+    );
+    const pos = pub_states.indexOf(max_state);
+    if (pos >= 0) pub_states.splice(pos + 1);
+  }
+
+  const status = (node as ConversationNode).status;
+  if (status && pub_states.indexOf(status) < 0) {
+    console.error('current node status not in pub_states');
+    pub_states.push(status);
+  }
+
+  return pub_states;
+}
+
+function calcPublicationConstraints(
+  node: Partial<ConversationNode> | defaultNodeType
+): publication_state_type[] {
+  if (!guildId.value) {
+    baseNodePubStateConstraints = [
+      publication_state_enum.private_draft,
+      publication_state_enum.published,
+    ];
+    return baseNodePubStateConstraints;
+  }
+
+  const pub_states = [...publication_state_list];
+  if (!node) return [];
+
+  if ((node as ConversationNode).parent_id) {
+    const parent = getNode((node as ConversationNode).parent_id!);
+    if (parent) {
+      const pos = pub_states.indexOf(parent.status);
+      if (pos >= 0) {
+        pub_states.splice(pos + 1);
+      }
+    }
+  }
+
+  if ((node as ConversationNode).id) {
+    const children_status = conversationStore
+      .getChildrenOf((node as ConversationNode).id)!
+      .map((n) => n!.status);
+    if (children_status.length > 0) {
+      children_status.sort(
+        (a, b) =>
+          publication_state_list.indexOf(a) - publication_state_list.indexOf(b),
+      );
+      const pos = pub_states.indexOf(children_status[0]);
+      if (pos > 0) pub_states.splice(0, pos);
+    }
+  }
+
+  if (node.meta == 'channel') {
+    const pos = pub_states.indexOf('proposed');
+    if (pos >= 0) pub_states.splice(pos);
+  }
+
+  baseNodePubStateConstraints = pub_states;
+  return pub_states;
+}
+
+function getNode(nodeId: number): ConversationNode | null {
+  return channelStore.getChannelNode(channelId.value, nodeId) ?? null;
+}
+function nodeFormRef(nodeId: string | number) {
+  return (el: Element | NodeFormInstance | null) => {
+    console.log('nodeFormRef called for nodeId', nodeId, el);
+    if (el && typeof el === 'object' && '$' in el) {
+      nodeForms.value[`editForm_${nodeId}`] = el;
+    } else {
+      nodeForms.value[`editForm_${nodeId}`] = null;
+    }
+    if (editingNodeId.value === nodeId) {
+      form.value = nodeForms.value[`editForm_${nodeId}`];
+    }
+  };
+}
+function addChildToNode(nodeId: number | null) {
+  const formKey = `addChildForm_${nodeId}`;
+  editingNodeId.value = undefined;
+  const parent = getNode(nodeId!);
+  const parent_ibis_type = parent!.node_type;
+  childIbisTypes = ibis_child_types(parent_ibis_type);
+  allowChangeMeta.value = parent!.meta === 'conversation';
+  newNode.value = {
+    status: 'private_draft',
+    node_type: childIbisTypes[0],
+    parent_id: nodeId!,
+    quest_id: parent!.quest_id,
+    guild_id: guildStore.getCurrentGuild!.id,
+    meta: parent!.meta,
+  };
+  calcPublicationConstraints(newNode.value);
+  addingChildToNodeId.value = nodeId;
+  setTimeout(() => {
+    form.value = nodeForms.value[formKey];
+    if (form.value) form.value.setFocus();
+  }, 0);
+}
+function canAddTo(): boolean {
+  const quest = questStore.getQuestById(
+    questId.value!
+  );
+  if (quest) {
+    return (
+      (quest.is_playing || quest.is_quest_member) && quest.status != 'finished'
+    );
+  } else if (channelId.value) {
+    return !!guildStore.isGuildMember(guildId.value);
+  }
+  return false;
+}
+function selectionChanged(newSelectedNodeId: number) {
+  selectedNodeId.value = newSelectedNodeId;
+  selectedNode.value = channelStore.getChannelNode(channelId.value, newSelectedNodeId);
+
+  const correctChannelId = channelStore.getChannelOfNode(newSelectedNodeId);
+  if (correctChannelId) {
+    channelId.value = Number(correctChannelId);
+  }
+}
 async function editNode(nodeId: number) {
   const selectedNodeLocal = getNode(nodeId);
   if (!selectedNodeLocal) {
     console.warn('Node not found:', nodeId);
     return;
   }
-
   newNode.value = { ...selectedNodeLocal };
   addingChildToNodeId.value = null;
-
   if (selectedNodeLocal.parent_id != null) {
     const parent = getNode(selectedNodeLocal.parent_id);
-    selectedIbisTypes.value = ibis_child_types(parent?.node_type ?? '');
+    selectedIbisTypes = ibis_child_types(parent!.node_type);
     allowChangeMeta.value =
       parent?.meta === 'conversation' && conversationStore.canMakeMeta(nodeId);
   } else {
-    selectedIbisTypes.value = ibis_node_type_list;
+    selectedIbisTypes = ibis_node_type_list;
     allowChangeMeta.value = false;
   }
-
   calcPublicationConstraints(selectedNodeLocal);
   editingNodeId.value = nodeId;
-
   await nextTick();
   const formKey = `editForm_${nodeId}`;
   form.value = nodeForms.value[formKey];
   form.value?.setFocus?.();
 }
-
-onBeforeMount(async () => {
-  await loadChannelData();
-  ready.value = true;
-});
 </script>
+<style scoped>
+.floating-node-form {
+  position: fixed;
+  top: 100px; /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px; /* adjust as needed */
+  z-index: 999;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  padding: 16px;
+}</style>

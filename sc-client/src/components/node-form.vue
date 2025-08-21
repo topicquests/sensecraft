@@ -278,7 +278,6 @@ defineExpose({
 });
 </script>
 <style>
- /* Base node card */
 .node-card {
   text-align: center;
   border: 3px solid black;
@@ -322,6 +321,7 @@ defineExpose({
   font-weight: bold;
 }
 .scrollable-description {
+  text-align: left;
   padding: 10px;
   border: 1px solid #ccc;
   max-height: 200px;
