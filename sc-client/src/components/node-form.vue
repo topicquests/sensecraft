@@ -26,7 +26,7 @@
     <section>
       <div
         class="row q-pb-xs q-ma-lg"
-        style="text-align: center; font-size: 15pt"
+        style="text-align: left; font-size: 15pt"
       >
         Description<br />
       </div>
@@ -312,7 +312,16 @@ defineExpose({
   overflow-y: auto;
   max-height: 200px;
 }
-
+.node-card-details {
+  background-color: rgb(158, 181, 243);
+  color: rgb(39, 11, 194);
+  text-align: left;
+  font-size: 1.2em;
+  padding-top: 3%;
+  padding-left: 1%;
+  border: 1px solid gray;
+}
+#no
 .node-card-detail-header {
   text-align: center;
   background-color: rgb(158, 181, 243);

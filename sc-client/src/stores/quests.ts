@@ -303,7 +303,7 @@ export const useQuestStore = defineStore('quest', {
       await this.ensureQuest({ quest_id, full });
       this.setCurrentQuest(quest_id);
     },
-    setCurrentQuest(quest_id: number | boolean) {
+    setCurrentQuest(quest_id: number | boolean | undefined) {
       if (typeof quest_id === 'number') {
         this.currentQuest = quest_id;
       }
