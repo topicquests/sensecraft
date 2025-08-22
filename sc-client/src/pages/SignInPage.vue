@@ -1,6 +1,6 @@
 <template>
   <q-page
-    class="window-height window-width row justify-center items-center animated-bg bg-secondary"
+    class="signin-page window-height window-width row justify-center items-center animated-bg bg-secondary"
   >
     <div class="column q-pa-lg">
       <div class="row">
@@ -36,7 +36,7 @@ async function doLogin(mail: string, pass: string) {
       type: 'positive',
       message: 'You are logged in',
     });
-    goNext();
+    await goNext();
   } catch (error) {
     let message;
     if (axios.isAxiosError(error) && error.response) {
@@ -60,15 +60,15 @@ async function doLogin(mail: string, pass: string) {
   }
 }
 
-function goNext() {
+async function goNext() {
   try {
-    goLobby();
+    await goLobby();
   } catch (error) {
     console.log('Error ingoing to next page', error);
   }
 }
-function goLobby() {
-  router.push({ name: 'lobby' });
+async function goLobby() {
+  await router.push({ name: 'lobby' });
 }
 </script>
 
@@ -87,5 +87,13 @@ input[type='password'] {
   box-sizing: border-box;
   border: none;
   width: 100%;
+}
+.signin-page {
+  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
+    center fixed !important;
+  background-size: cover;
+  min-height: 100vh;
+  padding: 0rem;
+  box-sizing: border-box;
 }
 </style>

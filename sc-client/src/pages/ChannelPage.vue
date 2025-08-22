@@ -1,8 +1,9 @@
 <template>
   <q-page class="bg-grey-1 q-pa-md">
+    <!-- Breadcrumbs -->
     <div class="row q-mb-md">
       <div class="col-12">
-        <q-breadcrumbs class="q-pa-sm rounded-borders shadow-2">
+        <q-breadcrumbs class="q-pa-sm rounded-borders shadowed-breadcrumbs">
           <q-breadcrumbs-el
             class="text-black"
             icon="home"
@@ -19,14 +20,17 @@
         </q-breadcrumbs>
       </div>
     </div>
+
+    <!-- Channel Title -->
     <div class="text-h5 q-mb-md channel-title">
       {{ currentChannel?.title || 'Channel Name' }}
     </div>
+
     <!-- Main Card Layout -->
-    <q-card class="q-pa-md">
+    <q-card class="q-pa-md main-card">
       <q-card-section class="row q-col-gutter-md">
         <!-- Left: Node Tree -->
-        <div class="col-12 col-md-9">
+        <div class="col-12 col-md-9 node-tree-wrapper">
           <div class="text-subtitle2 q-mb-sm tree-header">Channel Discussion Tree</div>
           <node-tree
             :initialSelectedNodeId="selectedNodeId"
@@ -40,63 +44,75 @@
             :nodeForms="nodeForms"
           />
         </div>
+
         <!-- Right: Selected Node -->
         <transition name="fade">
           <div class="col-12 col-md-3" v-if="selectedNode">
             <q-card flat bordered class="q-pa-md shadow-2 rounded-borders selected-node-card">
-              <h3 class="text-h6 text-primary text-weight-bold q-mb-sm row items-center selected-node-header">
-                <q-icon name="label_important" class="q-mr-sm" />
-                Selected Node
-              </h3>
+              <div class="selected-node-header row items-center q-mb-sm">
+                <q-icon name="label_important" class="q-mr-sm text-primary" />
+                <span class="text-h6 text-primary text-weight-bold">Selected Node</span>
+              </div>
+
               <q-card-section>
                 <div class="text-h6 text-primary q-mb-sm">
                   {{ selectedNode.title || 'Selected Node' }}
                 </div>
-                <div class="text-caption text-grey">
+                <div class="text-caption text-grey mb-2">
                   Node ID: {{ selectedNode.id }}
-                  <q-badge v-if="selectedNode.parent_id === null" color="deep-orange" class="q-ml-xs">
+                  <q-chip v-if="selectedNode.parent_id === null" color="deep-orange" class="q-ml-xs">
                     Root
-                  </q-badge>
+                  </q-chip>
                 </div>
-                <div
-                  class="scrollable-description q-mb-md"
-                  style="max-height: 200px; overflow-y: auto;"
-                >
+                <div class="scrollable-description">
                   <div
                     v-if="selectedNode.description"
                     v-html="selectedNode.description"
                     class="node-card-details"
                   />
-                  <div v-else class="text-grey">
-                    No description provided.
-                  </div>
+                  <div v-else class="text-grey">No description provided.</div>
                 </div>
               </q-card-section>
+
               <q-separator />
-              <EditButton
-                :nodeId="selectedNode.id"
-                :channelId="channelId"
-                :questId="questId"
-                @click="editNode(selectedNodeId!)"
-              />
-              <q-btn
-                v-if="canAddChild()"
-                flat
-                icon="add"
-                @click="addChildToNode(selectedNodeId!)"
-              />
+              <div class="node-card-actions row items-center justify-between q-mt-sm">
+                <EditButton
+                  :nodeId="selectedNode.id"
+                  :channelId="channelId"
+                  :questId="questId"
+                  @click="editNode(selectedNodeId!)"
+                />
+                <q-btn
+                  v-if="canAddChild()"
+                  flat
+                  icon="add"
+                  color="primary"
+                  @click="addChildToNode(selectedNodeId!)"
+                />
+              </div>
             </q-card>
           </div>
-
         </transition>
-        <q-card-section v-if="!ready" class="col-12 row justify-center items-center q-my-lg loading-area">
+
+        <!-- Loading -->
+        <q-card-section
+          v-if="!ready"
+          class="col-12 row justify-center items-center q-my-lg loading-area"
+        >
           <q-spinner color="primary" size="50px" />
-          <div class="q-ml-sm text-primary text-weight-semibold">Loading channel and nodes...</div>
+          <div class="q-ml-sm text-primary text-weight-semibold">
+            Loading channel and nodes...
+          </div>
         </q-card-section>
       </q-card-section>
     </q-card>
-    <!-- Floating Node Form -->
-    <div v-if="editable && selectedNodeId === editingNodeId && selectedNode" class="floating-node-form">
+
+    <!-- Floating Node Form for Editing -->
+    <div
+      v-if="editable && selectedNodeId === editingNodeId && selectedNode"
+      class="floating-node-form"
+    >
+      <q-btn dense flat round icon="close" class="floating-close-btn" @click="cancel" />
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
         :nodeInput="selectedNode"
@@ -110,21 +126,26 @@
         @cancel="cancel"
       />
     </div>
-     <div v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length" class="floating-node-form">
-        <node-form
-          :ref="nodeFormRef(selectedNodeId)"
-          v-if="editable && selectedNodeId== addingChildToNodeId"
-          :nodeInput="newNode"
-          :allowAddChild="false"
-          :ibisTypes="childIbisTypes"
-          :editing="true"
-          :roles="roleStore.getRoles"
-          :allowChangeMeta="allowChangeMeta"
-          :pubFn="calcSpecificPubConstraints"
-          v-on:action="confirmAddChild"
-          v-on:cancel="cancel"
-        />
-      </div>
+
+    <!-- Floating Node Form for Adding Child -->
+    <div
+      v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
+      class="floating-node-form"
+    >
+      <q-btn dense flat round icon="close" class="floating-close-btn" @click="cancel" />
+      <node-form
+        :ref="nodeFormRef(selectedNodeId!)"
+        :nodeInput="newNode"
+        :allowAddChild="false"
+        :ibisTypes="childIbisTypes"
+        :editing="true"
+        :roles="roleStore.getRoles"
+        :allowChangeMeta="allowChangeMeta"
+        :pubFn="calcSpecificPubConstraints"
+        @action="confirmAddChild"
+        @cancel="cancel"
+      />
+    </div>
   </q-page>
 </template>
 
@@ -467,15 +488,92 @@ async function editNode(nodeId: number) {
 }
 </script>
 <style scoped>
+/* Breadcrumbs */
+.shadowed-breadcrumbs {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.shadowed-breadcrumbs .q-breadcrumbs-el:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Node Tree Wrapper */
+.node-tree-wrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+  border-right: 1px solid #e0e0e0;
+  padding-right: 16px;
+}
+
+/* Selected Node Card */
+.selected-node-card {
+  background-color: #fafafa;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 16px;
+}
+.selected-node-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.selected-node-header {
+  font-size: 1rem;
+}
+
+/* Node Card Details */
+.node-card-details {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Loading Area */
+.loading-area {
+  min-height: 200px;
+  text-align: center;
+}
+
+/* Floating Node Form */
 .floating-node-form {
   position: fixed;
-  top: 100px; /* adjust as needed */
+  top: 120px;
   left: 50%;
   transform: translateX(-50%);
-  width: 400px; /* adjust as needed */
-  z-index: 999;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  padding: 16px;
-}</style>
+  width: 420px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+/* Close Button on Floating Form */
+.floating-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #999;
+}
+.floating-close-btn:hover {
+  color: #ff5252;
+}
+
+/* Tree Header */
+.tree-header {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Node Card Actions */
+.node-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+</style>
