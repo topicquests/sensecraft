@@ -44,7 +44,7 @@
           v-model="description"
           data-test="node-description-editor"
           class="q-mb-md node-card-editor"
-          :toolbar="[ ['bold','italic','underline','strike','undo','redo'] ]"
+          :toolbar="[ ['bold','italic','underline','strike'] ]"
         />
       </template>
       <template v-else>

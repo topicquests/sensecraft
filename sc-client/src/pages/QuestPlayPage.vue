@@ -1,47 +1,38 @@
 <template>
   <q-page v-if="ready" class="bg-secondary quest-play-page">
-         <div class="q-ml-md" style="display: flex; justify-content: flex-end;">
-          <member />
-        </div>
-    <!-- Quest Details & Actions -->
-    <div class="row justify-center q-pa-md" style="max-width: 1200px; margin: 0 auto; width: 100%">
+    <div class="q-ml-md" style="display: flex; justify-content: flex-end;">
+      <member />
+    </div>
+    <div class="row justify-center q-pa-md" style="max-width: 80%; margin: 0 auto; width: 100%">
       <q-card
-  flat
-  bordered
-  class="q-mb-md q-pa-md rounded-borders shadow-2"
-  style="width: 100%; background-color: transparent"
->
-  <section class="q-mb-md">
-    <quest-details />
-  </section>
-
-  <q-separator spaced />
-
-  <section class="q-mt-md">
-    <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
-  </section>
-
-  <q-separator spaced />
-
- <div class="row justify-center q-mt-xl">
-  <q-btn
-    color="accent"
-    unelevated
-    size="lg"
-    icon="view_module"
-    label="Card View"
-    :to="{ name: 'conversation_column', params: { quest_id: questId } }"
-    class="card-view-btn"
-  />
-</div>
-
-</q-card>
-
-
+        flat
+        bordered
+        class="q-mb-md q-pa-md rounded-borders shadow-2"
+        style="width: 100%; background-color: transparent"
+      >
+        <section class="q-mb-md">
+          <quest-details />
+        </section>
+        <q-separator spaced />
+        <section class="q-mt-md">
+          <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
+        </section>
+        <q-separator spaced />
+        <div class="row justify-center q-mt-xl">
+          <q-btn
+            color="accent"
+            unelevated
+            size="lg"
+            icon="view_module"
+            label="Card View"
+            :to="{ name: 'conversation_column', params: { quest_id: questId } }"
+            class="card-view-btn"
+          />
+        </div>
+      </q-card>
       <!-- Main content: Node Tree + Selected Node -->
-      <div class="row q-mt-md" style="width: 100%">
-        <!-- Left: Quest Node Tree -->
-        <div class="col-12 col-md-9">
+      <div class="row q-mt-md q-gutter-md" style="width: 100%">
+        <div class="col-12 col-md-8">
           <q-card class="q-pa-md" style="height: 100%;">
             <quest-node-tree
               :questId="questId"
@@ -50,50 +41,61 @@
             />
           </q-card>
         </div>
-
-        <!-- Right: Selected Node -->
+        <!-- Right: Selected Node with transition -->
         <transition name="fade">
-          <div class="col-12 col-md-3" v-if="selectedNode">
-            <q-card flat bordered class="q-pa-md shadow-2 rounded-borders selected-node-card" style="height: 100%;">
-              <h3 class="text-h6 text-primary text-weight-bold q-mb-sm row items-center selected-node-header">
-                <q-icon name="label_important" class="q-mr-sm" />
-                Selected Node
-              </h3>
-              <q-card-section>
-                <div class="text-h6 text-primary q-mb-sm">
-                  {{ selectedNode!.title || 'Selected Node' }}
-                </div>
-                <div class="text-caption text-grey">
-                  Node ID: {{ selectedNode!.id }}
-                  <q-badge v-if="selectedNode!.parent_id === null" color="deep-orange" class="q-ml-xs">
-                    Root
-                  </q-badge>
-                </div>
-                <div class="scrollable-description q-mb-md" style="max-height: 200px; overflow-y: auto;">
-                  <div v-if="selectedNode!.description" v-html="selectedNode!.description" class="node-card-details" />
-                  <div v-else class="text-grey">No description provided.</div>
-                </div>
-              </q-card-section>
-              <q-separator />
-              <EditButton
-                :nodeId="selectedNode!.id"
-                :questId="questId"
-                @click="editNode(selectedNode!.id)"
-              />
-              <q-btn
-                v-if="canAddChild()"
-                flat
-                icon="add"
-                @click="addChildToNode(selectedNodeId!)"
-              />
-            </q-card>
-          </div>
-        </transition>
+  <div class="col-12 col-md-4" v-if="selectedNode">
+    <q-card flat bordered class="selected-node-card">
+      <!-- Header -->
+      <div class="selected-node-header q-pa-sm row items-center">
+        <q-icon name="label_important" class="q-mr-sm text-accent" size="24px"/>
+        <div class="text-h6 text-primary text-weight-bold">{{ selectedNode!.title || 'Selected Node' }}</div>
+      </div>
+
+      <!-- Node Info -->
+      <q-card-section class="node-info q-pa-sm">
+        <div class="text-caption text-grey q-mb-sm">Node ID: {{ selectedNode!.id }}
+          <q-badge v-if="selectedNode!.parent_id === null" color="deep-orange" class="q-ml-xs">
+            Root
+          </q-badge>
+        </div>
+
+        <!-- Description -->
+        <div class="scrollable-description q-pa-sm q-mt-sm">
+          <div v-if="selectedNode!.description" v-html="selectedNode!.description" />
+          <div v-else class="text-grey">No description provided.</div>
+        </div>
+      </q-card-section>
+
+      <q-separator />
+
+      <!-- Actions -->
+      <q-card-actions align="right" class="q-pa-sm">
+        <EditButton
+          :nodeId="selectedNode!.id"
+          :questId="questId"
+          class="q-mr-sm"
+          @click="editNode(selectedNode!.id)"
+        />
+        <q-btn
+          v-if="canAddChild()"
+          flat
+          color="primary"
+          icon="add"
+          label="Add Child"
+          @click="addChildToNode(selectedNodeId!)"
+        />
+      </q-card-actions>
+    </q-card>
+  </div>
+</transition>
       </div>
     </div>
 
-    <!-- Floating Node Form -->
-    <div v-if="editable && selectedNodeId === editingNodeId && selectedNode" class="floating-node-form">
+    <!-- Floating Node Form for editing -->
+    <div
+      v-if="editable && selectedNodeId === editingNodeId && selectedNode"
+      class="floating-node-form floating-edit-form"
+    >
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
         :nodeInput="selectedNode"
@@ -107,21 +109,26 @@
         @cancel="cancel"
       />
     </div>
-    <div v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length" class="floating-node-form">
-        <node-form
-          :ref="nodeFormRef(selectedNodeId)"
-          v-if="editable && selectedNodeId== addingChildToNodeId"
-          :nodeInput="newNode"
-          :allowAddChild="false"
-          :ibisTypes="childIbisTypes"
-          :editing="true"
-          :roles="roleStore.getRoles"
-          :allowChangeMeta="allowChangeMeta"
-          :pubFn="calcSpecificPubConstraints"
-          v-on:action="confirmAddChild"
-          v-on:cancel="cancel"
-        />
-      </div>
+
+    <!-- Floating Node Form for adding child -->
+    <div
+      v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
+      class="floating-node-form floating-add-form"
+    >
+      <node-form
+        :ref="nodeFormRef(selectedNodeId)"
+        v-if="editable && selectedNodeId == addingChildToNodeId"
+        :nodeInput="newNode"
+        :allowAddChild="false"
+        :ibisTypes="childIbisTypes"
+        :editing="true"
+        :roles="roleStore.getRoles"
+        :allowChangeMeta="allowChangeMeta"
+        :pubFn="calcSpecificPubConstraints"
+        v-on:action="confirmAddChild"
+        v-on:cancel="cancel"
+      />
+    </div>
   </q-page>
 </template>
 <script setup lang="ts">
@@ -160,6 +167,11 @@ const route = useRoute();
 // Quasar
 const $q = useQuasar();
 
+// Variables
+let myPlayingGuilds: GuildData[] = [];
+let baseNodePubStateConstraints: publication_state_type[];
+let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
+
 // Reactive Variables
 const ready = ref(false);
 const questId = ref<number | undefined>(undefined);
@@ -174,7 +186,6 @@ const editable = ref<boolean>(true)
 const nodesTree = ref<QTreeNode[]>([]);
 const showFocusNeighbourhood = ref(false);
 const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
-
 const parseNodeId = (param: string | string[] | undefined): number | undefined => {
   if (typeof param === 'string') {
     return Number.parseInt(param);
@@ -183,20 +194,7 @@ const parseNodeId = (param: string | string[] | undefined): number | undefined =
   }
   return undefined;
 };
-
 const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.node_id));
-
-// Variables
-let myPlayingGuilds: GuildData[] = [];
-let baseNodePubStateConstraints: publication_state_type[];
-let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-
-// Lifecycle Hooks
-onMounted(async () => {
-  ready.value = false;
-  await initialize();
-  ready.value = true;
-});
 
 // Computed Properties
 const selectedNode = computed(() => {
@@ -222,6 +220,7 @@ const canAddChild = computed(() => {
     );
   };
 });
+
 // Watches
 watch(guildId, async () => {
   await initializeGuildInner();
@@ -237,6 +236,13 @@ watch(
 );
 watch(selectedNode, (val) => {
   console.log('selectedNode changed:', val);
+});
+
+// Lifecycle Hooks
+onMounted(async () => {
+  ready.value = false;
+  await initialize();
+  ready.value = true;
 });
 
 // Functions
@@ -462,7 +468,7 @@ async function initialize() {
   if (typeof route.params.quest_id === 'string') {
     questId.value = Number.parseInt(route.params.quest_id);
   }
-  questStore.setCurrentQuest(questId.value!);
+  questStore.setCurrentQuest(questId.value);
   await Promise.all([
     questStore.ensureQuest({ quest_id: questId.value! }),
     guildStore.ensureGuildsPlayingQuest({ quest_id: questId.value! }),
@@ -488,7 +494,38 @@ async function initializeGuildInner() {
   }
 }
 </script>
+
 <style scoped>
+.selected-node-card {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-node-header {
+  background: linear-gradient(90deg, #f5f7fa, #e3eaf2);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.node-info {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.scrollable-description {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
 .quest-play-page {
   background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
     center fixed !important;
@@ -497,30 +534,12 @@ async function initializeGuildInner() {
   padding: 0rem;
   box-sizing: border-box;
 }
-.sidenav {
-  height: 100%;
-  width: 15%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  color: black;
-  background-color: rgb(230, 234, 238);
-  overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 60px;
-  border: 1px solid gray;
-}
-.quest-name {
-  text-decoration: underline;
-  padding: 5px;
-  margin-top: 16px;
-}
+
 .card-view-btn {
   border-radius: 30px;
   font-weight: bold;
   letter-spacing: 0.5px;
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6); /* glow effect */
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
@@ -531,14 +550,32 @@ async function initializeGuildInner() {
 
 .floating-node-form {
   position: fixed;
-  top: 100px; /* adjust as needed */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 400px; /* adjust as needed */
+  top: 100px;
   z-index: 999;
+  width: 400px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
   padding: 16px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Move floating forms slightly right so they don’t overlap right panel */
+.floating-edit-form {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.floating-add-form {
+  left: 52%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 1024px) {
+  .floating-node-form {
+    left: 50% !important;
+    width: 90% !important;
+    transform: translateX(-50%);
+  }
 }
 </style>
