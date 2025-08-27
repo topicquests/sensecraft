@@ -3,7 +3,7 @@
     <div class="q-ml-md" style="display: flex; justify-content: flex-end;">
       <member />
     </div>
-    <div class="row justify-center q-pa-md" style="max-width: 80%; margin: 0 auto; width: 100%">
+    <div class="row justify-center q-pa-md" style="max-width: 87%; margin: 0 auto; width: 100%">
       <q-card
         flat
         bordered
@@ -31,63 +31,66 @@
         </div>
       </q-card>
       <!-- Main content: Node Tree + Selected Node -->
-      <div class="row q-mt-md q-gutter-md" style="width: 100%">
-        <div class="col-12 col-md-8">
-          <q-card class="q-pa-md" style="height: 100%;">
-            <quest-node-tree
-              :questId="questId"
-              :guildId="guildId"
-              :selectedNodeId="selectedNodeId"
-            />
-          </q-card>
-        </div>
-        <!-- Right: Selected Node with transition -->
-        <transition name="fade">
-  <div class="col-12 col-md-4" v-if="selectedNode">
-    <q-card flat bordered class="selected-node-card">
-      <!-- Header -->
-      <div class="selected-node-header q-pa-sm row items-center">
-        <q-icon name="label_important" class="q-mr-sm text-accent" size="24px"/>
-        <div class="text-h6 text-primary text-weight-bold">{{ selectedNode!.title || 'Selected Node' }}</div>
-      </div>
-
-      <!-- Node Info -->
-      <q-card-section class="node-info q-pa-sm">
-        <div class="text-caption text-grey q-mb-sm">Node ID: {{ selectedNode!.id }}
-          <q-badge v-if="selectedNode!.parent_id === null" color="deep-orange" class="q-ml-xs">
-            Root
-          </q-badge>
-        </div>
-
-        <!-- Description -->
-        <div class="scrollable-description q-pa-sm q-mt-sm">
-          <div v-if="selectedNode!.description" v-html="selectedNode!.description" />
-          <div v-else class="text-grey">No description provided.</div>
-        </div>
-      </q-card-section>
-
-      <q-separator />
-
-      <!-- Actions -->
-      <q-card-actions align="right" class="q-pa-sm">
-        <EditButton
-          :nodeId="selectedNode!.id"
-          :questId="questId"
-          class="q-mr-sm"
-          @click="editNode(selectedNode!.id)"
-        />
-        <q-btn
-          v-if="canAddChild()"
-          flat
-          color="primary"
-          icon="add"
-          label="Add Child"
-          @click="addChildToNode(selectedNodeId!)"
-        />
-      </q-card-actions>
+      <div class="row q-mt-md q-ml-lg q-gutter-md" style="width: 100%">
+  <div class="col-12 col-md-8">
+    <q-card class="q-pa-md" style="height: 100%;">
+      <quest-node-tree
+        :questId="questId"
+        :guildId="guildId"
+        :selectedNodeId="selectedNodeId"
+      />
     </q-card>
   </div>
-</transition>
+
+  <!-- Right: Selected Node -->
+  <transition name="fade">
+    <div class="col-12 col-md-3" v-if="selectedNode">
+      <q-card flat bordered class="selected-node-card">
+        <!-- Header -->
+        <div class="selected-node-header q-pa-sm row items-center">
+          <q-icon name="label_important" class="q-mr-sm text-accent" size="24px"/>
+          <div class="text-h6 text-primary text-weight-bold">
+            {{ selectedNode!.title || 'Selected Node' }}
+          </div>
+        </div>
+
+        <!-- Node Info -->
+        <q-card-section class="node-info q-pa-sm">
+          <div class="text-caption text-grey q-mb-sm">
+            Node ID: {{ selectedNode!.id }}
+            <q-badge v-if="selectedNode!.parent_id === null" color="deep-orange" class="q-ml-xs">
+              Root
+            </q-badge>
+          </div>
+
+          <!-- Description -->
+          <div class="scrollable-description q-pa-sm q-mt-sm">
+            <div v-if="selectedNode!.description" v-html="selectedNode!.description" />
+            <div v-else class="text-grey">No description provided.</div>
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-actions align="right" class="q-pa-sm">
+          <EditButton
+            :nodeId="selectedNode!.id"
+            :questId="questId"
+            class="q-mr-sm"
+            @click="editNode(selectedNode!.id)"
+          />
+          <q-btn
+            v-if="canAddChild()"
+            flat
+            color="primary"
+            icon="add"
+            label="Add Child"
+            @click="addChildToNode(selectedNodeId!)"
+          />
+        </q-card-actions>
+      </q-card>
+    </div>
+  </transition>
       </div>
     </div>
 

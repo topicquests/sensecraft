@@ -47,19 +47,16 @@
 
               <!-- Column 3: Quest List -->
               <div class="col-12 col-md-3">
-                <q-card class="available-quests-card">
-                  <div class="q-pa-xs">
-                    <h4 class="quest-title">Available Quests</h4>
-                    <ul>
-                      <li v-for="quest in getFilteredQuests" :key="quest.id">
-                        <q-card class="quest-card">
-                          <div class="quest-description">{{ quest.name }}</div>
-                        </q-card>
-                      </li>
-                    </ul>
-                  </div>
-                </q-card>
+                  <div class="quest-list-1">
+            <div class="quest-list-header">
+              <h5>Available Quests</h5>
+            </div>
+          <quest-list
+            :quests="quests"
+            :status="status"
+          />
               </div>
+            </div>
             </div>
           </q-card>
         </div>
@@ -69,20 +66,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue';
-import { useQuestStore } from 'src/stores/quests';
-import { QuestData } from 'src/types';
+import { onBeforeMount } from 'vue';
+import { useQuestStore } from '../stores/quests';
+import { QuestData } from '../types';
+import QuestList from '../components/quest-list.vue';
+import { quest_status_enum } from '../enums';
 
 const questStore = useQuestStore();
 
-const getFilteredQuests = computed((): QuestData[] => {
-  return questStore.getQuests.filter(
-    (quest) => quest.status === 'ongoing' || quest.status === 'registration',
-  );
-});
+const quests:QuestData[] = questStore.getQuests;
+const status: string[] = [
+  quest_status_enum.registration,
+  quest_status_enum.ongoing,
+]
 
 onBeforeMount(async () => {
-  questStore.ensureAllQuests();
+  await questStore.ensureAllQuests();
 });
 </script>
 

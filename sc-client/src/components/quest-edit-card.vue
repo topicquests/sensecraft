@@ -279,7 +279,7 @@
 </template>
 
 <script setup lang="ts">
-import { QuestData } from '../types';
+import { Quest } from '../types';
 import { public_private_bool, quest_status_type } from '../enums';
 import { DateTime } from 'luxon';
 import { useQuestStore } from '../stores/quests';
@@ -289,7 +289,7 @@ import { useRouter } from 'vue-router';
 
 // Props
 const QuestCardProps = defineProps<{
-  thisQuest: Partial<QuestData>;
+  thisQuest: Quest;
   edit: boolean;
   create: boolean;
 }>();
@@ -307,7 +307,7 @@ const $q = useQuasar();
 const emit = defineEmits(['doUpdateQuest']);
 
 // Reactive Variables
-const quest = ref<Partial<QuestData>>(QuestCardProps.thisQuest);
+const quest = ref<Quest>(QuestCardProps.thisQuest);
 
 // Non Reactive Variables
 const turn_based_bool = [
@@ -341,12 +341,13 @@ watch(
 // Functions
 async function doEndTurn() {
   try {
-    await questStore.endTurn({ quest_id: quest.value.id! });
+    await questStore.endTurn({ quest_id: quest.value.id });
     $q.notify({
       type: 'positive',
       message: 'Turn ended',
     });
   } catch (e) {
+    console.log("Error in turn: ", e)
     $q.notify({
       type: 'negative',
       message: 'Could not end turn',
@@ -371,7 +372,7 @@ function updateStatus(value: quest_status_type) {
 }
 function doUpdateQuest() {
   console.log('Quest ', quest.value);
-  const createdQuest: Partial<QuestData> = Object.assign(quest.value);
+  const createdQuest: Quest = Object.assign(quest.value);
   emit('doUpdateQuest', createdQuest);
 }
 </script>

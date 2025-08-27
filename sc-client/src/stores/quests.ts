@@ -269,12 +269,9 @@ export const useQuestStore = defineStore('quest', {
       },
   },
   actions: {
-    async createQuest(data: Partial<QuestData>) {
-      const res: Partial<QuestData> = await this.createQuestBase(data);
-      // Refetch to get memberships.
-      // TODO: maybe add representation to creation instead?
+    async createQuest(data: Quest) {
+      const res: Quest = await this.createQuestBase(data);
       await this.fetchQuestById(res.id);
-      // TODO: Get the membership from the quest
       await useMemberStore().fetchLoginUser();
       useConversationStore().resetConversation();
       return res;
@@ -307,7 +304,7 @@ export const useQuestStore = defineStore('quest', {
       if (typeof quest_id === 'number') {
         this.currentQuest = quest_id;
       }
-      getWSClient().setDefaultQuest(quest_id);
+      getWSClient().setDefaultQuest(quest_id!);
     },
     resetQuests() {
       Object.assign(this, clearBaseState);
@@ -494,8 +491,8 @@ export const useQuestStore = defineStore('quest', {
       }
     },
     async createQuestBase(
-      data: Partial<QuestData>,
-    ): Promise<Partial<QuestData>> {
+      data: Quest
+    ): Promise<QuestData | undefined> {
       const res: AxiosResponse<QuestData[]> = await api.post('/quests', data);
       if (res.status == 201) {
         const questData: QuestData = Object.assign(res.data[0], {
@@ -510,8 +507,9 @@ export const useQuestStore = defineStore('quest', {
           is_quest_member: true,
         });
         this.quests = { ...this.quests, [questData.id]: questData };
+        return questData
       }
-      return res.data[0];
+      return undefined
     },
     async updateQuest(data: Partial<Quest>) {
       const params = Object();
@@ -523,8 +521,6 @@ export const useQuestStore = defineStore('quest', {
       );
       if (res.status == 200) {
         const quest = res.data[0];
-        // Update the QuestData with the Quest object;
-        // assume other fields were not affected.
         const questData: QuestData = Object.assign(
           {},
           this.quests[quest.id],
