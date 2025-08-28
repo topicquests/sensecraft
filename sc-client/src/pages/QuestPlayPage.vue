@@ -31,7 +31,7 @@
         </div>
       </q-card>
       <!-- Main content: Node Tree + Selected Node -->
-      <div class="row q-mt-md q-ml-lg q-gutter-md" style="width: 100%">
+      <div class="row q-mt-md q-ml-md q-gutter-md" style="width: 100%">
   <div class="col-12 col-md-8">
     <q-card class="q-pa-md" style="height: 100%;">
       <quest-node-tree
@@ -95,43 +95,43 @@
     </div>
 
     <!-- Floating Node Form for editing -->
-    <div
-      v-if="editable && selectedNodeId === editingNodeId && selectedNode"
-      class="floating-node-form floating-edit-form"
-    >
-      <node-form
-        :ref="nodeFormRef(selectedNodeId!)"
-        :nodeInput="selectedNode"
-        :allowAddChild="false"
-        :ibisTypes="selectedIbisTypes"
-        :editing="true"
-        :roles="roleStore.getRoles"
-        :allowChangeMeta="allowChangeMeta"
-        :pubFn="calcSpecificPubConstraints"
-        @action="confirmEdit"
-        @cancel="cancel"
-      />
-    </div>
+<div
+  v-if="editable && selectedNodeId === editingNodeId && selectedNode"
+  class="floating-node-form"
+>
+  <node-form
+    :ref="nodeFormRef(selectedNodeId!)"
+    :nodeInput="selectedNode"
+    :allowAddChild="false"
+    :ibisTypes="selectedIbisTypes"
+    :editing="true"
+    :roles="roleStore.getRoles"
+    :allowChangeMeta="allowChangeMeta"
+    :pubFn="calcSpecificPubConstraints"
+    @action="confirmEdit"
+    @cancel="cancel"
+  />
+</div>
 
-    <!-- Floating Node Form for adding child -->
-    <div
-      v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
-      class="floating-node-form floating-add-form"
-    >
-      <node-form
-        :ref="nodeFormRef(selectedNodeId)"
-        v-if="editable && selectedNodeId == addingChildToNodeId"
-        :nodeInput="newNode"
-        :allowAddChild="false"
-        :ibisTypes="childIbisTypes"
-        :editing="true"
-        :roles="roleStore.getRoles"
-        :allowChangeMeta="allowChangeMeta"
-        :pubFn="calcSpecificPubConstraints"
-        v-on:action="confirmAddChild"
-        v-on:cancel="cancel"
-      />
-    </div>
+<!-- Floating Node Form for adding child -->
+<div
+  v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
+  class="floating-node-form"
+>
+  <node-form
+    :ref="nodeFormRef(selectedNodeId)"
+    :nodeInput="newNode"
+    :allowAddChild="false"
+    :ibisTypes="childIbisTypes"
+    :editing="true"
+    :roles="roleStore.getRoles"
+    :allowChangeMeta="allowChangeMeta"
+    :pubFn="calcSpecificPubConstraints"
+    @action="confirmAddChild"
+    @cancel="cancel"
+  />
+</div>
+
   </q-page>
 </template>
 <script setup lang="ts">
@@ -553,32 +553,40 @@ async function initializeGuildInner() {
 
 .floating-node-form {
   position: fixed;
-  top: 100px;
-  z-index: 999;
-  width: 400px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  padding: 16px;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Move floating forms slightly right so they don’t overlap right panel */
-.floating-edit-form {
+  top: 80px;               /* distance from top */
   left: 50%;
   transform: translateX(-50%);
+  z-index: 999;
+  width: 600px;            /* default width */
+  max-width: 90vw;         /* responsive for mobile */
+  max-height: 80vh;        /* allow scrolling inside card */
+  display: flex;
+  flex-direction: column;
+  background: transparent;  /* let node-form card show */
+  padding: 0;               /* node-form handles padding */
+  overflow: hidden;
 }
 
-.floating-add-form {
-  left: 52%;
-  transform: translateX(-50%);
+/* Make node-form fill wrapper and scroll content */
+.floating-node-form > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-@media (max-width: 1024px) {
+.floating-node-form .node-card {
+  flex: 1;
+  overflow-y: auto;        /* scroll inside card if content is too long */
+  padding: 1em;            /* consistent padding inside card */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
   .floating-node-form {
-    left: 50% !important;
-    width: 90% !important;
-    transform: translateX(-50%);
+    width: 90%;
+    top: 40px;
+    max-height: 90vh;
   }
 }
 </style>

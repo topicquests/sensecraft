@@ -1,6 +1,5 @@
 <template>
   <q-card class="node-card q-pa-md">
-    <!-- Node Title -->
     <section class="node-card-title">
       <q-input
         v-model="node.title"
@@ -9,6 +8,7 @@
         ref="title"
         outlined
         dense
+        style="flex: 1 1 90%;"
       >
         <template v-slot:prepend>
           <IbisButton :node_type="node!.node_type as ibis_node_type_type" />
@@ -254,6 +254,7 @@ defineExpose({ setFocus });
   background-color: #e0e0ff;
   padding: 0.5em;
   border-radius: 6px;
+  width: 90%
 }
 
 .node-card-editor {
