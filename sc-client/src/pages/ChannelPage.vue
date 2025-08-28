@@ -535,21 +535,43 @@ async function editNode(nodeId: number) {
   text-align: center;
 }
 
-/* Floating Node Form */
 .floating-node-form {
   position: fixed;
-  top: 120px;
+  top: 80px;               /* distance from top */
   left: 50%;
   transform: translateX(-50%);
-  width: 420px;
-  max-height: 80vh;
-  overflow-y: auto;
-  z-index: 1000;
-  background-color: #fdfdfd;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  padding: 24px;
-  transition: all 0.3s ease;
+  z-index: 999;
+  width: 600px;            /* default width */
+  max-width: 90vw;         /* responsive for mobile */
+  max-height: 80vh;        /* allow scrolling inside card */
+  display: flex;
+  flex-direction: column;
+  background: transparent;  /* let node-form card show */
+  padding: 0;               /* node-form handles padding */
+  overflow: hidden;
+}
+
+/* Make node-form fill wrapper and scroll content */
+.floating-node-form > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.floating-node-form .node-card {
+  flex: 1;
+  overflow-y: auto;        /* scroll inside card if content is too long */
+  padding: 1em;            /* consistent padding inside card */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .floating-node-form {
+    width: 90%;
+    top: 40px;
+    max-height: 90vh;
+  }
 }
 
 /* Close Button on Floating Form */
