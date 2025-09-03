@@ -1,144 +1,148 @@
 <template>
-  <q-card class="flat bordered q-pa-md bg-black">
-    <div class="row">
-      <div class="col-12 col-md">
-        <p class="text">Gameboard</p>
-      </div>
+  <q-card class="gameboard-card q-pa-lg">
+    <!-- Header -->
+    <div class="row justify-center q-mb-md">
+      <p class="title">🎮 Gameboard</p>
     </div>
-    <div class="row justify-center q-gutter-md">
-      <q-card class="score-card">
-        <span class="scoreboard-header">Quests</span>
-        <div class="row">
-          <div class="col-4" style="width: 50%">
-            <div class="labels">Not started:</div>
-            <div class="labels">Playing</div>
-            <div class="labels">Finished</div>
+
+    <!-- Scoreboard in single row -->
+    <div class="row no-wrap justify-around items-stretch">
+      <!-- Quests -->
+      <q-card class="score-card q-pa-md">
+        <div class="scoreboard-header">Quests</div>
+        <div class="row items-center q-mt-sm">
+          <div class="col text-labels">
+            <div>Not started</div>
+            <div>Playing</div>
+            <div>Finished</div>
           </div>
-          <div class="col-4">
-            <div>
-              <span class="labels">{{ questCount(status.registration) }} </span>
-            </div>
-            <div>
-              <span class="labels">{{ questCount(status.ongoing) }} </span>
-            </div>
-            <div>
-              <span class="labels">{{ questCount(status.finished) }} </span>
-            </div>
+          <div class="col-auto text-values">
+            <div>{{ questCount(status.registration) }}</div>
+            <div>{{ questCount(status.ongoing) }}</div>
+            <div>{{ questCount(status.finished) }}</div>
           </div>
         </div>
       </q-card>
-      <q-card class="score-card">
-        <span class="scoreboard-header">Guilds</span>
-        <div class="row">
-          <div class="col-4" style="width: 70%">
-            <div class="labels">Number of Guilds:</div>
-            <div class="labels">Most Quests:</div>
-            <div class="labels">Highest Score:</div>
+
+      <!-- Guilds -->
+      <q-card class="score-card q-pa-md">
+        <div class="scoreboard-header">Guilds</div>
+        <div class="row items-center q-mt-sm">
+          <div class="col text-labels">
+            <div>Total Guilds</div>
+            <div>Most Quests</div>
+            <div>Highest Score</div>
           </div>
-          <div class="col-3">
-            <div>
-              <span class="labels">{{ guildStore.getGuilds.length }}</span>
-            </div>
-            <div>
-              <span class="labels">0</span>
-            </div>
-            <span class="labels">0</span>
+          <div class="col-auto text-values">
+            <div>{{ guildStore.getGuilds.length }}</div>
+            <div>0</div>
+            <div>0</div>
           </div>
         </div>
       </q-card>
-      <q-card class="score-card">
-        <span class="scoreboard-header">Players</span>
-        <div class="row">
-          <div class="col-4" style="width: 70%">
-            <div class="labels">Number of players:</div>
-            <div class="labels">Most Quests:</div>
-            <div class="labels">Highest Score:</div>
+
+      <!-- Players -->
+      <q-card class="score-card q-pa-md">
+        <div class="scoreboard-header">Players</div>
+        <div class="row items-center q-mt-sm">
+          <div class="col text-labels">
+            <div>Total Players</div>
+            <div>Most Quests</div>
+            <div>Highest Score</div>
           </div>
-          <div class="col-3">
-            <div>
-              <span class="labels">{{ membersStore.getMembers.length }}</span>
-            </div>
-            <div>
-              <span class="labels">0</span>
-            </div>
-            <div>
-              <span class="labels">0</span>
-            </div>
+          <div class="col-auto text-values">
+            <div>{{ membersStore.getMembers.length }}</div>
+            <div>0</div>
+            <div>0</div>
           </div>
         </div>
       </q-card>
     </div>
   </q-card>
 </template>
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useMembersStore } from '../stores/members';
-import { useGuildStore } from '../stores/guilds';
-import { useQuestStore } from '../stores/quests';
-import { quest_status_enum } from '../enums';
-import { onBeforeMount } from 'vue';
 
-const status = ref(quest_status_enum);
-const questStore = useQuestStore();
-const guildStore = useGuildStore();
-const membersStore = useMembersStore();
+<script setup lang="ts">
+import { ref, onBeforeMount } from 'vue'
+import { useMembersStore } from '../stores/members'
+import { useGuildStore } from '../stores/guilds'
+import { useQuestStore } from '../stores/quests'
+import { quest_status_enum } from '../enums'
+
+const status = ref(quest_status_enum)
+const questStore = useQuestStore()
+const guildStore = useGuildStore()
+const membersStore = useMembersStore()
 
 function questCount(st: quest_status_enum) {
-  if (questStore.getQuestsByStatus(st)) {
-    return questStore.getQuestsByStatus(st).length;
-  }
-  return 0;
+  return questStore.getQuestsByStatus(st)?.length || 0
 }
 
 onBeforeMount(async () => {
   await Promise.all([
     questStore.ensureAllQuests(),
     guildStore.ensureAllGuilds(),
-    membersStore.ensureAllMembers(),
-  ]);
-});
+    membersStore.ensureAllMembers()
+  ])
+})
 </script>
-<style>
-.b1 {
-  border-right-style: solid;
-  border-right-color: yellow;
+
+<style scoped>
+.gameboard-card {
+  background-color: #000;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  max-width: 1200px;
+  margin: auto;
 }
-.labels {
-  color: yellow;
-  font-size: 110%;
-  text-align: left;
+
+.title {
+  text-align: center;
   font-family: Arial, Helvetica, sans-serif;
-  width: 25em;
-}
-.scoreboard-header {
-  color: yellow;
-  font-size: 110%;
-  text-align: left;
+  font-size: 32px;
   font-weight: bold;
-  font-family: Arial, Helvetica, sans-serif;
+  color: #ffd700;
 }
 
 .score-card {
-  background-color: black;
-  width: 100%;
-  max-width: 200px;
+  background: #111;
+  border-radius: 16px;
+  min-width: 250px;   /* wider base */
+  max-width: 300px;   /* allow more width */
+  flex: 0 0 auto;     /* don’t auto-stretch */
+  margin: 0 16px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
-p.text {
-  text-align: center;
+
+.scoreboard-header {
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
-  color: yellow;
-  background-color: black;
-}
-#scoreboard {
-  width: 900px;
-  border: 1px solid blue;
 }
 
-@media only screen and (max-width: 600px) {
-  p.text {
-    font-size: 20px;
+.text-labels {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.text-values {
+  color: #ffd700;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: right;
+  line-height: 1.8;
+}
+
+@media (max-width: 800px) {
+  .row.no-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .score-card {
+    min-width: 220px;
   }
 }
 </style>

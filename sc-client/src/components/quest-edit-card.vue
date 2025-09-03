@@ -1,5 +1,5 @@
 <template>
-  <q-card class="items-center">
+  <q-card class="items-center quest-card">
     <div v-if="edit">
       <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
         <q-option-group
@@ -113,9 +113,8 @@
     </div>
     <div class="row justify-start q-pb-lg q-ml-lg">
       <q-input
-        class="field-name q-pt-md"
+        class="field-name q-pt-md quest-title-input"
         v-model="quest.name"
-        :style="{ width: '400px' }"
         label="Quest title"
         name="quest-title"
         id="name"
@@ -129,7 +128,7 @@
         name="description"
         id="q-editor"
         data-test="description-editor"
-        style="background-color: lightgrey"
+        class="q-mb-md node-card-editor"
       />
     </div>
     <div class="row">
@@ -289,7 +288,7 @@ import { useRouter } from 'vue-router';
 
 // Props
 const QuestCardProps = defineProps<{
-  thisQuest: Quest;
+  thisQuest: Partial<Quest>;
   edit: boolean;
   create: boolean;
 }>();
@@ -307,7 +306,7 @@ const $q = useQuasar();
 const emit = defineEmits(['doUpdateQuest']);
 
 // Reactive Variables
-const quest = ref<Quest>(QuestCardProps.thisQuest);
+const quest = ref<Partial<Quest>>(QuestCardProps.thisQuest);
 
 // Non Reactive Variables
 const turn_based_bool = [
@@ -377,12 +376,34 @@ function doUpdateQuest() {
 }
 </script>
 <style>
-#q-editor {
+.quest-card {
+  background-color: #f5f7ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1.2em;
+  color: #1a237e;
+}
+.node-card-editor {
+  border-radius: 6px;
+  border: 1px solid #c0c0c0;
+  padding: 0.5em;
+  background-color: #fff;
+  max-height: 200px;
+  max-width: 80%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
-  width: 90%;
 }
-#quest-card {
-  width: 90%;
+.quest-title-input {
+  width: 600px;
+  font-size: 15px;
+  font-weight: 600;
 }
+.quest-title-input .q-field__native {
+  white-space: normal !important;
+  word-break: break-word;
+}
+
 </style>

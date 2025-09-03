@@ -52,7 +52,7 @@
           color="primary"
           class="q-mr-md q-ml-md"
         />
-        <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+        <q-btn label="Cancel" @click="router.push({ name: 'home' })" />
       </div>
     </q-card>
   </div>
@@ -62,6 +62,9 @@
 import { Role } from '../types';
 import { publication_state_enum, permission_enum } from '../enums';
 import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 //Emits
 const emit = defineEmits<{

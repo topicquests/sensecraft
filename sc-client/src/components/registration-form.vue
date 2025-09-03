@@ -47,7 +47,7 @@
           v-model="formdata.handle"
           type="text"
           name="handle"
-          label="Username / Handle"
+          label="Handle"
           tabindex="3"
         >
           <template v-slot:prepend>

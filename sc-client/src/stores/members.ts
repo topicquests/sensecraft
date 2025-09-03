@@ -32,6 +32,14 @@ const baseState: MembersState = {
   members: {},
   fullMembers: {},
 };
+const clearBaseState: MembersState = {
+  fullFetch: false,
+  questFetch: undefined,
+  guildFetch: undefined,
+  members: {},
+  fullMembers: {},
+};
+
 
 export const useMembersStore = defineStore('members', {
   state: () => baseState,
@@ -160,16 +168,17 @@ export const useMembersStore = defineStore('members', {
       }
     },
     resetMembers() {
-      Object.assign(this, baseState);
+      Object.assign(this, clearBaseState);
     },
     //axios calls
     async fetchMembers(): Promise<PublicMember[] | undefined> {
       const res: AxiosResponse<PublicMember[]> =
         await api.get('/public_members');
       if (res.status == 200) {
-        const fullMembers = Object.values<PublicMember>(this.members).filter(
-          (member) => this.fullMembers[member.id],
+        const fullMembers = Object.values(this.members).filter(
+          (member) => member.id !== undefined && this.fullMembers[member.id] === true
         );
+
         const members: MemberMap = Object.fromEntries(
           res.data.map((member: PublicMember) => [member.id, member]),
         );

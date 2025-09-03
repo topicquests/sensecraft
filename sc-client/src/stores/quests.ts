@@ -270,8 +270,8 @@ export const useQuestStore = defineStore('quest', {
   },
   actions: {
     async createQuest(data: Quest) {
-      const res: Quest = await this.createQuestBase(data);
-      await this.fetchQuestById(res.id);
+      const res: QuestData | undefined = await this.createQuestBase(data);
+      await this.fetchQuestById(res!.id);
       await useMemberStore().fetchLoginUser();
       useConversationStore().resetConversation();
       return res;
@@ -347,7 +347,7 @@ export const useQuestStore = defineStore('quest', {
           res.data.map((guild: QuestData) => [guild.id, guild]),
         );
         if (!full) {
-          for (const quest of Object.values<QuestData>(this.quests)) {
+          for (const quest of Object.values<QuestData>(quests)) {
             if (!this.fullQuests[quest.id]) {
               continue;
             }
@@ -641,7 +641,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
-    async endTurn(data: { quest_id: number }) {
+    async endTurn(data: { quest_id: number | undefined }) {
       await api.post('/rpc/end_turn', data);
     },
   },

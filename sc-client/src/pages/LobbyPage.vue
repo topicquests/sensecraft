@@ -2,7 +2,7 @@
   <q-page class="bg-secondary lobby-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="lobby-card q-mt-md q-pa-md">
-        <div>
+         <div class="row justify-end q-mb-lg" style="width: 85%">
           <member></member>
           <q-btn
             fab
@@ -99,14 +99,6 @@ const quests = computed({
   get: () => questsStore.getQuests,
   set: () => {},
 });
-
-watchEffect(() => {
-  if (memberStore.isGuildMember && memberStore.isGuildMember.length === 0) {
-    showDialog.value = true;  // Automatically set to true if condition is met
-  } else {
-    showDialog.value = false;  // Hide the dialog if condition is not met
-  }
-});
 const getActiveQuests = computed(() => questsStore.getActiveQuests);
 const getOpenGuilds = computed((): GuildData[] =>
   guildsStore.getGuilds.filter(
@@ -116,10 +108,16 @@ const getOpenGuilds = computed((): GuildData[] =>
 );
 const myGuilds = computed((): GuildData[] => guildsStore.getMyGuilds);
 
+// Watches
+watchEffect(() => {
+  if (memberStore.isGuildMember && memberStore.isGuildMember.length === 0) {
+    showDialog.value = true;
+  }
+});
+
 // Lifecycle Hooks
 onBeforeMount(async () => {
   await waitUserLoaded();
-  // all guilds and quests
   guildsStore.setCurrentGuild(true);
   questsStore.setCurrentQuest(true);
   await Promise.all([
@@ -144,14 +142,15 @@ p {
   padding: 0rem;
   box-sizing: border-box;
 }
-
 .lobby-card {
   background-color: transparent;
   width: 60%;
 }
-
 .scoreboard {
-  width: 75%;
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+  margin-bottom: 2rem;
 }
 .help-button {
   width: 56px;
@@ -166,33 +165,26 @@ p {
   transition: background 0.3s, transform 0.2s ease-in-out;
   overflow: hidden;
 }
-
 .help-button:hover {
   background-color: #1565c0 !important;
   transform: scale(1.05);
 }
-
-/* Ensures the button remains fixed in the top right */
 .fixed-top-right {
   position: fixed;
   top: 50px;
   right: 16px;
   z-index: 10;
 }
-
-
 @media only screen and (max-width: 1300px) {
   .lobby-card {
     width: 80%;
   }
 }
-
 @media only screen and (max-width: 800px) {
   .lobby-card {
     width: 98%;
   }
 }
-
 @media only screen and (max-width: 1000px) {
   .scoreboard {
     width: 98%;

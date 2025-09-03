@@ -32,8 +32,8 @@ import { useMemberStore } from '../stores/member';
 import { useMembersStore } from '../stores/members';
 import { useRoleStore } from '../stores/role';
 import { useQuestStore } from '../stores/quests';
-import { useReadStatusStore } from 'src/stores/readStatus';
-import { useChannelStore } from 'src/stores/channel';
+import { useReadStatusStore } from '../stores/readStatus';
+import { useChannelStore } from '../stores/channel';
 
 const MemberGameRegistrationProp = defineProps<{
   show?: boolean;
@@ -82,8 +82,8 @@ async function updateRole() {
   });
   await Promise.all([
     questStore.fetchQuestById(quest_id),
-    channelStore.fetchChannels(guild_id),
-    readStatusStore.ensureGuildUnreadChannels(guild_id),
+    channelStore.fetchChannels(guild_id!),
+    readStatusStore.ensureGuildUnreadChannels(),
     questStore.ensureCurrentQuest(quest_id!),
   ]);
 }

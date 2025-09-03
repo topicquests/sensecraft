@@ -57,20 +57,14 @@ const status: string[] = [
   quest_status_enum.finished
 ]
 
-const newQuest: Quest = {
+const newQuest: Partial<Quest> = {
   name: '',
   handle: '',
   status: 'draft',
   public: true,
   description: '',
-  start: '',
-  end: '',
-  id: 0,
-  slug: '',
   creator: 0,
   turn_based: false,
-  created_at: '',
-  updated_at: ''
 };
 
 function validateStartEnd(quest: Partial<QuestData>) {
@@ -90,7 +84,7 @@ async function doSubmitQuest(quest: Quest) {
       message: 'Quest was updated successfully',
       color: 'positive',
     });
-    await router.push({ name: 'quest_edit', params: { quest_id: res.id } });
+    await router.push({ name: 'quest_edit', params: { quest_id: res!.id } });
   } catch (err) {
     console.log('there was an error in updating quest ', err);
     $q.notify({

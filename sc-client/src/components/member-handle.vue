@@ -2,7 +2,9 @@
 <template>
   <div class="column items-right" v-if="ready && user">
     <div class="col-12">
-      <div class="member q-pr-md">{{ handle }}</div>
+      <div class="member q-pr-md">
+        {{ handle }}
+      </div>
     </div>
   </div>
 </template>
@@ -15,18 +17,21 @@ const memberStore = useMemberStore();
 const ready = ref(false);
 
 const user = computed(() => memberStore.getUser);
-const handle = computed(() => memberStore.getUser.handle);
+const handle = computed(() => memberStore.getUser!.handle);
 
 onBeforeMount(async () => {
-  await memberStore.ensureLoginUser;
+  await memberStore.ensureLoginUser();
   ready.value = true;
 });
 </script>
+
 <style>
 .member {
-  text-align: right;
-  font-size: 1.2em;
+  display: inline-block;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 12px;
   font-family: Arial, Helvetica, sans-serif;
-  color: red;
+  color: red; /* subtle shadow */
 }
 </style>

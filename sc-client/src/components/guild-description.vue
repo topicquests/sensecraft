@@ -56,19 +56,27 @@ const isMember = computed<boolean>({
   },
 });
 
-const joinToGuild = async () => {
-  if (currentGuild.value && typeof currentGuild.value.id === 'number')
-    await guildStore.addGuildMembership({
-      guild_id: currentGuild.value.id,
-      member_id: member.value?.id,
-    });
-  if(currentGuild.value) {
-    isMember.value = true;
-    channelStore.setCurrentGuild(currentGuild.value.id);
-    await channelStore.ensureChannels(currentGuild.value.id)
-    await readStatusStore.ensureGuildUnreadChannels();
-  };
+async function joinToGuild () {
+  if (!currentGuild.value || typeof currentGuild.value.id !== 'number') return;
+
+  // 1. Add membership on backend
+  await guildStore.addGuildMembership({
+    guild_id: currentGuild.value.id,
+    member_id: member.value?.id,
+  });
+
+  // 2. Refresh memberships in store so isMember becomes true
+  await guildStore.ensureAllGuilds();
+  guildStore.setCurrentGuild(currentGuild.value.id)
+
+  // 3. Load channels/teams after membership is confirmed
+  channelStore.setCurrentGuild(currentGuild.value.id);
+  await channelStore.ensureChannels(currentGuild.value.id);
+
+  // 4. Sync unread states
+  await readStatusStore.ensureGuildUnreadChannels();
 };
+
 </script>
 <style scoped>
 .guild-description {

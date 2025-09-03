@@ -4,7 +4,7 @@
       <q-card class="guild-card q-mt-md q-pa-md">
         <div class="col-12 justify-center">
           <q-card class="q-mt-md q-pa-md" style="background-color: transparent">
-            <div class="row justify-end" style="width: 92%">
+            <div class="row justify-end q-mb-lg" style="width: 92%">
               <member-handle></member-handle>
             </div>
             <q-btn
@@ -249,7 +249,7 @@ const allRoles = computed(() => roleStore.role);
 const currentQuestId = computed(() => questStore.currentQuest);
 const currentGuild = computed(() => guildStore.getCurrentGuild);
 const currentQuest = computed(() => questStore.getCurrentQuest);
-const currentGuildId = computed<number>({
+const currentGuildId = computed({
   get: () => {
     return guildStore.currentGuild;
   },
@@ -325,10 +325,14 @@ onBeforeMount(async () => {
   await initialize();
 });
 onBeforeRouteLeave((to, from, next) => {
-  guildStore.setCurrentGuild(true);
-  questStore.setCurrentQuest(true);
+  // Only reset if the target route is not another guild
+  if (!to.name?.toString().startsWith("guild")) {
+    guildStore.setCurrentGuild(true);
+    questStore.setCurrentQuest(true);
+  }
   next();
 });
+
 
 // Functions
  function getCastingRoles() {

@@ -500,7 +500,7 @@ async function initializeGuildInner() {
 
 <style scoped>
 .selected-node-card {
-  height: 100%;
+  height:300px;
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   background-color: #ffffff;

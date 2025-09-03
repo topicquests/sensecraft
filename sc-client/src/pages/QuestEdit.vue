@@ -5,69 +5,50 @@
         <div>
           <member-handle></member-handle>
         </div>
-        <div class="column items-center">
-          <div class="col-12 q-mb-md scoreboard">
-            <scoreboard></scoreboard>
-          </div>
-        </div>
+        <!-- Link -->
         <div class="row justify-end" style="width: 89%">
           <div class="col-4 text-right q-pr-md">
             <router-link
               v-if="quest_id"
               class="quest-link"
-              :to="{
-                name: 'quest_page',
-                params: { questId: quest_id },
-              }"
-              >>>go to quest page</router-link
+              :to="{ name: 'quest_page', params: { questId: quest_id } }"
             >
+              >>>go to quest page
+            </router-link>
           </div>
         </div>
+
+        <!-- Title -->
         <div class="row justify-center">
-          <div class="column items-center">
-            <div class="col-12">
-              <h4 class="q-pb-sm q-ma-sm">Edit Quest</h4>
-            </div>
-          </div>
+          <h4 class="q-pb-sm q-ma-sm">Edit Quest & Conversation Node</h4>
         </div>
-        <div class="row justify-center">
-          <div
-            class="column items-center"
-            style="width: 75%"
-            v-if="currentQuest"
-          >
+
+        <!-- Quest + Node side by side -->
+        <div class="row justify-center q-mt-md">
+          <!-- Quest -->
+          <div class="col-12 col-md-6 q-pa-sm" v-if="currentQuest">
             <quest-card
               :thisQuest="currentQuest"
               :edit="true"
               :create="false"
               v-on:doUpdateQuest="doSubmitQuest"
               style="width: 100%"
-            ></quest-card>
+            />
           </div>
-        </div>
-        <div>
-          <div class="row justify-center">
-            <div class="column items-center">
-              <div class="col-12 q-mb-xs q-mt-md q-pa-sm" style="width: 100%">
-                <h4 v-if="!node.id">New Conversation Node</h4>
-                <h4 v-if="node.id">Update Conversation Node</h4>
-              </div>
+
+          <!-- Node -->
+          <div class="col-12 col-md-6 q-pa-sm" v-if="questStore.getCurrentQuest">
+            <div class="q-mb-xs q-mt-md">
+              <h4 v-if="!node.id">New Conversation Node</h4>
+              <h4 v-else>Update Conversation Node</h4>
             </div>
-          </div>
-          <div class="row justify-center">
-            <div
-              class="column items-center"
+            <node-form
+              :nodeInput="node"
+              :editing="true"
+              :ibisTypes="base_ibis_types"
+              v-on:action="editNode"
               style="width: 100%"
-              v-if="questStore.getCurrentQuest"
-            >
-              <node-form
-                :nodeInput="node"
-                :editing="true"
-                :ibisTypes="base_ibis_types"
-                v-on:action="editNode"
-                style="width: 75%"
-              />
-            </div>
+            />
           </div>
         </div>
       </q-card>
@@ -75,9 +56,9 @@
   </q-page>
 </template>
 
+
 <script setup lang="ts">
 // Imports
-import scoreboard from '../components/score-board.vue';
 import memberHandle from '../components/member-handle.vue';
 import nodeForm from '../components/node-form.vue';
 import questCard from '../components/quest-edit-card.vue';
@@ -216,7 +197,7 @@ onBeforeMount(async () => {
 
 <style>
 .quest-edit-card {
-  width: 60%;
+  width: 80%;
 }
 
 .name-field {
