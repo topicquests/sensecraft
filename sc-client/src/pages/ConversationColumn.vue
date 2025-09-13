@@ -27,36 +27,32 @@
               </div>
             </div>
             <div class="row justify-center">
-              <div class="column">
                 <q-card class="q-mb-md scrollable-description">
-                  <div class="content-container">
-                    <div class="content" v-html="node!.description"></div>
-                    <section v-if="node!.url || node!.node_type == 'reference'">
+                    <div class="content" v-html="node!.description"></div>                    
+                  <section v-if="node!.url || node!.node_type == 'reference'">
                       <div class="row q-ml-md">
                         <a v-bind:href="node!.url" target="_blank">
                           <span> url: </span> {{ node!.url }}
                         </a>
                       </div>
                     </section>
-                  </div>
-                   <q-card-actions align="right" class="q-pa-sm">
-          <EditButton
-            :nodeId="selectedNode!.id"
-            :questId="questId"
-            class="q-mr-sm"
-            @click="editNode(selectedNode!.id)"
-          />
-          <q-btn
-            v-if="canAddChild()"
-            flat
-            color="primary"
-            icon="add"
-            label="Add Child"
-            @click="addChildToNode(selectedNodeId!)"
-          />
-        </q-card-actions>
-                </q-card>
-              </div>
+                  <q-card-actions align="right" class="q-pa-sm">
+                    <EditButton
+                      :nodeId="selectedNode!.id"
+                      :questId="questId"
+                      class="q-mr-sm"
+                      @click="editNode(selectedNode!.id)"
+                    />
+                    <q-btn
+                      v-if="canAddChild()"
+                      flat
+                      color="primary"
+                      icon="add"
+                      label="Add Child"
+                      @click="addChildToNode(selectedNodeId!)"
+                    />
+                  </q-card-actions>
+                </q-card>              
             </div>
             <div class="row justify-center items-center">
               <div class="col-4 q-pa-sm" style="width: 100%">
@@ -425,12 +421,12 @@ const selectedIbisTypes = ref<any[]>([]);
 const parseNodeId = (param: string | string[] | undefined): number | undefined => {
   if (typeof param === 'string') {
     return Number.parseInt(param);
-  } else if (Array.isArray(param) && param.length > 0) {
-    return Number.parseInt(param[0]);
+  } else if (Array.isArray(param && param.length > 0)) {
+    return Number.parseInt(param![0]);
   }
   return undefined;
 };
-const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.node_id));
+const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.quest_id));
 
 // non reactive variables
 let baseNodePubStateConstraints: publication_state_type[];
@@ -752,7 +748,7 @@ onBeforeMount(async () => {
 }
 @media only screen and (max-width: 800px) {
   .node-card {
-    width: 98%;
+    width: 70%;
   }
 }
 .description {
@@ -769,14 +765,14 @@ onBeforeMount(async () => {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
   width: 100%;
-}
-.scrollable-description {
   max-height: 220px;
   overflow-y: auto;
+}
+.scrollable-description {
   padding: 8px;
   background-color: #f8f9fa;
   border-radius: 6px;
-  width: 100%;
+  width: 40%;
 }
 #node-description {
   padding: 1em;
@@ -801,29 +797,6 @@ onBeforeMount(async () => {
     width: 98%;
   }
 }
-
-/** from view.hbs */
-/**
-* Enable columns to scroll right and left
-
-.columnscroller {
-  border: 1px solid black;
-  width: 100%;
-  white-space: nowrap;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  margin: 5px;
-  border-radius: 3px;
-}
-*/
-
-/**
-* width is set to accomodate lots of columns.
-* If they wrap when adding more columns, then
-* width must increase.
-* The formula seems to be column width * num colums + 100px 2500
-*/
-
 .icon-container {
   display: flex;
   flex-direction: column;

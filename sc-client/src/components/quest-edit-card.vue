@@ -121,14 +121,14 @@
         filled
       />
     </div>
-    <div class="row justify-start q-pb-xs q-ml-lg">Description<br /></div>
-    <div class="row justify-start q-pb-lg q-ml-lg">
+    <div class="row q-pb-xs">Description<br /></div>
+    <div class="row jusify-center">
       <q-editor
         v-model="description"
         name="description"
         id="q-editor"
         data-test="description-editor"
-        class="q-mb-md node-card-editor"
+        class="q-mb-md quest-card-editor"
       />
     </div>
     <div class="row">
@@ -386,18 +386,20 @@ function doUpdateQuest() {
   padding: 1.2em;
   color: #1a237e;
 }
-.node-card-editor {
+.quest-card-editor {
   border-radius: 6px;
   border: 1px solid #c0c0c0;
   padding: 0.5em;
   background-color: #fff;
   max-height: 200px;
-  max-width: 80%;
+  width: 500px;  
+  max-width: 90%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
+  overflow-y: auto;
 }
 .quest-title-input {
-  width: 600px;
+  width: 80%;
   font-size: 15px;
   font-weight: 600;
 }

@@ -20,7 +20,6 @@
       <div class="column guild-description-col">
         <q-card class="q-mb-md">
           <div>
-            <!-- Apply a custom class to this div for description-specific styling -->
             <div
               class="guild-description"
               v-html="currentGuild?.description"
@@ -55,25 +54,17 @@ const isMember = computed<boolean>({
     return value;
   },
 });
-
 async function joinToGuild () {
+  const currentGuildId = currentGuild.value?.id;
   if (!currentGuild.value || typeof currentGuild.value.id !== 'number') return;
-
-  // 1. Add membership on backend
   await guildStore.addGuildMembership({
     guild_id: currentGuild.value.id,
     member_id: member.value?.id,
   });
-
-  // 2. Refresh memberships in store so isMember becomes true
   await guildStore.ensureAllGuilds();
-  guildStore.setCurrentGuild(currentGuild.value.id)
-
-  // 3. Load channels/teams after membership is confirmed
-  channelStore.setCurrentGuild(currentGuild.value.id);
-  await channelStore.ensureChannels(currentGuild.value.id);
-
-  // 4. Sync unread states
+  guildStore.setCurrentGuild(currentGuildId!)
+  channelStore.setCurrentGuild(currentGuildId!);
+  await channelStore.ensureChannels(currentGuildId!);
   await readStatusStore.ensureGuildUnreadChannels();
 };
 

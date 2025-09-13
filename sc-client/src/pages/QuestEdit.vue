@@ -17,15 +17,10 @@
             </router-link>
           </div>
         </div>
-
-        <!-- Title -->
         <div class="row justify-center">
           <h4 class="q-pb-sm q-ma-sm">Edit Quest & Conversation Node</h4>
         </div>
-
-        <!-- Quest + Node side by side -->
         <div class="row justify-center q-mt-md">
-          <!-- Quest -->
           <div class="col-12 col-md-6 q-pa-sm" v-if="currentQuest">
             <quest-card
               :thisQuest="currentQuest"
@@ -35,8 +30,6 @@
               style="width: 100%"
             />
           </div>
-
-          <!-- Node -->
           <div class="col-12 col-md-6 q-pa-sm" v-if="questStore.getCurrentQuest">
             <div class="q-mb-xs q-mt-md">
               <h4 v-if="!node.id">New Conversation Node</h4>

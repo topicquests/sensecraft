@@ -96,15 +96,15 @@ export const useChannelStore = defineStore('channel', {
     getChannelNode:
       (state: ChannelState) => (channel_id: number, node_id: number) =>
         state.channelData[channel_id]?.[node_id],
-      getChannelOfNode: (state: ChannelState) => (node_id: number): string | undefined => {
-        for (const channel_id of Object.keys(state.channelData)) {
-          const channel = state.channelData[Number (channel_id)];
+    getChannelOfNode: (state: ChannelState) => (node_id: number): number | undefined => {
+      for (const channel_id of Object.keys(state.channelData)) {
+        const channel = state.channelData[Number (channel_id)];
           if (channel && channel[node_id]) {
-            return channel_id;
+            return Number(channel_id);
           }
         }
-        return undefined;
-      },
+      return undefined;
+    },
 
 
     canEdit:

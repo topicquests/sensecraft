@@ -30,26 +30,22 @@
           />
         </div>
       </q-card>
-      <!-- Main content: Node Tree + Selected Node -->
       <div class="row q-mt-md q-ml-md q-gutter-md" style="width: 100%">
-  <div class="col-12 col-md-8">
-    <q-card class="q-pa-md" style="height: 100%;">
-      <quest-node-tree
-        :questId="questId"
-        :guildId="guildId"
-        :selectedNodeId="selectedNodeId"
-      />
-    </q-card>
-  </div>
-
-  <!-- Right: Selected Node -->
-  <transition name="fade">
-    <div class="col-12 col-md-3" v-if="selectedNode">
-      <q-card flat bordered class="selected-node-card">
-        <!-- Header -->
-        <div class="selected-node-header q-pa-sm row items-center">
-          <q-icon name="label_important" class="q-mr-sm text-accent" size="24px"/>
-          <div class="text-h6 text-primary text-weight-bold">
+        <div class="col-12 col-md-8">
+          <q-card class="q-pa-md" style="height: 100%;">
+            <quest-node-tree
+              :questId="questId"
+              :guildId="guildId"
+              :selectedNodeId="selectedNodeId"
+            />
+          </q-card>
+        </div>
+        <transition name="fade">
+          <div class="col-12 col-md-3" v-if="selectedNode">
+            <q-card flat bordered class="selected-node-card">
+              <div class="selected-node-header q-pa-sm row items-center">
+                <q-icon name="label_important" class="q-mr-sm text-accent" size="24px"/>
+                <div class="text-h6 text-primary text-weight-bold">
             {{ selectedNode!.title || 'Selected Node' }}
           </div>
         </div>
@@ -112,8 +108,6 @@
     @cancel="cancel"
   />
 </div>
-
-<!-- Floating Node Form for adding child -->
 <div
   v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
   class="floating-node-form"
@@ -131,7 +125,6 @@
     @cancel="cancel"
   />
 </div>
-
   </q-page>
 </template>
 <script setup lang="ts">
@@ -433,12 +426,8 @@ async function editNode(nodeId: number) {
     console.warn('Node not found:', nodeId);
     return;
   }
-
-  // Clone the node for editing
   newNode.value = { ...selectedNodeLocal };
   addingChildToNodeId.value = null;
-
-  // Determine allowed child types and meta permissions
   if (selectedNodeLocal.parent_id != null) {
     const parent = getNode(selectedNodeLocal.parent_id);
     selectedIbisTypes.value = parent?.node_type
@@ -501,6 +490,7 @@ async function initializeGuildInner() {
 <style scoped>
 .selected-node-card {
   height:300px;
+  max-height: 350px;
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   background-color: #ffffff;
@@ -520,9 +510,9 @@ async function initializeGuildInner() {
   flex: 1;
   overflow-y: auto;
 }
-
 .scrollable-description {
-  max-height: 220px;
+  width: 90%;
+  max-height: 120px;
   overflow-y: auto;
   padding: 8px;
   background-color: #f8f9fa;

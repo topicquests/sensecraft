@@ -1,12 +1,12 @@
 <template>
+   <div v-if="q.screen.gt.sm"> 
   <q-card class="gameboard-card q-pa-lg">
     <!-- Header -->
     <div class="row justify-center q-mb-md">
       <p class="title">🎮 Gameboard</p>
     </div>
 
-    <!-- Scoreboard in single row -->
-    <div class="row no-wrap justify-around items-stretch">
+    <div class="row wrap justify-around items-stretch">
       <!-- Quests -->
       <q-card class="score-card q-pa-md">
         <div class="scoreboard-header">Quests</div>
@@ -16,7 +16,7 @@
             <div>Playing</div>
             <div>Finished</div>
           </div>
-          <div class="col-auto text-values">
+          <div class="col-4 text-values">
             <div>{{ questCount(status.registration) }}</div>
             <div>{{ questCount(status.ongoing) }}</div>
             <div>{{ questCount(status.finished) }}</div>
@@ -59,6 +59,7 @@
       </q-card>
     </div>
   </q-card>
+   </div>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +68,9 @@ import { useMembersStore } from '../stores/members'
 import { useGuildStore } from '../stores/guilds'
 import { useQuestStore } from '../stores/quests'
 import { quest_status_enum } from '../enums'
+import { useQuasar } from 'quasar'
+
+const q = useQuasar()
 
 const status = ref(quest_status_enum)
 const questStore = useQuestStore()
@@ -91,7 +95,7 @@ onBeforeMount(async () => {
   background-color: #000;
   border-radius: 20px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-  max-width: 1200px;
+  max-width: 100%;
   margin: auto;
 }
 
@@ -106,9 +110,9 @@ onBeforeMount(async () => {
 .score-card {
   background: #111;
   border-radius: 16px;
-  min-width: 250px;   /* wider base */
-  max-width: 300px;   /* allow more width */
-  flex: 0 0 auto;     /* don’t auto-stretch */
+  min-width: 150px;  
+  max-width: 200px;  
+  flex: 0 0 auto;  
   margin: 0 16px;
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }

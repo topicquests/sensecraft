@@ -113,8 +113,6 @@
         />
       </div>
     </section>
-
-    <!-- Meta / Comment Node -->
     <section class="row q-mb-md items-center">
       <q-checkbox
         v-if="allowChangeMeta"
@@ -174,8 +172,6 @@ const NodeFormProps = defineProps<{
 const emit = defineEmits(['action', 'cancel']);
 
 const node = ref<Partial<ConversationNode> | defaultNodeType>({ ...NodeFormProps.nodeInput });
-const selectedNode = ref<string | undefined>(NodeFormProps.nodeInput?.node_type);
-const selectedStatus = ref<string | undefined>(NodeFormProps.nodeInput?.status);
 const title = ref<QInput>();
 
 // Collapsible description
@@ -193,24 +189,16 @@ function isValidNodeStatus(status: any): status is publication_state_type {
 }
 
 // Computed
-const selectedNodeType = computed<string | undefined>({
-  get: () => selectedNode.value,
-  set: (val) => {
-    if (val && isValidNodeType(val)) {
-      selectedNode.value = val;
-      node.value.node_type = val;
-    }
-  },
+const selectedNodeType = computed({
+  get: () => node.value.node_type,
+  set: (val) => { if (isValidNodeType(val!)) node.value.node_type = val; }
 });
-const selectedStatusType = computed<string | undefined>({
-  get: () => selectedStatus.value,
-  set: (val) => {
-    if (val && isValidNodeStatus(val)) {
-      selectedStatus.value = val;
-      node.value.status = val;
-    }
-  },
+
+const selectedStatusType = computed({
+  get: () => node.value.status,
+  set: (val) => { if (isValidNodeStatus(val)) node.value.status = val; }
 });
+
 const roles = computed(() => NodeFormProps.roles);
 const description = computed({
   get: () => NodeFormProps.nodeInput!.description || '',

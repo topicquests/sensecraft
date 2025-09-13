@@ -519,8 +519,9 @@ export const useGuildStore = defineStore('guild', {
               availableRole.role_id,
             );
             if (castingRoles?.length) {
-              castingRoles.forEach((element) => {
-                questStore.deleteCastingRole(
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              castingRoles.forEach(async (element) => {
+                await questStore.deleteCastingRole(
                   element.member_id!,
                   element.guild_id,
                   element.role_id,
