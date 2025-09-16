@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="column items-right" v-if="ready && user">
-    <div class="col-12">
+    <div class="col-4">
       <div class="member q-pr-md">
         {{ handle }}
       </div>

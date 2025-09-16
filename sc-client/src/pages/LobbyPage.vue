@@ -144,7 +144,7 @@ p {
 }
 .lobby-card {
   background-color: transparent;
-  width: 60%;
+  width: 72%;
 }
 .scoreboard {
   width: 100%;
