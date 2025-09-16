@@ -96,9 +96,11 @@ const questStore = useQuestStore();
 const readStatusStore = useReadStatusStore();
 const router = useRouter();
 
+// Reactive variables
 const prompt = ref(false);
 const quest_id = ref(undefined);
 
+// Watches
 watch(quest_id, async (newVal) => {
   questStore.setCurrentQuest(newVal);
   await readStatusStore.ensureAllChannelReadStatus();
@@ -106,5 +108,59 @@ watch(quest_id, async (newVal) => {
 </script>
 
 <style scoped>
-/* Add your styles here if needed */
+.row.justify-start {
+  gap: 1.5rem;              
+  padding: 1rem 0;
+}
+
+#radio {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+#radio:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+#radio .q-radio__label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+#radio-btn {
+  margin-left: 1rem;
+  min-width: 90px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease;
+}
+#radio-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Dialog styling */
+[data-test="register-dialog"] .q-dialog__inner {
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Empty state heading */
+.col-12 h2 {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #666;
+}
 </style>

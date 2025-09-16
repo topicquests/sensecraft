@@ -61,8 +61,6 @@ async function joinToGuild () {
     guild_id: currentGuild.value.id,
     member_id: member.value?.id,
   });
-  await guildStore.ensureAllGuilds();
-  guildStore.setCurrentGuild(currentGuildId!)
   channelStore.setCurrentGuild(currentGuildId!);
   await channelStore.ensureChannels(currentGuildId!);
   await readStatusStore.ensureGuildUnreadChannels();

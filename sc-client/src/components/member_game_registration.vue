@@ -34,21 +34,28 @@ import { useRoleStore } from '../stores/role';
 import { useQuestStore } from '../stores/quests';
 import { useReadStatusStore } from '../stores/readStatus';
 import { useChannelStore } from '../stores/channel';
+import { useGuildStore } from '../stores/guilds';
 
+// Props
 const MemberGameRegistrationProp = defineProps<{
   show?: boolean;
   questId: number | undefined;
   guildId: number | undefined;
 }>();
 
+// Stores
 const memberStore = useMemberStore();
 const membersStore = useMembersStore();
 const roleStore = useRoleStore();
 const questStore = useQuestStore();
 const channelStore = useChannelStore()
+const guildStore = useGuildStore();
 const readStatusStore = useReadStatusStore();
+
+// Reactive variables
 const roleId = ref<number | undefined>(undefined);
 
+// Computed
 const availableRoles = computed((): Role[] => {
   const memberId = memberStore.member?.id;
   return membersStore
@@ -58,6 +65,17 @@ const availableRoles = computed((): Role[] => {
     )
     .map((cr: GuildMemberAvailableRole) => roleStore.getRoleById(cr.role_id));
 });
+
+// Hook
+onBeforeUpdate(async () => {
+  await ensureData();
+});
+
+onBeforeMount(async () => {
+  await ensureData();
+});
+
+// Functions
 async function doAddCasting(quest_id: number) {
   const guild_id = MemberGameRegistrationProp.guildId;
   const member_id = memberStore.member!.id;
@@ -83,6 +101,8 @@ async function updateRole() {
   await Promise.all([
     questStore.fetchQuestById(quest_id),
     channelStore.fetchChannels(guild_id!),
+    guildStore.ensureAllGuilds(),
+    guildStore.setCurrentGuild(guild_id!),
     readStatusStore.ensureGuildUnreadChannels(),
     questStore.ensureCurrentQuest(quest_id!),
   ]);
@@ -97,12 +117,64 @@ async function ensureData() {
   ]);
 }
 
-onBeforeUpdate(async () => {
-  await ensureData();
-});
-
-onBeforeMount(async () => {
-  await ensureData();
-});
 </script>
-<style lang="css"></style>
+<style lang="css">
+.q-card {
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.5rem;
+  background-color: #ffffff;
+  transition: box-shadow 0.2s ease;
+}
+.q-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.text-h6 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+}
+
+.q-radio {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  margin: 0.25rem 0;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+.q-radio:hover {
+  background-color: #f7f7f7;
+}
+
+.q-radio__label {
+  font-weight: 500;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.q-card > div > .text-h6 + * {
+  color: #777;
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.q-card-actions {
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e5e5;
+}
+.q-card-actions .q-btn {
+  font-weight: 500;
+  text-transform: none;
+  border-radius: 8px;
+  padding: 0.35rem 1rem;
+  transition: background-color 0.15s ease;
+}
+.q-card-actions .q-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+</style>

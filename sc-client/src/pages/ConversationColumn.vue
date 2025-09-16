@@ -3,709 +3,223 @@
     <div class="row justify-center">
       <q-card class="node-card q-mt-md q-pa-md">
         <q-card class="q-mt-md q-pa-md">
+          <!-- Member Handle + Quest Link -->
           <div class="row justify-end" style="width: 92%">
-            <member-handle></member-handle>
+            <member-handle />
           </div>
           <div class="row justify-center q-mt-lg">
             <router-link
               v-if="questId"
-              :to="{
-                name: 'quest_page',
-                params: { quest_id: questId },
-              }"
+              :to="{ name: 'quest_page', params: { quest_id: questId } }"
+              class="quest-link"
             >
               Quest Play Page
             </router-link>
           </div>
-          <q-card>
+
+          <!-- Node Info -->
+          <q-separator spaced />
+          <div class="section-title">Node Info</div>
+         <q-card class="node-info-card">
             <div class="row justify-center q-mb-sm">
-              <div>
-                <h5>
-                  <q-icon :name="getIcon(node!.id)" class="q-mr-sm" />
-                  {{ node?.title }}
-                </h5>
-              </div>
+              <h5 class="flex items-center text-h5">
+                <q-icon :name="getIcon(node!.id)" class="q-mr-sm text-primary" />
+                {{ node?.title }}
+              </h5>
             </div>
+
+            <!-- Scrollable Description -->
             <div class="row justify-center">
-                <q-card class="q-mb-md scrollable-description">
-                    <div class="content" v-html="node!.description"></div>                    
-                  <section v-if="node!.url || node!.node_type == 'reference'">
-                      <div class="row q-ml-md">
-                        <a v-bind:href="node!.url" target="_blank">
-                          <span> url: </span> {{ node!.url }}
-                        </a>
-                      </div>
-                    </section>
-                  <q-card-actions align="right" class="q-pa-sm">
-                    <EditButton
-                      :nodeId="selectedNode!.id"
-                      :questId="questId"
-                      class="q-mr-sm"
-                      @click="editNode(selectedNode!.id)"
-                    />
-                    <q-btn
-                      v-if="canAddChild()"
-                      flat
-                      color="primary"
-                      icon="add"
-                      label="Add Child"
-                      @click="addChildToNode(selectedNodeId!)"
-                    />
-                  </q-card-actions>
-                </q-card>              
-            </div>
-            <div class="row justify-center items-center">
-              <div class="col-4 q-pa-sm" style="width: 100%">
-                <q-card class="q-ma-md">
-                  <div
-                    class="row justify-center items-center q-pb-lg q-pt-lg"
-                    style="flex-wrap: wrap"
-                  >
-                    <q-card
-                      v-if="parent"
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="
-                        min-width: 200px;
-                        height: 100px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                      "
-                    >
-                      <span>Parent Node</span>
-                      <div>
-                        <q-icon
-                          :name="getIcon(parent!.id)"
-                          style="width: 30px; height: 30px"
-                          class="q-mb-md"
-                        />
-                      </div>
-                      <div>
-                        <a
-                          class="q-ml-md q-mr-md"
-                          href="#"
-                          @click.prevent="updateNodeId(parent.id)"
-                        >
-                          {{ parent!.title }}
-                        </a>
-                      </div>
-                    </q-card>
+              <q-card class="q-mb-md scrollable-description shadow-2">
+                <div class="content" v-html="node!.description"></div>
+                <section v-if="node!.url || node!.node_type === 'reference'">
+                  <div class="row q-ml-md">
+                    <a :href="node!.url" target="_blank">
+                      <span>url:</span> {{ node!.url }}
+                    </a>
                   </div>
-                </q-card>
-              </div>
-            </div>
-            <div class="row justify-center items-center">
-              <div class="col-4 q-pa-sm" style="width: 100%">
-                <q-card class="q-ma-md">
-                  <div
-                    class="row justify-center items-center q-pb-lg q-pt-lg"
-                    style="flex-wrap: wrap"
-                  >
-                    <!-- First Card -->
-                    <q-card
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="
-                        width: 17%;
-                        min-width: 200px;
-                        height: 200px;
-                        margin-right: 16px;
-                      "
-                    >
-                      <!-- Header Nodes with rounded corners and title in the same row -->
-                      <div
-                        class="row q-pa-md q-pt-md q-pb-sm items-center"
-                        style="
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          background-color: #f5f5f5;
-                        "
-                      >
-                        <q-img
-                          :src="issueIcon"
-                          alt="Issue Icon"
-                          class="icon"
-                          style="margin-right: 8px"
-                        />
-                        <span>Question</span>
-                      </div>
-                      <!-- Question Data -->
-                      <div
-                        v-if="filteredQuestions.length"
-                        style="height: calc(100% - 56px); overflow-y: auto"
-                      >
-                        <div
-                          v-for="question in filteredQuestions"
-                          :key="question!.id"
-                          style="margin: 0"
-                        >
-                          <a
-                            href="#"
-                            @click.prevent="updateNodeId(question!.id)"
-                          >
-                            <div>{{ question?.title }}</div>
-                            <div style="font-size: 0.875rem; color: #666">
-                              {{
-                                guildStore.getGuildById(question!.guild_id!)
-                                  ?.name || 'Unknown Guild'
-                              }}
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </q-card>
-                    <!-- Second Card -->
-                    <q-card
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="
-                        width: 17%;
-                        min-width: 200px;
-                        height: 200px;
-                        margin-right: 16px;
-                      "
-                    >
-                      <!-- Header Nodes with rounded corners and title in the same row -->
-                      <div
-                        class="row q-pa-md q-pt-md q-pb-sm items-center"
-                        style="
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          background-color: #f5f5f5;
-                        "
-                      >
-                        <q-img
-                          :src="positionIcon"
-                          alt="Position Icon"
-                          class="icon"
-                          style="margin-right: 8px"
-                        />
-                        <span>Answer</span>
-                      </div>
-                      <!-- Answer Data -->
-                      <div
-                        v-if="filteredAnswers.length"
-                        style="height: calc(100% - 56px); overflow-y: auto"
-                      >
-                        <div
-                          v-for="answer in filteredAnswers"
-                          :key="answer!.id"
-                          style="margin: 0"
-                        >
-                          <a href="#" @click.prevent="updateNodeId(answer!.id)">
-                            <div>{{ answer?.title }}</div>
-                            <div style="font-size: 0.875rem; color: #666">
-                              {{
-                                guildStore.getGuildById(answer.guild_id!)
-                                  ?.name || 'Unknown Guild'
-                              }}
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </q-card>
-                    <!-- Third Card -->
-                    <q-card
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="
-                        width: 17%;
-                        min-width: 200px;
-                        height: 200px;
-                        margin-right: 16px;
-                      "
-                    >
-                      <!-- Header Nodes -->
-                      <div
-                        class="row q-pa-md q-pt-md q-pb-sm items-center"
-                        style="
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          background-color: #f5f5f5;
-                        "
-                      >
-                        <q-img
-                          :src="proIcon"
-                          alt="Pro Icon"
-                          class="icon"
-                          style="margin-right: 8px"
-                        />
-                        <span>Pro</span>
-                      </div>
-                      <!-- Pro Data -->
-                      <div
-                        v-if="filteredPro.length"
-                        style="height: calc(100% - 56px); overflow-y: auto"
-                      >
-                        <div
-                          v-for="pro in filteredPro"
-                          :key="pro!.id"
-                          style="margin: 0"
-                        >
-                          <a href="#" @click.prevent="updateNodeId(pro!.id)">
-                            <div>{{ pro?.title }}</div>
-                            <div style="font-size: 0.875rem; color: #666">
-                              {{
-                                guildStore.getGuildById(pro!.guild_id!)?.name ||
-                                'Unknown Guild'
-                              }}
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </q-card>
-                    <!-- Fourth Card -->
-                    <q-card
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="
-                        width: 17%;
-                        min-width: 200px;
-                        height: 200px;
-                        margin-right: 16px;
-                      "
-                    >
-                      <!-- Header Nodes -->
-                      <div
-                        class="row q-pa-md q-pt-md q-pb-sm items-center"
-                        style="
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          background-color: #f5f5f5;
-                        "
-                      >
-                        <q-img
-                          :src="conIcon"
-                          alt="Con Icon"
-                          class="icon"
-                          style="margin-right: 8px"
-                        />
-                        <span>Con</span>
-                      </div>
-                      <!-- Con Data -->
-                      <div
-                        v-if="filteredCon.length"
-                        style="height: calc(100% - 56px); overflow-y: auto"
-                      >
-                        <div
-                          v-for="con in filteredCon"
-                          :key="con!.id"
-                          style="margin: 0"
-                        >
-                          <a href="#" @click.prevent="updateNodeId(con!.id)">
-                            <div>{{ con?.title }}</div>
-                            <div style="font-size: 0.875rem; color: #666">
-                              {{
-                                guildStore.getGuildById(con.guild_id!)?.name ||
-                                'Unknown Guild'
-                              }}
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </q-card>
-                    <!-- Fifth Card -->
-                    <q-card
-                      class="q-pl-sm q-ml-md q-mb-md"
-                      style="width: 17%; min-width: 200px; height: 200px"
-                    >
-                      <!-- Header Nodes -->
-                      <div
-                        class="row q-pa-md q-pt-md q-pb-sm items-center"
-                        style="
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          background-color: #f5f5f5;
-                        "
-                      >
-                        <q-img
-                          :src="refIcon"
-                          alt="Ref Icon"
-                          class="icon"
-                          style="margin-right: 8px"
-                        />
-                        <span>Ref</span>
-                      </div>
-                      <!-- Ref Data -->
-                      <div
-                        v-if="filteredRef.length"
-                        style="height: calc(100% - 56px); overflow-y: auto"
-                      >
-                        <div
-                          v-for="ref in filteredRef"
-                          :key="ref!.id"
-                          style="margin: 0"
-                        >
-                          <a href="#" @click.prevent="updateNodeId(ref!.id)">
-                            <div>{{ ref?.title }}</div>
-                            <div style="font-size: 0.875rem; color: #666">
-                              {{
-                                guildStore.getGuildById(ref!.guild_id!)?.name ||
-                                'Unknown Guild'
-                              }}
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </q-card>
-                  </div>
-                </q-card>
-              </div>
+                </section>
+              </q-card>
             </div>
           </q-card>
+
+          <!-- Parent Node -->
+          <q-separator spaced />
+          <div class="section-title">Parent Node</div>
+          <div class="row justify-center items-center">
+            <div class="col-4 q-pa-sm" style="width: 100%">
+              <q-card class="q-ma-md parent-card"
+                v-if="parent"
+                @click="updateNodeId(parent.id)"
+                style="min-width: 200px; height: 150px; cursor: pointer;"
+                flat
+                bordered
+              >
+                <span>Parent Node</span>
+                <q-icon
+                  :name="getIcon(parent!.id)"
+                  size="md"
+                  class="q-mb-md"
+                />
+                <div class="parent-title">
+                  {{ parent!.title }}
+                </div>
+              </q-card>
+              <div v-else class="text-grey-6 q-mt-md q-mb-md text-center">
+                No parent node.
+              </div>
+            </div>
+          </div>
+
+          <!-- IBIS Columns -->
+          <q-separator spaced />
+          <div class="section-title">IBIS Structure</div>
+          <div class="ibis-grid q-pa-md">
+            <ibis-column
+              title="Question"
+              :items="filteredQuestions"
+              :icon="issueIcon"
+              @select="updateNodeId"
+            >
+              <template #empty>
+                <div class="empty-state">No questions.</div>
+              </template>
+            </ibis-column>
+            <ibis-column
+              title="Answer"
+              :items="filteredAnswers"
+              :icon="positionIcon"
+              @select="updateNodeId"
+            >
+              <template #empty>
+                <div class="empty-state">No answers.</div>
+              </template>
+            </ibis-column>
+            <ibis-column
+              title="Pro"
+              :items="filteredPro"
+              :icon="proIcon"
+              @select="updateNodeId"
+            >
+              <template #empty>
+                <div class="empty-state">No pros.</div>
+              </template>
+            </ibis-column>
+            <ibis-column
+              title="Con"
+              :items="filteredCon"
+              :icon="conIcon"
+              @select="updateNodeId"
+            >
+              <template #empty>
+                <div class="empty-state">No cons.</div>
+              </template>
+            </ibis-column>
+            <ibis-column
+              title="Ref"
+              :items="filteredRef"
+              :icon="refIcon"
+              @select="updateNodeId"
+            >
+              <template #empty>
+                <div class="empty-state">No references.</div>
+              </template>
+            </ibis-column>
+          </div>
         </q-card>
       </q-card>
     </div>
-    <node-form
-    :ref="nodeFormRef(selectedNodeId!)"
-    :nodeInput="selectedNode"
-    :allowAddChild="false"
-    :ibisTypes="selectedIbisTypes"
-    :editing="true"
-    :roles="roleStore.getRoles"
-    :allowChangeMeta="allowChangeMeta"
-    :pubFn="calcSpecificPubConstraints"
-    @action="confirmEdit"
-    @cancel="cancel"
-  />
   </q-page>
 </template>
+
 <script setup lang="ts">
-// Imports
-import { ComponentPublicInstance, computed, nextTick, onBeforeMount, ref, watch } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { waitUserLoaded } from '../app-access';
-import { ibis_child_types, useConversationStore } from '../stores/conversation';
-import { ConversationNode, QTreeNode } from '../types';
-import { ibis_node_type_enum, ibis_node_type_list, ibis_node_type_type, publication_state_enum, publication_state_list, publication_state_type } from '../enums';
+import { useConversationStore } from '../stores/conversation';
+import { QTreeNode } from '../types';
+import { ibis_node_type_enum } from '../enums';
 import issueIcon from '../statics/images/ibis/issue_sm.png';
 import positionIcon from '../statics/images/ibis/position_sm.png';
 import proIcon from '../statics/images/ibis/plus_sm.png';
 import conIcon from '../statics/images/ibis/minus_sm.png';
 import refIcon from '../statics/images/ibis/reference_sm.png';
 import memberHandle from '../components/member-handle.vue';
-import { useGuildStore } from '../stores/guilds';
-import { useQuestStore } from '../stores/quests';
-import { useRoleStore } from '../stores/role';
-import EditButton from '../components/edit-button.vue';
-import NodeForm from '../components/node-form.vue';
-import { useQuasar } from 'quasar';
-
-type NodeFormInstance = ComponentPublicInstance<{
-  setFocus: () => void;
-}>;
-
-// Quasar
-const $q = useQuasar();
+import IbisColumn from '../components/ibis-column.vue';
 
 // Stores
 const conversationStore = useConversationStore();
-const guildStore = useGuildStore();
-const questStore = useQuestStore();
-const roleStore = useRoleStore();
 
 // Route
 const route = useRoute();
 
 // Reactive Variables
-const q = ref<Partial<QTreeNode[]> | undefined>(undefined);
-const tree = ref<Partial<QTreeNode[]> | undefined>(undefined);
-const nodeId = ref();
-const questId = ref<number | undefined>();
+const q = ref<Partial<QTreeNode[]> | undefined>();
+const tree = ref<Partial<QTreeNode[]> | undefined>();
+const nodeId = ref<number>();
+const questId = ref<number>();
 const ready = ref(false);
-const newNode = ref({});
-const editable = ref<boolean>(true)
-const allowChangeMeta = ref(false);
-const editingNodeId = ref<number | null>(null);
-const form = ref<NodeFormInstance | null>(null);
-const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
-const addingChildToNodeId = ref<number | null>(null);
-const selectedIbisTypes = ref<any[]>([]);
-const parseNodeId = (param: string | string[] | undefined): number | undefined => {
-  if (typeof param === 'string') {
-    return Number.parseInt(param);
-  } else if (Array.isArray(param && param.length > 0)) {
-    return Number.parseInt(param![0]);
-  }
-  return undefined;
-};
-const selectedNodeId = ref<number | undefined>(parseNodeId(route.params.quest_id));
 
-// non reactive variables
-let baseNodePubStateConstraints: publication_state_type[];
-let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
-
-// Computed Properties
-const currentGuildId = computed(() =>
-  guildStore.getCurrentGuild
-)
-const canAddChild = computed(() => {
-  return () => {
-    return (
-      canAddTo() &&
-      !editingNodeId.value &&
-      !addingChildToNodeId.value
-    );
-  };
-});
-const selectedNode = computed(() => {
-  if (selectedNodeId.value != null) {
-    return conversationStore.getConversationNodeById(selectedNodeId.value);
-  }
-  return undefined;
-});
+// Computed
 const node = computed(() =>
-  conversationStore.getConversationNodeById(nodeId.value),
+  conversationStore.getConversationNodeById(nodeId.value!)
 );
-const parent = computed((): QTreeNode | undefined => {
-  if (node.value!.parent_id && node.value!.parent_id) {
-    return conversationStore.getConversationNodeById(node.value!.parent_id);
-  }
-  return undefined;
+const parent = computed(() => {
+  const id = node.value?.parent_id;
+  return id ? conversationStore.getConversationNodeById(id) : undefined;
 });
-const filteredQuestions = computed(
-  () =>
-    q.value?.filter(
-      (item) => item!.node_type === ibis_node_type_enum.question,
-    ) || [],
+
+const filteredQuestions = computed(() =>
+  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.question) as QTreeNode[]) || []
 );
 const filteredAnswers = computed(() =>
-  filterNodesByType(q.value, ibis_node_type_enum.answer),
+  filterNodesByType(q.value, ibis_node_type_enum.answer)
 );
-const filteredPro = computed(
-  () =>
-    q.value?.filter((item) => item!.node_type === ibis_node_type_enum.pro) ||
-    [],
+const filteredPro = computed(() =>
+  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.pro) as QTreeNode[]) || []
 );
 const filteredCon = computed(() =>
-  filterNodesByType(q.value, ibis_node_type_enum.con),
+  filterNodesByType(q.value, ibis_node_type_enum.con)
 );
-const filteredRef = computed(
-  () =>
-    q.value?.filter(
-      (item) => item!.node_type === ibis_node_type_enum.reference,
-    ) || [],
+const filteredRef = computed(() =>
+  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.reference) as QTreeNode[]) || []
 );
+
 function getIcon(id: number) {
-  const treeIcon = findNodeById(tree.value, id);
-  return treeIcon?.icon;
+  return findNodeById(tree.value, id)?.icon;
 }
 
-// Watches
+// Watch
 watch(nodeId, () => {
   if (nodeId.value) getIcon(nodeId.value);
 });
 
 // Functions
-function nodeFormRef(nodeId: string | number) {
-  return (el: Element | NodeFormInstance | null) => {
-    console.log('nodeFormRef called for nodeId', nodeId, el);
-
-    if (el && typeof el === 'object' && '$' in el) {
-      nodeForms.value[`editForm_${nodeId}`] = el;
-    } else {
-      nodeForms.value[`editForm_${nodeId}`] = null;
-    }
-    if (editingNodeId.value === nodeId) {
-      form.value = nodeForms.value[`editForm_${nodeId}`];
-    }
-  };
-}
-function cancel() {
-  editingNodeId.value = null;
-  addingChildToNodeId.value = null;
-  newNode.value = {};
-}
-function addChildToNode(nodeId: number | null) {
-  const formKey = `addChildForm_${nodeId}`;
-  editingNodeId.value = null;
-  const parent = getNode(nodeId!);
-  const parent_ibis_type = parent!.node_type;
-  childIbisTypes = ibis_child_types(parent_ibis_type);
-  allowChangeMeta.value = parent!.meta === 'conversation';
-  newNode.value = {
-    status: 'private_draft',
-    node_type: childIbisTypes[0],
-    parent_id: nodeId!,
-    quest_id: parent!.quest_id,
-    guild_id: guildStore.getCurrentGuild!.id,
-    meta: parent!.meta,
-  };
-  calcPublicationConstraints(newNode.value);
-  addingChildToNodeId.value = nodeId;
-  setTimeout(() => {
-    form.value = nodeForms.value[formKey];
-    if (form.value) form.value.setFocus();
-  }, 0);
-}
-async function confirmEdit(node: Partial<ConversationNode>) {
-  try {
-    await conversationStore.updateConversationNode(node);
-    cancel();
-
-    editingNodeId.value = null;
-    $q.notify({
-      message: `node updated`,
-      color: 'positive',
-    });
-  } catch (err) {
-    console.log('there was an error in adding node ', err);
-    $q.notify({
-      message: `There was an error updating node.`,
-      color: 'negative',
-    });
-  }
-}
 function updateNodeId(id: number) {
   nodeId.value = id;
   initialize();
 }
-function getNode(nodeId: number): ConversationNode | null {
-  const node = conversationStore.getConversationNodeById(nodeId);
-  return node ?? null;
-}
 function filterNodesByType(
   nodes: Partial<QTreeNode[]> | undefined,
-  type: ibis_node_type_enum,
+  type: ibis_node_type_enum
 ): QTreeNode[] {
   const result: QTreeNode[] = [];
   if (!nodes) return result;
-  for (const node of nodes) {
-    if (node!.node_type === type) {
-      result.push(node!);
-    }
-    if (node!.children && node!.children.length > 0) {
-      result.push(...filterNodesByType(node!.children, type));
-    }
+  for (const n of nodes) {
+    if (n!.node_type === type) result.push(n!);
+    if (n!.children?.length) result.push(...filterNodesByType(n!.children, type));
   }
   return result;
 }
-function canAddTo(): boolean {
-  const quest = questStore.getQuestById(
-    questId.value!
-  );
-  if (quest) {
-    return (
-      (quest.is_playing || quest.is_quest_member) && quest.status != 'finished'
-    );
-  }
-  return false;
-}
-function calcPublicationConstraints(node: Partial<ConversationNode>) {
-  if (!currentGuildId.value) {
-    baseNodePubStateConstraints = [
-      publication_state_enum.private_draft,
-      publication_state_enum.published,
-    ];
-    return;
-  }
-  // a node publication state must be <= its parent's and >= all its children
-  const pub_states = [...publication_state_list];
-  if (!node) return [];
-  if (node.parent_id) {
-    const parent = getNode(node.parent_id);
-    if (parent) {
-      const pos = pub_states.indexOf(parent.status);
-      if (pos >= 0) {
-        pub_states.splice(pos + 1);
-      }
-    }
-  }
-  if (node.id) {
-    const children_status = conversationStore
-      .getChildrenOf(node.id)!
-      .map((n) => n!.status);
-    if (children_status.length > 0) {
-      children_status.sort(
-        (a, b) =>
-          publication_state_list.indexOf(a) - publication_state_list.indexOf(b),
-      );
-      const pos = pub_states.indexOf(children_status[0]);
-      if (pos > 0) pub_states.splice(0, pos);
-    }
-  }
-  if (node.meta == 'channel') {
-    // clamp to guild
-    const pos = pub_states.indexOf('proposed');
-    if (pos >= 0) pub_states.splice(pos);
-  }
-  baseNodePubStateConstraints = pub_states;
-}
-function calcSpecificPubConstraints(node: Partial<ConversationNode>) {
-  if (node.meta == 'channel' || !currentGuildId.value)
-    return baseNodePubStateConstraints;
-  const pub_states = [...baseNodePubStateConstraints];
-  if (node.meta == 'meta') {
-    // clamp to guild
-    const pos = pub_states.indexOf('proposed');
-    if (pos >= 0) pub_states.splice(pos);
-  }
-  const node_type = node.node_type;
-  if (node_type && node.quest_id) {
-    const max_state = questStore.getMaxPubStateForNodeType(
-      node.quest_id,
-      node_type,
-    );
-    const pos = pub_states.indexOf(max_state);
-    if (pos >= 0) pub_states.splice(pos + 1);
-  }
-  const posCurrent = pub_states.indexOf(node.status!);
-  if (posCurrent < 0) {
-    console.error('current node status not in pub_states');
-    pub_states.push(node.status!);
-  }
-  return pub_states;
-}
-async function editNode(nodeId: number) {
-  const selectedNodeLocal = getNode(nodeId);
-  if (!selectedNodeLocal) {
-    console.warn('Node not found:', nodeId);
-    return;
-  }
-  function getNode(nodeId: number): ConversationNode | null {
-  const node = conversationStore.getConversationNodeById(nodeId);
-  return node ?? null;
-  }
-
-  // Clone the node for editing
-  newNode.value = { ...selectedNodeLocal };
-  addingChildToNodeId.value = null;
-
-  // Determine allowed child types and meta permissions
-  if (selectedNodeLocal.parent_id != null) {
-    const parent = getNode(selectedNodeLocal.parent_id);
-    selectedIbisTypes.value = parent?.node_type
-      ? ibis_child_types(parent.node_type)
-      : [];
-    allowChangeMeta.value =
-      parent?.meta === 'conversation' &&
-      conversationStore.canMakeMeta(nodeId);
-  } else {
-    selectedIbisTypes.value = ibis_node_type_list;
-    allowChangeMeta.value = false;
-  }
-  calcPublicationConstraints(selectedNodeLocal);
-  editingNodeId.value = nodeId;
-  editable.value = true;
-  await nextTick();
-  const formKey = `editForm_${nodeId}`;
-  const formInstance = nodeForms.value[formKey] || null;
-  form.value = formInstance;
-
-  if (form.value?.setFocus) {
-    form.value.setFocus();
-  } else {
-    console.warn('Form instance not ready yet for nodeId', nodeId);
-  }
-}
 function findNodeById(
   nodes: Partial<QTreeNode[]> | undefined,
-  id: number,
+  id: number
 ): QTreeNode | null {
   if (!nodes) return null;
-  for (const node of nodes) {
-    if (node!.id === id) {
-      return node as QTreeNode;
-    }
-    if (node!.children && node!.children.length > 0) {
-      const found = findNodeById(node!.children, id);
+  for (const n of nodes) {
+    if (n!.id === id) return n as QTreeNode;
+    if (n!.children?.length) {
+      const found = findNodeById(n!.children, id);
       if (found) return found;
     }
   }
@@ -713,101 +227,264 @@ function findNodeById(
 }
 function initialize() {
   tree.value = conversationStore.getConversationTree;
-  q.value = conversationStore.getChildrenOf(nodeId.value);
+  q.value = conversationStore.getChildrenOf(nodeId.value!);
 }
 
-// Lifecycle Hooks
+// Lifecycle
 onBeforeMount(async () => {
   await waitUserLoaded();
-  if (typeof route.params.quest_id === 'string')
+  if (typeof route.params.quest_id === 'string') {
     questId.value = Number(route.params.quest_id);
+  }
   await conversationStore.ensureConversation(questId.value!);
-  const rootNode = conversationStore.getRootNode;
-  nodeId.value = rootNode?.id;
+  nodeId.value = conversationStore.getRootNode?.id;
   initialize();
   ready.value = true;
 });
 </script>
 
 <style>
-.q-item-image {
-  min-width: 10px;
-  max-width: 10px;
+.node-info-card {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  border-radius: 16px;
+  border: 2.5px solid #8e24aa;
+  box-shadow: 0 6px 32px rgba(142, 36, 170, 0.13), 0 1.5px 6px rgba(142, 36, 170, 0.07);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
-.scroll.relative-position.overflow-hidden.fit.q-touch {
-  user-select: auto !important;
+.node-info-card:hover {
+  box-shadow: 0 12px 36px rgba(142, 36, 170, 0.18);
+  border-color: #6a1b9a;
+  transform: translateY(-4px) scale(1.03);
+  z-index: 2;
+}
+
+.node-info-card h5 {
+  color: #6a1b9a;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 1.25rem;
+}
+
+.node-info-card .q-icon {
+  font-size: 2rem;
+  color: #8e24aa;
+}
+
+.node-info-card .scrollable-description {
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(142, 36, 170, 0.07);
+  margin-top: 0.5rem;
+}
+
+.node-info-card .content {
+  background: #f3e5f5;
+  border-radius: 6px;
+  padding: 1em;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.node-info-card a {
+  color: #8e24aa;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.node-info-card a:hover {
+  color: #6a1b9a;
+}
+
+.parent-card {
+  background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+  border-radius: 16px;
+  border: 2.5px solid #fbc02d;
+  box-shadow: 0 6px 32px rgba(251, 192, 45, 0.13), 0 1.5px 6px rgba(251, 192, 45, 0.07);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s, background 0.2s;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.parent-card:hover {
+  background: linear-gradient(135deg, #fffde7 0%, #ffe082 100%);
+  border-color: #f9a825;
+  box-shadow: 0 12px 36px rgba(251, 192, 45, 0.18);
+  transform: translateY(-4px) scale(1.03);
+  z-index: 2;
+}
+
+.parent-card span {
+  color: #fbc02d;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 1.05rem;
+}
+
+.parent-card .q-icon {
+  font-size: 2rem;
+  color: #fbc02d;
+}
+
+.parent-title {
+  font-weight: bold;
+  color: #fbc02d;
+  margin-top: 0.5em;
+  font-size: 1.15rem;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px #fffde7;
+}
+/* Responsive */
+@media (max-width: 900px) {
+  .node-info-card {
+    padding: 1rem 0.5rem;
+  }
 }
 .node-card {
   width: 70%;
+  max-width: 1200px;
 }
-@media only screen and (max-width: 1300px) {
-  .node-card {
-    width: 70%;
-  }
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem 0;
+  color: #1976d2;
+  letter-spacing: 1px;
 }
-@media only screen and (max-width: 800px) {
-  .node-card {
-    width: 70%;
-  }
+
+.quest-link {
+  font-weight: bold;
+  color: #1976d2;
+  text-decoration: underline;
 }
-.description {
-  max-height: 50px;
-  background-color: gray;
-}
-.node:hover {
-  background-color: rgba(255, 255, 0, 0.801);
-}
-.content {
-  background-color: lightgrey;
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  width: 100%;
-  max-height: 220px;
-  overflow-y: auto;
-}
+
 .scrollable-description {
-  padding: 8px;
+  padding: 1rem;
   background-color: #f8f9fa;
   border-radius: 6px;
-  width: 40%;
-}
-#node-description {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
   width: 100%;
+  max-width: 600px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .content {
+  background-color: #f1f3f4;
   padding: 1em;
   margin-bottom: 1em;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14pt;
+  max-height: 220px;
+  overflow-y: auto;
   width: 100%;
-}
-.quest-description-col {
-  width: 100%;
-}
-@media only screen and (max-width: 800px) {
-  quest-description-col {
-    width: 98%;
-  }
-}
-.icon-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  height: 80px; /* Fixed height for icon containers */
-  width: 80px;
+  border-radius: 4px;
 }
 
-.icon {
-  width: 20px;
-  height: 20px;
+.ibis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.ibis-grid .ibis-column,
+.ibis-grid .q-card {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 14px;
+  border: 2.5px solid #1976d2;
+  box-shadow: 0 6px 32px rgba(25, 118, 210, 0.18), 0 1.5px 6px rgba(25, 118, 210, 0.07);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  padding: 1.2rem 0.7rem;
+  min-height: 240px;
+  position: relative;
+  z-index: 1;
+}
+
+.ibis-grid .ibis-column:hover,
+.ibis-grid .q-card:hover {
+  box-shadow: 0 12px 36px rgba(25, 118, 210, 0.22);
+  border-color: #0d47a1;
+  transform: translateY(-6px) scale(1.04);
+  z-index: 2;
+}
+
+.ibis-grid .ibis-column::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -10px; left: -10px; right: -10px; bottom: -10px;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #1976d2 0%, #64b5f6 100%);
+  opacity: 0.10;
+  z-index: -1;
+}
+
+.ibis-grid .ibis-column .empty-state {
+  color: #b0b0b0;
+  font-style: italic;
+  text-align: center;
+  margin: 1em 0;
+}
+
+.ibis-grid .ibis-column .q-icon {
+  margin-bottom: 0.5em;
+  font-size: 2.2rem;
+  color: #1976d2;
+}
+
+.ibis-grid .ibis-column .q-card__section {
+  padding: 0.5em 0;
+}
+
+.ibis-grid .ibis-column .q-card__title {
+  font-weight: bold;
+  color: #1976d2;
+  font-size: 1.15rem;
+  margin-bottom: 0.5em;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px #fff;
+}
+
+.parent-card {
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.parent-card:hover {
+  background: #e3f2fd;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.12);
+}
+
+.parent-title {
+  font-weight: bold;
+  color: #1976d2;
+  margin-top: 0.5em;
+}
+
+.empty-state {
+  color: #b0b0b0;
+  font-style: italic;
+  text-align: center;
+  margin: 1em 0;
+}
+
+@media (max-width: 900px) {
+  .node-card {
+    width: 98%;
+    max-width: 100vw;
+    padding: 0.5rem;
+  }
+  .scrollable-description {
+    width: 98%;
+    max-width: 100vw;
+  }
+  .ibis-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

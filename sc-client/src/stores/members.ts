@@ -155,10 +155,10 @@ export const useMembersStore = defineStore('members', {
       const quest = questStore.getQuestById(questId);
       let membersId: (number | undefined)[] =
         quest.casting?.map((mp: Casting) => mp.member_id) || [];
-      membersId.concat(
-        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) ||
-          [],
+      membersId = membersId.concat(
+        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) || []
       );
+
       membersId = [...new Set(membersId)];
       membersId = membersId.filter(
         (id: number | undefined) => !this.members[id!],

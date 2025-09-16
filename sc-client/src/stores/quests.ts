@@ -29,6 +29,7 @@ import {
 import { getWSClient } from '../wsclient';
 import { filterKeys } from './baseStore';
 
+// Interface
 interface QuestMap {
   [key: number]: QuestData;
 }
@@ -39,6 +40,7 @@ export interface QuestsState {
   currentQuest?: number;
 }
 
+// State
 const baseState: QuestsState = {
   currentQuest: undefined,
   fullFetch: false,
@@ -54,6 +56,7 @@ const clearBaseState: QuestsState = {
 
 export const useQuestStore = defineStore('quest', {
   state: () => baseState,
+  
   getters: {
     getCurrentQuest: (state: QuestsState): QuestData | undefined => {
       if (state.currentQuest) {
@@ -61,10 +64,13 @@ export const useQuestStore = defineStore('quest', {
       }
       return undefined;
     },
+
     getQuests: (state: QuestsState): QuestData[] => {
       return Object.values(state.quests);
     },
+
     getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
+    
     getMyQuests: (state: QuestsState) => {
       const member_id = useMemberStore().getUserId;
       return Object.values(state.quests).filter((quest: QuestData) =>
@@ -73,32 +79,38 @@ export const useQuestStore = defineStore('quest', {
         ),
       );
     },
+
     getActiveQuests: (state: QuestsState): QuestData[] =>
       Object.values(state.quests).filter(
         (quest) =>
           ['ongoing', 'paused', 'registration'].indexOf(quest.status) >= 0,
-      ),
+    ),
+
     getPlayingQuests: (state: QuestsState) => {
       const member_id = useMemberStore().getUserId;
       return Object.values(state.quests).filter((quest: QuestData) =>
         quest.casting?.find((c: Casting) => c.member_id == member_id),
       );
     },
+
     getPlayers: (state: QuestsState) => (quest_id: number) =>
       state.quests[quest_id]?.casting?.map((c: Casting) =>
         useMembersStore().getMemberById(c.member_id!),
-      ),
+    ),
+
     getPlayersInGuild:
       (state: QuestsState) => (quest_id: number, guild_id: number) =>
         state.quests[quest_id]?.casting
           ?.filter((c: Casting) => c.guild_id == guild_id)
           .map((c: Casting) => useMembersStore().getMemberById(c.member_id!)),
+
     isQuestMember: (state: QuestsState) => (quest_id: number) => {
       const member_id = useMemberStore().getUserId;
       return state.quests[quest_id]?.quest_membership?.find(
         (m: QuestMembership) => m.member_id == member_id && m.confirmed,
       );
     },
+
     getCurrentGamePlay: (state: QuestsState): GamePlay | undefined => {
       if (state.currentQuest) {
         const quest = state.quests[state.currentQuest];
@@ -111,6 +123,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     getCastingRoles:
       () =>
       (member_id: number): Role[] | undefined => {
@@ -122,7 +135,8 @@ export const useQuestStore = defineStore('quest', {
           return roles;
         }
         return undefined;
-      },
+    },
+
     getCastingRolesForQuest:
       () =>
       (member_id: number, quest_id: number): Role[] | undefined => {
@@ -139,7 +153,8 @@ export const useQuestStore = defineStore('quest', {
           return roles;
         }
         return undefined;
-      },
+    },
+
     getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
       const membersStore = useMembersStore();
@@ -173,7 +188,8 @@ export const useQuestStore = defineStore('quest', {
           (c: Casting) => c.member_id == member_id,
         );
         return casting?.guild_id;
-      },
+    },
+
     castingInQuest:
       (state: QuestsState) =>
       (quest_id?: number | null, member_id?: number) => {
@@ -182,7 +198,8 @@ export const useQuestStore = defineStore('quest', {
         return state.quests[quest_id!]?.casting?.find(
           (c: Casting) => c.member_id == member_id,
         );
-      },
+    },
+
     getCastingRolesById:
       () =>
       (member_id: number, quest_id: number): CastingRole[] | undefined => {
@@ -191,7 +208,8 @@ export const useQuestStore = defineStore('quest', {
           (role) => role.quest_id == quest_id,
         );
         return playerRoles;
-      },
+    },
+
     getMembersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
       const membersStore = useMembersStore();
@@ -199,13 +217,15 @@ export const useQuestStore = defineStore('quest', {
         ?.map((qm: QuestMembership) => membersStore.members[qm.member_id])
         .filter((member: PublicMember) => member);
     },
+
     isGuildPlayingQuest:
       (state: QuestsState) => (quest_id?: number, guild_id?: number) => {
         quest_id = quest_id || state.currentQuest;
         return state.quests[quest_id!]?.casting?.find(
           (c: Casting) => c.guild_id == guild_id,
         );
-      },
+    },
+
     getPlayersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
       const membersStore = useMembersStore();
@@ -214,6 +234,7 @@ export const useQuestStore = defineStore('quest', {
           .map((c: Casting) => membersStore.members[c.member_id!])
           .filter((member: PublicMember) => member);
     },
+
     getGamePlayForGuild:
       (state: QuestsState) =>
       (guild_id: number): GamePlay | undefined => {
@@ -223,13 +244,15 @@ export const useQuestStore = defineStore('quest', {
             (gp: GamePlay) => gp.guild_id == guild_id,
           );
         }
-      },
+    },
+
     getQuestsByStatus:
       (state: QuestsState) =>
       (status: quest_status_enum | string): QuestData[] =>
         Object.values(state.quests).filter(
           (quest: QuestData) => quest.status == status,
-        ),
+    ),
+
     getMaxPubStateForNodeType:
       () =>
       (
@@ -255,7 +278,6 @@ export const useQuestStore = defineStore('quest', {
             );
             maxPubStates = maxPubStates.filter((x) => x != undefined);
             if (maxPubStates.length > 0) {
-              // maximum for all roles
               maxPubStates.sort(
                 (a, b) =>
                   publication_state_list.indexOf(b!) -
@@ -264,10 +286,10 @@ export const useQuestStore = defineStore('quest', {
             }
           }
         }
-        // no constraint
         return publication_state_enum.submitted;
       },
   },
+
   actions: {
     async createQuest(data: Quest) {
       const res: QuestData | undefined = await this.createQuestBase(data);
@@ -276,12 +298,14 @@ export const useQuestStore = defineStore('quest', {
       useConversationStore().resetConversation();
       return res;
     },
+
     async ensureAllQuests(): Promise<QuestData[] | undefined> {
       if (Object.keys(this.quests).length === 0 || !this.fullFetch) {
         const quest: QuestData[] | undefined = await this.fetchQuests();
         if (quest && quest.length > 0) return quest;
       } else return undefined;
     },
+
     async ensureQuest({
       quest_id,
       full = true,
@@ -296,16 +320,19 @@ export const useQuestStore = defineStore('quest', {
         await this.fetchQuestById(quest_id, full);
       }
     },
+
     async ensureCurrentQuest(quest_id: number, full = true) {
       await this.ensureQuest({ quest_id, full });
       this.setCurrentQuest(quest_id);
     },
+
     setCurrentQuest(quest_id: number | boolean | undefined) {
       if (typeof quest_id === 'number') {
         this.currentQuest = quest_id;
       }
       getWSClient().setDefaultQuest(quest_id!);
     },
+
     resetQuests() {
       Object.assign(this, clearBaseState);
     },
@@ -314,6 +341,7 @@ export const useQuestStore = defineStore('quest', {
     async fetchQuests(): Promise<QuestData[] | undefined> {
       return await this.fetchQuestById(undefined, false);
     },
+
     async fetchQuestById(
       id: number | number[] | undefined,
       full?: boolean,
@@ -375,6 +403,7 @@ export const useQuestStore = defineStore('quest', {
       }
       return [];
     },
+
     async addCasting(casting: Partial<Casting>) {
       const memberStore = useMemberStore();
       const res: AxiosResponse<Casting[]> = await api.post('/casting', casting);
@@ -396,6 +425,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async addCastingRole(castingRole: Partial<CastingRole>) {
       const memberStore = useMemberStore();
       const membersStore = useMembersStore();
@@ -462,6 +492,7 @@ export const useQuestStore = defineStore('quest', {
         membersStore.removeCastingRole(res.data[0]);
       }
     },
+
     async updateCasting(data: Casting) {
       const memberStore = useMemberStore();
       const params = Object();
@@ -490,6 +521,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async createQuestBase(
       data: Quest
     ): Promise<QuestData | undefined> {
@@ -511,6 +543,7 @@ export const useQuestStore = defineStore('quest', {
       }
       return undefined
     },
+
     async updateQuest(data: Partial<Quest>) {
       const params = Object();
       params.id = data.id;
@@ -530,6 +563,7 @@ export const useQuestStore = defineStore('quest', {
         this.fullQuests = { ...this.fullQuests, [quest.id]: true };
       }
     },
+
     async addQuestMembership(params: Partial<QuestMembership>) {
       const memberStore = useMemberStore();
       const res: AxiosResponse<QuestMembership[]> = await api.post(
@@ -554,6 +588,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async updateQuestMembership(data: Partial<QuestMembership>) {
       const memberStore = useMemberStore();
       const params = Object();
@@ -583,6 +618,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async addGamePlay(params: Partial<GamePlay>) {
       const guildStore = useGuildStore();
       const res: AxiosResponse<Partial<GamePlay[]>> = await api.post(
@@ -611,6 +647,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async updateGamePlay(data: { id: number }) {
       const guildStore = useGuildStore();
       const params = Object();
@@ -641,6 +678,7 @@ export const useQuestStore = defineStore('quest', {
         }
       }
     },
+
     async endTurn(data: { quest_id: number | undefined }) {
       await api.post('/rpc/end_turn', data);
     },

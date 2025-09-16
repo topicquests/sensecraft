@@ -1,90 +1,113 @@
 <template>
-  <q-card id="team-card" class="q-pb-md">
-    <div class="col-3">
-      <h3 class="text-center">Team</h3>
-    </div>
-    <ul>
-      <li v-for="member in members" :key="member.id" class="q-ml-lg q-mr-md">
-        <div class="row">
-          <div class="col-4">
-            <span class="q-pr-md q-ml-md"> {{ member.handle }} </span>
-          </div>
-          <div class="col-3"></div>
-          <div class="col-4">
-            <span v-if="playingAsGuildId(member.id)">
-              <span
-                v-if="playingAsGuildId(member.id) == GuildMembersProps.guild!.id"
-                style="color: black"
-              >
-                {{ getAllCastingRoleNames(member.id) }}
-              </span>
-              <span
-                v-if="playingAsGuildId(member.id) != GuildMembersProps.guild!.id"
-                >Playing in
+  <q-card id="team-card" class="q-pa-md">
+    <q-card-section>
+      <div class="text-h6 text-center q-mb-md">Team</div>
+
+      <q-list separator>
+        <q-item
+          v-for="member in membersStoreMembers"
+          :key="member.id"
+          class="q-py-sm flex items-center justify-between"
+        >
+          <q-item-section side class="text-subtitle1">
+            {{ member.handle }}
+          </q-item-section>
+
+          <q-item-section class="q-gutter-sm" style="flex: 1">
+            <template v-if="memberGuildId(member.id!)">
+              <template v-if="memberGuildId(member.id!) === GuildMembersProps.guild?.id">
+                <q-chip
+                  v-for="role in memberRoles(member.id!)"
+                  :key="role"
+                  size="md"
+                  outline color="primary"
+                  text-color="black"
+                  class="q-mr-sm"
+                  dense
+                >
+                  {{ role }}
+                </q-chip>
+              </template>
+
+              <template v-else>
+                Playing in
                 <router-link
-                  :to="{
-                    name: 'guild',
-                    params: { guild_id: playingAsGuildId(member.id) },
-                  }"
-                  >{{ playingAsGuild(member.id).name }}</router-link
-                ></span
-              >
-            </span>
-          </div>
-        </div>
-      </li>
-    </ul>
+                  :to="{ name: 'guild', params: { guild_id: memberGuildId(member.id!) } }"
+                  class="text-primary text-weight-medium"
+                >
+                  {{ memberGuild(member.id!)?.name }}
+                </router-link>
+              </template>
+            </template>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card-section>
   </q-card>
 </template>
+
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Guild, Quest, PublicMember } from '../types';
 import { useQuestStore } from '../stores/quests';
 import { useGuildStore } from '../stores/guilds';
 import { useMembersStore } from '../stores/members';
 import { useRoleStore } from '../stores/role';
 
+// Props
 const GuildMembersProps = defineProps<{
   guild?: Guild;
   quest?: Quest;
-  members: PublicMember[] | undefined;
+  members?: PublicMember[];
   playersOnly?: boolean;
 }>();
 
+// Stores
 const questStore = useQuestStore();
 const guildStore = useGuildStore();
 const membersStore = useMembersStore();
 const roleStore = useRoleStore();
 
-function playingAsGuildId(member_id: number) {
-  return questStore.castingInQuest(null, member_id)?.guild_id;
-}
-function playingAsGuild(member_id: number): Guild {
-  const guild_id = playingAsGuildId(member_id);
-  return guildStore.getGuildById(guild_id!);
-}
-function getCastingRoleNamesForQuest(memberId: number) {
-  const castingRoles = membersStore.castingRolesPerQuest(
-    memberId,
-    GuildMembersProps.quest!.id,
+// Computed
+const membersStoreMembers = computed(() => {
+  if (!GuildMembersProps.members) return [];
+  return GuildMembersProps.members.map(m =>
+    membersStore.getMemberById(m.id) || m
   );
-  const roles = castingRoles.map((cr) => roleStore.role[cr.role_id]);
-  return roles;
+});
+
+// Functions
+function memberGuildId(memberId: number): number | undefined {
+  return questStore.castingInQuest(GuildMembersProps.quest?.id ?? null, memberId)?.guild_id;
 }
-function getAllCastingRoleNames(memberId: number): string {
-  const roles = getCastingRoleNamesForQuest(memberId);
-  const rolesName: string = roles.map((cr) => cr.name).join(',');
-  return rolesName;
+
+function memberGuild(memberId: number) {
+  const gid = memberGuildId(memberId);
+  return gid ? guildStore.getGuildById(gid) : undefined;
+}
+
+// --- compute roles per member directly from store ---
+function memberRoles(memberId: number): string[] {
+  const questId = GuildMembersProps.quest?.id;
+  if (!questId) return [];
+  const castingRoles = membersStore.castingRolesPerQuest(memberId, questId);
+  return castingRoles
+    .map(cr => roleStore.getRoleById(cr.role_id)?.name)
+    .filter((r): r is string => !!r);
 }
 </script>
-<style>
+
+<style scoped>
 #team-card {
   width: 100%;
-  font-size: 20px;
-  color: black;
-  border: grey;
-  background-color: floralwhite;
+  border: 1px solid #ccc;
+  background-color: #fffaf0;
+  border-radius: 16px;
 }
-#team-card-members {
-  color: blue;
+
+.q-list .q-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
