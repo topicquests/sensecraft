@@ -6,7 +6,7 @@
           <img :src="ibis_node_icon('quest', false)" />
         </q-avatar>
         <div class="row justify-center">
-          <h3 class="q-mt-md">
+          <h3 class="q-mt-md quest-card-title">
             {{ QuestCardProps.currentQuest.name }}
           </h3>
           <q-btn
@@ -151,8 +151,14 @@ function getLastActivity() {
   font-size: 1em;
   background-color: ivory;
 }
-#quest-card-title {
+.quest-card-title {
   border: black;
+  max-width: 800px;
+  width: 600px;
+  margin: auto;
+  text-align: center;
+  font-size: 1.5em;
+  padding-top: 3%;
 }
 #quest-card-details {
   text-align: left;

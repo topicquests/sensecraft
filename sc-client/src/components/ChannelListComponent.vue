@@ -51,7 +51,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useChannelStore } from '../stores/channel';
-import { waitUserLoaded } from '../app-access';
 import { onBeforeUpdate } from 'vue';
 import { onBeforeMount } from 'vue';
 import { useGuildStore } from '../stores/guilds';
@@ -82,7 +81,6 @@ onBeforeUpdate(async () => {
 });
 
 onBeforeMount(async () => {
-  await waitUserLoaded();
   await ensureData();
   ready.value = true;
 });

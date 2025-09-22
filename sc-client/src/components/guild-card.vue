@@ -20,7 +20,10 @@
           Description<br />
         </div>
         <div class="row justify-start q-pb-sm">
-          <q-editor v-model="description"> </q-editor>
+          <q-editor 
+            v-model="description"
+            :toolbar="[ ['bold','italic','underline','strike'] ]"> 
+          </q-editor>
         </div>
       </section>
       <div>
@@ -45,7 +48,7 @@
             color="primary"
             class="q-mr-md q-ml-md"
           />
-          <q-btn label="Cancel" @click="$router.push({ name: 'home' })" />
+          <q-btn label="Cancel" @click="router.push({ name: 'home' })" />
         </div>
       </section>
     </q-card>
@@ -54,11 +57,13 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { waitUserLoaded } from '../app-access';
 import { public_private_bool } from '../enums';
 import { Guild } from '../types';
 import { useGuildStore } from '../stores/guilds';
-import { onBeforeMount, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const GuildCardProps = defineProps<{
   currentGuild?: Partial<Guild>;
@@ -100,7 +105,4 @@ const doSubmit = async () => {
   }
 };
 defineExpose({ doSubmit });
-onBeforeMount(async () => {
-  await waitUserLoaded();
-});
 </script>

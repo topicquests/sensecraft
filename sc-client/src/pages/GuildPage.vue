@@ -322,6 +322,7 @@ watch(
 
 //Lifecycle Hooks
 onBeforeMount(async () => {
+  await waitUserLoaded();
   await initialize();
 });
 onBeforeRouteLeave((to, from, next) => {
@@ -391,7 +392,6 @@ async function castingRoleRemoved(role_id: number) {
 }
 
 async function initialize() {
-  await waitUserLoaded();
   if (typeof route.params.guild_id === 'string') {
     guildId.value = Number.parseInt(route.params.guild_id);
   }

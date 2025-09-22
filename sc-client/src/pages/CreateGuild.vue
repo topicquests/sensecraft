@@ -49,6 +49,7 @@
                 v-model="description"
                 placeholder="Enter guild description..."
                 style="min-height: 150px;"
+                :toolbar="[ ['bold','italic','underline','strike'] ]"
               />
             </div>
 

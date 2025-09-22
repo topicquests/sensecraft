@@ -23,15 +23,9 @@ export interface MembersState {
   fullFetch: boolean;
   questFetch?: number;
   guildFetch?: number;
-  fullMembers: { [key: number]: boolean };
+  fullMembers: { [key: number]: boolean }; // Add index signature for number keys
 }
-const baseState: MembersState = {
-  fullFetch: false,
-  questFetch: undefined,
-  guildFetch: undefined,
-  members: {},
-  fullMembers: {},
-};
+
 const clearBaseState: MembersState = {
   fullFetch: false,
   questFetch: undefined,
@@ -40,9 +34,14 @@ const clearBaseState: MembersState = {
   fullMembers: {},
 };
 
-
 export const useMembersStore = defineStore('members', {
-  state: () => baseState,
+  state: (): MembersState => ({
+    fullFetch: false,
+    questFetch: undefined,
+    guildFetch: undefined,
+    members: {},
+    fullMembers: {},
+  }),
   getters: {
     getMembers: (state: MembersState): PublicMember[] =>
       Object.values(state.members).sort((a, b) =>

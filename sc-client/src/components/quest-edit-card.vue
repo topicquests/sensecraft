@@ -1,389 +1,196 @@
 <template>
-  <q-card class="items-center quest-card">
-    <div v-if="edit">
-      <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
-        <q-option-group
-          v-model="quest.public"
-          :options="public_private_bool"
-          color="primary"
-          inline
-        >
-        </q-option-group>
-      </div>
-      <div class="q-pa-md q-gutter-sm">
+  <q-card class="quest-card">
+
+    <!-- Quest Status Controls -->
+    <section v-if="edit" class="q-pa-md">
+      <div class="text-h6 q-mb-sm">Quest Status</div>
+      <div class="row q-gutter-sm q-mb-md flex-wrap">
+        <!-- Draft -->
         <q-btn
-          v-model="quest.status"
-          v-if="quest.status != 'draft'"
-          color="grey"
+          :color="quest.status === 'draft' ? 'yellow' : 'grey'"
           text-color="black"
-          label="draft"
-          :disable="true"
+          label="Draft"
+          :disable="quest.status !== 'draft'"
+          @click="updateStatus('draft')"
         />
+        <!-- Registration -->
         <q-btn
-          v-model="quest.status"
-          v-else
-          color="yellow"
+          :color="quest.status === 'registration' ? 'green'
+                  : quest.status === 'draft' ? 'primary' : 'grey'"
           text-color="black"
-          label="draft"
+          label="Registration"
+          :disable="quest.status !== 'draft' && quest.status !== 'registration'"
+          @click="quest.status === 'draft' && updateStatus('registration')"
         />
+        <!-- Ongoing -->
         <q-btn
-          v-model="quest.status"
-          v-if="quest.status != 'draft' && quest.status != 'registration'"
-          color="grey"
+          :color="quest.status === 'ongoing' ? 'green'
+                  : quest.status === 'registration' ? 'primary' : 'grey'"
           text-color="black"
-          label="registration"
-          :disable="true"
+          label="Ongoing"
+          :disable="quest.status !== 'registration' && quest.status !== 'ongoing'"
+          @click="quest.status === 'registration' && updateStatus('ongoing')"
         />
+        <!-- Finished -->
         <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'draft'"
-          color="green"
+          :color="quest.status === 'finished' ? 'green'
+                  : quest.status === 'ongoing' ? 'primary' : 'grey'"
           text-color="black"
-          label="registration"
-          value="registration"
-          @click="updateStatus('registration')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="registration"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-if="
-            quest.status != 'draft' &&
-            quest.status != 'registration' &&
-            quest.status != 'ongoing'
-          "
-          color="grey"
-          text-color="black"
-          label="ongoing"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'registration'"
-          color="green"
-          text-color="black"
-          label="Start"
-          @click="updateStatus('ongoing')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="Start"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-if="
-            quest.status != 'draft' &&
-            quest.status != 'registration' &&
-            quest.status != 'ongoing'
-          "
-          color="grey"
-          text-color="black"
-          label="finished"
-          :disable="true"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else-if="quest.status == 'ongoing'"
-          color="green"
-          text-color="black"
-          label="finished"
-          @click="updateStatus('finished')"
-        />
-        <q-btn
-          v-model="quest.status"
-          v-else
-          color="red"
-          text-color="black"
-          label="finished"
+          label="Finished"
+          :disable="quest.status !== 'ongoing' && quest.status !== 'finished'"
+          @click="quest.status === 'ongoing' && updateStatus('finished')"
         />
       </div>
-      <div class="q-pa-md q-gutter-sm">
-        <p style="color: black; background-color: white">
-          Status: {{ quest.status }}
-        </p>
-      </div>
-    </div>
-    <div class="row justify-start q-pb-lg q-ml-lg">
+      <p class="text-body1 q-mb-none">
+        <strong>Current:</strong> {{ quest.status }}
+      </p>
+    </section>
+
+    <!-- Title -->
+    <div class="q-pa-md">
       <q-input
-        class="field-name q-pt-md quest-title-input"
         v-model="quest.name"
-        label="Quest title"
-        name="quest-title"
-        id="name"
+        label="Quest Title"
+        class="quest-title-input full-width"
         filled
       />
     </div>
-    <div class="row q-pb-xs">Description<br /></div>
-    <div class="row jusify-center">
+
+    <!-- Description -->
+    <div class="q-pa-md">
+      <label class="text-subtitle1 q-mb-xs">Description</label>
       <q-editor
         v-model="description"
-        name="description"
-        id="q-editor"
         data-test="description-editor"
-        class="q-mb-md quest-card-editor"
+        class="quest-card-editor full-width"
+        :toolbar="[['bold','italic','underline','strike']]"
       />
     </div>
-    <div class="row">
-      <div class="col-6 q-pl-md">
-        <span>Start</span>
+
+    <!-- Dates -->
+    <div class="row q-pa-md q-gutter-md">
+      <div class="col-12 col-md-6">
+        <q-input filled v-model="quest.start" label="Start Date" data-test="start-input">
+          <template #prepend>
+            <DatePopup v-model="quest.start" />
+          </template>
+          <template #append>
+            <TimePopup v-model="quest.start" />
+          </template>
+        </q-input>
       </div>
-      <div class="col-6 q-pl-md">
-        <span>End</span>
+      <div class="col-12 col-md-6">
+        <q-input filled v-model="quest.end" label="End Date" data-test="end-input">
+          <template #prepend>
+            <DatePopup v-model="quest.end" />
+          </template>
+          <template #append>
+            <TimePopup v-model="quest.end" />
+          </template>
+        </q-input>
       </div>
     </div>
-    <div class="row">
-      <div class="col-6">
-        <div class="q-pa-md" style="max-width: 400px">
-          <q-input
-            filled
-            v-model="quest.start"
-            name="startDate"
-            data-test="start-input">
-            <template v-slot:prepend>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date v-model="quest.start" mask="YYYY-MM-DD HH:mm">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
 
-            <template v-slot:append>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-time v-model="quest.start" mask="YYYY-MM-DD HH:mm">
-                    format24h >
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="q-pa-md" style="max-width: 400px">
-          <q-input
-            filled
-            v-model="quest.end"
-            name="endDate"
-            data-test="end-input">
-            <template v-slot:prepend>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date v-model="quest.end" mask="YYYY-MM-DD HH:mm"
-                    >>
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-
-            <template v-slot:append>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-time v-model="quest.end" mask="YYYY-MM-DD HH:mm">
-                    format24h >
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </div>
-      </div>
-    </div>
-    <div class="row justify-start q-pa-lg q-ml-lg q-gutter-sm">
+    <!-- Turn-based Options -->
+    <div class="q-pa-md">
       <q-option-group
         v-model="quest.turn_based"
         :options="turn_based_bool"
         color="primary"
         inline
       />
+      <div v-if="quest.turn_based && quest.status === 'ongoing'" class="q-mt-sm">
+        <q-btn @click="doEndTurn" label="End Turn" color="primary" />
+      </div>
     </div>
-    <div
-      class="row justify-start q-pa-lg q-ml-lg q-gutter-sm"
-      v-if="quest.turn_based && quest.status == 'ongoing'"
-    >
-      <q-btn @click="doEndTurn" label="End Turn" />
-    </div>
-    <div class="row justify-start q-pb-lg q-ml-lg">
+
+    <!-- Quest Handle -->
+    <div class="q-pa-md">
       <q-input
-        class="field-name"
-        style="width: 300px"
-        name="quest-handle"
         v-model="quest.handle"
-        label="Quest handle"
+        label="Quest Handle"
+        class="full-width"
         filled
       />
     </div>
-    <div class="row justify-center q-pb-lg">
-      <div v-if="edit">
-        <q-btn
-          label="update"
-          data-test="update-quest-btn"
-          name="updateQuestBtn"
-          @click="doUpdateQuest"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-      </div>
-      <div v-else>
-        <q-btn
-          label="Create"
-          data-test="create-quest-btn"
-          name="createQuestBtn"
-          @click="doUpdateQuest"
-          color="primary"
-          class="q-mr-md q-ml-md"
-        />
-      </div>
-      <q-btn label="Cancel" @click="router.push({ name: 'home' })" />
+
+    <!-- Action Buttons -->
+    <div class="row justify-center q-pa-md q-gutter-md">
+      <q-btn
+        :label="edit ? 'Update' : 'Create'"
+        color="primary"
+        @click="doUpdateQuest"
+        data-test="update-quest-btn"
+      />
+      <q-btn
+  label="Cancel"
+  color="primary"
+  outline
+  @click="router.push({ name: 'home' })"
+/>
+
     </div>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { Quest } from '../types';
-import { public_private_bool, quest_status_type } from '../enums';
-import { DateTime } from 'luxon';
-import { useQuestStore } from '../stores/quests';
-import { useQuasar } from 'quasar';
-import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { Quest } from '../types'
+import { public_private_bool, quest_status_type } from '../enums'
+import { DateTime } from 'luxon'
+import { useQuestStore } from '../stores/quests'
+import { useQuasar } from 'quasar'
+import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-// Props
-const QuestCardProps = defineProps<{
-  thisQuest: Partial<Quest>;
-  edit: boolean;
-  create: boolean;
-}>();
+const props = defineProps<{ thisQuest: Partial<Quest>; edit: boolean; create: boolean }>()
+const router = useRouter()
+const questStore = useQuestStore()
+const $q = useQuasar()
+const emit = defineEmits(['doUpdateQuest'])
 
-//Router
-const router = useRouter();
+const quest = ref<Partial<Quest>>(props.thisQuest)
 
-// Stores
-const questStore = useQuestStore();
-
-// Quasar
-const $q = useQuasar();
-
-// Emits
-const emit = defineEmits(['doUpdateQuest']);
-
-// Reactive Variables
-const quest = ref<Partial<Quest>>(QuestCardProps.thisQuest);
-
-// Non Reactive Variables
 const turn_based_bool = [
-  {
-    label: 'Continuous',
-    value: false,
-  },
-  {
-    label: 'Turn-based',
-    value: true,
-  },
-];
+  { label: 'Continuous', value: false },
+  { label: 'Turn-based', value: true },
+]
 
 const description = computed({
-  get() {
-    return quest.value.description || '';
-  },
-  set(value) {
-    quest.value.description = value;
-  },
-});
+  get: () => quest.value.description || '',
+  set: v => (quest.value.description = v),
+})
 
-// Watches
-watch(
-  () => QuestCardProps.thisQuest,
-  (newQuest) => {
-    quest.value = { ...newQuest };
-  },
-);
+watch(() => props.thisQuest, n => (quest.value = { ...n }))
 
-// Functions
 async function doEndTurn() {
   try {
-    await questStore.endTurn({ quest_id: quest.value.id });
-    $q.notify({
-      type: 'positive',
-      message: 'Turn ended',
-    });
-  } catch (e) {
-    console.log("Error in turn: ", e)
-    $q.notify({
-      type: 'negative',
-      message: 'Could not end turn',
-    });
+    await questStore.endTurn({ quest_id: quest.value.id })
+    $q.notify({ type: 'positive', message: 'Turn ended' })
+  } catch {
+    $q.notify({ type: 'negative', message: 'Could not end turn' })
   }
 }
+
 function updateStatus(value: quest_status_type) {
-  const dt = DateTime.now();
-  if (value == 'registration') {
-    $q.notify({
-      message: "Don't forget to create first conversation node",
-      color: 'positive',
-    });
+  const now = DateTime.now().toString()
+  if (value === 'registration') {
+    $q.notify({ message: "Don't forget to create first conversation node", color: 'positive' })
   }
-  if (value == 'ongoing') {
-    quest.value.start = dt.toString();
-  }
-  if (value == 'finished') {
-    quest.value.end = dt.toString();
-  }
-  quest.value.status = value;
+  if (value === 'ongoing') quest.value.start = now
+  if (value === 'finished') quest.value.end = now
+  quest.value.status = value
 }
+
 function doUpdateQuest() {
-  console.log('Quest ', quest.value);
-  const createdQuest: Quest = Object.assign(quest.value);
-  emit('doUpdateQuest', createdQuest);
+  emit('doUpdateQuest', { ...quest.value } as Quest)
 }
 </script>
+
 <style>
 .quest-card {
   background-color: #f5f7ff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  padding: 1.2em;
   color: #1a237e;
 }
 .quest-card-editor {
@@ -392,20 +199,13 @@ function doUpdateQuest() {
   padding: 0.5em;
   background-color: #fff;
   max-height: 200px;
-  width: 500px;  
-  max-width: 90%;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
-  overflow-y: auto;
 }
 .quest-title-input {
-  width: 80%;
-  font-size: 15px;
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #c0c0c0;
   font-weight: 600;
 }
-.quest-title-input .q-field__native {
-  white-space: normal !important;
-  word-break: break-word;
-}
-
 </style>

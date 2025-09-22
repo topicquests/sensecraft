@@ -22,12 +22,6 @@ type decodedToken = {
   exp: number;
 };
 
-const baseState: MemberState = {
-  member: undefined,
-  isAuthenticated: false,
-  token: undefined,
-  tokenExpiry: undefined,
-};
 const clearBaseState: MemberState = {
   member: undefined,
   isAuthenticated: false,
@@ -36,7 +30,12 @@ const clearBaseState: MemberState = {
 };
 
 export const useMemberStore = defineStore('member', {
-  state: () => baseState,
+  state: (): MemberState => ({
+  member: undefined,
+  isAuthenticated: false,
+  token: undefined,
+  tokenExpiry: undefined
+}),
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
@@ -96,7 +95,7 @@ export const useMemberStore = defineStore('member', {
         this.tokenExpiry = Date.now() + TOKEN_EXPIRATION;
         this.isAuthenticated = true;
         const storage = window.localStorage;
-        storage.setItem('token', this.token);
+        storage.setItem('token', this.token ?? '');
         storage.setItem('tokenExpiry', this.tokenExpiry.toString());
         token_store.setToken(this.token, this.tokenExpiry);
         window.setTimeout(() => {
@@ -171,12 +170,12 @@ export const useMemberStore = defineStore('member', {
             void this.renewToken(token);
           }, TOKEN_RENEWAL);
         } else {
-          Object.assign(this, baseState);
+          Object.assign(this, clearBaseState);
           token_store.clearToken();
           console.log('Renewal failed.');
         }
       } else {
-        Object.assign(this, baseState);
+        Object.assign(this, clearBaseState);
         token_store.clearToken();
         console.error(res.data);
       }

@@ -28,12 +28,6 @@ export interface GuildsState {
   fullGuilds: { [key: number]: boolean };
 }
 
-const baseState: GuildsState = {
-  currentGuild: undefined,
-  guilds: {},
-  fullFetch: false,
-  fullGuilds: {},
-};
 const clearBaseState: GuildsState = {
   currentGuild: undefined,
   guilds: {},
@@ -41,7 +35,12 @@ const clearBaseState: GuildsState = {
   fullGuilds: {},
 };
 export const useGuildStore = defineStore('guild', {
-  state: () => baseState,
+  state: (): GuildsState => ({
+    currentGuild: undefined,
+    guilds: {},
+    fullFetch: false,
+    fullGuilds: {},
+  }),
 
   getters: {
     getCurrentGuild: (state: GuildsState): GuildData | undefined => {
@@ -122,11 +121,11 @@ export const useGuildStore = defineStore('guild', {
       }
       return this.guilds;
     },
+
     setCurrentGuild(guild_id: number | boolean) {
       if (typeof guild_id === 'number') {
         this.currentGuild = guild_id;
       }
-
       getWSClient().setDefaultGuild(guild_id);
     },
     async ensureGuild(guild_id: number, full: boolean | undefined = true) {
@@ -147,7 +146,7 @@ export const useGuildStore = defineStore('guild', {
       const guild_id = guild.id;
       await this.fetchGuildsById(guild_id);
       // TODO: Get the membership from the guild
-      useMemberStore().fetchLoginUser;
+      await useMemberStore().fetchLoginUser();
       const params = {
         member_id: guild.creator,
         guild_id: guild_id,
@@ -263,7 +262,7 @@ export const useGuildStore = defineStore('guild', {
           res.data.map((guild: GuildData) => [guild.id, guild]),
         );
         if (!full) {
-          for (const guild of Object.values<GuildData>(this.guilds)) {
+         for (const guild of Object.values(this.guilds as Record<string, GuildData>)) {
             if (!this.fullGuilds[guild.id]) {
               continue;
             }
@@ -315,12 +314,14 @@ export const useGuildStore = defineStore('guild', {
         return res;
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          console.error('Guild creation failed:', error);
+          console.error('Guild creation failed:', error);      
           throw new Error(`Request failed with status code ${error.response?.status || 500}`);
-        } else {
+          } else {
           console.error('Unexpected error', error)
+          throw error;
         }
       }
+      throw new Error('Guild creation failed: No response returned');
     },
     async registerAllMembers(guildId: number, questId: number) {
       await api.post('/rpc/register_all_members', {
@@ -342,14 +343,18 @@ export const useGuildStore = defineStore('guild', {
           const guild = res.data[0];
           const guildData: GuildData = Object.assign(
             {},
-            this.guilds[guild.id],
+            this.guilds[guild!.id],
             guild,
           );
           this.guilds = { ...this.guilds, [guild!.id]: guildData };
         }
       } catch (error) {
         console.error('Guild update failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        if (axios.isAxiosError(error)) {
+          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        } else {
+          throw error;
+        }
       }
     },
     async doAddGuildMembership(data: Partial<GuildMembership>) {
@@ -369,7 +374,11 @@ export const useGuildStore = defineStore('guild', {
         }
       } catch (error) {
         console.error('Add guildMembership failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        if (axios.isAxiosError(error)) {
+          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        } else {
+          throw error;
+        }
       }
     },
     async doUpdateGuildMembership(data: Partial<GuildMembership>) {
@@ -407,7 +416,11 @@ export const useGuildStore = defineStore('guild', {
         }
       } catch(error) {
         console.error('Update guildMembership failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        if (axios.isAxiosError(error)) {
+          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        } else {
+          throw error;
+        }
       }
     },
     async addGuildMemberAvailableRole(data: {
@@ -456,7 +469,11 @@ export const useGuildStore = defineStore('guild', {
         }
       } catch(error) {
         console.error('Add guild member available role failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        if (axios.isAxiosError(error)) {
+          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        } else {
+          throw error;
+        }
       }
     },
     async deleteGuildMemberAvailableRole(

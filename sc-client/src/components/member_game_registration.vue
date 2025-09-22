@@ -49,8 +49,8 @@ const membersStore = useMembersStore();
 const roleStore = useRoleStore();
 const questStore = useQuestStore();
 const channelStore = useChannelStore()
-const guildStore = useGuildStore();
 const readStatusStore = useReadStatusStore();
+const guildStore = useGuildStore();
 
 // Reactive variables
 const roleId = ref<number | undefined>(undefined);
@@ -99,12 +99,12 @@ async function updateRole() {
     role_id,
   });
   await Promise.all([
-    questStore.fetchQuestById(quest_id),
+    guildStore.ensureCurrentGuild(guild_id!, false),
+    guildStore.setCurrentGuild(MemberGameRegistrationProp.guildId!),
+    questStore.ensureQuest({quest_id: quest_id!, full: false}),
+    membersStore.ensureMembersOfGuild({ guildId: guild_id! }),
     channelStore.fetchChannels(guild_id!),
-    guildStore.ensureAllGuilds(),
-    guildStore.setCurrentGuild(guild_id!),
     readStatusStore.ensureGuildUnreadChannels(),
-    questStore.ensureCurrentQuest(quest_id!),
   ]);
 }
 

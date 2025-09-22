@@ -29,7 +29,6 @@ import { computed, onBeforeMount, watch } from 'vue';
 import { useChannelStore } from '../stores/channel';
 import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
-import { waitUserLoaded } from '../app-access';
 
 const channelStore = useChannelStore();
 const guildStore = useGuildStore();
@@ -76,7 +75,6 @@ watch(isMember, async () => {
   }
 });
 onBeforeMount(async () => {
-  await waitUserLoaded();
   const guildId = channelStore.getChannelsCurrentGuildId;
   if (guildId !== undefined) {
     await channelStore.ensureChannels(guildId);

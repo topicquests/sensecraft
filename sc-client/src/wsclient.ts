@@ -19,7 +19,7 @@ export class WSClient {
   guildStore: any;
   conversationStore: any;
   readStatusStore: any;
-  constructor(url) {
+  constructor(url: string) {
     const memberStore = useMemberStore();
     this.memberStore = memberStore;
     this.membersStore = useMembersStore();
@@ -43,15 +43,15 @@ export class WSClient {
         memberStore.member &&
         token_store.tokenIsValid()
       ) {
-        this.login(memberStore.member.id, memberStore.token);
+        this.login(memberStore.member.id!, memberStore.token!);
       } else if (this.login_message) {
         this.ws.send(this.login_message);
       }
       this.setDefaultQuest(this.quest_id);
       this.setDefaultGuild(this.guild_id);
     });
-    this.ws.addEventListener('message', (event: Event) => {
-      this.onMessage(event);
+    this.ws.addEventListener('message', async (event: Event) => {
+      await this.onMessage(event);
     });
     this.ws.addEventListener('close', () => {
       console.log('Disconnected from server');

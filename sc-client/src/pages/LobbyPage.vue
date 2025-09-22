@@ -118,8 +118,6 @@ watchEffect(() => {
 // Lifecycle Hooks
 onBeforeMount(async () => {
   await waitUserLoaded();
-  guildsStore.setCurrentGuild(true);
-  questsStore.setCurrentQuest(true);
   await Promise.all([
     questsStore.ensureAllQuests(),
     guildsStore.ensureAllGuilds(),

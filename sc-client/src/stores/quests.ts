@@ -41,12 +41,6 @@ export interface QuestsState {
 }
 
 // State
-const baseState: QuestsState = {
-  currentQuest: undefined,
-  fullFetch: false,
-  quests: {},
-  fullQuests: {},
-};
 const clearBaseState: QuestsState = {
   currentQuest: undefined,
   fullFetch: false,
@@ -55,7 +49,12 @@ const clearBaseState: QuestsState = {
 };
 
 export const useQuestStore = defineStore('quest', {
-  state: () => baseState,
+  state: () => ({
+  currentQuest: undefined,
+  fullFetch: false,
+  quests: {},
+  fullQuests: {}
+}),
   
   getters: {
     getCurrentQuest: (state: QuestsState): QuestData | undefined => {
