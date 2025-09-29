@@ -70,24 +70,77 @@
     <!-- Dates -->
     <div class="row q-pa-md q-gutter-md">
       <div class="col-12 col-md-6">
-        <q-input filled v-model="quest.start" label="Start Date" data-test="start-input">
-          <template #prepend>
-            <DatePopup v-model="quest.start" />
-          </template>
-          <template #append>
-            <TimePopup v-model="quest.start" />
-          </template>
-        </q-input>
+       <q-input filled v-model="quest.start" name="startDate" label="Start Date">
+            <template v-slot:prepend>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="quest.start" mask="YYYY-MM-DD HH:mm">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+
+            <template v-slot:append>
+              <q-icon name="access_time" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-time v-model="quest.start" mask="YYYY-MM-DD HH:mm">
+                    format24h >
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-time>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
       </div>
       <div class="col-12 col-md-6">
-        <q-input filled v-model="quest.end" label="End Date" data-test="end-input">
-          <template #prepend>
-            <DatePopup v-model="quest.end" />
-          </template>
-          <template #append>
-            <TimePopup v-model="quest.end" />
-          </template>
-        </q-input>
+        <q-input filled v-model="quest.end" name="endDate" label="End date">
+            <template v-slot:prepend>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="quest.end" mask="YYYY-MM-DD HH:mm"
+                    >>
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+
+            <template v-slot:append>
+              <q-icon name="access_time" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-time v-model="quest.end" mask="YYYY-MM-DD HH:mm">
+                    format24h >
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-time>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
       </div>
     </div>
 
@@ -142,13 +195,18 @@ import { useQuasar } from 'quasar'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-const props = defineProps<{ thisQuest: Partial<Quest>; edit: boolean; create: boolean }>()
+const props = defineProps<{ thisQuest: Quest; edit: boolean; create: boolean }>()
 const router = useRouter()
 const questStore = useQuestStore()
 const $q = useQuasar()
 const emit = defineEmits(['doUpdateQuest'])
 
-const quest = ref<Partial<Quest>>(props.thisQuest)
+const quest = ref<Partial<Quest>>({
+  ...props.thisQuest,
+  start: props.thisQuest.start ?? null,
+  end:   props.thisQuest.end   ?? null
+})
+
 
 const turn_based_bool = [
   { label: 'Continuous', value: false },
@@ -198,9 +256,11 @@ function doUpdateQuest() {
   border: 1px solid #c0c0c0;
   padding: 0.5em;
   background-color: #fff;
-  max-height: 200px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 .quest-title-input {
   background-color: #fff;

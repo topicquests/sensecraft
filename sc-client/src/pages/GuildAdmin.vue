@@ -327,8 +327,8 @@ onBeforeMount(async () => {
   }
   currentGuildId.value = guildId!;
   await Promise.all([
-    guildStore.setCurrentGuild(guildId!),
     guildStore.ensureGuild(guildId!, true),
+    guildStore.setCurrentGuild(guildId!),
     questStore.ensureAllQuests(),
     roleStore.ensureAllRoles(),
     membersStore.ensureMembersOfGuild({ guildId }),

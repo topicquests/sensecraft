@@ -3,7 +3,7 @@
     <div class="col-4 text-right q-pr-md">
       <router-link
         class="guild-header"
-        v-if="canRegisterToQuest"
+        v-if="canRegisterToQuest && currentGuild"
         :to="{
           name: 'guild_admin',
           params: { guild_id: currentGuild!.id },

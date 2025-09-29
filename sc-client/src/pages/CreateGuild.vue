@@ -47,8 +47,8 @@
               <div class="q-mb-xs font-bold">Details</div>
               <q-editor
                 v-model="description"
+                class="guild-description-editor"
                 placeholder="Enter guild description..."
-                style="min-height: 150px;"
                 :toolbar="[ ['bold','italic','underline','strike'] ]"
               />
             </div>
@@ -139,7 +139,7 @@ async function doSubmit(guild: guildType) {
     const res: AxiosResponse<GuildData[]> = await guildStore.createGuild(guild);
 
     $q.notify({ message: 'Guild created successfully!', color: 'positive' });
-    router.push({ name: 'guild_admin', params: { guild_id: res.data[0].id } });
+    await router.push({ name: 'guild_admin', params: { guild_id: res.data[0].id } });
   } catch (error: unknown) {
     const message = axios.isAxiosError(error)
       ? `Axios error: ${error.message}`
@@ -161,6 +161,12 @@ onBeforeMount(async () => {
   background: url('../statics/images/questBackgroundImage.jpg') no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
+}
+
+.guild-description-editor {
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .create-guild-card {
