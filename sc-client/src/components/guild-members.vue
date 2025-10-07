@@ -5,22 +5,26 @@
 
       <q-list separator>
         <q-item
-          v-for="member in membersStoreMembers"
+          v-for="member in membersWithGuildData"
           :key="member.id"
           class="q-py-sm flex items-center justify-between"
         >
+          <!-- Handle -->
           <q-item-section side class="text-subtitle1">
             {{ member.handle }}
           </q-item-section>
 
+          <!-- Roles or Guild -->
           <q-item-section class="q-gutter-sm" style="flex: 1">
-            <template v-if="memberGuildId(member.id!)">
-              <template v-if="memberGuildId(member.id!) === GuildMembersProps.guild?.id">
+            <template v-if="member.guildId">
+              <!-- Same guild → show roles -->
+              <template v-if="member.guildId === GuildMembersProps.guild?.id">
                 <q-chip
-                  v-for="role in memberRoles(member.id!)"
+                  v-for="role in member.roles"
                   :key="role"
                   size="md"
-                  outline color="primary"
+                  outline
+                  color="primary"
                   text-color="black"
                   class="q-mr-sm"
                   dense
@@ -29,13 +33,14 @@
                 </q-chip>
               </template>
 
+              <!-- Different guild → show link -->
               <template v-else>
                 Playing in
                 <router-link
-                  :to="{ name: 'guild', params: { guild_id: memberGuildId(member.id!) } }"
+                  :to="{ name: 'guild', params: { guild_id: member.guildId } }"
                   class="text-primary text-weight-medium"
                 >
-                  {{ memberGuild(member.id!)?.name }}
+                  {{ member.guild?.name }}
                 </router-link>
               </template>
             </template>
@@ -47,54 +52,56 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Guild, Quest, PublicMember } from '../types';
-import { useQuestStore } from '../stores/quests';
-import { useGuildStore } from '../stores/guilds';
-import { useMembersStore } from '../stores/members';
-import { useRoleStore } from '../stores/role';
+import { computed } from 'vue'
+import { Guild, Quest, PublicMember } from '../types'
+import { useQuestStore } from '../stores/quests'
+import { useGuildStore } from '../stores/guilds'
+import { useMembersStore } from '../stores/members'
+import { useRoleStore } from '../stores/role'
 
 // Props
 const GuildMembersProps = defineProps<{
-  guild?: Guild;
-  quest?: Quest;
-  members?: PublicMember[];
-  playersOnly?: boolean;
-}>();
+  guild?: Guild
+  quest?: Quest
+  members?: PublicMember[]
+  playersOnly?: boolean
+}>()
 
 // Stores
-const questStore = useQuestStore();
-const guildStore = useGuildStore();
-const membersStore = useMembersStore();
-const roleStore = useRoleStore();
+const questStore = useQuestStore()
+const guildStore = useGuildStore()
+const membersStore = useMembersStore()
+const roleStore = useRoleStore()
 
-// Computed
-const membersStoreMembers = computed(() => {
-  if (!GuildMembersProps.members) return [];
-  return GuildMembersProps.members.map(m =>
-    membersStore.getMemberById(m.id) || m
-  );
-});
+// Computed: enrich each member with guild + roles
+const membersWithGuildData = computed(() => {
+  if (!GuildMembersProps.members) return []
 
-// Functions
-function memberGuildId(memberId: number): number | undefined {
-  return questStore.castingInQuest(GuildMembersProps.quest?.id ?? null, memberId)?.guild_id;
-}
+  return GuildMembersProps.members.map(m => {
+    const member = membersStore.getMemberById(m.id) || m
 
-function memberGuild(memberId: number) {
-  const gid = memberGuildId(memberId);
-  return gid ? guildStore.getGuildById(gid) : undefined;
-}
+    const guildId = questStore.castingInQuest(
+      GuildMembersProps.quest?.id ?? null,
+      member.id
+    )?.guild_id
 
-// --- compute roles per member directly from store ---
-function memberRoles(memberId: number): string[] {
-  const questId = GuildMembersProps.quest?.id;
-  if (!questId) return [];
-  const castingRoles = membersStore.castingRolesPerQuest(memberId, questId);
-  return castingRoles
-    .map(cr => roleStore.getRoleById(cr.role_id)?.name)
-    .filter((r): r is string => !!r);
-}
+    const guild = guildId ? guildStore.getGuildById(guildId) : undefined
+
+    const roles = GuildMembersProps.quest?.id
+      ? membersStore
+          .castingRolesPerQuest(member.id, GuildMembersProps.quest.id)
+          .map(cr => roleStore.getRoleById(cr.role_id)?.name)
+          .filter((r): r is string => !!r)
+      : []
+
+    return {
+      ...member,
+      guildId,
+      guild,
+      roles,
+    }
+  })
+})
 </script>
 
 <style scoped>

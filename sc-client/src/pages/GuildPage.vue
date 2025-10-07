@@ -57,11 +57,6 @@
             <div class="row">
               <div v-if="currentQuest && playingQuestInGuild" class="col-12">
                 <castingRoleEdit
-                  v-if="
-                    currentQuest?.status !== 'ongoing' &&
-                    availableRoles?.length &&
-                    member?.id
-                  "
                   :availableRoles="availableRoles"
                   :castingRoles="castingRoles || []"
                   :guildId="guildId ?? 0"

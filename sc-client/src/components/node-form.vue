@@ -251,6 +251,7 @@ defineExpose({ setFocus });
   padding: 0.5em;
   background-color: #fff;
   max-height: 200px;
+  overflow-y: auto;
 }
 
 .scrollable-description {

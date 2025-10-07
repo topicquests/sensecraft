@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { defineEmits } from 'vue'
 import { QTreeNode } from '../types'
 import { useGuildStore } from '../stores/guilds'
 
