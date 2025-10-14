@@ -1,5 +1,5 @@
 <template>
-  <div class="row justify-center" style="width: 100%; padding: 0; margin: 0">
+  <div >
     <node-tree
       :currentQuestId="questId"
       :currentGuildId="guildId"

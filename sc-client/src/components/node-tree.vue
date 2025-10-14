@@ -1,6 +1,6 @@
 <template>
   <div class="q-pb-xl" v-if="ready">
-    <div class="row justify-end" style="width: 100%; background-color: #d3d3d3">
+    <div class="row justify-end header-row">
       <q-btn icon="menu" :flat="true" :dense="true">
         <q-menu>
           <q-list>
@@ -813,23 +813,29 @@ defineExpose({
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
-  width: 600px;            /* default width */
-  max-width: 90vw;         /* responsive for mobile */
-  max-height: 80vh;        /* allow scrolling inside card */
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
-  background: transparent;  /* let node-form card show */
-  padding: 0;               /* node-form handles padding */
+  background: transparent;
+  padding: 0;
   overflow: hidden;
 }
 
-/* Make node-form fill wrapper and scroll content */
 .floating-node-form > * {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+.header-row {
+  background-color: #d3d3d3;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
 
 .floating-node-form .node-card {
   flex: 1;
@@ -961,8 +967,16 @@ defineExpose({
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow-y: auto;
+  overflow-x: auto;
 }
 
+@media (max-width: 768px) {
+  .scrollable-div {
+    max-height: 200px;
+    width: 100%;
+    padding: 0.5em;
+  }
+}
 /* Buttons */
 .q-btn {
   border-radius: 1px;
