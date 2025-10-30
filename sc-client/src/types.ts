@@ -282,7 +282,7 @@ export interface defaultNodeType {
   description?: string;
   status: publication_state_type;
   node_type: ibis_node_type_type;
-  meta?: boolean;
+   meta?: boolean | 'meta' | 'channel' | 'conversation';
   url?: string;
   draft_for_role_id?: number;
 }

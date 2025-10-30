@@ -1,33 +1,39 @@
 <template>
   <q-card style="min-width: 350px">
-    <div v-if="availableRoles.length">
+    <template v-if="availableRoles.length">
       <q-card-section>
         <div class="text-h6">Available Roles</div>
       </q-card-section>
-      <div v-for="role in availableRoles" :key="role.id!">
+
+      <div v-for="role in availableRoles" :key="role.id">
         <q-radio
           v-model="roleId"
           :label="role.name"
           :val="role.id"
-          @update:model-value="updateRole()"
-          v-close-popup="true"
-        >
-        </q-radio>
+          @update:model-value="updateRole"
+          v-close-popup
+        />
       </div>
-    </div>
-    <div v-else>
-      <div class="text-h6">Please ask your guild leader give you roles</div>
-      {{ availableRoles }}
-    </div>
+    </template>
+
+    <template v-else>
+      <q-card-section>
+        <div class="text-h6">Please ask your guild leader to give you roles</div>
+        <div class="text-subtitle2 q-mt-sm">
+          No roles available for this guild.
+        </div>
+      </q-card-section>
+    </template>
+
     <q-card-actions align="right" class="text-primary">
-      <q-btn flat label="Cancel" v-close-popup="true"></q-btn>
+      <q-btn flat label="Cancel" v-close-popup />
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue';
 import { Role, GuildMemberAvailableRole } from '../types';
-import { computed, onBeforeMount, onBeforeUpdate, ref } from 'vue';
 import { useMemberStore } from '../stores/member';
 import { useMembersStore } from '../stores/members';
 import { useRoleStore } from '../stores/role';
@@ -37,10 +43,10 @@ import { useChannelStore } from '../stores/channel';
 import { useGuildStore } from '../stores/guilds';
 
 // Props
-const MemberGameRegistrationProp = defineProps<{
+const props = defineProps<{
   show?: boolean;
-  questId: number | undefined;
-  guildId: number | undefined;
+  questId?: number;
+  guildId?: number;
 }>();
 
 // Stores
@@ -48,82 +54,76 @@ const memberStore = useMemberStore();
 const membersStore = useMembersStore();
 const roleStore = useRoleStore();
 const questStore = useQuestStore();
-const channelStore = useChannelStore()
+const channelStore = useChannelStore();
 const readStatusStore = useReadStatusStore();
 const guildStore = useGuildStore();
 
-// Reactive variables
-const roleId = ref<number | undefined>(undefined);
+// Reactive state
+const roleId = ref<number>();
 
-// Computed
-const availableRoles = computed((): Role[] => {
+// Computed roles for the current member in this guild
+const availableRoles = computed<Role[]>(() => {
   const memberId = memberStore.member?.id;
+  if (!memberId || !props.guildId) return [];
   return membersStore
-    .getAvailableRolesForMemberAndGuild(
-      memberId!,
-      MemberGameRegistrationProp.guildId,
-    )
-    .map((cr: GuildMemberAvailableRole) => roleStore.getRoleById(cr.role_id));
+    .getAvailableRolesForMemberAndGuild(memberId, props.guildId)
+    .map((r: GuildMemberAvailableRole) => roleStore.getRoleById(r.role_id))
+    .filter((r): r is Role => !!r);
 });
 
-// Hook
-onBeforeUpdate(async () => {
-  await ensureData();
-});
-
-onBeforeMount(async () => {
+// Lifecycle
+onMounted(async () => {
   await ensureData();
 });
 
 // Functions
-async function doAddCasting(quest_id: number) {
-  const guild_id = MemberGameRegistrationProp.guildId;
-  const member_id = memberStore.member!.id;
+async function ensureData() {
+  if (!props.guildId) return;
+  await Promise.all([
+    roleStore.ensureAllRoles(),
+    membersStore.ensureMembersOfGuild({ guildId: props.guildId }),
+  ]);
+}
+
+async function doAddCasting(questId: number) {
+  if (!props.guildId || !memberStore.member) return;
   await questStore.addCasting({
-    quest_id,
-    guild_id: guild_id,
-    member_id: member_id,
+    quest_id: questId,
+    guild_id: props.guildId,
+    member_id: memberStore.member.id,
   });
 }
 
 async function updateRole() {
-  const guild_id = MemberGameRegistrationProp.guildId;
-  const role_id: number | undefined = roleId.value;
-  const member_id = memberStore.member!.id;
-  const quest_id = MemberGameRegistrationProp.questId;
-  await doAddCasting(quest_id!);
+  const { questId, guildId } = props;
+  if (!questId || !guildId || !roleId.value || !memberStore.member) return;
+
+  const memberId = memberStore.member.id;
+
+  await doAddCasting(questId);
   await questStore.addCastingRole({
-    quest_id,
-    guild_id,
-    member_id,
-    role_id,
+    quest_id: questId,
+    guild_id: guildId,
+    member_id: memberId,
+    role_id: roleId.value,
   });
+
   await Promise.all([
-    guildStore.ensureCurrentGuild(guild_id!, false),
-    guildStore.setCurrentGuild(MemberGameRegistrationProp.guildId!),
-    questStore.ensureQuest({quest_id: quest_id!, full: false}),
-    membersStore.ensureMembersOfGuild({ guildId: guild_id! }),
-    channelStore.fetchChannels(guild_id!),
+    guildStore.ensureCurrentGuild(guildId, false),
+    guildStore.setCurrentGuild(guildId),
+    questStore.ensureQuest({ quest_id: questId, full: false }),
+    membersStore.ensureMembersOfGuild({ guildId }),
+    channelStore.fetchChannels(guildId),
     readStatusStore.ensureGuildUnreadChannels(),
   ]);
 }
-
-async function ensureData() {
-  await Promise.all([
-    roleStore.ensureAllRoles(),
-    membersStore.ensureMembersOfGuild({
-      guildId: MemberGameRegistrationProp.guildId!,
-    }),
-  ]);
-}
-
 </script>
-<style lang="css">
+
+<style scoped>
 .q-card {
   border-radius: 16px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  padding-bottom: 0.5rem;
-  background-color: #ffffff;
+  background-color: #fff;
   transition: box-shadow 0.2s ease;
 }
 .q-card:hover {
@@ -154,13 +154,6 @@ async function ensureData() {
   font-weight: 500;
   color: #444;
   font-size: 0.95rem;
-}
-
-.q-card > div > .text-h6 + * {
-  color: #777;
-  font-style: italic;
-  font-size: 0.9rem;
-  padding: 0.5rem 0.75rem;
 }
 
 .q-card-actions {

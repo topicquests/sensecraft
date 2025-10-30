@@ -54,17 +54,21 @@
                 </div>
               </div>
             </div>
-            <div class="row">
+             <div class="row">
               <div v-if="currentQuest && playingQuestInGuild" class="col-12">
                 <castingRoleEdit
+                  class="casting-role"
+                  v-if="
+                    currentQuest.status !== 'ongoing' && availableRoles.length
+                  "
                   :availableRoles="availableRoles"
-                  :castingRoles="castingRoles || []"
-                  :guildId="guildId ?? 0"
-                  :questId="currentQuestId ?? 0"
-                  :memberId="member?.id ?? null"
+                  :castingRoles="castingRoles"
+                  :guildId="guildId"
+                  :questId="currentQuestId"
+                  :memberId="member!.id"
                   v-on:castingRoleAdd="castingRoleAdded"
                   v-on:castingRoleRemove="castingRoleRemoved"
-                />
+                ></castingRoleEdit>
               </div>
             </div>
             <div class="row justify-center">

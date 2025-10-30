@@ -1,5 +1,5 @@
 <template>
-  <q-card class="node-card q-pa-md">
+  <q-card v-if="node" class="node-card q-pa-md">
     <section class="node-card-title">
       <q-input
         v-model="node.title"
@@ -11,42 +11,32 @@
         style="flex: 1 1 90%;"
       >
         <template v-slot:prepend>
-          <IbisButton :node_type="node!.node_type as ibis_node_type_type" />
+          <IbisButton :node_type="node.node_type as ibis_node_type_type" />
         </template>
       </q-input>
     </section>
-
-    <!-- URL Section -->
-    <section v-if="node!.url || node!.node_type == 'reference'">
-      <template v-if="NodeFormProps.editing">
-        <q-input
-          v-model="node!.url"
-          label="URL"
-          ref="url"
-          outlined
-          dense
-        />
-      </template>
-      <template v-else>
-        <a :href="node!.url" target="_blank">{{ node!.url }}</a>
-      </template>
+    <section v-if="node.url || node.node_type === 'reference'">
+      <q-input
+        v-if="NodeFormProps.editing"
+        v-model="node.url"
+        label="URL"
+        ref="url"
+        outlined
+        dense
+      />
+      <a v-else :href="node.url" target="_blank">{{ node.url }}</a>
     </section>
-
-    <!-- Description Header -->
     <section>
       <div class="section-header">Description</div>
     </section>
-
-    <!-- Description Editor / Collapsible -->
     <section>
-      <template v-if="NodeFormProps.editing">
         <q-editor
+          v-if="NodeFormProps.editing"
           v-model="description"
           data-test="node-description-editor"
           class="q-mb-md node-card-editor"
           :toolbar="[ ['bold','italic','underline','strike'] ]"
         />
-      </template>
       <template v-else>
         <div class="scrollable-description">
           <div
@@ -59,19 +49,19 @@
         </div>
       </template>
     </section>
-
-    <!-- Node Type & Status -->
     <section v-if="NodeFormProps.editing">
       <div class="row q-mb-md q-gutter-sm items-center">
-        <ibis-button :node_type="node!.node_type as ibis_node_type_type" small />
+        <ibis-button :node_type="node.node_type as ibis_node_type_type" small />
         <q-select
           v-model="selectedNodeType"
           :options="ibisTypes"
           @update:model-value="nodeTypeChanged"
           label="Type"
           outlined
+          behavior="menu"
           dense
-          style="flex: 1"
+          popup-content-class="narrow-dropdown"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
         >
           <template v-slot:append>
             <q-tooltip anchor="top middle" self="bottom middle">
@@ -80,16 +70,17 @@
           </template>
         </q-select>
       </div>
-
       <div class="row q-mb-md q-gutter-sm items-center">
         <q-select
           v-model="selectedStatusType"
           :options="publication_state_list"
           @update:model-value="statusChanged"
           label="Status"
+          behavior="menu"
           outlined
           dense
-          style="flex: 1"
+          popup-content-class="narrow-dropdown"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
         >
           <template v-slot:append>
             <q-tooltip anchor="top middle" self="bottom middle">
@@ -97,19 +88,19 @@
             </q-tooltip>
           </template>
         </q-select>
-
         <q-select
-          v-if="selectedStatusType == 'role_draft'"
-          v-model="node!.draft_for_role_id"
+          v-if="selectedStatusType === 'role_draft'"
+          v-model="node.draft_for_role_id"
           :options="roles"
           option-label="name"
           option-value="id"
           :emit-value="true"
           :map-options="true"
+          behavior="menu"
           label="Draft for Role"
           outlined
           dense
-          style="flex: 1"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
         />
       </div>
     </section>
@@ -117,20 +108,16 @@
       <q-checkbox
         v-if="allowChangeMeta"
         v-model="node!.meta"
-        true-value="meta"
-        false-value="conversation"
         label="Comment Node"
       />
       <p v-else class="meta-text">
-        {{ node!.meta ? 'Comment Node' : 'Content Node' }}
+        {{ node.meta ? 'Comment Node' : 'Content Node' }}
       </p>
     </section>
-
-    <!-- Action Buttons -->
     <section class="row justify-center q-mt-lg q-gutter-sm">
       <q-btn label="Cancel" @click="cancel" color="grey" />
       <q-btn
-        v-if="NodeFormProps.nodeInput!.id"
+        v-if="node.id"
         label="Update"
         data-test="update-node-btn"
         @click="action"
@@ -148,6 +135,7 @@
 </template>
 
 <script setup lang="ts">
+// Imports
 import IbisButton from './ibis-btn.vue';
 import { ConversationNode, Role, defaultNodeType } from '../types';
 import {
@@ -158,6 +146,10 @@ import {
 import { computed, ref, watch } from 'vue';
 import { QInput } from 'quasar';
 
+// Emits
+const emit = defineEmits(['action', 'cancel']);
+
+// Props
 const NodeFormProps = defineProps<{
   nodeInput?: Partial<ConversationNode> | defaultNodeType;
   editing: boolean;
@@ -169,52 +161,69 @@ const NodeFormProps = defineProps<{
   ) => publication_state_type[];
 }>();
 
-const emit = defineEmits(['action', 'cancel']);
-
-const node = ref<Partial<ConversationNode> | defaultNodeType>({ ...NodeFormProps.nodeInput });
-const title = ref<QInput>();
-
-// Collapsible description
-const descriptionExpanded = ref(false);
-function toggleDescription() {
-  descriptionExpanded.value = !descriptionExpanded.value;
-}
-
-// Validators
-function isValidNodeType(type: string): type is ibis_node_type_type {
-  return !!NodeFormProps.ibisTypes?.includes(type as ibis_node_type_type);
-}
-function isValidNodeStatus(status: any): status is publication_state_type {
-  return publication_state_list.includes(status);
-}
-
-// Computed
-const selectedNodeType = computed({
-  get: () => node.value.node_type,
-  set: (val) => { if (isValidNodeType(val!)) node.value.node_type = val; }
-});
-
-const selectedStatusType = computed({
-  get: () => node.value.status,
-  set: (val) => { if (isValidNodeStatus(val)) node.value.status = val; }
-});
-
-const roles = computed(() => NodeFormProps.roles);
-const description = computed({
-  get: () => NodeFormProps.nodeInput!.description || '',
-  set: (val) => (node.value.description = val),
-});
-
-// Watches
-watch(() => NodeFormProps.nodeInput, (val) => (node.value = { ...val }));
-
-// Methods
+// Non reactive variables
 const nodeTypeChanged = (val: string) => {
   if (val && isValidNodeType(val)) node.value.node_type = val;
 };
 const statusChanged = (val: string) => {
   if (val && isValidNodeStatus(val)) node.value.status = val;
 };
+
+//Reactive Variables
+const node = ref<Partial<ConversationNode> | defaultNodeType>({
+  id: NodeFormProps.nodeInput?.id || undefined,
+  title: NodeFormProps.nodeInput?.title || '',
+  description: NodeFormProps.nodeInput?.description || '',
+  url: NodeFormProps.nodeInput?.url || '',
+  node_type: NodeFormProps.nodeInput?.node_type || 'answer',
+  status: NodeFormProps.nodeInput?.status || 'private_draft',
+  draft_for_role_id: NodeFormProps.nodeInput?.draft_for_role_id || undefined,
+  meta: NodeFormProps.nodeInput?.meta || false,
+});
+const title = ref<QInput>();
+const descriptionExpanded = ref(false);
+
+// Computed
+const selectedNodeType = computed({
+  get: () => node.value.node_type,
+  set: (val) => { if (isValidNodeType(val!)) node.value.node_type = val; }
+});
+const selectedStatusType = computed({
+  get: () => node.value.status,
+  set: (val) => { if (isValidNodeStatus(val)) node.value.status = val; }
+});
+const roles = computed(() => NodeFormProps.roles);
+const description = computed({
+  get: () => node.value.description || '',
+  set: (val) => { node.value.description = val; },
+});
+
+// Watch 
+watch(() => NodeFormProps.nodeInput, (val) => {
+  if (val) {
+    node.value = {
+      id: val.id || undefined,
+      title: val.title || '',
+      description: val.description || '',
+      url: val.url || '',
+      node_type: val.node_type || 'answer',
+      status: val.status || 'private_draft',
+      draft_for_role_id: val.draft_for_role_id || undefined,
+      meta: val.meta || 'answer',
+    };
+  }
+});
+
+// Functions
+function toggleDescription() {
+  descriptionExpanded.value = !descriptionExpanded.value;
+}
+function isValidNodeType(type: string): type is ibis_node_type_type {
+  return !!NodeFormProps.ibisTypes?.includes(type as ibis_node_type_type);
+}
+function isValidNodeStatus(status: any): status is publication_state_type {
+  return publication_state_list.includes(status);
+}
 const setFocus = () => { title.value?.focus(); };
 function action() { emit('action', node.value); }
 function cancel() { emit('cancel'); }
@@ -233,7 +242,6 @@ defineExpose({ setFocus });
   padding: 1.2em;
   color: #1a237e;
 }
-
 .node-card-title {
   display: flex;
   align-items: center;
@@ -244,7 +252,6 @@ defineExpose({ setFocus });
   border-radius: 6px;
   width: 90%
 }
-
 .node-card-editor {
   border-radius: 6px;
   border: 1px solid #c0c0c0;
@@ -253,7 +260,6 @@ defineExpose({ setFocus });
   max-height: 200px;
   overflow-y: auto;
 }
-
 .scrollable-description {
   background-color: #fff;
   border: 1px solid #c0c0c0;
@@ -262,18 +268,22 @@ defineExpose({ setFocus });
   max-height: 200px;
   overflow-y: auto;
 }
-
 .section-header {
   font-weight: 600;
   margin-bottom: 0.5em;
 }
-
+.narrow-dropdown {
+  min-width: unset !important;  
+  width: 120px !important;      
+  max-width: 120px !important;
+  font-size: 0.85rem;           
+  white-space: nowrap;          
+}
 .meta-text {
   margin: 0;
   font-style: italic;
   color: #333;
 }
-
 .read-more {
   cursor: pointer;
   color: #1976d2;
@@ -281,12 +291,10 @@ defineExpose({ setFocus });
   text-align: right;
   margin-top: 0.3em;
 }
-
 a {
   color: #1976d2;
   text-decoration: underline;
 }
-
 @media (max-width: 600px) {
   .node-card { font-size: 0.95em; }
   .node-card-editor { width: 100% !important; }
