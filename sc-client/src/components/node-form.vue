@@ -105,14 +105,21 @@
       </div>
     </section>
     <section class="row q-mb-md items-center">
+         <div class="row justify-start q-pb-lg q-ml-lg">
       <q-checkbox
+        name="meta"
+        @input="statusChanged"
         v-if="allowChangeMeta"
         v-model="node!.meta"
+        true-value="meta"
+        false-value="conversation"
         label="Comment Node"
       />
-      <p v-else class="meta-text">
-        {{ node.meta ? 'Comment Node' : 'Content Node' }}
+      <p v-if="!allowChangeMeta && node!.meta != 'channel'">
+        <span v-if="node!.meta">Comment node</span>
+        <span v-else>Content node</span>
       </p>
+    </div>
     </section>
     <section class="row justify-center q-mt-lg q-gutter-sm">
       <q-btn label="Cancel" @click="cancel" color="grey" />
@@ -178,7 +185,7 @@ const node = ref<Partial<ConversationNode> | defaultNodeType>({
   node_type: NodeFormProps.nodeInput?.node_type || 'answer',
   status: NodeFormProps.nodeInput?.status || 'private_draft',
   draft_for_role_id: NodeFormProps.nodeInput?.draft_for_role_id || undefined,
-  meta: NodeFormProps.nodeInput?.meta || false,
+  meta: NodeFormProps.nodeInput?.meta,
 });
 const title = ref<QInput>();
 const descriptionExpanded = ref(false);
@@ -196,22 +203,6 @@ const roles = computed(() => NodeFormProps.roles);
 const description = computed({
   get: () => node.value.description || '',
   set: (val) => { node.value.description = val; },
-});
-
-// Watch 
-watch(() => NodeFormProps.nodeInput, (val) => {
-  if (val) {
-    node.value = {
-      id: val.id || undefined,
-      title: val.title || '',
-      description: val.description || '',
-      url: val.url || '',
-      node_type: val.node_type || 'answer',
-      status: val.status || 'private_draft',
-      draft_for_role_id: val.draft_for_role_id || undefined,
-      meta: val.meta || 'answer',
-    };
-  }
 });
 
 // Functions

@@ -52,7 +52,18 @@
           :ref="'node_' + node.id"
           :data-node-id="'node_' + node.id"
         >
-          <q-icon :name="node.icon" class="q-mr-sm" />
+      <q-icon
+      v-if="node.meta !== 'meta'"
+        :name="node.icon"
+        class="q-mr-sm"
+      />
+      <img
+        v-else
+        :src="commentIcon"
+        alt="meta icon"
+        class="q-mr-sm"
+        style="width: 20px; height: 20px;"
+      />
           <span
             :class="
               'node-title node-status-' +
@@ -147,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-/* ---- imports & types (kept from original) ---- */
+// Imports
 import {
   Casting,
   ConversationNode,
@@ -166,6 +177,7 @@ import {
   publication_state_type,
   publication_state_list,
 } from '../enums';
+import commentIcon from '../statics/images/ibis/note.png';
 import { ThreatMap, ScoreMap } from '../scoring';
 import { useChannelStore } from '../stores/channel';
 import { useConversationStore } from '../stores/conversation';
@@ -272,8 +284,6 @@ const currentQuestId = NodeTreeProps.currentQuestId;
 const currentGuildId = NodeTreeProps.currentGuildId;
 const channelId = NodeTreeProps.channelId;
 const isChannel = NodeTreeProps.isChannel;
-
-/* ---- core helpers ---- */
 const getNodesTree = (): QTreeNode[] => {
   if (NodeTreeProps.channelId) {
     return channelStore.getChannelConversationTree(NodeTreeProps.channelId) ?? [];
@@ -316,7 +326,7 @@ watch(selected, (newVal) => {
   }
 });
 
-/* ---- utility functions ---- */
+// Functions
 function isNodeFormInstance(el: Element | NodeFormInstance | null): el is NodeFormInstance {
   return !!el && typeof el === 'object' && '$' in el;
 }
@@ -609,8 +619,6 @@ async function selectNext() {
     console.error('selectNext error', err);
   }
 }
-
-/* ---- ensure data (wrapped with guards) ---- */
 async function ensureData() {
   const promises: Promise<any>[] = [];
   try {
