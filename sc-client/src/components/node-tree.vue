@@ -96,10 +96,10 @@
             @click="editNode(node.id)"
           />
 
-          <q-btn v-if="canAddChild()" 
+          <q-btn v-if="canAddChild" 
             flat 
             icon="add" 
-            @click="addChildToNode(node.id)"
+            @click.stop="addChildToNode(node.id)"
           />
           <read-status-counter-button
             class="q-ml-md"
@@ -141,21 +141,24 @@
           />
         </div>
 
-        <div v-if="NodeTreeProps.editable && prop.node.id == addingChildToNodeId" class="floating-node-form">
-          <node-form
-            :ref="nodeFormRef(prop.node.id)"
-            v-if="NodeTreeProps.editable && prop.node.id == addingChildToNodeId"
-            :nodeInput="newNode"
-            :allowAddChild="false"
-            :ibisTypes="childIbisTypes"
-            :editing="true"
-            :roles="roleStore.getRoles"
-            :allowChangeMeta="allowChangeMeta"
-            :pubFn="calcSpecificPubConstraints"
-            v-on:action="confirmAddChild"
-            v-on:cancel="cancel"
-          />
-        </div>
+        <div
+        v-if="NodeTreeProps.editable && prop.node.id == addingChildToNodeId"
+          class="floating-node-form"
+        >
+        <node-form
+          :ref="nodeFormRef(prop.node.id)"
+          :nodeInput="newNode"
+          :allowAddChild="false"
+          :ibisTypes="childIbisTypes"
+          :editing="true"
+          :roles="roleStore.getRoles"
+          :allowChangeMeta="allowChangeMeta"
+          :pubFn="calcSpecificPubConstraints"
+          @action="confirmAddChild"
+          @cancel="cancel"
+        />
+</div>
+
       </template>
     </q-tree>
   </div>
@@ -246,7 +249,7 @@ let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 
 /* ---- computed helpers ---- */
 const isAddingChild = computed(() => !!addingChildToNodeId.value);
-const canAddChild = computed(() => () => {
+const canAddChild = computed(() => {
   return NodeTreeProps.editable && canAddTo() && !editingNodeId.value && !addingChildToNodeId.value;
 });
 const searchFilter_ = computed(() => searchFilter.value + '_');
@@ -339,9 +342,17 @@ function isNodeFormInstance(el: Element | NodeFormInstance | null): el is NodeFo
 
 function nodeFormRef(nodeId: string | number) {
   return (el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null) => {
-    if (el && typeof el === 'object' && '$' in el) nodeForms.value[`editForm_${nodeId}`] = el;
-    else nodeForms.value[`editForm_${nodeId}`] = null;
-    if (editingNodeId.value === nodeId) form.value = nodeForms.value[`editForm_${nodeId}`];
+    const key = `editForm_${nodeId}`;
+    if (el && typeof el === 'object' && '$' in el) {
+      nodeForms.value[key] = el;
+    } else {
+      nodeForms.value[key] = null;
+    }
+
+    // set form.value when editing OR adding a child to the same node
+    if (editingNodeId.value === nodeId || addingChildToNodeId.value === nodeId) {
+      form.value = nodeForms.value[key] || null;
+    }
   };
 }
 
@@ -420,7 +431,7 @@ async function editNode(nodeId: number) {
   }
 }
 
-function addChildToNode(nodeId: number | null) {
+async function addChildToNode(nodeId: number | null) {
   try {
     editingNodeId.value = null;
     const parent = getNode(nodeId);
@@ -434,18 +445,14 @@ function addChildToNode(nodeId: number | null) {
     newNode.value = {
       status: 'private_draft',
       node_type: childIbisTypes[0],
-      parent_id: nodeId!,
+      parent_id: parent.id,
       quest_id: parent.quest_id,
       guild_id: guildStore.getCurrentGuild!.id,
       meta: parent.meta,
     };
     calcPublicationConstraints(newNode.value);
     addingChildToNodeId.value = nodeId;
-    setTimeout(() => {
-      const formKey = `addChildForm_${nodeId}`;
-      form.value = nodeForms.value[formKey];
-      if (form.value) form.value.setFocus();
-    }, 0);
+   if ($q.screen.gt.xs) await nextTick(), form.value?.setFocus();
   } catch (err) {
     console.error('addChildToNode error', err);
   }
@@ -465,6 +472,7 @@ async function confirmAddChild(node: ConversationNode) {
     } else {
       await conversationStore.createConversationNode(node);
     }
+    $q.notify({ type: 'positive', message: 'Node added successfuly' });
     cancel();
     nodesTree.value = getNodesTree() ?? [];
   } catch (error) {

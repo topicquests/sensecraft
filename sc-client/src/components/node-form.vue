@@ -106,21 +106,26 @@
     </section>
     <section class="row q-mb-md items-center">
          <div class="row justify-start q-pb-lg q-ml-lg">
-      <q-checkbox
-        name="meta"
-        @input="statusChanged"
-        v-if="allowChangeMeta"
-        v-model="node!.meta"
-        true-value="meta"
-        false-value="conversation"
-        label="Comment Node"
-      />
-      <p v-if="!allowChangeMeta && node!.meta != 'channel'">
-        <span v-if="node!.meta">Comment node</span>
-        <span v-else>Content node</span>
-      </p>
-    </div>
-    </section>
+   <section class="row q-mb-md items-center">
+  <div class="row justify-start q-pb-lg q-ml-lg">
+    <!-- Editable checkbox -->
+    <q-checkbox
+      v-if="allowChangeMeta && NodeFormProps.editing"
+      v-model="metaValue"
+      true-value="meta"
+      false-value="conversation"
+      label="Comment Node"
+    />
+
+    <!-- Read-only display -->
+    <p v-else>
+      {{ node.meta === 'meta' ? 'Comment node' : 'Content node' }}
+    </p>
+  </div>
+</section>
+
+  </div>
+</section>
     <section class="row justify-center q-mt-lg q-gutter-sm">
       <q-btn label="Cancel" @click="cancel" color="grey" />
       <q-btn
@@ -149,6 +154,8 @@ import {
   ibis_node_type_type,
   publication_state_list,
   publication_state_type,
+  meta_state_type,
+  meta_state_enum
 } from '../enums';
 import { computed, ref, watch } from 'vue';
 import { QInput } from 'quasar';
@@ -177,17 +184,19 @@ const statusChanged = (val: string) => {
 };
 
 //Reactive Variables
-const node = ref<Partial<ConversationNode> | defaultNodeType>({
-  id: NodeFormProps.nodeInput?.id || undefined,
-  quest_id: NodeFormProps.nodeInput?.quest_id,
-  title: NodeFormProps.nodeInput?.title || '',
-  description: NodeFormProps.nodeInput?.description || '',
-  url: NodeFormProps.nodeInput?.url || '',
-  node_type: NodeFormProps.nodeInput?.node_type || 'answer',
-  status: NodeFormProps.nodeInput?.status || 'private_draft',
-  draft_for_role_id: NodeFormProps.nodeInput?.draft_for_role_id || undefined,
-  meta: NodeFormProps.nodeInput?.meta,
+const node = ref<defaultNodeType>({
+  status: 'private_draft',
+  node_type: 'answer',
+  id: undefined,
+  quest_id: undefined,
+  title: '',
+  description: '',
+  meta: 'conversation',
+  url: '',
+  draft_for_role_id: undefined,
+  ...NodeFormProps.nodeInput,
 });
+
 const title = ref<QInput>();
 const descriptionExpanded = ref(false);
 
@@ -205,6 +214,20 @@ const description = computed({
   get: () => node.value.description || '',
   set: (val) => { node.value.description = val; },
 });
+const metaValue = computed<meta_state_type>({
+  get() {
+    // Ensure it always returns a valid enum value
+    const meta = node.value.meta;
+    if (meta === "meta" || meta === "conversation" || meta === "channel") {
+      return meta;
+    }
+    return meta_state_enum.conversation; // default fallback
+  },
+  set(val: meta_state_type) {
+    node.value.meta = val;
+  }
+});
+
 
 // Functions
 function toggleDescription() {
