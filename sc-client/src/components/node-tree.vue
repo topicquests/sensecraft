@@ -41,7 +41,6 @@
       label-key="title"
       :key="treeSize"
       default-expand-all
-      @update:selected="selectionChanged"
       v-model:selected="selectedNodeId"
       :filter-method="filterMethod"
       :filter="searchFilter_"
@@ -97,13 +96,18 @@
             @click="editNode(node.id)"
           />
 
-          <q-btn v-if="canAddChild()" flat icon="add" @click="addChildToNode(node.id)" />
+          <q-btn v-if="canAddChild()" 
+            flat 
+            icon="add" 
+            @click="addChildToNode(node.id)"
+          />
           <read-status-counter-button
             class="q-ml-md"
             :node_id="node.id"
             :isChannel="isChannel"
             :isExpanded="checkIfExpanded(node.id)"
             :isRead="readStatus(node.id)"
+             
           />
         </div>
 
@@ -125,7 +129,7 @@
           <node-form
             :ref="nodeFormRef(prop.node.id)"
             v-if="NodeTreeProps.editable && prop.node.id == editingNodeId"
-            :nodeInput="selectedNode(true)"
+            :nodeInput="newNode"
             :allowAddChild="false"
             :ibisTypes="selectedIbisTypes"
             :editing="true"
@@ -225,13 +229,13 @@ const showMeta = ref(true);
 const showObsolete = ref(false);
 const selectedNodeId = ref<number | null | undefined>(NodeTreeProps.initialSelectedNodeId ?? null);
 const searchFilter = ref('');
-const editingNodeId = ref<number | null>(null);
+const editingNodeId = ref<number | null | undefined>(selectedNodeId.value);
 const addingChildToNodeId = ref<number | string | null>(null);
 const allowChangeMeta = ref(false);
 const newNode = ref<Partial<ConversationNode>>({});
 const tree = ref<QTree | null>(null);
-const form = ref<NodeFormInstance | null>(null);
-const nodeForms = ref<Record<string, NodeFormInstance | null>>({});
+const form = ref<ComponentPublicInstance<{ setFocus: () => void }> | null>(null);
+const nodeForms = ref<Record<string, ComponentPublicInstance<{ setFocus: () => void }> | null>>({});
 const nodesTree = ref<QTreeNode[]>([]);
 
 /* ---- non-reactive vars ---- */
@@ -263,11 +267,9 @@ const getMemberHandle = computed(() => (id: number) => {
   return '';
 });
 
-const selectedNode = computed(() => (copy?: boolean) => {
-  const node = getNode(selectedNodeId.value ?? null);
-  return copy ? (node ? { ...node } : undefined) : node;
-});
-
+const selectedNode = computed(() =>
+  selectedNodeId.value != null ? conversationStore.getConversationNodeById(selectedNodeId.value) : undefined
+);
 const threats = computed((): ThreatMap | undefined => {
   if (NodeTreeProps.channelId) return undefined;
   if (NodeTreeProps.currentGuildId && showDraft.value) return conversationStore.getPrivateThreatMap;
@@ -325,6 +327,10 @@ watch(selected, (newVal) => {
     emit('tree-selection', newVal);
   }
 });
+watch(selectedNodeId, (newVal) => {
+  if (newVal != null) emit('tree-selection', newVal);
+  addingChildToNodeId.value = null;
+});
 
 // Functions
 function isNodeFormInstance(el: Element | NodeFormInstance | null): el is NodeFormInstance {
@@ -332,12 +338,10 @@ function isNodeFormInstance(el: Element | NodeFormInstance | null): el is NodeFo
 }
 
 function nodeFormRef(nodeId: string | number) {
-  return (el: Element | NodeFormInstance | null) => {
-    if (isNodeFormInstance(el)) {
-      nodeForms.value[`editForm_${nodeId}`] = el;
-    } else {
-      nodeForms.value[`editForm_${nodeId}`] = null;
-    }
+  return (el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null) => {
+    if (el && typeof el === 'object' && '$' in el) nodeForms.value[`editForm_${nodeId}`] = el;
+    else nodeForms.value[`editForm_${nodeId}`] = null;
+    if (editingNodeId.value === nodeId) form.value = nodeForms.value[`editForm_${nodeId}`];
   };
 }
 
@@ -389,7 +393,7 @@ function getNode(nodeId: number | null | undefined): ConversationNode | undefine
 }
 
 /* ---- editing & add child ---- */
-function editNode(nodeId: number) {
+async function editNode(nodeId: number) {
   try {
     if (typeof nodeId == 'number') {
       const selectedNodeLocal = getNode(nodeId);
@@ -409,11 +413,7 @@ function editNode(nodeId: number) {
       }
       calcPublicationConstraints(selectedNodeLocal);
       editingNodeId.value = nodeId;
-      setTimeout(() => {
-        const formKey = `editForm_${nodeId}`;
-        form.value = nodeForms.value[formKey];
-        if (form.value?.setFocus) form.value.setFocus();
-      }, 0);
+       if ($q.screen.gt.xs) await nextTick(), form.value?.setFocus();
     }
   } catch (err) {
     console.error('editNode error', err);

@@ -275,6 +275,14 @@ export interface CastingRole {
   quest_id: number;
 }
 
+export interface ChannelRole {
+  id: number;
+  guild_id: number;
+  member_id?: number;
+  role_id: number;
+  quest_id: number;
+}
+
 export interface defaultNodeType {
   id?: number;
   quest_id?: number;

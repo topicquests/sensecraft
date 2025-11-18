@@ -179,6 +179,7 @@ const statusChanged = (val: string) => {
 //Reactive Variables
 const node = ref<Partial<ConversationNode> | defaultNodeType>({
   id: NodeFormProps.nodeInput?.id || undefined,
+  quest_id: NodeFormProps.nodeInput?.quest_id,
   title: NodeFormProps.nodeInput?.title || '',
   description: NodeFormProps.nodeInput?.description || '',
   url: NodeFormProps.nodeInput?.url || '',
@@ -216,7 +217,9 @@ function isValidNodeStatus(status: any): status is publication_state_type {
   return publication_state_list.includes(status);
 }
 const setFocus = () => { title.value?.focus(); };
-function action() { emit('action', node.value); }
+function action() { 
+  node.value.quest_id = NodeFormProps.nodeInput?.quest_id;
+  emit('action', node.value); }
 function cancel() { emit('cancel'); }
 
 defineExpose({ setFocus });
