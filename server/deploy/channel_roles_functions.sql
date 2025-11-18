@@ -1,5 +1,6 @@
 -- Deploy channel_role_functions
 -- requires: channel_roles
+-- idempotent
 
 BEGIN;
 CREATE OR REPLACE FUNCTION public.channel_roles_in_guild(guild_id integer)
