@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount } from 'vue';
+import { computed, onBeforeMount } from 'vue';
 import { useQuestStore } from '../stores/quests';
 import { QuestData } from '../types';
 import QuestList from '../components/quest-list.vue';
@@ -74,7 +74,8 @@ import { quest_status_enum } from '../enums';
 
 const questStore = useQuestStore();
 
-const quests:QuestData[] = questStore.getQuests;
+const quests = computed(() => questStore.getQuests);
+
 const status: string[] = [
   quest_status_enum.registration,
   quest_status_enum.ongoing,
