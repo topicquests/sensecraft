@@ -215,7 +215,7 @@ const columns: QTableProps['columns'] = [
     required: false,
     label: '#Guilds',
     align: 'left',
-    field: 'confirmed_guild_count',
+    field: 'my_recruiting_guild_count',
     sortable: true,
   },
   {
