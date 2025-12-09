@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from 'vue'
 import { QTreeNode } from '../types'
 import { useGuildStore } from '../stores/guilds'
 
@@ -40,10 +39,6 @@ const props = defineProps<{
   title: string
   icon: string
   items?: QTreeNode[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'select', id: number): void
 }>()
 
 const guildStore = useGuildStore()
