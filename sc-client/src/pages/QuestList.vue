@@ -93,9 +93,9 @@ function checkForPermission(permission_enum: permission_enum): boolean {
 onBeforeMount(async () => {
   await waitUserLoaded();
   await Promise.all([
-    questStore.ensureAllQuests(),
-    guildStore.setCurrentGuild(false),
-    questStore.setCurrentQuest(true),
+    Promise.resolve(questStore.ensureAllQuests()),
+    Promise.resolve(guildStore.setCurrentGuild(false)),
+    Promise.resolve(questStore.setCurrentQuest(true)),
   ]);
   ready.value = true;
 });

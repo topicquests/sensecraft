@@ -5,7 +5,7 @@
         <div class="text-h6">Available Roles</div>
       </q-card-section>
 
-      <div v-for="role in availableRoles" :key="role.id">
+      <div v-for="role in availableRoles" :key="role.id!">
         <q-radio
           v-model="roleId"
           :label="role.name"
@@ -97,9 +97,7 @@ async function doAddCasting(questId: number) {
 async function updateRole() {
   const { questId, guildId } = props;
   if (!questId || !guildId || !roleId.value || !memberStore.member) return;
-
   const memberId = memberStore.member.id;
-
   await doAddCasting(questId);
   await questStore.addCastingRole({
     quest_id: questId,
@@ -108,14 +106,15 @@ async function updateRole() {
     role_id: roleId.value,
   });
 
+  guildStore.setCurrentGuild(guildId);
   await Promise.all([
     guildStore.ensureCurrentGuild(guildId, false),
-    guildStore.setCurrentGuild(guildId),
     questStore.ensureQuest({ quest_id: questId, full: false }),
     membersStore.ensureMembersOfGuild({ guildId }),
     channelStore.fetchChannels(guildId),
     readStatusStore.ensureGuildUnreadChannels(),
   ]);
+  questStore.setCurrentQuest(questId);
 }
 </script>
 

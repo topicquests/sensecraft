@@ -1,5 +1,4 @@
--- Deploy channel_roles
-
+-- Deploy channel_roles_functions 
 BEGIN;
 
 \set dbo :dbn '__owner';
@@ -17,7 +16,7 @@ DROP TRIGGER IF EXISTS after_insert_channel_role ON public.channel_roles;
 DROP FUNCTION IF EXISTS public.after_insert_channel_role();
 
 DROP FUNCTION IF EXISTS public.populate_channel_roles(data JSONB);
-DROP FUNCTION IF EXISTS public.has_channel_role(channel_id INTEGER, member_id INTEGER, role_id INTEGER);
+DROP FUNCTION IF EXISTS public.has_channel_role(id INTEGER, member_id INTEGER, role_id INTEGER);
 DROP FUNCTION IF EXISTS public.guild_channel_roles(guild_id INTEGER);
 
 DROP POLICY IF EXISTS channel_roles_select_policy ON public.channel_roles;

@@ -50,10 +50,10 @@ const clearBaseState: QuestsState = {
 
 export const useQuestStore = defineStore('quest', {
   state: () => ({
-  currentQuest: undefined,
+  currentQuest: undefined as number | undefined,
   fullFetch: false,
-  quests: {},
-  fullQuests: {}
+  quests: {} as QuestMap,
+  fullQuests: {} as { [key: number]: boolean }
 }),
   
   getters: {

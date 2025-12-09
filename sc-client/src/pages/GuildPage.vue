@@ -44,6 +44,7 @@
                       </div>
                     </div>
                     <active-quest
+                       style="max-width: 90%;"
                       :isMember="isMember"
                       :guildId="guildId"
                       :questId="currentQuestId"
