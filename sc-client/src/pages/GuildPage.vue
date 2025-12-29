@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary guild-page" >
+  <q-page class="bg-secondary guild-page">
     <div class="row justify-center">
       <q-card class="guild-card q-mt-md q-pa-md">
         <div class="col-12 justify-center">
@@ -8,18 +8,16 @@
               <member-handle></member-handle>
             </div>
             <q-btn
-            fab
-            icon="help"
-            color="blue-10"
-            class="fixed-top-right q-mt-xl q-mr-md"
-            style="top: 50px; z-index: 10;"
-            @click="showDialog = true"
-          >
-            <q-tooltip max-width="25rem">
-              Help on guild page
-            </q-tooltip>
-          </q-btn>
-          <guildpage-instructions v-model="showDialog" />
+              fab
+              icon="help"
+              color="blue-10"
+              class="fixed-top-right q-mt-xl q-mr-md"
+              style="top: 50px; z-index: 10"
+              @click="showDialog = true"
+            >
+              <q-tooltip max-width="25rem"> Help on guild page </q-tooltip>
+            </q-btn>
+            <guildpage-instructions v-model="showDialog" />
             <div class="row justify-center" style="width: 100%">
               <div class="col-10 justify-center">
                 <scoreboard></scoreboard>
@@ -44,7 +42,7 @@
                       </div>
                     </div>
                     <active-quest
-                       style="max-width: 90%;"
+                      style="max-width: 90%"
                       :isMember="isMember"
                       :guildId="guildId"
                       :questId="currentQuestId"
@@ -55,7 +53,7 @@
                 </div>
               </div>
             </div>
-             <div class="row">
+            <div class="row">
               <div v-if="currentQuest && playingQuestInGuild" class="col-12">
                 <castingRoleEdit
                   class="casting-role"
@@ -259,10 +257,10 @@ const currentGuildId = computed({
 });
 const isMember = computed<boolean>({
   get: () => {
-    if(currentGuild.value) {
-    return !!guildStore.isGuildMember(currentGuild.value?.id);
+    if (currentGuild.value) {
+      return !!guildStore.isGuildMember(currentGuild.value?.id);
     }
-    return false
+    return false;
   },
   set: (value) => {
     return value;
@@ -303,7 +301,7 @@ const canRegisterToQuest = computed(() =>
 // Watches
 watch(
   currentQuestId,
-  async() => {
+  async () => {
     if (currentQuestId.value) {
       getCastingRoles();
       await initializeQuest();
@@ -317,7 +315,7 @@ watch(
   (newVal) => {
     if (newVal) getCastingRoles();
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 //Lifecycle Hooks
@@ -327,22 +325,21 @@ onBeforeMount(async () => {
 });
 onBeforeRouteLeave((to, from, next) => {
   // Only reset if the target route is not another guild
-  if (!to.name?.toString().startsWith("guild")) {
+  if (!to.name?.toString().startsWith('guild')) {
     guildStore.setCurrentGuild(true);
     questStore.setCurrentQuest(true);
   }
   next();
 });
 
-
 // Functions
- function getCastingRoles() {
+function getCastingRoles() {
   if (member && member.value && currentQuest.value) {
     const castingRolesData =
-      (membersStore.castingRolesPerQuest(
+      membersStore.castingRolesPerQuest(
         member.value.id,
         currentQuest.value?.id,
-      )) || [];
+      ) || [];
     castingRoles.value = castingRolesData.map(
       (cr) => allRoles.value[cr.role_id],
     );
@@ -358,7 +355,7 @@ function findPlayOfGuild(
     );
   return undefined;
 }
-function checkPermissions():boolean {
+function checkPermissions(): boolean {
   if (typeof guildStore.currentGuild === 'number') {
     isMember.value = !!guildStore.isGuildMember(guildStore.currentGuild);
     return canRegisterToQuest.value;
@@ -381,13 +378,18 @@ async function castingRoleAdded(role_id: number) {
 async function castingRoleRemoved(role_id: number) {
   const guild_id: number | undefined = guildId.value;
   const quest_id: number | undefined = questStore.currentQuest;
-  if (member && member.value ) {
-  const member_id = member.value.id;
-  if (!member || !member.value?.id) {
-    return [];
-  }
-  if (member_id)
-    await questStore.deleteCastingRole(member_id, guild_id, role_id, quest_id);
+  if (member && member.value) {
+    const member_id = member.value.id;
+    if (!member || !member.value?.id) {
+      return [];
+    }
+    if (member_id)
+      await questStore.deleteCastingRole(
+        member_id,
+        guild_id,
+        role_id,
+        quest_id,
+      );
   }
 }
 
@@ -403,20 +405,19 @@ async function initialize() {
       channelStore.ensureChannels(guild_id),
       membersStore.ensureMembersOfGuild({ guildId: guild_id }),
     ]);
-    console.log("Passed all promises");
+    console.log('Passed all promises');
     guildStore.setCurrentGuild(guild_id);
     if (isMember.value) {
       channelStore.setCurrentGuild(guild_id);
     }
-
   }
-  await readStatusStore.ensureGuildUnreadChannels()
+  await readStatusStore.ensureGuildUnreadChannels();
   await initializeStage2();
   ready.value = true;
 }
 async function initializeStage2() {
   checkPermissions();
-  if(currentGuild.value) {
+  if (currentGuild.value) {
     const playQuestIds = currentGuild.value.game_play.map(
       (gp: GamePlay) => gp.quest_id,
     );
@@ -464,15 +465,15 @@ async function initializeQuest() {
       return;
     }
     if (member) {
-    const questCasting = castingList?.find(
-      (ct: Casting) => ct.member_id === member.value?.id,
-    );
+      const questCasting = castingList?.find(
+        (ct: Casting) => ct.member_id === member.value?.id,
+      );
 
-    if (questCasting) {
-      if (questCasting.guild_id == currentGuildId.value) {
-        memberPlaysQuestInThisGuild.value = true;
+      if (questCasting) {
+        if (questCasting.guild_id == currentGuildId.value) {
+          memberPlaysQuestInThisGuild.value = true;
+        }
       }
-    }
     }
     const gamePlayData = currentQuest.value.game_play;
     if (!gamePlayData) {

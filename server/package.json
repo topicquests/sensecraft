@@ -29,6 +29,7 @@
     "pgst": "postgrest postgrest_development.conf",
     "socksrv": "node dist/server/dispatcher/main.js",
     "dev": "(postgrest postgrest_development.conf &) && sleep 3 && node dist/server/dispatcher/main.js",
+     "test_db": "(postgrest postgrest_test.conf &) && sleep 3 && node dist/server/dispatcher/main.js",
     "test_backend": "ts-node test/test_backend.ts",
     "test_playwright": "ts-node test/test_backend_playwright.ts",
     "test": "npm run lint && npm run mocha -- -r test/global.ts",

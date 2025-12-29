@@ -2,12 +2,14 @@
   <q-page class="bg-secondary q-pa-md" v-if="ready">
     <div class="row justify-center">
       <q-card class="q-pa-lg guild-admin-card">
-
         <!-- Guild Header -->
         <q-card-section class="row justify-between items-center">
           <h4 v-if="guild && currentGuild" class="q-mt-none q-mb-none">
             <router-link
-              :to="{ name: 'guild', params: { guild_id: String(currentGuild.id) } }"
+              :to="{
+                name: 'guild',
+                params: { guild_id: String(currentGuild.id) },
+              }"
               class="text-primary"
             >
               {{ currentGuild.name }}
@@ -23,7 +25,9 @@
           <q-editor
             v-model="description"
             class="q-mb-md"
-            :toolbar="[['bold','italic','underline','strike','undo','redo']]"
+            :toolbar="[
+              ['bold', 'italic', 'underline', 'strike', 'undo', 'redo'],
+            ]"
           />
           <q-btn
             id="update-button"
@@ -43,14 +47,20 @@
             <quest-table :quests="potentialQuests" title="Potential Quests">
               <template v-slot:default="slotProps">
                 <q-btn
-                  v-if="findPlayOfGuild(slotProps.quest.game_play)?.status === 'invitation'"
+                  v-if="
+                    findPlayOfGuild(slotProps.quest.game_play)?.status ===
+                    'invitation'
+                  "
                   label="Invitation"
                   color="secondary"
                   icon="mdi-email"
                   @click="doRegister(slotProps.quest.id)"
                 />
                 <span
-                  v-else-if="findPlayOfGuild(slotProps.quest.game_play)?.status === 'request'"
+                  v-else-if="
+                    findPlayOfGuild(slotProps.quest.game_play)?.status ===
+                    'request'
+                  "
                   class="text-grey"
                 >
                   Waiting for response
@@ -92,7 +102,12 @@
             color="primary"
             icon="mdi-forum"
             label="Create Guild Channel"
-            @click="router.push({ name: 'guild_channel_list', params: { guild_id: String(guildId) } })"
+            @click="
+              router.push({
+                name: 'guild_channel_list',
+                params: { guild_id: String(guildId) },
+              })
+            "
           />
         </q-card-section>
 
@@ -110,8 +125,8 @@
             option-label="handle"
             option-value="id"
             color="primary"
-            @add="details => addGuildAdmin(details.value)"
-            @remove="details => removeGuildAdmin(details.value)"
+            @add="(details) => addGuildAdmin(details.value)"
+            @remove="(details) => removeGuildAdmin(details.value)"
           />
         </q-card-section>
 
@@ -120,7 +135,10 @@
           <div class="row q-col-gutter-md">
             <!-- Guild Info -->
             <div class="col-12 col-md-6">
-              <guild-card :currentGuild="currentGuild" :showDescription="false" />
+              <guild-card
+                :currentGuild="currentGuild"
+                :showDescription="false"
+              />
             </div>
 
             <!-- Member Roles -->
@@ -134,7 +152,11 @@
                 </q-card-section>
                 <q-separator />
                 <q-card-section>
-                  <div v-for="member in getGuildMembers" :key="member.id" class="q-mb-md">
+                  <div
+                    v-for="member in getGuildMembers"
+                    :key="member.id"
+                    class="q-mb-md"
+                  >
                     <div class="text-subtitle2">{{ member.handle }}</div>
                     <q-select
                       v-model="availableRolesByMember[member.id]"
@@ -147,8 +169,10 @@
                       option-value="id"
                       emit-value
                       map-options
-                      @add="details => roleAdded(member.id, details.value)"
-                      @remove="details => roleRemoved(member.id, details.value)"
+                      @add="(details) => roleAdded(member.id, details.value)"
+                      @remove="
+                        (details) => roleRemoved(member.id, details.value)
+                      "
                     />
                   </div>
                 </q-card-section>
@@ -161,7 +185,8 @@
         <q-card-section>
           <div class="text-h6 q-mb-sm">Roles</div>
           <div class="text-caption text-grey q-mb-md">
-            System roles and guild-specific roles. Guild admins can create new ones.
+            System roles and guild-specific roles. Guild admins can create new
+            ones.
           </div>
           <q-btn
             v-if="member"
@@ -170,11 +195,15 @@
             color="primary"
             icon="mdi-plus"
             class="q-mb-md"
-            @click="router.push({ name: 'create_guild_role', params: { guildId: String(guildId) } })"
+            @click="
+              router.push({
+                name: 'create_guild_role',
+                params: { guildId: String(guildId) },
+              })
+            "
           />
           <role-table :roles="roleStore.getRoles" />
         </q-card-section>
-
       </q-card>
     </div>
   </q-page>
@@ -428,9 +457,7 @@ async function addGuildAdmin(member: PublicMember) {
     await guildStore.updateGuildMembership(guildMembership!);
     $q.notify({
       type: 'positive',
-      message:
-        'Guild admin added to ' +
-        (membersStore.getMemberById(id)?.handle),
+      message: 'Guild admin added to ' + membersStore.getMemberById(id)?.handle,
     });
   } catch (error) {
     guildMembership!.permissions.pop();
@@ -459,8 +486,7 @@ async function removeGuildAdmin(member: PublicMember) {
     $q.notify({
       type: 'positive',
       message:
-        'Guild admin removed from  ' +
-        (membersStore.getMemberById(id)?.handle),
+        'Guild admin removed from  ' + membersStore.getMemberById(id)?.handle,
     });
   } catch (error) {
     guildMembership!.permissions.push(permission_enum.guildAdmin);
@@ -658,7 +684,7 @@ async function doSubmit() {
   box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
   border: 5px solid #ccc;
   max-height: 300px;
-  width:100%;
+  width: 100%;
   max-width: 600px;
   overflow-y: auto;
 }

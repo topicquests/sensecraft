@@ -31,7 +31,6 @@
         <q-item-section>Create Guild</q-item-section>
       </q-item>
       <q-item
-
         v-if="checkForPermission(permission_enum.superadmin)"
         :to="{ name: 'admin' }"
       >

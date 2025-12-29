@@ -1,4 +1,4 @@
-import test, { expect } from "playwright/test";
+import test, { expect } from 'playwright/test';
 
 test('should display House Rules page correctly', async ({ page }) => {
   // Navigate to the page where house rules are located
@@ -11,8 +11,10 @@ test('should display House Rules page correctly', async ({ page }) => {
   await expect(page.locator('h4')).toHaveText('About');
 
   // Check for specific content in the paragraph (the rules)
-  await expect(page.locator('p').nth(0)).toContainText('Sensecraft promotes an ecosystem of Trust and Safety and Civil conversation');
-  await expect(page.locator('p').nth(1)).toContainText('These are simple rules, a minimalist set.');
-
+  await expect(page.locator('p').nth(0)).toContainText(
+    'Sensecraft promotes an ecosystem of Trust and Safety and Civil conversation',
+  );
+  await expect(page.locator('p').nth(1)).toContainText(
+    'These are simple rules, a minimalist set.',
+  );
 });
-

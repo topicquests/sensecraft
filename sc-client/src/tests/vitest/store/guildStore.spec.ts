@@ -2,7 +2,13 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { useGuildStore } from 'src/stores/guilds';
 import { api } from 'src/boot/axios';
-import { mockGuild, mockGuildMembership, mockGuildMemberAvailableRole, mockMember, mockQuest } from '../components/mocks/StoreMocks';
+import {
+  mockGuild,
+  mockGuildMembership,
+  mockGuildMemberAvailableRole,
+  mockMember,
+  mockQuest,
+} from '../components/mocks/StoreMocks';
 import { setActivePinia, createPinia } from 'pinia';
 import { useMemberStore } from 'src/stores/member';
 import { useMembersStore } from 'src/stores/members';
@@ -16,13 +22,13 @@ const mockAxios = new AxiosMockAdapter(api, { delayResponse: 0 });
 vi.mock('src/stores/member', () => ({
   useMemberStore: () => ({
     getUserId: 1,
-    member: mockMember
+    member: mockMember,
   }),
 }));
 vi.mock('src/stores/members', () => ({
   useMembersStore: () => ({
     members: { [mockMember.id]: mockMember },
-  })
+  }),
 }));
 vi.mock('src/stores/quests', () => ({
   useQuestStore: () => ({
@@ -51,18 +57,18 @@ describe('GuildStore - testing of guilds store', () => {
     const guildStore = useGuildStore();
     memberStore.member = mockMember;
     guildStore.guilds = {
-      1: mockGuild
+      1: mockGuild,
     };
-    mockGuild.guild_membership.push(mockGuildMembership)
+    mockGuild.guild_membership.push(mockGuildMembership);
     guildStore.currentGuild = 1;
     expect(guildStore.getCurrentGuild).toEqual(mockGuild);
     expect(guildStore.getGuilds).toEqual([mockGuild]);
     expect(guildStore.getGuildById(1)).toEqual(mockGuild);
     expect(guildStore.getMyGuilds).toEqual([mockGuild]);
-    expect(guildStore.isGuildMember(1)).toEqual(mockGuildMembership)
-    expect(guildStore.getGuildMembershipById(1)).toEqual(mockGuildMembership)
-    expect(guildStore.getMembersOfCurrentGuild).toEqual([mockMember])
-    expect(guildStore.getGuildsPlayingCurrentQuest).toEqual([mockGuild])
+    expect(guildStore.isGuildMember(1)).toEqual(mockGuildMembership);
+    expect(guildStore.getGuildMembershipById(1)).toEqual(mockGuildMembership);
+    expect(guildStore.getMembersOfCurrentGuild).toEqual([mockMember]);
+    expect(guildStore.getGuildsPlayingCurrentQuest).toEqual([mockGuild]);
   });
 
   it('fetches the guild by its id', async () => {
@@ -135,11 +141,12 @@ describe('GuildStore - testing of guilds store', () => {
   });
 
   it('handles API error when creating a guild', async () => {
-
     const newGuildData = { name: 'Failed Guild' };
     mockAxios.onPost('/guilds').reply(500, { error: 'Internal Server Error' });
 
-    await expect(guildStore.createGuildBase(newGuildData)).rejects.toThrow('Request failed with status code 500');
+    await expect(guildStore.createGuildBase(newGuildData)).rejects.toThrow(
+      'Request failed with status code 500',
+    );
     expect(guildStore.guilds[3]).toBeUndefined();
   });
   it('updates a guild successfully', async () => {
@@ -154,7 +161,9 @@ describe('GuildStore - testing of guilds store', () => {
     guildStore.guilds = { [mockGuild.id]: mockGuild };
     const updatedData = { id: mockGuild.id, name: 'Nonexistent Guild' };
     mockAxios.onPatch('guilds', updatedData).reply(404, { error: 'Not Found' });
-    await expect(guildStore.updateGuild(updatedData)).rejects.toThrow('Request failed with status code 404');
+    await expect(guildStore.updateGuild(updatedData)).rejects.toThrow(
+      'Request failed with status code 404',
+    );
     expect(guildStore.guilds[mockGuild.id]).toEqual(mockGuild);
   });
   it('handles API error gracefully', async () => {
@@ -168,34 +177,48 @@ describe('GuildStore - testing of guilds store', () => {
     guildStore.guilds = { [mockGuild.id]: mockGuild };
     const updatedData = { name: 'Invalid Update' };
     mockAxios.onPatch('guilds', updatedData).reply(404, { error: 'No id ' });
-    await expect(guildStore.updateGuild(updatedData)).rejects.toThrow('Request failed with status code 404');
+    await expect(guildStore.updateGuild(updatedData)).rejects.toThrow(
+      'Request failed with status code 404',
+    );
     expect(guildStore.guilds).toEqual({ [mockGuild.id]: mockGuild });
   });
-  it('Add guild membership', async() => {
+  it('Add guild membership', async () => {
     guildStore.guilds = { [mockGuild.id]: mockGuild };
     const guildMembership = mockGuildMembership;
-    mockAxios.onPost('guild_membership').reply(201, [mockGuildMembership])
+    mockAxios.onPost('guild_membership').reply(201, [mockGuildMembership]);
     const result = await guildStore.doAddGuildMembership(guildMembership);
     const updatedGuild = guildStore.guilds[mockGuild.id];
     expect(updatedGuild.guild_membership).toContainEqual(mockGuildMembership);
-  })
-  it('handles API error gracefully for doAddGuildMembership', async() => {
+  });
+  it('handles API error gracefully for doAddGuildMembership', async () => {
     const guildMembership = mockGuildMembership;
-    mockAxios.onPost('guild_membership').reply(500, { error: 'Internal Server Error' });
-    await expect(guildStore.doAddGuildMembership(guildMembership)).rejects.toThrow('Request failed with status code 500');
-  })
+    mockAxios
+      .onPost('guild_membership')
+      .reply(500, { error: 'Internal Server Error' });
+    await expect(
+      guildStore.doAddGuildMembership(guildMembership),
+    ).rejects.toThrow('Request failed with status code 500');
+  });
   it('Add guild member available role', async () => {
     memberStore.member = mockMember;
-    mockAxios.onPost('/guild_member_available_role').reply(201, [mockGuildMemberAvailableRole]);
+    mockAxios
+      .onPost('/guild_member_available_role')
+      .reply(201, [mockGuildMemberAvailableRole]);
     await guildStore.addGuildMemberAvailableRole(mockGuildMemberAvailableRole);
-    expect(memberStore.member.guild_member_available_role).toContainEqual(mockGuildMemberAvailableRole);
+    expect(memberStore.member.guild_member_available_role).toContainEqual(
+      mockGuildMemberAvailableRole,
+    );
   });
-  it('members id does not match', async() => {
+  it('members id does not match', async () => {
     memberStore.member = mockMember;
     mockGuildMemberAvailableRole.member_id = 2;
-    mockAxios.onPost('/guild_member_available_role').reply(500, { error: 'Internal Server Error' });
-    await expect(guildStore.addGuildMemberAvailableRole(mockGuildMemberAvailableRole)).rejects.toThrow('Request failed with status code 500');
-  })
+    mockAxios
+      .onPost('/guild_member_available_role')
+      .reply(500, { error: 'Internal Server Error' });
+    await expect(
+      guildStore.addGuildMemberAvailableRole(mockGuildMemberAvailableRole),
+    ).rejects.toThrow('Request failed with status code 500');
+  });
   it('deletes guild member available role successfully', async () => {
     memberStore.member = { ...mockMember };
     const roleToDelete: GuildMemberAvailableRole = {
@@ -219,11 +242,13 @@ describe('GuildStore - testing of guilds store', () => {
         (role) =>
           role.role_id === roleToDelete.role_id &&
           role.member_id === roleToDelete.member_id &&
-          role.guild_id === roleToDelete.guild_id
-      )
+          role.guild_id === roleToDelete.guild_id,
+      ),
     ).toBe(false);
     expect(mockAxios.history.delete.length).toBe(1);
-    expect(mockAxios.history.delete[0].url).toBe('/guild_member_available_role');
+    expect(mockAxios.history.delete[0].url).toBe(
+      '/guild_member_available_role',
+    );
     expect(mockAxios.history.delete[0].params).toEqual({
       member_id: `eq.${roleToDelete.member_id}`,
       guild_id: `eq.${roleToDelete.guild_id}`,
@@ -240,15 +265,16 @@ describe('GuildStore - testing of guilds store', () => {
     memberStore.member.guild_member_available_role.push(roleToDelete);
 
     mockAxios.onDelete('/guild_member_available_role').reply(500, []);
-    await expect(guildStore.deleteGuildMemberAvailableRole(roleToDelete)).rejects.toThrow('Request failed with status code 500');
+    await expect(
+      guildStore.deleteGuildMemberAvailableRole(roleToDelete),
+    ).rejects.toThrow('Request failed with status code 500');
     expect(
       memberStore.member.guild_member_available_role.some(
         (role) =>
           role.role_id === roleToDelete.role_id &&
           role.member_id === roleToDelete.member_id &&
-          role.guild_id === roleToDelete.guild_id
-      )
+          role.guild_id === roleToDelete.guild_id,
+      ),
     ).toBe(true);
   });
-
 });

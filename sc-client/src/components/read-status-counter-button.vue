@@ -11,8 +11,8 @@
             0 &&
           !isExpanded
         "
-       round
-       size="12px"
+        round
+        size="12px"
         :color="localRead ? 'transparent' : 'blue'"
         text-color="black"
         @click="toggleReadStatus()"

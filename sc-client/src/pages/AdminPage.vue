@@ -2,7 +2,6 @@
   <q-page class="bg-secondary admin-page" v-if="ready">
     <div class="row justify-center q-gutter-md">
       <q-card class="admin-card q-mt-md q-pa-lg">
-
         <!-- Member Handle -->
         <q-card-section>
           <member-handle />
@@ -14,6 +13,7 @@
           <div class="row q-col-gutter-md q-mt-sm">
             <div class="col-12 col-sm-6 col-md-4">
               <q-select
+                data-testid="member-select"
                 v-model="member_id"
                 :options="members"
                 option-label="handle"
@@ -24,19 +24,20 @@
                 dense
                 outlined
                 clearable
-              />
+            />
             </div>
-
             <div class="col-12 col-sm-6 col-md-2">
               <q-checkbox
+                data-testid="checkbox-superAdmin"
                 v-model="superAdmin"
                 label="Super Admin"
                 left-label
                 dense
-              />
+              />    
             </div>
             <div class="col-12 col-sm-6 col-md-2">
               <q-checkbox
+                data-testid="checkbox-createQuest"
                 v-model="createQuest"
                 label="Quest Admin"
                 left-label
@@ -44,16 +45,17 @@
               />
             </div>
             <div class="col-12 col-sm-6 col-md-2">
-              <q-checkbox
-                v-model="createGuild"
-                label="Guild Admin"
-                left-label
-                dense
-              />
+             <q-checkbox
+              data-testid="checkbox-createGuild"
+              v-model="createGuild"
+              label="Guild Admin"
+              left-label
+              dense
+            />
             </div>
-
             <div class="col-12 col-md-2 flex flex-center">
               <q-btn
+                data-testid="permissions-update"
                 dense
                 unelevated
                 color="primary"
@@ -92,7 +94,6 @@
           <div class="section-header text-h6 text-primary">🖥️ Server Data</div>
           <server-data-card />
         </q-card-section>
-
       </q-card>
     </div>
   </q-page>
@@ -137,15 +138,18 @@ const member = computed(() => membersStore.getMemberById(member_id.value!));
 
 const superAdmin = computed({
   get: () => member.value?.permissions?.includes('superadmin'),
-  set: (val) => ensure(member.value!.permissions!, permission_enum.superadmin, val!),
+  set: (val) =>
+    ensure(member.value!.permissions!, permission_enum.superadmin, val!),
 });
 const createQuest = computed({
   get: () => member.value?.permissions?.includes('createQuest'),
-  set: (val) => ensure(member.value!.permissions!, permission_enum.createQuest, val!),
+  set: (val) =>
+    ensure(member.value!.permissions!, permission_enum.createQuest, val!),
 });
 const createGuild = computed({
   get: () => member.value?.permissions?.includes('createGuild'),
-  set: (val) => ensure(member.value!.permissions!, permission_enum.createGuild, val!),
+  set: (val) =>
+    ensure(member.value!.permissions!, permission_enum.createGuild, val!),
 });
 
 watch(member_id, () => {
@@ -203,13 +207,13 @@ async function updatePermissions() {
     });
   }
 }
-
 </script>
 
 <style scoped>
 .admin-page {
   width: 100%;
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center center fixed !important;
+  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
+    center fixed !important;
   background-size: cover;
   min-height: 100vh;
   padding: 1rem;
@@ -226,7 +230,9 @@ async function updatePermissions() {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .admin-card:hover {
   transform: translateY(-3px);
@@ -252,7 +258,9 @@ async function updatePermissions() {
 /* Buttons */
 .q-btn {
   border-radius: 8px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
 }
 .q-btn:hover {
   background-color: #1565c0;

@@ -31,18 +31,19 @@ export const useRoleStore = defineStore('role', {
   getters: {
     getRoleById: (state: RoleState) => (id: number) => state.role[id],
     getRoleByName:
-    (state: RoleState) =>
-    (id: number, name: string): Role | undefined =>
-      Object.values(state.role).find((role) => role.name === name),
+      (state: RoleState) =>
+      (id: number, name: string): Role | undefined =>
+        Object.values(state.role).find((role) => role.name === name),
     getRoles: (state: RoleState) =>
       Object.values(state.role).sort((a, b) => a.name.localeCompare(b.name)),
     getRoleNodeConstraintsByRoleId: (state: RoleState) => (id: number) =>
       state.role[id].role_node_constraint,
     getRoleNodeConstraintByType:
       (state: RoleState) => (id: number, node_type: string) => {
-        const roleNodeConstraint: RoleNodeConstraint[] = state.role[id]?.role_node_constraint?.filter(
-          (node: RoleNodeConstraint) => node.node_type === node_type,
-        ) ?? [];
+        const roleNodeConstraint: RoleNodeConstraint[] =
+          state.role[id]?.role_node_constraint?.filter(
+            (node: RoleNodeConstraint) => node.node_type === node_type,
+          ) ?? [];
         return roleNodeConstraint;
       },
   },
@@ -69,7 +70,7 @@ export const useRoleStore = defineStore('role', {
     async createRole(data: Partial<Role>): Promise<Partial<Role>> {
       console.log('Creating role with data:', data);
       try {
-        const res:Role = await this.createRoleBase(data);
+        const res: Role = await this.createRoleBase(data);
         console.log('Role created successfully:', res);
         await this.fetchRoles();
         return res;
@@ -221,7 +222,7 @@ export const useRoleStore = defineStore('role', {
       const params = {
         role_id,
         node_type,
-      }
+      };
       Object.assign(data, {
         updated_at: undefined,
         role_node_constraint: undefined,

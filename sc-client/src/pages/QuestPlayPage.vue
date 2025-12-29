@@ -43,10 +43,21 @@
             v-if="$q.screen.gt.xs"
             class="col-12 col-md-4 selected-card-wrapper"
           >
-            <q-card v-show="selectedNode" flat bordered class="selected-node-card">
+            <q-card
+              v-show="selectedNode"
+              flat
+              bordered
+              class="selected-node-card"
+            >
               <div class="selected-node-header row items-center">
-                <q-icon name="label_important" class="icon-accent" size="24px" />
-                <div class="selected-node-title">{{ selectedNode?.title || 'Selected Node' }}</div>
+                <q-icon
+                  name="label_important"
+                  class="icon-accent"
+                  size="24px"
+                />
+                <div class="selected-node-title">
+                  {{ selectedNode?.title || 'Selected Node' }}
+                </div>
               </div>
 
               <q-card-section class="node-info">
@@ -62,7 +73,10 @@
                 </div>
 
                 <div class="scrollable-description">
-                  <div v-if="selectedNode?.description" v-html="selectedNode.description" />
+                  <div
+                    v-if="selectedNode?.description"
+                    v-html="selectedNode.description"
+                  />
                   <div v-else class="text-grey">No description provided.</div>
                 </div>
               </q-card-section>
@@ -93,7 +107,10 @@
     </div>
 
     <!-- Floating Node Forms -->
-     <div v-if="editable && selectedNodeId === editingNodeId && selectedNode" class="floating-node-form">
+    <div
+      v-if="editable && selectedNodeId === editingNodeId && selectedNode"
+      class="floating-node-form"
+    >
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
         :nodeInput="selectedNode"
@@ -108,8 +125,13 @@
       />
     </div>
 
-  <div
-      v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
+    <div
+      v-if="
+        editable &&
+        selectedNodeId == addingChildToNodeId &&
+        newNode &&
+        Object.keys(newNode).length
+      "
       class="floating-node-form"
     >
       <node-form
@@ -125,12 +147,18 @@
         @cancel="cancel"
       />
     </div>
-
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick, ComponentPublicInstance } from 'vue';
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  nextTick,
+  ComponentPublicInstance,
+} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import member from '../components/member-handle.vue';
@@ -148,7 +176,13 @@ import { useRoleStore } from '../stores/role';
 import { waitUserLoaded } from '../app-access';
 
 import { ConversationNode } from '../types';
-import { ibis_node_type_list, ibis_node_type_type, publication_state_enum, publication_state_list, publication_state_type } from '../enums';
+import {
+  ibis_node_type_list,
+  ibis_node_type_type,
+  publication_state_enum,
+  publication_state_list,
+  publication_state_type,
+} from '../enums';
 import { ibis_child_types } from '../stores/conversation';
 
 const $q = useQuasar();
@@ -171,16 +205,24 @@ const editingNodeId = ref<number | null>(null);
 const addingChildToNodeId = ref<number | null>(null);
 const newNode = ref<Partial<ConversationNode>>({});
 const allowChangeMeta = ref(false);
-const nodeForms = ref<Record<string, ComponentPublicInstance<{ setFocus: () => void }> | null>>({});
-const form = ref<ComponentPublicInstance<{ setFocus: () => void }> | null>(null);
+const nodeForms = ref<
+  Record<string, ComponentPublicInstance<{ setFocus: () => void }> | null>
+>({});
+const form = ref<ComponentPublicInstance<{ setFocus: () => void }> | null>(
+  null,
+);
 let baseNodePubStateConstraints: publication_state_type[] = [];
 
 const selectedNodeId = ref<number | undefined>(
-  typeof route.params.node_id === 'string' ? parseInt(route.params.node_id) : undefined
+  typeof route.params.node_id === 'string'
+    ? parseInt(route.params.node_id)
+    : undefined,
 );
 
 const selectedNode = computed(() =>
-  selectedNodeId.value != null ? conversationStore.getConversationNodeById(selectedNodeId.value) : undefined
+  selectedNodeId.value != null
+    ? conversationStore.getConversationNodeById(selectedNodeId.value)
+    : undefined,
 );
 
 const guildId = computed(() => {
@@ -191,18 +233,22 @@ const guildId = computed(() => {
 
 const currentGuildId = computed(() => guildStore.getCurrentGuild);
 
-const canAddChild = computed(() => () => currentGuildId.value && !editingNodeId.value && !addingChildToNodeId.value);
+const canAddChild = computed(
+  () => () =>
+    currentGuildId.value && !editingNodeId.value && !addingChildToNodeId.value,
+);
 watch(
   () => route.params.node_id,
   (newId) => {
     selectedNodeId.value = newId ? parseInt(newId as string) : undefined;
-  }
+  },
 );
 
 // Only scroll on desktop
 watch(selectedNodeId, async () => {
   if (editingNodeId.value !== selectedNodeId.value) editingNodeId.value = null;
-  if (addingChildToNodeId.value !== selectedNodeId.value) addingChildToNodeId.value = null;
+  if (addingChildToNodeId.value !== selectedNodeId.value)
+    addingChildToNodeId.value = null;
 
   await nextTick();
   if ($q.screen.gt.xs) {
@@ -214,10 +260,14 @@ watch(selectedNodeId, async () => {
 
 // --- Node Form Ref ---
 function nodeFormRef(nodeId: string | number) {
-  return (el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null) => {
-    if (el && typeof el === 'object' && '$' in el) nodeForms.value[`editForm_${nodeId}`] = el;
+  return (
+    el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null,
+  ) => {
+    if (el && typeof el === 'object' && '$' in el)
+      nodeForms.value[`editForm_${nodeId}`] = el;
     else nodeForms.value[`editForm_${nodeId}`] = null;
-    if (editingNodeId.value === nodeId) form.value = nodeForms.value[`editForm_${nodeId}`];
+    if (editingNodeId.value === nodeId)
+      form.value = nodeForms.value[`editForm_${nodeId}`];
   };
 }
 
@@ -251,7 +301,10 @@ async function confirmAddChild(node: ConversationNode) {
     await conversationStore.createConversationNode(node);
     cancel();
   } catch {
-    $q.notify({ type: 'negative', message: 'Failed to add node. Please try again.' });
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add node. Please try again.',
+    });
   }
 }
 
@@ -264,8 +317,11 @@ async function editNode(nodeId: number) {
 
   if (node.parent_id != null) {
     const parent = getNode(node.parent_id);
-    selectedIbisTypes.value = parent?.node_type ? ibis_child_types(parent.node_type) : [];
-    allowChangeMeta.value = parent?.meta === 'conversation' && conversationStore.canMakeMeta(nodeId);
+    selectedIbisTypes.value = parent?.node_type
+      ? ibis_child_types(parent.node_type)
+      : [];
+    allowChangeMeta.value =
+      parent?.meta === 'conversation' && conversationStore.canMakeMeta(nodeId);
   } else {
     selectedIbisTypes.value = [...ibis_node_type_list];
     allowChangeMeta.value = false;
@@ -275,7 +331,7 @@ async function editNode(nodeId: number) {
   editingNodeId.value = nodeId;
   editable.value = true;
 
-  if ($q.screen.gt.xs) await nextTick(), form.value?.setFocus();
+  if ($q.screen.gt.xs) (await nextTick(), form.value?.setFocus());
 }
 
 async function confirmEdit(node: Partial<ConversationNode>) {
@@ -284,7 +340,10 @@ async function confirmEdit(node: Partial<ConversationNode>) {
     cancel();
     $q.notify({ message: 'Node updated', color: 'positive' });
   } catch {
-    $q.notify({ message: 'There was an error updating node.', color: 'negative' });
+    $q.notify({
+      message: 'There was an error updating node.',
+      color: 'negative',
+    });
   }
 }
 
@@ -297,7 +356,10 @@ function cancel() {
 // --- Publication Constraints ---
 function calcPublicationConstraints(node: Partial<ConversationNode>) {
   if (!currentGuildId.value) {
-    baseNodePubStateConstraints = [publication_state_enum.private_draft, publication_state_enum.published];
+    baseNodePubStateConstraints = [
+      publication_state_enum.private_draft,
+      publication_state_enum.published,
+    ];
     return;
   }
 
@@ -312,10 +374,12 @@ function calcPublicationConstraints(node: Partial<ConversationNode>) {
   }
 
   if (node.id) {
-    const children_status = conversationStore.getChildrenOf(node.id)?.map(n => n!.status) || [];
+    const children_status =
+      conversationStore.getChildrenOf(node.id)?.map((n) => n!.status) || [];
     if (children_status.length > 0) {
       children_status.sort(
-        (a, b) => publication_state_list.indexOf(a) - publication_state_list.indexOf(b)
+        (a, b) =>
+          publication_state_list.indexOf(a) - publication_state_list.indexOf(b),
       );
       const pos = pub_states.indexOf(children_status[0]);
       if (pos > 0) pub_states.splice(0, pos);
@@ -330,9 +394,12 @@ function calcPublicationConstraints(node: Partial<ConversationNode>) {
   baseNodePubStateConstraints = pub_states;
 }
 
-const calcSpecificPubConstraints = (node: Partial<ConversationNode>): publication_state_type[] => {
+const calcSpecificPubConstraints = (
+  node: Partial<ConversationNode>,
+): publication_state_type[] => {
   if (!node) return [];
-  if (node.meta === 'channel' || !currentGuildId.value) return baseNodePubStateConstraints;
+  if (node.meta === 'channel' || !currentGuildId.value)
+    return baseNodePubStateConstraints;
 
   const pub_states = [...baseNodePubStateConstraints];
 
@@ -342,12 +409,16 @@ const calcSpecificPubConstraints = (node: Partial<ConversationNode>): publicatio
   }
 
   if (node.node_type && node.quest_id) {
-    const max_state = questStore.getMaxPubStateForNodeType(node.quest_id, node.node_type);
+    const max_state = questStore.getMaxPubStateForNodeType(
+      node.quest_id,
+      node.node_type,
+    );
     const pos = pub_states.indexOf(max_state);
     if (pos >= 0) pub_states.splice(pos + 1);
   }
 
-  if (node.status && !pub_states.includes(node.status)) pub_states.push(node.status);
+  if (node.status && !pub_states.includes(node.status))
+    pub_states.push(node.status);
 
   return pub_states;
 };
@@ -356,22 +427,26 @@ const calcSpecificPubConstraints = (node: Partial<ConversationNode>): publicatio
 async function initialize() {
   await waitUserLoaded();
 
-  if (typeof route.params.quest_id === 'string') questId.value = parseInt(route.params.quest_id);
+  if (typeof route.params.quest_id === 'string')
+    questId.value = parseInt(route.params.quest_id);
   questStore.setCurrentQuest(questId.value);
 
   await Promise.all([
     questStore.ensureQuest({ quest_id: questId.value! }),
     guildStore.ensureGuildsPlayingQuest({ quest_id: questId.value! }),
-    roleStore.ensureAllRoles()
+    roleStore.ensureAllRoles(),
   ]);
 
   if (guildId.value) {
     guildStore.setCurrentGuild(guildId.value);
     await guildStore.ensureGuild(guildId.value);
 
-    if (!selectedNodeId.value) selectedNodeId.value = questStore.getCurrentGamePlay?.focus_node_id;
+    if (!selectedNodeId.value)
+      selectedNodeId.value = questStore.getCurrentGamePlay?.focus_node_id;
   } else if (memberStore.member) {
-    myPlayingGuilds.value = guildStore.getGuilds.filter(g => g.open_for_applications);
+    myPlayingGuilds.value = guildStore.getGuilds.filter(
+      (g) => g.open_for_applications,
+    );
   }
 
   ready.value = true;
@@ -386,7 +461,8 @@ onMounted(async () => {
 
 <style scoped>
 .quest-play-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center center fixed;
+  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
+    center fixed;
   background-size: cover;
   min-height: 100vh;
   overflow-x: hidden;
@@ -490,7 +566,9 @@ onMounted(async () => {
   font-weight: bold;
   letter-spacing: 0.5px;
   box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
 }
 
 .card-view-btn:hover {

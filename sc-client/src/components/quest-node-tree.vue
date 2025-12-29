@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <node-tree
       :currentQuestId="questId"
       :currentGuildId="guildId"
@@ -29,9 +29,7 @@ const selectionChanged = async (selectedNodeId: number) => {
     name: selectedNodeId ? 'quest_page_node' : 'quest_page',
     params: {
       quest_id: String(questNodeTreeProps.questId),
-      node_id: selectedNodeId
-        ? String(selectedNodeId)
-        : undefined,
+      node_id: selectedNodeId ? String(selectedNodeId) : undefined,
     },
   });
 };

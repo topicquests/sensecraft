@@ -1,10 +1,5 @@
 <template>
-  <q-btn
-    flat
-    icon="edit"
-    :disable="!canEditComputed"
-    @click="handleClick"
-  />
+  <q-btn flat icon="edit" :disable="!canEditComputed" @click="handleClick" />
 </template>
 
 <script setup lang="ts">
@@ -29,12 +24,12 @@ const conversationStore = useConversationStore();
 
 const canEditComputed = computed(() => {
   if (props.channelId) {
-     return !!channelStore.canEdit(props.channelId, props.nodeId);
+    return !!channelStore.canEdit(props.channelId, props.nodeId);
   }
-  if (props.questId == null ) return false;
+  if (props.questId == null) return false;
   const quest = questStore.getQuestById(props.questId!);
   if (quest && (!quest.is_playing || quest.status === 'finished')) return false;
-    return conversationStore.canEdit(props.nodeId);
+  return conversationStore.canEdit(props.nodeId);
 });
 
 function handleClick() {

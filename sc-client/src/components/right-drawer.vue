@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div v-if="shouldShowGuildChannels && isMember"
+    <div
+      v-if="shouldShowGuildChannels && isMember"
       class="q-pa-md q-gutter-sm"
-      data-testid="guild-channels-container">
+      data-testid="guild-channels-container"
+    >
       <channel-list
         :guild_id="rightDrawerProps.currentGuild!.id"
         :inPage="false"
@@ -46,7 +48,7 @@ const isMember = computed<boolean>({
     return false; // or another default fallback
   },
   set: (value) => {
-    return value
+    return value;
   },
 });
 
@@ -58,7 +60,7 @@ const isPlayingInQuest = computed<boolean>({
         rightDrawerProps.currentGuild!.id,
       );
     }
-    return false
+    return false;
   },
   set: (value) => {
     return value;
@@ -80,5 +82,4 @@ onBeforeMount(async () => {
     await channelStore.ensureChannels(guildId);
   }
 });
-
 </script>

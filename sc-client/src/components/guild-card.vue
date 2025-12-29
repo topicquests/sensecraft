@@ -20,9 +20,10 @@
           Description<br />
         </div>
         <div class="row justify-start q-pb-sm">
-          <q-editor 
+          <q-editor
             v-model="description"
-            :toolbar="[ ['bold','italic','underline','strike'] ]"> 
+            :toolbar="[['bold', 'italic', 'underline', 'strike']]"
+          >
           </q-editor>
         </div>
       </section>

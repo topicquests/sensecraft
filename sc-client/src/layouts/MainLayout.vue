@@ -1,5 +1,5 @@
 <template>
- <q-layout view="hHh Lpr fFf">
+  <q-layout view="hHh Lpr fFf">
     <q-header elevated>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <q-toolbar>
@@ -156,8 +156,6 @@ const currentQuest = computed(() => questStore.getCurrentQuest);
 const checkIfAuthenticated = computed(
   (): boolean => memberStore.isAuthenticated,
 );
-
-
 
 // Lifecycles
 onBeforeMount(() => {

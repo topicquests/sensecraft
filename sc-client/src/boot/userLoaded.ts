@@ -37,20 +37,22 @@ export function resetIfMemberChanged(member_id: number | undefined): void {
 }
 
 export default boot(async ({ app }) => {
-let userLoadedResolve: ((member: Member | null) => void) | null = null;
+  let userLoadedResolve: ((member: Member | null) => void) | null = null;
 
-app.config.globalProperties.$userLoaded = new Promise<Member | null>((resolve) => {
-  userLoadedResolve = resolve;
-});
+  app.config.globalProperties.$userLoaded = new Promise<Member | null>(
+    (resolve) => {
+      userLoadedResolve = resolve;
+    },
+  );
 
-const memberStore = useMemberStore();
-const member = await memberStore.ensureLoginUser();
+  const memberStore = useMemberStore();
+  const member = await memberStore.ensureLoginUser();
 
-userLoadedResolve?.(member ?? null);
+  userLoadedResolve?.(member ?? null);
   if (member) {
     const prevTokenExpiry = Number.parseInt(
       window.localStorage.getItem('tokenExpiry') ?? '0',
-      10
+      10,
     );
     const prevToken = window.localStorage.getItem('token') ?? '';
     const interval = Math.max(0, prevTokenExpiry - Date.now() - 10_000);

@@ -1,12 +1,19 @@
-import {test, expect} from '@playwright/test';
-import {player6, player7, player8, player9, player10, guild2} from '../utilities/StoreMocks';
+import { test, expect } from '@playwright/test';
+import {
+  player6,
+  player7,
+  player8,
+  player9,
+  player10,
+  guild2,
+} from '../utilities/StoreMocks';
 
 test.describe('Add players to guild 2', () => {
-    test.beforeEach(async({page}) => {
-        await page.goto('http://localhost:8080/signin')
-    })
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:8080/signin');
+  });
 
-    test('add player six to guild 2', async ({ page }) => {
+  test('add player six to guild 2', async ({ page }) => {
     // Sign in
     await page.fill('input[name="email"]', player6.email!);
     await page.fill('input[name="pass"]', player6.password!);
@@ -48,7 +55,7 @@ test.describe('Add players to guild 2', () => {
     // Dismiss dashboard instruction
     await page.click('button[name="dashboardInstruction"]');
 
-     // Find the row containing "Saggezza"
+    // Find the row containing "Saggezza"
     const row = page.locator('.guilds-table tbody tr', {
       has: page.locator('td', { hasText: guild2.name }),
     });
@@ -138,7 +145,7 @@ test.describe('Add players to guild 2', () => {
     // Dismiss dashboard instruction
     await page.click('button[name="dashboardInstruction"]');
 
-     // Find the row containing "Saggezza"
+    // Find the row containing "Saggezza"
     const row = page.locator('.guilds-table tbody tr', {
       has: page.locator('td', { hasText: guild2.name }),
     });
@@ -156,4 +163,4 @@ test.describe('Add players to guild 2', () => {
       await expect(joinButton).toBeHidden();
     }
   });
-})
+});

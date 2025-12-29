@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { guild1, guild2, guildCreator1, guildCreator2 } from '../utilities/StoreMocks';
+import {
+  guild1,
+  guild2,
+  guildCreator1,
+  guildCreator2,
+} from '../utilities/StoreMocks';
 
 test.describe('Guild creator Permission Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -26,7 +31,9 @@ test.describe('Guild creator Permission Flow', () => {
     await page.getByText('Public').click();
 
     await page.fill('input[name="guild-title"]', guild1.name!);
-    await page.locator('[data-test="guild-description-editor"] .q-editor__content').fill(guild1.description!);
+    await page
+      .locator('[data-test="guild-description-editor"] .q-editor__content')
+      .fill(guild1.description!);
     await page.locator('.q-select .q-field__control').click();
     await page.locator('.q-menu').waitFor();
     await page.locator('.q-menu').getByText('Researcher').click();
@@ -34,7 +41,7 @@ test.describe('Guild creator Permission Flow', () => {
     await page.fill('input[name="guild-handle"]', guild1.handle!);
     await page.click('button[name="create-guild-btn"]');
     await expect(
-      page.getByRole('alert').filter({ hasText: 'Added new guild' })
+      page.getByRole('alert').filter({ hasText: 'Added new guild' }),
     ).toBeVisible();
     await expect(page).toHaveURL(/\/guild\/\d+\/admin/, { timeout: 10000 });
   });
@@ -48,14 +55,16 @@ test.describe('Guild creator Permission Flow', () => {
     await expect(page).toHaveURL(/\/guild\/create$/);
     await page.getByText('Public').click();
     await page.fill('input[name="guild-title"]', guild2.name!);
-    await page.locator('[data-test="guild-description-editor"] .q-editor__content').fill(guild2.description!);
+    await page
+      .locator('[data-test="guild-description-editor"] .q-editor__content')
+      .fill(guild2.description!);
     await page.locator('.q-select .q-field__control').click();
     await page.locator('.q-menu').waitFor();
     await page.locator('.q-menu').getByText('Researcher').click();
     await page.fill('input[name="guild-handle"]', guild2.handle!);
     await page.click('button[name="create-guild-btn"]');
     await expect(
-      page.getByRole('alert').filter({ hasText: 'Added new guild' })
+      page.getByRole('alert').filter({ hasText: 'Added new guild' }),
     ).toBeVisible();
     await expect(page).toHaveURL(/\/guild\/\d+\/admin/, { timeout: 10000 });
   });

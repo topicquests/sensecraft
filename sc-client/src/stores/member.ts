@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Member, CastingRole, memberPatchKeys } from '../types';
 import { getWSClient } from '../wsclient';
 import { useBaseStore, filterKeys } from './baseStore';
-import { jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { api, token_store, TOKEN_EXPIRATION } from '../boot/axios';
 import { useMembersStore } from './members';
 import { Notify } from 'quasar';
@@ -31,11 +31,11 @@ const clearBaseState: MemberState = {
 
 export const useMemberStore = defineStore('member', {
   state: (): MemberState => ({
-  member: undefined,
-  isAuthenticated: false,
-  token: undefined,
-  tokenExpiry: undefined
-}),
+    member: undefined,
+    isAuthenticated: false,
+    token: undefined,
+    tokenExpiry: undefined,
+  }),
   getters: {
     getUser: (state: MemberState) => state.member,
     getUserId: (state: MemberState) => state.member?.id,
@@ -47,7 +47,7 @@ export const useMemberStore = defineStore('member', {
     getCastingRoles: (state: MemberState) => state.member?.casting_role,
     isGuildMember: (state: MemberState) => {
       if (state && state.member) {
-        return state.member.guild_membership
+        return state.member.guild_membership;
       }
     },
     castingPerQuest: (state: MemberState) =>
@@ -186,12 +186,14 @@ export const useMemberStore = defineStore('member', {
         headers: { Authorization: null },
       });
     },
-    async registerUserCrypted(data: Partial<Member>): Promise<AxiosResponse<Partial<Member>> | undefined> {
+    async registerUserCrypted(
+      data: Partial<Member>,
+    ): Promise<AxiosResponse<Partial<Member>> | undefined> {
       try {
         const membersStore = useMembersStore();
         const res: AxiosResponse<Partial<Member>> = await api.post(
           '/rpc/create_member',
-          data
+          data,
         );
         if (res.status === 200 && res.data.id !== undefined) {
           await membersStore.ensureMemberById(res.data.id, false);

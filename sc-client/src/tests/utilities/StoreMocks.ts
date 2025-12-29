@@ -14,105 +14,106 @@ import { ChannelsReadMap, ReadStatusMap } from '../../stores/readStatus';
 import { registration_status_enum } from '../../enums';
 
 export interface Conversation {
-  title: string,
-  conv: string
+  title: string;
+  conv: string;
 }
 export const admin: Partial<Member> = {
-  name: "Admin",
-  handle: "admin",
-  password: "admin",
-  email: "admin@example.com",
+  name: 'Admin',
+  handle: 'admin',
+  password: 'admin',
+  email: 'admin@example.com',
 };
 
 export const questCreator: Partial<Member> = {
-  name: "Quest Creator",
-  handle: "questCreator",
-  password: "password",
-  email: "questcreator@example.com",
+  name: 'Quest Creator',
+  handle: 'questCreator',
+  password: 'password',
+  email: 'questcreator@example.com',
 };
 
-export const guildCreator1: Partial<Member > = {
-  name: "Guild Creator1",
-  handle: "guildCreator1",
-  password: "password",
-  email: "guildcreator1@example.com",
+export const guildCreator1: Partial<Member> = {
+  name: 'Guild Creator1',
+  handle: 'guildCreator1',
+  password: 'password',
+  email: 'guildcreator1@example.com',
 };
 export const guildCreator1Conv: Conversation = {
-  title: "Welcome Black Knights",
+  title: 'Welcome Black Knights',
   conv: `Welcome, brave soul! We're thrilled to have you with us.
   The Black Knights are more than a guild — we're a team built on strategy, shared purpose, and respect.
-  Before we charge into quests together, let’s get to know you.`
-}
+  Before we charge into quests together, let’s get to know you.`,
+};
 
 export const guildCreator2: Partial<Member> = {
-  name: "Guild Creator2",
-  handle: "guildCreator2",
-  password: "password",
-  email: "guildcreator2@example.com",
+  name: 'Guild Creator2',
+  handle: 'guildCreator2',
+  password: 'password',
+  email: 'guildcreator2@example.com',
 };
 
 export const player1: Partial<Member> = {
-  name: "Player One",
-  handle: "playerOne",
-  password: "password",
-  email: "player1@example.com"
+  name: 'Player One',
+  handle: 'playerOne',
+  password: 'password',
+  email: 'player1@example.com',
 };
 export const player2: Partial<Member> = {
-  name: "Player Two",
-  handle: "playerTwo",
-  password: "password",
-  email: "player2@example.com"
+  name: 'Player Two',
+  handle: 'playerTwo',
+  password: 'password',
+  email: 'player2@example.com',
 };
 export const player3: Partial<Member> = {
-  name: "Player Three",
-  handle: "playerThree",
-  password: "password",
-  email: "player3@example.com"
+  name: 'Player Three',
+  handle: 'playerThree',
+  password: 'password',
+  email: 'player3@example.com',
 };
 export const player4: Partial<Member> = {
-  name: "Player Four",
-  handle: "playerFour",
-  password: "password",
-  email: "player4@example.com"
+  name: 'Player Four',
+  handle: 'playerFour',
+  password: 'password',
+  email: 'player4@example.com',
 };
 export const player5: Partial<Member> = {
-  name: "Player Five",
-  handle: "playerFive",
-  password: "password",
-  email: "player5@example.com"
+  name: 'Player Five',
+  handle: 'playerFive',
+  password: 'password',
+  email: 'player5@example.com',
 };
 export const player6: Partial<Member> = {
-  name: "Player Six",
-  handle: "playerSix",
-  password: "password",
-  email: "player6@example.com"
+  name: 'Player Six',
+  handle: 'playerSix',
+  password: 'password',
+  email: 'player6@example.com',
 };
 export const player7: Partial<Member> = {
-  name: "Player Seven",
-  handle: "playerSeven",
-  password: "password",
-  email: "player7@example.com"
+  name: 'Player Seven',
+  handle: 'playerSeven',
+  password: 'password',
+  email: 'player7@example.com',
 };
 export const player8: Partial<Member> = {
-  name: "Player Eight",
-  handle: "playerEight",
-  password: "password",
-  email: "player8@example.com"
-};export const player9: Partial<Member> = {
-  name: "Player Nine",
-  handle: "playerNine",
-  password: "password",
-  email: "player9@example.com"
+  name: 'Player Eight',
+  handle: 'playerEight',
+  password: 'password',
+  email: 'player8@example.com',
+};
+export const player9: Partial<Member> = {
+  name: 'Player Nine',
+  handle: 'playerNine',
+  password: 'password',
+  email: 'player9@example.com',
 };
 export const player10: Partial<Member> = {
-  name: "Player Ten",
-  handle: "playerTen",
-  password: "password",
-  email: "player10@example.com"
+  name: 'Player Ten',
+  handle: 'playerTen',
+  password: 'password',
+  email: 'player10@example.com',
 };
 export const guild1: Partial<GuildData> = {
   name: 'Black Knights',
-  description:`Are you seeking a guild that values teamwork, structured communication, and collaborative success? Look no further! Black Knights are now recruiting, and we’re excited to welcome new members who thrive in an organized and supportive environment.
+  description: `Are you seeking a guild that values teamwork, structured communication, and collaborative success? Look no further! Black Knights are now recruiting, and we’re excited to welcome new members who thrive in an organized and supportive environment.
 
 Who We Are:
 Black Knight is a community of passionate players dedicated to conquering quests We pride ourselves on our ability to co-construct structured conversations that lead to efficient teamwork and enjoyable gameplay. Whether you’re a veteran player or just starting, you’ll find a home here with us.
@@ -127,18 +128,18 @@ Our Expectations:
 Active Participation: Be present and contribute to guild events and discussions.
 Respectful Conduct: Maintain a positive and respectful attitude towards all members.
 Effective Communication: Engage in our structured communication channels to stay informed and involved.`,
-  handle: "guildOne"
-}
+  handle: 'guildOne',
+};
 export const guild2: Partial<GuildData> = {
-  name: "Coherence",
-  description:`Welcome to Coherence,
+  name: 'Coherence',
+  description: `Welcome to Coherence,
   a guild dedicated to helping learners make sense of complex ideas in a coherent manner!
   Our goal is to create a supportive community to enable members to learn and grow together,
   share their insights and perspectives to help each other gain a deeper understanding of complex topics.
   Whether you're an expert in a particular field or just starting out, we welcome all learners who are passionate about making sense of the world around us.
   Let's work together towards building a more coherent and interconnected world!`,
-  handle: "guildTwo"
-}
+  handle: 'guildTwo',
+};
 
 export const mockCasting: Casting = {
   guild_id: 1,
@@ -153,7 +154,7 @@ export const mockCasting: Casting = {
 export const mockGuildMemberAvailableRole: GuildMemberAvailableRole = {
   guild_id: 1,
   member_id: 1,
-  role_id: 1
+  role_id: 1,
 };
 export const mockRole: Role = {
   id: 1,
@@ -294,7 +295,7 @@ export const mockChannelStatusMap: ReadStatusMap = {
     node_id: 1,
     member_id: 1,
     status: true,
-    seconds_shown: 0
+    seconds_shown: 0,
   },
 };
 
@@ -328,7 +329,7 @@ export const mockQuest: Partial<QuestData> = {
   name: 'What are the consequences of global climate change',
   description: `The world is shifting in subtle and dramatic ways. In this quest, your team is challenged to investigate the outcomes of large-scale changes shaping our environment, societies, and ways of life.
 What transformations are underway? How are they affecting different regions, communities, or systems? Your task is to explore and interpret the ripple effects of global change—what they are, how they unfold, and why they matter.
-Approach this with curiosity, skepticism, or storytelling—there’s no single path forward, only the challenge to make sense of what’s happening and what it might mean.`
+Approach this with curiosity, skepticism, or storytelling—there’s no single path forward, only the challenge to make sense of what’s happening and what it might mean.`,
 };
 export const firstNode: Partial<ConversationNode> = {
   title: 'Climate change consequences',
@@ -336,6 +337,5 @@ export const firstNode: Partial<ConversationNode> = {
 What transformations are underway? How are they affecting different regions, communities, or systems? Your task is to explore and interpret the ripple effects of global change—what they are, how they unfold, and why they matter.
 Approach this with curiosity, skepticism, or storytelling—there’s no single path forward, only the challenge to make sense of what’s happening and what it might mean.`,
   node_type: 'question',
-  status: 'published'
-}
-
+  status: 'published',
+};

@@ -1,10 +1,12 @@
-import { execSync } from "node:child_process";
+import { exec, execSync } from "node:child_process";
 import process from "node:process";
 import { WaitingProc } from "./utils";
 
 const processes: WaitingProc[] = [];
 
 async function frontendSetup() {
+  execSync("./scripts/initial_setup.py --app_name sensecraft --test TEST --dropdb");
+  execSync("./scripts/initial_setup.py  --dropdb ");
   execSync("./scripts/db_updater.py -d test init");
   execSync("./scripts/db_updater.py -d test deploy");
   processes.push(new WaitingProc("postgrest", ["postgrest_test.conf"]));

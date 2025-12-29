@@ -1,49 +1,105 @@
-import { test, expect } from '@playwright/test';
-import { admin, guildCreator1, guildCreator2, questCreator } from '../utilities/StoreMocks';
+import { test, expect, Page } from '@playwright/test';
+import {
+  admin,
+  questCreator,
+  guildCreator1,
+  guildCreator2,
+} from '../utilities/StoreMocks';
 
+/**
+ * --------------------
+ * Selectors
+ * --------------------
+ */
+const selectors = {
+  email: 'input[name="email"]',
+  password: 'input[name="pass"]',
+  loginBtn: 'button[name="loginBtn"]',
+  dashboardInstruction: 'button[name="dashboardInstruction"]',
+  drawerBtn: 'button[name="leftdrawerBtn"]',
+  adminNav: 'text=Administration',
+
+  memberSelect: '[data-testid="member-select"]',
+  createQuest: '[data-testid="checkbox-createQuest"]',
+  createGuild: '[data-testid="checkbox-createGuild"]',
+  updateBtn: '[data-testid="permissions-update"]',
+
+  notification: '.q-notification',
+};
+
+/**
+ * --------------------
+ * Helpers
+ * --------------------
+ */
+async function loginAsAdmin(page: Page) {
+  await page.goto('http://localhost:8080/signin');
+  await page.fill(selectors.email, admin.email!);
+  await page.fill(selectors.password, admin.password!);
+  await page.click(selectors.loginBtn);
+  await page.click(selectors.dashboardInstruction);
+}
+
+async function goToAdminPage(page: Page) {
+  await page.click(selectors.drawerBtn);
+  await page.click(selectors.adminNav);
+  await expect(page).toHaveURL(/\/admin$/);
+}
+
+async function selectMember(page: Page, handle: string) {
+  await page.getByTestId('member-select').click();
+  await page.locator('.q-menu').getByText(handle, { exact: true }).click();
+}
+
+async function expectPermissionsUpdated(page: Page) {
+  await expect(
+    page.locator(selectors.notification).filter({
+      hasText: /permissions updated successfully/i,
+    }),
+  ).toBeVisible();
+}
+
+/**
+ * --------------------
+ * Tests
+ * --------------------
+ */
 test.describe('Admin Permission Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/signin');
-    await page.fill('input[name="email"]', admin.email!);
-    await page.fill('input[name="pass"]', admin.password!);
-    await page.click('button[name="loginBtn"]');
-    await page.click('button[name="dashboardInstruction"]');
+    await loginAsAdmin(page);
+    await goToAdminPage(page);
   });
 
-  test('Admin can assign createQuest permission to questCreator member', async ({ page }) => {
-    await page.click('button[name="leftdrawerBtn"]');
-    await page.getByText('Administration').click();
-    await expect(page).toHaveURL(/\/admin$/);
-    await page.locator('#qselect').click();
-    await page.locator('.q-menu').getByText(questCreator.handle!).click();
-    await page.getByTestId('checkbox-createQuest').click();
-    await page.getByRole('button', { name: 'Update', exact: true  }).click();
-    await expect(
-      page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
-    ).toBeVisible();
+  test('Admin assigns createQuest permission to questCreator', async ({
+    page,
+  }) => {
+    await selectMember(page, questCreator.handle!);
+
+    await page.getByTestId('checkbox-createQuest').check();
+    await page.getByTestId('permissions-update').click();
+
+    await expectPermissionsUpdated(page);
   });
-  test('Admin can assign createGuild permission to guildCreator1 member', async ({ page }) => {
-    await page.click('button[name="leftdrawerBtn"]');
-    await page.getByText('Administration').click();
-    await expect(page).toHaveURL(/\/admin$/);
-    await page.locator('#qselect').click();
-    await page.locator('.q-menu').getByText(guildCreator1.handle!).click();
-    await page.getByTestId('checkbox-createGuild').click();
-    await page.getByRole('button', { name: 'Update', exact: true  }).click();
-    await expect(
-      page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
-    ).toBeVisible();
+
+  test('Admin assigns createGuild permission to guildCreator1', async ({
+    page,
+  }) => {
+    await selectMember(page, guildCreator1.handle!);
+
+    await page.getByTestId('checkbox-createGuild').check();
+    await page.getByTestId('permissions-update').click();
+
+    await expectPermissionsUpdated(page);
   });
-  test('Admin can assign createGuild permission to guildCreator2 member', async ({ page }) => {
-    await page.click('button[name="leftdrawerBtn"]');
-    await page.getByText('Administration').click();
-    await expect(page).toHaveURL(/\/admin$/);
-    await page.locator('#qselect').click();
-    await page.locator('.q-menu').getByText(guildCreator2.handle!).click();
-    await page.getByTestId('checkbox-createGuild').click();
-    await page.getByRole('button', { name: 'Update', exact: true  }).click();
-    await expect(
-      page.getByRole('alert').filter({ hasText: 'Permissions were updated' })
-    ).toBeVisible();
+
+  test('Admin assigns createGuild permission to guildCreator2', async ({
+    page,
+  }) => {
+    await selectMember(page, guildCreator2.handle!);
+
+    await page.getByTestId('checkbox-createGuild').check();
+    await page.getByTestId('permissions-update').click();
+
+    await expectPermissionsUpdated(page);
   });
 });

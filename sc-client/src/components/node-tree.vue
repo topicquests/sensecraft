@@ -11,13 +11,27 @@
                 v-model="searchFilter"
               ></q-input>
             </q-item>
-            <q-item v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId">
-              <q-checkbox v-model="showDraft" label="Draft nodes" :dense="true"></q-checkbox>
+            <q-item
+              v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId"
+            >
+              <q-checkbox
+                v-model="showDraft"
+                label="Draft nodes"
+                :dense="true"
+              ></q-checkbox>
             </q-item>
-            <q-item v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId">
-              <q-checkbox v-model="showMeta" label="Meta nodes" :dense="true"></q-checkbox>
+            <q-item
+              v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId"
+            >
+              <q-checkbox
+                v-model="showMeta"
+                label="Meta nodes"
+                :dense="true"
+              ></q-checkbox>
             </q-item>
-            <q-item v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId">
+            <q-item
+              v-if="NodeTreeProps.currentGuildId && !NodeTreeProps.channelId"
+            >
               <q-checkbox
                 v-model="showFocusNeighbourhood"
                 label="Focus neighbourhood"
@@ -26,7 +40,11 @@
               ></q-checkbox>
             </q-item>
             <q-item>
-              <q-checkbox v-model="showObsolete" :dense="true" label="Obsolete nodes"></q-checkbox>
+              <q-checkbox
+                v-model="showObsolete"
+                :dense="true"
+                label="Obsolete nodes"
+              ></q-checkbox>
             </q-item>
           </q-list>
         </q-menu>
@@ -46,23 +64,24 @@
       :filter="searchFilter_"
     >
       <template v-slot:default-header="{ node }">
-        <div class="row items-center"
+        <div
+          class="row items-center"
           v-if="node.id"
           :ref="'node_' + node.id"
           :data-node-id="'node_' + node.id"
         >
-      <q-icon
-      v-if="node.meta !== 'meta'"
-        :name="node.icon"
-        class="q-mr-sm"
-      />
-      <img
-        v-else
-        :src="commentIcon"
-        alt="meta icon"
-        class="q-mr-sm"
-        style="width: 20px; height: 20px;"
-      />
+          <q-icon
+            v-if="node.meta !== 'meta'"
+            :name="node.icon"
+            class="q-mr-sm"
+          />
+          <img
+            v-else
+            :src="commentIcon"
+            alt="meta icon"
+            class="q-mr-sm"
+            style="width: 20px; height: 20px"
+          />
           <span
             :class="
               'node-title node-status-' +
@@ -73,19 +92,23 @@
           >
             {{ node.label }}
           </span>
-          <span class="node-creator">{{ getMemberHandle(node.creator_id) }}</span>
+          <span class="node-creator">{{
+            getMemberHandle(node.creator_id)
+          }}</span>
 
           <span class="threat-status" v-if="threats && threats[node.id]">
             &nbsp;[<span
               v-if="scores && scores[node.id]"
               :class="
                 'score' +
-                (currentGuildId == node.guild_id ? ' my-score' : ' other-score') +
+                (currentGuildId == node.guild_id
+                  ? ' my-score'
+                  : ' other-score') +
                 (scores[node.id] < 0 ? ' score-neg' : ' score-pos')
               "
             >
-              {{ scores[node.id] }}
-            </span>&nbsp;{{ threats[node.id] }}]
+              {{ scores[node.id] }} </span
+            >&nbsp;{{ threats[node.id] }}]
           </span>
 
           <EditButton
@@ -96,9 +119,10 @@
             @click="editNode(node.id)"
           />
 
-          <q-btn v-if="canAddChild" 
-            flat 
-            icon="add" 
+          <q-btn
+            v-if="canAddChild"
+            flat
+            icon="add"
             @click.stop="addChildToNode(node.id)"
           />
           <read-status-counter-button
@@ -107,7 +131,6 @@
             :isChannel="isChannel"
             :isExpanded="checkIfExpanded(node.id)"
             :isRead="readStatus(node.id)"
-             
           />
         </div>
 
@@ -117,15 +140,25 @@
       </template>
 
       <template v-slot:default-body="prop">
-        <div v-if="prop.node.id != editingNodeId && !hideDescription" class="row q-ml-sm" style="width: 90%;">
+        <div
+          v-if="prop.node.id != editingNodeId && !hideDescription"
+          class="row q-ml-sm"
+          style="width: 90%"
+        >
           <div v-if="prop.node.url" class="url-div">
             <a :href="prop.node.url" target="_blank">{{ prop.node.url }}</a>
           </div>
         </div>
 
-        <div class="scrollable-div q-pt-md q-pb-md" v-html="prop.node.description"></div>
+        <div
+          class="scrollable-div q-pt-md q-pb-md"
+          v-html="prop.node.description"
+        ></div>
 
-        <div v-if="NodeTreeProps.editable && prop.node.id === editingNodeId" class="floating-node-form">
+        <div
+          v-if="NodeTreeProps.editable && prop.node.id === editingNodeId"
+          class="floating-node-form"
+        >
           <node-form
             :ref="nodeFormRef(prop.node.id)"
             v-if="NodeTreeProps.editable && prop.node.id == editingNodeId"
@@ -142,23 +175,22 @@
         </div>
 
         <div
-        v-if="NodeTreeProps.editable && prop.node.id == addingChildToNodeId"
+          v-if="NodeTreeProps.editable && prop.node.id == addingChildToNodeId"
           class="floating-node-form"
         >
-        <node-form
-          :ref="nodeFormRef(prop.node.id)"
-          :nodeInput="newNode"
-          :allowAddChild="false"
-          :ibisTypes="childIbisTypes"
-          :editing="true"
-          :roles="roleStore.getRoles"
-          :allowChangeMeta="allowChangeMeta"
-          :pubFn="calcSpecificPubConstraints"
-          @action="confirmAddChild"
-          @cancel="cancel"
-        />
-</div>
-
+          <node-form
+            :ref="nodeFormRef(prop.node.id)"
+            :nodeInput="newNode"
+            :allowAddChild="false"
+            :ibisTypes="childIbisTypes"
+            :editing="true"
+            :roles="roleStore.getRoles"
+            :allowChangeMeta="allowChangeMeta"
+            :pubFn="calcSpecificPubConstraints"
+            @action="confirmAddChild"
+            @cancel="cancel"
+          />
+        </div>
       </template>
     </q-tree>
   </div>
@@ -191,7 +223,15 @@ import { useConversationStore } from '../stores/conversation';
 import { useGuildStore } from '../stores/guilds';
 import { useMembersStore } from '../stores/members';
 import { useQuestStore } from '../stores/quests';
-import { computed, nextTick, onMounted, onBeforeUnmount, ref, ComponentPublicInstance, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  ComponentPublicInstance,
+  watch,
+} from 'vue';
 import { useReadStatusStore } from '../stores/readStatus';
 import { useRoleStore } from '../stores/role';
 import EditButton from './edit-button.vue';
@@ -227,18 +267,26 @@ const NodeTreeProps = defineProps<{
 const showFocusNeighbourhood = ref(false);
 const showDraft = ref(true);
 const ready = ref(false);
-const selected = ref<number | null>(NodeTreeProps.initialSelectedNodeId ?? null);
+const selected = ref<number | null>(
+  NodeTreeProps.initialSelectedNodeId ?? null,
+);
 const showMeta = ref(true);
 const showObsolete = ref(false);
-const selectedNodeId = ref<number | null | undefined>(NodeTreeProps.initialSelectedNodeId ?? null);
+const selectedNodeId = ref<number | null | undefined>(
+  NodeTreeProps.initialSelectedNodeId ?? null,
+);
 const searchFilter = ref('');
 const editingNodeId = ref<number | null | undefined>(selectedNodeId.value);
 const addingChildToNodeId = ref<number | string | null>(null);
 const allowChangeMeta = ref(false);
 const newNode = ref<Partial<ConversationNode>>({});
 const tree = ref<QTree | null>(null);
-const form = ref<ComponentPublicInstance<{ setFocus: () => void }> | null>(null);
-const nodeForms = ref<Record<string, ComponentPublicInstance<{ setFocus: () => void }> | null>>({});
+const form = ref<ComponentPublicInstance<{ setFocus: () => void }> | null>(
+  null,
+);
+const nodeForms = ref<
+  Record<string, ComponentPublicInstance<{ setFocus: () => void }> | null>
+>({});
 const nodesTree = ref<QTreeNode[]>([]);
 
 /* ---- non-reactive vars ---- */
@@ -250,7 +298,12 @@ let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 /* ---- computed helpers ---- */
 const isAddingChild = computed(() => !!addingChildToNodeId.value);
 const canAddChild = computed(() => {
-  return NodeTreeProps.editable && canAddTo() && !editingNodeId.value && !addingChildToNodeId.value;
+  return (
+    NodeTreeProps.editable &&
+    canAddTo() &&
+    !editingNodeId.value &&
+    !addingChildToNodeId.value
+  );
 });
 const searchFilter_ = computed(() => searchFilter.value + '_');
 
@@ -271,19 +324,27 @@ const getMemberHandle = computed(() => (id: number) => {
 });
 
 const selectedNode = computed(() =>
-  selectedNodeId.value != null ? conversationStore.getConversationNodeById(selectedNodeId.value) : undefined
+  selectedNodeId.value != null
+    ? conversationStore.getConversationNodeById(selectedNodeId.value)
+    : undefined,
 );
 const threats = computed((): ThreatMap | undefined => {
   if (NodeTreeProps.channelId) return undefined;
-  if (NodeTreeProps.currentGuildId && showDraft.value) return conversationStore.getPrivateThreatMap;
+  if (NodeTreeProps.currentGuildId && showDraft.value)
+    return conversationStore.getPrivateThreatMap;
   return conversationStore.getThreatMap;
 });
 const scores = computed((): ScoreMap | undefined => {
   if (NodeTreeProps.channelId) return undefined;
-  if (NodeTreeProps.currentGuildId && showDraft.value) return conversationStore.getPrivateScoreMap;
+  if (NodeTreeProps.currentGuildId && showDraft.value)
+    return conversationStore.getPrivateScoreMap;
   return conversationStore.getScoreMap;
 });
-const readStatus = computed(() => (id: number): boolean => readStatusStore.getNodeReadStatus(id));
+const readStatus = computed(
+  () =>
+    (id: number): boolean =>
+      readStatusStore.getNodeReadStatus(id),
+);
 
 const currentQuestId = NodeTreeProps.currentQuestId;
 const currentGuildId = NodeTreeProps.currentGuildId;
@@ -291,7 +352,9 @@ const channelId = NodeTreeProps.channelId;
 const isChannel = NodeTreeProps.isChannel;
 const getNodesTree = (): QTreeNode[] => {
   if (NodeTreeProps.channelId) {
-    return channelStore.getChannelConversationTree(NodeTreeProps.channelId) ?? [];
+    return (
+      channelStore.getChannelConversationTree(NodeTreeProps.channelId) ?? []
+    );
   }
   if (showFocusNeighbourhood.value) {
     return conversationStore.getNeighbourhoodTree ?? [];
@@ -308,7 +371,7 @@ watch(
   () => {
     nodesTree.value = getNodesTree() ?? [];
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const treeSize = computed(() => {
@@ -317,12 +380,18 @@ const treeSize = computed(() => {
 });
 
 watch(
-  [() => NodeTreeProps.currentQuestId, () => showFocusNeighbourhood.value, () => conversationStore.getConversationTree],
+  [
+    () => NodeTreeProps.currentQuestId,
+    () => showFocusNeighbourhood.value,
+    () => conversationStore.getConversationTree,
+  ],
   () => {
     const nodes = getNodesTree();
-    nodesTree.value = (nodes ?? []).filter((n): n is QTreeNode => n !== undefined);
+    nodesTree.value = (nodes ?? []).filter(
+      (n): n is QTreeNode => n !== undefined,
+    );
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(selected, (newVal) => {
@@ -336,12 +405,16 @@ watch(selectedNodeId, (newVal) => {
 });
 
 // Functions
-function isNodeFormInstance(el: Element | NodeFormInstance | null): el is NodeFormInstance {
+function isNodeFormInstance(
+  el: Element | NodeFormInstance | null,
+): el is NodeFormInstance {
   return !!el && typeof el === 'object' && '$' in el;
 }
 
 function nodeFormRef(nodeId: string | number) {
-  return (el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null) => {
+  return (
+    el: Element | ComponentPublicInstance<{ setFocus: () => void }> | null,
+  ) => {
     const key = `editForm_${nodeId}`;
     if (el && typeof el === 'object' && '$' in el) {
       nodeForms.value[key] = el;
@@ -350,7 +423,10 @@ function nodeFormRef(nodeId: string | number) {
     }
 
     // set form.value when editing OR adding a child to the same node
-    if (editingNodeId.value === nodeId || addingChildToNodeId.value === nodeId) {
+    if (
+      editingNodeId.value === nodeId ||
+      addingChildToNodeId.value === nodeId
+    ) {
       form.value = nodeForms.value[key] || null;
     }
   };
@@ -360,7 +436,9 @@ function checkIfExpanded(nodeId: QTreeNode | number): boolean {
   const qtree = tree.value;
   try {
     if (!qtree) return false;
-    const id = (typeof nodeId === 'object' ? (nodeId as any).id : nodeId) as number;
+    const id = (
+      typeof nodeId === 'object' ? (nodeId as any).id : nodeId
+    ) as number;
     return !!qtree.isExpanded(id);
   } catch (err) {
     console.warn('checkIfExpanded error', err);
@@ -376,7 +454,7 @@ function filterMethod(node: Partial<ConversationNode>, filter_string: string) {
     const search_string = searchFilter.value.toLowerCase();
     if (
       (node.title || '').toLowerCase().indexOf(search_string) < 0 &&
-      ((node.description || '').toLowerCase().indexOf(search_string) < 0)
+      (node.description || '').toLowerCase().indexOf(search_string) < 0
     )
       return false;
   }
@@ -387,14 +465,20 @@ function canAddTo(): boolean {
   const qid = NodeTreeProps.currentQuestId;
   if (qid) {
     const quest = questStore.getQuestById(qid);
-    if (quest) return (quest.is_playing || quest.is_quest_member) && quest.status != 'finished';
+    if (quest)
+      return (
+        (quest.is_playing || quest.is_quest_member) &&
+        quest.status != 'finished'
+      );
   } else if (NodeTreeProps.channelId) {
     return !!guildStore.isGuildMember(NodeTreeProps.currentGuildId!);
   }
   return false;
 }
 
-function getNode(nodeId: number | null | undefined): ConversationNode | undefined {
+function getNode(
+  nodeId: number | null | undefined,
+): ConversationNode | undefined {
   if (nodeId == null) return undefined;
   if (NodeTreeProps.channelId) {
     return channelStore.getChannelNode(NodeTreeProps.channelId, nodeId);
@@ -417,14 +501,16 @@ async function editNode(nodeId: number) {
       if (selectedNodeLocal.parent_id) {
         const parent = getNode(selectedNodeLocal.parent_id);
         selectedIbisTypes = ibis_child_types(parent!.node_type);
-        allowChangeMeta.value = parent!.meta == 'conversation' && conversationStore.canMakeMeta(nodeId);
+        allowChangeMeta.value =
+          parent!.meta == 'conversation' &&
+          conversationStore.canMakeMeta(nodeId);
       } else {
         selectedIbisTypes = ibis_node_type_list;
         allowChangeMeta.value = false;
       }
       calcPublicationConstraints(selectedNodeLocal);
       editingNodeId.value = nodeId;
-       if ($q.screen.gt.xs) await nextTick(), form.value?.setFocus();
+      if ($q.screen.gt.xs) (await nextTick(), form.value?.setFocus());
     }
   } catch (err) {
     console.error('editNode error', err);
@@ -452,7 +538,7 @@ async function addChildToNode(nodeId: number | null) {
     };
     calcPublicationConstraints(newNode.value);
     addingChildToNodeId.value = nodeId;
-   if ($q.screen.gt.xs) await nextTick(), form.value?.setFocus();
+    if ($q.screen.gt.xs) (await nextTick(), form.value?.setFocus());
   } catch (err) {
     console.error('addChildToNode error', err);
   }
@@ -477,7 +563,10 @@ async function confirmAddChild(node: ConversationNode) {
     nodesTree.value = getNodesTree() ?? [];
   } catch (error) {
     console.error('Error adding child node:', error);
-    $q.notify({ type: 'negative', message: 'Failed to add node. Please try again.' });
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add node. Please try again.',
+    });
   }
 }
 
@@ -494,7 +583,10 @@ async function confirmEdit(node: Partial<ConversationNode>) {
     $q.notify({ message: `node updated`, color: 'positive' });
   } catch (err) {
     console.log('there was an error in adding node ', err);
-    $q.notify({ message: `There was an error updating node.`, color: 'negative' });
+    $q.notify({
+      message: `There was an error updating node.`,
+      color: 'negative',
+    });
   }
 }
 function selectionChanged(id: number) {
@@ -513,9 +605,14 @@ async function changeNeighbourhood() {
     ready.value = true;
   }
 }
-async function scrollToNode(id: number | null | undefined, later: number | null = null): Promise<void> {
+async function scrollToNode(
+  id: number | null | undefined,
+  later: number | null = null,
+): Promise<void> {
   if (id === null || id === undefined) {
-    console.warn('[scrollToNode] Called with null/undefined id. No action will be taken.');
+    console.warn(
+      '[scrollToNode] Called with null/undefined id. No action will be taken.',
+    );
     return;
   }
   if (later !== null) {
@@ -524,7 +621,9 @@ async function scrollToNode(id: number | null | undefined, later: number | null 
   }
   await nextTick();
   try {
-    const element = document.querySelector<HTMLElement>(`[data-node-id="node_${id}"]`);
+    const element = document.querySelector<HTMLElement>(
+      `[data-node-id="node_${id}"]`,
+    );
     if (element) {
       element.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     } else {
@@ -534,7 +633,6 @@ async function scrollToNode(id: number | null | undefined, later: number | null 
     console.error('scrollToNode error', err);
   }
 }
-
 
 async function keyResponder(evt: KeyboardEvent) {
   try {
@@ -570,7 +668,11 @@ async function keyResponder(evt: KeyboardEvent) {
         evt.preventDefault();
         break;
       case 'Enter':
-        if (NodeTreeProps.editable && conversationStore.canEdit(selectedNodeId.value!) && !editingNodeId.value) {
+        if (
+          NodeTreeProps.editable &&
+          conversationStore.canEdit(selectedNodeId.value!) &&
+          !editingNodeId.value
+        ) {
           editNode(selectedNodeId.value!);
           evt.preventDefault();
         }
@@ -632,12 +734,20 @@ async function ensureData() {
   try {
     promises.push(roleStore.ensureAllRoles());
     if (NodeTreeProps.currentQuestId) {
-      promises.push(questStore.ensureQuest({ quest_id: NodeTreeProps.currentQuestId }));
-      promises.push(membersStore.ensurePlayersOfQuest(NodeTreeProps.currentQuestId));
+      promises.push(
+        questStore.ensureQuest({ quest_id: NodeTreeProps.currentQuestId }),
+      );
+      promises.push(
+        membersStore.ensurePlayersOfQuest(NodeTreeProps.currentQuestId),
+      );
     }
     if (NodeTreeProps.currentGuildId) {
       promises.push(guildStore.ensureGuild(NodeTreeProps.currentGuildId));
-      promises.push(membersStore.ensureMembersOfGuild({ guildId: NodeTreeProps.currentGuildId }));
+      promises.push(
+        membersStore.ensureMembersOfGuild({
+          guildId: NodeTreeProps.currentGuildId,
+        }),
+      );
     }
     if (NodeTreeProps.channelId) {
       promises.push(channelStore.ensureAllChannels());
@@ -650,7 +760,9 @@ async function ensureData() {
     if (NodeTreeProps.currentQuestId) {
       // ensure creator loaded if possible
       try {
-        await membersStore.ensureMemberById(questStore.getCurrentQuest!.creator);
+        await membersStore.ensureMemberById(
+          questStore.getCurrentQuest!.creator,
+        );
       } catch (err) {
         // non-fatal
         console.warn('ensure member by id failed', err);
@@ -666,23 +778,33 @@ async function ensureData() {
 async function treePromise() {
   try {
     if (showFocusNeighbourhood.value) {
-      let node_id: number | null | undefined = questStore.getCurrentGamePlay?.focus_node_id;
+      let node_id: number | null | undefined =
+        questStore.getCurrentGamePlay?.focus_node_id;
       if (typeof node_id == 'number') {
         if (!node_id) {
           await conversationStore.ensureRootNode(NodeTreeProps.currentQuestId);
           node_id = conversationStore.getRootNode?.id;
         }
-        if (!NodeTreeProps.initialSelectedNodeId) selectedNodeId.value = node_id;
-        return await conversationStore.ensureConversationNeighbourhood(node_id!, NodeTreeProps.currentGuildId);
+        if (!NodeTreeProps.initialSelectedNodeId)
+          selectedNodeId.value = node_id;
+        return await conversationStore.ensureConversationNeighbourhood(
+          node_id!,
+          NodeTreeProps.currentGuildId,
+        );
       }
     }
 
     if (NodeTreeProps.channelId) {
-      return await channelStore.ensureChannelConversation(NodeTreeProps.channelId, NodeTreeProps.currentGuildId);
+      return await channelStore.ensureChannelConversation(
+        NodeTreeProps.channelId,
+        NodeTreeProps.currentGuildId,
+      );
     }
 
     if (NodeTreeProps.currentQuestId) {
-      return await conversationStore.ensureConversation(NodeTreeProps.currentQuestId);
+      return await conversationStore.ensureConversation(
+        NodeTreeProps.currentQuestId,
+      );
     }
   } catch (err) {
     console.error('treePromise error', err);
@@ -761,7 +883,10 @@ onBeforeUnmount(() => {
 /* methods left intact (publication constraints etc.) - copied from original but defensive */
 function calcPublicationConstraints(node: Partial<ConversationNode>) {
   if (!NodeTreeProps.currentGuildId) {
-    baseNodePubStateConstraints = [publication_state_enum.private_draft, publication_state_enum.published];
+    baseNodePubStateConstraints = [
+      publication_state_enum.private_draft,
+      publication_state_enum.published,
+    ];
     return;
   }
   try {
@@ -775,9 +900,15 @@ function calcPublicationConstraints(node: Partial<ConversationNode>) {
       }
     }
     if (node.id) {
-      const children_status = conversationStore.getChildrenOf(node.id)!.map((n) => n!.status);
+      const children_status = conversationStore
+        .getChildrenOf(node.id)!
+        .map((n) => n!.status);
       if (children_status.length > 0) {
-        children_status.sort((a, b) => publication_state_list.indexOf(a) - publication_state_list.indexOf(b));
+        children_status.sort(
+          (a, b) =>
+            publication_state_list.indexOf(a) -
+            publication_state_list.indexOf(b),
+        );
         const pos = pub_states.indexOf(children_status[0]);
         if (pos > 0) pub_states.splice(0, pos);
       }
@@ -794,7 +925,8 @@ function calcPublicationConstraints(node: Partial<ConversationNode>) {
 
 function calcSpecificPubConstraints(node: Partial<ConversationNode>) {
   try {
-    if (node.meta == 'channel' || !NodeTreeProps.currentGuildId) return baseNodePubStateConstraints;
+    if (node.meta == 'channel' || !NodeTreeProps.currentGuildId)
+      return baseNodePubStateConstraints;
     const pub_states = [...baseNodePubStateConstraints];
     if (node.meta == 'meta') {
       const pos = pub_states.indexOf('proposed');
@@ -802,7 +934,10 @@ function calcSpecificPubConstraints(node: Partial<ConversationNode>) {
     }
     const node_type = node.node_type;
     if (node_type && node.quest_id) {
-      const max_state = questStore.getMaxPubStateForNodeType(node.quest_id, node_type);
+      const max_state = questStore.getMaxPubStateForNodeType(
+        node.quest_id,
+        node_type,
+      );
       const pos = pub_states.indexOf(max_state);
       if (pos >= 0) pub_states.splice(pos + 1);
     }
@@ -841,14 +976,13 @@ function clearTree() {
   tree.value.selected([]);
 }
 defineExpose({ clearTree });
-
 </script>
 
 <style scoped>
 /* (styles left as you originally had them — preserved to avoid visual regressions) */
 .floating-node-form {
   position: fixed;
-  top: 80px;               /* distance from top */
+  top: 80px; /* distance from top */
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
@@ -876,34 +1010,106 @@ defineExpose({ clearTree });
 }
 
 /* (remaining styles preserved) */
-.floating-node-form .node-card { flex: 1; overflow-y: auto; padding: 1em; }
+.floating-node-form .node-card {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1em;
+}
 
-.node-status { display: block; font-size: 0.9em; color: gray; margin-top: 0.5em; }
+.node-status {
+  display: block;
+  font-size: 0.9em;
+  color: gray;
+  margin-top: 0.5em;
+}
 
-.node-title { font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #333; }
+.node-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  color: #333;
+}
 
-.node-creator { color: #555; font-size: 10pt; margin-left: 1em; margin-right: 1em; font-style: italic; }
+.node-creator {
+  color: #555;
+  font-size: 10pt;
+  margin-left: 1em;
+  margin-right: 1em;
+  font-style: italic;
+}
 
-.threat-status { color: grey; font-size: small; margin-left: 0.5em; }
+.threat-status {
+  color: grey;
+  font-size: small;
+  margin-left: 0.5em;
+}
 
-.score { font-size: small; padding: 2px 5px; border-radius: 4px; }
+.score {
+  font-size: small;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
 
-.q-tree__node--selected { border: 1px dashed #bbb; margin: 2px -1px -1px -1px; background-color: #f5f5f5; border-radius: 4px; padding: 4px; }
+.q-tree__node--selected {
+  border: 1px dashed #bbb;
+  margin: 2px -1px -1px -1px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 4px;
+}
 
-.node-status-private_draft { color: red; font-weight: bold; }
-.node-status-proposed { color: green; font-weight: bold; }
-.node-status-role_draft { color: orangered; font-weight: bold; }
-.node-status-guild_draft { color: orange; font-weight: bold; }
-.node-status-published { color: black; font-weight: bold; }
-.node-status-submitted { color: purple; font-weight: bold; }
-.node-status-obsolete { color: grey; font-weight: bold; text-decoration: line-through; }
+.node-status-private_draft {
+  color: red;
+  font-weight: bold;
+}
+.node-status-proposed {
+  color: green;
+  font-weight: bold;
+}
+.node-status-role_draft {
+  color: orangered;
+  font-weight: bold;
+}
+.node-status-guild_draft {
+  color: orange;
+  font-weight: bold;
+}
+.node-status-published {
+  color: black;
+  font-weight: bold;
+}
+.node-status-submitted {
+  color: purple;
+  font-weight: bold;
+}
+.node-status-obsolete {
+  color: grey;
+  font-weight: bold;
+  text-decoration: line-through;
+}
 
-.node-meta-meta { background-color: #e0e0e0; padding: 2px 4px; border-radius: 4px; }
+.node-meta-meta {
+  background-color: #e0e0e0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
 
-.score-neg.my-score { color: red; background-color: #ffe5e5; }
-.score-pos.my-score { color: green; background-color: #e5ffe5; }
-.score-neg.other-score { color: blue; background-color: #e5f0ff; }
-.score-pos.other-score { color: orange; background-color: #fff5e5; }
+.score-neg.my-score {
+  color: red;
+  background-color: #ffe5e5;
+}
+.score-pos.my-score {
+  color: green;
+  background-color: #e5ffe5;
+}
+.score-neg.other-score {
+  color: blue;
+  background-color: #e5f0ff;
+}
+.score-pos.other-score {
+  color: orange;
+  background-color: #fff5e5;
+}
 
 .scrollable-div {
   width: 75%;
@@ -916,14 +1122,12 @@ defineExpose({ clearTree });
   overflow-x: auto;
 }
 .scrollable-div a {
-  word-break: break-all;      /* forces long URLs to wrap */
-  overflow-wrap: anywhere;    /* additional safety for modern browsers */
-  display: inline-block;      /* ensures wrapping works inside flex containers */
-  color: #1a0dab;             /* optional: link color */
+  word-break: break-all; /* forces long URLs to wrap */
+  overflow-wrap: anywhere; /* additional safety for modern browsers */
+  display: inline-block; /* ensures wrapping works inside flex containers */
+  color: #1a0dab; /* optional: link color */
   text-decoration: underline; /* optional: keep standard link style */
 }
-
-
 
 @media (max-width: 768px) {
   .scrollable-div {
@@ -942,12 +1146,35 @@ defineExpose({ clearTree });
   }
 }
 
-.q-btn { border-radius: 1px; padding: 2px; }
-.q-btn[icon='edit'] { background-color: #f2f0ff; color: #333333; border-radius: 1px; padding: 2px; }
-.q-btn[icon='add'] { background-color: #f8fff0; color: #333; border-radius: 1px; padding: 2px; }
-.q-btn:hover { filter: brightness(0.9); }
+.q-btn {
+  border-radius: 1px;
+  padding: 2px;
+}
+.q-btn[icon='edit'] {
+  background-color: #f2f0ff;
+  color: #333333;
+  border-radius: 1px;
+  padding: 2px;
+}
+.q-btn[icon='add'] {
+  background-color: #f8fff0;
+  color: #333;
+  border-radius: 1px;
+  padding: 2px;
+}
+.q-btn:hover {
+  filter: brightness(0.9);
+}
 
-.row.items-center { align-items: center; padding: 5px 10px; border-bottom: 1px solid #e0e0e0; }
+.row.items-center {
+  align-items: center;
+  padding: 5px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
 
-.row.q-mt-md.q-ml-lg { margin-left: 1.5em; font-size: 0.9em; color: #888; }
+.row.q-mt-md.q-ml-lg {
+  margin-left: 1.5em;
+  font-size: 0.9em;
+  color: #888;
+}
 </style>

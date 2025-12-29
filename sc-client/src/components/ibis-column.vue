@@ -8,11 +8,7 @@
 
     <!-- Items list -->
     <div v-if="items!.length" class="ibis-card-content">
-      <div
-        v-for="node in items"
-        :key="node.id"
-        class="q-mb-sm"
-      >
+      <div v-for="node in items" :key="node.id" class="q-mb-sm">
         <a
           href="#"
           class="text-primary hover:underline"
@@ -25,26 +21,26 @@
         </a>
       </div>
     </div>
-    <div v-else class="text-caption text-grey-6 q-pa-sm">
-      No entries
-    </div>
+    <div v-else class="text-caption text-grey-6 q-pa-sm">No entries</div>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { QTreeNode } from '../types'
-import { useGuildStore } from '../stores/guilds'
+import { QTreeNode } from '../types';
+import { useGuildStore } from '../stores/guilds';
 
 const props = defineProps<{
-  title: string
-  icon: string
-  items?: QTreeNode[]
-}>()
+  title: string;
+  icon: string;
+  items?: QTreeNode[];
+}>();
 
-const guildStore = useGuildStore()
+const guildStore = useGuildStore();
 
 function getGuildName(id?: number) {
-  return id ? guildStore.getGuildById(id)?.name || 'Unknown Guild' : 'Unknown Guild'
+  return id
+    ? guildStore.getGuildById(id)?.name || 'Unknown Guild'
+    : 'Unknown Guild';
 }
 </script>
 
@@ -53,7 +49,7 @@ function getGuildName(id?: number) {
   min-width: 200px;
   height: 200px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
 }

@@ -10,7 +10,7 @@ BEGIN;
 \set dbm :dbn '__member';
 \set dbc :dbn '__client';
 
--- Indexes
+-- Indexes first
 DROP INDEX IF EXISTS channel_roles_guild_id_idx;
 CREATE INDEX channel_roles_guild_id_idx ON channel_roles USING HASH (guild_id);
 
@@ -21,6 +21,8 @@ CREATE INDEX channel_roles_channel_id_idx ON channel_roles USING HASH (id);
 GRANT SELECT, INSERT, DELETE, UPDATE ON TABLE public.channel_roles TO :dbm;
 GRANT USAGE ON SEQUENCE public.channel_roles_id_seq TO :dbm;
 GRANT SELECT ON TABLE public.channel_roles TO :dbc;
+
+-- Functions
 
 -- Function: get roles for a guild
 CREATE OR REPLACE FUNCTION public.guild_channel_roles(guild_id INTEGER)
@@ -59,11 +61,14 @@ DECLARE
 BEGIN
   FOR r IN SELECT value FROM jsonb_array_elements(data)
   LOOP
-    INSERT INTO channel_roles (guild_id, id, role_id)
+    INSERT INTO channel_roles (guild_id, id, role_id, node_id, quest_id, member_id)
     VALUES (
       (r->>'guild_id')::INTEGER,
       (r->>'id')::INTEGER,
-      (r->>'role_id')::INTEGER
+      (r->>'role_id')::INTEGER,
+      (r->>'node_id')::INTEGER,
+      (r->>'quest_id')::INTEGER,
+      (r->>'member_id')::INTEGER
     )
     RETURNING * INTO role_rec;
 
@@ -88,7 +93,7 @@ CREATE TRIGGER after_insert_channel_role
 AFTER INSERT ON public.channel_roles
 FOR EACH ROW EXECUTE FUNCTION public.after_insert_channel_role();
 
--- RLS policies
+-- Enable RLS and define policies
 ALTER TABLE public.channel_roles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS channel_roles_select_policy ON public.channel_roles;

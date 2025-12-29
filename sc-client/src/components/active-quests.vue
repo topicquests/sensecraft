@@ -60,9 +60,7 @@
     <div v-else class="col-12">
       <h2 class="q-mt-md q-mb-md">You are not registered to any quests</h2>
     </div>
-    <q-dialog
-      v-model="prompt" persistent
-      data-test="register-dialog">
+    <q-dialog v-model="prompt" persistent data-test="register-dialog">
       <member-game-registration
         :guildId="ActiveQuestsProps.guildId!"
         :questId="quest_id"
@@ -109,7 +107,7 @@ watch(quest_id, async (newVal) => {
 
 <style scoped>
 .row.justify-start {
-  gap: 1.5rem;              
+  gap: 1.5rem;
   padding: 1rem 0;
 }
 
@@ -121,7 +119,9 @@ watch(quest_id, async (newVal) => {
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   background-color: #fafafa;
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 #radio:hover {
   background-color: #f0f0f0;
@@ -149,7 +149,7 @@ watch(quest_id, async (newVal) => {
 }
 
 /* Dialog styling */
-[data-test="register-dialog"] .q-dialog__inner {
+[data-test='register-dialog'] .q-dialog__inner {
   border-radius: 16px;
   padding: 1.5rem;
   background: #ffffff;

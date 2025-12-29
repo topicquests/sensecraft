@@ -184,10 +184,13 @@ function validateEmail() {
 }
 
 function validatePasswordMatch() {
-  passwordError.value =
-    formdata.value.password === confirmPassword.value
-      ? null
-      : 'Passwords do not match';
+  if (!formdata.value.password) {
+    passwordError.value = 'Password is required';
+  } else if (formdata.value.password !== confirmPassword.value) {
+    passwordError.value = 'Passwords do not match';
+  } else {
+    passwordError.value = null;
+  }
 }
 
 defineExpose({ getFormData, validateEmail, validatePasswordMatch, formdata });

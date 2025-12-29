@@ -13,6 +13,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "scripts/**/*.ts"
-,   "scripts/generate-e2e-command.ts"  ]
+    "scripts/**/*.ts",
+    "scripts/generate-e2e-command.ts"
+  ]
 }

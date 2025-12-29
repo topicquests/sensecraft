@@ -2,22 +2,24 @@
   <q-page class="bg-secondary lobby-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="lobby-card q-mt-md q-pa-md">
-         <div class="row justify-end q-mb-lg" style="width: 85%">
+        <div class="row justify-end q-mb-lg" style="width: 85%">
           <member></member>
           <q-btn
             fab
             icon="help"
             color="blue-10"
             class="help-button fixed-top-right q-mt-xl q-mr-md"
-            style="top: 50px; z-index: 10;"
+            style="top: 50px; z-index: 10"
             @click="showDialog = true"
           >
-            <q-tooltip max-width="25rem">
-              Help on dashboard page
-            </q-tooltip>
+            <q-tooltip max-width="25rem"> Help on dashboard page </q-tooltip>
           </q-btn>
           <dashboard-instructions v-model="showDialog" />
-          <div v-if="memberStore.isGuildMember && memberStore.isGuildMember.length == 0" >
+          <div
+            v-if="
+              memberStore.isGuildMember && memberStore.isGuildMember.length == 0
+            "
+          >
             <dashboard-instructions v-model:showDialog="showDialog" />
           </div>
         </div>
@@ -160,7 +162,9 @@ p {
   background-color: #1976d2 !important;
   color: white;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s, transform 0.2s ease-in-out;
+  transition:
+    background 0.3s,
+    transform 0.2s ease-in-out;
   overflow: hidden;
 }
 .help-button:hover {

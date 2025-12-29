@@ -169,14 +169,23 @@ def create_database(data, conn_data, dropdb=False, set_defaults=True):
     owner = data["owner"]
     db_exists = test_db_exists(database, **conn_data)
     if db_exists and dropdb:
-        extra_roles = psql_command(
-            f"select string_agg(rolname, ', ') from pg_catalog.pg_roles where rolname like '{database}\_\__\_%'",
-            **conn_data,
-        ).strip()
+        # Drop database first
         psql_command(f"DROP DATABASE {database}", **conn_data)
-        if extra_roles:
-            psql_command(f"DROP ROLE {extra_roles}", **conn_data)
-        db_exists = False
+        # Drop all roles associated with this database
+        role_rows = psql_command(
+            rf"""
+            SELECT rolname
+            FROM pg_catalog.pg_roles
+            WHERE rolname LIKE '{database}\_\__\_%'
+        """,
+            **conn_data,
+        ).splitlines()
+
+        for role in role_rows:
+            role = role.strip()
+            if role:
+                psql_command(f'DROP ROLE IF EXISTS "{role}"', **conn_data)
+    db_exists = False
     if not db_exists:
         psql_command(
             f"CREATE DATABASE {database} WITH OWNER {owner} ENCODING UTF8", **conn_data
@@ -389,7 +398,7 @@ if __name__ == "__main__":
                 f.write(
                     postgrest_config.format(
                         url=url,
-                        port=POSTGREST_PORT + index,
+                        port=POSTGREST_PORT,
                         client=data["client"],
                         jwt=data["auth_secret"],
                     )

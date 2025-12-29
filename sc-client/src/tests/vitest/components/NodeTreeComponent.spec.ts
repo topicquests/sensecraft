@@ -53,12 +53,12 @@ describe('NodeTree component', () => {
     expect(icon.exists()).toBe(true);
     expect(icon.text()).toBe('menu');
   });
-  it('Display QTree'),
+  (it('Display QTree'),
     async () => {
       const wrapper = createWrapper();
       await flushPromises();
       await nextTick();
       const tree = wrapper.find('.q-tree');
       expect(tree.exists()).toBe(true);
-    };
+    });
 });

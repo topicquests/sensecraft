@@ -1,3 +1,4 @@
+import cmd
 from subprocess import run
 """
 Copyright Conversence 2021-2023
@@ -89,6 +90,14 @@ def psql_command(
     r = run(conn, capture_output=True, encoding="utf-8")
     if debug:
         print(r.returncode, r.stdout, r.stderr)
-    assert not r.returncode
+        if r.returncode:
+            print("\n--- PSQL COMMAND FAILED ---")
+            print("COMMAND:", " ".join(conn))
+            print("STDOUT:\n", r.stdout)
+            print("STDERR:\n", r.stderr)
+            raise RuntimeError("psql_command failed")
+    # assert not r.returncode
     assert not "ERROR" in r.stderr, r.stderr
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr or r.stdout)
     return r.stdout

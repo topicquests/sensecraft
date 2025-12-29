@@ -5,7 +5,7 @@
     <div class="column items-center">
       <q-card
         class="shadow-10 q-pa-md bg-white bg-opacity rounded-borders"
-        style="width: 420px; min-height: 560px; backdrop-filter: blur(6px);"
+        style="width: 420px; min-height: 560px; backdrop-filter: blur(6px)"
       >
         <!-- Header -->
         <q-card-section class="bg-deep-purple-7 text-center text-white">
@@ -31,7 +31,9 @@ import { Notify } from 'quasar';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from '../stores/member';
-import registrationForm, { FormData } from '../components/registration-form.vue';
+import registrationForm, {
+  FormData,
+} from '../components/registration-form.vue';
 
 // Stores
 const memberStore = useMemberStore();

@@ -18,7 +18,7 @@
             <div class="text-h6">Quest Information</div>
             <div>{{ currentQuest.name }}</div>
           </q-card-section>
-          <q-card-section style="max-height: 300px; overflow-y: auto;">
+          <q-card-section style="max-height: 300px; overflow-y: auto">
             <div v-html="currentQuest.description"></div>
           </q-card-section>
           <q-card-actions align="right">

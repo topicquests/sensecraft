@@ -73,7 +73,12 @@
       <template v-slot:body-cell-view="props">
         <td>
           <slot v-bind:quest="props.row">
-            <span v-if="props.row.is_quest_member || baseStore.hasPermission(permission_enum.superadmin)">
+            <span
+              v-if="
+                props.row.is_quest_member ||
+                baseStore.hasPermission(permission_enum.superadmin)
+              "
+            >
               <router-link
                 v-if="props.row.id"
                 :to="{

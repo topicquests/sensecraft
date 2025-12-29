@@ -1,8 +1,10 @@
 <template>
   <q-page class="bg-secondary create-guild-page" v-if="ready">
     <div class="row justify-center q-pa-lg">
-      <q-card class="create-guild-card q-pa-md" style="max-width: 700px; width: 100%">
-
+      <q-card
+        class="create-guild-card q-pa-md"
+        style="max-width: 700px; width: 100%"
+      >
         <!-- Member Handle -->
         <member_handle class="q-mb-md" />
 
@@ -14,7 +16,6 @@
         <!-- Guild Form -->
         <q-form @submit.prevent="doSubmit(guild)">
           <q-card-section class="q-pa-none">
-
             <!-- Public/Private Selection -->
             <q-option-group
               v-model="guild.public"
@@ -49,7 +50,7 @@
                 v-model="description"
                 class="guild-description-editor"
                 placeholder="Enter guild description..."
-                :toolbar="[ ['bold','italic','underline','strike'] ]"
+                :toolbar="[['bold', 'italic', 'underline', 'strike']]"
               />
             </div>
 
@@ -74,17 +75,10 @@
                 outlined
                 @click="router.push({ name: 'home' })"
               />
-              <q-btn
-                label="Submit"
-                type="submit"
-                color="primary"
-                unelevated
-              />
+              <q-btn label="Submit" type="submit" color="primary" unelevated />
             </div>
-
           </q-card-section>
         </q-form>
-
       </q-card>
     </div>
   </q-page>
@@ -130,7 +124,7 @@ const role = ref<Partial<Role>>({ name: '' });
 
 const description = computed({
   get: () => guild.value.description,
-  set: (value) => guild.value.description = value,
+  set: (value) => (guild.value.description = value),
 });
 
 async function doSubmit(guild: guildType) {
@@ -139,7 +133,10 @@ async function doSubmit(guild: guildType) {
     const res: AxiosResponse<GuildData[]> = await guildStore.createGuild(guild);
 
     $q.notify({ message: 'Guild created successfully!', color: 'positive' });
-    await router.push({ name: 'guild_admin', params: { guild_id: res.data[0].id } });
+    await router.push({
+      name: 'guild_admin',
+      params: { guild_id: res.data[0].id },
+    });
   } catch (error: unknown) {
     const message = axios.isAxiosError(error)
       ? `Axios error: ${error.message}`
@@ -158,7 +155,8 @@ onBeforeMount(async () => {
 
 <style lang="scss">
 .create-guild-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center center fixed;
+  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
+    center fixed;
   background-size: cover;
   min-height: 100vh;
 }

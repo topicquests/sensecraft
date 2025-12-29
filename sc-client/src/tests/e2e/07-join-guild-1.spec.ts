@@ -1,12 +1,18 @@
-import {test, expect} from '@playwright/test';
-import {player1, player2, player3, player4, player5} from '../utilities/StoreMocks';
+import { test, expect } from '@playwright/test';
+import {
+  player1,
+  player2,
+  player3,
+  player4,
+  player5,
+} from '../utilities/StoreMocks';
 
 test.describe('Add players to guild one', () => {
-    test.beforeEach(async({page}) => {
-        await page.goto('http://localhost:8080/signin')
-    })
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:8080/signin');
+  });
 
-    test('add player one to guild 1', async ({ page }) => {
+  test('add player one to guild 1', async ({ page }) => {
     // Sign in
     await page.fill('input[name="email"]', player1.email!);
     await page.fill('input[name="pass"]', player1.password!);
@@ -156,4 +162,4 @@ test.describe('Add players to guild one', () => {
       await expect(joinButton).toBeHidden();
     }
   });
-})
+});

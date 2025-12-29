@@ -8,7 +8,8 @@
         ref="title"
         outlined
         dense
-        style="flex: 1 1 90%;"
+        data-test="node-title-input"
+        style="flex: 1 1 90%"
       >
         <template v-slot:prepend>
           <IbisButton :node_type="node.node_type as ibis_node_type_type" />
@@ -30,20 +31,27 @@
       <div class="section-header">Description</div>
     </section>
     <section>
-        <q-editor
-          v-if="NodeFormProps.editing"
-          v-model="description"
-          data-test="node-description-editor"
-          class="q-mb-md node-card-editor"
-          :toolbar="[ ['bold','italic','underline','strike'] ]"
-        />
+      <q-editor
+        v-if="NodeFormProps.editing"
+        v-model="description"
+        data-test="node-description-editor"
+        class="q-mb-md node-card-editor"
+        :toolbar="[['bold', 'italic', 'underline', 'strike']]"
+      />
       <template v-else>
         <div class="scrollable-description">
           <div
-            :style="{ maxHeight: descriptionExpanded ? 'none' : '150px', overflow: 'hidden' }"
+            :style="{
+              maxHeight: descriptionExpanded ? 'none' : '150px',
+              overflow: 'hidden',
+            }"
             v-html="description"
           />
-          <div v-if="description.length > 200" class="read-more" @click="toggleDescription">
+          <div
+            v-if="description.length > 200"
+            class="read-more"
+            @click="toggleDescription"
+          >
             {{ descriptionExpanded ? 'Show Less ▲' : 'Read More ▼' }}
           </div>
         </div>
@@ -59,13 +67,15 @@
           label="Type"
           outlined
           behavior="menu"
+          data-test="node-type-selector"
           dense
           popup-content-class="narrow-dropdown"
-          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem"
         >
           <template v-slot:append>
             <q-tooltip anchor="top middle" self="bottom middle">
-              Select the type of node. This affects allowed child nodes and workflow.
+              Select the type of node. This affects allowed child nodes and
+              workflow.
             </q-tooltip>
           </template>
         </q-select>
@@ -76,11 +86,12 @@
           :options="publication_state_list"
           @update:model-value="statusChanged"
           label="Status"
+          data-test="node-status-selector"
           behavior="menu"
           outlined
           dense
           popup-content-class="narrow-dropdown"
-          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem"
         >
           <template v-slot:append>
             <q-tooltip anchor="top middle" self="bottom middle">
@@ -97,35 +108,35 @@
           :emit-value="true"
           :map-options="true"
           behavior="menu"
+          data-test="node-status-selector"
           label="Draft for Role"
           outlined
           dense
-          style="flex: 1; max-width: 450px; font-size: 0.8rem;"
+          style="flex: 1; max-width: 450px; font-size: 0.8rem"
         />
       </div>
     </section>
     <section class="row q-mb-md items-center">
-         <div class="row justify-start q-pb-lg q-ml-lg">
-   <section class="row q-mb-md items-center">
-  <div class="row justify-start q-pb-lg q-ml-lg">
-    <!-- Editable checkbox -->
-    <q-checkbox
-      v-if="allowChangeMeta && NodeFormProps.editing"
-      v-model="metaValue"
-      true-value="meta"
-      false-value="conversation"
-      label="Comment Node"
-    />
+      <div class="row justify-start q-pb-lg q-ml-lg">
+        <section class="row q-mb-md items-center">
+          <div class="row justify-start q-pb-lg q-ml-lg">
+            <!-- Editable checkbox -->
+            <q-checkbox
+              v-if="allowChangeMeta && NodeFormProps.editing"
+              v-model="metaValue"
+              true-value="meta"
+              false-value="conversation"
+              label="Comment Node"
+            />
 
-    <!-- Read-only display -->
-    <p v-else>
-      {{ node.meta === 'meta' ? 'Comment node' : 'Content node' }}
-    </p>
-  </div>
-</section>
-
-  </div>
-</section>
+            <!-- Read-only display -->
+            <p v-else>
+              {{ node.meta === 'meta' ? 'Comment node' : 'Content node' }}
+            </p>
+          </div>
+        </section>
+      </div>
+    </section>
     <section class="row justify-center q-mt-lg q-gutter-sm">
       <q-btn label="Cancel" @click="cancel" color="grey" />
       <q-btn
@@ -155,7 +166,7 @@ import {
   publication_state_list,
   publication_state_type,
   meta_state_type,
-  meta_state_enum
+  meta_state_enum,
 } from '../enums';
 import { computed, ref, watch } from 'vue';
 import { QInput } from 'quasar';
@@ -171,7 +182,7 @@ const NodeFormProps = defineProps<{
   allowChangeMeta?: boolean;
   roles?: Role[];
   pubFn?: (
-    node: Partial<ConversationNode | defaultNodeType>
+    node: Partial<ConversationNode | defaultNodeType>,
   ) => publication_state_type[];
 }>();
 
@@ -203,31 +214,35 @@ const descriptionExpanded = ref(false);
 // Computed
 const selectedNodeType = computed({
   get: () => node.value.node_type,
-  set: (val) => { if (isValidNodeType(val!)) node.value.node_type = val; }
+  set: (val) => {
+    if (isValidNodeType(val)) node.value.node_type = val;
+  },
 });
 const selectedStatusType = computed({
   get: () => node.value.status,
-  set: (val) => { if (isValidNodeStatus(val)) node.value.status = val; }
+  set: (val) => {
+    if (isValidNodeStatus(val)) node.value.status = val;
+  },
 });
 const roles = computed(() => NodeFormProps.roles);
 const description = computed({
   get: () => node.value.description || '',
-  set: (val) => { node.value.description = val; },
+  set: (val) => {
+    node.value.description = val;
+  },
 });
 const metaValue = computed<meta_state_type>({
   get() {
-    // Ensure it always returns a valid enum value
     const meta = node.value.meta;
-    if (meta === "meta" || meta === "conversation" || meta === "channel") {
+    if (meta === 'meta' || meta === 'conversation' || meta === 'channel') {
       return meta;
     }
-    return meta_state_enum.conversation; // default fallback
+    return meta_state_enum.conversation;
   },
   set(val: meta_state_type) {
     node.value.meta = val;
-  }
+  },
 });
-
 
 // Functions
 function toggleDescription() {
@@ -239,11 +254,16 @@ function isValidNodeType(type: string): type is ibis_node_type_type {
 function isValidNodeStatus(status: any): status is publication_state_type {
   return publication_state_list.includes(status);
 }
-const setFocus = () => { title.value?.focus(); };
-function action() { 
+const setFocus = () => {
+  title.value?.focus();
+};
+function action() {
   node.value.quest_id = NodeFormProps.nodeInput?.quest_id;
-  emit('action', node.value); }
-function cancel() { emit('cancel'); }
+  emit('action', node.value);
+}
+function cancel() {
+  emit('cancel');
+}
 
 defineExpose({ setFocus });
 </script>
@@ -252,7 +272,7 @@ defineExpose({ setFocus });
 .node-card {
   background-color: #f5f7ff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1em;
@@ -267,7 +287,7 @@ defineExpose({ setFocus });
   background-color: #e0e0ff;
   padding: 0.5em;
   border-radius: 6px;
-  width: 90%
+  width: 90%;
 }
 .node-card-editor {
   border-radius: 6px;
@@ -290,11 +310,11 @@ defineExpose({ setFocus });
   margin-bottom: 0.5em;
 }
 .narrow-dropdown {
-  min-width: unset !important;  
-  width: 120px !important;      
+  min-width: unset !important;
+  width: 120px !important;
   max-width: 120px !important;
-  font-size: 0.85rem;           
-  white-space: nowrap;          
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 .meta-text {
   margin: 0;
@@ -313,7 +333,11 @@ a {
   text-decoration: underline;
 }
 @media (max-width: 600px) {
-  .node-card { font-size: 0.95em; }
-  .node-card-editor { width: 100% !important; }
+  .node-card {
+    font-size: 0.95em;
+  }
+  .node-card-editor {
+    width: 100% !important;
+  }
 }
 </style>

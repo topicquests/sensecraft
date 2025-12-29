@@ -48,13 +48,12 @@ const member = computed(() => memberStore.member);
 const isMember = computed<boolean>({
   get: () => {
     return !!guildStore.isGuildMember(currentGuild.value?.id ?? 0);
-
   },
   set: (value) => {
     return value;
   },
 });
-async function joinToGuild () {
+async function joinToGuild() {
   const currentGuildId = currentGuild.value?.id;
   if (!currentGuild.value || typeof currentGuild.value.id !== 'number') return;
   await guildStore.addGuildMembership({
@@ -64,8 +63,7 @@ async function joinToGuild () {
   channelStore.setCurrentGuild(currentGuildId!);
   await channelStore.ensureChannels(currentGuildId!);
   await readStatusStore.ensureGuildUnreadChannels();
-};
-
+}
 </script>
 <style scoped>
 .guild-description {

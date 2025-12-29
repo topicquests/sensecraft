@@ -96,16 +96,17 @@ export const useChannelStore = defineStore('channel', {
     getChannelNode:
       (state: ChannelState) => (channel_id: number, node_id: number) =>
         state.channelData[channel_id]?.[node_id],
-    getChannelOfNode: (state: ChannelState) => (node_id: number): number | undefined => {
-      for (const channel_id of Object.keys(state.channelData)) {
-        const channel = state.channelData[Number (channel_id)];
+    getChannelOfNode:
+      (state: ChannelState) =>
+      (node_id: number): number | undefined => {
+        for (const channel_id of Object.keys(state.channelData)) {
+          const channel = state.channelData[Number(channel_id)];
           if (channel && channel[node_id]) {
             return Number(channel_id);
           }
         }
-      return undefined;
-    },
-
+        return undefined;
+      },
 
     canEdit:
       (state: ChannelState) => (channel_id?: number, node_id?: number) => {
@@ -119,11 +120,10 @@ export const useChannelStore = defineStore('channel', {
             const node = state.channelData[channel_id]?.[node_id];
             if (node && node.guild_id && userId) {
               if (node.status == publication_state_enum.private_draft) {
-                if (node.creator_id == userId)
-                  return true
+                if (node.creator_id == userId) return true;
                 // TODO: role_draft
               } else if (node.status == publication_state_enum.guild_draft) {
-                if (node.quest_id ) {
+                if (node.quest_id) {
                   const casting = questStore.castingInQuest(
                     node.quest_id,
                     userId,
@@ -131,13 +131,13 @@ export const useChannelStore = defineStore('channel', {
                   if (node.creator_id == userId) {
                     return casting?.guild_id == node.guild_id;
                   } else {
-                      return false
+                    return false;
                   }
                 }
                 if (node.creator_id == userId) {
                   return guildStore.isGuildMember(node.guild_id);
                 } else {
-                  return false
+                  return false;
                 }
               }
             } else if (node.status == publication_state_enum.proposed) {
@@ -181,7 +181,7 @@ export const useChannelStore = defineStore('channel', {
       Object.assign(this, clearBaseState);
     },
     addToState(node: Partial<ConversationNode>) {
-      if(node.ancestry) {
+      if (node.ancestry) {
         const channel_id = Number.parseInt(node.ancestry.split('.')[0]);
         if (!node.parent_id) {
           this.channels = { ...this.channels, [channel_id]: node as QTreeNode };
@@ -190,13 +190,13 @@ export const useChannelStore = defineStore('channel', {
           console.error('Missing channel');
           this.channelData[channel_id] = {};
         }
-       if (!this.channelData[channel_id]) {
-        this.channelData[channel_id] = {};
-      }
+        if (!this.channelData[channel_id]) {
+          this.channelData[channel_id] = {};
+        }
 
-      if (node.id !== undefined) {
-        this.channelData[channel_id][node.id] = node as QTreeNode;
-      }
+        if (node.id !== undefined) {
+          this.channelData[channel_id][node.id] = node as QTreeNode;
+        }
         this.currentChannel = channel_id;
       }
     },

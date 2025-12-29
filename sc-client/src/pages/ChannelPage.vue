@@ -31,7 +31,9 @@
       <q-card-section class="row q-col-gutter-md">
         <!-- Left: Node Tree -->
         <div class="col-12 col-md-9 node-tree-wrapper">
-          <div class="text-subtitle2 q-mb-sm tree-header">Channel Discussion Tree</div>
+          <div class="text-subtitle2 q-mb-sm tree-header">
+            Channel Discussion Tree
+          </div>
           <node-tree
             :initialSelectedNodeId="selectedNodeId"
             @tree-selection="selectionChanged"
@@ -48,10 +50,16 @@
         <!-- Right: Selected Node -->
         <transition name="fade">
           <div class="col-12 col-md-3" v-if="selectedNode">
-            <q-card flat bordered class="q-pa-md shadow-2 rounded-borders selected-node-card">
+            <q-card
+              flat
+              bordered
+              class="q-pa-md shadow-2 rounded-borders selected-node-card"
+            >
               <div class="selected-node-header row items-center q-mb-sm">
                 <q-icon name="label_important" class="q-mr-sm text-primary" />
-                <span class="text-h6 text-primary text-weight-bold">Selected Node</span>
+                <span class="text-h6 text-primary text-weight-bold"
+                  >Selected Node</span
+                >
               </div>
 
               <q-card-section>
@@ -60,7 +68,11 @@
                 </div>
                 <div class="text-caption text-grey mb-2">
                   Node ID: {{ selectedNode.id }}
-                  <q-chip v-if="selectedNode.parent_id === null" color="deep-orange" class="q-ml-xs">
+                  <q-chip
+                    v-if="selectedNode.parent_id === null"
+                    color="deep-orange"
+                    class="q-ml-xs"
+                  >
                     Root
                   </q-chip>
                 </div>
@@ -75,7 +87,9 @@
               </q-card-section>
 
               <q-separator />
-              <div class="node-card-actions row items-center justify-between q-mt-sm">
+              <div
+                class="node-card-actions row items-center justify-between q-mt-sm"
+              >
                 <EditButton
                   :nodeId="selectedNode.id"
                   :channelId="channelId"
@@ -112,7 +126,14 @@
       v-if="editable && selectedNodeId === editingNodeId && selectedNode"
       class="floating-node-form"
     >
-      <q-btn dense flat round icon="close" class="floating-close-btn" @click="cancel" />
+      <q-btn
+        dense
+        flat
+        round
+        icon="close"
+        class="floating-close-btn"
+        @click="cancel"
+      />
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
         :nodeInput="selectedNode"
@@ -129,10 +150,22 @@
 
     <!-- Floating Node Form for Adding Child -->
     <div
-      v-if="editable && selectedNodeId == addingChildToNodeId && newNode && Object.keys(newNode).length"
+      v-if="
+        editable &&
+        selectedNodeId == addingChildToNodeId &&
+        newNode &&
+        Object.keys(newNode).length
+      "
       class="floating-node-form"
     >
-      <q-btn dense flat round icon="close" class="floating-close-btn" @click="cancel" />
+      <q-btn
+        dense
+        flat
+        round
+        icon="close"
+        class="floating-close-btn"
+        @click="cancel"
+      />
       <node-form
         :ref="nodeFormRef(selectedNodeId!)"
         :nodeInput="newNode"
@@ -150,7 +183,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch, nextTick, ComponentPublicInstance } from 'vue';
+import {
+  ref,
+  computed,
+  onBeforeMount,
+  watch,
+  nextTick,
+  ComponentPublicInstance,
+} from 'vue';
 import { useRoute } from 'vue-router';
 import nodeTree from '../components/node-tree.vue';
 import { useGuildStore } from '../stores/guilds';
@@ -159,7 +199,13 @@ import { useRoleStore } from '../stores/role';
 import { ConversationNode, defaultNodeType, QTreeNode } from '../types';
 import { ibis_child_types, useConversationStore } from '../stores/conversation';
 import EditButton from '../components/edit-button.vue';
-import { ibis_node_type_list, ibis_node_type_type, publication_state_enum, publication_state_list, publication_state_type } from '../enums';
+import {
+  ibis_node_type_list,
+  ibis_node_type_type,
+  publication_state_enum,
+  publication_state_list,
+  publication_state_type,
+} from '../enums';
 import { useQuestStore } from '../stores/quests';
 import { useQuasar } from 'quasar';
 import NodeForm from '../components/node-form.vue';
@@ -190,12 +236,12 @@ const questId = ref<number | undefined>(Number(route.params.quest_id));
 const channelId = ref<number>(Number(route.params.channel_id));
 const selectedNodeId = ref<number | undefined>(channelId.value);
 const selectedNode = ref<Partial<ConversationNode> | null>(
-  channelStore.getChannelNode(channelId.value, selectedNodeId.value!)
+  channelStore.getChannelNode(channelId.value, selectedNodeId.value!),
 );
 const roles = roleStore.getRoles;
 const ready = ref(false);
-const editable = ref<boolean>(true)
-const newNode = ref<Partial<ConversationNode> | null >(null);
+const editable = ref<boolean>(true);
+const newNode = ref<Partial<ConversationNode> | null>(null);
 const addingChildToNodeId = ref<number | null>(null);
 const editingNodeId = ref<number | undefined>(undefined);
 const allowChangeMeta = ref(false);
@@ -211,7 +257,7 @@ let childIbisTypes: ibis_node_type_type[] = ibis_node_type_list;
 
 //computed properties
 const currentChannel = computed(() => channelStore.channels[channelId.value]);
-const currentGuild = computed(() => guildStore.getCurrentGuild)
+const currentGuild = computed(() => guildStore.getCurrentGuild);
 const getNodesTree = (): QTreeNode[] => {
   if (channelId.value) {
     return channelStore.getChannelConversationTree(channelId.value) ?? [];
@@ -241,21 +287,21 @@ watch(selected, (newVal) => {
 });
 watch(
   () => route.params.channel_id,
-   (newId, oldId) => {
+  (newId, oldId) => {
     if (newId !== oldId) {
       selectionChanged(Number(newId));
     }
-  }
+  },
 );
 watch(
   () => route.params.node_id,
-  async newNodeId => {
+  async (newNodeId) => {
     if (newNodeId) {
       await nextTick();
       await editNode(Number(newNodeId));
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 // Hooks
 onBeforeMount(async () => {
@@ -272,11 +318,16 @@ async function loadChannelData() {
   ]);
   const channel = channelStore.channels[channelId.value];
   if (channel && channel.children && Object.keys(channel.children).length > 0) {
-    const rootNode = Object.values(channel.children).find((n: any) => n.parent_id === null);
+    const rootNode = Object.values(channel.children).find(
+      (n: any) => n.parent_id === null,
+    );
     selectedNodeId.value = rootNode?.id ?? undefined;
   } else {
     selectedNodeId.value = channel.id;
-    selectedNode.value = channelStore.getChannelNode(channelId.value, selectedNodeId.value);
+    selectedNode.value = channelStore.getChannelNode(
+      channelId.value,
+      selectedNodeId.value,
+    );
   }
 }
 async function confirmEdit(node: Partial<ConversationNode>) {
@@ -324,7 +375,7 @@ function cancel() {
   newNode.value = {};
 }
 function calcSpecificPubConstraints(
-  node: Partial<ConversationNode> | defaultNodeType
+  node: Partial<ConversationNode> | defaultNodeType,
 ): publication_state_type[] {
   if (node.meta == 'channel' || !currentGuild.value)
     return baseNodePubStateConstraints;
@@ -356,7 +407,7 @@ function calcSpecificPubConstraints(
 }
 
 function calcPublicationConstraints(
-  node: Partial<ConversationNode> | defaultNodeType
+  node: Partial<ConversationNode> | defaultNodeType,
 ): publication_state_type[] {
   if (!guildId.value) {
     baseNodePubStateConstraints = [
@@ -441,9 +492,7 @@ function addChildToNode(nodeId: number | null) {
   }, 0);
 }
 function canAddTo(): boolean {
-  const quest = questStore.getQuestById(
-    questId.value!
-  );
+  const quest = questStore.getQuestById(questId.value!);
   if (quest) {
     return (
       (quest.is_playing || quest.is_quest_member) && quest.status != 'finished'
@@ -455,7 +504,10 @@ function canAddTo(): boolean {
 }
 function selectionChanged(newSelectedNodeId: number) {
   selectedNodeId.value = newSelectedNodeId;
-  selectedNode.value = channelStore.getChannelNode(channelId.value, newSelectedNodeId);
+  selectedNode.value = channelStore.getChannelNode(
+    channelId.value,
+    newSelectedNodeId,
+  );
 
   const correctChannelId = channelStore.getChannelOfNode(newSelectedNodeId);
   if (correctChannelId) {
@@ -510,7 +562,9 @@ async function editNode(nodeId: number) {
 /* Selected Node Card */
 .selected-node-card {
   background-color: #fafafa;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   padding: 16px;
 }
 .selected-node-card:hover {
@@ -537,17 +591,17 @@ async function editNode(nodeId: number) {
 
 .floating-node-form {
   position: fixed;
-  top: 80px;               /* distance from top */
+  top: 80px; /* distance from top */
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
-  width: 600px;            /* default width */
-  max-width: 90vw;         /* responsive for mobile */
-  max-height: 80vh;        /* allow scrolling inside card */
+  width: 600px; /* default width */
+  max-width: 90vw; /* responsive for mobile */
+  max-height: 80vh; /* allow scrolling inside card */
   display: flex;
   flex-direction: column;
-  background: transparent;  /* let node-form card show */
-  padding: 0;               /* node-form handles padding */
+  background: transparent; /* let node-form card show */
+  padding: 0; /* node-form handles padding */
   overflow: hidden;
 }
 
@@ -561,8 +615,8 @@ async function editNode(nodeId: number) {
 
 .floating-node-form .node-card {
   flex: 1;
-  overflow-y: auto;        /* scroll inside card if content is too long */
-  padding: 1em;            /* consistent padding inside card */
+  overflow-y: auto; /* scroll inside card if content is too long */
+  padding: 1em; /* consistent padding inside card */
 }
 
 /* Mobile adjustments */

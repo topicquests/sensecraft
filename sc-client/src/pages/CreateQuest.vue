@@ -23,10 +23,7 @@
             <div class="quest-list-header">
               <h5>Existing Quests</h5>
             </div>
-          <quest-list
-            :quests="quests"
-            :status="status"
-          />
+            <quest-list :quests="quests" :status="status" />
           </div>
         </div>
       </q-card>
@@ -50,12 +47,12 @@ const router = useRouter();
 const $q = useQuasar();
 const questStore = useQuestStore();
 
-const quests:QuestData[] = questStore.getQuests;
+const quests: QuestData[] = questStore.getQuests;
 const status: string[] = [
   quest_status_enum.registration,
   quest_status_enum.ongoing,
-  quest_status_enum.finished
-]
+  quest_status_enum.finished,
+];
 
 const newQuest: Partial<Quest> = {
   name: '',

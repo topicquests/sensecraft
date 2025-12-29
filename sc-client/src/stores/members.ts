@@ -49,16 +49,14 @@ export const useMembersStore = defineStore('members', {
       ),
     getMemberById:
       (state: MembersState) =>
-      (id: number): Partial <PublicMember | undefined> => {
+      (id: number): Partial<PublicMember | undefined> => {
         const member = state.members[id];
         if (member) return member;
         const loggedIn = useMemberStore().member;
         // may also be in member
         if (loggedIn?.id == id) {
           return loggedIn;
-        }
-        else
-        return undefined
+        } else return undefined;
       },
     getMembersByIds: (state: MembersState) => (ids: number[]) =>
       ids.map((id) => state.members[id]),
@@ -155,7 +153,8 @@ export const useMembersStore = defineStore('members', {
       let membersId: (number | undefined)[] =
         quest.casting?.map((mp: Casting) => mp.member_id) || [];
       membersId = membersId.concat(
-        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) || []
+        quest.quest_membership?.map((mp: QuestMembership) => mp.member_id) ||
+          [],
       );
 
       membersId = [...new Set(membersId)];
@@ -175,7 +174,8 @@ export const useMembersStore = defineStore('members', {
         await api.get('/public_members');
       if (res.status == 200) {
         const fullMembers = Object.values(this.members).filter(
-          (member) => member.id !== undefined && this.fullMembers[member.id] === true
+          (member) =>
+            member.id !== undefined && this.fullMembers[member.id] === true,
         );
 
         const members: MemberMap = Object.fromEntries(

@@ -281,7 +281,9 @@ export const useConversationStore = defineStore('conversation', {
     resetConversation() {
       Object.assign(this, clearBaseState);
     },
-    async fetchConversationNode(id: number): Promise<ConversationNode | undefined> {
+    async fetchConversationNode(
+      id: number,
+    ): Promise<ConversationNode | undefined> {
       const params = Object();
       params.id = `eq.${id}`;
       const res: AxiosResponse<ConversationNode[]> = await api.get(

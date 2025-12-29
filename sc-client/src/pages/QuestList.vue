@@ -3,11 +3,7 @@
     <div class="row justify-center">
       <q-card class="q-mt-sm quest-card">
         <div class="dashboard-badge">
-          <q-btn
-            flat
-            color="primary"
-            @click="router.push({ name: 'lobby' })"
-          >
+          <q-btn flat color="primary" @click="router.push({ name: 'lobby' })">
             <q-badge color="secondary" text-color="black" class="q-pa-sm">
               Dashboard
             </q-badge>
@@ -104,7 +100,7 @@ onBeforeMount(async () => {
 <style>
 .dashboard-badge {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   max-width: 1200px;
@@ -117,16 +113,18 @@ onBeforeMount(async () => {
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: background 0.3s, transform 0.2s;
+  transition:
+    background 0.3s,
+    transform 0.2s;
 }
 
 .dashboard-badge:hover {
   background: linear-gradient(135deg, #2196f3, #1976d2);
-  transform: translateY(-1px);  
+  transform: translateY(-1px);
 }
 
 .dashboard-badge:active {
-  transform: scale(0.97);       
+  transform: scale(0.97);
 }
 .quest-page {
   background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
@@ -176,7 +174,7 @@ onBeforeMount(async () => {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: 1.05rem;
   margin-bottom: 1.5rem;
   transition: box-shadow 0.2s;
@@ -268,7 +266,7 @@ onBeforeMount(async () => {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: 1.05rem;
   margin-bottom: 1.5rem;
   transition: box-shadow 0.2s;

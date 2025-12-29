@@ -9,7 +9,6 @@ export async function waitUserLoaded() {
   let userLoaded: Member | null = null;
   const app = useCurrentApp();
   if (app) {
-    
     userLoaded = await app.config.globalProperties.$userLoaded;
     resetIfMemberChanged(userLoaded ? userLoaded.id : undefined);
   } else {

@@ -63,15 +63,15 @@ api.interceptors.request.use(function (config) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   if (config) {
-  if (
-    config.method === 'put' ||
-    config.method === 'patch' ||
-    config.method === 'delete' ||
-    (config.method === 'post' && config.url?.substring(0, 4) != '/rpc')
-  ) {
-    config.headers['Prefer'] = 'return=representation';
+    if (
+      config.method === 'put' ||
+      config.method === 'patch' ||
+      config.method === 'delete' ||
+      (config.method === 'post' && config.url?.substring(0, 4) != '/rpc')
+    ) {
+      config.headers['Prefer'] = 'return=representation';
+    }
   }
-}
   return config;
 });
 

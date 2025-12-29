@@ -1,6 +1,6 @@
-import { Given, When, Then } from "@cucumber/cucumber";
-import { expect } from "@playwright/test";
-import { Page } from "playwright"; // Ensure you have playwright and its types installed
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+import { Page } from 'playwright'; // Ensure you have playwright and its types installed
 
 let page: Page; // Playwright page instance
 

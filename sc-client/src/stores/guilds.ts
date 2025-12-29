@@ -262,7 +262,9 @@ export const useGuildStore = defineStore('guild', {
           res.data.map((guild: GuildData) => [guild.id, guild]),
         );
         if (!full) {
-         for (const guild of Object.values(this.guilds as Record<string, GuildData>)) {
+          for (const guild of Object.values(
+            this.guilds as Record<string, GuildData>,
+          )) {
             if (!this.fullGuilds[guild.id]) {
               continue;
             }
@@ -314,10 +316,12 @@ export const useGuildStore = defineStore('guild', {
         return res;
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          console.error('Guild creation failed:', error);      
-          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
-          } else {
-          console.error('Unexpected error', error)
+          console.error('Guild creation failed:', error);
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
+        } else {
+          console.error('Unexpected error', error);
           throw error;
         }
       }
@@ -351,7 +355,9 @@ export const useGuildStore = defineStore('guild', {
       } catch (error) {
         console.error('Guild update failed:', error);
         if (axios.isAxiosError(error)) {
-          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
         } else {
           throw error;
         }
@@ -375,7 +381,9 @@ export const useGuildStore = defineStore('guild', {
       } catch (error) {
         console.error('Add guildMembership failed:', error);
         if (axios.isAxiosError(error)) {
-          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
         } else {
           throw error;
         }
@@ -414,10 +422,12 @@ export const useGuildStore = defineStore('guild', {
             memberStore.member.guild_membership = memberships;
           }
         }
-      } catch(error) {
+      } catch (error) {
         console.error('Update guildMembership failed:', error);
         if (axios.isAxiosError(error)) {
-          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
         } else {
           throw error;
         }
@@ -467,10 +477,12 @@ export const useGuildStore = defineStore('guild', {
             };
           }
         }
-      } catch(error) {
+      } catch (error) {
         console.error('Add guild member available role failed:', error);
         if (axios.isAxiosError(error)) {
-          throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
         } else {
           throw error;
         }
@@ -515,7 +527,8 @@ export const useGuildStore = defineStore('guild', {
           const member_id = availableRole.member_id;
           let member = membersStore.members[member_id];
 
-          const guild_member_available_role = member.guild_member_available_role;
+          const guild_member_available_role =
+            member.guild_member_available_role;
           if (member && guild_member_available_role) {
             const pos = guild_member_available_role.findIndex(
               (a: GuildMemberAvailableRole) =>
@@ -548,10 +561,12 @@ export const useGuildStore = defineStore('guild', {
             }
           }
         }
-      } catch(error) {
+      } catch (error) {
         console.error('Delete guild member available role failed:', error);
-        throw new Error(`Request failed with status code ${error.response?.status || 500}`);
+        throw new Error(
+          `Request failed with status code ${error.response?.status || 500}`,
+        );
       }
-    }
-  }
+    },
+  },
 });

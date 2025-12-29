@@ -52,56 +52,56 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Guild, Quest, PublicMember } from '../types'
-import { useQuestStore } from '../stores/quests'
-import { useGuildStore } from '../stores/guilds'
-import { useMembersStore } from '../stores/members'
-import { useRoleStore } from '../stores/role'
+import { computed } from 'vue';
+import { Guild, Quest, PublicMember } from '../types';
+import { useQuestStore } from '../stores/quests';
+import { useGuildStore } from '../stores/guilds';
+import { useMembersStore } from '../stores/members';
+import { useRoleStore } from '../stores/role';
 
 // Props
 const GuildMembersProps = defineProps<{
-  guild?: Guild
-  quest?: Quest
-  members?: PublicMember[]
-  playersOnly?: boolean
-}>()
+  guild?: Guild;
+  quest?: Quest;
+  members?: PublicMember[];
+  playersOnly?: boolean;
+}>();
 
 // Stores
-const questStore = useQuestStore()
-const guildStore = useGuildStore()
-const membersStore = useMembersStore()
-const roleStore = useRoleStore()
+const questStore = useQuestStore();
+const guildStore = useGuildStore();
+const membersStore = useMembersStore();
+const roleStore = useRoleStore();
 
 // Computed: enrich each member with guild + roles
 const membersWithGuildData = computed(() => {
-  if (!GuildMembersProps.members) return []
+  if (!GuildMembersProps.members) return [];
 
-  return GuildMembersProps.members.map(m => {
-    const member = membersStore.getMemberById(m.id) || m
+  return GuildMembersProps.members.map((m) => {
+    const member = membersStore.getMemberById(m.id) || m;
 
     const guildId = questStore.castingInQuest(
       GuildMembersProps.quest?.id ?? null,
-      member.id
-    )?.guild_id
+      member.id,
+    )?.guild_id;
 
-    const guild = guildId ? guildStore.getGuildById(guildId) : undefined
+    const guild = guildId ? guildStore.getGuildById(guildId) : undefined;
 
     const roles = GuildMembersProps.quest?.id
       ? membersStore
           .castingRolesPerQuest(member.id, GuildMembersProps.quest.id)
-          .map(cr => roleStore.getRoleById(cr.role_id)?.name)
+          .map((cr) => roleStore.getRoleById(cr.role_id)?.name)
           .filter((r): r is string => !!r)
-      : []
+      : [];
 
     return {
       ...member,
       guildId,
       guild,
       roles,
-    }
-  })
-})
+    };
+  });
+});
 </script>
 
 <style scoped>

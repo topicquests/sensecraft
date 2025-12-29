@@ -1,7 +1,11 @@
 <template>
   <q-card class="p-md">
     <ul class="quest-ul">
-      <li v-for="quest in filteredQuests" :key="quest.id" class="quest-li row items-start">
+      <li
+        v-for="quest in filteredQuests"
+        :key="quest.id"
+        class="quest-li row items-start"
+      >
         <q-btn
           size="sm"
           flat
@@ -19,7 +23,10 @@
           <div class="quest-name">{{ selectedQuest?.name }}</div>
         </q-card-section>
         <q-card-section>
-          <div class="quest-description" v-html="selectedQuest?.description"></div>
+          <div
+            class="quest-description"
+            v-html="selectedQuest?.description"
+          ></div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Close" color="primary" @click="closeDialog" />
@@ -41,8 +48,8 @@ const questListProps = defineProps<{
 // Filter quests based on selected status
 const filteredQuests = computed<QuestData[]>(() =>
   questListProps.quests.filter((item) =>
-    questListProps.status.includes(item.status)
-  )
+    questListProps.status.includes(item.status),
+  ),
 );
 
 // Dialog state

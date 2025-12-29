@@ -26,8 +26,8 @@
                   dialogues. Quest creators ask deep questions through quests,
                   and guild members take on roles to build a shared conversation
                   tree. Players collaborate to shape meaningful conversations,
-                  compete in quests, and foster collaborative discussions.
-                  Join SenseCraft for structured conversations and role-playing.
+                  compete in quests, and foster collaborative discussions. Join
+                  SenseCraft for structured conversations and role-playing.
                 </div>
               </div>
 
@@ -45,14 +45,10 @@
                     <h5>Available Quests</h5>
                   </div>
                   <div class="quest-scroll-area">
-                    <quest-list
-                      :quests="quests"
-                      :status="status"
-                    />
+                    <quest-list :quests="quests" :status="status" />
                   </div>
                 </div>
               </div>
-
             </div>
           </q-card>
         </div>
@@ -72,7 +68,7 @@ const quests = computed(() => questStore.getQuests);
 
 const status: string[] = [
   quest_status_enum.registration,
-  quest_status_enum.ongoing
+  quest_status_enum.ongoing,
 ];
 
 onBeforeMount(async () => {
@@ -115,7 +111,7 @@ body {
   margin: 20px auto;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .responsive-image {
@@ -124,7 +120,11 @@ body {
 }
 
 .gradient {
-  background: linear-gradient(90deg, rgba(0,212,255,1) 35%, rgba(9,9,121,1) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 212, 255, 1) 35%,
+    rgba(9, 9, 121, 1) 100%
+  );
   width: 100%;
   padding: 30px 0;
 }
@@ -134,7 +134,7 @@ body {
   padding: 20px;
   border-radius: 12px;
   background-color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .content-row {
@@ -151,7 +151,7 @@ body {
 .content-image {
   width: 100%;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .quest-column {
@@ -165,7 +165,7 @@ body {
   background-color: #fdf9e6;
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .quest-scroll-area {

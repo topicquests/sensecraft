@@ -20,10 +20,13 @@
           <!-- Node Info -->
           <q-separator spaced />
           <div class="section-title">Node Info</div>
-         <q-card class="node-info-card">
+          <q-card class="node-info-card">
             <div class="row justify-center q-mb-sm">
               <h5 class="flex items-center text-h5">
-                <q-icon :name="getIcon(node!.id)" class="q-mr-sm text-primary" />
+                <q-icon
+                  :name="getIcon(node!.id)"
+                  class="q-mr-sm text-primary"
+                />
                 {{ node?.title }}
               </h5>
             </div>
@@ -48,19 +51,16 @@
           <div class="section-title">Parent Node</div>
           <div class="row justify-center items-center">
             <div class="col-4 q-pa-sm" style="width: 100%">
-              <q-card class="q-ma-md parent-card"
+              <q-card
+                class="q-ma-md parent-card"
                 v-if="parent"
                 @click="updateNodeId(parent.id)"
-                style="min-width: 200px; height: 150px; cursor: pointer;"
+                style="min-width: 200px; height: 150px; cursor: pointer"
                 flat
                 bordered
               >
                 <span>Parent Node</span>
-                <q-icon
-                  :name="getIcon(parent!.id)"
-                  size="md"
-                  class="q-mb-md"
-                />
+                <q-icon :name="getIcon(parent!.id)" size="md" class="q-mb-md" />
                 <div class="parent-title">
                   {{ parent!.title }}
                 </div>
@@ -162,27 +162,36 @@ const ready = ref(false);
 
 // Computed
 const node = computed(() =>
-  conversationStore.getConversationNodeById(nodeId.value!)
+  conversationStore.getConversationNodeById(nodeId.value!),
 );
 const parent = computed(() => {
   const id = node.value?.parent_id;
   return id ? conversationStore.getConversationNodeById(id) : undefined;
 });
 
-const filteredQuestions = computed(() =>
-  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.question) as QTreeNode[]) || []
+const filteredQuestions = computed(
+  () =>
+    (q.value?.filter(
+      (i) => i && i.node_type === ibis_node_type_enum.question,
+    ) as QTreeNode[]) || [],
 );
 const filteredAnswers = computed(() =>
-  filterNodesByType(q.value, ibis_node_type_enum.answer)
+  filterNodesByType(q.value, ibis_node_type_enum.answer),
 );
-const filteredPro = computed(() =>
-  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.pro) as QTreeNode[]) || []
+const filteredPro = computed(
+  () =>
+    (q.value?.filter(
+      (i) => i && i.node_type === ibis_node_type_enum.pro,
+    ) as QTreeNode[]) || [],
 );
 const filteredCon = computed(() =>
-  filterNodesByType(q.value, ibis_node_type_enum.con)
+  filterNodesByType(q.value, ibis_node_type_enum.con),
 );
-const filteredRef = computed(() =>
-  (q.value?.filter((i) => i && i.node_type === ibis_node_type_enum.reference) as QTreeNode[]) || []
+const filteredRef = computed(
+  () =>
+    (q.value?.filter(
+      (i) => i && i.node_type === ibis_node_type_enum.reference,
+    ) as QTreeNode[]) || [],
 );
 
 function getIcon(id: number) {
@@ -201,19 +210,20 @@ function updateNodeId(id: number) {
 }
 function filterNodesByType(
   nodes: Partial<QTreeNode[]> | undefined,
-  type: ibis_node_type_enum
+  type: ibis_node_type_enum,
 ): QTreeNode[] {
   const result: QTreeNode[] = [];
   if (!nodes) return result;
   for (const n of nodes) {
     if (n!.node_type === type) result.push(n!);
-    if (n!.children?.length) result.push(...filterNodesByType(n!.children, type));
+    if (n!.children?.length)
+      result.push(...filterNodesByType(n!.children, type));
   }
   return result;
 }
 function findNodeById(
   nodes: Partial<QTreeNode[]> | undefined,
-  id: number
+  id: number,
 ): QTreeNode | null {
   if (!nodes) return null;
   for (const n of nodes) {
@@ -248,8 +258,13 @@ onBeforeMount(async () => {
   background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
   border-radius: 16px;
   border: 2.5px solid #8e24aa;
-  box-shadow: 0 6px 32px rgba(142, 36, 170, 0.13), 0 1.5px 6px rgba(142, 36, 170, 0.07);
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  box-shadow:
+    0 6px 32px rgba(142, 36, 170, 0.13),
+    0 1.5px 6px rgba(142, 36, 170, 0.07);
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s,
+    transform 0.15s;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.5rem;
   position: relative;
@@ -304,8 +319,14 @@ onBeforeMount(async () => {
   background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
   border-radius: 16px;
   border: 2.5px solid #fbc02d;
-  box-shadow: 0 6px 32px rgba(251, 192, 45, 0.13), 0 1.5px 6px rgba(251, 192, 45, 0.07);
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s, background 0.2s;
+  box-shadow:
+    0 6px 32px rgba(251, 192, 45, 0.13),
+    0 1.5px 6px rgba(251, 192, 45, 0.07);
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s,
+    transform 0.15s,
+    background 0.2s;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.5rem;
   position: relative;
@@ -372,7 +393,7 @@ onBeforeMount(async () => {
   border-radius: 6px;
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
 }
 
 .content {
@@ -399,8 +420,13 @@ onBeforeMount(async () => {
   background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   border-radius: 14px;
   border: 2.5px solid #1976d2;
-  box-shadow: 0 6px 32px rgba(25, 118, 210, 0.18), 0 1.5px 6px rgba(25, 118, 210, 0.07);
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  box-shadow:
+    0 6px 32px rgba(25, 118, 210, 0.18),
+    0 1.5px 6px rgba(25, 118, 210, 0.07);
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s,
+    transform 0.15s;
   padding: 1.2rem 0.7rem;
   min-height: 240px;
   position: relative;
@@ -419,10 +445,13 @@ onBeforeMount(async () => {
   content: '';
   display: block;
   position: absolute;
-  top: -10px; left: -10px; right: -10px; bottom: -10px;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
   border-radius: 18px;
   background: linear-gradient(120deg, #1976d2 0%, #64b5f6 100%);
-  opacity: 0.10;
+  opacity: 0.1;
   z-index: -1;
 }
 
@@ -453,7 +482,9 @@ onBeforeMount(async () => {
 }
 
 .parent-card {
-  transition: box-shadow 0.2s, background 0.2s;
+  transition:
+    box-shadow 0.2s,
+    background 0.2s;
 }
 .parent-card:hover {
   background: #e3f2fd;

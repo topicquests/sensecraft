@@ -64,7 +64,7 @@ import { publication_state_enum, permission_enum } from '../enums';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
 //Emits
 const emit = defineEmits<{

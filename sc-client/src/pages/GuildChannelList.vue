@@ -17,11 +17,7 @@
     </div>
 
     <div class="col-3 q-md q-mb-md">
-      <channel-list
-        :guild_id="guildId"
-        :inPage="true"
-        title="Guild Channels"
-      />
+      <channel-list :guild_id="guildId" :inPage="true" title="Guild Channels" />
       <q-btn
         v-if="canAddChannel && !creating"
         data-test="create-guild-channel-Btn"
@@ -72,9 +68,9 @@ const ready = ref(false);
 const creating = ref(false);
 const newChannelNode = ref<Partial<ConversationNode>>({});
 
-function canAddChannel () {
+function canAddChannel() {
   return baseStore.hasPermission(permission_enum.guildAdmin, guildId.value);
-};
+}
 
 function createGuildChannel() {
   newChannelNode.value = {

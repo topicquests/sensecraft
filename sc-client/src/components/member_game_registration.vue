@@ -18,7 +18,9 @@
 
     <template v-else>
       <q-card-section>
-        <div class="text-h6">Please ask your guild leader to give you roles</div>
+        <div class="text-h6">
+          Please ask your guild leader to give you roles
+        </div>
         <div class="text-subtitle2 q-mt-sm">
           No roles available for this guild.
         </div>

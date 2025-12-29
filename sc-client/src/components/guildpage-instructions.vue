@@ -6,8 +6,10 @@
 
         <div class="instruction-category">
           <p>
-            The **Guild Page** is where team members collaborate to take on quests and engage in structured conversations.
-            Guild members can assume specific roles, interact with others, and build upon shared knowledge to complete challenges.
+            The **Guild Page** is where team members collaborate to take on
+            quests and engage in structured conversations. Guild members can
+            assume specific roles, interact with others, and build upon shared
+            knowledge to complete challenges.
           </p>
         </div>
 
@@ -23,17 +25,35 @@
         <div class="instruction-category">
           <div class="instruction-category-title">Accessing Conversations</div>
           <ul class="status-list">
-            <li>Once you're a guild member, a **hamburger menu icon** will appear in the upper right corner.</li>
-            <li>This is the **Conversation button**, located next to the Log Off button.</li>
-            <li>Clicking this button allows you to participate in structured guild discussions.</li>
-            <li>Once you are playing in a quest structure quest discussions will be visible</li>
-            <li>The icon will be grey if all conversation nodes have been read. And teal if there any unread nodes</li>
+            <li>
+              Once you're a guild member, a **hamburger menu icon** will appear
+              in the upper right corner.
+            </li>
+            <li>
+              This is the **Conversation button**, located next to the Log Off
+              button.
+            </li>
+            <li>
+              Clicking this button allows you to participate in structured guild
+              discussions.
+            </li>
+            <li>
+              Once you are playing in a quest structure quest discussions will
+              be visible
+            </li>
+            <li>
+              The icon will be grey if all conversation nodes have been read.
+              And teal if there any unread nodes
+            </li>
           </ul>
         </div>
         <div class="instruction-category">
           <div class="instruction-category-title">Playing in Quest</div>
           <ul class="status-list">
-            <li>Once you're a guild member. Then you will have an oppurtunity to play any registered quests</li>
+            <li>
+              Once you're a guild member. Then you will have an oppurtunity to
+              play any registered quests
+            </li>
           </ul>
         </div>
       </q-card-section>

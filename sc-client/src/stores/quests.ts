@@ -50,12 +50,12 @@ const clearBaseState: QuestsState = {
 
 export const useQuestStore = defineStore('quest', {
   state: () => ({
-  currentQuest: undefined as number | undefined,
-  fullFetch: false,
-  quests: {} as QuestMap,
-  fullQuests: {} as { [key: number]: boolean }
-}),
-  
+    currentQuest: undefined as number | undefined,
+    fullFetch: false,
+    quests: {} as QuestMap,
+    fullQuests: {} as { [key: number]: boolean },
+  }),
+
   getters: {
     getCurrentQuest: (state: QuestsState): QuestData | undefined => {
       if (state.currentQuest) {
@@ -69,7 +69,7 @@ export const useQuestStore = defineStore('quest', {
     },
 
     getQuestById: (state: QuestsState) => (id: number) => state.quests[id],
-    
+
     getMyQuests: (state: QuestsState) => {
       const member_id = useMemberStore().getUserId;
       return Object.values(state.quests).filter((quest: QuestData) =>
@@ -83,7 +83,7 @@ export const useQuestStore = defineStore('quest', {
       Object.values(state.quests).filter(
         (quest) =>
           ['ongoing', 'paused', 'registration'].indexOf(quest.status) >= 0,
-    ),
+      ),
 
     getPlayingQuests: (state: QuestsState) => {
       const member_id = useMemberStore().getUserId;
@@ -95,7 +95,7 @@ export const useQuestStore = defineStore('quest', {
     getPlayers: (state: QuestsState) => (quest_id: number) =>
       state.quests[quest_id]?.casting?.map((c: Casting) =>
         useMembersStore().getMemberById(c.member_id!),
-    ),
+      ),
 
     getPlayersInGuild:
       (state: QuestsState) => (quest_id: number, guild_id: number) =>
@@ -134,7 +134,7 @@ export const useQuestStore = defineStore('quest', {
           return roles;
         }
         return undefined;
-    },
+      },
 
     getCastingRolesForQuest:
       () =>
@@ -152,7 +152,7 @@ export const useQuestStore = defineStore('quest', {
           return roles;
         }
         return undefined;
-    },
+      },
 
     getPlayersOfCurrentQuestGuild: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
@@ -187,7 +187,7 @@ export const useQuestStore = defineStore('quest', {
           (c: Casting) => c.member_id == member_id,
         );
         return casting?.guild_id;
-    },
+      },
 
     castingInQuest:
       (state: QuestsState) =>
@@ -197,7 +197,7 @@ export const useQuestStore = defineStore('quest', {
         return state.quests[quest_id!]?.casting?.find(
           (c: Casting) => c.member_id == member_id,
         );
-    },
+      },
 
     getCastingRolesById:
       () =>
@@ -207,7 +207,7 @@ export const useQuestStore = defineStore('quest', {
           (role) => role.quest_id == quest_id,
         );
         return playerRoles;
-    },
+      },
 
     getMembersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
@@ -223,7 +223,7 @@ export const useQuestStore = defineStore('quest', {
         return state.quests[quest_id!]?.casting?.find(
           (c: Casting) => c.guild_id == guild_id,
         );
-    },
+      },
 
     getPlayersOfCurrentQuest: (state: QuestsState) => {
       const quest = state.quests[state.currentQuest!];
@@ -243,14 +243,14 @@ export const useQuestStore = defineStore('quest', {
             (gp: GamePlay) => gp.guild_id == guild_id,
           );
         }
-    },
+      },
 
     getQuestsByStatus:
       (state: QuestsState) =>
       (status: quest_status_enum | string): QuestData[] =>
         Object.values(state.quests).filter(
           (quest: QuestData) => quest.status == status,
-    ),
+        ),
 
     getMaxPubStateForNodeType:
       () =>
@@ -521,9 +521,7 @@ export const useQuestStore = defineStore('quest', {
       }
     },
 
-    async createQuestBase(
-      data: Quest
-    ): Promise<QuestData | undefined> {
+    async createQuestBase(data: Quest): Promise<QuestData | undefined> {
       const res: AxiosResponse<QuestData[]> = await api.post('/quests', data);
       if (res.status == 201) {
         const questData: QuestData = Object.assign(res.data[0], {
@@ -538,9 +536,9 @@ export const useQuestStore = defineStore('quest', {
           is_quest_member: true,
         });
         this.quests = { ...this.quests, [questData.id]: questData };
-        return questData
+        return questData;
       }
-      return undefined
+      return undefined;
     },
 
     async updateQuest(data: Partial<Quest>) {

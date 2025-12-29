@@ -30,7 +30,10 @@
               style="width: 100%"
             />
           </div>
-          <div class="col-12 col-md-6 q-pa-sm" v-if="questStore.getCurrentQuest">
+          <div
+            class="col-12 col-md-6 q-pa-sm"
+            v-if="questStore.getCurrentQuest"
+          >
             <div class="q-mb-xs q-mt-md">
               <h4 v-if="!node.id">New Conversation Node</h4>
               <h4 v-else>Update Conversation Node</h4>
@@ -48,7 +51,6 @@
     </div>
   </q-page>
 </template>
-
 
 <script setup lang="ts">
 // Imports
@@ -107,7 +109,7 @@ async function editNode(node: ConversationNode) {
 }
 async function addNode(node: ConversationNode) {
   try {
-    const data: Partial<ConversationNode> | Partial<defaultNodeType> = {
+    const data: Partial<ConversationNode> | defaultNodeType = {
       ...node,
       ...node,
     };
