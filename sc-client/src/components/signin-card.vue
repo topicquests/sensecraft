@@ -53,6 +53,7 @@
         <q-card-actions>
           <q-btn
             name="loginBtn"
+            data-test="login-btn"
             size="lg"
             color="purple-4"
             class="text-white"

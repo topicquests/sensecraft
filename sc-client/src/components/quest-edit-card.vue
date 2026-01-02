@@ -23,6 +23,7 @@
           "
           text-color="black"
           label="Registration"
+          data-test="registration-btn"
           :disable="quest.status !== 'draft' && quest.status !== 'registration'"
           @click="quest.status === 'draft' && updateStatus('registration')"
         />
@@ -186,7 +187,10 @@
         v-if="quest.turn_based && quest.status === 'ongoing'"
         class="q-mt-sm"
       >
-        <q-btn @click="doEndTurn" label="End Turn" color="primary" />
+        <q-btn 
+          @click="doEndTurn" 
+          label="End Turn" 
+          color="primary" />
       </div>
     </div>
 

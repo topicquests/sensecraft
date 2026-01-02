@@ -7,11 +7,20 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
     await signInPage(questCreator, page);
     await page.click('button[name="dashboardInstruction"]');
   });
-  test('Quest creator can create first conversation node', async ({ page }) => {
-    // NOTE: replace with dynamic ID if you later seed quests
+  test("register to quest", async({page}) => {
     await page.goto('http://localhost:8080/quest/1/edit');
 
-    // wait for node form to exist (prevents race conditions)
+    await page.click('[data-test="registration-btn"]')
+    await page.click('[data-test="update-quest-btn"]')
+    await expect(
+      page.getByRole('alert').filter({ 
+        hasText: 'Quest was updated successfully' 
+      }),
+    ).toBeVisible();
+    
+  })
+  test('Quest creator can create first conversation node', async ({ page }) => {
+    await page.goto('http://localhost:8080/quest/1/edit');
     await page.waitForSelector('[data-test="node-title-input"]');
 
     await page
@@ -42,11 +51,11 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
     ).toContainText('published');
 
     // Submit node
-    await page.click('[data-test="update-node-btn"]');
+    await page.click('[data-test="add-node-btn"]');
 
     await expect(
       page.getByRole('alert').filter({
-        hasText: 'Root node updated',
+        hasText: 'Added node to conversation',
       }),
     ).toBeVisible();
   });

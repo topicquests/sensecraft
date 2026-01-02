@@ -154,10 +154,11 @@
                 <q-card-section>
                   <div
                     v-for="member in getGuildMembers"
-                    :key="member.id"
-                    class="q-mb-md"
+                      :key="member.id"
+                      :data-test="`member-block-${member.handle}`"
+                      class="q-mb-md member-block"
                   >
-                    <div class="text-subtitle2">{{ member.handle }}</div>
+                  <div class="text-subtitle2">{{ member.handle }}</div>
                     <q-select
                       v-model="availableRolesByMember[member.id]"
                       multiple
@@ -167,12 +168,11 @@
                       :options="roleStore.getRoles"
                       option-label="name"
                       option-value="id"
+                      data-test="available-roles-selector"
                       emit-value
                       map-options
                       @add="(details) => roleAdded(member.id, details.value)"
-                      @remove="
-                        (details) => roleRemoved(member.id, details.value)
-                      "
+                      @remove="(details) => roleRemoved(member.id, details.value)"
                     />
                   </div>
                 </q-card-section>
@@ -497,32 +497,39 @@ async function removeGuildAdmin(member: PublicMember) {
   }
 }
 
-/*
-function isGuildAdmin(id: number) {
-  return guildStore
-    .getGuildMembershipById(id)
-    ?.permissions.includes(permission_enum.guildAdmin);
-}
-*/
-
 async function roleAdded(member_id: number, role_id: number) {
   const guild_id = guildId;
-  if (guild_id)
-    await guildStore.addGuildMemberAvailableRole({
-      member_id,
-      guild_id,
-      role_id,
-    });
+  if (!guild_id) return;
+
+  availableRolesByMember.value[member_id] ??= [];
+  if (!availableRolesByMember.value[member_id]!.includes(role_id)) {
+    availableRolesByMember.value[member_id]!.push(role_id);
+  }
+
+  await guildStore.addGuildMemberAvailableRole({
+    member_id,
+    guild_id,
+    role_id,
+  });
 }
 
+
 async function roleRemoved(member_id: number, role_id: number) {
-  const guild_id: number | undefined = guildId;
-  if (typeof guild_id == 'number')
-    await guildStore.deleteGuildMemberAvailableRole({
-      member_id,
-      guild_id,
-      role_id,
-    });
+  const guild_id = guildId;
+  if (!guild_id) return;
+
+  // 🔥 Update local state FIRST
+  availableRolesByMember.value[member_id] =
+    availableRolesByMember.value[member_id]?.filter(
+      (id) => id !== role_id,
+    );
+
+  // Then persist
+  await guildStore.deleteGuildMemberAvailableRole({
+    member_id,
+    guild_id,
+    role_id,
+  });
 }
 
 async function doSubmit() {

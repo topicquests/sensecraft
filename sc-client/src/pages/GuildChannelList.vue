@@ -19,7 +19,7 @@
     <div class="col-3 q-md q-mb-md">
       <channel-list :guild_id="guildId" :inPage="true" title="Guild Channels" />
       <q-btn
-        v-if="canAddChannel && !creating"
+        v-if="canAddChannel() && !creating"
         data-test="create-guild-channel-Btn"
         @click="createGuildChannel"
         label="Create Guild Channel"

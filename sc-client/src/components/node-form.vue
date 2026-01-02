@@ -16,7 +16,7 @@
         </template>
       </q-input>
     </section>
-    <section v-if="node.url || node.node_type === 'reference'">
+    <section v-if="node.url || (node.node_type == 'reference')">
       <q-input
         v-if="NodeFormProps.editing"
         v-model="node.url"

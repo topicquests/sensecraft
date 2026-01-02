@@ -24,16 +24,22 @@ test.describe('Guild 1 conversation', () => {
     await page.click('[data-test="create-guild-channel-Btn"]');
 
     // Fill in new channel title
-    await page.fill('input[name="new-channel-title"]', guildCreator1Conv.title);
+    await page
+      .locator('[data-test="node-title-input"]')
+      .fill(guildCreator1Conv.title);
+
+    await page
+      .locator('[data-test="node-description-editor"] .q-editor__content')
+      .fill(guildCreator1Conv.conv!);
 
     // Confirm creation
-    await page.click('button[name="confirm-guild-conversation-btn"]');
+    await page.click('[data-test="add-node-btn"]');
 
     // Expect success toast
     await expect(
       page
         .getByRole('alert')
-        .filter({ hasText: 'Added new conversation node' }),
+        .filter({ hasText: 'Channel created successfully' }),
     ).toBeVisible();
 
     // Click the channel link that appears in the page (inPage = true)

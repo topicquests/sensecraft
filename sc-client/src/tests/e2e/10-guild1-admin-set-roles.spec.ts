@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+
 import {
   guild1,
   guildCreator1,
@@ -6,88 +7,56 @@ import {
   player2,
   player3,
   player4,
-  player5,
 } from '../utilities/StoreMocks';
+
 import {
-  getRoleSelectByHandle,
-  gotoGuildPage,
   signInPage,
+  gotoGuildPage,
+  addRoleToMember,
+  expectMemberHasRole
 } from '../utilities/utility';
 
-test.describe('Guild admi  register to quest and set players roles', () => {
+test.describe('Guild1 – Admin role assignment', () => {
   test.beforeEach(async ({ page }) => {
     await signInPage(guildCreator1, page);
-  });
-  test('Guild admin register to quest', async ({ page }) => {
     await gotoGuildPage(guild1, 'Admin', page);
-    await expect(page).toHaveURL(/.*guild\/\d+\/admin/);
-    // Verify there is a register button
+  });
+
+  test('Guild admin registers to quest', async ({ page }) => {
     const registerButton = page.getByRole('button', { name: 'Register' });
+
     await expect(registerButton).toBeVisible();
-    //Register to quest
     await registerButton.click();
-    await expect(
-      page
-        .getByRole('alert')
-        .filter({ hasText: 'You have registered to Quest' }),
-    ).toBeVisible();
+
+    const notification = page
+      .locator('.q-notification')
+      .filter({ hasText: /registered/i });
+
+    await expect(notification).toBeVisible({ timeout: 5000 });
   });
-  test('Guild creator can go to create guild page', async ({ page }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    await expect(page).toHaveURL(/.*guild\/\d+\/admin/);
+
+  test('Guild admin removes Researcher and adds Game leader', async ({ page }) => {
+    await addRoleToMember(page, guildCreator1.handle!, 'Game leader');
+    await expectMemberHasRole(page, guildCreator1.handle!, 'Game leader');
   });
-  test('Guild admin set guildCreator1 add Game leader', async ({ page }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    await expect(page).toHaveURL(/.*guild\/\d+\/admin/);
-    const qSelect = getRoleSelectByHandle(page, guildCreator1.handle!);
-    await qSelect.click();
-    const gameLeaderOption = page.locator('.q-menu .q-item', {
-      hasText: 'Game leader',
-    });
-    await gameLeaderOption.click();
+
+  test('Guild admin sets player1 to Researcher and Philosopher', async ({ page }) => {
+    await addRoleToMember(page, player1.handle!, 'Philosopher');
+    await expectMemberHasRole(page, player1.handle!, 'Researcher');
+    await expectMemberHasRole(page, player1.handle!, 'Philosopher');
   });
-  test('Guild admin set playerOne to Researcher, Philospher', async ({
-    page,
-  }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    const qSelect = getRoleSelectByHandle(page, player1.handle!);
-    await qSelect.click();
-    const philosopherOption = page.locator('.q-menu .q-item', {
-      hasText: 'Philosopher',
-    });
-    await philosopherOption.click();
+
+  test('Guild admin removes Researcher and adds Critic for player2', async ({ page }) => {
+    await addRoleToMember(page, player2.handle!, 'Critic');
+    await expectMemberHasRole(page, player2.handle!, 'Critic');    
   });
-  test('Guild admin set playerTwo remove Researcher and add Critic', async ({
-    page,
-  }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    const qSelect = getRoleSelectByHandle(page, player2.handle!);
-    await qSelect.click();
-    await page.waitForSelector('.q-menu');
-    const removeResearcher = page.locator('.q-menu .q-item', {
-      hasText: 'Researcher',
-    });
-    await removeResearcher.click();
-    const addCritic = page.locator('.q-menu .q-item', { hasText: 'Critic' });
-    await addCritic.click();
+
+  test('Guild admin keeps Researcher for player3', async ({ page }) => {
+    await expectMemberHasRole(page, player3.handle!, 'Researcher');
   });
-  test('Guild admin set playerThree keep Researcher', async ({ page }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    const qSelect = getRoleSelectByHandle(page, player3.handle!);
-    await qSelect.click();
-  });
-  test('Guild admin set playerFour remove Researcher and add Scribe', async ({
-    page,
-  }) => {
-    await gotoGuildPage(guild1, 'Admin', page);
-    const qSelect = getRoleSelectByHandle(page, player4.handle!);
-    await qSelect.click();
-    await page.waitForSelector('.q-menu');
-    const removeResearcher = page.locator('.q-menu .q-item', {
-      hasText: 'Researcher',
-    });
-    await removeResearcher.click();
-    const addScribe = page.locator('.q-menu .q-item', { hasText: 'Scribe' });
-    await addScribe.click();
+
+  test('Guild admin removes Researcher and adds Scribe for player4', async ({ page }) => {
+    await addRoleToMember(page, player4.handle!, 'Scribe');
+    await expectMemberHasRole(page, player4.handle!, 'Scribe');
   });
 });

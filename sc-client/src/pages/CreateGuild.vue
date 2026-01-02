@@ -31,6 +31,7 @@
               label="Guild Name"
               outlined
               dense
+              data-test="guild-title-input"
               class="q-mb-md"
             />
 
@@ -38,6 +39,7 @@
             <q-input
               v-model="guild.handle"
               label="Handle"
+              data-test="guild-handle"
               outlined
               dense
               class="q-mb-md"
@@ -49,6 +51,7 @@
               <q-editor
                 v-model="description"
                 class="guild-description-editor"
+                data-test="guild-description-editor"
                 placeholder="Enter guild description..."
                 :toolbar="[['bold', 'italic', 'underline', 'strike']]"
               />
@@ -62,6 +65,7 @@
               option-value="id"
               label="Default Role"
               outlined
+              data-test="default-role-selector"
               dense
               class="q-mb-md"
             />
@@ -75,7 +79,12 @@
                 outlined
                 @click="router.push({ name: 'home' })"
               />
-              <q-btn label="Submit" type="submit" color="primary" unelevated />
+              <q-btn 
+                label="Submit" 
+                type="submit" 
+                color="primary"
+                data-test="add-guild-btn" 
+                unelevated />
             </div>
           </q-card-section>
         </q-form>
