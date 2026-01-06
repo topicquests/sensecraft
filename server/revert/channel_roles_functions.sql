@@ -1,4 +1,4 @@
--- Deploy channel_roles_functions 
+-- Deploy channel_roles_functions
 BEGIN;
 
 \set dbo :dbn '__owner';
@@ -25,8 +25,5 @@ ALTER TABLE public.channel_roles DISABLE ROW LEVEL SECURITY;
 
 DROP INDEX IF EXISTS channel_roles_guild_id_idx;
 DROP INDEX IF EXISTS channel_roles_channel_id_idx;
-
--- Now safe to drop the table
-DROP TABLE IF EXISTS public.channel_roles;
 
 COMMIT;
