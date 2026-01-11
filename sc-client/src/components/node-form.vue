@@ -1,5 +1,6 @@
 <template>
   <q-card v-if="node" class="node-card q-pa-md">
+    <!-- Node Title -->
     <section class="node-card-title">
       <q-input
         v-model="node.title"
@@ -16,21 +17,10 @@
         </template>
       </q-input>
     </section>
-    <section v-if="node.url || (node.node_type == 'reference')">
-      <q-input
-        v-if="NodeFormProps.editing"
-        v-model="node.url"
-        label="URL"
-        ref="url"
-        outlined
-        dense
-      />
-      <a v-else :href="node.url" target="_blank">{{ node.url }}</a>
-    </section>
+
+    <!-- Node Description -->
     <section>
       <div class="section-header">Description</div>
-    </section>
-    <section>
       <q-editor
         v-if="NodeFormProps.editing"
         v-model="description"
@@ -57,6 +47,8 @@
         </div>
       </template>
     </section>
+
+    <!-- Node Type & Status -->
     <section v-if="NodeFormProps.editing">
       <div class="row q-mb-md q-gutter-sm items-center">
         <ibis-button :node_type="node.node_type as ibis_node_type_type" small />
@@ -71,19 +63,13 @@
           dense
           popup-content-class="narrow-dropdown"
           style="flex: 1; max-width: 450px; font-size: 0.8rem"
-        >
-          <template v-slot:append>
-            <q-tooltip anchor="top middle" self="bottom middle">
-              Select the type of node. This affects allowed child nodes and
-              workflow.
-            </q-tooltip>
-          </template>
-        </q-select>
+        />
       </div>
+
       <div class="row q-mb-md q-gutter-sm items-center">
         <q-select
           v-model="selectedStatusType"
-          :options="publication_state_list"
+          :options="filteredStatusOptions"
           @update:model-value="statusChanged"
           label="Status"
           data-test="node-status-selector"
@@ -92,53 +78,33 @@
           dense
           popup-content-class="narrow-dropdown"
           style="flex: 1; max-width: 450px; font-size: 0.8rem"
-        >
-          <template v-slot:append>
-            <q-tooltip anchor="top middle" self="bottom middle">
-              Select the publication state of this node.
-            </q-tooltip>
-          </template>
-        </q-select>
-        <q-select
-          v-if="selectedStatusType === 'role_draft'"
-          v-model="node.draft_for_role_id"
-          :options="roles"
-          option-label="name"
-          option-value="id"
-          :emit-value="true"
-          :map-options="true"
-          behavior="menu"
-          data-test="node-status-selector"
-          label="Draft for Role"
-          outlined
-          dense
-          style="flex: 1; max-width: 450px; font-size: 0.8rem"
         />
       </div>
-    </section>
-    <section class="row q-mb-md items-center">
-      <div class="row justify-start q-pb-lg q-ml-lg">
-        <section class="row q-mb-md items-center">
-          <div class="row justify-start q-pb-lg q-ml-lg">
-            <!-- Editable checkbox -->
-            <q-checkbox
-              v-if="allowChangeMeta && NodeFormProps.editing"
-              v-model="metaValue"
-              true-value="meta"
-              false-value="conversation"
-              label="Comment Node"
-            />
 
-            <!-- Read-only display -->
-            <p v-else>
-              {{ node.meta === 'meta' ? 'Comment node' : 'Content node' }}
-            </p>
-          </div>
-        </section>
+      <!-- Inline warning if published is removed -->
+      <div v-if="metaValue === 'meta'" class="text-negative text-caption q-mt-xs">
+        Comment nodes cannot be set to "published".
       </div>
     </section>
+
+    <!-- Comment Node Checkbox -->
+    <section class="row q-mb-md items-center">
+      <q-checkbox
+        v-if="allowChangeMeta && NodeFormProps.editing"
+        v-model="metaValue"
+        true-value="meta"
+        false-value="conversation"
+        label="Comment Node"
+      />
+      <p v-else>
+        {{ node.meta === 'meta' ? 'Comment node' : 'Content node' }}
+      </p>
+    </section>
+
+    <!-- Add / Update / Cancel Buttons -->
     <section class="row justify-center q-mt-lg q-gutter-sm">
       <q-btn label="Cancel" @click="cancel" color="grey" />
+
       <q-btn
         v-if="node.id"
         label="Update"
@@ -158,43 +124,32 @@
 </template>
 
 <script setup lang="ts">
-// Imports
-import IbisButton from './ibis-btn.vue';
-import { ConversationNode, Role, defaultNodeType } from '../types';
+import IbisButton from './ibis-btn.vue'
+import { ConversationNode, Role, defaultNodeType } from '../types'
 import {
   ibis_node_type_type,
   publication_state_list,
+  publication_state_enum,
   publication_state_type,
   meta_state_type,
   meta_state_enum,
-} from '../enums';
-import { computed, ref, watch } from 'vue';
-import { QInput } from 'quasar';
+} from '../enums'
+import { computed, ref } from 'vue'
+import { QInput } from 'quasar'
 
 // Emits
-const emit = defineEmits(['action', 'cancel']);
+const emit = defineEmits(['action', 'cancel'])
 
 // Props
 const NodeFormProps = defineProps<{
-  nodeInput?: Partial<ConversationNode> | defaultNodeType;
-  editing: boolean;
-  ibisTypes?: ibis_node_type_type[];
-  allowChangeMeta?: boolean;
-  roles?: Role[];
-  pubFn?: (
-    node: Partial<ConversationNode | defaultNodeType>,
-  ) => publication_state_type[];
-}>();
+  nodeInput?: Partial<ConversationNode> | defaultNodeType
+  editing: boolean
+  ibisTypes?: ibis_node_type_type[]
+  allowChangeMeta?: boolean
+  roles?: Role[]
+}>()
 
-// Non reactive variables
-const nodeTypeChanged = (val: string) => {
-  if (val && isValidNodeType(val)) node.value.node_type = val;
-};
-const statusChanged = (val: string) => {
-  if (val && isValidNodeStatus(val)) node.value.status = val;
-};
-
-//Reactive Variables
+// Reactive Variables
 const node = ref<defaultNodeType>({
   status: 'private_draft',
   node_type: 'answer',
@@ -206,69 +161,83 @@ const node = ref<defaultNodeType>({
   url: '',
   draft_for_role_id: undefined,
   ...NodeFormProps.nodeInput,
-});
+})
 
-const title = ref<QInput>();
 const descriptionExpanded = ref(false);
 
-// Computed
+const metaValue = computed<meta_state_type>({
+  get() {
+    const meta = node.value.meta
+    if (meta === 'meta' || meta === 'conversation' || meta === 'channel') {
+      return meta
+    }
+    return meta_state_enum.conversation
+  },
+  set(val: meta_state_type) {
+    node.value.meta = val
+  },
+})
+
 const selectedNodeType = computed({
   get: () => node.value.node_type,
   set: (val) => {
-    if (isValidNodeType(val)) node.value.node_type = val;
+    if (NodeFormProps.ibisTypes?.includes(val as ibis_node_type_type)) {
+      node.value.node_type = val
+    }
   },
-});
+})
+
 const selectedStatusType = computed({
   get: () => node.value.status,
   set: (val) => {
-    if (isValidNodeStatus(val)) node.value.status = val;
+    if (publication_state_list.includes(val)) node.value.status = val
   },
-});
-const roles = computed(() => NodeFormProps.roles);
+})
+
 const description = computed({
   get: () => node.value.description || '',
-  set: (val) => {
-    node.value.description = val;
-  },
-});
-const metaValue = computed<meta_state_type>({
-  get() {
-    const meta = node.value.meta;
-    if (meta === 'meta' || meta === 'conversation' || meta === 'channel') {
-      return meta;
-    }
-    return meta_state_enum.conversation;
-  },
-  set(val: meta_state_type) {
-    node.value.meta = val;
-  },
-});
+  set: (val) => (node.value.description = val),
+})
+
+// Filtered Status Options: hide 'published' only for comment nodes
+const filteredStatusOptions = computed<publication_state_type[]>(() => {
+  if (metaValue.value === 'meta') {
+    // Comment node → remove "published"
+    return publication_state_list.filter(
+      (status) => status !== publication_state_enum.published
+    ) as publication_state_type[] // <-- cast here
+  }
+  return publication_state_list
+})
+
 
 // Functions
+function nodeTypeChanged(val: string) {
+  if (NodeFormProps.ibisTypes?.includes(val as ibis_node_type_type)) {
+    node.value.node_type = val as ibis_node_type_type
+  }
+}
+
+
+function statusChanged(val: string) {
+  if (publication_state_list.includes(val as publication_state_type)) {
+    node.value.status = val as publication_state_type // <-- cast
+  }
+}
 function toggleDescription() {
-  descriptionExpanded.value = !descriptionExpanded.value;
+  // optional expand/collapse logic
 }
-function isValidNodeType(type: string): type is ibis_node_type_type {
-  return !!NodeFormProps.ibisTypes?.includes(type as ibis_node_type_type);
-}
-function isValidNodeStatus(status: any): status is publication_state_type {
-  return publication_state_list.includes(status);
-}
-const setFocus = () => {
-  title.value?.focus();
-};
+
 function action() {
-  node.value.quest_id = NodeFormProps.nodeInput?.quest_id;
-  emit('action', node.value);
+  node.value.quest_id = NodeFormProps.nodeInput?.quest_id
+  emit('action', node.value)
 }
+
 function cancel() {
-  emit('cancel');
+  emit('cancel')
 }
-
-defineExpose({ setFocus });
 </script>
-
-<style scoped>
+<style>
 .node-card {
   background-color: #f5f7ff;
   border-radius: 12px;
@@ -279,6 +248,7 @@ defineExpose({ setFocus });
   padding: 1.2em;
   color: #1a237e;
 }
+
 .node-card-title {
   display: flex;
   align-items: center;
@@ -289,6 +259,7 @@ defineExpose({ setFocus });
   border-radius: 6px;
   width: 90%;
 }
+
 .node-card-editor {
   border-radius: 6px;
   border: 1px solid #c0c0c0;
@@ -297,6 +268,7 @@ defineExpose({ setFocus });
   max-height: 200px;
   overflow-y: auto;
 }
+
 .scrollable-description {
   background-color: #fff;
   border: 1px solid #c0c0c0;
@@ -305,10 +277,12 @@ defineExpose({ setFocus });
   max-height: 200px;
   overflow-y: auto;
 }
+
 .section-header {
   font-weight: 600;
   margin-bottom: 0.5em;
 }
+
 .narrow-dropdown {
   min-width: unset !important;
   width: 120px !important;
@@ -316,11 +290,13 @@ defineExpose({ setFocus });
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
 .meta-text {
   margin: 0;
   font-style: italic;
   color: #333;
 }
+
 .read-more {
   cursor: pointer;
   color: #1976d2;
@@ -328,10 +304,12 @@ defineExpose({ setFocus });
   text-align: right;
   margin-top: 0.3em;
 }
+
 a {
   color: #1976d2;
   text-decoration: underline;
 }
+
 @media (max-width: 600px) {
   .node-card {
     font-size: 0.95em;
@@ -341,3 +319,4 @@ a {
   }
 }
 </style>
+
