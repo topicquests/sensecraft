@@ -23,7 +23,7 @@ export interface MembersState {
   fullFetch: boolean;
   questFetch?: number;
   guildFetch?: number;
-  fullMembers: { [key: number]: boolean }; // Add index signature for number keys
+  fullMembers: { [key: number]: boolean }; 
 }
 
 const clearBaseState: MembersState = {

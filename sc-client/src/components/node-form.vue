@@ -202,13 +202,16 @@ const description = computed({
 // Filtered Status Options: hide 'published' only for comment nodes
 const filteredStatusOptions = computed<publication_state_type[]>(() => {
   if (metaValue.value === 'meta') {
-    // Comment node → remove "published"
+    // Comment node → remove "published" and "submitted"
     return publication_state_list.filter(
-      (status) => status !== publication_state_enum.published
-    ) as publication_state_type[] // <-- cast here
+      (status) =>
+        status !== publication_state_enum.published &&
+        status !== publication_state_enum.submitted
+    ) as publication_state_type[];
   }
-  return publication_state_list
-})
+  return publication_state_list;
+});
+
 
 
 // Functions
