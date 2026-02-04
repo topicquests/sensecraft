@@ -5,6 +5,7 @@ import { useMembersStore } from './members';
 import { useGuildStore } from './guilds';
 import { useRoleStore } from './role';
 import { useConversationStore } from './conversation';
+import { useChannelRoleStore } from './channelRole';
 import { api } from '../boot/axios';
 
 import {
@@ -287,6 +288,47 @@ export const useQuestStore = defineStore('quest', {
         }
         return publication_state_enum.submitted;
       },
+
+    getAllRolesInQuestForGuild:
+      (state) =>
+      (quest_id: number, guild_id: number): Role[] => {
+        const quest = state.quests[quest_id];
+        if (!quest?.casting) return [];
+
+        // Get all unique role_ids from casting for this guild
+        const roleIds = new Set<number>();
+        quest.casting.forEach(casting => {
+          if (casting.guild_id === guild_id && casting.member_id) {
+            // Get casting roles for this member in this quest
+            const castingRoles = useMembersStore().getPlayersRoles(casting.member_id);
+            castingRoles?.forEach(cr => {
+              if (cr.quest_id === quest_id) {
+                roleIds.add(cr.role_id);
+              }
+            });
+          }
+        });
+
+        // Convert role_ids to Role objects
+        return Array.from(roleIds).map(roleId => useRoleStore().getRoleById(roleId)).filter(Boolean) as Role[];
+      },
+
+    isGameLeaderForQuestInGuild:
+      (state) =>
+      (member_id: number, quest_id: number, guild_id: number): boolean => {
+        // Get casting roles for this member in this quest
+        const castingRoles = useMembersStore().getPlayersRoles(member_id);
+        if (!castingRoles) return false;
+
+        const gameLeaderRole = useRoleStore().getRoleByName('Game leader');
+        if (!gameLeaderRole) return false;
+
+        // Check if member has Game leader role in this quest
+        return castingRoles.some(cr =>
+          cr.role_id === gameLeaderRole.id &&
+          cr.quest_id === quest_id
+        );
+      },
   },
 
   actions: {
@@ -328,8 +370,12 @@ export const useQuestStore = defineStore('quest', {
     setCurrentQuest(quest_id: number | boolean | undefined) {
       if (typeof quest_id === 'number') {
         this.currentQuest = quest_id;
+        // Ensure channel roles are created for player's roles in this quest
+        this.ensureChannelRolesForQuestSelection();
+      } else if (quest_id === undefined) {
+        this.currentQuest = undefined;
       }
-      getWSClient().setDefaultQuest(quest_id!);
+      getWSClient().setDefaultQuest(quest_id ?? false);
     },
 
     resetQuests() {
@@ -678,6 +724,30 @@ export const useQuestStore = defineStore('quest', {
 
     async endTurn(data: { quest_id: number | undefined }) {
       await api.post('/rpc/end_turn', data);
+    },
+
+    async ensureChannelRolesForQuestSelection() {
+      const memberStore = useMemberStore();
+      const channelRoleStore = useChannelRoleStore();
+      const memberId = memberStore.getUserId;
+      const questId = this.currentQuest;
+      const guildId = useGuildStore().currentGuild;
+
+      if (!memberId || !questId || !guildId) return;
+
+      // Get all casting roles for this member in this quest
+      const castingRoles = this.getCastingRolesById(memberId, questId);
+      if (!castingRoles) return;
+
+      // For each role, ensure channel role exists
+      for (const castingRole of castingRoles) {
+        try {
+          await channelRoleStore.ensureChannelRole(castingRole.role_id, guildId, questId, memberId);
+        } catch (error) {
+          console.error(`Failed to ensure channel role for role ${castingRole.role_id}:`, error);
+          // Continue with other roles even if one fails
+        }
+      }
     },
   },
 });

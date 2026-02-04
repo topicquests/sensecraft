@@ -324,11 +324,8 @@ onBeforeMount(async () => {
   await initialize();
 });
 onBeforeRouteLeave((to, from, next) => {
-  // Only reset if the target route is not another guild
-  if (!to.name?.toString().startsWith('guild')) {
-    guildStore.setCurrentGuild(true);
-    questStore.setCurrentQuest(true);
-  }
+  // Reset quest selection when leaving guild page
+  questStore.setCurrentQuest(undefined);
   next();
 });
 
@@ -394,6 +391,9 @@ async function castingRoleRemoved(role_id: number) {
 }
 
 async function initialize() {
+  // Reset quest selection when returning to guild page
+  questStore.setCurrentQuest(undefined);
+
   if (typeof route.params.guild_id === 'string') {
     guildId.value = Number.parseInt(route.params.guild_id);
   }

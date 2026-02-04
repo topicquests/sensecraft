@@ -54,6 +54,7 @@ import { useChannelStore } from '../stores/channel';
 import { onBeforeUpdate } from 'vue';
 import { onBeforeMount } from 'vue';
 import { useGuildStore } from '../stores/guilds';
+import { useChannelRoleStore } from '../stores/channelRole';
 
 const ChannelListProps = defineProps<{
   guild_id?: number;
@@ -63,14 +64,26 @@ const ChannelListProps = defineProps<{
 }>();
 const channelStore = useChannelStore();
 const guildStore = useGuildStore();
+const channelRoleStore = useChannelRoleStore();
 const ready = ref(false);
 if (ChannelListProps.guild_id !== undefined) {
   guildStore.setCurrentGuild(ChannelListProps.guild_id);
 }
 const getChannels = computed(() => {
-  const channels = ChannelListProps.quest_id
+  let channels = ChannelListProps.quest_id
     ? channelStore.getGameChannelsOfQuest(ChannelListProps.quest_id)
     : channelStore.getRootGuildChannels;
+
+  // For game channels, filter to only show channels the user has roles for
+  if (ChannelListProps.quest_id && ChannelListProps.guild_id) {
+    const userChannelRoles = channelRoleStore.getRolesByQuestForGuild(
+      ChannelListProps.quest_id,
+      ChannelListProps.guild_id
+    );
+    const userChannelIds = userChannelRoles.map(role => role.node_id);
+    channels = channels.filter(channel => userChannelIds.includes(channel.id));
+  }
+
   return channels;
 });
 async function ensureData() {
