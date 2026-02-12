@@ -98,11 +98,23 @@ ALTER TABLE public.channel_roles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS channel_roles_select_policy ON public.channel_roles;
 CREATE POLICY channel_roles_select_policy ON public.channel_roles FOR SELECT USING (
+  -- User has this specific role
   EXISTS (
     SELECT 1
     FROM casting_role cr
     WHERE cr.member_id = current_member_id()
       AND cr.role_id = channel_roles.role_id
+  )
+  OR
+  -- User is a game leader for this quest/guild combination
+  EXISTS (
+    SELECT 1
+    FROM casting_role cr
+    JOIN role r ON cr.role_id = r.id
+    WHERE cr.member_id = current_member_id()
+      AND r.name = 'Game leader'
+      AND cr.quest_id = channel_roles.quest_id
+      AND cr.guild_id = channel_roles.guild_id
   )
 );
 

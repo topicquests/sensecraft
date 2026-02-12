@@ -140,6 +140,9 @@ import { QInput } from 'quasar'
 // Emits
 const emit = defineEmits(['action', 'cancel'])
 
+// Refs
+const title = ref<QInput | null>(null)
+
 // Props
 const NodeFormProps = defineProps<{
   nodeInput?: Partial<ConversationNode> | defaultNodeType
@@ -239,6 +242,15 @@ function action() {
 function cancel() {
   emit('cancel')
 }
+
+function setFocus() {
+  title.value?.focus()
+}
+
+// Expose methods that parent components can call
+defineExpose({
+  setFocus
+})
 </script>
 <style>
 .node-card {

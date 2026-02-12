@@ -37,11 +37,13 @@ import { useGuildStore } from '../stores/guilds';
 import { useMemberStore } from '../stores/member';
 import { useChannelStore } from '../stores/channel';
 import { useReadStatusStore } from '../stores/readStatus';
+import { useMembersStore } from '../stores/members';
 
 const guildStore = useGuildStore();
 const memberStore = useMemberStore();
 const channelStore = useChannelStore();
 const readStatusStore = useReadStatusStore();
+const membersStore = useMembersStore();
 
 const currentGuild = computed(() => guildStore.getCurrentGuild);
 const member = computed(() => memberStore.member);
@@ -60,6 +62,11 @@ async function joinToGuild() {
     guild_id: currentGuild.value.id,
     member_id: member.value?.id,
   });
+  // Refresh guild data to get all members
+  await guildStore.fetchGuildsById(currentGuildId!, true);
+  // Fetch all member details for the guild
+  await membersStore.ensureMembersOfGuild({ guildId: currentGuildId!, full: true });
+  guildStore.setCurrentGuild(currentGuildId!);
   channelStore.setCurrentGuild(currentGuildId!);
   await channelStore.ensureChannels(currentGuildId!);
   await readStatusStore.ensureGuildUnreadChannels();

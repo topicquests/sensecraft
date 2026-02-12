@@ -102,10 +102,11 @@ export const useChannelRoleStore = defineStore('channelRoles', {
           title: role.name,
           node_type: 'channel' as const,
           meta: 'channel' as const,
-          status: 'guild_draft' as const,
+          status: 'role_draft' as const,
           quest_id,
           guild_id,
           creator_id,
+          draft_for_role_id: role_id, // Set the role_id so other players with this role can see it
           ancestry: '', // Will be set by database trigger
         };
         await channelStore.createChannelNode(channelData);
@@ -164,15 +165,22 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       this.error = null;
     },
 
-    async fetchChannelRoles(params: { guild_id: number }) {
+    async fetchChannelRoles(params: { guild_id: number; quest_id?: number }) {
+      const queryParams: any = {
+        guild_id: `eq.${params.guild_id}`,
+      };
+      
+      if (params.quest_id) {
+        queryParams.quest_id = `eq.${params.quest_id}`;
+      }
+      
       const res: AxiosResponse<ChannelRole[]> = await api.get('/channel_roles', {
-        params: {
-          guild_id: `eq.${params.guild_id}`,
-        },
+        params: queryParams,
       });
       if (res.status === 200) {
         this.currentGuild = params.guild_id;
         this.full = true;
+        console.log('Fetched channel roles:', res.data.length, res.data);
         // Update the channelRolesMap
         res.data.forEach(role => {
           this.addOrUpdateRole(role);

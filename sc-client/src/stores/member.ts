@@ -167,7 +167,7 @@ export const useMemberStore = defineStore('member', {
         if (res.data) {
           token_store.setToken(res.data);
           window.setTimeout(() => {
-            void this.renewToken(token);
+            void this.renewToken(res.data);
           }, TOKEN_RENEWAL);
         } else {
           Object.assign(this, clearBaseState);

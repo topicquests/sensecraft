@@ -121,7 +121,16 @@ export const useChannelStore = defineStore('channel', {
             if (node && node.guild_id && userId) {
               if (node.status == publication_state_enum.private_draft) {
                 if (node.creator_id == userId) return true;
-                // TODO: role_draft
+              } else if (node.status == publication_state_enum.role_draft) {
+                // Role drafts can be edited by the creator if they are casting in the quest
+                if (node.quest_id && node.creator_id == userId) {
+                  const casting = questStore.castingInQuest(
+                    node.quest_id,
+                    userId,
+                  );
+                  return casting?.guild_id == node.guild_id;
+                }
+                return false;
               } else if (node.status == publication_state_enum.guild_draft) {
                 if (node.quest_id) {
                   const casting = questStore.castingInQuest(
