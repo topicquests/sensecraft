@@ -244,7 +244,7 @@ export interface RoleNodeConstraint {
 }
 
 export interface Role {
-  id: number | null;
+  id: number | null | undefined;
   name: string;
   guild_id: number;
   permissions?: permission_type[];

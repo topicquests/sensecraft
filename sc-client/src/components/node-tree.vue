@@ -276,7 +276,7 @@ const selectedNodeId = ref<number | null | undefined>(
   NodeTreeProps.initialSelectedNodeId ?? null,
 );
 const searchFilter = ref('');
-const editingNodeId = ref<number | null | undefined>(selectedNodeId.value);
+const editingNodeId = ref<number | null | undefined>(null);
 const addingChildToNodeId = ref<number | string | null>(null);
 const allowChangeMeta = ref(false);
 const newNode = ref<Partial<ConversationNode>>({});
@@ -760,9 +760,10 @@ async function ensureData() {
     if (NodeTreeProps.currentQuestId) {
       // ensure creator loaded if possible
       try {
-        await membersStore.ensureMemberById(
-          questStore.getCurrentQuest!.creator,
-        );
+        const currentQuest = questStore.getCurrentQuest;
+        if (currentQuest?.creator) {
+          await membersStore.ensureMemberById(currentQuest.creator);
+        }
       } catch (err) {
         // non-fatal
         console.warn('ensure member by id failed', err);

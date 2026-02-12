@@ -360,24 +360,36 @@ BEGIN
     END IF;
   END IF;
   PERFORM check_node_type_rules(NEW.node_type, parent_node_type);
-  IF NEW.guild_id IS NULL THEN
-    SELECT guild_id INTO NEW.guild_id FROM casting WHERE casting.quest_id = NEW.quest_id AND casting.member_id = NEW.creator_id;
+  -- Ensure guild_id is set
+IF NEW.guild_id IS NULL THEN
+    SELECT guild_id
+    INTO NEW.guild_id
+    FROM casting
+    WHERE casting.quest_id = NEW.quest_id
+      AND casting.member_id = NEW.creator_id;
+
+    -- If still no guild_id for a channel → error
     IF NEW.guild_id IS NULL AND NEW.node_type = 'channel' THEN
-      RAISE EXCEPTION 'missing guild_id / No quest channels';
+        RAISE EXCEPTION 'missing guild_id / No quest channels';
     END IF;
-  ELSE
-    IF NEW.node_type = 'channel' THEN
-      IF NEW.quest_id IS NULL THEN
+END IF;
+
+-- Node type checks
+IF NEW.node_type = 'channel' THEN
+    -- Guild-level channel (not inside a quest)
+    IF NEW.quest_id IS NULL THEN
         IF NOT public.has_guild_permission(NEW.guild_id, 'createGuildChannel') THEN
-          RAISE EXCEPTION 'permission createGuildChannel';
+            RAISE EXCEPTION 'permission createGuildChannel';
         END IF;
-      ELSE
-        IF NEW.quest_id IS NOT NULL AND NOT public.has_play_permission(NEW.quest_id, 'createPlayChannel') THEN
-          RAISE EXCEPTION 'permission createPlayChannel';
+
+    -- Role channel (must be inside a quest)
+    ELSE
+        IF NOT public.has_play_permission(NEW.quest_id, 'createRoleChannel') THEN
+            RAISE EXCEPTION 'permission createRoleChannel';
         END IF;
-      END IF;
     END IF;
-  END IF;
+
+END IF;
   SELECT check_node_status_rules(NEW.status, parent_status, NEW.guild_id, NEW.quest_id, CASE WHEN NEW.meta = 'conversation' THEN NEW.node_type ELSE 'channel' END) INTO STRICT NEW.status;
   IF NEW.status != 'role_draft' THEN
     NEW.draft_for_role_id = NULL;

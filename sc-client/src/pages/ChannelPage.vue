@@ -293,16 +293,7 @@ watch(
     }
   },
 );
-watch(
-  () => route.params.node_id,
-  async (newNodeId) => {
-    if (newNodeId) {
-      await nextTick();
-      await editNode(Number(newNodeId));
-    }
-  },
-  { immediate: true },
-);
+// Removed auto-opening node form watcher - users should click edit icon to open
 // Hooks
 onBeforeMount(async () => {
   await loadChannelData();
@@ -317,7 +308,11 @@ async function loadChannelData() {
     channelStore.ensureChannelConversation(channelId.value, guildId.value),
   ]);
   const channel = channelStore.channels[channelId.value];
-  if (channel && channel.children && Object.keys(channel.children).length > 0) {
+  if (!channel) {
+    console.error('Channel not found:', channelId.value);
+    return;
+  }
+  if (channel.children && Object.keys(channel.children).length > 0) {
     const rootNode = Object.values(channel.children).find(
       (n: any) => n.parent_id === null,
     );

@@ -66,7 +66,9 @@ export const useGuildStore = defineStore('guild', {
       (state: GuildsState) =>
       (guild_id: number): Partial<GuildMembership> | undefined => {
         const memberId = useMemberStore().getUserId;
-        return state.guilds[guild_id].guild_membership?.find(
+        const guild = state.guilds[guild_id];
+        if (!guild) return undefined;
+        return guild.guild_membership?.find(
           (m: Partial<GuildMembership>) =>
             m.member_id == memberId &&
             m.status == registration_status_enum.confirmed,

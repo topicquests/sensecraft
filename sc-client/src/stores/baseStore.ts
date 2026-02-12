@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore, Store } from 'pinia';
 import {
   registration_status_enum,
   permission_enum,
@@ -23,6 +23,7 @@ import { useServerDataStore } from './serverData';
 import { useReadStatusStore } from './readStatus';
 import { useChannelStore } from './channel';
 import { useConversationStore } from './conversation';
+import { useChannelRoleStore } from './channelRole';
 
 export function filterKeys<T>(data: Partial<T>, keys: KeyArray<T>): Partial<T> {
   return Object.fromEntries(
@@ -42,6 +43,7 @@ export const useBaseStore = defineStore('base', {
       useServerDataStore().resetServer();
       useReadStatusStore().resetReadStatus();
       useChannelStore().resetChannel();
+      useChannelRoleStore().clear();
       useConversationStore().resetConversation();
     },
   },
@@ -59,8 +61,8 @@ export const useBaseStore = defineStore('base', {
         const member = memberStore.getUser;
         if (!member) return false;
         if (
-          member.permissions.includes(permission) ||
-          member.permissions.includes('superadmin')
+          member.permissions!.includes(permission) ||
+          member.permissions!.includes('superadmin')
         ) {
           return true;
         }
@@ -145,7 +147,7 @@ export const useBaseStore = defineStore('base', {
   },
 });
 
-function trackStore(store) {
+function trackStore(store: Store) {
   return store.$onAction(
     ({
       name, // name of the action

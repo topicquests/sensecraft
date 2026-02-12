@@ -31,7 +31,7 @@ $$
 BEGIN
   IF (SELECT COUNT(*) FROM public.game_play WHERE quest_id = questid AND guild_id = guildid AND status='confirmed') > 0 THEN
     INSERT INTO public.casting (member_id, quest_id, guild_id, permissions) (
-      SELECT member_id, questid, guildid, ARRAY[]::permission[] FROM public.guild_membership
+      SELECT member_id, questid, guildid, ARRAY['createRoleChannel']::permission[] FROM public.guild_membership
       WHERE guild_id = guildid AND status='confirmed') ON CONFLICT DO NOTHING;
   END IF;
 END$$;

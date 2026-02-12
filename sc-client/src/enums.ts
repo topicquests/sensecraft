@@ -17,6 +17,7 @@ export enum permission_enum {
   joinQuest = 'joinQuest',
   createPlayChannel = 'createPlayChannel',
   createGuildChannel = 'createGuildChannel',
+  createRoleChannel = 'createRoleChannel',
   editConversationNode = 'editConversationNode',
   addAvailableRole = 'addAvailableRole',
   setPlayerRole = 'setPlayerRole',

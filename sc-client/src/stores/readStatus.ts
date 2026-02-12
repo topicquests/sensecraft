@@ -129,14 +129,15 @@ export const useReadStatusStore = defineStore('readStatus', {
         const questStore = useQuestStore();
         await guildStore.ensureAllGuilds();
         const member_id = memberStore.getUserId;
-        const guild_id = guildStore.getCurrentGuild!.id;
-        const quest_id = questStore.getCurrentQuest?.id ?? null;
-        if (!member_id || !guild_id) {
+        const currentGuild = guildStore.getCurrentGuild;
+        if (!member_id || !currentGuild) {
           console.warn(
             'Missing member_id or guild_id. Cannot fetch unread channels.',
           );
           return;
         }
+        const guild_id = currentGuild.id;
+        const quest_id = questStore.getCurrentQuest?.id ?? null;
         const unreadChannels: guildUnreadChannelRow[] =
           await this.fetchGuildUnreadChannels({
             member_id,

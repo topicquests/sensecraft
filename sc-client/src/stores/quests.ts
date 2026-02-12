@@ -415,7 +415,7 @@ export const useQuestStore = defineStore('quest', {
       const res: AxiosResponse<QuestData[]> = await api.get('/quests_data', {
         params,
       });
-      if (res.status == 200) {
+      if (res.status == 200 && Array.isArray(res.data)) {
         const quests = Object.fromEntries(
           res.data.map((guild: QuestData) => [guild.id, guild]),
         );
@@ -734,6 +734,10 @@ export const useQuestStore = defineStore('quest', {
       const guildId = useGuildStore().currentGuild;
 
       if (!memberId || !questId || !guildId) return;
+
+      // Note: createRoleChannel permission should be granted by register_all_members
+      // when the casting is created, not updated later. If permission is missing,
+      // it's a server-side configuration issue, not something the client should fix.
 
       // Get all casting roles for this member in this quest
       const castingRoles = this.getCastingRolesById(memberId, questId);

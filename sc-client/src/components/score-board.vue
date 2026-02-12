@@ -36,12 +36,12 @@
             <div class="col-auto text-values">
               <div>{{ animatedTotalGuilds }}</div>
               <div>
-                <q-transition name="fade">
+                <transition name="fade">
                   <span v-if="topGuildByScore" :key="topGuildByScore.id">
                     {{ topGuildByScore.name }} ({{ guildScore(topGuildByScore.id) }})
                   </span>
                   <span v-else>—</span>
-                </q-transition>
+                </transition>
               </div>
             </div>
           </div>
@@ -58,12 +58,12 @@
             <div class="col-auto text-values">
               <div>{{ animatedTotalMembers }}</div>
               <div>
-                <q-transition name="fade">
+                <transition name="fade">
                   <span v-if="topPlayerByScore" :key="topPlayerByScore.id">
                     ({{ playerScore(topPlayerByScore.id) }})
                   </span>
                   <span v-else>—</span>
-                </q-transition>
+                </transition>
               </div>
             </div>
           </div>

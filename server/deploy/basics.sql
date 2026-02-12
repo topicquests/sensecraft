@@ -40,6 +40,7 @@ CREATE TYPE public.permission AS ENUM (
     'joinQuest',
     'createPlayChannel',
     'createGuildChannel',
+    'createRoleChannel',
     'editConversationNode',
     'addAvailableRole',
     'setPlayerRole',

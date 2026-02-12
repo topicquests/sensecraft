@@ -84,7 +84,7 @@ CREATE OR REPLACE FUNCTION public.after_insert_channel_role() RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  PERFORM pg_notify(current_database(), concat('C channel_roles ', NEW.id));
+  PERFORM pg_notify(current_database(), concat('C channel_roles ', NEW.id, ' ', COALESCE(NEW.member_id, 0), ' G', NEW.guild_id, ':r', NEW.role_id));
   RETURN NEW;
 END$$;
 
@@ -110,9 +110,19 @@ DROP POLICY IF EXISTS channel_roles_insert_policy ON public.channel_roles;
 CREATE POLICY channel_roles_insert_policy ON public.channel_roles FOR INSERT WITH CHECK (
   EXISTS (
     SELECT 1
+    FROM casting c
+    WHERE c.member_id = current_member_id()
+      AND c.quest_id = channel_roles.quest_id
+      AND c.guild_id = channel_roles.guild_id
+      AND 'createRoleChannel'::public.permission = ANY(c.permissions)
+  )
+  AND EXISTS (
+    SELECT 1
     FROM casting_role cr
     WHERE cr.member_id = current_member_id()
       AND cr.role_id = channel_roles.role_id
+      AND cr.quest_id = channel_roles.quest_id
+      AND cr.guild_id = channel_roles.guild_id
   )
 );
 

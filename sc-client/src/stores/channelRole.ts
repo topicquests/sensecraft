@@ -65,9 +65,9 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       // Check permissions before creating channel
       const baseStore = (await import('./baseStore')).useBaseStore();
       const { permission_enum } = await import('../enums');
-      const hasPermission = baseStore.hasPermission(permission_enum.createPlayChannel, guild_id, quest_id);
+      const hasPermission = baseStore.hasPermission(permission_enum.createRoleChannel, guild_id, quest_id);
       if (!hasPermission) {
-        console.warn(`User does not have createPlayChannel permission for guild ${guild_id}, quest ${quest_id}`);
+        console.warn(`User does not have createRoleChannel permission for guild ${guild_id}, quest ${quest_id}`);
         return;
       }
 
@@ -90,13 +90,23 @@ export const useChannelRoleStore = defineStore('channelRoles', {
 
       if (!existingChannel) {
         // Create new channel
+        const memberStore = (await import('./member')).useMemberStore();
+        const creator_id = memberStore.getUserId;
+        
+        if (!creator_id) {
+          console.error('Cannot create channel: no user ID');
+          return;
+        }
+        
         const channelData = {
           title: role.name,
           node_type: 'channel' as const,
           meta: 'channel' as const,
           status: 'guild_draft' as const,
           quest_id,
-          guild_id
+          guild_id,
+          creator_id,
+          ancestry: '', // Will be set by database trigger
         };
         await channelStore.createChannelNode(channelData);
 
