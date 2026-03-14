@@ -2,6 +2,11 @@ import { defineStore } from 'pinia';
 import type { ChannelRole } from '../types';
 import { AxiosResponse } from 'axios';
 import { api } from '../boot/axios';
+import { permission_enum } from '../enums';
+import { useRoleStore } from './role';
+import { useChannelStore } from './channel';
+import { useBaseStore } from './baseStore';
+import { useMemberStore } from './member';
 
 export type ChannelRoles = ChannelRole[];
 
@@ -50,30 +55,40 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       }
     },
 
-    async ensureChannelRole(role_id: number, guild_id: number, quest_id: number, member_id: number) {
+    async ensureChannelRole(
+      role_id: number,
+      guild_id: number,
+      quest_id: number,
+      member_id: number,
+    ) {
       // Ensure channel roles are loaded for this guild
       await this.ensureChannelRoles(guild_id);
 
       // Check if this specific role already has a channel for this quest/guild
       const existingRoles = this.getRolesByQuestForGuild(quest_id, guild_id);
-      const existingRole = existingRoles.find(r => r.role_id === role_id);
+      const existingRole = existingRoles.find((r) => r.role_id === role_id);
 
       if (existingRole) {
         return; // Already exists in store
       }
 
       // Check permissions before creating channel
-      const baseStore = (await import('./baseStore')).useBaseStore();
-      const { permission_enum } = await import('../enums');
-      const hasPermission = baseStore.hasPermission(permission_enum.createRoleChannel, guild_id, quest_id);
+      const baseStore = useBaseStore();
+      const hasPermission = baseStore.hasPermission(
+        permission_enum.createRoleChannel,
+        guild_id,
+        quest_id,
+      );
       if (!hasPermission) {
-        console.warn(`User does not have createRoleChannel permission for guild ${guild_id}, quest ${quest_id}`);
+        console.warn(
+          `User does not have createRoleChannel permission for guild ${guild_id}, quest ${quest_id}`,
+        );
         return;
       }
 
       // Ensure channel exists for this role/quest/guild
-      const channelStore = (await import('./channel')).useChannelStore();
-      const roleStore = (await import('./role')).useRoleStore();
+      const channelStore = useChannelStore();
+      const roleStore = useRoleStore();
 
       const role = roleStore.getRoleById(role_id);
       if (!role) return;
@@ -81,23 +96,24 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       // Try to find existing channel for this role/quest/guild
       let channelId = null;
       const allChannels = Object.values(channelStore.channels);
-      const existingChannel = allChannels.find(c =>
-        c.quest_id === quest_id &&
-        c.guild_id === guild_id &&
-        c.title === role.name &&
-        c.meta === 'channel'
+      const existingChannel = allChannels.find(
+        (c) =>
+          c.quest_id === quest_id &&
+          c.guild_id === guild_id &&
+          c.title === role.name &&
+          c.meta === 'channel',
       );
 
       if (!existingChannel) {
         // Create new channel
-        const memberStore = (await import('./member')).useMemberStore();
+        const memberStore = useMemberStore();
         const creator_id = memberStore.getUserId;
-        
+
         if (!creator_id) {
           console.error('Cannot create channel: no user ID');
           return;
         }
-        
+
         const channelData = {
           title: role.name,
           node_type: 'channel' as const,
@@ -113,11 +129,12 @@ export const useChannelRoleStore = defineStore('channelRoles', {
 
         // Find the newly created channel
         const updatedChannels = Object.values(channelStore.channels);
-        const newChannel = updatedChannels.find(c =>
-          c.quest_id === quest_id &&
-          c.guild_id === guild_id &&
-          c.title === role.name &&
-          c.meta === 'channel'
+        const newChannel = updatedChannels.find(
+          (c) =>
+            c.quest_id === quest_id &&
+            c.guild_id === guild_id &&
+            c.title === role.name &&
+            c.meta === 'channel',
         );
 
         if (newChannel) {
@@ -134,7 +151,7 @@ export const useChannelRoleStore = defineStore('channelRoles', {
           role_id,
           guild_id,
           quest_id,
-          member_id
+          member_id,
         };
         await this.createChannelRole(channelRoleData);
       }
@@ -169,20 +186,23 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       const queryParams: any = {
         guild_id: `eq.${params.guild_id}`,
       };
-      
+
       if (params.quest_id) {
         queryParams.quest_id = `eq.${params.quest_id}`;
       }
-      
-      const res: AxiosResponse<ChannelRole[]> = await api.get('/channel_roles', {
-        params: queryParams,
-      });
+
+      const res: AxiosResponse<ChannelRole[]> = await api.get(
+        '/channel_roles',
+        {
+          params: queryParams,
+        },
+      );
       if (res.status === 200) {
         this.currentGuild = params.guild_id;
         this.full = true;
         console.log('Fetched channel roles:', res.data.length, res.data);
         // Update the channelRolesMap
-        res.data.forEach(role => {
+        res.data.forEach((role) => {
           this.addOrUpdateRole(role);
         });
       }
@@ -200,8 +220,13 @@ export const useChannelRoleStore = defineStore('channelRoles', {
         }
       } catch (error: any) {
         // Handle duplicate key constraint violation (409/23505)
-        if (error.response?.status === 409 && error.response?.data?.code === '23505') {
-          console.log(`Channel role already exists for node_id ${data.node_id}, role_id ${data.role_id}`);
+        if (
+          error.response?.status === 409 &&
+          error.response?.data?.code === '23505'
+        ) {
+          console.log(
+            `Channel role already exists for node_id ${data.node_id}, role_id ${data.role_id}`,
+          );
           return null; // Already exists, not an error
         }
         // Re-throw other errors
