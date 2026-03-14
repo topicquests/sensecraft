@@ -21,7 +21,7 @@
   },
   "engines": {
     "node": "~20",
-    "npm": "~10"
+    "npm": "~11"
   },
   "scripts": {
     "init": "tsc && ./scripts/initial_setup.py && ./scripts/db_updater.py init && ./scripts/db_updater.py deploy",
@@ -29,7 +29,7 @@
     "pgst": "postgrest postgrest_development.conf",
     "socksrv": "node dist/server/dispatcher/main.js",
     "dev": "(postgrest postgrest_development.conf &) && sleep 3 && node dist/server/dispatcher/main.js",
-     "test_db": "(postgrest postgrest_test.conf &) && sleep 3 && node dist/server/dispatcher/main.js",
+    "test_db": "(postgrest postgrest_test.conf &) && sleep 3 && node dist/server/dispatcher/main.js",
     "test_backend": "ts-node test/test_backend.ts",
     "test_playwright": "ts-node test/test_backend_playwright.ts",
     "test": "npm run lint && npm run mocha -- -r test/global.ts",
@@ -43,29 +43,29 @@
     "ignore": []
   },
   "devDependencies": {
-    "@eslint/eslintrc": "~3.3",
-    "@eslint/js": "~9.25",
-    "@tsconfig/recommended": "~1.0",
-    "@types/expect": "~1",
-    "@types/express": "~5",
-    "@types/mocha": "~10",
-    "@types/node": "~20",
-    "@types/nodemailer": "~6.4",
-    "@types/pg": "~8.11",
-    "@types/properties-reader": "~2.1",
-    "@types/ws": "~8.18",
-    "@typescript-eslint/eslint-plugin": "~8",
-    "@typescript-eslint/parser": "~8",
-    "eslint": "~9",
-    "eslint-config-prettier": "~10",
-    "eslint-plugin-mocha": "~10.5",
-    "globals": "^16",
-    "libqp": "~2.1",
-    "mocha": "~11.1",
-    "prettier": "~3.5",
-    "ts-mocha": "~11.1",
-    "ts-node": "TypeStrong/ts-node#main",
-    "typescript": "~5.8"
+    "@eslint/eslintrc": "^3.3",
+    "@eslint/js": "^9.39",
+    "@tsconfig/recommended": "^1.0",
+    "@types/expect": "^1",
+    "@types/express": "^5",
+    "@types/mocha": "^10",
+    "@types/node": "^20",
+    "@types/nodemailer": "^7.0",
+    "@types/pg": "^8.11",
+    "@types/properties-reader": "^2.1",
+    "@types/ws": "^8.18",
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "eslint": "^10",
+    "eslint-config-prettier": "^10",
+    "eslint-plugin-mocha": "^11.2",
+    "globals": "^17",
+    "libqp": "^2.1",
+    "mocha": "^11.1",
+    "prettier": "^3.5",
+    "ts-mocha": "^11.1",
+    "ts-node-maintained": "^10.9.5",
+    "typescript": "^5.8"
   },
   "lint-staged": {
     "**/*": [
@@ -74,12 +74,12 @@
     ]
   },
   "dependencies": {
-    "axios": "~1.8",
+    "axios": "~1.13",
     "express": "~5",
-    "nodemailer": "~6.10",
+    "nodemailer": "~8",
     "pg": "~8",
     "pg-listen": "~1.7",
-    "properties-reader": "~2.3",
-    "ws": "~8.18"
+    "properties-reader": "~2",
+    "ws": "~8.19"
   }
 }

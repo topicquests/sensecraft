@@ -35,17 +35,17 @@
     "vue-i18n": "~11"
   },
   "devDependencies": {
-    "@babel/core": "^7.26",
+    "@babel/core": "^7.29",
     "@babel/eslint-parser": "~7",
-    "@babel/preset-env": "^7.26",
+    "@babel/preset-env": "^7.29",
     "@babel/preset-typescript": "^7.26",
     "@cucumber/cucumber": "~12",
-    "@cucumber/messages": "~31",
-    "@cucumber/pretty-formatter": "~2",
+    "@cucumber/messages": "~32",
+    "@cucumber/pretty-formatter": "~3",
     "@intlify/unplugin-vue-i18n": "~11",
     "@pinia/testing": "~1",
-    "@playwright/test": "~1.56",
-    "@quasar/app-vite": "^2.3.0",
+    "@playwright/test": "~1.58",
+    "@quasar/app-vite": "~2.3",
     "@quasar/cli": "^2.5.0",
     "@quasar/quasar-app-extension-testing": "^2.2.0",
     "@quasar/quasar-app-extension-testing-unit-vitest": "~1.2",
@@ -54,7 +54,7 @@
     "@tsconfig/recommended": "~1.0",
     "@types/libqp": "~1.1",
     "@types/luxon": "~3.7",
-    "@types/node": "^22",
+    "@types/node": "^20",
     "@typescript-eslint/eslint-plugin": "~8",
     "@typescript-eslint/parser": "~8",
     "@vitejs/plugin-vue": "~6",
@@ -66,32 +66,26 @@
     "axios-mock-adapter": "~2.1",
     "chai": "~6.2",
     "cucumber-tsflow": "~4.6",
-    "eslint": "~9",
+    "eslint": "~10",
     "eslint-config-prettier": "~10",
     "eslint-plugin-cucumber": "~2.0",
     "eslint-plugin-markdown": "~5.1",
     "eslint-plugin-vue": "~10",
-    "jsdom": "~27",
+    "jsdom": "~28",
     "jws": "~4",
-    "prettier": "~3.6",
-    "selenium-webdriver": "~4.38",
+    "prettier": "~3.8",
+    "selenium-webdriver": "~4.41",
     "ts-node-maintained": "^10.9.5",
     "tsconfig-paths": "~4.2",
     "typescript": "~5.9",
-    "vite": "~7.2",
+    "vite": "~7.3",
     "vitest": "^3.2.4",
     "vue-router": "^4.6.3",
     "vue-test-utils": "^0.5.0",
-    "vue-tsc": "~3.1"
+    "vue-tsc": "~3.2"
   },
   "engines": {
     "node": "^20 || ^18 || ^16 || ^14.19",
     "npm": ">= 6.13.4"
-  },
-  "resolutions": {
-    "ts-node": "11.0.0-beta.1"
-  },
-  "overrides": {
-    "ts-node": "11.0.0-beta.1"
   }
 }
