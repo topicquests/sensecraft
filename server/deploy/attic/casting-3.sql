@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.casting (
     member_id integer NOT NULL,
     quest_id integer NOT NULL,
     guild_id integer NOT NULL,
-    permissions public.permission[] DEFAULT ARRAY['createRoleChannel']::public.permission[],
+    permissions public.permission[] DEFAULT ARRAY[]::public.permission[],
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
 
