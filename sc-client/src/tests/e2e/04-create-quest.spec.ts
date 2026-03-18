@@ -47,6 +47,8 @@ test.describe('Quest creator Permission Flow', () => {
       .fill(mockQuest.handle!);
     // create flow
     await page.click('[data-test="create-quest-btn"]');
+    // wait for navigation to the edit page
+    await page.waitForURL(/\/quest\/\d+\/edit$/, { timeout: 15000 });
     // edit flow
     await page.click('[data-test="update-quest-btn"]');
     await expect(

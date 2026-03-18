@@ -33,7 +33,7 @@ const selectors = {
  * --------------------
  */
 async function loginAsAdmin(page: Page) {
-  await page.goto('http://localhost:8080/signin');
+  await page.goto('http://localhost:9090/signin');
   await page.fill(selectors.email, admin.email!);
   await page.fill(selectors.password, admin.password!);
   await page.click(selectors.loginBtn);

@@ -77,7 +77,7 @@ function notificationWithText(page: Page, text: string | RegExp) {
  */
 test.describe('User registration page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/register');
+    await page.goto('http://localhost:9090/register');
   });
 
   test('registers successfully with valid details', async ({ page }) => {

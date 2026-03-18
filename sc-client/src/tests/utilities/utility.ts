@@ -4,14 +4,57 @@ import { Page, Locator, expect } from '@playwright/test';
  * Auth & Navigation
  * --------------------------------------------------------- */
 
+export async function submitNodeByTitle(page: Page, title: string) {
+  const nodeHeader = page.locator('.q-tree__node-header').filter({ hasText: title });
+  await nodeHeader.locator('button:has(i.material-icons:text-is("edit"))').click();
+  await page.waitForSelector('[data-test="update-node-btn"]');
+
+  await page.click('[data-test="node-status-selector"]');
+  const statusMenu = page.locator('.q-menu').filter({ hasText: 'submitted' });
+  await expect(statusMenu).toBeVisible();
+  await statusMenu.getByRole('option', { name: 'submitted', exact: true }).click();
+
+  await page.click('[data-test="update-node-btn"]');
+  await expect(page.getByRole('alert').filter({ hasText: 'node updated' })).toBeVisible();
+}
+
 export async function signInPage(
   player: { email?: string; password?: string },
   page: Page
 ) {
-  await page.goto('http://localhost:8080/signin');
+  await page.goto('http://localhost:9090/signin');
   await page.fill('input[name="email"]', player.email!);
   await page.fill('input[name="pass"]', player.password!);
   await page.locator('[data-test="login-btn"]').click();
+  await page.waitForURL('**/lobby', { timeout: 15000 });
+}
+
+/**
+ * Dismiss the first-login dashboard instruction modal if it appears.
+ * Safe to call even if the modal is already dismissed.
+ */
+export async function dismissDashboardInstruction(page: Page) {
+  try {
+    await page.click('button[name="dashboardInstruction"]', { timeout: 3000 });
+  } catch {
+    // Already dismissed or not present — continue
+  }
+}
+
+/**
+ * Join a guild if not already a member.
+ * Waits for the guild page to finish loading before checking the join button.
+ */
+export async function joinGuildIfNotMember(page: Page) {
+  const joinButton = page.locator('button', { hasText: 'Join' });
+  const isJoinVisible = await joinButton
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false);
+  if (isJoinVisible) {
+    await joinButton.click();
+    await expect(joinButton).toBeHidden();
+  }
 }
 
 export async function gotoGuildPage(

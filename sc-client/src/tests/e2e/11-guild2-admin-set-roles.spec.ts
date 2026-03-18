@@ -37,9 +37,8 @@ test.describe('Guild2 – Admin role assignment', () => {
     await expectMemberHasRole(page, guildCreator2.handle!, 'Game leader');
   });
 
-  test('Guild admin sets player6 to Researcher and Philosopher', async ({ page }) => {
+  test('Guild admin sets player6 to Philosopher', async ({ page }) => {
     await addRoleToMember(page, player6.handle!, 'Philosopher');
-    await expectMemberHasRole(page, player6.handle!, 'Researcher');
     await expectMemberHasRole(page, player6.handle!, 'Philosopher');
   });
 

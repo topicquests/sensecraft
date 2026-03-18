@@ -61,18 +61,14 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       quest_id: number,
       member_id: number,
     ) {
-      // Ensure channel roles are loaded for this guild
       await this.ensureChannelRoles(guild_id);
-
-      // Check if this specific role already has a channel for this quest/guild
       const existingRoles = this.getRolesByQuestForGuild(quest_id, guild_id);
       const existingRole = existingRoles.find((r) => r.role_id === role_id);
 
       if (existingRole) {
-        return; // Already exists in store
+        return;
       }
 
-      // Check permissions before creating channel
       const baseStore = useBaseStore();
       const hasPermission = baseStore.hasPermission(
         permission_enum.createRoleChannel,
@@ -86,14 +82,11 @@ export const useChannelRoleStore = defineStore('channelRoles', {
         return;
       }
 
-      // Ensure channel exists for this role/quest/guild
       const channelStore = useChannelStore();
       const roleStore = useRoleStore();
 
       const role = roleStore.getRoleById(role_id);
       if (!role) return;
-
-      // Try to find existing channel for this role/quest/guild
       let channelId = null;
       const allChannels = Object.values(channelStore.channels);
       const existingChannel = allChannels.find(
@@ -105,7 +98,6 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       );
 
       if (!existingChannel) {
-        // Create new channel
         const memberStore = useMemberStore();
         const creator_id = memberStore.getUserId;
 
@@ -122,12 +114,10 @@ export const useChannelRoleStore = defineStore('channelRoles', {
           quest_id,
           guild_id,
           creator_id,
-          draft_for_role_id: role_id, // Set the role_id so other players with this role can see it
-          ancestry: '', // Will be set by database trigger
+          draft_for_role_id: role_id,
+          ancestry: '',
         };
         await channelStore.createChannelNode(channelData);
-
-        // Find the newly created channel
         const updatedChannels = Object.values(channelStore.channels);
         const newChannel = updatedChannels.find(
           (c) =>
@@ -145,7 +135,6 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       }
 
       if (channelId) {
-        // Create channel role
         const channelRoleData = {
           node_id: channelId,
           role_id,
@@ -201,7 +190,6 @@ export const useChannelRoleStore = defineStore('channelRoles', {
         this.currentGuild = params.guild_id;
         this.full = true;
         console.log('Fetched channel roles:', res.data.length, res.data);
-        // Update the channelRolesMap
         res.data.forEach((role) => {
           this.addOrUpdateRole(role);
         });
@@ -219,7 +207,6 @@ export const useChannelRoleStore = defineStore('channelRoles', {
           return role;
         }
       } catch (error: any) {
-        // Handle duplicate key constraint violation (409/23505)
         if (
           error.response?.status === 409 &&
           error.response?.data?.code === '23505'
@@ -227,9 +214,8 @@ export const useChannelRoleStore = defineStore('channelRoles', {
           console.log(
             `Channel role already exists for node_id ${data.node_id}, role_id ${data.role_id}`,
           );
-          return null; // Already exists, not an error
+          return null;
         }
-        // Re-throw other errors
         throw error;
       }
       return null;
