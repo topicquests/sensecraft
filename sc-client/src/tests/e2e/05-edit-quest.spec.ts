@@ -8,7 +8,7 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
     await page.click('button[name="dashboardInstruction"]');
   });
   test("register to quest", async({page}) => {
-    await page.goto('http://localhost:8080/quest/1/edit');
+    await page.goto('http://localhost:9090/quest/1/edit');
 
     await page.click('[data-test="registration-btn"]')
     await page.click('[data-test="update-quest-btn"]')
@@ -20,7 +20,7 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
     
   })
   test('Quest creator can create first conversation node', async ({ page }) => {
-    await page.goto('http://localhost:8080/quest/1/edit');
+    await page.goto('http://localhost:9090/quest/1/edit');
     await page.waitForSelector('[data-test="node-title-input"]');
 
     await page
@@ -33,9 +33,9 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
 
     // Node type selector
     await page.click('[data-test="node-type-selector"]');
-    const menu = page.locator('.q-menu');
-    await expect(menu).toBeVisible();
-    await menu.getByRole('option', { name: 'question' }).click();
+    const typeMenu = page.locator('.q-menu').filter({ hasText: 'question' });
+    await expect(typeMenu).toBeVisible();
+    await typeMenu.getByRole('option', { name: 'question' }).click();
 
     await expect(
       page.locator('[data-test="node-type-selector"]'),
@@ -43,8 +43,9 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
 
     // Status selector
     await page.click('[data-test="node-status-selector"]');
-    await expect(menu).toBeVisible();
-    await menu.getByRole('option', { name: 'published' }).click();
+    const statusMenu = page.locator('.q-menu').filter({ hasText: 'published' });
+    await expect(statusMenu).toBeVisible();
+    await statusMenu.getByRole('option', { name: 'published' }).click();
 
     await expect(
       page.locator('[data-test="node-status-selector"]'),
@@ -61,7 +62,7 @@ test.describe('Quest Edit & Node Flow (Quest Creator)', () => {
   });
 
   test('Quest creator can update existing root node', async ({ page }) => {
-    await page.goto('http://localhost:8080/quest/1/edit');
+    await page.goto('http://localhost:9090/quest/1/edit');
 
     await page.waitForSelector('[data-test="node-title-input"]');
 

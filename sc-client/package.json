@@ -18,8 +18,10 @@
     "test:cucumber": "cucumber-js --require ts-node/register --import src/tests/stepDefinitions/**/*.ts",
     "test:unit": "vitest",
     "test:unit:ci": "vitest run",
-    "test:playwright": "playwright install && playwright test src/tests/e2e -j1",
-    "test:playwright:ui": "playwright install && playwright test src/tests/e2e --ui -j1",
+    "test:playwright": "playwright install && playwright test --config src/playwright.config.ts -j1",
+    "test:playwright:ui": "playwright install && playwright test --config src/playwright.config.ts --ui -j1",
+    "test:playwright:full": "npm run --prefix ../server build && npm run --prefix ../server test_playwright & wait-on tcp:localhost:3000 -t 60000 && playwright install && playwright test --config src/playwright.config.ts -j1",
+    "test:playwright:full:ui": "npm run --prefix ../server build && npm run --prefix ../server test_playwright & wait-on tcp:localhost:3000 -t 60000 && playwright install && playwright test --config src/playwright.config.ts --ui -j1",
     "test:e2e:ordered": "ts-node scripts/generate-e2e-command.ts"
   },
   "dependencies": {
@@ -82,7 +84,8 @@
     "vitest": "^3.2.4",
     "vue-router": "^4.6.3",
     "vue-test-utils": "^0.5.0",
-    "vue-tsc": "~3.2"
+    "vue-tsc": "~3.2",
+    "wait-on": "~8.0"
   },
   "engines": {
     "node": "^20 || ^18 || ^16 || ^14.19",

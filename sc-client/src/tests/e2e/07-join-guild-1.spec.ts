@@ -6,160 +6,51 @@ import {
   player4,
   player5,
 } from '../utilities/StoreMocks';
+import { dismissDashboardInstruction, joinGuildIfNotMember } from '../utilities/utility';
+
+async function joinBlackKnights(page: Parameters<typeof dismissDashboardInstruction>[0], email: string, password: string) {
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="pass"]', password);
+  await page.click('button[name="loginBtn"]');
+  await expect(page).toHaveURL(/.*lobby/);
+
+  await dismissDashboardInstruction(page);
+
+  const row = page.locator('.guilds-table tbody tr', {
+    has: page.locator('td', { hasText: 'Black Knights' }),
+  });
+  await expect(row).toBeVisible();
+  const viewLink = row.locator('a', { hasText: 'View' });
+  await expect(viewLink).toBeVisible();
+  await viewLink.click();
+  await expect(page).toHaveURL(/.*guild\/\d+/);
+  await expect(page.locator('.guild-page')).toBeVisible();
+
+  await joinGuildIfNotMember(page);
+}
 
 test.describe('Add players to guild one', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/signin');
+    await page.goto('http://localhost:9090/signin');
   });
 
   test('add player one to guild 1', async ({ page }) => {
-    // Sign in
-    await page.fill('input[name="email"]', player1.email!);
-    await page.fill('input[name="pass"]', player1.password!);
-    await page.click('button[name="loginBtn"]');
-
-    // Wait for lobby
-    await expect(page).toHaveURL(/.*lobby/);
-
-    // Dismiss dashboard instruction
-    await page.click('button[name="dashboardInstruction"]');
-
-    // Find the row containing "Black Knights"
-    const row = page.locator('.guilds-table tbody tr', {
-      has: page.locator('td', { hasText: 'Black Knights' }),
-    });
-
-    await expect(row).toBeVisible();
-    const viewLink = row.locator('a', { hasText: 'View' });
-    await expect(viewLink).toBeVisible();
-    await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/);
-    await expect(page.locator('.guild-page')).toBeVisible();
-
-    const joinButton = page.locator('button', { hasText: 'Join' });
-    if (await joinButton.isVisible()) {
-      await joinButton.click();
-      await expect(joinButton).toBeHidden();
-    }
+    await joinBlackKnights(page, player1.email!, player1.password!);
   });
+
   test('add player two to guild 1', async ({ page }) => {
-    // Sign in
-    await page.fill('input[name="email"]', player2.email!);
-    await page.fill('input[name="pass"]', player2.password!);
-    await page.click('button[name="loginBtn"]');
-
-    // Wait for lobby
-    await expect(page).toHaveURL(/.*lobby/);
-
-    // Dismiss dashboard instruction
-    await page.click('button[name="dashboardInstruction"]');
-
-    // Find the row containing "Black Knights"
-    const row = page.locator('.guilds-table tbody tr', {
-      has: page.locator('td', { hasText: 'Black Knights' }),
-    });
-
-    await expect(row).toBeVisible();
-    const viewLink = row.locator('a', { hasText: 'View' });
-    await expect(viewLink).toBeVisible();
-    await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/);
-    await expect(page.locator('.guild-page')).toBeVisible();
-
-    const joinButton = page.locator('button', { hasText: 'Join' });
-    if (await joinButton.isVisible()) {
-      await joinButton.click();
-      await expect(joinButton).toBeHidden();
-    }
+    await joinBlackKnights(page, player2.email!, player2.password!);
   });
+
   test('add player three to guild 1', async ({ page }) => {
-    // Sign in
-    await page.fill('input[name="email"]', player3.email!);
-    await page.fill('input[name="pass"]', player3.password!);
-    await page.click('button[name="loginBtn"]');
-
-    // Wait for lobby
-    await expect(page).toHaveURL(/.*lobby/);
-
-    // Dismiss dashboard instruction
-    await page.click('button[name="dashboardInstruction"]');
-
-    // Find the row containing "Black Knights"
-    const row = page.locator('.guilds-table tbody tr', {
-      has: page.locator('td', { hasText: 'Black Knights' }),
-    });
-
-    await expect(row).toBeVisible();
-    const viewLink = row.locator('a', { hasText: 'View' });
-    await expect(viewLink).toBeVisible();
-    await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/);
-    await expect(page.locator('.guild-page')).toBeVisible();
-
-    const joinButton = page.locator('button', { hasText: 'Join' });
-    if (await joinButton.isVisible()) {
-      await joinButton.click();
-      await expect(joinButton).toBeHidden();
-    }
+    await joinBlackKnights(page, player3.email!, player3.password!);
   });
+
   test('add player four to guild 1', async ({ page }) => {
-    // Sign in
-    await page.fill('input[name="email"]', player4.email!);
-    await page.fill('input[name="pass"]', player4.password!);
-    await page.click('button[name="loginBtn"]');
-
-    // Wait for lobby
-    await expect(page).toHaveURL(/.*lobby/);
-
-    // Dismiss dashboard instruction
-    await page.click('button[name="dashboardInstruction"]');
-
-    // Find the row containing "Black Knights"
-    const row = page.locator('.guilds-table tbody tr', {
-      has: page.locator('td', { hasText: 'Black Knights' }),
-    });
-
-    await expect(row).toBeVisible();
-    const viewLink = row.locator('a', { hasText: 'View' });
-    await expect(viewLink).toBeVisible();
-    await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/);
-    await expect(page.locator('.guild-page')).toBeVisible();
-
-    const joinButton = page.locator('button', { hasText: 'Join' });
-    if (await joinButton.isVisible()) {
-      await joinButton.click();
-      await expect(joinButton).toBeHidden();
-    }
+    await joinBlackKnights(page, player4.email!, player4.password!);
   });
+
   test('add player five to guild 1', async ({ page }) => {
-    // Sign in
-    await page.fill('input[name="email"]', player5.email!);
-    await page.fill('input[name="pass"]', player5.password!);
-    await page.click('button[name="loginBtn"]');
-
-    // Wait for lobby
-    await expect(page).toHaveURL(/.*lobby/);
-
-    // Dismiss dashboard instruction
-    await page.click('button[name="dashboardInstruction"]');
-
-    // Find the row containing "Black Knights"
-    const row = page.locator('.guilds-table tbody tr', {
-      has: page.locator('td', { hasText: 'Black Knights' }),
-    });
-
-    await expect(row).toBeVisible();
-    const viewLink = row.locator('a', { hasText: 'View' });
-    await expect(viewLink).toBeVisible();
-    await viewLink.click();
-    await expect(page).toHaveURL(/.*guild\/\d+/);
-    await expect(page.locator('.guild-page')).toBeVisible();
-
-    const joinButton = page.locator('button', { hasText: 'Join' });
-    if (await joinButton.isVisible()) {
-      await joinButton.click();
-      await expect(joinButton).toBeHidden();
-    }
+    await joinBlackKnights(page, player5.email!, player5.password!);
   });
 });

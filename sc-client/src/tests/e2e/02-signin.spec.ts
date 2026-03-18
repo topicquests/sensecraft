@@ -3,7 +3,7 @@ import { admin } from '../utilities/StoreMocks';
 
 test.describe('User signin page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080/signin');
+    await page.goto('http://localhost:9090/signin');
   });
 
   test('admin should successfully log in a user', async ({ page }) => {

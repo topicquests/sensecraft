@@ -8,7 +8,7 @@ let page: Page; // Playwright page instance
 Given('I open the registration page', async function () {
   // Assuming you have initialized Playwright and opened a browser
   page = this.page; // The page object is passed into the context of each step
-  await page.goto('http://localhost:8080/register');
+  await page.goto('http://localhost:9090/register');
 });
 
 // When: Fill the registration form with valid details
