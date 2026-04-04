@@ -10,6 +10,15 @@
       <section class="q-mb-md">
         <quest-details />
       </section>
+      <section
+        v-if="questStore.getCurrentQuest?.description"
+        class="quest-description q-px-md q-pb-md"
+      >
+        <div
+          class="quest-description-content"
+          v-html="questStore.getCurrentQuest.description"
+        />
+      </section>
       <q-separator spaced />
       <section class="q-mt-md">
         <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
@@ -481,6 +490,19 @@ onMounted(async () => {
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   padding: 1.5rem;
+}
+
+.quest-description {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.quest-description-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+  user-select: text;
 }
 
 .center-button {
