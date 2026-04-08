@@ -30,6 +30,67 @@
       >
         <q-item-section>Create Guild</q-item-section>
       </q-item>
+      <q-expansion-item
+        v-if="checkIfAuthenticated()"
+        label="Instructions"
+        data-test="instructions-menu"
+      >
+        <q-item
+          :to="{ name: 'instructions_create_quest' }"
+          data-test="instructions-create-quest"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Create a Quest</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_edit_quest' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Edit a Quest</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_create_guild' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Create a Guild</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_join_guild' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Join a Guild</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_join_quest' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Join a Quest</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_guild_conversations' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Use Guild Conversations</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_set_roles' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How an Admin Sets Roles</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_channels' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How Channels Work</q-item-section>
+        </q-item>
+        <q-item
+          :to="{ name: 'instructions_play_quest' }"
+          :inset-level="0.5"
+        >
+          <q-item-section>How to Play a Quest</q-item-section>
+        </q-item>
+      </q-expansion-item>
       <q-item
         v-if="checkForPermission(permission_enum.superadmin)"
         :to="{ name: 'admin' }"

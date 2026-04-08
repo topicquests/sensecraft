@@ -141,6 +141,66 @@ const routes: RouteRecordRaw[] = [
         name: 'conversation_column',
         component: () => import('pages/ConversationColumn.vue'),
       },
+      // Instructions pages
+      {
+        path: '/instructions',
+        name: 'instructions',
+        component: () => import('pages/instructions/InstructionsIndex.vue'),
+      },
+      {
+        path: '/instructions/create-quest',
+        name: 'instructions_create_quest',
+        component: () =>
+          import('pages/instructions/CreateQuestInstructions.vue'),
+      },
+      {
+        path: '/instructions/edit-quest',
+        name: 'instructions_edit_quest',
+        component: () =>
+          import('pages/instructions/EditQuestInstructions.vue'),
+      },
+      {
+        path: '/instructions/create-guild',
+        name: 'instructions_create_guild',
+        component: () =>
+          import('pages/instructions/CreateGuildInstructions.vue'),
+      },
+      {
+        path: '/instructions/join-guild',
+        name: 'instructions_join_guild',
+        component: () =>
+          import('pages/instructions/JoinGuildInstructions.vue'),
+      },
+      {
+        path: '/instructions/guild-conversations',
+        name: 'instructions_guild_conversations',
+        component: () =>
+          import('pages/instructions/GuildConversationsInstructions.vue'),
+      },
+      {
+        path: '/instructions/join-quest',
+        name: 'instructions_join_quest',
+        component: () =>
+          import('pages/instructions/JoinQuestInstructions.vue'),
+      },
+      {
+        path: '/instructions/set-roles',
+        name: 'instructions_set_roles',
+        component: () =>
+          import('pages/instructions/SetRolesInstructions.vue'),
+      },
+      {
+        path: '/instructions/channels',
+        name: 'instructions_channels',
+        component: () =>
+          import('pages/instructions/ChannelsInstructions.vue'),
+      },
+      {
+        path: '/instructions/play-quest',
+        name: 'instructions_play_quest',
+        component: () =>
+          import('pages/instructions/PlayQuestInstructions.vue'),
+      },
     ],
   },
 

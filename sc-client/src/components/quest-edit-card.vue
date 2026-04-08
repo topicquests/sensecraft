@@ -17,15 +17,22 @@
           :color="
             quest.status === 'registration'
               ? 'green'
-              : quest.status === 'draft'
+              : quest.status === 'draft' && hasRootNode
                 ? 'primary'
                 : 'grey'
           "
           text-color="black"
           label="Registration"
           data-test="registration-btn"
-          :disable="quest.status !== 'draft' && quest.status !== 'registration'"
-          @click="quest.status === 'draft' && updateStatus('registration')"
+          :disable="
+            (quest.status !== 'draft' && quest.status !== 'registration') ||
+            (quest.status === 'draft' && !hasRootNode)
+          "
+          @click="
+            quest.status === 'draft' &&
+              hasRootNode &&
+              updateStatus('registration')
+          "
         />
         <!-- Ongoing -->
         <q-btn
@@ -60,6 +67,13 @@
       </div>
       <p class="text-body1 q-mb-none">
         <strong>Current:</strong> {{ quest.status }}
+      </p>
+      <p
+        v-if="quest.status === 'draft' && !hasRootNode"
+        class="text-negative q-mt-sm q-mb-none"
+      >
+        The first conversation node must be created before this quest can
+        progress to Registration or any later phase.
       </p>
     </section>
 
@@ -235,6 +249,7 @@ const props = defineProps<{
   thisQuest: Partial<Quest>
   edit: boolean;
   create: boolean;
+  hasRootNode?: boolean;
 }>();
 const router = useRouter();
 const questStore = useQuestStore();

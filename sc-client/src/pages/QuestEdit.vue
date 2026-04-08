@@ -26,6 +26,7 @@
               :thisQuest="currentQuest"
               :edit="true"
               :create="false"
+              :hasRootNode="hasRootNode"
               v-on:doUpdateQuest="doSubmitQuest"
               style="width: 100%"
             />
@@ -94,6 +95,7 @@ const defaultNode: defaultNodeType = {
 // Computed Properties
 const currentQuest = computed(() => questStore.getCurrentQuest);
 const node = computed(() => getNode());
+const hasRootNode = computed(() => !!conversationStore.getRootNode?.id);
 
 // Functions
 function getNode(): Partial<ConversationNode> | defaultNodeType {

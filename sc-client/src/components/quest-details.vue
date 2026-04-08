@@ -26,6 +26,12 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+      <div
+        v-if="currentQuest && currentQuest.status === 'finished'"
+        class="quest-finished-notice"
+      >
+        This quest is finished. No more plays can be done.
+      </div>
     </div>
     <router-link
       v-if="currentQuest"
@@ -54,5 +60,15 @@ const currentQuest = computed(() => questStore.getCurrentQuest!);
   text-decoration: underline;
   padding: 5px;
   margin-top: 16px;
+}
+.quest-finished-notice {
+  color: #c10015;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 8px;
+  margin-top: 4px;
+  border: 1px solid #c10015;
+  border-radius: 4px;
+  background-color: #fff;
 }
 </style>
