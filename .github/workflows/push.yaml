@@ -21,15 +21,25 @@ jobs:
         with:
           postgres_image_tag: 17.4-alpine-jwt
           postgres_image_name: conversence/postgres
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25' # Meets the requirement of the crypto library
       - name: Install client components
-        working-directory: /tmp
         run: |
           sudo apt update
-          sudo apt install -y postgresql-client wget
-          wget -c https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
-          sudo tar -C /usr/local/ -xzf go1.24.2.linux-amd64.tar.gz
+          sudo apt install -y postgresql-client
           go install github.com/mailhog/MailHog@latest
-          echo "${HOME}/go/bin" >> $GITHUB_PATH
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PAT
+    # - name: Install client components
+    #   working-directory: /tmp
+    #   run: |
+    #     sudo apt update
+    #     sudo apt install -y postgresql-client wget
+    #     wget -c https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+    #     sudo tar -C /usr/local/ -xzf go1.24.2.linux-amd64.tar.gz
+    #     go install github.com/mailhog/MailHog@latest
+    #     echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
