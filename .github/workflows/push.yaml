@@ -42,7 +42,7 @@ jobs:
           sudo mv postgrest /usr/bin/
       - name: Install server dependencies
         working-directory: ./server
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Build dispatcher
         working-directory: ./server
         run: npm run build
