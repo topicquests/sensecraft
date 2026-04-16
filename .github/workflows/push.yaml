@@ -52,7 +52,7 @@ jobs:
       - name: Install client dependencies
         working-directory: ./sc-client
         run: |
-         npm ci --legacy-peer-deps
+         npm ci 
       - name: Run client unit tests
         working-directory: ./sc-client
         run: |
