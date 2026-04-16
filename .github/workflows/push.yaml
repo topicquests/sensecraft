@@ -49,10 +49,10 @@ jobs:
       - name: Run server tests
         working-directory: ./server
         run: npm run test
-    #  - name: Install client dependencies
-    #      working-directory: ./sc-client
-    #    run: |
-    #     npm ci --legacy-peer-deps
+      - name: Install client dependencies
+        working-directory: ./sc-client
+        run: |
+         npm ci --legacy-peer-deps
     #  - name: Run client unit tests
     #    working-directory: ./sc-client
     #    run: |
