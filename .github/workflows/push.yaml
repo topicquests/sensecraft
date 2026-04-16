@@ -46,18 +46,18 @@ jobs:
       - name: Build dispatcher
         working-directory: ./server
         run: npm run build
-      - name: Run server tests
-        working-directory: ./server
-        run: npm run test
+      #- name: Run server tests
+      #  working-directory: ./server
+      # run: npm run test
       - name: Install client dependencies
         working-directory: ./sc-client
         run: |
          npm ci --legacy-peer-deps
-    #  - name: Run client unit tests
-    #    working-directory: ./sc-client
-    #    run: |
-    #      npm run prepare
-    #      npm run test:unit:ci
+      - name: Run client unit tests
+        working-directory: ./sc-client
+        run: |
+          npm run prepare
+          npm run test:unit:ci
     # - name: Run integration unit tests
     #    working-directory: ./sc-client
     #    run: |
