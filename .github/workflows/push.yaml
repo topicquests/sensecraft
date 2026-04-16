@@ -31,15 +31,6 @@ jobs:
           sudo apt install -y postgresql-client
           go install github.com/mailhog/MailHog@latest
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-    # - name: Install client components
-    #   working-directory: /tmp
-    #   run: |
-    #     sudo apt update
-    #     sudo apt install -y postgresql-client wget
-    #     wget -c https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
-    #     sudo tar -C /usr/local/ -xzf go1.24.2.linux-amd64.tar.gz
-    #     go install github.com/mailhog/MailHog@latest
-    #     echo "${HOME}/go/bin" >> $GITHUB_PATH
       - name: Initialize test DB
         working-directory: ./server
         run: python ./scripts/initial_setup.py -u postgres -p postgres --no-create-development --no-create-production --app_name sensecraft
@@ -55,9 +46,9 @@ jobs:
       - name: Build dispatcher
         working-directory: ./server
         run: npm run build
-    # - name: Run server tests
-    #   working-directory: ./server
-    #    run: npm run test
+      - name: Run server tests
+        working-directory: ./server
+        run: npm run test
     #  - name: Install client dependencies
     #      working-directory: ./sc-client
     #    run: |
