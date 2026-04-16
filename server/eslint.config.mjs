@@ -18,12 +18,10 @@ const compat = new FlatCompat({
 export default [...compat.extends(
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:mocha/recommended",
     "prettier",
-), {
+), mocha.configs.flat.recommended, {
     plugins: {
         "@typescript-eslint": typescriptEslint,
-        mocha,
     },
 
     languageOptions: {
