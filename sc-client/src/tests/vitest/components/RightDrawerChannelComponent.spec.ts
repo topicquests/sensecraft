@@ -10,7 +10,7 @@ import {
   mockChannel,
   mockGuildAfterJoin,
   mockMemberAfterJoin,
-} from './mocks/StoreMocks';
+} from '../../utilities/StoreMocks';
 
 // Mock getWSClient to return a mocked object with setDefaultGuild
 vi.mock('src/wsclient', () => ({

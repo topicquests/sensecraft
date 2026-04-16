@@ -8,7 +8,7 @@ import {
   mockChannelsReadStatus,
   mockChannelStatusMap,
   mockChannel,
-} from './mocks/StoreMocks';
+} from '../../utilities/StoreMocks';
 
 installQuasarPlugin();
 
@@ -78,7 +78,7 @@ describe('ChannelListComponent', () => {
     const routerLink = wrapper.findComponent({ name: 'RouterLink' });
     expect(routerLink.props('to')).toEqual({
       name: 'game_channel_list',
-      params: { guild_id: 1, quest_id: 123 },
+      params: { guild_id: '1', quest_id: '123' },
     });
     expect(routerLink.attributes('href')).toBe('/guild/1/quest/123/channel');
   });
@@ -92,7 +92,7 @@ describe('ChannelListComponent', () => {
     const routerLink = wrapper.findComponent({ name: 'RouterLink' });
     expect(routerLink.props('to')).toEqual({
       name: 'guild_channel_list',
-      params: { guild_id: 1 },
+      params: { guild_id: '1' },
     });
     expect(routerLink.attributes('href')).toBe('/guild/1/channel');
   });

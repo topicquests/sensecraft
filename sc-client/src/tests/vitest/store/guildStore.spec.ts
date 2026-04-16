@@ -8,7 +8,7 @@ import {
   mockGuildMemberAvailableRole,
   mockMember,
   mockQuest,
-} from '../components/mocks/StoreMocks';
+} from '../../utilities/StoreMocks';
 import { setActivePinia, createPinia } from 'pinia';
 import { useMemberStore } from 'src/stores/member';
 import { useMembersStore } from 'src/stores/members';

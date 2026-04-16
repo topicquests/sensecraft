@@ -2,7 +2,7 @@ import { describe, expect, it, afterEach } from 'vitest';
 import guildsMembershipIndicatorComponent from 'src/components/guilds-membership-indicator.vue';
 import { mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { mockGuild, mockGuildMembership, mockMember } from './mocks/StoreMocks';
+import { mockGuild, mockGuildMembership, mockMember } from '../../utilities/StoreMocks';
 import { registration_status_enum } from '../../../enums';
 
 const initialMockGuild = JSON.parse(JSON.stringify(mockGuild));
@@ -68,6 +68,7 @@ describe('GuildMembershipIndicatorComponent', () => {
   });
   it('show Close if open_for_application is false', () => {
     mockGuildMembership.status = registration_status_enum.confirmed;
+    mockGuild.open_for_applications = false;
     const wrapper = mount(guildsMembershipIndicatorComponent, {
       props: {
         guild: mockGuild,

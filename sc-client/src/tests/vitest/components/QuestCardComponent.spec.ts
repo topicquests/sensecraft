@@ -2,7 +2,7 @@ import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-v
 import QuestCard from '../../../components/quest-card.vue';
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { mockConversation, mockQuest } from './mocks/StoreMocks';
+import { mockConversation, mockQuest } from '../../utilities/StoreMocks';
 import { createTestingPinia } from '@pinia/testing';
 import { QTooltip } from 'quasar';
 

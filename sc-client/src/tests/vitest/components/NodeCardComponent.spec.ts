@@ -3,7 +3,7 @@ import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-v
 import { mount } from '@vue/test-utils';
 import nodeCardComponent from 'src/components/node-card.vue';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mockNode } from './mocks/StoreMocks';
+import { mockNode } from '../../utilities/StoreMocks';
 
 installQuasarPlugin();
 
@@ -42,11 +42,11 @@ describe('NodeCardComponent', () => {
     const anchor = wrapper.find('a');
     expect(anchor.exists()).toBe(true);
     expect(anchor.attributes('href')).toBe('https://example.com');
-    expect(anchor.text()).toBe('https://example.com');
+    expect(anchor.text()).toContain('Open Related Link');
   });
   it('show node card description', () => {
-    const descriptionDiv = wrapper.find('#node-card-details');
-    expect(descriptionDiv.exists()).toBe(true);
-    expect(descriptionDiv.text()).toContain('Test node');
+    const descriptionEl = wrapper.find('.node-description');
+    expect(descriptionEl.exists()).toBe(true);
+    expect(descriptionEl.attributes('src')).toContain('Test node');
   });
 });

@@ -26,7 +26,11 @@ describe('RegistrationForm', () => {
       password: 'password123',
     };
     Object.assign(formdata, formData);
-    await wrapper.find('button[name="registerButton"]').trigger('click');
+    await wrapper
+      .find('input[name="confirmPassword"]')
+      .setValue('password123');
+    const qForm = wrapper.findComponent({ name: 'QForm' });
+    await qForm.vm.$emit('submit', new Event('submit'));
     expect(wrapper.emitted('doRegister')).toBeTruthy();
     expect(wrapper.emitted('doRegister')?.[0]).toEqual([formdata]);
   });

@@ -8,7 +8,7 @@ import {
   mockGuildMembership,
   mockQuest,
   mockMember,
-} from './mocks/StoreMocks';
+} from '../../utilities/StoreMocks';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
 installQuasarPlugin();

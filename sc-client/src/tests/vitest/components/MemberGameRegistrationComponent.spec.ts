@@ -2,7 +2,7 @@ import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-v
 import memberGameRegistrationComponent from '../../../components/member_game_registration.vue';
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { mockGuild, mockMember, mockQuest, mockRole } from './mocks/StoreMocks';
+import { mockGuild, mockMember, mockQuest, mockRole } from '../../utilities/StoreMocks';
 import { createTestingPinia } from '@pinia/testing';
 import { useRoleStore } from 'src/stores/role';
 

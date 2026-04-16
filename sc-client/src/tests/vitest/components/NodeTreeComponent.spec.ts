@@ -1,7 +1,7 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { describe, expect, it } from 'vitest';
 import nodeTreeComponent from 'src/components/node-tree.vue';
-import { mockGuild, mockMember, mockNode, mockQuest } from './mocks/StoreMocks';
+import { mockGuild, mockMember, mockNode, mockQuest } from '../../utilities/StoreMocks';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { nextTick } from 'vue';

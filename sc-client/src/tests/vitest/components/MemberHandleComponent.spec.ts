@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import memberHandleComponent from 'src/components/member-handle.vue';
 import { mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { mockMember } from './mocks/StoreMocks';
+import { mockMember } from '../../utilities/StoreMocks';
 
 installQuasarPlugin();
 

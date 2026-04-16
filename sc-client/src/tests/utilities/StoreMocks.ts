@@ -428,11 +428,13 @@ export const mockMemberAfterJoin: Member = {
 };
 
 export const mockQuest: Partial<QuestData> = {
+  id: 1,
   handle: 'ClimateChangeConsequences',
   name: 'What are the consequences of global climate change',
   description: `The world is shifting in subtle and dramatic ways. In this quest, your team is challenged to investigate the outcomes of large-scale changes shaping our environment, societies, and ways of life.
 What transformations are underway? How are they affecting different regions, communities, or systems? Your task is to explore and interpret the ripple effects of global change—what they are, how they unfold, and why they matter.
 Approach this with curiosity, skepticism, or storytelling—there's no single path forward, only the challenge to make sense of what's happening and what it might mean.`,
+  game_play: [mockGamePlay],
 };
 export const firstNode: Partial<ConversationNode> = {
   title: 'Updated Root Question',

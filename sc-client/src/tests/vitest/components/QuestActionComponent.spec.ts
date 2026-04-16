@@ -10,7 +10,7 @@ import {
   mockQuestMembership,
   mockCasting,
   mockGamePlay,
-} from '../components/mocks/StoreMocks';
+} from '../../utilities/StoreMocks';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
 installQuasarPlugin();
@@ -34,13 +34,13 @@ describe('QuestAction Component', () => {
       JSON.parse(JSON.stringify(initialMockGuildMembership)),
     );
     Object.assign(mockMember, JSON.parse(JSON.stringify(initialMockMember)));
-    Object.assign(mockMember, JSON.parse(JSON.stringify(initialMockQuest)));
-    Object.assign(mockMember, JSON.parse(JSON.stringify(initialMockCasting)));
+    Object.assign(mockQuest, JSON.parse(JSON.stringify(initialMockQuest)));
+    Object.assign(mockCasting, JSON.parse(JSON.stringify(initialMockCasting)));
     Object.assign(
-      mockMember,
+      mockQuestMembership,
       JSON.parse(JSON.stringify(initialMockQuestMembership)),
     );
-    Object.assign(mockMember, JSON.parse(JSON.stringify(initialMockGamePlay)));
+    Object.assign(mockGamePlay, JSON.parse(JSON.stringify(initialMockGamePlay)));
   });
 
   it('renders login prompt when user is not logged in', () => {
@@ -72,6 +72,7 @@ describe('QuestAction Component', () => {
     expect(wrapper.text()).toContain('Login to play');
   });
   it('renders quest administration link when user is quest member', () => {
+    mockQuest.quest_membership = [mockQuestMembership];
     const wrapper = mount(QuestAction, {
       props: {
         questId: mockQuest.id,

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import GuildHeaderComponent from '../../../components/guild-header.vue';
-import { mockGuild, mockMember } from './mocks/StoreMocks';
+import { mockGuild, mockMember } from '../../utilities/StoreMocks';
 
 describe('GuildHeaderComponent', () => {
   it('renders guild-header component', async () => {

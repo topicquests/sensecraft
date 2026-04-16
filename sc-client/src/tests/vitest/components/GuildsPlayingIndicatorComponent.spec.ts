@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, beforeEach } from 'vitest';
 import GuildsPlayingIndicatorCOmponent from '../../../components/guilds-playing-indicator.vue';
 import { mount } from '@vue/test-utils';
-import { mockGamePlay, mockGuild, mockQuest } from './mocks/StoreMocks';
+import { mockGamePlay, mockGuild, mockQuest } from '../../utilities/StoreMocks';
 import { createTestingPinia } from '@pinia/testing';
 
 const initialMockGuild = JSON.parse(JSON.stringify(mockGuild));
@@ -69,12 +69,14 @@ describe('GuildsPlayingIndicatorCOmponent', () => {
     const wrapper = createWrapper({ playing: false });
     expect(wrapper.text()).toContain('They may play');
   });
-  it('Show Opponent if quest is not playing, guild open for applications and game play status confirmes Test 4', () => {
-    mockQuest.game_play[0].status = 'confirmed';
+  it('Show Opponent if quest is playing and game play status confirmed Test 4', () => {
+    mockQuest.is_playing = true;
+    mockQuest.game_play[0].game_status = 'confirmed';
     const wrapper = createWrapper({ playing: false });
     expect(wrapper.text()).toContain('Opponent');
   });
-  it('Show Potential Opponent if quest is not playing, guild open for applications and game play status confirmes Test 5', () => {
+  it('Show Potential Opponent if quest is playing and game play status interested Test 5', () => {
+    mockQuest.is_playing = true;
     mockQuest.game_play[0].game_status = 'interested';
     const wrapper = createWrapper({ playing: false });
     expect(wrapper.text()).toContain('Potential');

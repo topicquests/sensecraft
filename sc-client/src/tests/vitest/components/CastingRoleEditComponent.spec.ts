@@ -55,7 +55,14 @@ describe('CastingRoleEdit.vue', () => {
         guildId: 1,
       },
       global: {
-        plugins: [createTestingPinia()],
+        plugins: [
+          createTestingPinia({
+            initialState: {
+              member: { member: { handle: 'TestUser' } },
+              quest: { currentQuest: { name: 'Quest 1' } },
+            },
+          }),
+        ],
       },
       attrs: {
         onCastingRoleAdd: castingRoleAdd,
