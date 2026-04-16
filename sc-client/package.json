@@ -20,8 +20,8 @@
     "test:unit:ci": "vitest run",
     "test:playwright": "playwright install && playwright test --config src/playwright.config.ts -j1",
     "test:playwright:ui": "playwright install && playwright test --config src/playwright.config.ts --ui -j1",
-    "test:playwright:full": "npm run --prefix ../server build && npm run --prefix ../server test_playwright & wait-on tcp:localhost:3000 -t 60000 && playwright install && playwright test --config src/playwright.config.ts -j1",
-    "test:playwright:full:ui": "npm run --prefix ../server build && npm run --prefix ../server test_playwright & wait-on tcp:localhost:3000 -t 60000 && playwright install && playwright test --config src/playwright.config.ts --ui -j1",
+    "test:playwright:full": "bash scripts/run-playwright-full.sh",
+    "test:playwright:full:ui": "bash scripts/run-playwright-full.sh --ui",
     "test:e2e:ordered": "ts-node scripts/generate-e2e-command.ts"
   },
   "dependencies": {
