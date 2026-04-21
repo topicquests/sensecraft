@@ -1,5 +1,26 @@
 <template>
   <q-card v-if="node" class="node-card q-pa-md">
+    <!-- URL input for reference nodes -->
+    <section
+      v-if="NodeFormProps.editing && selectedNodeType === 'reference'"
+      class="node-card-url"
+    >
+      <q-input
+        v-model="url"
+        label="URL"
+        type="url"
+        placeholder="https://example.com"
+        outlined
+        dense
+        data-test="node-url-input"
+        class="node-card-url-input"
+      >
+        <template v-slot:prepend>
+          <q-icon name="link" color="primary" />
+        </template>
+      </q-input>
+    </section>
+
     <!-- Node Title -->
     <section class="node-card-title">
       <q-input
@@ -202,6 +223,11 @@ const description = computed({
   set: (val) => (node.value.description = val),
 })
 
+const url = computed({
+  get: () => node.value.url || '',
+  set: (val) => (node.value.url = val),
+})
+
 // Filtered Status Options: hide 'published' only for comment nodes
 const filteredStatusOptions = computed<publication_state_type[]>(() => {
   if (metaValue.value === 'meta') {
@@ -273,6 +299,27 @@ defineExpose({
   padding: 0.5em;
   border-radius: 6px;
   width: 90%;
+}
+
+.node-card-url {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background-color: #eef3ff;
+  border: 1px solid #c5d2f2;
+  border-radius: 6px;
+  padding: 0.5em 0.75em;
+  width: 90%;
+}
+
+.node-card-url-input {
+  flex: 1 1 100%;
+  font-size: 0.85rem;
+}
+
+.node-card-url-input .q-field__control {
+  background-color: #fff;
+  border-radius: 6px;
 }
 
 .node-card-editor {

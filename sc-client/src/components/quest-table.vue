@@ -25,9 +25,10 @@
             <q-btn
               v-if="props.row.description"
               class="q-ml-xs"
-              size="sm"
+              size="md"
               :flat="true"
               icon="info"
+              color="info"
               @click="openDialog(props.row)"
             />
             <q-dialog v-model="showDialog" persistent>

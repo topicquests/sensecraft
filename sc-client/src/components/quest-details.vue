@@ -6,9 +6,10 @@
         <q-btn
           v-if="currentQuest.description"
           class="q-ml-xs"
-          size="md"
+          size="lg"
           :flat="true"
           icon="info"
+          color="info"
           @click="showDialog = true"
         />
       </h2>

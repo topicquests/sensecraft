@@ -7,9 +7,10 @@
         class="quest-li row items-start"
       >
         <q-btn
-          size="sm"
+          size="md"
           flat
           icon="info"
+          color="info"
           class="q-mr-sm"
           @click="openDialog(quest)"
         />
