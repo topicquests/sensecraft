@@ -98,7 +98,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_casting_role() RETURNS trigger
     DECLARE is_public BOOLEAN;
     BEGIN
       SELECT public INTO is_public FROM guilds WHERE id=OLD.guild_id;
-      PERFORM pg_notify(current_database(), concat('D casting_role ' , OLD.guild_id, ' ', OLD.role_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
+      PERFORM pg_notify(current_database(), concat('D casting_role ' , OLD.guild_id, ' ', OLD.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
       RETURN OLD;
     END;
     $$;
