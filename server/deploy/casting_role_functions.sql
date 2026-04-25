@@ -70,4 +70,40 @@ CREATE OR REPLACE FUNCTION has_play_permission(quest_id INTEGER, perm public.per
     ) q
 $$ LANGUAGE SQL STABLE;
 
+
+--
+-- Name: after_update_casting_role(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.after_createup_casting_role() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE is_public BOOLEAN;
+    BEGIN
+      SELECT public INTO STRICT is_public FROM guilds WHERE id = NEW.guild_id;
+      PERFORM pg_notify(current_database(), concat('U casting_role ' , NEW.guild_id, ' ', NEW.member_id, NEW.role_id, CASE WHEN is_public THEN '' ELSE (' Q'||NEW.quest_id) END));
+      RETURN NEW;
+    END;
+$$;
+
+DROP TRIGGER IF EXISTS after_update_casting_role ON public.casting_role;
+CREATE TRIGGER after_update_casting_role AFTER UPDATE ON public.casting_role FOR EACH ROW EXECUTE FUNCTION public.after_createup_casting_role();
+
+DROP TRIGGER IF EXISTS after_create_casting_role ON public.casting_role;
+CREATE TRIGGER after_create_casting_role AFTER INSERT ON public.casting_role FOR EACH ROW EXECUTE FUNCTION public.after_createup_casting_role();
+
+CREATE OR REPLACE FUNCTION public.after_delete_casting_role() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE is_public BOOLEAN;
+    BEGIN
+      SELECT public INTO is_public FROM guilds WHERE id=OLD.guild_id;
+      PERFORM pg_notify(current_database(), concat('U casting_role ' , OLD.guild_id, ' ', OLD.member_id, OLD.role_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
+      RETURN OLD;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS after_delete_casting_role ON public.casting_role;
+CREATE TRIGGER after_delete_casting_role AFTER DELETE ON public.casting_role FOR EACH ROW EXECUTE FUNCTION public.after_delete_casting_role();
+
 COMMIT;

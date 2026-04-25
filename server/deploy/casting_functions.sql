@@ -58,6 +58,43 @@ CREATE OR REPLACE FUNCTION public.before_update_casting() RETURNS trigger
 DROP TRIGGER IF EXISTS before_update_casting ON public.casting;
 CREATE TRIGGER before_update_casting BEFORE UPDATE ON public.casting FOR EACH ROW EXECUTE FUNCTION public.before_update_casting();
 
+
+--
+-- Name: after_update_casting(); Type: FUNCTION
+--
+
+CREATE OR REPLACE FUNCTION public.after_createup_casting() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE is_public BOOLEAN;
+    BEGIN
+      SELECT public INTO STRICT is_public FROM guilds WHERE id = NEW.guild_id;
+      PERFORM pg_notify(current_database(), concat('U casting ' , NEW.guild_id, ' ', NEW.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||NEW.quest_id) END));
+      RETURN NEW;
+    END;
+$$;
+
+DROP TRIGGER IF EXISTS after_update_casting ON public.casting;
+CREATE TRIGGER after_update_casting AFTER UPDATE ON public.casting FOR EACH ROW EXECUTE FUNCTION public.after_createup_casting();
+
+DROP TRIGGER IF EXISTS after_create_casting ON public.casting;
+CREATE TRIGGER after_create_casting AFTER INSERT ON public.casting FOR EACH ROW EXECUTE FUNCTION public.after_createup_casting();
+
+CREATE OR REPLACE FUNCTION public.after_delete_casting() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE is_public BOOLEAN;
+    BEGIN
+      SELECT public INTO is_public FROM guilds WHERE id=OLD.guild_id;
+      PERFORM pg_notify(current_database(), concat('U casting ' , OLD.guild_id, ' ', OLD.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
+      RETURN OLD;
+    END;
+    $$;
+
+DROP TRIGGER IF EXISTS after_delete_casting ON public.casting;
+CREATE TRIGGER after_delete_casting AFTER DELETE ON public.casting FOR EACH ROW EXECUTE FUNCTION public.after_delete_casting();
+
+
 ALTER TABLE public.casting ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS casting_delete_policy ON public.casting;
