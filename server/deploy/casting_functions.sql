@@ -69,7 +69,7 @@ CREATE OR REPLACE FUNCTION public.after_createup_casting() RETURNS trigger
     DECLARE is_public BOOLEAN;
     BEGIN
       SELECT public INTO STRICT is_public FROM guilds WHERE id = NEW.guild_id;
-      PERFORM pg_notify(current_database(), concat('U casting ' , NEW.guild_id, ' ', NEW.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||NEW.quest_id) END));
+      PERFORM pg_notify(current_database(), concat('U casting ' , NEW.member_id, ' ', NEW.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||NEW.quest_id) END));
       RETURN NEW;
     END;
 $$;
@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION public.after_delete_casting() RETURNS trigger
     DECLARE is_public BOOLEAN;
     BEGIN
       SELECT public INTO is_public FROM guilds WHERE id=OLD.guild_id;
-      PERFORM pg_notify(current_database(), concat('D casting ' , OLD.guild_id, ' ', OLD.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
+      PERFORM pg_notify(current_database(), concat('D casting ' , OLD.member_id, ' ', OLD.member_id, CASE WHEN is_public THEN '' ELSE (' Q'||OLD.quest_id) END));
       RETURN OLD;
     END;
     $$;
