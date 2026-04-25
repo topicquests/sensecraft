@@ -127,6 +127,8 @@ export class WSClient {
         }
         break;
       case 'members':
+      case 'casting':
+      case 'casting_role':
         await this.membersStore.fetchMemberById(id, true);
         if (this.memberStore.member.id == id)
           await this.memberStore.fetchLoginUser();
