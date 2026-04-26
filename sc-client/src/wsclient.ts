@@ -45,12 +45,13 @@ export class WSClient {
       ) {
         this.login(memberStore.member.id!, memberStore.token!);
       } else if (this.login_message) {
-        this.ws.send(this.login_message);
+        this._send(this.login_message);
       }
       this.setDefaultQuest(this.quest_id);
       this.setDefaultGuild(this.guild_id);
     });
     this.ws.addEventListener('message', async (event: Event) => {
+      console.log('WS<-', (event as MessageEvent).data);
       await this.onMessage(event);
     });
     this.ws.addEventListener('close', () => {
@@ -58,31 +59,34 @@ export class WSClient {
       this.connected = false;
     });
   }
+  _send(msg: string) {
+    console.log('WS->', msg);
+    this.ws.send(msg);
+  }
   login(id: number, token: string) {
     this.login_message = `LOGIN ${id} ${token}`;
     if (this.connected) {
-      console.log('sending');
-      this.ws.send(this.login_message);
+      this._send(this.login_message);
     }
   }
   logout() {
     this.login_message = null;
     if (!this.connected) return;
-    this.ws.send(`LOGOUT`);
+    this._send('LOGOUT');
   }
   setDefaultGuild(id: number | boolean) {
     this.guild_id = id;
     if (!this.connected) return;
-    if (id === true) this.ws.send('GUILD *');
-    else if (id === false) this.ws.send('GUILD');
-    else this.ws.send(`GUILD ${id}`);
+    if (id === true) this._send('GUILD *');
+    else if (id === false) this._send('GUILD');
+    else this._send(`GUILD ${id}`);
   }
   setDefaultQuest(id: number | boolean) {
     this.quest_id = id;
     if (!this.connected) return;
-    if (id === true) this.ws.send('QUEST *');
-    else if (id === false) this.ws.send('QUEST');
-    else this.ws.send(`QUEST ${id}`);
+    if (id === true) this._send('QUEST *');
+    else if (id === false) this._send('QUEST');
+    else this._send(`QUEST ${id}`);
   }
   async onMessage(event) {
     const parts = /^([CUD]) (\w+) (\d+)$/.exec(event.data);
@@ -112,10 +116,7 @@ export class WSClient {
         if (crud == 'D') {
           // TODO
         } else {
-          await this.questStore.fetchQuestById({
-            full: true,
-            params: { id },
-          });
+          await this.questStore.fetchQuestById(id, true);
         }
         break;
       case 'guilds':
@@ -130,6 +131,8 @@ export class WSClient {
       case 'casting':
       case 'casting_role':
         await this.membersStore.fetchMemberById(id, true);
+        if (this.questStore.currentQuest && typeof this.questStore.currentQuest === 'number')                                                                                       
+          await this.questStore.fetchQuestById(this.questStore.currentQuest, true);                                                                                                   
         if (this.memberStore.member.id == id)
           await this.memberStore.fetchLoginUser();
         break;

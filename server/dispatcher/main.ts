@@ -252,31 +252,35 @@ class Client {
   }
 
   async onReceive(base: string, member_id: number, constraints_conj_disj: string[][][]) {
-    // constraints is a conjunction of disjunctions of constraints
-    // console.log(`onReceive ${base}, ${member_id}, ${constraints_conj_disj}`);
-    const [, type, ] = base.split(' ')
-    if (type === 'role') {
-      // update roles
-    } else if (this.member?.id === member_id &&
-      ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership', 'members'].includes(type)) {
-      // heavy-handed but works
-      await this.loadMember(member_id)
-    }
-    for (const constraint_dis of constraints_conj_disj) {
-      if (constraint_dis.length) {
-        let disjunction = false
-        for (const constraint of constraint_dis) {
-          // const [type, id, _, subtype, subname] = constraint
-          if (this.checkConstraint(constraint)) {
-            disjunction = true;
-            break;  // inner
-          }
-        }
-        if (!disjunction) return;
+    try {
+      // constraints is a conjunction of disjunctions of constraints
+      console.log(`onReceive ${base}, ${member_id}, ${JSON.stringify(constraints_conj_disj)}, this.member.id=${this.member?.id}`);
+      const [, type, ] = base.split(' ')
+      if (type === 'role') {
+        // update roles
+      } else if (this.member?.id === member_id &&
+        ['casting', 'guild_member_available_role', 'casting_role', 'quest_membership', 'guild_membership', 'members'].includes(type)) {
+        // heavy-handed but works
+        await this.loadMember(member_id)
       }
+      for (const constraint_dis of constraints_conj_disj) {
+        if (constraint_dis.length) {
+          let disjunction = false
+          for (const constraint of constraint_dis) {
+            // const [type, id, _, subtype, subname] = constraint
+            if (this.checkConstraint(constraint)) {
+              disjunction = true;
+              break;  // inner
+            }
+          }
+          if (!disjunction) return;
+        }
+      }
+      console.log(`sending ${base} to member ${this.member?.id}`);
+      await this.ws.send(base);
+    } catch (e) {
+      console.error(`Client.onReceive error for member=${this.member?.id} base=${base}:`, e instanceof Error ? e.message : e);
     }
-    // console.log("sending "+base);
-    await this.ws.send(base);
   }
 }
 
@@ -356,7 +360,8 @@ class Dispatcher {
   }
 
   async onReceive(message: string) {
-    // console.log("received "+message)
+    try {
+    console.log(`received ${message}`)
     const parts = Client.messageRe.exec(message)
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
@@ -408,6 +413,9 @@ class Dispatcher {
     } else {
       console.error('neither base nor command', message);
     }
+    } catch (e) {
+      console.error(`Dispatcher.onReceive error for message="${message}":`, e instanceof Error ? e.message : e);
+    }
   }
   close() {
     this.subscriber.close()
@@ -420,6 +428,14 @@ const dispatcher = new Dispatcher(database);
 
 process.on('exit', () => {
   dispatcher.close()
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection (kept alive):', reason instanceof Error ? reason.message : reason);
+})
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (kept alive):', err.message);
 })
 
 async function main() {
