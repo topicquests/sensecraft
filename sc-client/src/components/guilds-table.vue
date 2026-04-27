@@ -138,7 +138,7 @@ interface GuildRow extends GuildData {
 // Props
 const GuildsTableProp = defineProps<{
   title?: string;
-  guilds: GuildData[];
+  guilds: GuildData[] | undefined;
   scores?: object;
   quest?: object;
   showPlayers?: boolean;
@@ -247,7 +247,7 @@ const hasGuildAdminPermission = computed(() => (id: number) => {
   return guildPermission || false;
 });
 const guildData = computed((): Partial<GuildData[]> => {
-  return GuildsTableProp.guilds.map((guild: GuildData) => guildRow(guild));
+  return GuildsTableProp.guilds!.map((guild: GuildData) => guildRow(guild));
 });
 function selectionChanged(rowEvent: {
   rows: readonly any[];
@@ -313,6 +313,7 @@ function lastMoveFull(row: GuildData) {
 // Lifecycle Hooks
 onBeforeMount(async () => {
   if (GuildsTableProp.selectable) {
+    if(guildStore.getCurrentGuild) {
     let guild: GuildData = guildStore.getCurrentGuild;
     if (!guild && questStore.getCurrentQuest) {
       const guild_id = guildIfPlaying(questStore.getCurrentQuest.id);
@@ -325,6 +326,7 @@ onBeforeMount(async () => {
       // does this mean we won't get update on other rows?
       await guildStore.setCurrentGuild(guild.id);
     }
+  }
   }
 });
 </script>

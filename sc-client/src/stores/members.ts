@@ -159,10 +159,10 @@ export const useMembersStore = defineStore('members', {
 
       membersId = [...new Set(membersId)];
       membersId = membersId.filter(
-        (id: number | undefined) => !this.members[id!],
+        (id: number | undefined) => id !== undefined && !this.members[id!],
       );
-      if (membersId.length > 0 && typeof membersId === 'number') {
-        await this.fetchMemberById(membersId, full);
+      if (membersId.length > 0) {
+        await this.fetchMemberById(membersId as number[], full);
       }
     },
     resetMembers() {

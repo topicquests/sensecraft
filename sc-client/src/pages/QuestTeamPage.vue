@@ -23,7 +23,7 @@
         <div class="column items-center">
           <div
             class="q-ma-sm guilds-table-col"
-            v-if="guildsPlayingCurrentQuest.length"
+            v-if="guildsPlayingCurrentQuest!.length"
           >
             <guilds-table
               :guilds="guildsPlayingCurrentQuest"
@@ -99,6 +99,7 @@ import { useGuildStore } from '../stores/guilds';
 import { useQuestStore } from '../stores/quests';
 import { useConversationStore } from '../stores/conversation';
 import { useMembersStore } from '../stores/members';
+import { useMemberStore } from '../stores/member';
 import { useRoleStore } from '../stores/role';
 import { useRoute } from 'vue-router';
 import { QuestData } from '../types';
@@ -131,6 +132,15 @@ async function initialize() {
     conversationStore.ensureConversation(questId),
   ]);
   await guildStore.ensureGuildsPlayingQuest({ quest_id: questId });
+  const meId = useMemberStore().getUserId;
+  const myCasting = questStore
+    .getQuestById(questId)
+    ?.casting?.find((c) => c.member_id === meId);
+  const fallback = guildsPlayingCurrentQuest.value?.[0]?.id;
+  const targetGuild = myCasting?.guild_id ?? fallback;
+  if (targetGuild) {
+    guildStore.setCurrentGuild(targetGuild);
+  }
 }
 onBeforeMount(async () => {
   await initialize();

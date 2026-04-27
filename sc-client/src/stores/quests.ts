@@ -421,14 +421,11 @@ export const useQuestStore = defineStore('quest', {
         );
         if (!full) {
           for (const quest of Object.values<QuestData>(quests)) {
-            if (!this.fullQuests[quest.id]) {
-              continue;
-            }
-            if (quest.casting) {
-              quests[quest.id].casting = quest.casting;
-            }
-            if (quest.quest_membership) {
-              quests[quest.id].quest_membership = quest.quest_membership;
+            if (this.fullQuests[quest.id]) {
+              const existing = this.quests[quest.id];
+              if (existing?.casting) quest.casting = existing.casting;
+              if (existing?.quest_membership)
+                quest.quest_membership = existing.quest_membership;
             }
           }
         } else {
