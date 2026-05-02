@@ -13,7 +13,7 @@ import type { SentMessageInfo, Options as SMTPOptions } from 'nodemailer/lib/smt
 import type { ServerData } from '../../client/src/types';
 
 const config = propertiesReader('config.ini')
-const _env = process.argv[2] || 'development'
+const _env = process.argv.slice(2).filter((s)=>s.charAt(0)!=='-')[0] || 'development'
 const database: string = config.getRaw(`${_env}.database`) || 'sensecraft'
 const databaseURL = `postgres://${config.getRaw(`${_env}.client`)}:${config.getRaw(`${_env}.client_password`)}@${config.getRaw('postgres.host')}:${config.getRaw('postgres.port') || 5432}/${database}`
 const owner_role = config.getRaw(`${_env}.owner`);
@@ -30,6 +30,11 @@ import { registration_status_enum } from '../../client/src/enums'
 import { PublicMember, Casting, Role } from '../../client/src/types'
 
 // tslint:disable: no-console
+
+const verbose = process.argv.indexOf("-v") >=0;
+function logger(...args: unknown[]) {
+  if (verbose) console.log(...args)
+}
 
 enum ClientStatus {
   CONNECTED,
@@ -133,7 +138,7 @@ class Client {
     if (typeof message === 'object') {
       message = message.toString();
     }
-    // console.log(message)
+    // logger(message)
     const parts = message.split(' ')
     try {
       if (parts[0] === 'LOGIN') {
@@ -205,7 +210,7 @@ class Client {
     }
   }
   checkConstraint(constraint: string[]) {
-    // console.log(`checkConstraint ${constraint} for user ${this.member?this.member.id:'anonymous'}, ${this.currentGuild}, ${this.currentQuest}`)
+    // logger(`checkConstraint ${constraint} for user ${this.member?this.member.id:'anonymous'}, ${this.currentGuild}, ${this.currentQuest}`)
     const [type, id, id2, , subtype, subname] = constraint
     const id_num = Number(id)
     const gid = id2 ? Number(id2.substring(1)) : undefined;
@@ -254,7 +259,7 @@ class Client {
   async onReceive(base: string, member_id: number, constraints_conj_disj: string[][][]) {
     try {
       // constraints is a conjunction of disjunctions of constraints
-      console.log(`onReceive ${base}, ${member_id}, ${JSON.stringify(constraints_conj_disj)}, this.member.id=${this.member?.id}`);
+      logger(`onReceive ${base}, ${member_id}, ${JSON.stringify(constraints_conj_disj)}, this.member.id=${this.member?.id}`);
       const [, type, ] = base.split(' ')
       if (type === 'role') {
         // update roles
@@ -276,7 +281,7 @@ class Client {
           if (!disjunction) return;
         }
       }
-      console.log(`sending ${base} to member ${this.member?.id}`);
+      logger(`sending ${base} to member ${this.member?.id}`);
       await this.ws.send(base);
     } catch (e) {
       console.error(`Client.onReceive error for member=${this.member?.id} base=${base}:`, e instanceof Error ? e.message : e);
@@ -347,7 +352,7 @@ class Dispatcher {
           timer != null &&
           timer !== this.nextAutomation &&
           this.nextAutomation === newTime)) {
-        console.log(`next automation: ${newTime}`)
+        logger(`next automation: ${newTime}`)
         setTimeout(this.automation.bind(this, newTime), newTime - Date.now())
         this.nextAutomation = newTime
       }
@@ -361,7 +366,7 @@ class Dispatcher {
 
   async onReceive(message: string) {
     try {
-    console.log(`received ${message}`)
+    logger(`received ${message}`)
     const parts = Client.messageRe.exec(message)
     if (parts === null) {
       throw new Error(`invalid message: ${message}`)
@@ -386,8 +391,7 @@ class Dispatcher {
       const [member_id, email, confirmed_, token, name] = commandArgs.split(' ', 5);
       const confirmed = confirmed_ === 't';
       const link = `${this.serverData?.server_url}/${confirmed ? 'reset_pass' : 'confirm'}?token=${token}`
-      if (_env === 'development')
-        console.log(link);
+      logger(link);
       let mailTxt = confirmed ? this.serverData?.reset_password_mail_template_text : this.serverData?.confirm_account_mail_template_text;
       let mailHtml = confirmed ? this.serverData?.reset_password_mail_template_html : this.serverData?.confirm_account_mail_template_html;
       let mailTitle = confirmed ? this.serverData?.reset_password_mail_template_title : this.serverData?.confirm_account_mail_template_title;
