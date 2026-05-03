@@ -10,23 +10,37 @@
 
 ## permissions
 
-* superadmin
+* superadmin (implies all permissions)
 * viewGuild
 * viewQuest
 * createQuest
 * createGuild
+* createSystemRole
 <!-- Guild permissions -->
-* acceptGuildMembership
+* guildAdmin (implies all permissions within guild functions)
+* proposeGuildMembership
 * revokeGuildMembership
 * publishGameMove  <!-- replace with another mechanism -->
-* retractGameMove <!-- within term time -->
+* joinQuest
+* createPlayChannel
+* createGuildChannel
+* createRoleChannel
+* editConversationNode
+* addAvailableRole
+* setPlayerRole
+* createGuildRole
+* changeFocus
 <!-- Quest permissions -->
-* acceptQuestMembership
+* proposeQuestMembership
 * revokeQuestMembership
-* rejectGameMove
 
 Todo:
-
+<!-- Defined in enum but unimplemented -->
+* acceptGuildMembership
+* acceptQuestMembership
+* retractGameMove <!-- within term time -->
+* rejectGameMove
+<!-- Not defined in enum -->
 * addConvInFocus: create or move a conversation node within the focus neighbourhood
 * addConvAnywhere: create or move a conversation node anywhere
 * editConversationNode: (someone else's)
