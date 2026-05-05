@@ -182,7 +182,7 @@ class Client {
         }
       }
     } catch (e) {
-      console.error(e)
+      logger(e)
       this.ws.close()
     }
   }
