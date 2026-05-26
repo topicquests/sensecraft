@@ -1,5 +1,5 @@
 <template>
-  <q-btn flat icon="edit" :disable="!canEditComputed" @click="handleClick" />
+  <q-btn v-if="canEditComputed" flat icon="edit" @click="handleClick" />
 </template>
 
 <script setup lang="ts">

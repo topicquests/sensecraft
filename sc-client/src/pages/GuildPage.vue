@@ -2,130 +2,111 @@
   <q-page class="bg-secondary guild-page">
     <div class="row justify-center">
       <q-card class="guild-card q-mt-md q-pa-md">
-        <div class="col-12 justify-center">
-          <q-card class="q-mt-md q-pa-md" style="background-color: transparent">
-            <div class="row justify-end q-mb-lg" style="width: 92%">
-              <member-handle></member-handle>
-            </div>
-            <q-btn
-              fab
-              icon="help"
-              color="blue-10"
-              class="fixed-top-right q-mt-xl q-mr-md"
-              style="top: 50px; z-index: 10"
-              @click="showDialog = true"
-            >
-              <q-tooltip max-width="25rem"> Help on guild page </q-tooltip>
-            </q-btn>
-            <guildpage-instructions v-model="showDialog" />
-            <div class="row justify-center" style="width: 100%">
-              <div class="col-10 justify-center">
-                <scoreboard></scoreboard>
-              </div>
-            </div>
-            <div class="row justify-center">
-              <div class="col-10 justify-center">
-                <guild-header class="guild-header"></guild-header>
-              </div>
-            </div>
-            <guild-description></guild-description>
-            <div class="row">
-              <div class="col-12 items-center">
-                <div style="width: 100%">
-                  <q-card
-                    class="bg-secondary q-mb-md q-pb-sm"
-                    style="width: 100%"
-                  >
-                    <div class="row text-center">
-                      <div class="col-12">
-                        <h2 class="q-mt-md q-mb-md">Registered Quests</h2>
-                      </div>
-                    </div>
-                    <active-quest
-                      style="max-width: 90%"
-                      :isMember="isMember"
-                      :guildId="guildId"
-                      :questId="currentQuestId"
-                      :activeQuests="activeQuests"
-                    >
-                    </active-quest>
-                  </q-card>
+
+        <!-- Zone 1: Scoreboard + Member Handle -->
+        <div class="row items-center q-mb-md">
+          <div class="col">
+            <scoreboard></scoreboard>
+          </div>
+          <div class="col-auto q-ml-md">
+            <member-handle></member-handle>
+          </div>
+        </div>
+
+        <!-- Help button (fixed position) -->
+        <q-btn
+          fab
+          icon="help"
+          color="blue-10"
+          class="fixed-top-right q-mt-xl q-mr-md"
+          style="top: 50px; z-index: 10"
+          @click="showDialog = true"
+        >
+          <q-tooltip max-width="25rem">Help on guild page</q-tooltip>
+        </q-btn>
+        <guildpage-instructions v-model="showDialog" />
+
+        <!-- Guild info (full width, above columns) -->
+        <guild-header class="guild-header"></guild-header>
+        <guild-description></guild-description>
+
+        <!-- Zone 2: Two-column content -->
+        <div class="row q-col-gutter-md">
+
+          <!-- Left column: quests -->
+          <div class="col-12 col-md-7">
+            <q-card class="bg-secondary q-mb-md q-pb-sm">
+              <div class="row text-center">
+                <div class="col-12">
+                  <h2 class="q-mt-md q-mb-md">Registered Quests</h2>
                 </div>
               </div>
+              <active-quest
+                :isMember="isMember"
+                :guildId="guildId"
+                :questId="currentQuestId"
+                :activeQuests="activeQuests"
+              ></active-quest>
+            </q-card>
+
+            <div v-if="currentQuest && playingQuestInGuild">
+              <castingRoleEdit
+                class="casting-role"
+                v-if="currentQuest.status !== 'ongoing' && availableRoles.length"
+                :availableRoles="availableRoles"
+                :castingRoles="castingRoles"
+                :guildId="guildId"
+                :questId="currentQuestId"
+                :memberId="member!.id"
+                v-on:castingRoleAdd="castingRoleAdded"
+                v-on:castingRoleRemove="castingRoleRemoved"
+              ></castingRoleEdit>
             </div>
-            <div class="row">
-              <div v-if="currentQuest && playingQuestInGuild" class="col-12">
-                <castingRoleEdit
-                  class="casting-role"
-                  v-if="
-                    currentQuest.status !== 'ongoing' && availableRoles.length
-                  "
-                  :availableRoles="availableRoles"
-                  :castingRoles="castingRoles"
-                  :guildId="guildId"
-                  :questId="currentQuestId"
-                  :memberId="member!.id"
-                  v-on:castingRoleAdd="castingRoleAdded"
-                  v-on:castingRoleRemove="castingRoleRemoved"
-                ></castingRoleEdit>
-              </div>
-            </div>
-            <div class="row justify-center">
-              <div class="col-12 q-mb-md q-mt-md">
-                <guild-members
-                  v-if="currentGuild"
-                  :guild="currentGuild!"
-                  :quest="currentQuest"
-                  :members="getGuildMembers"
-                />
-              </div>
-            </div>
-            <div class="row justify-center">
-              <div
-                class="column items-center"
-                style="width: 100%"
-                v-if="pastQuests.length > 0"
-              >
-                <q-card style="width: 100%">
-                  <q-table
-                    title="Past Quests"
-                    :rows="pastQuests"
-                    :columns="columns"
-                    row-key="desc"
-                    id="quest_table"
-                    style="width: 100%"
-                  >
-                    <template v-slot:body="props">
-                      <q-tr :props="props">
-                        <q-td key="desc" :props="props">
-                          {{ props.row.name }}</q-td
-                        >
-                        <q-td key="handle" :props="props">{{
-                          props.row.handle
-                        }}</q-td>
-                        <q-td key="status" :props="props">{{
-                          props.row.status
-                        }}</q-td>
-                        <q-td key="end" :props="props">{{
-                          props.row.end
-                        }}</q-td>
-                        <q-td key="questNodeId" auto-width :props="props">
-                          <router-link
-                            :to="{
-                              name: 'quest_page',
-                              params: { quest_id: props.row.id },
-                            }"
-                            >Enter</router-link
-                          > </q-td
-                        >admin
-                      </q-tr>
-                    </template>
-                  </q-table>
-                </q-card>
-              </div>
-            </div>
-          </q-card>
+          </div>
+
+          <!-- Right column: guild members -->
+          <div class="col-12 col-md-5">
+            <guild-members
+              v-if="currentGuild"
+              class="guild-members-panel"
+              :guild="currentGuild!"
+              :quest="currentQuest"
+              :members="getGuildMembers"
+            />
+          </div>
+
         </div>
+
+        <!-- Zone 3: Past Quests (full width, conditional) -->
+        <div class="row q-mt-md" v-if="pastQuests.length > 0">
+          <div class="col-12">
+            <q-card>
+              <q-table
+                title="Past Quests"
+                :rows="pastQuests"
+                :columns="columns"
+                row-key="desc"
+                id="quest_table"
+                style="width: 100%"
+              >
+                <template v-slot:body="props">
+                  <q-tr :props="props">
+                    <q-td key="desc" :props="props">{{ props.row.name }}</q-td>
+                    <q-td key="handle" :props="props">{{ props.row.handle }}</q-td>
+                    <q-td key="status" :props="props">{{ props.row.status }}</q-td>
+                    <q-td key="end" :props="props">{{ props.row.end }}</q-td>
+                    <q-td key="questNodeId" auto-width :props="props">
+                      <router-link
+                        :to="{ name: 'quest_page', params: { quest_id: props.row.id } }"
+                      >Enter</router-link>
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </q-card>
+          </div>
+        </div>
+
       </q-card>
     </div>
   </q-page>
@@ -515,8 +496,13 @@ async function initializeQuest() {
 }
 
 .guild-card {
-  width: 60%;
+  width: 85%;
   background-color: transparent;
+}
+
+.guild-members-panel {
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .active-quest-header {
   text-decoration: underline;
@@ -580,7 +566,7 @@ guild-name {
 }
 @media only screen and (max-width: 1300px) {
   .guild-card {
-    width: 70%;
+    width: 92%;
     background-color: transparent;
   }
 }

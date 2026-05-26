@@ -5,9 +5,7 @@
       <div class="row justify-center q-mb-md">
         <p class="title">🎮 Gameboard</p>
       </div>
-
-      <div class="row wrap justify-around items-stretch">
-
+      <div class="row nowrap justify-around items-stretch">
         <!-- Quests -->
         <q-card class="score-card q-pa-md">
           <div class="scoreboard-header">Quests</div>

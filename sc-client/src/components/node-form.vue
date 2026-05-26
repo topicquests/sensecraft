@@ -70,7 +70,7 @@
     </section>
 
     <!-- Node Type & Status -->
-    <section v-if="NodeFormProps.editing">
+    <section v-if="NodeFormProps.editing && !NodeFormProps.hideSelectors">
       <div class="row q-mb-md q-gutter-sm items-center">
         <ibis-button :node_type="node.node_type as ibis_node_type_type" small />
         <q-select
@@ -154,8 +154,11 @@ import {
   publication_state_type,
   meta_state_type,
   meta_state_enum,
+  permission_enum,
 } from '../enums'
 import { computed, ref } from 'vue'
+import { useQuestStore } from '../stores/quests'
+import { useBaseStore } from '../stores/baseStore'
 import { QInput } from 'quasar'
 
 // Emits
@@ -171,10 +174,11 @@ const NodeFormProps = defineProps<{
   ibisTypes?: ibis_node_type_type[]
   allowChangeMeta?: boolean
   roles?: Role[]
+  hideSelectors?: boolean
 }>()
 
 // Reactive Variables
-const node = ref<defaultNodeType>({
+const node = ref<defaultNodeType & { guild_id?: number }>({
   status: 'private_draft',
   node_type: 'answer',
   id: undefined,
@@ -228,17 +232,41 @@ const url = computed({
   set: (val) => (node.value.url = val),
 })
 
-// Filtered Status Options: hide 'published' only for comment nodes
+const maxAllowedStatus = computed<publication_state_type>(() => {
+  const questId = node.value.quest_id;
+  const guildId = node.value.guild_id;
+  const nodeType = node.value.node_type as ibis_node_type_type;
+
+  if (questId) {
+    return useQuestStore().getMaxPubStateForNodeType(questId, nodeType, guildId);
+  }
+
+  // No quest context — fall back to publishGameMove permission
+  const baseStore = useBaseStore();
+  return baseStore.hasPermission(permission_enum.publishGameMove, guildId, questId)
+    ? publication_state_enum.published
+    : publication_state_enum.guild_draft;
+});
+
+// Filtered Status Options: trimmed to member's role cap
 const filteredStatusOptions = computed<publication_state_type[]>(() => {
-  if (metaValue.value === 'meta') {
-    // Comment node → remove "published" and "submitted"
-    return publication_state_list.filter(
-      (status) =>
+  const maxIndex = publication_state_list.indexOf(maxAllowedStatus.value);
+
+  return publication_state_list.filter((status) => {
+    const idx = publication_state_list.indexOf(status);
+    // Always allow obsolete (special archival state regardless of rank)
+    if (status === publication_state_enum.obsolete) return true;
+    // Trim anything above the role's cap
+    if (idx > maxIndex) return false;
+    // Preserve existing rule: comment nodes cannot be submitted or published
+    if (metaValue.value === 'meta') {
+      return (
         status !== publication_state_enum.published &&
         status !== publication_state_enum.submitted
-    ) as publication_state_type[];
-  }
-  return publication_state_list;
+      );
+    }
+    return true;
+  }) as publication_state_type[];
 });
 
 

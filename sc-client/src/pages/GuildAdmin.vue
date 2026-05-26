@@ -202,7 +202,12 @@
               })
             "
           />
-          <role-table :roles="roleStore.getRoles" />
+          <role-table
+            :roles="roleStore.getRoles"
+            :deletable="true"
+            :guildId="guildId"
+            @delete="onRoleDelete"
+          />
         </q-card-section>
       </q-card>
     </div>
@@ -226,6 +231,7 @@ import {
   QuestData,
   PublicMember,
   Guild,
+  Role,
 } from '../types';
 import { computed, ref } from 'vue';
 import roleTable from '../components/role-table.vue';
@@ -525,10 +531,32 @@ async function roleRemoved(member_id: number, role_id: number) {
     );
 
   // Then persist
-  await guildStore.deleteGuildMemberAvailableRole({
-    member_id,
-    guild_id,
-    role_id,
+  try {
+    await guildStore.deleteGuildMemberAvailableRole({
+      member_id,
+      guild_id,
+      role_id,
+    });
+  } catch (err) {
+    console.error('Failed to remove role:', err);
+  }
+}
+
+async function onRoleDelete(role: Role) {
+  $q.dialog({
+    title: 'Delete Role',
+    message: `Are you sure you want to delete the role "${role.name}"? This cannot be undone.`,
+    cancel: true,
+    persistent: true,
+  }).onOk(async () => {
+    try {
+      await roleStore.deleteRole(role.id!);
+      await roleStore.fetchRoles();
+      $q.notify({ message: `Role "${role.name}" deleted`, color: 'positive' });
+    } catch (err) {
+      console.error('Error deleting role:', err);
+      $q.notify({ message: `Error deleting role`, color: 'negative' });
+    }
   });
 }
 

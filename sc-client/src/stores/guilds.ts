@@ -493,81 +493,80 @@ export const useGuildStore = defineStore('guild', {
     async deleteGuildMemberAvailableRole(
       data: Partial<GuildMemberAvailableRole>,
     ) {
+      const memberStore = useMemberStore();
+      const membersStore = useMembersStore();
+      const questStore = useQuestStore();
+      const { member_id, guild_id, role_id } = data;
+      const params = Object();
+      params.member_id = `eq.${member_id}`;
+      params.guild_id = `eq.${guild_id}`;
+      params.role_id = `eq.${role_id}`;
       try {
-        const memberStore = useMemberStore();
-        const membersStore = useMembersStore();
-        const questStore = useQuestStore();
-        const params = Object();
-        params.member_id = `eq.${data.member_id}`;
-        params.guild_id = `eq.${data.guild_id}`;
-        params.role_id = `eq.${data.role_id}`;
         const res: AxiosResponse<GuildMemberAvailableRole[]> = await api.delete(
           '/guild_member_available_role',
-          {
-            params,
-          },
+          { params },
         );
         if (res.status == 200) {
-          const availableRole = res.data[0];
-          if (memberStore.getUserId == availableRole.member_id) {
-            if (memberStore.member) {
-              const guild_member_available_role =
-                memberStore.member.guild_member_available_role;
-              const pos = guild_member_available_role!.findIndex(
+          // Update the logged-in user's own member store if applicable
+          if (memberStore.getUserId == member_id && memberStore.member) {
+            const gmars = memberStore.member.guild_member_available_role;
+            const pos =
+              gmars?.findIndex(
                 (a: GuildMemberAvailableRole) =>
-                  a.role_id === availableRole.role_id &&
-                  a.member_id === availableRole.member_id &&
-                  a.guild_id === availableRole.guild_id,
-              );
-              guild_member_available_role!.splice(pos, 1);
+                  a.role_id === role_id &&
+                  a.member_id === member_id &&
+                  a.guild_id === guild_id,
+              ) ?? -1;
+            if (pos >= 0) {
+              const updated = [...gmars!];
+              updated.splice(pos, 1);
               memberStore.member = {
                 ...memberStore.member,
-                guild_member_available_role,
+                guild_member_available_role: updated,
               };
             }
           }
-          const member_id = availableRole.member_id;
-          let member = membersStore.members[member_id];
 
-          const guild_member_available_role =
-            member.guild_member_available_role;
-          if (member && guild_member_available_role) {
-            const pos = guild_member_available_role.findIndex(
+          // Update the affected member in the members store
+          const member = membersStore.members[member_id!];
+          if (member?.guild_member_available_role) {
+            const pos = member.guild_member_available_role.findIndex(
               (a: GuildMemberAvailableRole) =>
-                a.role_id == availableRole.role_id &&
-                a.member_id == availableRole.member_id &&
-                a.guild_id == availableRole.guild_id,
+                a.role_id == role_id &&
+                a.member_id == member_id &&
+                a.guild_id == guild_id,
             );
             if (pos >= 0) {
-              guild_member_available_role.splice(pos, 1);
-              member = { ...member, guild_member_available_role };
+              const updated = [...member.guild_member_available_role];
+              updated.splice(pos, 1);
               membersStore.members = {
                 ...membersStore.members,
-                [member_id]: member,
+                [member_id!]: { ...member, guild_member_available_role: updated },
               };
             }
-            const castingRoles = questStore.getCastingRolesById(
-              availableRole.member_id,
-              availableRole.role_id,
-            );
-            if (castingRoles?.length) {
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              castingRoles.forEach(async (element) => {
-                await questStore.deleteCastingRole(
+          }
+
+          // Delete casting roles that used this available role
+          const castingRoles = membersStore.members[
+            member_id!
+          ]?.casting_role?.filter(
+            (cr) => cr.role_id == role_id && cr.guild_id == guild_id,
+          );
+          if (castingRoles?.length) {
+            await Promise.all(
+              castingRoles.map((element) =>
+                questStore.deleteCastingRole(
                   element.member_id!,
                   element.guild_id,
                   element.role_id,
                   element.quest_id,
-                );
-              });
-            }
+                ),
+              ),
+            );
           }
         }
       } catch (error) {
         console.error('Delete guild member available role failed:', error);
-        throw new Error(
-          `Request failed with status code ${error.response?.status || 500}`,
-        );
       }
     },
   },

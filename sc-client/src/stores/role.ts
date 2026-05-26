@@ -176,9 +176,10 @@ export const useRoleStore = defineStore('role', {
     },
 
     async deleteRole(id: number): Promise<void> {
-      const res: AxiosResponse = await api.delete(`roles/${id}`);
-      if (res.status === 204) {
-        console.log(`Role with ID ${id} deleted successfully.`);
+      const res: AxiosResponse = await api.delete(`/role?id=eq.${id}`);
+      if (res.status === 204 || res.status === 200) {
+        delete this.role[id];
+        delete this.fullRole[id];
       } else {
         console.error(`Failed to delete role with ID ${id}.`);
       }

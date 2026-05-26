@@ -43,6 +43,7 @@
               :nodeInput="node"
               :editing="true"
               :ibisTypes="base_ibis_types"
+              :hideSelectors="true"
               v-on:action="editNode"
               style="width: 100%"
             />
@@ -88,7 +89,7 @@ const defaultNode: defaultNodeType = {
   quest_id: undefined,
   title: '',
   description: '',
-  status: 'private_draft',
+  status: 'submitted',
   node_type: 'question',
 };
 

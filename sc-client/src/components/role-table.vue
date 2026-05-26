@@ -16,10 +16,22 @@
           props.row.max_pub_state
         }}</q-td>
         <q-td key="roleId" auto-width :props="props">
-          <router-link
-            :to="{ name: 'role_edit', params: { role_id: props.row.id } }"
-            >Edit</router-link
-          >
+          <template v-if="RoleTableProps.guildId && props.row.guild_id === RoleTableProps.guildId">
+            <router-link
+              :to="{ name: 'role_edit', params: { role_id: props.row.id } }"
+              >Edit</router-link
+            >
+            <q-btn
+              v-if="RoleTableProps.deletable"
+              label="Delete"
+              color="negative"
+              flat
+              dense
+              size="sm"
+              class="q-ml-sm"
+              @click="emit('delete', props.row)"
+            />
+          </template>
         </q-td>
       </q-tr>
     </template>
@@ -30,9 +42,13 @@
 import { Role } from '../types';
 import { QTableProps } from 'quasar';
 
+const emit = defineEmits<{ (e: 'delete', role: Role): void }>();
+
 const RoleTableProps = defineProps<{
   title?: string;
   roles: Role[];
+  deletable?: boolean;
+  guildId?: number;
 }>();
 
 const columns: QTableProps['columns'] = [

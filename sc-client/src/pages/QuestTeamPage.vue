@@ -6,13 +6,6 @@
           <member></member>
         </div>
         <div class="row justify-center">
-          <div class="column scoreboard">
-            <div class="col-12 q-mb-md">
-              <scoreboard></scoreboard>
-            </div>
-          </div>
-        </div>
-        <div class="row justify-center">
           <div class="column quest-card-col">
             <div class="col-12 q-mb-md">
               <questCard :currentQuest="currentQuest"> </questCard>
@@ -91,7 +84,6 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue';
 import questCard from '../components/quest-card.vue';
-import scoreboard from '../components/score-board.vue';
 import member from '../components/member-handle.vue';
 import GuildsTable from '../components/guilds-table.vue';
 import GuildMembers from '../components/guild-members.vue';
@@ -162,10 +154,6 @@ onBeforeMount(async () => {
   width: 70%;
 }
 
-.scoreboard {
-  width: 70%;
-}
-
 @media only screen and (max-width: 1300px) {
   .quest-team {
     width: 70%;
@@ -173,11 +161,6 @@ onBeforeMount(async () => {
 }
 @media only screen and (max-width: 800px) {
   .quest-team {
-    width: 95%;
-  }
-}
-@media only screen and (max-width: 1000px) {
-  .scoreboard {
     width: 95%;
   }
 }

@@ -258,35 +258,35 @@ export const useQuestStore = defineStore('quest', {
       (
         quest_id: number,
         node_type: ibis_node_type_type,
+        guild_id?: number,
       ): publication_state_type => {
-        const roleCastings: CastingRole[] | undefined =
+        let roleCastings: CastingRole[] | undefined =
           useMemberStore().castingRolesForQuest(quest_id);
-        if (roleCastings) {
-          const roles: Role[] = roleCastings.map((rc) =>
-            useRoleStore().getRoleById(rc.role_id),
+        if (guild_id) {
+          roleCastings = roleCastings?.filter((rc) => rc.guild_id === guild_id);
+        }
+        if (roleCastings?.length) {
+          const roles: Role[] = roleCastings
+            .map((rc) => useRoleStore().getRoleById(rc.role_id))
+            .filter(Boolean);
+          let maxPubStates = roles.map((role) => role.max_pub_state);
+          maxPubStates = maxPubStates.concat(
+            roles.map((role) =>
+              role.role_node_constraint?.find((x) => x.node_type == node_type)
+                ?.max_pub_state,
+            ),
           );
-          if (roles) {
-            let maxPubStates = roles.map((role) => role.max_pub_state);
-            maxPubStates = maxPubStates.concat(
-              roles.map((role) =>
-                role.role_node_constraint
-                  ? role.role_node_constraint.find(
-                      (x) => x.node_type == node_type,
-                    )?.max_pub_state
-                  : undefined,
-              ),
+          maxPubStates = maxPubStates.filter((x) => x != undefined);
+          if (maxPubStates.length > 0) {
+            maxPubStates.sort(
+              (a, b) =>
+                publication_state_list.indexOf(b!) -
+                publication_state_list.indexOf(a!),
             );
-            maxPubStates = maxPubStates.filter((x) => x != undefined);
-            if (maxPubStates.length > 0) {
-              maxPubStates.sort(
-                (a, b) =>
-                  publication_state_list.indexOf(b!) -
-                  publication_state_list.indexOf(a!),
-              );
-            }
+            return maxPubStates[0] as publication_state_type;
           }
         }
-        return publication_state_enum.submitted;
+        return publication_state_enum.guild_draft;
       },
 
     getAllRolesInQuestForGuild:

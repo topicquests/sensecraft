@@ -69,17 +69,28 @@ export const useChannelRoleStore = defineStore('channelRoles', {
         return;
       }
 
-      const baseStore = useBaseStore();
-      const hasPermission = baseStore.hasPermission(
-        permission_enum.createRoleChannel,
-        guild_id,
-        quest_id,
+      // A member's casting role is sufficient authorization to create their own role channel.
+      // Fall back to the explicit createRoleChannel permission for guild admins.
+      const memberStore = useMemberStore();
+      const hasCastingRole = memberStore.member?.casting_role?.some(
+        (cr) =>
+          cr.role_id === role_id &&
+          cr.guild_id === guild_id &&
+          cr.quest_id === quest_id,
       );
-      if (!hasPermission) {
-        console.warn(
-          `User does not have createRoleChannel permission for guild ${guild_id}, quest ${quest_id}`,
+      if (!hasCastingRole) {
+        const baseStore = useBaseStore();
+        const hasPermission = baseStore.hasPermission(
+          permission_enum.createRoleChannel,
+          guild_id,
+          quest_id,
         );
-        return;
+        if (!hasPermission) {
+          console.warn(
+            `User does not have createRoleChannel permission for guild ${guild_id}, quest ${quest_id}`,
+          );
+          return;
+        }
       }
 
       const channelStore = useChannelStore();
@@ -98,7 +109,6 @@ export const useChannelRoleStore = defineStore('channelRoles', {
       );
 
       if (!existingChannel) {
-        const memberStore = useMemberStore();
         const creator_id = memberStore.getUserId;
 
         if (!creator_id) {
