@@ -134,8 +134,8 @@
           />
         </div>
 
-        <div class="row q-mt-md q-ml-lg">
-          <span class="node-status">{{ node.status }}</span>
+        <div class="row q-mt-md q-ml-lg items-center">
+          <node-status-selector :node="node" />
         </div>
       </template>
 
@@ -206,6 +206,7 @@ import {
   QTreeNode,
 } from '../types';
 import NodeForm from './node-form.vue';
+import NodeStatusSelector from './node-status-selector.vue';
 import ReadStatusCounterButton from './read-status-counter-button.vue';
 import { ibis_child_types } from '../stores/conversation';
 import { QTree, useQuasar } from 'quasar';
@@ -403,6 +404,13 @@ watch(selectedNodeId, (newVal) => {
   if (newVal != null) emit('tree-selection', newVal);
   addingChildToNodeId.value = null;
 });
+
+watch(
+  () => conversationStore.conversation,
+  () => {
+    nodesTree.value = getNodesTree() ?? [];
+  },
+);
 
 // Functions
 function isNodeFormInstance(

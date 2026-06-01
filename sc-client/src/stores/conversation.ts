@@ -10,6 +10,7 @@ import {
   ibis_node_type_type,
   publication_state_enum,
   publication_state_list,
+  publication_state_type,
   meta_state_enum,
   permission_enum,
 } from '../enums';
@@ -452,6 +453,24 @@ export const useConversationStore = defineStore('conversation', {
       );
       const node = res.data[0];
       this.addToState(node);
+    },
+    async updateNodeStatus(id: number, status: publication_state_type) {
+      const res: AxiosResponse<ConversationNode[]> = await api.patch(
+        `/conversation_node?id=eq.${id}`,
+        { status },
+      );
+      const returned = res.data?.[0];
+      if (returned) {
+        this.addToState(returned);
+      } else {
+        const existing = this.conversation[id];
+        if (existing) {
+          this.conversation = {
+            ...this.conversation,
+            [id]: { ...existing, status },
+          };
+        }
+      }
     },
   },
 });

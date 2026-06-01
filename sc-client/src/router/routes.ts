@@ -45,11 +45,13 @@ const routes: RouteRecordRaw[] = [
         path: '/quest/:quest_id/node/:node_id(\\d+)',
         name: 'quest_page_node',
         component: () => import('pages/QuestPlayPage.vue'),
+        meta: { samePage: 'quest_play' },
       },
       {
         path: '/quest/:quest_id',
         name: 'quest_page',
         component: () => import('pages/QuestPlayPage.vue'),
+        meta: { samePage: 'quest_play' },
       },
       {
         path: '/quest/:quest_id/teams',

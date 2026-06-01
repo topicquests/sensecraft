@@ -458,7 +458,22 @@ BEGIN
     RAISE EXCEPTION 'invalid status / Cannot lower status of submitted node';
   END IF;
   IF NEW.creator_id != current_member_id() AND NOT has_node_permission(NEW.quest_id, NEW.node_type, 'editConversationNode') THEN
-    RAISE EXCEPTION 'permission editConversationNode / Cannot change node of other member';
+    -- Allow a status-only raise by a player in the node's guild for this quest.
+    -- check_node_status_rules() below still clamps NEW.status to the caller's role max.
+    IF NEW.status > OLD.status
+       AND NEW.title IS NOT DISTINCT FROM OLD.title
+       AND NEW.description IS NOT DISTINCT FROM OLD.description
+       AND NEW.url IS NOT DISTINCT FROM OLD.url
+       AND NEW.node_type IS NOT DISTINCT FROM OLD.node_type
+       AND NEW.meta IS NOT DISTINCT FROM OLD.meta
+       AND NEW.parent_id IS NOT DISTINCT FROM OLD.parent_id
+       AND NEW.draft_for_role_id IS NOT DISTINCT FROM OLD.draft_for_role_id
+       AND NEW.guild_id IS NOT NULL
+       AND NEW.guild_id = public.is_playing_quest_in_guild(NEW.quest_id) THEN
+      NULL; -- permitted; fall through to the rest of the trigger
+    ELSE
+      RAISE EXCEPTION 'permission editConversationNode / Cannot change node of other member';
+    END IF;
   END IF;
   IF NEW.parent_id IS NOT NULL THEN
     SELECT node_type, status, quest_id, meta INTO STRICT parent_node_type, parent_status, parent_quest, parent_meta FROM conversation_node WHERE id = NEW.parent_id;

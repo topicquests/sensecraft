@@ -80,6 +80,13 @@
                     Root
                   </q-badge>
                 </div>
+                <div
+                  v-if="selectedNode"
+                  class="text-caption q-mb-sm row items-center q-gutter-sm"
+                >
+                  <span>Status:</span>
+                  <node-status-selector :node="selectedNode" :dense="false" />
+                </div>
 
                 <div class="scrollable-description">
                   <div
@@ -176,6 +183,7 @@ import questDetails from '../components/quest-details.vue';
 import questActions from '../components/quest-actions.vue';
 import EditButton from '../components/edit-button.vue';
 import NodeForm from '../components/node-form.vue';
+import NodeStatusSelector from '../components/node-status-selector.vue';
 
 import { useQuestStore } from '../stores/quests';
 import { useGuildStore } from '../stores/guilds';
@@ -253,18 +261,10 @@ watch(
   },
 );
 
-// Only scroll on desktop
-watch(selectedNodeId, async () => {
+watch(selectedNodeId, () => {
   if (editingNodeId.value !== selectedNodeId.value) editingNodeId.value = null;
   if (addingChildToNodeId.value !== selectedNodeId.value)
     addingChildToNodeId.value = null;
-
-  await nextTick();
-  if ($q.screen.gt.xs) {
-    const el = document.querySelector('.selected-node-card');
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    form.value?.setFocus?.();
-  }
 });
 
 // --- Node Form Ref ---
