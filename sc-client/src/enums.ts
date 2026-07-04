@@ -18,6 +18,7 @@ export enum permission_enum {
   createPlayChannel = 'createPlayChannel',
   createGuildChannel = 'createGuildChannel',
   createRoleChannel = 'createRoleChannel',
+  readAllRoleChannels = 'readAllRoleChannels',
   editConversationNode = 'editConversationNode',
   addAvailableRole = 'addAvailableRole',
   setPlayerRole = 'setPlayerRole',
