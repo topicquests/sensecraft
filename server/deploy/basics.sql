@@ -41,6 +41,7 @@ CREATE TYPE public.permission AS ENUM (
     'createPlayChannel',
     'createGuildChannel',
     'createRoleChannel',
+    'readAllRoleChannels',
     'editConversationNode',
     'addAvailableRole',
     'setPlayerRole',
