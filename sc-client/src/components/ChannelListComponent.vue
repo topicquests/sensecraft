@@ -79,35 +79,25 @@ const getChannels = computed(() => {
     ? channelStore.getGameChannelsOfQuest(ChannelListProps.quest_id)
     : channelStore.getRootGuildChannels;
 
-  // For game channels, filter to only show channels the user has roles for
-  // UNLESS the user is a game leader, then show all role channels
   if (ChannelListProps.quest_id && ChannelListProps.guild_id) {
     const userId = memberStore.getUserId;
     const isGameLeader = userId ? questStore.isGameLeaderForQuestInGuild(
-      ChannelListProps.quest_id,
       userId,
-      ChannelListProps.guild_id
+      ChannelListProps.quest_id,      ChannelListProps.guild_id
     ) : false;
+    channels = channels.filter(channel => channel.guild_id === ChannelListProps.guild_id);
 
     if (!isGameLeader) {
-      // Regular users: only show channels for roles they have via casting_role
-      // The RLS policy ensures we only get channel_roles for roles we have
       const userChannelRoles = channelRoleStore.getRolesByQuestForGuild(
         ChannelListProps.quest_id,
         ChannelListProps.guild_id
       );
       const userChannelIds = userChannelRoles.map(role => role.node_id);
-      channels = channels.filter(channel => userChannelIds.includes(channel.id));
-    } else {
-      // Game leaders: show all role channels for this quest/guild
-      const allChannelRoles = channelRoleStore.getRolesByQuestForGuild(
-        ChannelListProps.quest_id,
-        ChannelListProps.guild_id
+      channels = channels.filter(
+        channel => !channel.draft_for_role_id || userChannelIds.includes(channel.id)
       );
-      const allChannelIds = allChannelRoles.map(role => role.node_id);
-      // Filter to show only channels that have channel roles
-      channels = channels.filter(channel => allChannelIds.includes(channel.id));
     }
+    // Game leaders: show all game channels for this quest/guild (no role filter).
   }
 
   return channels;

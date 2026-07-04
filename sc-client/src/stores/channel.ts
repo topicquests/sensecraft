@@ -65,7 +65,7 @@ export const useChannelStore = defineStore('channel', {
       (state: ChannelState) =>
       (quest_id: number): ConversationNode[] =>
         Object.values(state.channels).filter(
-          (c: ConversationNode) => c.quest_id == quest_id,
+          (c: ConversationNode) => c.quest_id == quest_id && c.parent_id == null,
         ),
     getChannelById: (state: ChannelState) => (id: number) =>
       state.channelData[id],
