@@ -16,22 +16,20 @@
           props.row.max_pub_state
         }}</q-td>
         <q-td key="roleId" auto-width :props="props">
-          <template v-if="RoleTableProps.guildId && props.row.guild_id === RoleTableProps.guildId">
-            <router-link
-              :to="{ name: 'role_edit', params: { role_id: props.row.id } }"
-              >Edit</router-link
-            >
-            <q-btn
-              v-if="RoleTableProps.deletable"
-              label="Delete"
-              color="negative"
-              flat
-              dense
-              size="sm"
-              class="q-ml-sm"
-              @click="emit('delete', props.row)"
-            />
-          </template>
+          <router-link
+            :to="{ name: 'role_edit', params: { role_id: props.row.id } }"
+            >Edit</router-link
+          >
+          <q-btn
+            v-if="RoleTableProps.deletable && props.row.guild_id != null"
+            label="Delete"
+            color="negative"
+            flat
+            dense
+            size="sm"
+            class="q-ml-sm"
+            @click="emit('delete', props.row)"
+          />
         </q-td>
       </q-tr>
     </template>

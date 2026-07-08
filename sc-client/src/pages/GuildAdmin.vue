@@ -205,7 +205,7 @@
           <role-table
             :roles="roleStore.getRoles"
             :deletable="true"
-            :guildId="guildId"
+            :guildId="currentGuildId"
             @delete="onRoleDelete"
           />
         </q-card-section>
