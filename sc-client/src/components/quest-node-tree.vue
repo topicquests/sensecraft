@@ -8,6 +8,7 @@
       :channelId="undefined"
       :isChannel="false"
       :editable="true"
+      :allowDragReparent="true"
     />
   </div>
 </template>

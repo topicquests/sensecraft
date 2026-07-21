@@ -57,6 +57,8 @@
               flat
               bordered
               class="selected-node-card"
+              @dragover.prevent="onDragOver"
+              @drop.prevent="onDropOnSelected"
             >
               <div class="selected-node-header row items-center">
                 <q-icon
@@ -360,6 +362,46 @@ function cancel() {
   editingNodeId.value = null;
   addingChildToNodeId.value = null;
   newNode.value = {};
+}
+
+// --- Drag to reparent ---
+function onDragOver(event: DragEvent) {
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+}
+
+async function onDropOnSelected(event: DragEvent) {
+  const target = selectedNode.value;
+  if (!target) return;
+
+  const raw = event.dataTransfer?.getData('text/plain');
+  const draggedId = raw ? parseInt(raw) : NaN;
+  if (Number.isNaN(draggedId)) return;
+
+  // do nothing when dropping a node onto itself
+  if (draggedId === target.id) return;
+
+  const dragged = conversationStore.getConversationNodeById(draggedId);
+  if (!dragged) return;
+
+  // dragged node's type must be a legal child of the selected node's type
+  const allowed = ibis_child_types(target.node_type);
+  if (!allowed.includes(dragged.node_type)) {
+    $q.notify({
+      type: 'warning',
+      message: `A ${dragged.node_type} can't be a child of a ${target.node_type}.`,
+    });
+    return;
+  }
+
+  try {
+    await conversationStore.updateConversationNode({
+      id: draggedId,
+      parent_id: target.id,
+    });
+    $q.notify({ message: 'Node moved', color: 'positive' });
+  } catch {
+    $q.notify({ message: 'Failed to move node.', color: 'negative' });
+  }
 }
 
 // --- Publication Constraints ---

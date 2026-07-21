@@ -69,6 +69,8 @@
           v-if="node.id"
           :ref="'node_' + node.id"
           :data-node-id="'node_' + node.id"
+          :draggable="NodeTreeProps.allowDragReparent === true ? 'true' : undefined"
+          @dragstart="onDragStart(node.id, $event)"
         >
           <q-icon
             v-if="node.meta !== 'meta'"
@@ -262,6 +264,7 @@ const NodeTreeProps = defineProps<{
   editable: boolean;
   hideDescription?: boolean;
   initialSelectedNodeId?: number;
+  allowDragReparent?: boolean;
 }>();
 
 /* ---- reactive state ---- */
@@ -365,6 +368,13 @@ const getNodesTree = (): QTreeNode[] => {
   }
   return conversationStore.getConversationTree ?? [];
 };
+
+/* ---- drag to reparent ---- */
+function onDragStart(nodeId: number, event: DragEvent) {
+  if (!NodeTreeProps.allowDragReparent) return;
+  event.dataTransfer?.setData('text/plain', String(nodeId));
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+}
 
 /* ---- watchers ---- */
 watch(
