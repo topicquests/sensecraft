@@ -32,7 +32,6 @@ CREATE TYPE public.permission AS ENUM (
     'proposeGuildMembership',
     'publishGameMove',
     'retractGameMove',
-    'moveGameMove',
     'acceptQuestMembership',
     'revokeQuestMembership',
     'proposeQuestMembership',
