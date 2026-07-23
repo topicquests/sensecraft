@@ -9,6 +9,7 @@ export enum permission_enum {
   proposeGuildMembership = 'proposeGuildMembership',
   publishGameMove = 'publishGameMove',
   retractGameMove = 'retractGameMove',
+  moveGameMove = 'moveGameMove',
   acceptQuestMembership = 'acceptQuestMembership',
   revokeQuestMembership = 'revokeQuestMembership',
   proposeQuestMembership = 'proposeQuestMembership',
