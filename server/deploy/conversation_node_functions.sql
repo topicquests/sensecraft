@@ -454,21 +454,40 @@ BEGIN
   IF NEW.guild_id != OLD.guild_id THEN
     RAISE EXCEPTION 'immutable guild_id';
   END IF;
-  IF OLD.status > 'submitted' AND NEW.status < OLD.status THEN
-    RAISE EXCEPTION 'invalid status / Cannot lower status of submitted node';
+  IF OLD.status = 'published' THEN
+    IF is_superadmin() OR (
+      -- Allow reparent, nothing else
+      NEW.status IS NOT DISTINCT FROM OLD.status
+      AND NEW.title IS NOT DISTINCT FROM OLD.title
+      AND NEW.description IS NOT DISTINCT FROM OLD.description
+      AND NEW.url IS NOT DISTINCT FROM OLD.url
+      AND NEW.node_type IS NOT DISTINCT FROM OLD.node_type
+      AND NEW.meta IS NOT DISTINCT FROM OLD.meta
+      AND NEW.draft_for_role_id IS NOT DISTINCT FROM OLD.draft_for_role_id
+      AND NEW.guild_id IS NOT NULL
+      AND ((NEW.parent_id IS NOT DISTINCT FROM OLD.parent_id) OR
+            NEW.creator_id = current_member_id() OR
+            has_play_permission(NEW.quest_id, 'moveGameMove'))
+      AND NEW.guild_id = public.is_playing_quest_in_guild(NEW.quest_id))
+      THEN
+      NULL; -- permitted; fall through to the rest of the trigger
+    ELSE
+      RAISE EXCEPTION 'immutable published node';
+    END IF;
   END IF;
   IF NEW.creator_id != current_member_id() AND NOT has_node_permission(NEW.quest_id, NEW.node_type, 'editConversationNode') THEN
     -- Allow a status-only raise by a player in the node's guild for this quest.
     -- check_node_status_rules() below still clamps NEW.status to the caller's role max.
-    IF NEW.status > OLD.status
+    IF NEW.status >= OLD.status
        AND NEW.title IS NOT DISTINCT FROM OLD.title
        AND NEW.description IS NOT DISTINCT FROM OLD.description
        AND NEW.url IS NOT DISTINCT FROM OLD.url
        AND NEW.node_type IS NOT DISTINCT FROM OLD.node_type
        AND NEW.meta IS NOT DISTINCT FROM OLD.meta
-       AND NEW.parent_id IS NOT DISTINCT FROM OLD.parent_id
        AND NEW.draft_for_role_id IS NOT DISTINCT FROM OLD.draft_for_role_id
        AND NEW.guild_id IS NOT NULL
+       -- may allow reparent
+       AND ((NEW.parent_id IS NOT DISTINCT FROM OLD.parent_id) OR has_play_permission(NEW.quest_id, 'moveGameMove'))
        AND NEW.guild_id = public.is_playing_quest_in_guild(NEW.quest_id) THEN
       NULL; -- permitted; fall through to the rest of the trigger
     ELSE
