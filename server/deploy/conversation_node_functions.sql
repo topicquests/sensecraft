@@ -455,21 +455,7 @@ BEGIN
     RAISE EXCEPTION 'immutable guild_id';
   END IF;
   IF OLD.status = 'published' THEN
-    IF is_superadmin() OR (
-      -- Allow reparent, nothing else
-      NEW.status IS NOT DISTINCT FROM OLD.status
-      AND NEW.title IS NOT DISTINCT FROM OLD.title
-      AND NEW.description IS NOT DISTINCT FROM OLD.description
-      AND NEW.url IS NOT DISTINCT FROM OLD.url
-      AND NEW.node_type IS NOT DISTINCT FROM OLD.node_type
-      AND NEW.meta IS NOT DISTINCT FROM OLD.meta
-      AND NEW.draft_for_role_id IS NOT DISTINCT FROM OLD.draft_for_role_id
-      AND NEW.guild_id IS NOT NULL
-      AND ((NEW.parent_id IS NOT DISTINCT FROM OLD.parent_id) OR
-            NEW.creator_id = current_member_id() OR
-            has_play_permission(NEW.quest_id, 'moveGameMove'))
-      AND NEW.guild_id = public.is_playing_quest_in_guild(NEW.quest_id))
-      THEN
+    IF is_superadmin() THEN
       NULL; -- permitted; fall through to the rest of the trigger
     ELSE
       RAISE EXCEPTION 'immutable published node';
