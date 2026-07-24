@@ -162,16 +162,15 @@ export const useRoleStore = defineStore('role', {
         `/role?id=eq.${params.id}`,
         data,
       );
-      if (
-        res.status === 200 &&
-        Array.isArray(res.data) &&
-        res.data.length > 0
-      ) {
-        const role = res.data[0];
-        if (role.id != null) {
-          this.role = { ...this.role, [role.id]: role };
-          this.fullRole = { ...this.fullRole, [role.id]: true };
-        }
+      if (res.status !== 200 || !Array.isArray(res.data) || res.data.length === 0) {
+        throw new Error(
+          `Role ${params.id} was not updated (0 rows changed). You may not have permission to edit this role.`,
+        );
+      }
+      const role = res.data[0];
+      if (role.id != null) {
+        this.role = { ...this.role, [role.id]: role };
+        this.fullRole = { ...this.fullRole, [role.id]: true };
       }
     },
 

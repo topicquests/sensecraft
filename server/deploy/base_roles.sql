@@ -38,11 +38,11 @@ BEGIN
   END IF;
 END$$;
 
-CALL public.create_or_update_base_role('Guild leader', '{"guildAdmin"}', 'submitted', null, null);
-CALL public.create_or_update_base_role('Game leader', '{"createPlayChannel", "changeFocus"}', 'submitted', null, null);
-CALL public.create_or_update_base_role('Researcher', null, 'guild_draft', null, '{"reference":{"max_pub_state":"proposed"}}'::json);
-CALL public.create_or_update_base_role('Scribe', null, 'guild_draft', null, '{"question":{"max_pub_state":"proposed"}}'::json);
-CALL public.create_or_update_base_role('Philosopher', null, 'proposed', null, '{"question":{"max_pub_state":"proposed"}, "answer":{"max_pub_state":"proposed"}}'::json);
-CALL public.create_or_update_base_role('Critic', null, 'guild_draft', null, '{"question":{"max_pub_state":"proposed"}, "con":{"max_pub_state":"proposed"}}'::json);
+CALL public.create_or_update_base_role('Guild leader', '{"guildAdmin", "moveGameMove"}', 'submitted', null, null);
+CALL public.create_or_update_base_role('Game leader', '{"createPlayChannel", "changeFocus", "moveGameMove"}', 'submitted', null, null);
+CALL public.create_or_update_base_role('Researcher', '{"moveGameMove"}', 'guild_draft', null, '{"reference":{"max_pub_state":"proposed"}}'::json);
+CALL public.create_or_update_base_role('Scribe', '{"moveGameMove"}', 'guild_draft', null, '{"question":{"max_pub_state":"proposed"}}'::json);
+CALL public.create_or_update_base_role('Philosopher', '{"moveGameMove"}', 'proposed', null, '{"question":{"max_pub_state":"proposed"}, "answer":{"max_pub_state":"proposed"}}'::json);
+CALL public.create_or_update_base_role('Critic', '{"moveGameMove"}', 'guild_draft', null, '{"question":{"max_pub_state":"proposed"}, "con":{"max_pub_state":"proposed"}}'::json);
 
 COMMIT;

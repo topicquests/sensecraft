@@ -192,12 +192,14 @@ import { useGuildStore } from '../stores/guilds';
 import { useMemberStore } from '../stores/member';
 import { useConversationStore } from '../stores/conversation';
 import { useRoleStore } from '../stores/role';
+import { useBaseStore } from '../stores/baseStore';
 import { waitUserLoaded } from '../app-access';
 
 import { ConversationNode } from '../types';
 import {
   ibis_node_type_list,
   ibis_node_type_type,
+  permission_enum,
   publication_state_enum,
   publication_state_list,
   publication_state_type,
@@ -213,6 +215,7 @@ const guildStore = useGuildStore();
 const memberStore = useMemberStore();
 const conversationStore = useConversationStore();
 const roleStore = useRoleStore();
+const baseStore = useBaseStore();
 
 const ready = ref(false);
 const questId = ref<number | undefined>();
@@ -382,6 +385,24 @@ async function onDropOnSelected(event: DragEvent) {
 
   const dragged = conversationStore.getConversationNodeById(draggedId);
   if (!dragged) return;
+
+  // do nothing when the parent isn't actually changing
+  if (dragged.parent_id === target.id) return;
+
+  // moving (reparenting) a node requires the moveGameMove permission
+  if (
+    !baseStore.hasPermission(
+      permission_enum.moveGameMove,
+      dragged.guild_id,
+      dragged.quest_id,
+    )
+  ) {
+    $q.notify({
+      type: 'warning',
+      message: 'You do not have permission to move nodes.',
+    });
+    return;
+  }
 
   // dragged node's type must be a legal child of the selected node's type
   const allowed = ibis_child_types(target.node_type);
