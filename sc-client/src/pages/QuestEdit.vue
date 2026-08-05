@@ -89,7 +89,7 @@ const defaultNode: defaultNodeType = {
   quest_id: undefined,
   title: '',
   description: '',
-  status: 'submitted',
+  status: 'published',
   node_type: 'question',
 };
 

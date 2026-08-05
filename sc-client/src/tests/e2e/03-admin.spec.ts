@@ -4,6 +4,7 @@ import {
   questCreator,
   guildCreator1,
   guildCreator2,
+  player1,
 } from '../utilities/StoreMocks';
 
 /**
@@ -101,5 +102,21 @@ test.describe('Admin Permission Flow', () => {
     await page.getByTestId('permissions-update').click();
 
     await expectPermissionsUpdated(page);
+  });
+});
+
+test.describe('Admin Permission Flow - non-admin access', () => {
+  test('non-superadmin cannot update permissions from the admin page', async ({
+    page,
+  }) => {
+    await page.goto('http://localhost:9090/signin');
+    await page.fill(selectors.email, player1.email!);
+    await page.fill(selectors.password, player1.password!);
+    await page.click(selectors.loginBtn);
+    await page.click(selectors.dashboardInstruction);
+
+    await page.goto('http://localhost:9090/admin');
+
+    await expect(page.getByTestId('permissions-update')).toBeDisabled();
   });
 });

@@ -4,6 +4,7 @@ import {
   guild1,
   guildCreator1,
   guildCreator1Conv,
+  player1,
 } from '../utilities/StoreMocks';
 
 test.describe('Guild 1 conversation', () => {
@@ -53,5 +54,20 @@ test.describe('Guild 1 conversation', () => {
 
     // Should navigate to new guild channel conversation
     await expect(page).toHaveURL(/\/guild\/\d+\/channel\/\d+$/);
+  });
+
+  test('Regular guild member does not see the create channel button', async ({
+    page,
+  }) => {
+    await signInPage(player1, page);
+    await gotoGuildPage(guild1, 'View', page);
+
+    await page.click('button[name="rightdrawerBtn"]');
+    await page.getByRole('link', { name: 'Guild Channels' }).click();
+    await expect(page).toHaveURL(/\/guild\/\d+\/channel$/);
+
+    await expect(
+      page.locator('[data-test="create-guild-channel-Btn"]'),
+    ).toBeHidden();
   });
 });

@@ -53,4 +53,26 @@ test.describe('Add players to guild one', () => {
   test('add player five to guild 1', async ({ page }) => {
     await joinBlackKnights(page, player5.email!, player5.password!);
   });
+
+  test('player one no longer sees a Join button after already joining guild 1', async ({
+    page,
+  }) => {
+    await page.fill('input[name="email"]', player1.email!);
+    await page.fill('input[name="pass"]', player1.password!);
+    await page.click('button[name="loginBtn"]');
+    await expect(page).toHaveURL(/.*lobby/);
+
+    await dismissDashboardInstruction(page);
+
+    const row = page.locator('.guilds-table tbody tr', {
+      has: page.locator('td', { hasText: 'Black Knights' }),
+    });
+    await expect(row).toBeVisible();
+    const viewLink = row.locator('a', { hasText: 'View' });
+    await viewLink.click();
+    await expect(page).toHaveURL(/.*guild\/\d+/);
+    await expect(page.locator('.guild-page')).toBeVisible();
+
+    await expect(page.locator('button', { hasText: 'Join' })).toBeHidden();
+  });
 });

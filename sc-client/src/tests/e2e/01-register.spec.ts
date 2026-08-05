@@ -197,6 +197,45 @@ test.describe('User registration page', () => {
       .toContainText(/invalid email format/i);
   });
 
+  test('shows inline validation for mismatched passwords', async ({ page }) => {
+    await fillRegistrationForm(page, {
+      email: 'mismatch@example.com',
+      name: 'Mismatch User',
+      handle: 'mismatchuser',
+      password: 'TestPassword123',
+      confirmPassword: 'DifferentPassword123',
+    });
+
+    await submit(page);
+
+    await expect(page.locator(selectors.inlineError))
+      .toContainText(/passwords do not match/i);
+
+    await expect(
+      notificationWithText(page, /please fix errors/i),
+    ).toBeVisible();
+
+    await expect(page).toHaveURL(/\/register$/);
+  });
+
+  test('shows error for duplicate handle with a new email', async ({ page }) => {
+    await fillRegistrationForm(page, {
+      email: 'handleclash@example.com',
+      name: 'Handle Clash',
+      handle: admin.handle!,
+      password: 'TestPassword123',
+      confirmPassword: 'TestPassword123',
+    });
+
+    await submit(page);
+
+    await expect(
+      notificationWithText(page, /already exists/i),
+    ).toBeVisible();
+
+    await expect(page).toHaveURL(/\/register$/);
+  });
+
   /**
    * ---------------------------
    * Role-based success tests

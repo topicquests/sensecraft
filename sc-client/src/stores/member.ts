@@ -105,9 +105,11 @@ export const useMemberStore = defineStore('member', {
         return res.data;
       }
     },
-    async registerUser(data: Partial<Member>): Promise<Partial<Member>> {
+    async registerUser(
+      data: Partial<Member>,
+    ): Promise<Partial<Member> | undefined> {
       const res = await this.registerUserCrypted(data);
-      return res?.data ?? {};
+      return res?.data;
     },
     async ensureLoginUser(): Promise<Partial<Member> | undefined> {
       // TODO: the case where the member is pending

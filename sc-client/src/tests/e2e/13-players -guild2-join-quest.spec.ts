@@ -35,6 +35,11 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Game leader' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
   test('Player6 join  quest', async ({ page }) => {
     await signInPage(player6, page);
@@ -59,6 +64,11 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Philosopher' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
   test('Player7 join  quest', async ({ page }) => {
     await signInPage(player7, page);
@@ -83,6 +93,11 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Critic' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
   test('Player8 join  quest', async ({ page }) => {
     await signInPage(player8, page);
@@ -107,6 +122,11 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Researcher' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
   test('Player9 join  quest', async ({ page }) => {
     await signInPage(player9, page);
@@ -131,6 +151,11 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Scribe' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
   test('Player10 join  quest', async ({ page }) => {
     await signInPage(player10, page);
@@ -155,5 +180,10 @@ test.describe('Player join quest from their guild', () => {
     // Find and select the radio button labeled "Game leader"
     const gameLeaderRadio = page.getByRole('radio', { name: 'Researcher' });
     await gameLeaderRadio.check();
+
+    // Registration should replace the Play button with Go To Quest
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
   });
 });
