@@ -186,4 +186,49 @@ test.describe('Player join quest from their guild', () => {
       questContainer.getByRole('button', { name: 'Go To Quest' }),
     ).toBeVisible();
   });
+
+  test('Player5 can leave the quest and rejoin before it starts', async ({
+    page,
+  }) => {
+    await signInPage(player5, page);
+    await gotoGuildPage(guild1, 'View', page);
+
+    // Select the already-registered quest
+    const questRadio = page.getByRole('radio', { name: mockQuest.name });
+    await questRadio.check();
+    const questContainer = questRadio.locator('..');
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
+
+    // Player5's role chip is visible on the Team panel before leaving
+    const teamCard = page.locator('#team-card');
+    const player5Row = teamCard
+      .locator('.q-item')
+      .filter({ hasText: player5.handle! });
+    await expect(player5Row.locator('.q-chip')).toContainText('Researcher');
+
+    // Leave the quest (quest is still in registration, no contribution made)
+    const leaveButton = page.locator('[data-test="leave-quest-btn"]');
+    await expect(leaveButton).toBeVisible();
+    await leaveButton.click();
+
+    // Role no longer shows on the Team panel, reactively, without a reload
+    await expect(leaveButton).toBeHidden();
+    await expect(player5Row.locator('.q-chip')).toHaveCount(0);
+
+    // The "Play" button reappears, so the player can rejoin
+    await expect(
+      questContainer.getByRole('button', { name: 'Play' }),
+    ).toBeVisible();
+
+    // Rejoin with the same role, restoring state for later specs
+    await questContainer.getByRole('button', { name: 'Play' }).click();
+    await expect(page.locator('[data-test="register-dialog"]')).toBeVisible();
+    await page.getByRole('radio', { name: 'Researcher' }).check();
+    await expect(
+      questContainer.getByRole('button', { name: 'Go To Quest' }),
+    ).toBeVisible();
+    await expect(player5Row.locator('.q-chip')).toContainText('Researcher');
+  });
 });

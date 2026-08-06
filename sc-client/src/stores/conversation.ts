@@ -348,6 +348,26 @@ export const useConversationStore = defineStore('conversation', {
         );
       }
     },
+    async hasContributed(
+      quest_id: number,
+      member_id: number,
+    ): Promise<boolean> {
+      const res: AxiosResponse<{ id: number }[]> = await api.get(
+        '/conversation_node',
+        {
+          params: {
+            quest_id: `eq.${quest_id}`,
+            creator_id: `eq.${member_id}`,
+            // Role/guild channels are auto-created plumbing, not actual
+            // game content, so they shouldn't count as "contributing".
+            meta: `neq.${meta_state_enum.channel}`,
+            select: 'id',
+            limit: 1,
+          },
+        },
+      );
+      return res.status == 200 && res.data.length > 0;
+    },
     async fetchRootNode(params: { quest_id: number | undefined }) {
       const res: AxiosResponse<ConversationNode[]> = await api.get(
         '/conversation_node',

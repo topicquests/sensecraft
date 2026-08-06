@@ -535,6 +535,31 @@ export const useQuestStore = defineStore('quest', {
       }
     },
 
+    async leaveQuest(quest_id: number, member_id: number) {
+      const params = {
+        quest_id: `eq.${quest_id}`,
+        member_id: `eq.${member_id}`,
+      };
+      const res: AxiosResponse<Casting[]> = await api.delete('/casting', {
+        params,
+      });
+      if (res.status == 200) {
+        const memberStore = useMemberStore();
+        const membersStore = useMembersStore();
+        // Re-fetch from the server rather than hand-patching every local
+        // cache (quests, member, members) — casting removal cascades to
+        // casting_role server-side, so a refetch is the only way to keep
+        // all three in sync with what actually changed.
+        await Promise.all([
+          this.fetchQuestById(quest_id, true),
+          membersStore.fetchMemberById(member_id, true),
+          memberStore.getUserId == member_id
+            ? memberStore.fetchLoginUser()
+            : undefined,
+        ]);
+      }
+    },
+
     async updateCasting(data: Casting) {
       const memberStore = useMemberStore();
       const params = Object();

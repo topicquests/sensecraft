@@ -19,8 +19,15 @@ let lastUserId: number | undefined;
 
 /**
  * Resets all relevant stores if the logged-in member changes.
+ *
+ * A transient member_id of undefined (e.g. the brief window between
+ * a token being set and the member record being fetched) must not
+ * update lastUserId — otherwise a later, unrelated refetch of the same
+ * still-logged-in member's data looks like a "new" member and wipes
+ * guild/quest/conversation state out from under the current page.
  */
 export function resetIfMemberChanged(member_id: number | undefined): void {
+  if (member_id === undefined) return;
   if (member_id !== lastUserId) {
     const questsStore = useQuestStore();
     const guildsStore = useGuildStore();

@@ -58,8 +58,10 @@
                 :guildId="guildId"
                 :questId="currentQuestId"
                 :memberId="member!.id"
+                :canLeave="canLeaveQuest"
                 v-on:castingRoleAdd="castingRoleAdded"
                 v-on:castingRoleRemove="castingRoleRemoved"
+                v-on:leaveQuest="handleLeaveQuest"
               ></castingRoleEdit>
             </div>
           </div>
@@ -171,6 +173,7 @@ const guildId = ref<number | undefined>();
 const ready = ref(false);
 const { member } = storeToRefs(memberStore);
 const castingRoles = ref<Role[]>([]);
+const hasContributed = ref(false);
 const memberPlaysQuestInThisGuild = ref(false);
 const showDialog = ref(false);
 const pastQuests = ref<Quest[]>([]);
@@ -278,6 +281,11 @@ const getGuildMembers = computed((): PublicMember[] | undefined => {
 const canRegisterToQuest = computed(() =>
   baseStore.hasPermission(permission_enum.joinQuest, currentGuildId.value),
 );
+const canLeaveQuest = computed(
+  () =>
+    currentQuest.value?.status === quest_status_enum.registration &&
+    !hasContributed.value,
+);
 
 // Watches
 watch(
@@ -285,6 +293,7 @@ watch(
   async () => {
     if (currentQuestId.value) {
       getCastingRoles();
+      await checkContribution();
       await initializeQuest();
       await readStatusStore.ensureGuildUnreadChannels();
     }
@@ -294,7 +303,10 @@ watch(
 watch(
   () => member?.value,
   (newVal) => {
-    if (newVal) getCastingRoles();
+    if (newVal) {
+      getCastingRoles();
+      void checkContribution();
+    }
   },
   { immediate: true, deep: true },
 );
@@ -321,6 +333,21 @@ function getCastingRoles() {
     castingRoles.value = castingRolesData.map(
       (cr) => allRoles.value[cr.role_id],
     );
+  }
+}
+
+async function checkContribution() {
+  if (member?.value?.id && currentQuest.value) {
+    hasContributed.value = await conversationStore.hasContributed(
+      currentQuest.value.id,
+      member.value.id,
+    );
+  }
+}
+
+async function handleLeaveQuest() {
+  if (member?.value?.id && currentQuestId.value) {
+    await questStore.leaveQuest(currentQuestId.value, member.value.id);
   }
 }
 

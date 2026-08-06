@@ -37,6 +37,15 @@
           map-options
         ></q-select>
       </div>
+      <div class="row justify-center" v-if="canLeave">
+        <q-btn
+          data-test="leave-quest-btn"
+          label="Leave Quest"
+          color="negative"
+          class="q-ma-md"
+          @click="$emit('leaveQuest')"
+        />
+      </div>
     </q-card>
   </div>
 </template>
@@ -53,10 +62,11 @@ const CastingRoleEditProps = defineProps<{
   castingRoles: Partial<Role>[];
   questId: number | undefined;
   guildId: number | undefined;
+  canLeave?: boolean;
 }>();
 
 // Emits
-const emit = defineEmits(['castingRoleAdd', 'castingRoleRemove']);
+const emit = defineEmits(['castingRoleAdd', 'castingRoleRemove', 'leaveQuest']);
 
 // Stores
 const memberStore = useMemberStore();
