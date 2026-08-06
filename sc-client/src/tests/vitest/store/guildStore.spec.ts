@@ -220,7 +220,7 @@ describe('GuildStore - testing of guilds store', () => {
     ).rejects.toThrow('Request failed with status code 500');
   });
   it('deletes guild member available role successfully', async () => {
-    memberStore.member = { ...mockMember };
+    memberStore.member = mockMember;
     const roleToDelete: GuildMemberAvailableRole = {
       member_id: mockMember.id,
       guild_id: mockGuild.id,
@@ -256,7 +256,7 @@ describe('GuildStore - testing of guilds store', () => {
     });
   });
   it('does not remove role if API response is empty', async () => {
-    memberStore.member = { ...mockMember };
+    memberStore.member = mockMember;
     const roleToDelete: GuildMemberAvailableRole = {
       member_id: mockMember.id,
       guild_id: mockGuild.id,

@@ -520,10 +520,7 @@ export const useGuildStore = defineStore('guild', {
             if (pos >= 0) {
               const updated = [...gmars!];
               updated.splice(pos, 1);
-              memberStore.member = {
-                ...memberStore.member,
-                guild_member_available_role: updated,
-              };
+              memberStore.member.guild_member_available_role = updated;
             }
           }
 
@@ -567,6 +564,13 @@ export const useGuildStore = defineStore('guild', {
         }
       } catch (error) {
         console.error('Delete guild member available role failed:', error);
+        if (axios.isAxiosError(error)) {
+          throw new Error(
+            `Request failed with status code ${error.response?.status || 500}`,
+          );
+        } else {
+          throw error;
+        }
       }
     },
   },
