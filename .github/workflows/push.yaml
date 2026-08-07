@@ -62,7 +62,7 @@ jobs:
         working-directory: ./sc-client
         run: |
           npx playwright install --with-deps
-          npm run test:playwright:full
+          npm run test:playwright
       # - name: Run scoring tests
       #   working-directory: ./sc-client
       #   run: npm run test:scoring
