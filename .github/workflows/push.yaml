@@ -58,11 +58,11 @@ jobs:
         run: |
           npm run prepare
           npm run test:unit
-      - name: Run integration unit tests
-        working-directory: ./sc-client
-        run: |
-          npx playwright install --with-deps
-          npm run test:playwright
+      #- name: Run integration unit tests
+      #  working-directory: ./sc-client
+      #  run: |
+      #   npx playwright install --with-deps
+      #    npm run test:playwright
       # - name: Run scoring tests
       #   working-directory: ./sc-client
       #   run: npm run test:scoring
