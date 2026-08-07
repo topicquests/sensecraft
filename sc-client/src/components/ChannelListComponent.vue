@@ -15,7 +15,7 @@
     >
     <p v-else>{{ ChannelListProps.title }}</p>
     <q-list
-      style="color: darkgreen; background-color: lightblue"
+      class="channel-list"
       :row="getChannels"
       row-key="desc"
     >
@@ -123,8 +123,13 @@ onBeforeMount(async () => {
 defineExpose({ getChannels });
 </script>
 
-<style>
-q-td {
-  font-size: 30%;
+<style scoped>
+.channel-list :deep(a) {
+  color: inherit;
+  font-weight: var(--sc-font-weight-medium);
+}
+
+.channel-list :deep(a:hover) {
+  text-decoration: underline;
 }
 </style>

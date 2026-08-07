@@ -1,7 +1,7 @@
 <template>
   <div>
-    <q-list>
-      <q-item :to="{ name: 'root' }">
+    <q-list class="nav-list">
+      <q-item :to="{ name: 'root' }" exact>
         <q-item-section>Home</q-item-section>
       </q-item>
       <q-item :to="{ name: 'house_rules' }">
@@ -32,6 +32,7 @@
       </q-item>
       <q-expansion-item
         v-if="checkIfAuthenticated()"
+        icon="menu_book"
         label="Instructions"
         data-test="instructions-menu"
       >
@@ -97,6 +98,7 @@
       >
         <q-item-section>Administration</q-item-section>
       </q-item>
+      <q-separator class="q-my-sm" />
       <q-item
         v-if="!checkIfAuthenticated()"
         class="q-mr-sm lt-md"
@@ -111,7 +113,6 @@
       >
         <q-item-section>Registration</q-item-section>
       </q-item>
-      <q-item-section></q-item-section>
       <q-item
         v-if="checkIfAuthenticated()"
         class="lt-md"
@@ -163,3 +164,27 @@ const onLogout = () => {
   emit('onLogout');
 };
 </script>
+
+<style scoped>
+.nav-list :deep(.q-item) {
+  color: var(--sc-color-chrome-text-muted);
+  border-radius: var(--sc-radius-sm);
+  margin: 2px 8px;
+  width: calc(100% - 16px);
+}
+
+.nav-list :deep(.q-item .q-icon) {
+  color: inherit;
+}
+
+.nav-list :deep(.q-item:hover) {
+  background: var(--sc-color-chrome-bg-raised);
+  color: var(--sc-color-chrome-text);
+}
+
+.nav-list :deep(.q-item--active),
+.nav-list :deep(.q-router-link--active) {
+  background: var(--sc-color-primary);
+  color: #ffffff;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary page" v-if="ready">
+  <q-page class="page" v-if="ready">
     <div class="row justify-center q-mt-lg">
       <h3>
         Channels of guild
@@ -143,7 +143,7 @@ onBeforeMount(async () => {
 
 <style scoped>
 .page {
-  background-color: whitesmoke;
+  background-color: var(--sc-color-bg-muted);
 }
 
 .sidenav {
@@ -153,11 +153,11 @@ onBeforeMount(async () => {
   z-index: 1;
   top: 0;
   right: 0;
-  color: black;
-  background-color: rgb(230, 234, 238);
+  color: var(--sc-color-text);
+  background-color: var(--sc-color-surface-sunken);
   overflow-x: hidden;
   transition: 0.5s;
   padding-top: 60px;
-  border: 1px solid gray;
+  border: 1px solid var(--sc-color-border);
 }
 </style>

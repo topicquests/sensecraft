@@ -8,7 +8,8 @@
           label="Join Guild"
           @click="joinToGuild()"
           style="margin-right: 1em"
-          class="bg-blue"
+          unelevated
+          color="primary"
         />
       </h1>
       <span v-if="!currentGuild.open_for_applications">guild closed</span>
@@ -76,6 +77,7 @@ async function joinToGuild() {
 .guild-description {
   max-height: 300px;
   overflow-y: auto;
-  padding: 10px;
+  padding: var(--sc-space-12);
+  color: var(--sc-color-text);
 }
 </style>

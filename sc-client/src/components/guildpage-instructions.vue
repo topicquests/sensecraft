@@ -81,25 +81,25 @@ const showDialog = defineModel<boolean>();
 .q-card {
   width: 75%;
   max-width: 800px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-md);
 }
 
 /* Title styling */
 .dialog-title {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #2c3e50;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: var(--sc-space-16);
 }
 
 /* Section titles */
 .instruction-category-title {
   font-size: 1.25rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 10px;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
+  margin-bottom: var(--sc-space-8);
 }
 
 /* Styling for lists in the instructions */
@@ -107,18 +107,18 @@ const showDialog = defineModel<boolean>();
   list-style-type: disc; /* Standard bullet points */
   padding-left: 20px; /* Indent list items for better readability */
   font-size: 1rem; /* Standard readable size */
-  color: black; /* Ensures text is black */
+  color: var(--sc-color-text);
   line-height: 1.6; /* Improves spacing between lines */
 }
 
 .status-list li {
-  color: gray; /* Gray text color for list items */
-  margin-bottom: 8px; /* Adds spacing between items */
+  color: var(--sc-color-text-muted);
+  margin-bottom: var(--sc-space-8);
 }
 
 .status-list strong {
-  font-weight: bold; /* Highlights the key terms */
-  color: #333; /* Slightly different shade for better contrast */
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
 }
 
 @media (max-width: 600px) {

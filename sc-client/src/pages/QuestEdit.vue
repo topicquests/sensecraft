@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary" v-if="ready">
+  <q-page class="quest-edit-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="quest-edit-card q-mt-md">
         <div>
@@ -194,6 +194,11 @@ onBeforeMount(async () => {
 </script>
 
 <style>
+.quest-edit-page {
+  background: var(--sc-color-bg-muted);
+  min-height: 100vh;
+}
+
 .quest-edit-card {
   width: 80%;
 }
@@ -214,11 +219,11 @@ h4 {
 }
 .q-editor {
   width: 80%;
-  border: 1px solid black;
+  border: 1px solid var(--sc-color-border);
 }
 .quest-link {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
+  font-family: var(--sc-font-family);
+  font-size: 0.875rem;
 }
 @media only screen and (max-width: 1300px) {
   .quest-edit-card {

@@ -1,8 +1,8 @@
 <template>
-  <q-page class="bg-secondary">
-    <q-card border-true class="card fixed-center q-pa-md">
+  <q-page class="auth-page">
+    <q-card class="auth-card q-pa-md">
       <q-form>
-        <h2>Reset Password</h2>
+        <h2 class="text-h5">Reset Password</h2>
         <q-input
           class="q-mb-md"
           filled
@@ -42,7 +42,7 @@
         </q-input>
         <div class="row justify-center q-pt-lg q-pb-lg">
           <q-btn
-            class="align-center"
+            unelevated
             label="Reset Password"
             color="primary"
             :tabindex="3"
@@ -124,17 +124,19 @@ onBeforeMount(async () => {
   }
 });
 </script>
-<style>
-input[type='isPwdReset'] {
-  padding: 10px;
-  margin: 10px;
-  background-color: rgb(235, 247, 238);
-  border-radius: 5px;
-  font-size: 14px;
-  width: 100%;
+<style scoped>
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sc-color-bg-muted);
+  padding: var(--sc-space-24);
 }
-.card {
-  width: 40%;
-  background-color: whitesmoke;
+
+.auth-card {
+  width: 480px;
+  max-width: 100%;
+  border-radius: var(--sc-radius-lg);
 }
 </style>

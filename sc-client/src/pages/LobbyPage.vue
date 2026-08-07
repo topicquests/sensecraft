@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary lobby-page" v-if="ready">
+  <q-page class="lobby-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="lobby-card q-mt-md q-pa-md">
         <div class="row justify-end q-mb-lg" style="width: 85%">
@@ -7,8 +7,8 @@
           <q-btn
             fab
             icon="help"
-            color="blue-10"
-            class="help-button fixed-top-right q-mt-xl q-mr-md"
+            color="primary"
+            class="fixed-top-right q-mt-xl q-mr-md"
             style="top: 50px; z-index: 10"
             @click="showDialog = true"
           >
@@ -129,47 +129,22 @@ onBeforeMount(async () => {
 });
 </script>
 
-<style>
-p {
-  background-color: lightgrey;
-  font-size: 15pt;
-}
+<style scoped>
 .lobby-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
-  padding: 0rem;
+  padding: 0;
   box-sizing: border-box;
 }
 .lobby-card {
-  background-color: transparent;
+  background-color: var(--sc-color-surface);
   width: 72%;
 }
 .scoreboard {
   width: 100%;
   max-width: 1400px;
   margin: auto;
-  margin-bottom: 2rem;
-}
-.help-button {
-  width: 56px;
-  height: 56px;
-  border-radius: 50% !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #1976d2 !important;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition:
-    background 0.3s,
-    transform 0.2s ease-in-out;
-  overflow: hidden;
-}
-.help-button:hover {
-  background-color: #1565c0 !important;
-  transform: scale(1.05);
+  margin-bottom: var(--sc-space-32);
 }
 .fixed-top-right {
   position: fixed;

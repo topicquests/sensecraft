@@ -48,8 +48,7 @@ function getGuildName(id?: number) {
 .ibis-card {
   min-width: 200px;
   height: 200px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-radius: var(--sc-radius-lg);
   display: flex;
   flex-direction: column;
 }
@@ -57,15 +56,16 @@ function getGuildName(id?: number) {
 .ibis-card-header {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: #f5f5f5;
-  font-weight: 600;
+  padding: var(--sc-space-8) var(--sc-space-16);
+  background-color: var(--sc-color-bg-muted);
+  font-weight: var(--sc-font-weight-semibold);
+  border-bottom: 1px solid var(--sc-color-border);
 }
 
 .ibis-card-content {
   flex: 1;
   overflow-y: auto;
-  padding: 0.75rem 1rem;
+  padding: var(--sc-space-12) var(--sc-space-16);
 }
 
 .ibis-icon {

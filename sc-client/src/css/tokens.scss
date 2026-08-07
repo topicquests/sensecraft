@@ -1,0 +1,119 @@
+// ============================================================================
+// SENSEcraft design tokens — "Structured Clarity" system
+// ============================================================================
+// Single source of truth for hand-authored CSS in this app (page/component
+// <style> blocks, components.scss). Quasar-generated CSS (component
+// internals, .text-h1..h6 utility classes, QNotify/QBanner colors) is
+// instead driven by the Sass variables in ./quasar.variables.scss — the two
+// files describe the same system in each layer's native vocabulary.
+//
+// Usage: `color: var(--sc-color-text);`, `border-radius: var(--sc-radius-md);`
+// Never hardcode a hex color, shadow, radius, or spacing value in a
+// component — add or reuse a token here instead.
+// ============================================================================
+
+:root {
+  // ---- Brand ----
+  --sc-color-primary: #1e4a72;
+  --sc-color-primary-hover: #163a59;
+  --sc-color-primary-active: #0f2a40;
+  --sc-color-primary-subtle: #e7eef4;
+  --sc-color-primary-contrast: #ffffff;
+
+  --sc-color-secondary: #4a5c6a;
+  --sc-color-secondary-hover: #3a4954;
+  --sc-color-secondary-subtle: #e9ecee;
+  --sc-color-secondary-contrast: #ffffff;
+
+  --sc-color-accent: #0f7b6c;
+  --sc-color-accent-hover: #0b6154;
+  --sc-color-accent-subtle: #e3f2ef;
+  --sc-color-accent-contrast: #ffffff;
+
+  // ---- Neutral ramp ----
+  --sc-color-gray-50: #f7f8f9;
+  --sc-color-gray-100: #eef1f3;
+  --sc-color-gray-200: #e1e5e8;
+  --sc-color-gray-300: #c9d0d6;
+  --sc-color-gray-400: #a6b0b9;
+  --sc-color-gray-500: #7c8894;
+  --sc-color-gray-600: #5b6670;
+  --sc-color-gray-700: #414a52;
+  --sc-color-gray-800: #2b3238;
+  --sc-color-gray-900: #1a1f23;
+
+  // ---- Semantic ----
+  --sc-color-success: #1e7b45;
+  --sc-color-success-subtle: #e4f3e9;
+  --sc-color-warning: #8a5a00;
+  --sc-color-warning-subtle: #fbf0dd;
+  --sc-color-error: #b3261e;
+  --sc-color-error-subtle: #fbe9e8;
+  --sc-color-info: #1768ac;
+  --sc-color-info-subtle: #e6f1fa;
+
+  // ---- Surfaces & text (light app content area) ----
+  --sc-color-bg: #ffffff;
+  --sc-color-bg-muted: var(--sc-color-gray-50);
+  --sc-color-surface: #ffffff;
+  --sc-color-surface-sunken: var(--sc-color-gray-50);
+  --sc-color-border: var(--sc-color-gray-200);
+  --sc-color-border-strong: var(--sc-color-gray-300);
+  --sc-color-text: var(--sc-color-gray-900);
+  --sc-color-text-muted: var(--sc-color-gray-600);
+  --sc-color-text-disabled: var(--sc-color-gray-400);
+
+  // ---- Dark chrome (header / drawers / footer) ----
+  // Deliberately separate from Quasar's dark-mode plugin (not enabled app
+  // wide) — this is fixed brand chrome around a light content area.
+  --sc-color-chrome-bg: var(--sc-color-gray-900);
+  --sc-color-chrome-bg-raised: var(--sc-color-gray-800);
+  --sc-color-chrome-border: rgba(255, 255, 255, 0.08);
+  --sc-color-chrome-text: #ffffff;
+  --sc-color-chrome-text-muted: rgba(255, 255, 255, 0.72);
+
+  // ---- Focus ring ----
+  // Meets WCAG 2.4.7/1.4.11 (>=3:1 non-text contrast) against the white
+  // content area. Overridden to white inside dark chrome (see below) so it
+  // stays visible against --sc-color-chrome-bg too.
+  --sc-color-focus: #1454a0;
+  --sc-focus-width: 2px;
+  --sc-focus-offset: 2px;
+
+  // ---- Spacing scale (4px base — mirrors Quasar's q-pa-*/q-gutter-* xs..xl) ----
+  --sc-space-4: 4px;
+  --sc-space-8: 8px;
+  --sc-space-12: 12px;
+  --sc-space-16: 16px;
+  --sc-space-24: 24px;
+  --sc-space-32: 32px;
+  --sc-space-48: 48px;
+  --sc-space-64: 64px;
+  --sc-space-96: 96px;
+
+  // ---- Radii (generic-border-radius in quasar.variables.scss = md) ----
+  --sc-radius-sm: 4px;
+  --sc-radius-md: 8px;
+  --sc-radius-lg: 12px;
+  --sc-radius-full: 999px;
+
+  // ---- Elevation (flat/institutional — hairline border + soft shadow) ----
+  --sc-shadow-sm: 0 1px 2px rgba(26, 31, 35, 0.06);
+  --sc-shadow-md: 0 4px 12px rgba(26, 31, 35, 0.1);
+  --sc-shadow-lg: 0 12px 32px rgba(26, 31, 35, 0.16);
+
+  // ---- Typography (kept in sync with quasar.variables.scss $h1..$caption) ----
+  --sc-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sc-font-weight-regular: 400;
+  --sc-font-weight-medium: 500;
+  --sc-font-weight-semibold: 600;
+  --sc-font-weight-bold: 700;
+}
+
+// Flip the focus ring to white inside dark brand chrome so it stays
+// visible against --sc-color-chrome-bg / --sc-color-chrome-bg-raised.
+.q-header,
+.q-drawer,
+.q-footer {
+  --sc-color-focus: #ffffff;
+}

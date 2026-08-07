@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary guild-page">
+  <q-page class="guild-page">
     <div class="row justify-center">
       <q-card class="guild-card q-mt-md q-pa-md">
 
@@ -17,7 +17,7 @@
         <q-btn
           fab
           icon="help"
-          color="blue-10"
+          color="primary"
           class="fixed-top-right q-mt-xl q-mr-md"
           style="top: 50px; z-index: 10"
           @click="showDialog = true"
@@ -35,7 +35,7 @@
 
           <!-- Left column: quests -->
           <div class="col-12 col-md-7">
-            <q-card class="bg-secondary q-mb-md q-pb-sm">
+            <q-card class="bg-muted q-mb-md q-pb-sm">
               <div class="row text-center">
                 <div class="col-12">
                   <h2 class="q-mt-md q-mb-md">Registered Quests</h2>
@@ -511,11 +511,9 @@ async function initializeQuest() {
 
 <style lang="scss">
 .guild-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
-  padding: 0rem;
+  padding: 0;
   box-sizing: border-box;
 }
 .guild-description-col {
@@ -524,83 +522,32 @@ async function initializeQuest() {
 
 .guild-card {
   width: 85%;
-  background-color: transparent;
+  background-color: var(--sc-color-surface);
 }
 
 .guild-members-panel {
   max-height: 70vh;
   overflow-y: auto;
 }
-.active-quest-header {
-  text-decoration: underline;
-  font-family: Arial, Helvetica, sans-serif;
-  color: $primary;
-}
-.scoreboard-guild-header-container {
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  height: 100%;
+
+.bg-muted {
+  background: var(--sc-color-bg-muted);
 }
 
 .guild-header {
   width: 100%;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  background-color: azure;
+  font-size: 0.875rem;
   align-self: flex-end;
 }
-guild-name {
-  text-align: center;
-  font-size: 40px;
-  background-color: azure;
-}
-.handles {
-  font-size: 20px;
-  font-family: pragmatica-web, sans-serif;
-}
-.card-header {
-  text-align: center;
-  color: blue;
-  text-decoration: underline;
-  font-size: 20px;
-  padding-bottom: sm;
-}
-#radio {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  width: 100%;
-}
-#radio-btn {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-}
-#node_card {
-  border: 3px solid black;
-  font-size: 10pt;
-  color: darkblue;
-  height: 400px;
-  background-color: #caf0f8;
-}
-#guild-description {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  width: 100%;
-  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
-}
+
 @media only screen and (max-width: 1300px) {
   .guild-card {
     width: 92%;
-    background-color: transparent;
   }
 }
 @media only screen and (max-width: 800px) {
   .guild-card {
     width: 98%;
-    background-color: transparent;
   }
 }
 @media only screen and (max-width: 800px) {
@@ -618,24 +565,5 @@ guild-name {
   .scoreboard {
     width: 98%;
   }
-}
-.content-container {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  width: 100%;
-  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
-  border: 50px solid #ccc;
-  max-height: 300px;
-  overflow-y: auto;
-}
-.content {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  width: 100%;
-  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
 }
 </style>

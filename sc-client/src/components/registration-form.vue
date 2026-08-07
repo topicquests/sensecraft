@@ -19,7 +19,7 @@
             <q-icon name="email" tabindex="-1" />
           </template>
         </q-input>
-        <span class="text-red text-caption" v-if="emailError">
+        <span class="text-negative text-caption" v-if="emailError">
           {{ emailError }}
         </span>
 
@@ -103,7 +103,7 @@
             />
           </template>
         </q-input>
-        <span class="text-red text-caption" v-if="passwordError">
+        <span class="text-negative text-caption" v-if="passwordError">
           {{ passwordError }}
         </span>
 
@@ -113,8 +113,8 @@
             <q-btn
               unelevated
               size="lg"
-              color="deep-purple-7"
-              class="text-white full-width"
+              color="primary"
+              class="full-width"
               label="Get Started"
               name="registerButton"
               type="submit"
@@ -195,12 +195,3 @@ function validatePasswordMatch() {
 
 defineExpose({ getFormData, validateEmail, validatePasswordMatch, formdata });
 </script>
-
-<style scoped>
-.full-width {
-  width: 100%;
-}
-.text-red {
-  color: red;
-}
-</style>

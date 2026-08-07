@@ -378,13 +378,13 @@ onBeforeMount(async() =>{
 }
 
 .node {
-  margin-top: 4px;
+  margin-top: var(--sc-space-4);
   float: top;
-  border: 1px solid black;
-  border-radius: 3px;
+  border: 1px solid var(--sc-color-border);
+  border-radius: var(--sc-radius-sm);
   min-height: 40px;
   overflow-wrap: inherit;
-  font-family: pragmatica-web, sans-serif;
+  font-family: var(--sc-font-family);
   white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
@@ -395,17 +395,17 @@ onBeforeMount(async() =>{
 }
 
 .node:hover {
-  background-color: rgba(255, 255, 0, 0.801);
+  background-color: var(--sc-color-primary-subtle);
 }
 
 /*
  * width: 958px;
  */
 #topbox {
-  border: 1px solid black;
-  background: white;
-  margin: 12px;
-  font-family: pragmatica-web, sans-serif;
-  border-radius: 3px;
+  border: 1px solid var(--sc-color-border);
+  background: var(--sc-color-surface);
+  margin: var(--sc-space-12);
+  font-family: var(--sc-font-family);
+  border-radius: var(--sc-radius-sm);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary q-pa-md" v-if="ready">
+  <q-page class="bg-page q-pa-md" v-if="ready">
     <div class="row justify-center">
       <q-card class="q-pa-lg guild-admin-card">
         <!-- Guild Header -->
@@ -578,86 +578,24 @@ async function doSubmit() {
 }
 </script>
 <style>
+.bg-page {
+  background-color: var(--sc-color-bg-muted);
+}
 .guild-admin-card {
   width: 60%;
 }
 .quest-section {
-  background-color: gainsboro;
-  padding-bottom: 5em;
-  padding-top: 1em;
-}
-.active-quest-card {
-  background-color: white;
-  width: 100%;
-  margin-top: 1em;
-}
-.active-quest-header {
-  text-decoration: underline;
-  font-family: Arial, Helvetica, sans-serif;
-  color: blue;
-}
-.guildAdmin-header {
-  background-color: azure;
-  padding: 0.5em;
-  align-items: center;
-}
-
-.channel {
-  margin-top: 1em;
+  background-color: var(--sc-color-bg-muted);
+  padding-bottom: var(--sc-space-32);
+  padding-top: var(--sc-space-16);
 }
 .guild-section {
-  background-color: seashell;
-}
-.guildAdmin-card {
-  background-color: white;
-  width: 50%;
-
-  margin-left: 1em;
-}
-.guildAdmin-card-header {
-  font-family: Arial, Helvetica, sans-serif;
-}
-.guilds-card {
-  margin-bottom: 2em;
-  margin-left: 1em;
-  width: 40%;
-}
-.available-roles-card-header {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.available-roles-card {
-  background-color: white;
-  width: 80%;
-}
-
-.roles-card {
-  background-color: white;
-  width: 80%;
-  margin-bottom: 1em;
-}
-.roles-card-header {
-  font-family: Arial, Helvetica, sans-serif;
-}
-#members-handle {
-  font-size: 13pt;
-}
-.guild-editor-description {
-  font-family: Arial, Helvetica, sans-serif;
-  margin-top: 0.5em;
-  border: 1px solid black;
+  background-color: var(--sc-color-bg-muted);
 }
 #update-button {
-  background-color: #02a7e3;
-  color: white;
-  margin-bottom: 1em;
-  margin-top: 0.5em;
-  margin-left: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-}
-.guild-description-col {
-  width: 60%;
-  margin-bottom: 1em;
+  margin-bottom: var(--sc-space-16);
+  margin-top: var(--sc-space-8);
+  margin-left: var(--sc-space-16);
 }
 
 @media only screen and (max-width: 1300px) {
@@ -669,66 +607,5 @@ async function doSubmit() {
   .guild-admin-card {
     width: 98%;
   }
-}
-@media only screen and (max-width: 1000px) {
-  .guild-editor-description {
-    width: 98%;
-  }
-  @media only screen and (max-width: 800px) {
-    .guild-description-col {
-      width: 98%;
-    }
-  }
-
-  @media only screen and (max-width: 1000px) {
-    .scoreboard {
-      width: 98%;
-    }
-  }
-  @media only screen and (max-width: 1000px) {
-    .guildAdmin-card {
-      width: 98%;
-      margin-right: 1em;
-    }
-  }
-  @media only screen and (max-width: 1000px) {
-    .guilds-card {
-      margin-bottom: 2em;
-      width: 98%;
-      margin-top: 1em;
-      margin-right: 1em;
-    }
-  }
-  @media only screen and (max-width: 1000px) {
-    .roles-card {
-      width: 95%;
-    }
-  }
-  @media only screen and (max-width: 1000px) {
-    .available-roles-card {
-      width: 95%;
-    }
-  }
-}
-.admin-content-container {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
-  width: 100%;
-  box-shadow: 0 60px 20px 0 rgb(151, 146, 146);
-  border: 5px solid #ccc;
-  max-height: 300px;
-  width: 100%;
-  max-width: 600px;
-  overflow-y: auto;
-}
-.admin-content {
-  padding: 1em;
-  margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  width: 100%;
-  box-shadow: 0 5px 20px 0 rgb(151, 146, 146);
 }
 </style>

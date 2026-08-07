@@ -41,7 +41,7 @@
           </router-link>
         </div>
       </q-card-section>
-      <q-separator color="black"></q-separator>
+      <q-separator></q-separator>
       <q-card-section v-if="showQuestInfo" class="row">
         <div class="col"></div>
         <div class="col-6">

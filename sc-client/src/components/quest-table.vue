@@ -328,70 +328,34 @@ onBeforeMount(async () => {
 });
 </script>
 
-<style>
+<style scoped>
 .dialog-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #d35400; /* Warm color for the title */
-  margin-bottom: 10px;
+  font-size: 1.25rem;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
+  margin-bottom: var(--sc-space-8);
 }
 
 .quest-name {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #e67e22; /* Accent color for quest name */
+  font-size: 1.125rem;
+  font-weight: var(--sc-font-weight-medium);
+  color: var(--sc-color-primary);
 }
 
 .quest-description {
   font-size: 1rem;
-  color: #5d4037; /* Rich brown for descriptive text */
+  color: var(--sc-color-text-muted);
   line-height: 1.5;
   white-space: pre-wrap; /* Preserve formatting for quest descriptions */
 }
 
-.q-btn {
-  font-size: 0.9rem;
-}
-
-.q-card-actions {
-  padding: 10px;
-  border-top: 1px solid #e0e0e0; /* Separator for actions */
-}
-q-td {
-  font-size: 30%;
-}
-
-.quest-table {
-  background-color: ivory;
-  border: 0.5em solid;
-}
-
 .quest-status {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  padding-left: 1em;
-  margin-bottom: 1em;
-  margin-top: 1em;
+  padding-left: var(--sc-space-16);
+  margin: var(--sc-space-16) 0;
 }
 
-.tooltip {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  padding: 1em;
-}
-
-.quest-table thead {
-  /* bg color is important for th; just specify one */
-  background-color: rgb(126, 126, 54);
-}
 .quest-table td:nth-child(1) {
   max-width: 5px;
-}
-.quest-table tbody tr:nth-child(odd) {
-  background-color: #d3cccc; /* Light gray for odd rows */
-}
-.quest-table tbody tr:nth-child(even) {
-  background-color: #ffffff; /* White for even rows */
 }
 
 .quest-table td:nth-child(2) {
@@ -401,10 +365,10 @@ q-td {
 @media only screen and (max-width: 1000px) {
   .quest-table td:nth-child(2) {
     max-width: 200px;
-    background-color: #f5f5dc;
     position: sticky;
     left: 0;
     z-index: 1;
+    background: var(--sc-color-bg);
   }
 }
 </style>

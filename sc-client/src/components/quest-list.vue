@@ -78,14 +78,18 @@ function closeDialog() {
 }
 
 .quest-li {
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--sc-space-8) 0;
+  border-bottom: 1px solid var(--sc-color-border);
   align-items: flex-start; /* allows text wrapping */
 }
 
+.quest-li:last-child {
+  border-bottom: none;
+}
+
 .quest-name {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: var(--sc-font-weight-medium);
   word-break: break-word; /* wrap long words */
   flex: 1; /* take remaining space */
 }
@@ -96,12 +100,12 @@ function closeDialog() {
 }
 
 .dialog-title {
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-weight: var(--sc-font-weight-bold);
+  margin-bottom: var(--sc-space-8);
 }
 
 .quest-description {
-  font-size: 14px;
-  color: #444;
+  font-size: 0.875rem;
+  color: var(--sc-color-text-muted);
 }
 </style>

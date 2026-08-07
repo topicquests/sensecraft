@@ -1,0 +1,117 @@
+// ============================================================================
+// SENSEcraft component re-theme
+// ============================================================================
+// Central Quasar component styling driven by tokens.scss. Quasar already
+// supplies accessible primitives (buttons, fields, tables, dialogs,
+// tooltips, chips, pagination, skeletons) — this file retheme them once
+// instead of hand-restyling every instance. Page/component-level <style>
+// blocks should only contain layout, not color/radius/shadow overrides.
+// ============================================================================
+
+// ---- Buttons ----
+.q-btn {
+  font-weight: var(--sc-font-weight-medium);
+
+  &:not(.q-btn--round) {
+    text-transform: none;
+  }
+}
+
+// ---- Cards ----
+.q-card {
+  border: 1px solid var(--sc-color-border);
+  box-shadow: var(--sc-shadow-sm);
+}
+
+// ---- Form fields ----
+.q-field--filled .q-field__control {
+  background: var(--sc-color-bg-muted);
+}
+
+.q-field--outlined.q-field--focused .q-field__control:before {
+  border-color: var(--sc-color-primary);
+}
+
+.q-field__label {
+  color: var(--sc-color-text-muted);
+}
+
+.q-field--error .q-field__label,
+.q-field__bottom--animated {
+  color: var(--sc-color-error);
+}
+
+// ---- Tables ----
+.q-table {
+  border: 1px solid var(--sc-color-border);
+  border-radius: var(--sc-radius-md);
+
+  thead tr {
+    background: var(--sc-color-bg-muted);
+  }
+
+  th {
+    font-weight: var(--sc-font-weight-semibold);
+    color: var(--sc-color-text);
+  }
+
+  tbody tr:hover {
+    background: var(--sc-color-bg-muted);
+  }
+}
+
+// ---- Dialogs / modals ----
+.q-dialog .q-card {
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-lg);
+}
+
+// ---- Tooltips ----
+.q-tooltip {
+  background: var(--sc-color-gray-900);
+  color: #ffffff;
+  border-radius: var(--sc-radius-sm);
+  font-size: 0.75rem;
+  padding: 6px 10px;
+}
+
+// ---- Chips ----
+.q-chip {
+  font-weight: var(--sc-font-weight-medium);
+}
+
+// ---- Banners / inline alerts ----
+.q-banner {
+  border-radius: var(--sc-radius-md);
+}
+
+// ---- Pagination ----
+.q-pagination .q-btn.q-btn--standard.bg-primary {
+  color: var(--sc-color-primary-contrast);
+}
+
+// ---- Skeleton loading state ----
+.q-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--sc-color-gray-100) 25%,
+    var(--sc-color-gray-200) 37%,
+    var(--sc-color-gray-100) 63%
+  );
+}
+
+// ---- Empty states (paired with EmptyState.vue) ----
+.sc-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sc-space-12);
+  padding: var(--sc-space-48) var(--sc-space-24);
+  color: var(--sc-color-text-muted);
+
+  .q-icon {
+    font-size: 2.5rem;
+    color: var(--sc-color-gray-400);
+  }
+}

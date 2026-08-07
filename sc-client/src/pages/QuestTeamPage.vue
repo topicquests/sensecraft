@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary" v-if="ready">
+  <q-page class="quest-team-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="quest-team">
         <div>
@@ -140,6 +140,11 @@ onBeforeMount(async () => {
 });
 </script>
 <style>
+.quest-team-page {
+  background: var(--sc-color-bg-muted);
+  min-height: 100vh;
+}
+
 .guild-member-col {
   width: 70%;
 }

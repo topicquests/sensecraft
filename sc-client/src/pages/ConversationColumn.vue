@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary" v-if="ready">
+  <q-page v-if="ready">
     <div class="row justify-center">
       <q-card class="node-card q-mt-md q-pa-md">
         <q-card class="q-mt-md q-pa-md">
@@ -255,16 +255,11 @@ onBeforeMount(async () => {
 
 <style>
 .node-info-card {
-  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-  border-radius: 16px;
-  border: 2.5px solid #8e24aa;
-  box-shadow:
-    0 6px 32px rgba(142, 36, 170, 0.13),
-    0 1.5px 6px rgba(142, 36, 170, 0.07);
-  transition:
-    box-shadow 0.2s,
-    border-color 0.2s,
-    transform 0.15s;
+  background: var(--sc-color-surface-sunken);
+  border-radius: var(--sc-radius-lg);
+  border: 1px solid var(--sc-color-border);
+  box-shadow: var(--sc-shadow-sm);
+  transition: box-shadow 0.2s, border-color 0.2s;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.5rem;
   position: relative;
@@ -272,61 +267,53 @@ onBeforeMount(async () => {
 }
 
 .node-info-card:hover {
-  box-shadow: 0 12px 36px rgba(142, 36, 170, 0.18);
-  border-color: #6a1b9a;
-  transform: translateY(-4px) scale(1.03);
+  box-shadow: var(--sc-shadow-md);
+  border-color: var(--sc-color-border-strong);
   z-index: 2;
 }
 
 .node-info-card h5 {
-  color: #6a1b9a;
-  font-weight: bold;
-  letter-spacing: 1px;
+  color: var(--sc-color-primary);
+  font-weight: var(--sc-font-weight-bold);
   font-size: 1.25rem;
 }
 
 .node-info-card .q-icon {
   font-size: 2rem;
-  color: #8e24aa;
+  color: var(--sc-color-primary);
 }
 
 .node-info-card .scrollable-description {
-  background: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(142, 36, 170, 0.07);
+  background: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-md);
+  box-shadow: var(--sc-shadow-sm);
   margin-top: 0.5rem;
 }
 
 .node-info-card .content {
-  background: #f3e5f5;
-  border-radius: 6px;
+  background: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-sm);
   padding: 1em;
   font-size: 1.05rem;
-  color: #333;
+  color: var(--sc-color-text);
 }
 
 .node-info-card a {
-  color: #8e24aa;
-  font-weight: bold;
+  color: var(--sc-color-primary);
+  font-weight: var(--sc-font-weight-bold);
   text-decoration: underline;
 }
 
 .node-info-card a:hover {
-  color: #6a1b9a;
+  color: var(--sc-color-primary-hover);
 }
 
 .parent-card {
-  background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
-  border-radius: 16px;
-  border: 2.5px solid #fbc02d;
-  box-shadow:
-    0 6px 32px rgba(251, 192, 45, 0.13),
-    0 1.5px 6px rgba(251, 192, 45, 0.07);
-  transition:
-    box-shadow 0.2s,
-    border-color 0.2s,
-    transform 0.15s,
-    background 0.2s;
+  background: var(--sc-color-surface);
+  border-radius: var(--sc-radius-lg);
+  border: 1px solid var(--sc-color-border);
+  box-shadow: var(--sc-shadow-sm);
+  transition: box-shadow 0.2s, border-color 0.2s;
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.5rem;
   position: relative;
@@ -335,32 +322,28 @@ onBeforeMount(async () => {
 }
 
 .parent-card:hover {
-  background: linear-gradient(135deg, #fffde7 0%, #ffe082 100%);
-  border-color: #f9a825;
-  box-shadow: 0 12px 36px rgba(251, 192, 45, 0.18);
-  transform: translateY(-4px) scale(1.03);
+  background: var(--sc-color-bg-muted);
+  border-color: var(--sc-color-border-strong);
+  box-shadow: var(--sc-shadow-md);
   z-index: 2;
 }
 
 .parent-card span {
-  color: #fbc02d;
-  font-weight: bold;
-  letter-spacing: 1px;
+  color: var(--sc-color-text-muted);
+  font-weight: var(--sc-font-weight-bold);
   font-size: 1.05rem;
 }
 
 .parent-card .q-icon {
   font-size: 2rem;
-  color: #fbc02d;
+  color: var(--sc-color-primary);
 }
 
 .parent-title {
-  font-weight: bold;
-  color: #fbc02d;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
   margin-top: 0.5em;
   font-size: 1.15rem;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 2px #fffde7;
 }
 /* Responsive */
 @media (max-width: 900px) {
@@ -375,37 +358,37 @@ onBeforeMount(async () => {
 
 .section-title {
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: var(--sc-font-weight-bold);
   margin: 1rem 0 0.5rem 0;
-  color: #1976d2;
-  letter-spacing: 1px;
+  color: var(--sc-color-primary);
 }
 
 .quest-link {
-  font-weight: bold;
-  color: #1976d2;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-primary);
   text-decoration: underline;
 }
 
 .scrollable-description {
   padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
+  background-color: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-md);
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--sc-shadow-sm);
 }
 
 .content {
-  background-color: #f1f3f4;
+  background-color: var(--sc-color-bg-muted);
   padding: 1em;
   margin-bottom: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14pt;
+  font-family: var(--sc-font-family);
+  font-size: 1rem;
   max-height: 220px;
   overflow-y: auto;
   width: 100%;
-  border-radius: 4px;
+  border-radius: var(--sc-radius-sm);
+  color: var(--sc-color-text);
 }
 
 .ibis-grid {
@@ -417,16 +400,11 @@ onBeforeMount(async () => {
 
 .ibis-grid .ibis-column,
 .ibis-grid .q-card {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  border-radius: 14px;
-  border: 2.5px solid #1976d2;
-  box-shadow:
-    0 6px 32px rgba(25, 118, 210, 0.18),
-    0 1.5px 6px rgba(25, 118, 210, 0.07);
-  transition:
-    box-shadow 0.2s,
-    border-color 0.2s,
-    transform 0.15s;
+  background: var(--sc-color-surface);
+  border-radius: var(--sc-radius-lg);
+  border: 1px solid var(--sc-color-border);
+  box-shadow: var(--sc-shadow-sm);
+  transition: box-shadow 0.2s, border-color 0.2s;
   padding: 1.2rem 0.7rem;
   min-height: 240px;
   position: relative;
@@ -435,28 +413,13 @@ onBeforeMount(async () => {
 
 .ibis-grid .ibis-column:hover,
 .ibis-grid .q-card:hover {
-  box-shadow: 0 12px 36px rgba(25, 118, 210, 0.22);
-  border-color: #0d47a1;
-  transform: translateY(-6px) scale(1.04);
+  box-shadow: var(--sc-shadow-md);
+  border-color: var(--sc-color-border-strong);
   z-index: 2;
 }
 
-.ibis-grid .ibis-column::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
-  border-radius: 18px;
-  background: linear-gradient(120deg, #1976d2 0%, #64b5f6 100%);
-  opacity: 0.1;
-  z-index: -1;
-}
-
 .ibis-grid .ibis-column .empty-state {
-  color: #b0b0b0;
+  color: var(--sc-color-text-muted);
   font-style: italic;
   text-align: center;
   margin: 1em 0;
@@ -465,7 +428,7 @@ onBeforeMount(async () => {
 .ibis-grid .ibis-column .q-icon {
   margin-bottom: 0.5em;
   font-size: 2.2rem;
-  color: #1976d2;
+  color: var(--sc-color-primary);
 }
 
 .ibis-grid .ibis-column .q-card__section {
@@ -473,32 +436,14 @@ onBeforeMount(async () => {
 }
 
 .ibis-grid .ibis-column .q-card__title {
-  font-weight: bold;
-  color: #1976d2;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-primary);
   font-size: 1.15rem;
   margin-bottom: 0.5em;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 2px #fff;
-}
-
-.parent-card {
-  transition:
-    box-shadow 0.2s,
-    background 0.2s;
-}
-.parent-card:hover {
-  background: #e3f2fd;
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.12);
-}
-
-.parent-title {
-  font-weight: bold;
-  color: #1976d2;
-  margin-top: 0.5em;
 }
 
 .empty-state {
-  color: #b0b0b0;
+  color: var(--sc-color-text-muted);
   font-style: italic;
   text-align: center;
   margin: 1em 0;

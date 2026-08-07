@@ -9,7 +9,7 @@
           <h3 class="q-ml-lg q-mr-lg">{{ currentQuest.name }}</h3>
         </div>
       </section>
-      <q-separator color="grey" class="q-mb-md"></q-separator>
+      <q-separator class="q-mb-md"></q-separator>
       <p class="note">Can only be changed prior to start of quest</p>
       <div class="row">
         <span class="handle q-pl-md q-mt-md">

@@ -27,15 +27,18 @@
       v-if="isGameLeader && rightDrawerProps.currentQuest"
       class="q-pa-md q-gutter-sm"
     >
-      <q-card>
-        <router-link
-          :to="{
-            name: 'guild',
-            params: { guild_id: rightDrawerProps.currentGuild!.id },
-          }"
-        >
-          Quest Roles
-        </router-link>
+      <q-card class="quest-roles-card">
+        <q-card-section class="q-pb-none">
+          <router-link
+            :to="{
+              name: 'guild',
+              params: { guild_id: rightDrawerProps.currentGuild!.id },
+            }"
+            class="text-subtitle2 text-primary"
+          >
+            Quest Roles
+          </router-link>
+        </q-card-section>
         <q-list>
           <q-item
             v-for="role in questRoles"

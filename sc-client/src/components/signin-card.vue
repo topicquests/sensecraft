@@ -1,9 +1,7 @@
 <template>
   <q-card class="signon-card">
-    <q-card-section class="bg-deep-purple-7">
-      <h3 style="text-align: center" class="text-h5 text-white q-my-md">
-        Welcome back!
-      </h3>
+    <q-card-section class="signon-card__header">
+      <h3 class="text-h5 q-my-md">Welcome back!</h3>
     </q-card-section>
     <q-card-section>
       <q-form class="q-px-sm">
@@ -55,10 +53,10 @@
             name="loginBtn"
             data-test="login-btn"
             size="lg"
-            color="purple-4"
-            class="text-white"
+            unelevated
+            color="primary"
             label="Log in"
-            style="width: 100%"
+            class="full-width"
             @click="doLogin"
           />
         </q-card-actions>
@@ -95,25 +93,22 @@ const doLogin = () => {
   emit('doLogin', email, password);
 };
 </script>
-<style>
+<style scoped>
 .signon-card {
-  border: 0.5em;
-  border-radius: 8px;
-  width: 350px;
-  height: 380px;
+  width: 360px;
+  max-width: 90vw;
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-lg);
 }
-input[type='email'] {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  box-sizing: border-box;
-  border: none;
-  width: 100%;
+
+.signon-card__header {
+  background: var(--sc-color-primary);
+  color: #ffffff;
+  text-align: center;
+  border-radius: var(--sc-radius-lg) var(--sc-radius-lg) 0 0;
 }
-input[type='password'] {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  box-sizing: border-box;
-  border: none;
-  width: 100%;
+
+.signon-card__header h3 {
+  color: #ffffff;
 }
 </style>

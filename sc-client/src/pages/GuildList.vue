@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary guildlist-page" v-if="ready">
+  <q-page class="guildlist-page" v-if="ready">
     <div class="row justify-center">
       <q-card class="guildlist-card q-mt-md q-pa-md">
         <div>
@@ -15,7 +15,11 @@
             <div v-if="guilds.length">
               <guilds-table :guilds="guilds" :title="'Guilds'"> </guilds-table>
             </div>
-            <h3 v-else>There currently are no guilds</h3>
+            <empty-state
+              v-else
+              icon="groups"
+              title="There currently are no guilds"
+            />
           </div>
         </div>
       </q-card>
@@ -28,6 +32,7 @@ import scoreboard from '../components/score-board.vue';
 import member from '../components/member-handle.vue';
 import { waitUserLoaded } from '../app-access';
 import GuildsTable from '../components/guilds-table.vue';
+import EmptyState from '../components/EmptyState.vue';
 import { useGuildStore } from '../stores/guilds';
 import { computed, onBeforeMount, ref } from 'vue';
 import { useRoleStore } from '../stores/role';
@@ -56,18 +61,16 @@ onBeforeMount(async () => {
   ready.value = true;
 });
 </script>
-<style>
+<style scoped>
 .guildlist-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
-  padding: 0rem;
+  padding: 0;
   box-sizing: border-box;
 }
 .guildlist-card {
   width: 60%;
-  background-color: transparent;
+  background-color: var(--sc-color-surface);
 }
 
 .scoreboard {
@@ -77,13 +80,11 @@ onBeforeMount(async () => {
 @media only screen and (max-width: 800px) {
   .guildlist-card {
     width: 95%;
-    background-color: transparent;
   }
 }
 @media only screen and (max-width: 1000px) {
   .scoreboard {
     width: 98%;
-    background-color: transparent;
   }
 }
 </style>

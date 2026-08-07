@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary">
+  <q-page class="role-page">
     <div>
       <member></member>
     </div>
@@ -72,3 +72,10 @@ onBeforeMount(() => {
   }
 });
 </script>
+
+<style scoped>
+.role-page {
+  background: var(--sc-color-bg-muted);
+  min-height: 100vh;
+}
+</style>

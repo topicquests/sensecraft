@@ -1,21 +1,20 @@
 <template>
-  <q-page class="bg-secondary">
-    <q-card border-true class="card fixed-center q-pa-md">
+  <q-page class="auth-page">
+    <q-card class="auth-card q-pa-md">
       <q-form>
-        <h2>Reset Your Password</h2>
-        <p>
+        <h2 class="text-h5">Reset Your Password</h2>
+        <p class="sc-text-muted">
           Please enter your email address. You will receive a link to create a
           new password via email
         </p>
         <q-input
           class="q-mb-md"
+          filled
           clearable
-          standout="bg-teal text-white"
-          color="whitesmoke"
           v-model="email"
           type="email"
           name="email"
-          label="* Email"
+          label="Email"
           tabindex="1"
           v-on:keyup.enter="sendConfirmationEmail"
         >
@@ -25,7 +24,7 @@
         </q-input>
         <div class="row justify-center q-pt-lg q-pb-lg">
           <q-btn
-            class="align-center"
+            unelevated
             label="Send password reset email"
             color="primary"
             @click="sendConfirmationEmail"
@@ -67,13 +66,19 @@ async function sendConfirmationEmail() {
 }
 </script>
 
-<style>
-.card {
-  background-color: lightgray;
-  width: 30%;
+<style scoped>
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sc-color-bg-muted);
+  padding: var(--sc-space-24);
 }
 
-input[type='email'] {
-  font-size: 14pt;
+.auth-card {
+  width: 480px;
+  max-width: 100%;
+  border-radius: var(--sc-radius-lg);
 }
 </style>

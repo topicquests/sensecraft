@@ -308,35 +308,35 @@ defineExpose({
 </script>
 <style>
 .node-card {
-  background-color: #f5f7ff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  background-color: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-md);
   display: flex;
   flex-direction: column;
   gap: 1em;
-  padding: 1.2em;
-  color: #1a237e;
+  padding: var(--sc-space-24);
+  color: var(--sc-color-text);
 }
 
 .node-card-title {
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  font-weight: bold;
-  background-color: #e0e0ff;
-  padding: 0.5em;
-  border-radius: 6px;
+  gap: var(--sc-space-8);
+  font-weight: var(--sc-font-weight-bold);
+  background-color: var(--sc-color-primary-subtle);
+  padding: var(--sc-space-8);
+  border-radius: var(--sc-radius-md);
   width: 90%;
 }
 
 .node-card-url {
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  background-color: #eef3ff;
-  border: 1px solid #c5d2f2;
-  border-radius: 6px;
-  padding: 0.5em 0.75em;
+  gap: var(--sc-space-8);
+  background-color: var(--sc-color-primary-subtle);
+  border: 1px solid var(--sc-color-border-strong);
+  border-radius: var(--sc-radius-md);
+  padding: var(--sc-space-8) var(--sc-space-12);
   width: 90%;
 }
 
@@ -346,31 +346,31 @@ defineExpose({
 }
 
 .node-card-url-input .q-field__control {
-  background-color: #fff;
-  border-radius: 6px;
+  background-color: var(--sc-color-bg);
+  border-radius: var(--sc-radius-md);
 }
 
 .node-card-editor {
-  border-radius: 6px;
-  border: 1px solid #c0c0c0;
-  padding: 0.5em;
-  background-color: #fff;
+  border-radius: var(--sc-radius-md);
+  border: 1px solid var(--sc-color-border);
+  padding: var(--sc-space-8);
+  background-color: var(--sc-color-bg);
   max-height: 200px;
   overflow-y: auto;
 }
 
 .scrollable-description {
-  background-color: #fff;
-  border: 1px solid #c0c0c0;
-  border-radius: 6px;
-  padding: 0.8em;
+  background-color: var(--sc-color-bg);
+  border: 1px solid var(--sc-color-border);
+  border-radius: var(--sc-radius-md);
+  padding: var(--sc-space-12);
   max-height: 200px;
   overflow-y: auto;
 }
 
 .section-header {
-  font-weight: 600;
-  margin-bottom: 0.5em;
+  font-weight: var(--sc-font-weight-semibold);
+  margin-bottom: var(--sc-space-8);
 }
 
 .narrow-dropdown {
@@ -384,19 +384,19 @@ defineExpose({
 .meta-text {
   margin: 0;
   font-style: italic;
-  color: #333;
+  color: var(--sc-color-text-muted);
 }
 
 .read-more {
   cursor: pointer;
-  color: #1976d2;
+  color: var(--sc-color-primary);
   font-size: 0.9em;
   text-align: right;
-  margin-top: 0.3em;
+  margin-top: var(--sc-space-4);
 }
 
 a {
-  color: #1976d2;
+  color: var(--sc-color-primary);
   text-decoration: underline;
 }
 

@@ -1,24 +1,120 @@
 // Quasar SCSS (& Sass) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
+// SENSEcraft design tokens — "Structured Clarity" system.
+//
+// This file drives everything Quasar generates internally from Sass
+// (component defaults, the text-h1..h6/body/caption/subtitle utility
+// classes, $positive/$negative/$info/$warning used by QNotify/QBanner/
+// QChip color props, etc). Hand-authored CSS (our own components and
+// page styles) instead consumes the CSS custom properties defined in
+// ./tokens.scss. Both files describe the same palette/scale — this one
+// in Quasar's vocabulary, tokens.scss in plain CSS — so keep them in
+// sync if either changes. See documentation/ui_redesign_plan.md for the
+// rationale behind these values (palette, contrast targets, etc).
 
-// Check documentation for full list of Quasar variables
+// ---- Brand palette ----
+$primary: #1e4a72; // deep navy-blue
+$secondary: #4a5c6a; // slate blue-gray
+$accent: #0f7b6c; // muted teal, used sparingly
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+$dark-page: #1a1f23;
+$dark: #1a1f23;
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+// ---- Semantic colors (also drive QNotify/QBanner/QChip color props) ----
+$positive: #1e7b45;
+$negative: #b3261e;
+$info: #1768ac;
+$warning: #8a5a00;
 
-$primary: #02a7e3;
-$secondary: #f5f5f5;
-$accent: #9c27b0;
+// ---- Structural ----
+// Quasar's shared radius token: buttons, cards, chips, fields, dialogs,
+// tables, tooltips, tree nodes, sliders, badges all inherit this.
+$generic-border-radius: 8px;
+$button-border-radius: 8px;
 
-$dark: #1d1d1d;
+// Hairline borders/separators, flattened from Quasar's default .12 alpha
+// black to sit closer to our neutral-900 ramp used in tokens.scss.
+$separator-color: rgba(26, 31, 35, 0.08);
 
-$positive: #21ba45;
-$negative: #c10015;
-$info: #31ccec;
-$warning: #f2c037;
+// ---- Typography scale ----
+// Font family stays Roboto (already loaded via the `roboto-font` extra —
+// no new font dependency). Base body size moves from Quasar's 14px
+// default to 16px for readability; the h1-h6/subtitle/body/caption maps
+// below define the full hierarchy and back both native heading tags and
+// the .text-h1..h6/.text-subtitle1/.text-caption utility classes used
+// throughout the app.
+$body-font-size: 16px;
+$body-line-height: 1.5;
+
+$h1: (
+  size: 2.5rem,
+  line-height: 1.2,
+  letter-spacing: normal,
+  weight: 700,
+);
+$h2: (
+  size: 2rem,
+  line-height: 1.25,
+  letter-spacing: normal,
+  weight: 700,
+);
+$h3: (
+  size: 1.5rem,
+  line-height: 1.3,
+  letter-spacing: normal,
+  weight: 600,
+);
+$h4: (
+  size: 1.25rem,
+  line-height: 1.35,
+  letter-spacing: normal,
+  weight: 600,
+);
+$h5: (
+  size: 1.125rem,
+  line-height: 1.4,
+  letter-spacing: normal,
+  weight: 600,
+);
+$h6: (
+  size: 1rem,
+  line-height: 1.4,
+  letter-spacing: normal,
+  weight: 600,
+);
+$subtitle1: (
+  size: 1rem,
+  line-height: 1.5,
+  letter-spacing: normal,
+  weight: 400,
+);
+$subtitle2: (
+  size: 0.875rem,
+  line-height: 1.4,
+  letter-spacing: normal,
+  weight: 500,
+);
+$body1: (
+  size: 1rem,
+  line-height: 1.5,
+  letter-spacing: normal,
+  weight: 400,
+);
+$body2: (
+  size: 0.875rem,
+  line-height: 1.5,
+  letter-spacing: normal,
+  weight: 400,
+);
+$overline: (
+  size: 0.6875rem,
+  line-height: 1.4,
+  letter-spacing: 0.08em,
+  weight: 600,
+);
+$caption: (
+  size: 0.75rem,
+  line-height: 1.4,
+  letter-spacing: normal,
+  weight: 400,
+);

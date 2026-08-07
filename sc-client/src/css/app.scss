@@ -1,17 +1,51 @@
 // app global css in SCSS form
-h1 {
-  font-size: 3em;
-  font-family: 'Roboto-font';
+// SENSEcraft "Structured Clarity" design system — token layer first,
+// then centralized Quasar component re-theme. See tokens.scss and
+// quasar.variables.scss for the token definitions, and
+// documentation/ui_redesign_plan.md for the rationale.
+@import 'tokens.scss';
+@import 'components.scss';
+
+body {
+  background: var(--sc-color-bg);
+  color: var(--sc-color-text);
 }
-h2 {
-  font-size: 2.25em;
-  font-family: 'Roboto-font';
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--sc-color-text);
+  margin: 0 0 var(--sc-space-16);
 }
-h3 {
-  font-size: 1.25em;
-  font-family: 'Roboto-font';
+
+a {
+  color: var(--sc-color-primary);
+
+  &:hover {
+    color: var(--sc-color-primary-hover);
+  }
 }
-li {
-  font-size: 1em;
-  color: red;
+
+// Visible keyboard-focus indicator on every interactive element,
+// including icon-only buttons (sign-out, drawer toggles, etc).
+:focus-visible {
+  outline: var(--sc-focus-width) solid var(--sc-color-focus);
+  outline-offset: var(--sc-focus-offset);
+}
+
+// Typography helper classes for secondary/label text that Quasar's
+// text-h1..h6/subtitle/caption utilities don't cover on their own.
+.sc-text-muted {
+  color: var(--sc-color-text-muted);
+}
+
+.sc-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: var(--sc-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sc-color-text-muted);
 }

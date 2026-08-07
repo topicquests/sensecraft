@@ -1,56 +1,51 @@
 <template>
   <div>
     <q-page>
-      <div class="content-wrapper gradient">
-        <div class="row justify-center text-center header">
-          <h1 class="title text-h1">SenseCraft</h1>
-          <h3 class="subtitle text-h3">
-            Where teams co-construct structured conversation
-          </h3>
+      <section class="hero">
+        <node-pattern color="#ffffff" :opacity="0.14" />
+        <div class="hero__content">
+          <p class="sc-eyebrow hero__eyebrow">Collective Sensemaking</p>
+          <h1 class="hero__title">SenseCraft</h1>
+          <p class="hero__subtitle">
+            Where teams co-construct structured conversation.
+          </p>
         </div>
+      </section>
 
-        <q-card class="image-card">
-          <img
-            src="../statics/earthrise2.png"
-            alt="Earthrise"
-            class="responsive-image"
-          />
-        </q-card>
+      <div class="content-wrapper">
+        <div class="row q-col-gutter-lg content-row">
+          <div class="col-12 col-md-5">
+            <h2 class="text-h4">A structured way to think together</h2>
+            <p class="description-text">
+              SenseCraft is an RPG where teams co-create structured dialogues.
+              Quest creators ask deep questions through quests, and guild
+              members take on roles to build a shared conversation tree.
+              Players collaborate to shape meaningful conversations, compete
+              in quests, and foster collaborative discussions. Join
+              SenseCraft for structured conversations and role-playing.
+            </p>
+          </div>
 
-        <div class="row gradient justify-center q-pt-lg q-pb-lg">
-          <q-card class="main-card">
-            <div class="row q-gutter-md no-wrap content-row">
-              <div class="col-12 col-md-4">
-                <div class="description-text">
-                  SenseCraft is an RPG where teams co-create structured
-                  dialogues. Quest creators ask deep questions through quests,
-                  and guild members take on roles to build a shared conversation
-                  tree. Players collaborate to shape meaningful conversations,
-                  compete in quests, and foster collaborative discussions. Join
-                  SenseCraft for structured conversations and role-playing.
-                </div>
-              </div>
-
-              <div class="col-12 col-md-4">
-                <img
-                  src="../statics/democratic_leadership_style_discussed.jpg"
-                  alt="Leadership Discussion"
-                  class="content-image"
-                />
-              </div>
-
-              <div class="col-12 col-md-3 quest-column">
-                <div class="quest-list-container">
-                  <div class="quest-list-header">
-                    <h5>Available Quests</h5>
-                  </div>
-                  <div class="quest-scroll-area">
-                    <quest-list :quests="quests" :status="status" />
-                  </div>
-                </div>
-              </div>
+          <div class="col-12 col-md-3">
+            <div class="illustration-card">
+              <node-pattern
+                color="var(--sc-color-primary)"
+                :opacity="0.5"
+              />
             </div>
-          </q-card>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <q-card class="quest-list-card">
+              <q-card-section class="quest-list-card__header">
+                <h3 class="text-h6" style="margin: 0">Available Quests</h3>
+              </q-card-section>
+              <q-separator />
+              <q-card-section class="quest-scroll-area">
+                <quest-list :quests="quests" :status="status" />
+              </q-card-section>
+            </q-card>
+          </div>
         </div>
       </div>
     </q-page>
@@ -61,6 +56,7 @@
 import { computed, onBeforeMount } from 'vue';
 import { useQuestStore } from '../stores/quests';
 import QuestList from '../components/quest-list.vue';
+import NodePattern from '../components/graphics/NodePattern.vue';
 import { quest_status_enum } from '../enums';
 
 const questStore = useQuestStore();
@@ -77,129 +73,81 @@ onBeforeMount(async () => {
 </script>
 
 <style scoped>
-body {
-  background-color: #485c12;
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--sc-color-chrome-bg);
+  color: #ffffff;
+  padding: var(--sc-space-64) var(--sc-space-24);
+  text-align: center;
 }
 
-.content-wrapper {
-  width: 80%;
-  max-width: 1800px;
+.hero__content {
+  position: relative;
+  max-width: 720px;
   margin: 0 auto;
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.hero__eyebrow {
+  color: rgba(255, 255, 255, 0.72);
 }
 
-.title {
-  color: #2c3e50;
-  font-weight: bold;
-  font-size: 3.5rem;
-  margin: 0.2em 0;
+.hero__title {
+  font-size: 3rem;
+  font-weight: var(--sc-font-weight-bold);
+  margin: var(--sc-space-8) 0;
 }
 
-.subtitle {
-  color: #34495e;
-  font-style: italic;
-  font-size: 1.8rem;
-  margin: 0.2em 0;
+.hero__subtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
 }
 
-.image-card {
-  margin: 20px auto;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.responsive-image {
-  width: 100%;
-  height: auto;
-}
-
-.gradient {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 212, 255, 1) 35%,
-    rgba(9, 9, 121, 1) 100%
-  );
-  width: 100%;
-  padding: 30px 0;
-}
-
-.main-card {
-  width: 100%;
-  padding: 20px;
-  border-radius: 12px;
-  background-color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.content-row {
-  align-items: flex-start;
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sc-space-48) var(--sc-space-24);
 }
 
 .description-text {
   font-size: 1rem;
-  color: #2c3e50;
+  color: var(--sc-color-text-muted);
   line-height: 1.6;
-  padding: 10px;
 }
 
-.content-image {
-  width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.illustration-card {
+  position: relative;
+  min-height: 220px;
+  border-radius: var(--sc-radius-lg);
+  background: var(--sc-color-primary-subtle);
+  overflow: hidden;
 }
 
-.quest-column {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+.quest-list-card {
+  height: 100%;
 }
 
-.quest-list-container {
-  width: 100%;
-  background-color: #fdf9e6;
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.quest-list-card__header {
+  background: var(--sc-color-bg-muted);
 }
 
 .quest-scroll-area {
-  max-height: 250px;
+  max-height: 260px;
   overflow-y: auto;
-  padding-right: 6px;
-}
-
-.quest-list-header h5 {
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #d35400;
 }
 
 @media (max-width: 768px) {
-  .content-row {
-    flex-direction: column;
-    align-items: center;
+  .hero {
+    padding: var(--sc-space-48) var(--sc-space-16);
   }
 
-  .col-12 {
-    width: 100%;
-    margin-bottom: 20px;
+  .hero__title {
+    font-size: 2.25rem;
   }
 
-  .content-image {
-    max-width: 80%;
-    margin: 0 auto;
-  }
-
-  .quest-list-container {
-    width: 90%;
-    margin: 0 auto;
+  .content-wrapper {
+    padding: var(--sc-space-24) var(--sc-space-16);
   }
 }
 </style>

@@ -537,9 +537,9 @@ async function editNode(nodeId: number) {
 <style scoped>
 /* Breadcrumbs */
 .shadowed-breadcrumbs {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--sc-color-bg);
+  border-radius: var(--sc-radius-md);
+  box-shadow: var(--sc-shadow-sm);
 }
 .shadowed-breadcrumbs .q-breadcrumbs-el:hover {
   cursor: pointer;
@@ -550,21 +550,18 @@ async function editNode(nodeId: number) {
 .node-tree-wrapper {
   max-height: 70vh;
   overflow-y: auto;
-  border-right: 1px solid #e0e0e0;
-  padding-right: 16px;
+  border-right: 1px solid var(--sc-color-border);
+  padding-right: var(--sc-space-16);
 }
 
 /* Selected Node Card */
 .selected-node-card {
-  background-color: #fafafa;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  padding: 16px;
+  background-color: var(--sc-color-bg-muted);
+  transition: box-shadow 0.15s ease;
+  padding: var(--sc-space-16);
 }
 .selected-node-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--sc-shadow-md);
 }
 .selected-node-header {
   font-size: 1rem;
@@ -628,16 +625,16 @@ async function editNode(nodeId: number) {
   position: absolute;
   top: 8px;
   right: 8px;
-  color: #999;
+  color: var(--sc-color-text-muted);
 }
 .floating-close-btn:hover {
-  color: #ff5252;
+  color: var(--sc-color-error);
 }
 
 /* Tree Header */
 .tree-header {
-  font-weight: 500;
-  color: #333;
+  font-weight: var(--sc-font-weight-medium);
+  color: var(--sc-color-text);
 }
 
 /* Node Card Actions */
@@ -645,6 +642,6 @@ async function editNode(nodeId: number) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: var(--sc-space-8);
 }
 </style>

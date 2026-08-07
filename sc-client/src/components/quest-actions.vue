@@ -43,10 +43,11 @@
       </router-link>
       is playing!
       <q-btn
+        unelevated
+        color="primary"
         label="Join the game"
         @click="registerMemberDialog = true"
-        style="margin-right: 1em"
-        class="bg-primary q-ml-md"
+        class="q-ml-md"
       />
     </span>
     <span

@@ -15,11 +15,13 @@
               ActiveQuestsProps.isMember && !memberStore.guildPerQuest[quest.id]
             "
             rounded
+            unelevated
+            color="primary"
             label="Play"
             @click="prompt = true"
             id="radio-btn"
             size="sm"
-            class="bg-primary q-ma-sm"
+            class="q-ma-sm"
           />
           <q-btn
             v-else-if="
@@ -28,7 +30,9 @@
               quest.id
             "
             rounded
-            class="bg-primary q-ma-sm"
+            unelevated
+            color="primary"
+            class="q-ma-sm"
             label="Go To Quest"
             id="radio-btn"
             size="sm"

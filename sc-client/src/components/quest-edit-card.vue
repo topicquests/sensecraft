@@ -7,21 +7,15 @@
         <!-- Draft -->
         <q-btn
           :color="quest.status === 'draft' ? 'yellow' : 'grey'"
-          text-color="black"
+          :text-color="statusTextColor(quest.status === 'draft' ? 'yellow' : 'grey')"
           label="Draft"
           :disable="quest.status !== 'draft'"
           @click="updateStatus('draft')"
         />
         <!-- Registration -->
         <q-btn
-          :color="
-            quest.status === 'registration'
-              ? 'green'
-              : quest.status === 'draft' && hasRootNode
-                ? 'primary'
-                : 'grey'
-          "
-          text-color="black"
+          :color="registrationColor"
+          :text-color="statusTextColor(registrationColor)"
           label="Registration"
           data-test="registration-btn"
           :disable="
@@ -36,14 +30,8 @@
         />
         <!-- Ongoing -->
         <q-btn
-          :color="
-            quest.status === 'ongoing'
-              ? 'green'
-              : quest.status === 'registration'
-                ? 'primary'
-                : 'grey'
-          "
-          text-color="black"
+          :color="ongoingColor"
+          :text-color="statusTextColor(ongoingColor)"
           label="Ongoing"
           :disable="
             quest.status !== 'registration' && quest.status !== 'ongoing'
@@ -52,14 +40,8 @@
         />
         <!-- Finished -->
         <q-btn
-          :color="
-            quest.status === 'finished'
-              ? 'green'
-              : quest.status === 'ongoing'
-                ? 'primary'
-                : 'grey'
-          "
-          text-color="black"
+          :color="finishedColor"
+          :text-color="statusTextColor(finishedColor)"
           label="Finished"
           :disable="quest.status !== 'ongoing' && quest.status !== 'finished'"
           @click="quest.status === 'ongoing' && updateStatus('finished')"
@@ -272,6 +254,34 @@ const description = computed({
   set: (v) => (quest.value.description = v),
 });
 
+// 'green'/'primary' are dark enough to need white text; 'yellow'/'grey' read
+// better with dark text — keeps status buttons legible across all states.
+function statusTextColor(bg: string): string {
+  return bg === 'green' || bg === 'primary' ? 'white' : 'black';
+}
+
+const registrationColor = computed(() =>
+  quest.value.status === 'registration'
+    ? 'green'
+    : quest.value.status === 'draft' && props.hasRootNode
+      ? 'primary'
+      : 'grey',
+);
+const ongoingColor = computed(() =>
+  quest.value.status === 'ongoing'
+    ? 'green'
+    : quest.value.status === 'registration'
+      ? 'primary'
+      : 'grey',
+);
+const finishedColor = computed(() =>
+  quest.value.status === 'finished'
+    ? 'green'
+    : quest.value.status === 'ongoing'
+      ? 'primary'
+      : 'grey',
+);
+
 watch(
   () => props.thisQuest,
   (n) => (quest.value = { ...n }),
@@ -304,28 +314,23 @@ function doUpdateQuest() {
 }
 </script>
 
-<style>
+<style scoped>
 .quest-card {
-  background-color: #f5f7ff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  color: #1a237e;
+  border-radius: var(--sc-radius-lg);
 }
 .quest-card-editor {
-  border-radius: 6px;
-  border: 1px solid #c0c0c0;
-  padding: 0.5em;
-  background-color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
+  border-radius: var(--sc-radius-sm);
+  border: 1px solid var(--sc-color-border);
+  padding: var(--sc-space-8);
+  background-color: var(--sc-color-bg);
   min-height: 150px;
   max-height: 300px;
   overflow-y: auto;
 }
 .quest-title-input {
-  background-color: #fff;
-  border-radius: 6px;
-  border: 1px solid #c0c0c0;
-  font-weight: 600;
+  background-color: var(--sc-color-bg);
+  border-radius: var(--sc-radius-sm);
+  border: 1px solid var(--sc-color-border);
+  font-weight: var(--sc-font-weight-semibold);
 }
 </style>

@@ -998,7 +998,6 @@ defineExpose({ clearTree });
 </script>
 
 <style scoped>
-/* (styles left as you originally had them — preserved to avoid visual regressions) */
 .floating-node-form {
   position: fixed;
   top: 80px; /* distance from top */
@@ -1023,120 +1022,121 @@ defineExpose({ clearTree });
 }
 
 .header-row {
-  background-color: #d3d3d3;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  background-color: var(--sc-color-bg-muted);
+  padding: var(--sc-space-8) var(--sc-space-16);
+  border-radius: var(--sc-radius-md);
 }
 
-/* (remaining styles preserved) */
 .floating-node-form .node-card {
   flex: 1;
   overflow-y: auto;
-  padding: 1em;
+  padding: var(--sc-space-16);
 }
 
 .node-status {
   display: block;
   font-size: 0.9em;
-  color: gray;
-  margin-top: 0.5em;
+  color: var(--sc-color-text-muted);
+  margin-top: var(--sc-space-8);
 }
 
 .node-title {
-  font-family: 'Arial', sans-serif;
-  font-size: 12pt;
-  font-weight: bold;
-  color: #333;
+  font-size: 1rem;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
 }
 
 .node-creator {
-  color: #555;
-  font-size: 10pt;
-  margin-left: 1em;
-  margin-right: 1em;
+  color: var(--sc-color-text-muted);
+  font-size: 0.8125rem;
+  margin-left: var(--sc-space-16);
+  margin-right: var(--sc-space-16);
   font-style: italic;
 }
 
 .threat-status {
-  color: grey;
+  color: var(--sc-color-text-muted);
   font-size: small;
-  margin-left: 0.5em;
+  margin-left: var(--sc-space-8);
 }
 
 .score {
   font-size: small;
-  padding: 2px 5px;
-  border-radius: 4px;
+  padding: 2px var(--sc-space-8);
+  border-radius: var(--sc-radius-sm);
 }
 
 .q-tree__node--selected {
-  border: 1px dashed #bbb;
+  border: 1px dashed var(--sc-color-border-strong);
   margin: 2px -1px -1px -1px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  padding: 4px;
+  background-color: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-sm);
+  padding: var(--sc-space-4);
 }
 
+/* Node status colors are deliberately 7 distinct hues (one per
+   publication_state) so guild members can tell states apart at a glance;
+   mapped onto the closest token rather than reusing raw hex. */
 .node-status-private_draft {
-  color: red;
-  font-weight: bold;
+  color: var(--sc-color-error);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-proposed {
-  color: green;
-  font-weight: bold;
+  color: var(--sc-color-success);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-role_draft {
-  color: orangered;
-  font-weight: bold;
+  color: var(--sc-color-warning);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-guild_draft {
-  color: orange;
-  font-weight: bold;
+  color: var(--sc-color-accent);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-published {
-  color: black;
-  font-weight: bold;
+  color: var(--sc-color-text);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-submitted {
-  color: purple;
-  font-weight: bold;
+  color: var(--sc-color-primary);
+  font-weight: var(--sc-font-weight-bold);
 }
 .node-status-obsolete {
-  color: grey;
-  font-weight: bold;
+  color: var(--sc-color-text-muted);
+  font-weight: var(--sc-font-weight-bold);
   text-decoration: line-through;
 }
 
 .node-meta-meta {
-  background-color: #e0e0e0;
-  padding: 2px 4px;
-  border-radius: 4px;
+  background-color: var(--sc-color-gray-200);
+  padding: 2px var(--sc-space-4);
+  border-radius: var(--sc-radius-sm);
 }
 
 .score-neg.my-score {
-  color: red;
-  background-color: #ffe5e5;
+  color: var(--sc-color-error);
+  background-color: var(--sc-color-error-subtle);
 }
 .score-pos.my-score {
-  color: green;
-  background-color: #e5ffe5;
+  color: var(--sc-color-success);
+  background-color: var(--sc-color-success-subtle);
 }
 .score-neg.other-score {
-  color: blue;
-  background-color: #e5f0ff;
+  color: var(--sc-color-info);
+  background-color: var(--sc-color-info-subtle);
 }
 .score-pos.other-score {
-  color: orange;
-  background-color: #fff5e5;
+  color: var(--sc-color-warning);
+  background-color: var(--sc-color-warning-subtle);
 }
 
 .scrollable-div {
   width: 75%;
-  padding: 1em;
-  color: #666;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: var(--sc-space-16);
+  color: var(--sc-color-text-muted);
+  background-color: var(--sc-color-bg-muted);
+  border: 1px solid var(--sc-color-border);
+  border-radius: var(--sc-radius-md);
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -1144,15 +1144,15 @@ defineExpose({ clearTree });
   word-break: break-all; /* forces long URLs to wrap */
   overflow-wrap: anywhere; /* additional safety for modern browsers */
   display: inline-block; /* ensures wrapping works inside flex containers */
-  color: #1a0dab; /* optional: link color */
-  text-decoration: underline; /* optional: keep standard link style */
+  color: var(--sc-color-primary);
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
   .scrollable-div {
     max-height: 200px;
     width: 90%;
-    padding: 0.5em;
+    padding: var(--sc-space-8);
     word-wrap: break-word;
   }
 }
@@ -1160,26 +1160,26 @@ defineExpose({ clearTree });
   .url-div {
     max-height: 200px;
     width: 100%;
-    padding: 0.5em;
+    padding: var(--sc-space-8);
     word-wrap: break-word;
   }
 }
 
 .q-btn {
-  border-radius: 1px;
-  padding: 2px;
+  border-radius: var(--sc-radius-sm);
+  padding: var(--sc-space-4);
 }
 .q-btn[icon='edit'] {
-  background-color: #f2f0ff;
-  color: #333333;
-  border-radius: 1px;
-  padding: 2px;
+  background-color: var(--sc-color-primary-subtle);
+  color: var(--sc-color-text);
+  border-radius: var(--sc-radius-sm);
+  padding: var(--sc-space-4);
 }
 .q-btn[icon='add'] {
-  background-color: #f8fff0;
-  color: #333;
-  border-radius: 1px;
-  padding: 2px;
+  background-color: var(--sc-color-success-subtle);
+  color: var(--sc-color-text);
+  border-radius: var(--sc-radius-sm);
+  padding: var(--sc-space-4);
 }
 .q-btn:hover {
   filter: brightness(0.9);
@@ -1187,13 +1187,13 @@ defineExpose({ clearTree });
 
 .row.items-center {
   align-items: center;
-  padding: 5px 10px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 5px var(--sc-space-8);
+  border-bottom: 1px solid var(--sc-color-border);
 }
 
 .row.q-mt-md.q-ml-lg {
   margin-left: 1.5em;
   font-size: 0.9em;
-  color: #888;
+  color: var(--sc-color-text-muted);
 }
 </style>

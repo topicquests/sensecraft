@@ -4,7 +4,7 @@
       <div v-if="guild.name" class="row justify-center q-pb-lg">
         <q-input v-model="guild.name" />
       </div>
-      <span class="q-ml-xl" style="font-weight: bold">Type of Guild</span>
+      <span class="q-ml-xl" style="font-weight: var(--sc-font-weight-bold)">Type of Guild</span>
       <div class="row justify-start">
         <q-option-group
           v-if="guild"
@@ -16,7 +16,7 @@
         </q-option-group>
       </div>
       <section v-if="GuildCardProps.showDescription == true">
-        <div class="row justify-start q-pb-xs" style="font-weight: bold">
+        <div class="row justify-start q-pb-xs" style="font-weight: var(--sc-font-weight-bold)">
           Description<br />
         </div>
         <div class="row justify-start q-pb-sm">
@@ -29,7 +29,7 @@
       </section>
       <div>
         <section class="q-pt-lg">
-          <span class="q-pl-xl" style="font-weight: bold">Invitation</span>
+          <span class="q-pl-xl" style="font-weight: var(--sc-font-weight-bold)">Invitation</span>
           <q-option-group
             v-if="guild"
             v-model="guild.open_for_applications"

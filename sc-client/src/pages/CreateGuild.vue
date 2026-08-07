@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary create-guild-page" v-if="ready">
+  <q-page class="create-guild-page" v-if="ready">
     <div class="row justify-center q-pa-lg">
       <q-card
         class="create-guild-card q-pa-md"
@@ -74,8 +74,6 @@
             <div class="row justify-end q-gutter-sm">
               <q-btn
                 label="Cancel"
-                color="grey-5"
-                text-color="black"
                 outlined
                 @click="router.push({ name: 'home' })"
               />
@@ -164,9 +162,7 @@ onBeforeMount(async () => {
 
 <style lang="scss">
 .create-guild-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
 }
 
@@ -177,17 +173,16 @@ onBeforeMount(async () => {
 }
 
 .create-guild-card {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  background-color: var(--sc-color-surface);
+  border-radius: var(--sc-radius-lg);
 }
 
 .page-title {
-  font-family: Arial, Helvetica, sans-serif;
   text-align: center;
-  font-weight: bold;
+  font-weight: var(--sc-font-weight-bold);
 }
 
 .font-bold {
-  font-weight: 600;
+  font-weight: var(--sc-font-weight-semibold);
 }
 </style>

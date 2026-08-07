@@ -46,24 +46,22 @@ const { node } = defineProps<{
 
 <style scoped>
 .node-card {
-  background-color: #9eb5f3;
-  color: #270bc2;
-  border: 2px solid black;
+  color: var(--sc-color-text);
 }
 
 .node-description {
-  background-color: #9eb5f3;
-  color: #270bc2;
-  padding: 1rem;
-  border: 1px solid gray;
-  border-radius: 4px;
+  background-color: var(--sc-color-bg-muted);
+  color: var(--sc-color-text);
+  padding: var(--sc-space-16);
+  border: 1px solid var(--sc-color-border);
+  border-radius: var(--sc-radius-sm);
 }
 
 .node-title-bar {
-  background-color: lightgray;
-  color: #270bc2;
-  padding: 1rem;
+  background-color: var(--sc-color-surface-sunken);
+  color: var(--sc-color-text);
+  padding: var(--sc-space-16);
   text-align: center;
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid var(--sc-color-border);
 }
 </style>

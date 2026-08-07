@@ -14,7 +14,7 @@
         round
         size="12px"
         :color="localRead ? 'transparent' : 'blue'"
-        text-color="black"
+        text-color="white"
         @click="toggleReadStatus()"
       >
         <strong>{{ getChannelUnreadCount(readStatusProps.node_id) }}</strong> /
@@ -56,7 +56,7 @@
         round
         size="12px"
         :color="localRead ? 'transparent' : 'blue'"
-        text-color="black"
+        text-color="white"
         @click="toggleReadStatus()"
       >
         <strong>{{ getUnreadCount(readStatusProps.node_id) }}</strong> /

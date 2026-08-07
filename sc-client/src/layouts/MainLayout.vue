@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh Lpr fFf">
-    <q-header elevated>
+    <q-header>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <q-toolbar>
         <q-btn
@@ -10,19 +10,21 @@
           round
           icon="menu"
           name="leftdrawerBtn"
+          aria-label="Open navigation menu"
           @click="leftDrawer = !leftDrawer"
         />
         <q-toolbar-title>
-          <q-btn flat @click="goTo('home')" id="home">
+          <q-btn flat no-caps @click="goTo('home')" id="home" class="brand-btn">
             <q-img
               src="../statics/sensecraft_icon.png"
-              style="width: 60px"
-              id="home_image"
+              style="width: 40px"
+              id="home_icon"
             ></q-img>
             <q-img
               src="../statics/sensecraft.png"
-              style="width: 160px"
+              style="width: 140px"
               id="home_image"
+              class="gt-xs"
             ></q-img>
           </q-btn>
         </q-toolbar-title>
@@ -30,34 +32,41 @@
           <q-btn
             v-show="!checkIfAuthenticated"
             @click="goTo('signin')"
-            roundeded
-            label="sign in"
+            outline
+            no-caps
+            label="Sign in"
             id="signin"
             name="signinBtn"
-            class="q-mr-sm bg-deep-purple-7 gt-sm"
+            class="q-mr-sm gt-sm"
           >
           </q-btn>
           <q-btn
             v-show="!checkIfAuthenticated"
             @click="goTo('register')"
-            class="bg-deep-purple-7 gt-sm"
+            unelevated
+            no-caps
+            color="accent"
             name="registerBtn"
-            roundeded
             label="Register"
             id="register"
+            class="gt-sm"
           ></q-btn>
         </div>
         <div v-if="checkIfAuthenticated">
           <q-btn
             class="gt-sm"
             @click="onLogout()"
-            size="md"
-            outline
-            roundeded
-            label="log off"
+            flat
+            round
+            dense
+            icon="logout"
             id="logoff"
             name="logoffBtn"
+            aria-label="Sign out"
           >
+            <q-tooltip anchor="bottom middle" self="top middle">
+              Sign out
+            </q-tooltip>
           </q-btn>
         </div>
         <div
@@ -72,21 +81,17 @@
             flat
             dense
             round
-            :color="readStatusStore.hasUnreadChannels ? 'cyan' : 'grey'"
-            aria-label="Tree View"
+            :color="readStatusStore.hasUnreadChannels ? 'accent' : 'white'"
+            aria-label="Guild and quest conversations"
             name="rightdrawerBtn"
             @click="toggleNav"
             id="channel_list"
           >
-            <q-icon name="menu" />
+            <q-icon name="forum" />
+            <q-tooltip anchor="bottom middle" self="top middle">
+              Guild and Quest conversations
+            </q-tooltip>
           </q-btn>
-          <q-tooltip
-            anchor="top middle"
-            self="bottom middle"
-            class="custom-tooltip"
-          >
-            Guild and Quest conversations
-          </q-tooltip>
         </div>
       </q-toolbar>
     </q-header>
@@ -96,13 +101,19 @@
       bordered
       side="right"
       id="mySidenav"
-      class="sidenav"
+      class="sidenav chrome-drawer"
       :overlay="true"
     >
       <right_drawer :currentGuild="currentGuild" :currentQuest="currentQuest">
       </right_drawer>
     </q-drawer>
-    <q-drawer v-model="leftDrawer" :breakpoint="500" bordered :overlay="true">
+    <q-drawer
+      v-model="leftDrawer"
+      :breakpoint="500"
+      bordered
+      :overlay="true"
+      class="chrome-drawer"
+    >
       <q-scroll-area class="fit">
         <drawer_menu v-on:onLogout="onLogout"></drawer_menu>
       </q-scroll-area>
@@ -110,7 +121,7 @@
     <q-page-container class="q-pa-md">
       <router-view />
     </q-page-container>
-    <q-footer class="footer bg-secondary">
+    <q-footer class="app-footer">
       <p id="Pfooter">
         Sensecraft — © <a href="http://topicquests.org">TopicQuests</a> and
         <a href="https://www.conversence.com">Conversence</a> 2022-2024.
@@ -194,91 +205,72 @@ function closeNav() {
 }
 </script>
 <style>
-#leftDrawer,
-#rightDrawer {
-  border-radius: 10px;
-}
-.custom-tooltip {
-  background-color: #333 !important;
-  color: rgb(147, 200, 221) !important;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.custom-tooltip::before {
-  border-top-color: #333 !important;
-}
-
 .q-header {
-  background-color: #0f12da;
-  color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  height: 75px;
+  background-color: var(--sc-color-chrome-bg);
+  color: var(--sc-color-chrome-text);
+  border-bottom: 1px solid var(--sc-color-chrome-border);
 }
 
 .q-toolbar {
-  padding: 0 16px;
+  padding: 0 var(--sc-space-16);
+  min-height: 64px;
+}
+
+.brand-btn {
+  border-radius: var(--sc-radius-md);
+}
+
+#home_icon {
+  margin-right: var(--sc-space-8);
 }
 
 #home_image {
-  width: 50px;
-  margin-right: 8px;
+  margin-right: var(--sc-space-8);
 }
 
-.q-btn.q-mr-sm {
-  margin-right: 8px;
+.chrome-drawer {
+  background-color: var(--sc-color-chrome-bg);
+  color: var(--sc-color-chrome-text);
 }
 
-.q-btn.flat {
-  background-color: transparent;
+.chrome-drawer .q-scroll-area {
+  padding-top: var(--sc-space-16);
 }
 
-.q-drawer {
-  background-color: #1e1e1e;
-  color: white;
-  border-radius: 10px;
-}
-
-.q-drawer .q-scroll-area {
-  padding-top: 16px;
+.app-footer {
+  background: var(--sc-color-chrome-bg);
+  color: var(--sc-color-chrome-text-muted);
+  border-top: 1px solid var(--sc-color-chrome-border);
 }
 
 footer#Pfooter {
-  font-size: 14px;
-  color: white;
-  padding: 16px 0;
+  font-size: 0.875rem;
+  padding: var(--sc-space-16) 0;
   text-align: center;
+  margin: 0;
 }
 
 footer#Pfooter a {
-  color: #4caf50;
-  text-decoration: none;
+  color: var(--sc-color-chrome-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 footer#Pfooter a:hover {
-  text-decoration: underline;
+  color: var(--sc-color-accent);
 }
 
 @media only screen and (max-width: 768px) {
-  #home_image {
-    display: none;
-  }
   .q-toolbar-title {
     display: flex;
     justify-content: center;
   }
-  #leftDrawer,
-  #rightDrawer {
-    width: 250px;
-  }
-  .q-drawer {
+  .chrome-drawer {
     width: 80%;
   }
   footer#Pfooter {
-    font-size: 12px;
-    padding: 8px 0;
+    font-size: 0.75rem;
+    padding: var(--sc-space-8) 0;
   }
 }
 </style>

@@ -2,13 +2,11 @@
   <q-page
     class="registration-page window-height window-width row justify-center items-center"
   >
+    <node-pattern color="#ffffff" :opacity="0.1" />
     <div class="column items-center">
-      <q-card
-        class="shadow-10 q-pa-md bg-white bg-opacity rounded-borders"
-        style="width: 420px; min-height: 560px; backdrop-filter: blur(6px)"
-      >
+      <q-card class="registration-card">
         <!-- Header -->
-        <q-card-section class="bg-deep-purple-7 text-center text-white">
+        <q-card-section class="registration-card__header">
           <div class="text-h5 flex items-center justify-center q-my-sm">
             <q-icon name="person_add" size="md" class="q-mr-sm" />
             Create Your Account
@@ -31,6 +29,7 @@ import { Notify } from 'quasar';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useMemberStore } from '../stores/member';
+import NodePattern from '../components/graphics/NodePattern.vue';
 import registrationForm, {
   FormData,
 } from '../components/registration-form.vue';
@@ -100,20 +99,26 @@ async function doRegister(formData: FormData) {
 
 <style scoped>
 .registration-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  background: var(--sc-color-chrome-bg);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.bg-opacity {
-  background-color: rgba(255, 255, 255, 0.95);
+.registration-card {
+  width: 420px;
+  max-width: 90vw;
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-lg);
 }
 
-.rounded-borders {
-  border-radius: 20px;
+.registration-card__header {
+  background: var(--sc-color-primary);
+  color: #ffffff;
+  text-align: center;
+  border-radius: var(--sc-radius-lg) var(--sc-radius-lg) 0 0;
 }
 </style>

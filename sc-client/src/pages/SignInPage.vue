@@ -1,7 +1,6 @@
 <template>
-  <q-page
-    class="signin-page window-height window-width row justify-center items-center animated-bg bg-secondary"
-  >
+  <q-page class="signin-page window-height window-width row justify-center items-center">
+    <node-pattern color="#ffffff" :opacity="0.1" />
     <div class="column q-pa-lg">
       <div class="row">
         <div>
@@ -15,6 +14,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import signinCard from '../components/signin-card.vue';
+import NodePattern from '../components/graphics/NodePattern.vue';
 import { useMemberStore } from '../stores/member';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
@@ -72,28 +72,12 @@ async function goLobby() {
 }
 </script>
 
-<style>
-input[type='email'] {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  box-sizing: border-box;
-  border: none;
-  width: 100%;
-}
-
-input[type='password'] {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  box-sizing: border-box;
-  border: none;
-  width: 100%;
-}
+<style scoped>
 .signin-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  background: var(--sc-color-chrome-bg);
   min-height: 100vh;
-  padding: 0rem;
   box-sizing: border-box;
 }
 </style>

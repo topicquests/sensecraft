@@ -1,5 +1,5 @@
 <template>
-  <q-page v-if="ready" class="quest-play-page bg-secondary">
+  <q-page v-if="ready" class="quest-play-page">
     <!-- Member handle -->
     <div class="member-container">
       <member />
@@ -533,9 +533,7 @@ onMounted(async () => {
 
 <style scoped>
 .quest-play-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
@@ -549,22 +547,20 @@ onMounted(async () => {
 
 .quest-card {
   width: 100%;
-  background-color: transparent;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-radius: var(--sc-radius-lg);
   padding: 1.5rem;
 }
 
 .quest-description {
-  background-color: rgba(255, 255, 255, 0.85);
-  border-radius: 8px;
+  background-color: var(--sc-color-surface);
+  border-radius: var(--sc-radius-md);
   margin-top: 0.5rem;
 }
 
 .quest-description-content {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #333;
+  color: var(--sc-color-text);
   user-select: text;
 }
 
@@ -585,7 +581,7 @@ onMounted(async () => {
 .content-section {
   display: flex;
   flex: 1;
-  gap: 16px;
+  gap: var(--sc-space-16);
   height: 100%;
   overflow-y: auto;
 }
@@ -604,30 +600,30 @@ onMounted(async () => {
   position: sticky;
   top: 20px;
   max-height: calc(100vh - 40px);
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  background-color: #fff;
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-md);
+  background-color: var(--sc-color-surface);
   display: flex;
   flex-direction: column;
 }
 
 .selected-node-header {
-  background: linear-gradient(90deg, #f5f7fa, #e3eaf2);
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  background: var(--sc-color-bg-muted);
+  border-top-left-radius: var(--sc-radius-lg);
+  border-top-right-radius: var(--sc-radius-lg);
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: var(--sc-font-weight-bold);
   padding: 0.5rem 1rem;
 }
 
 .icon-accent {
   margin-right: 0.5rem;
-  color: var(--q-accent);
+  color: var(--sc-color-accent);
 }
 
 .selected-node-title {
-  color: var(--q-primary);
-  font-weight: 600;
+  color: var(--sc-color-primary);
+  font-weight: var(--sc-font-weight-semibold);
 }
 
 .node-info {
@@ -641,24 +637,14 @@ onMounted(async () => {
   height: 220px;
   max-height: 320px;
   overflow-y: auto;
-  padding: 8px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
+  padding: var(--sc-space-8);
+  background-color: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-sm);
 }
 
 .card-view-btn {
-  border-radius: 30px;
-  font-weight: bold;
+  font-weight: var(--sc-font-weight-bold);
   letter-spacing: 0.5px;
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.3s ease;
-}
-
-.card-view-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
 }
 
 .floating-node-form {

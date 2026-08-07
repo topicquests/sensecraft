@@ -25,7 +25,6 @@
                   size="md"
                   outline
                   color="primary"
-                  text-color="black"
                   class="q-mr-sm"
                   dense
                 >
@@ -107,9 +106,7 @@ const membersWithGuildData = computed(() => {
 <style scoped>
 #team-card {
   width: 100%;
-  border: 1px solid #ccc;
-  background-color: #fffaf0;
-  border-radius: 16px;
+  border-radius: var(--sc-radius-lg);
 }
 
 .q-list .q-item {

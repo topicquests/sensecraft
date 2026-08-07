@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary admin-page" v-if="ready">
+  <q-page class="admin-page" v-if="ready">
     <div class="row justify-center q-gutter-md">
       <q-card class="admin-card q-mt-md q-pa-lg">
         <!-- Member Handle -->
@@ -9,7 +9,7 @@
 
         <!-- Permissions Section -->
         <q-card-section id="permissions">
-          <div class="section-header text-h6 text-primary">⚙️ Permissions</div>
+          <div class="section-header text-h6 text-primary">Permissions</div>
           <div class="row q-col-gutter-md q-mt-sm">
             <div class="col-12 col-sm-6 col-md-4">
               <q-select
@@ -70,7 +70,7 @@
 
         <!-- Roles Section -->
         <q-card-section id="roles">
-          <div class="section-header text-h6 text-primary">🎭 Roles</div>
+          <div class="section-header text-h6 text-primary">Roles</div>
           <div class="row justify-between items-center q-mt-sm">
             <div>
               <q-btn
@@ -91,7 +91,7 @@
 
         <!-- Server Data Section -->
         <q-card-section v-if="userIsSuperAdmin">
-          <div class="section-header text-h6 text-primary">🖥️ Server Data</div>
+          <div class="section-header text-h6 text-primary">Server Data</div>
           <server-data-card />
         </q-card-section>
       </q-card>
@@ -212,11 +212,9 @@ async function updatePermissions() {
 <style scoped>
 .admin-page {
   width: 100%;
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
-  padding: 1rem;
+  padding: var(--sc-space-16);
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -227,44 +225,23 @@ async function updatePermissions() {
 .admin-card {
   width: 100%;
   max-width: 1200px;
-  background-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-.admin-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background-color: var(--sc-color-surface);
 }
 
 /* Section Headers */
 .section-header {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-weight: var(--sc-font-weight-semibold);
+  margin-bottom: var(--sc-space-8);
 }
 
 /* Section Wrappers */
 #permissions,
 #roles {
-  border: 1px solid #3f51b5;
-  background-color: #fafafa;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-/* Buttons */
-.q-btn {
-  border-radius: 8px;
-  transition:
-    background-color 0.2s,
-    box-shadow 0.2s;
-}
-.q-btn:hover {
-  background-color: #1565c0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--sc-color-border);
+  background-color: var(--sc-color-bg-muted);
+  border-radius: var(--sc-radius-md);
+  padding: var(--sc-space-16);
+  margin-top: var(--sc-space-16);
 }
 
 /* Responsive */

@@ -1,5 +1,5 @@
 <template>
-  <div class="row justify-center q-mt-lg" style="background-color: #f1c40f">
+  <div class="row justify-center q-mt-lg quest-details-row">
     <div>
       <h2 class="quest-name" v-if="currentQuest">
         {{ currentQuest.name }}
@@ -57,19 +57,21 @@ const currentQuest = computed(() => questStore.getCurrentQuest!);
 </script>
 
 <style scoped>
+.quest-details-row {
+  background-color: var(--sc-color-bg-muted);
+}
 .quest-name {
-  text-decoration: underline;
-  padding: 5px;
-  margin-top: 16px;
+  padding: var(--sc-space-4);
+  margin-top: var(--sc-space-16);
 }
 .quest-finished-notice {
-  color: #c10015;
-  font-weight: bold;
+  color: var(--sc-color-error);
+  font-weight: var(--sc-font-weight-bold);
   text-align: center;
-  padding: 4px 8px;
-  margin-top: 4px;
-  border: 1px solid #c10015;
-  border-radius: 4px;
-  background-color: #fff;
+  padding: var(--sc-space-4) var(--sc-space-8);
+  margin-top: var(--sc-space-4);
+  border: 1px solid var(--sc-color-error);
+  border-radius: var(--sc-radius-sm);
+  background-color: var(--sc-color-error-subtle);
 }
 </style>

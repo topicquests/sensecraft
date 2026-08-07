@@ -330,77 +330,45 @@ onBeforeMount(async () => {
   }
 });
 </script>
-<style>
+<style scoped>
 .guild-info-dialog {
-  max-width: 600px; /* Adjust width */
-  max-height: 500px; /* Adjust height */
-  overflow-y: auto; /* Enable scrolling if content exceeds height */
-  border-radius: 12px;
-  background-color: #f9f9f9; /* Light background */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  max-width: 600px;
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: var(--sc-radius-lg);
 }
 
 .dialog-title {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #2c3e50; /* Dark text color */
-  margin-bottom: 10px;
+  font-weight: var(--sc-font-weight-bold);
+  color: var(--sc-color-text);
+  margin-bottom: var(--sc-space-8);
 }
 
 .guild-name {
   font-size: 1.2rem;
-  font-weight: 500;
-  color: #34495e;
+  font-weight: var(--sc-font-weight-medium);
+  color: var(--sc-color-text);
 }
 
 .guild-description {
   font-size: 1rem;
-  color: #606060;
+  color: var(--sc-color-text-muted);
   line-height: 1.5;
   white-space: pre-wrap; /* Preserve whitespace for formatted descriptions */
 }
 
-.q-btn {
-  font-size: 0.9rem;
-}
-
-.q-card-actions {
-  padding: 10px;
-  border-top: 1px solid #e0e0e0;
-}
-q-td {
-  font-size: 30%;
-}
-.guilds-table {
-  text-align: center;
-  font-size: 1em;
-  background-color: ivory;
-}
-.tooltip {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  padding: 1em;
-}
-.guilds-table thead {
-  /* bg color is important for th; just specify one */
-  background-color: rgb(126, 126, 54);
-}
-ilds-table td:nth-child(1) {
+:deep(.guilds-table td:nth-child(1)) {
   max-width: 5px;
 }
-.guilds-table td:nth-child(2) {
+:deep(.guilds-table td:nth-child(2)) {
   max-width: 300px;
 }
-.guilds-table tbody tr:nth-child(odd) {
-  background-color: #d3cccc; /* Light gray for odd rows */
-}
-.guilds-table tbody tr:nth-child(even) {
-  background-color: #ffffff; /* White for even rows */
-}
+
 @media only screen and (max-width: 1000px) {
-  .guilds-table td:nth-child(2) {
+  :deep(.guilds-table td:nth-child(2)) {
     max-width: 200px;
-    background-color: #f5f5dc;
+    background: var(--sc-color-surface);
     position: sticky;
     left: 0;
     z-index: 1;

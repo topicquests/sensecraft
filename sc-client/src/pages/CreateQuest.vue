@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-secondary create-quest-page">
+  <q-page class="create-quest-page">
     <div class="row justify-center">
       <q-card class="create-quest-card q-mt-md q-pa-md">
         <div>
@@ -98,35 +98,30 @@ onBeforeMount(async () => {
 
 <style>
 .create-quest-page {
-  background: url('../statics/images/questBackgroundImage.jpg') no-repeat center
-    center fixed !important;
-  background-size: cover;
+  background: var(--sc-color-bg-muted);
   min-height: 100vh;
   padding: 0rem;
   box-sizing: border-box;
 }
 .create-quest-card {
   width: 85%;
-  background-color: transparent;
 }
 
 .quest-card-1 {
   flex: 0 0 50%;
-  background-color: transparent;
 }
 
 .quest-list-1 {
   flex: 0 0 40%;
-  background-color: transparent;
   max-height: 80vh;
   overflow-y: auto;
 }
 .quest-list-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 2px;
-  margin-bottom: 2px;
+  border-bottom: 1px solid var(--sc-color-border);
+  padding-bottom: var(--sc-space-4);
+  margin-bottom: var(--sc-space-4);
   text-align: center;
-  color: yellowgreen;
+  color: var(--sc-color-text-muted);
 }
 
 /* Responsive: stack vertically on small screens */
@@ -144,26 +139,21 @@ onBeforeMount(async () => {
   overflow-wrap: normal;
 }
 #h4 {
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: underline;
   text-align: center;
 }
 @media only screen and (max-width: 1300px) {
   .create-quest-card {
     width: 80%;
-    background-color: transparent;
   }
 }
 @media only screen and (max-width: 800px) {
   .create-quest-card {
     width: 98%;
-    background-color: transparent;
   }
 }
 @media only screen and (max-width: 1200px) {
   .quest-card-1 {
     width: 98%;
-    background-color: transparent;
   }
 }
 
