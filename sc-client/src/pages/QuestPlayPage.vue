@@ -1,39 +1,78 @@
 <template>
-  <q-page v-if="ready" class="quest-play-page">
+  <q-page
+    v-if="ready"
+    class="quest-play-page"
+    :class="{ 'quest-header-collapsed': questHeaderCollapsed }"
+  >
     <!-- Member handle -->
     <div class="member-container">
       <member />
     </div>
 
     <!-- Quest header and actions -->
-    <q-card flat bordered class="quest-card q-mb-md">
-      <section class="q-mb-md">
-        <quest-details />
-      </section>
-      <section
-        v-if="questStore.getCurrentQuest?.description"
-        class="quest-description q-px-md q-pb-md"
-      >
-        <div
-          class="quest-description-content"
-          v-html="questStore.getCurrentQuest.description"
-        />
-      </section>
-      <q-separator spaced />
-      <section class="q-mt-md">
-        <quest-actions :myPlayingGuilds="myPlayingGuilds" :questId="questId" />
-      </section>
-      <q-separator spaced />
-      <div class="center-button">
+    <q-card
+      flat
+      bordered
+      class="quest-card q-mb-md"
+      :class="{ 'quest-card--collapsed': questHeaderCollapsed }"
+    >
+      <q-slide-transition>
+        <div v-show="!questHeaderCollapsed">
+          <section class="q-mb-md">
+            <quest-details />
+          </section>
+          <section
+            v-if="questStore.getCurrentQuest?.description"
+            class="quest-description q-px-md q-pb-md"
+          >
+            <div
+              class="quest-description-content"
+              v-html="questStore.getCurrentQuest.description"
+            />
+          </section>
+          <q-separator spaced />
+          <section class="q-mt-md">
+            <quest-actions
+              :myPlayingGuilds="myPlayingGuilds"
+              :questId="questId"
+            />
+          </section>
+          <q-separator spaced />
+          <div class="center-button">
+            <q-btn
+              color="accent"
+              unelevated
+              size="lg"
+              icon="view_module"
+              label="Card View"
+              :to="{
+                name: 'conversation_column',
+                params: { quest_id: questId },
+              }"
+              class="card-view-btn"
+            />
+          </div>
+        </div>
+      </q-slide-transition>
+      <div class="quest-card-toggle">
         <q-btn
-          color="accent"
-          unelevated
-          size="lg"
-          icon="view_module"
-          label="Card View"
-          :to="{ name: 'conversation_column', params: { quest_id: questId } }"
-          class="card-view-btn"
-        />
+          flat
+          dense
+          round
+          class="quest-card-toggle-btn"
+          :icon="questHeaderCollapsed ? 'expand_more' : 'expand_less'"
+          :aria-expanded="!questHeaderCollapsed"
+          :aria-label="
+            questHeaderCollapsed ? 'Show quest details' : 'Hide quest details'
+          "
+          @click="questHeaderCollapsed = !questHeaderCollapsed"
+        >
+          <q-tooltip>
+            {{
+              questHeaderCollapsed ? 'Show quest details' : 'Hide quest details'
+            }}
+          </q-tooltip>
+        </q-btn>
       </div>
     </q-card>
     <div class="content-section-wrapper">
@@ -218,6 +257,7 @@ const roleStore = useRoleStore();
 const baseStore = useBaseStore();
 
 const ready = ref(false);
+const questHeaderCollapsed = ref(false);
 const questId = ref<number | undefined>();
 const myPlayingGuilds = ref([]);
 const selectedIbisTypes = ref<ibis_node_type_type[]>([]);
@@ -570,12 +610,31 @@ onMounted(async () => {
   margin-top: 2rem;
 }
 
+.quest-card--collapsed {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.quest-card-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.quest-card-toggle-btn {
+  color: var(--sc-color-primary);
+}
+
 .content-section-wrapper {
   display: flex;
   justify-content: center;
   width: 100%;
   height: calc(100vh - 250px);
   overflow: hidden;
+}
+
+.quest-header-collapsed .content-section-wrapper {
+  height: calc(100vh - 120px);
 }
 
 .content-section {
