@@ -46,6 +46,14 @@
                 label="Obsolete nodes"
               ></q-checkbox>
             </q-item>
+            <q-item
+              v-if="NodeTreeProps.currentQuestId && !NodeTreeProps.channelId"
+              clickable
+              v-close-popup
+              @click="copyForDocument"
+            >
+              <q-item-section>Copy for document</q-item-section>
+            </q-item>
           </q-list>
         </q-menu>
       </q-btn>
@@ -210,7 +218,7 @@ import {
 import NodeForm from './node-form.vue';
 import NodeStatusSelector from './node-status-selector.vue';
 import ReadStatusCounterButton from './read-status-counter-button.vue';
-import { ibis_child_types } from '../stores/conversation';
+import { ibis_child_types, makeTree } from '../stores/conversation';
 import { QTree, useQuasar } from 'quasar';
 import {
   ibis_node_type_type,
@@ -238,6 +246,7 @@ import {
 import { useReadStatusStore } from '../stores/readStatus';
 import { useRoleStore } from '../stores/role';
 import EditButton from './edit-button.vue';
+import { copyTreeToClipboard } from '../tree-export';
 
 type NodeFormInstance = ComponentPublicInstance<{ setFocus: () => void }>;
 
@@ -368,6 +377,22 @@ const getNodesTree = (): QTreeNode[] => {
   }
   return conversationStore.getConversationTree ?? [];
 };
+
+async function copyForDocument() {
+  // Published, non-meta nodes only, regardless of the view's filters.
+  const tree = makeTree(
+    Object.values(conversationStore.conversation),
+    publication_state_enum.published,
+    false,
+  );
+  try {
+    await copyTreeToClipboard(tree, getMemberHandle.value);
+    $q.notify({ type: 'positive', message: 'Published tree copied' });
+  } catch (err) {
+    console.error('copy failed', err);
+    $q.notify({ type: 'negative', message: 'Could not copy to clipboard' });
+  }
+}
 
 /* ---- drag to reparent ---- */
 function onDragStart(nodeId: number, event: DragEvent) {
